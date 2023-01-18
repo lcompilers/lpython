@@ -633,8 +633,8 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target)) {
             visit_StructInstanceMember(*ASR::down_cast<ASR::StructInstanceMember_t>(x.m_target));
             target = src;
-        } else if (ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
-            visit_UnionRef(*ASR::down_cast<ASR::UnionRef_t>(x.m_target));
+        } else if (ASR::is_a<ASR::UnionStaticRef_t>(*x.m_target)) {
+            visit_UnionStaticRef(*ASR::down_cast<ASR::UnionStaticRef_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::ListItem_t>(*x.m_target)) {
             self().visit_ListItem(*ASR::down_cast<ASR::ListItem_t>(x.m_target));
@@ -685,14 +685,14 @@ R"(#include <stdio.h>
         if( ASR::is_a<ASR::Struct_t>(*value_type) ) {
              if (ASR::is_a<ASR::ArrayItem_t>(*x.m_value) ||
                  ASR::is_a<ASR::StructInstanceMember_t>(*x.m_value) ||
-                 ASR::is_a<ASR::UnionRef_t>(*x.m_value)) {
+                 ASR::is_a<ASR::UnionStaticRef_t>(*x.m_value)) {
                  value = "&" + value;
              }
         }
         if( ASR::is_a<ASR::Struct_t>(*m_target_type) ) {
              if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target) ||
                  ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) ||
-                 ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
+                 ASR::is_a<ASR::UnionStaticRef_t>(*x.m_target)) {
                  target = "&" + target;
              }
         }
@@ -1114,7 +1114,7 @@ R"(#include <stdio.h>
         der_expr = std::move(src);
         member = ASRUtils::symbol_name(x.m_m);
         if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ||
-            ASR::is_a<ASR::UnionRef_t>(*x.m_v) ||
+            ASR::is_a<ASR::UnionStaticRef_t>(*x.m_v) ||
             ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ) {
             src = der_expr + "." + member;
         } else {
@@ -1122,7 +1122,7 @@ R"(#include <stdio.h>
         }
     }
 
-    void visit_UnionRef(const ASR::UnionRef_t& x) {
+    void visit_UnionStaticRef(const ASR::UnionStaticRef_t& x) {
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);

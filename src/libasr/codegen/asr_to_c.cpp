@@ -849,16 +849,16 @@ R"(
 
     }
 
-    void visit_EnumMember(const ASR::EnumMember_t& x) {
+    void visit_EnumStaticMember(const ASR::EnumStaticMember_t& x) {
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         src = std::string(enum_var->m_name);
     }
 
-    void visit_EnumValue(const ASR::EnumValue_t& x) {
+    void visit_EnumStaticValue(const ASR::EnumStaticValue_t& x) {
         visit_expr(*x.m_v);
     }
 
-    void visit_EnumName(const ASR::EnumName_t& x) {
+    void visit_EnumStaticName(const ASR::EnumStaticName_t& x) {
         int64_t min_value = INT64_MAX;
         ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
