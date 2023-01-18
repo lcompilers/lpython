@@ -275,6 +275,7 @@ def convert_to_ctypes_Structure(f):
         fields.append((name, convert_type_to_ctype(ltype_)))
 
     class ctypes_Structure(ctypes.Structure):
+        _pack_ = 1
         _fields_ = fields
 
     ctypes_Structure.__name__ = f.__name__

@@ -7,6 +7,7 @@ from copy import deepcopy
 @packed
 @dataclass
 class buffer_struct:
+    i: i8
     x: i64
 
 @ccall

@@ -4,6 +4,7 @@
 
 
 struct __attribute__((packed)) __attribute__((ms_struct)) buffer_c {
+    int8_t tmp;
     int64_t x;
 };
 
