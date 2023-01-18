@@ -9,7 +9,7 @@ int16_t sum_buffer_i16(int16_t data[], int32_t size) {
     return sum_buffer;
 }
 
-struct __attribute__((packed)) buffer_c {
+struct __attribute__((packed)) __attribute__((ms_struct)) buffer_c {
     int8_t buffer8[32];
     int32_t buffer1[32];
     float buffer2[32];
