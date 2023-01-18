@@ -917,7 +917,7 @@ public:
 
     void asm_sub_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
         m_code.push_back(m_al, 0x29);
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
@@ -962,7 +962,7 @@ public:
 
     void asm_cmp_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
         m_code.push_back(m_al, 0x39);
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
