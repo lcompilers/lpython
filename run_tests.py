@@ -9,7 +9,7 @@ sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
-def single_test(test, verbose, no_llvm, update_reference,
+def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
                 specific_backends=None, excluded_backends=None):
     filename = test["filename"]
     def is_included(backend):
@@ -119,10 +119,13 @@ def single_test(test, verbose, no_llvm, update_reference,
                  filename, update_reference, extra_args)
 
     if run_with_dbg:
-        run_test(
-            filename, "run_dbg",
-            "lpython {infile} -g --debug-with-line-column --no-color",
-            filename, update_reference, extra_args)
+        if skip_run_with_dbg:
+            log.info(f"{filename} * run_with_dbg   SKIPPED as requested")
+        else:
+            run_test(
+                filename, "run_dbg",
+                "lpython {infile} -g --debug-with-line-column --no-color",
+                filename, update_reference, extra_args)
 
 if __name__ == "__main__":
     tester_main("LPython", single_test)
