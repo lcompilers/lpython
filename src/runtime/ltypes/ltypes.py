@@ -23,9 +23,14 @@ class Type:
     def __call__(self, arg):
         return arg
 
+def is_dataclass_wrapper(obj):
+    if isclass(obj) and issubclass(obj, PackedDataClass):
+        return is_dataclass(obj.class_to_pack)
+    return is_dataclass(obj)
+
 class PointerType(Type):
     def __getitem__(self, type):
-        if is_dataclass(type):
+        if is_dataclass_wrapper(type):
             return convert_to_ctypes_Structure(type)
         return type
 
@@ -135,16 +140,23 @@ def inline(f):
 def static(f):
     return f
 
+class PackedDataClass:
+    pass
+
 def packed(*args, aligned=None):
     if len(args) == 1:
-        if not is_dataclass(args[0]):
+        if not is_dataclass_wrapper(args[0]):
             raise TypeError("packed can only be applied over a dataclass.")
-        return args[0]
+        class PackedDataClassLocal(args[0], PackedDataClass):
+            class_to_pack = args[0]
+        return PackedDataClassLocal
 
     def _packed(f):
-        if not is_dataclass(f):
+        if not is_dataclass_wrapper(f):
             raise TypeError("packed can only be applied over a dataclass.")
-        return f
+        class PackedDataClassLocal(f, PackedDataClass):
+            class_to_pack = f
+        return PackedDataClassLocal
     return _packed
 
 def interface(f):
@@ -154,6 +166,20 @@ def interface(f):
 
 
 # C interoperation support
+
+class c_complex(ctypes.Structure):
+    def __eq__(self, other):
+        if isinstance(other, complex):
+            return self.real == other.real and self.imag == other.imag
+        elif isinstance(other, (int, float)):
+            return self.real == other and self.imag == 0.0
+        return super().__eq__(other)
+
+class c_float_complex(c_complex):
+    _fields_ = [("real", ctypes.c_float), ("imag", ctypes.c_float)]
+
+class c_double_complex(c_complex):
+    _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
 
 def convert_type_to_ctype(arg):
     if arg == f64:
@@ -172,12 +198,16 @@ def convert_type_to_ctype(arg):
         return ctypes.c_void_p
     elif arg == str:
         return ctypes.c_char_p
+    elif arg == c32:
+        return c_float_complex
+    elif arg == c64:
+        return c_double_complex
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
         type = convert_type_to_ctype(arg._type)
         return ctypes.POINTER(type)
-    elif is_dataclass(arg):
+    elif is_dataclass_wrapper(arg):
         return convert_to_ctypes_Structure(arg)
     else:
         raise NotImplementedError("Type %r not implemented" % arg)
@@ -268,13 +298,39 @@ def convert_to_ctypes_Union(f):
 
     return f
 
+def get_fixed_size_of_array(ltype_: Array):
+    if isinstance(ltype_._dims, tuple):
+        size = 1
+        for dim in ltype_._dims:
+            if not isinstance(dim, int):
+                return None
+            size *= dim
+    elif isinstance(ltype_._dims, int):
+        return ltype_._dims
+    return None
+
 def convert_to_ctypes_Structure(f):
     fields = []
+
+    pack_class = issubclass(f, PackedDataClass)
+    if pack_class:
+        f = f.class_to_pack
+
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
-        fields.append((name, convert_type_to_ctype(ltype_)))
+        if isinstance(ltype_, Array):
+            array_size = get_fixed_size_of_array(ltype_)
+            if array_size is not None:
+                ltype_ = ltype_._type
+                fields.append((name, convert_type_to_ctype(ltype_) * array_size))
+            else:
+                fields.append((name, convert_type_to_ctype(ltype_)))
+        else:
+            fields.append((name, convert_type_to_ctype(ltype_)))
+
 
     class ctypes_Structure(ctypes.Structure):
+        _pack_ = int(pack_class)
         _fields_ = fields
 
     ctypes_Structure.__name__ = f.__name__
@@ -315,7 +371,7 @@ def pointer(x, type_=None):
         elif type_ == f64:
             return ctypes.cast(ctypes.pointer(ctypes.c_double(x)),
                     ctypes.c_void_p)
-        elif is_dataclass(type_):
+        elif is_dataclass_wrapper(type_):
             return x
         else:
             raise Exception("Type not supported in pointer()")
@@ -328,15 +384,39 @@ class PointerToStruct:
     def __getattr__(self, name: str):
         if name == "ctypes_ptr":
             return self.__dict__[name]
-        return self.ctypes_ptr.contents.__getattribute__(name)
+        value = self.ctypes_ptr.contents.__getattribute__(name)
+        if isinstance(value, (c_float_complex, c_double_complex)):
+            value = complex(value.real, value.imag)
+        return value
 
     def __setattr__(self, name: str, value):
+        name_ = self.ctypes_ptr.contents.__getattribute__(name)
+        if isinstance(name_, c_float_complex):
+            if isinstance(value, complex):
+                value = c_float_complex(value.real, value.imag)
+            else:
+                value = c_float_complex(value.real, 0.0)
+        elif isinstance(name_, c_double_complex):
+            if isinstance(value, complex):
+                value = c_double_complex(value.real, value.imag)
+            else:
+                value = c_double_complex(value.real, 0.0)
+        elif isinstance(name_, ctypes.Array):
+            import numpy as np
+            if isinstance(value, np.ndarray):
+                if value.dtype == np.complex64:
+                    value = value.flatten().tolist()
+                    value = [c_float_complex(val.real, val.imag) for val in value]
+                elif value.dtype == np.complex128:
+                    value = value.flatten().tolist()
+                    value = [c_double_complex(val.real, val.imag) for val in value]
+                value = type(name_)(*value)
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
     targettype_ptr = ctypes.POINTER(convert_type_to_ctype(targettype))
     newa = ctypes.cast(cptr, targettype_ptr)
-    if is_dataclass(targettype):
+    if is_dataclass_wrapper(targettype):
         # return after wrapping newa inside PointerToStruct
         return PointerToStruct(newa)
     return newa
