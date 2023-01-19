@@ -24,7 +24,7 @@ class Type:
         return arg
 
 def is_dataclass_wrapper(obj):
-    if issubclass(obj, PackedDataClass):
+    if isclass(obj) and issubclass(obj, PackedDataClass):
         return is_dataclass(obj.class_to_pack)
     return is_dataclass(obj)
 
@@ -147,14 +147,14 @@ def packed(*args, aligned=None):
     if len(args) == 1:
         if not is_dataclass_wrapper(args[0]):
             raise TypeError("packed can only be applied over a dataclass.")
-        class PackedDataClassLocal(PackedDataClass):
+        class PackedDataClassLocal(args[0], PackedDataClass):
             class_to_pack = args[0]
         return PackedDataClassLocal
 
     def _packed(f):
         if not is_dataclass_wrapper(f):
             raise TypeError("packed can only be applied over a dataclass.")
-        class PackedDataClassLocal(PackedDataClass):
+        class PackedDataClassLocal(f, PackedDataClass):
             class_to_pack = f
         return PackedDataClassLocal
     return _packed
