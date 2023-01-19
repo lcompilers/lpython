@@ -155,6 +155,12 @@ def interface(f):
 
 # C interoperation support
 
+class c_float_complex(ctypes.Structure):
+    _fields_ = [("real", ctypes.c_float), ("imag", ctypes.c_float)]
+
+class c_double_complex(ctypes.Structure):
+    _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
+
 def convert_type_to_ctype(arg):
     if arg == f64:
         return ctypes.c_double
@@ -172,6 +178,10 @@ def convert_type_to_ctype(arg):
         return ctypes.c_void_p
     elif arg == str:
         return ctypes.c_char_p
+    elif arg == c32:
+        return c_float_complex
+    elif arg == c64:
+        return c_double_complex
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
@@ -328,9 +338,23 @@ class PointerToStruct:
     def __getattr__(self, name: str):
         if name == "ctypes_ptr":
             return self.__dict__[name]
-        return self.ctypes_ptr.contents.__getattribute__(name)
+        value = self.ctypes_ptr.contents.__getattribute__(name)
+        if isinstance(value, (c_float_complex, c_double_complex)):
+            value = complex(value.real, value.imag)
+        return value
 
     def __setattr__(self, name: str, value):
+        name_ = self.ctypes_ptr.contents.__getattribute__(name)
+        if isinstance(value, complex):
+            if isinstance(name_, c_float_complex):
+                value = c_float_complex(value.real, value.imag)
+            elif isinstance(name_, c_double_complex):
+                value = c_double_complex(value.real, value.imag)
+        else:
+            if isinstance(name_, c_float_complex):
+                value = c_float_complex(value.real, 0.0)
+            elif isinstance(name_, c_double_complex):
+                value = c_double_complex(value.real, 0.0)
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
