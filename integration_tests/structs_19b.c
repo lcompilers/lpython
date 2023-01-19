@@ -14,6 +14,10 @@ struct buffer_c {
     double complex buffer7;
 };
 
+struct buffer_c_array {
+    int32_t buffer1[32];
+};
+
 void fill_buffer(void* buffer_cptr) {
     struct buffer_c* buffer_clink_ = (struct buffer_c*) buffer_cptr;
     buffer_clink_->buffer8 = 8;
@@ -26,6 +30,17 @@ void fill_buffer(void* buffer_cptr) {
     buffer_clink_->buffer7 = CMPLXL(16.0, 17.0);
 }
 
+void fill_buffer_array(void* buffer_cptr) {
+    struct buffer_c_array* buffer_clink_ = (struct buffer_c_array*) buffer_cptr;
+    for( int i = 0; i < 32; i++ ) {
+        buffer_clink_->buffer1[i] = i + 1;
+    }
+}
+
 void* get_buffer() {
     return malloc(sizeof(struct buffer_c));
+}
+
+void* get_buffer_array() {
+    return malloc(sizeof(struct buffer_c_array));
 }

@@ -278,11 +278,30 @@ def convert_to_ctypes_Union(f):
 
     return f
 
+def get_fixed_size_of_array(ltype_: Array):
+    if isinstance(ltype_._dims, tuple):
+        size = 1
+        for dim in ltype_._dims:
+            if not isinstance(dim, int):
+                return None
+            size *= dim
+    elif isinstance(ltype_._dims, int):
+        return ltype_._dims
+    return None
+
 def convert_to_ctypes_Structure(f):
     fields = []
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
-        fields.append((name, convert_type_to_ctype(ltype_)))
+        if isinstance(ltype_, Array):
+            array_size = get_fixed_size_of_array(ltype_)
+            if array_size is not None:
+                ltype_ = ltype_._type
+                fields.append((name, convert_type_to_ctype(ltype_) * array_size))
+            else:
+                fields.append((name, convert_type_to_ctype(ltype_)))
+        else:
+            fields.append((name, convert_type_to_ctype(ltype_)))
 
     class ctypes_Structure(ctypes.Structure):
         _fields_ = fields
@@ -345,16 +364,20 @@ class PointerToStruct:
 
     def __setattr__(self, name: str, value):
         name_ = self.ctypes_ptr.contents.__getattribute__(name)
-        if isinstance(value, complex):
-            if isinstance(name_, c_float_complex):
+        if isinstance(name_, c_float_complex):
+            if isinstance(value, complex):
                 value = c_float_complex(value.real, value.imag)
-            elif isinstance(name_, c_double_complex):
-                value = c_double_complex(value.real, value.imag)
-        else:
-            if isinstance(name_, c_float_complex):
+            else:
                 value = c_float_complex(value.real, 0.0)
-            elif isinstance(name_, c_double_complex):
+        elif isinstance(name_, c_double_complex):
+            if isinstance(value, complex):
+                value = c_double_complex(value.real, value.imag)
+            else:
                 value = c_double_complex(value.real, 0.0)
+        elif isinstance(name_, ctypes.Array):
+            import numpy as np
+            if isinstance(value, np.ndarray):
+                value = type(name_)(*value)
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
