@@ -15,7 +15,14 @@ class buffer_struct:
 
 @dataclass
 class buffer_struct_array:
+    buffer8: i8[100]
     buffer1: i32[32]
+    buffer2: f32[32]
+    buffer4: f64[32]
+    buffer5: i16[64]
+    buffer6: i64[16]
+    buffer3: c32[16]
+    buffer7: c64[8]
 
 @ccall
 def get_buffer() -> CPtr:
@@ -87,9 +94,28 @@ def f_array():
     print(pb.buffer1[15])
 
     fill_buffer_array(b)
+    for i in range(100):
+        print(pb.buffer8[i])
+        assert pb.buffer8[i] == i8(i + 8)
+
     for i in range(32):
-        print(pb.buffer1[i])
+        print(pb.buffer1[i], pb.buffer2[i], pb.buffer4[i])
         assert pb.buffer1[i] == i32(i + 1)
+        assert pb.buffer2[i] == f32(i + 2)
+        assert pb.buffer4[i] == f64(i + 4)
+
+    for i in range(64):
+        print(pb.buffer5[i])
+        assert pb.buffer5[i] == i16(i + 5)
+
+    for i in range(16):
+        print(pb.buffer6[i], pb.buffer3[i])
+        assert pb.buffer6[i] == i64(i + 6)
+        assert pb.buffer3[i] == c32(i + 3)
+
+    for i in range(8):
+        print(pb.buffer7[i])
+        assert pb.buffer7[i] == c64(i + 7)
 
 
 f()

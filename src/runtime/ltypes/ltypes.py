@@ -155,10 +155,18 @@ def interface(f):
 
 # C interoperation support
 
-class c_float_complex(ctypes.Structure):
+class c_complex(ctypes.Structure):
+    def __eq__(self, other):
+        if isinstance(other, complex):
+            return self.real == other.real and self.imag == other.imag
+        elif isinstance(other, (int, float)):
+            return self.real == other and self.imag == 0.0
+        return super().__eq__(other)
+
+class c_float_complex(c_complex):
     _fields_ = [("real", ctypes.c_float), ("imag", ctypes.c_float)]
 
-class c_double_complex(ctypes.Structure):
+class c_double_complex(c_complex):
     _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
 
 def convert_type_to_ctype(arg):
