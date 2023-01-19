@@ -21,7 +21,7 @@ pushed back onto the stack.
 
 One of the reasons to use stack to pass function arguments is that,
 it allows us to define and call functions with any number of parameters.
-As registers are limited in number, if we use them to pass function arugments,
+As registers are limited in number, if we use them to pass function arguments,
 the number of arguments we could pass to a function would get limited by
 the number of registers available with the CPU.
 

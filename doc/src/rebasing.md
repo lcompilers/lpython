@@ -62,7 +62,7 @@ we will rebasing with main with interactive option `git rebase main -i`.
 
 but first create a backup branch before doing this interactive rebase.
 
-history of your commits will show up on your editor, you have options to do with commits and they are written bellow commits history.
+history of your commits will show up on your editor, you have options to do with commits and they are written below commits history.
 ```bash
 pick 132b89e0c Added add.py
 pick 75556f15c Added add2.py
@@ -112,7 +112,7 @@ s 663edf45b refactor
 ...
 ```
 and it will open windows for every change you made to rename commit's message.
-- first window to rename commit `Added add3.py` becasue we squashed the commit after it, and by default the mwssage would be the original message of `Added add3.py` and messages of squashed commits, here i will not change anything i will leave message like that. 
+- first window to rename commit `Added add3.py` because we squashed the commit after it, and by default the message would be the original message of `Added add3.py` and messages of squashed commits, here i will not change anything i will leave message like that. 
 ```bash
 # This is a combination of 2 commits.
 # This is the 1st commit message:
@@ -187,7 +187,7 @@ Added add4.py and edit it
 # with '#' will be ignored, and an empty message aborts the commit.
 ...
 ```
-- third window will be the same as dirst one becasue of squashing two commits to commit:`Added add4.py`, i will leave it with out changing message.
+- third window will be the same as dirst one because of squashing two commits to commit:`Added add4.py`, i will leave it with out changing message.
 
 Log now:
 ```bash

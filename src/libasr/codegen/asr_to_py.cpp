@@ -138,7 +138,7 @@ public:
         // knock off ".h" from the c header filename
         pxdf.erase(--pxdf.end());
         pxdf.erase(--pxdf.end());
-        // this is an unfortuante hack, but we have to add something so that the pxd and pyx filenames
+        // this is an unfortunate hack, but we have to add something so that the pxd and pyx filenames
         // are different (beyond just their extensions). If we don't, the cython emits a warning.
         // TODO we definitely need to change this somehow because right now this "append _pxd" trick
         // exists in two places (bin/lfortran.cpp, and here), which could easily cause breakage.

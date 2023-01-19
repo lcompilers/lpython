@@ -161,7 +161,7 @@ public:
 
                 ASR::symbol_t* called_sym = x.m_name;
 
-                // TODO: Hanlde later
+                // TODO: Handle later
                 // ASR::symbol_t* called_sym_original = x.m_original_name;
 
                 ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
@@ -268,7 +268,7 @@ public:
 
         // The following loop inserts the function's local symbols i.e.,
         // the ones other than the arguments.
-        // exprs_to_be_visited temporarily stores the initilisation expression as well.
+        // exprs_to_be_visited temporarily stores the initialisation expression as well.
         for( auto& itr : func->m_symtab->get_scope() ) {
             if( startswith(itr.first, "~empty_block") ) {
                 set_empty_block(current_scope, func->base.base.loc);
@@ -309,7 +309,7 @@ public:
         }
 
         // At this point arg2value map is ready with all the variables.
-        // Now, we visit the initilisation expression of the local variables
+        // Now, we visit the initialisation expression of the local variables
         // and replace the variables present in those expressions with the ones
         // in the current scope. See, `visit_Var` to know how replacement occurs.
         for( size_t i = 0; i < exprs_to_be_visited.size() && success; i++ ) {
@@ -357,7 +357,7 @@ public:
                 label_generator->add_node_with_unique_label((ASR::asr_t*) block_call,
                                                             block_call_label);
                 return_replacer.set_goto_label(block_call_label);
-                // If duplication is successfull then fill the
+                // If duplication is successful then fill the
                 // pass result with assignment statements
                 // (for local variables in the loop just below)
                 // and the function body (the next loop).
@@ -385,7 +385,7 @@ public:
         }
 
         if (!success) {
-            // If not successfull then delete all the local variables
+            // If not successful then delete all the local variables
             // created for the purpose of inlining the current function call.
             for( auto& itr : arg2value ) {
                 ASR::Variable_t* auxiliary_var = ASR::down_cast<ASR::Variable_t>(itr.second);

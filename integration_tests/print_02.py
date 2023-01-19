@@ -88,7 +88,7 @@ def test_nested_lists2():
          [  -0.32,   68.81,  -55.09],
          [  97.28,  -28.2 ,  -62.61]]]]
 
-    # shape = (5, 5, 5), where each element is a string of random alphanumerals and length betweem 0 and 10
+    # shape = (5, 5, 5), where each element is a string of random alphanumerals and length between 0 and 10
     r: list[list[list[str]]] = [[['Io', 'tl', 'bLvjV', 'wjFKQ', 'lY2'], ['Be2l6bqE', 'pQER3utIXA', 'llZBJj5Cdu', 'C8', 'gwTr77PdYR'], ['4M6L', 'ktPdowqERy', 'KSifqTkR', 'ZE2p1N78f1', 'Mi5e87Xw'], ['uwfzqDq9g', 'QaM1s', '', '', 'LB'], ['OJFRY6k', 'iz7Oie', '', 'LUYLF', 'JBND5FuV7l']], [['m', 'WIQBQfV', 'jxjDrqxu', 'kea', 'mu'], ['', 'GI8aOwLMe', 'Y5m8', 'a02Rz', 'xNKCJ'], ['LzkhyiJQHP', 'uzc3xyoXL', 'sKGnYfpRy', '7x', 'WTVKrnPO'], ['TZa6', 'GXRuyRX', 'R', 'JQxS', 'OH'], ['bSVJZ1OQ', 'M', 'I9omlF', 'x7FR', 'XtpL']], [['DKOpK', 'eg8Nz', 'ru', 'Sj', 'YUDxyI'], ['Q5uyhvp', 'Ydx', 'p', 'DLM5RX', 'pwOujxCO'], ['s5GOWnNJV', 'af', 'KAkD', '4IIZK', 'JQK040x'], ['9vF', '9pc7R8v', 'nDReIU7', 'K', 'btn'], ['', 'wVeivkdi', '', '', 'C']], [['vNTtcRXD', 'rsi', 'YsoF7mZD', 'VrPXU50rgA', 'mG7zqN0G'], ['la7cJ', 'M5rLJ8Go', 'gb', 'FjKwYZ7E', 'uSPD'], ['', 'oOa79jWcMx', 'yyAYZZ', 'wbvggXm', 'aE3BkCL4'], ['RdP', 'Hwc0x9RZ', 'sy', '9', 'W1d9xA2BXe'], ['A', '', 'QnK', 'N5tzN', 'ou7Lp']], [['DL68rDF', 'v', 'kQ3Mxm', 'g', '6KTeF4Eo'], ['Hx9', 'Y1IzQm85Z4', '3D8', 'ZLZ5', 'rWn'], ['LtT', 'Dh5B', 'M', 'F', 'QTARbY'], ['Sh', 'WL', 'yvAfWvZSx1', '90yx', 'v'], ['', '7IBW', 'nI', '', '6Cbp5c8RT']]]
 
     print(p)
