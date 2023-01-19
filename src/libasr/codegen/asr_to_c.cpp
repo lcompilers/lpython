@@ -854,11 +854,11 @@ R"(
         src = std::string(enum_var->m_name);
     }
 
-    void visit_EnumStaticValue(const ASR::EnumStaticValue_t& x) {
+    void visit_EnumValue(const ASR::EnumValue_t& x) {
         visit_expr(*x.m_v);
     }
 
-    void visit_EnumStaticName(const ASR::EnumStaticName_t& x) {
+    void visit_EnumName(const ASR::EnumName_t& x) {
         int64_t min_value = INT64_MAX;
         ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);

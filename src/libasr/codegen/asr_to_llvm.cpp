@@ -1543,7 +1543,7 @@ public:
         list_api->append(plist, item, asr_list->m_type, module.get(), name2memidx);
     }
 
-    void visit_UnionStaticRef(const ASR::UnionStaticRef_t& x) {
+    void visit_UnionInstanceMember(const ASR::UnionInstanceMember_t& x) {
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_v);
@@ -1929,7 +1929,7 @@ public:
         tmp = arr_descr->reshape(array, llvm_data_type, shape, asr_shape_type, module.get());
     }
 
-    void lookup_EnumStaticValue(const ASR::EnumStaticValue_t& x) {
+    void lookup_EnumValue(const ASR::EnumValue_t& x) {
         ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
@@ -1938,7 +1938,7 @@ public:
         tmp = LLVM::CreateLoad(*builder, llvm_utils->create_gep(tmp, 1));
     }
 
-    void visit_EnumStaticValue(const ASR::EnumStaticValue_t& x) {
+    void visit_EnumValue(const ASR::EnumValue_t& x) {
         if( x.m_value ) {
             if( ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
                 this->visit_expr(*x.m_value);
@@ -1954,7 +1954,7 @@ public:
                     }
                 }
                 if( lookup_enum_value_for_nonints ) {
-                    lookup_EnumStaticValue(x);
+                    lookup_EnumValue(x);
                 }
             }
             return ;
@@ -1965,11 +1965,11 @@ public:
             tmp = LLVM::CreateLoad(*builder, tmp);
         }
         if( !ASR::is_a<ASR::Integer_t>(*x.m_type) && lookup_enum_value_for_nonints ) {
-            lookup_EnumStaticValue(x);
+            lookup_EnumValue(x);
         }
     }
 
-    void visit_EnumStaticName(const ASR::EnumStaticName_t& x) {
+    void visit_EnumName(const ASR::EnumName_t& x) {
         if( x.m_value ) {
             this->visit_expr(*x.m_value);
             return ;
@@ -2026,7 +2026,7 @@ public:
         der_type_name = "";
         ASR::ttype_t* x_m_v_type = ASRUtils::expr_type(x.m_v);
         int64_t ptr_loads_copy = ptr_loads;
-        if( ASR::is_a<ASR::UnionStaticRef_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v) ) {
             ptr_loads = 0;
         } else {
             ptr_loads = 2 - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
@@ -2049,7 +2049,7 @@ public:
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
         // if( (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ||
-        //      ASR::is_a<ASR::UnionStaticRef_t>(*x.m_v)) &&
+        //      ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v)) &&
         //     is_nested_pointer(tmp) ) {
         //     tmp = CreateLoad(tmp);
         // }
@@ -4098,7 +4098,7 @@ public:
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::StructInstanceMember ||
             x.m_target->type == ASR::exprType::ListItem ||
-            x.m_target->type == ASR::exprType::UnionStaticRef ) {
+            x.m_target->type == ASR::exprType::UnionInstanceMember ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
             is_assignment_target = false;
@@ -6294,7 +6294,7 @@ public:
                     default :
                         throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                 }
-                if( ASR::is_a<ASR::EnumStaticValue_t>(*x.m_args[i].m_value) ) {
+                if( ASR::is_a<ASR::EnumValue_t>(*x.m_args[i].m_value) ) {
                     target_type = llvm::Type::getInt32Ty(context);
                 }
                 switch(arg_type->type) {
