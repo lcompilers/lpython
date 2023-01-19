@@ -380,7 +380,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Mul() { handleF64Operations<&X86Assembler::asm_mulsd_r64_r64>(); }
     void visit_F64Div() { handleF64Operations<&X86Assembler::asm_divsd_r64_r64>(); }
 
-    void handleF64Compare(Fcmp cmp) {
+    template<JumpFn T>
+    void handleF64Compare() {
+        std::string label = std::to_string(offset);
+
         X64Reg stack_top = X64Reg::rsp;
         // load second operand into floating-point register
         m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
@@ -389,22 +392,26 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
         m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
 
-        m_a.asm_cmpsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1, cmp);
-        /* From Assembly Docs:
-            The result of the compare is a 64-bit value of all 1s (TRUE) or all 0s (FALSE).
-        */
+        // m_a.asm_uomisd_r64_r64(X64FReg::xmm0, X64FReg::xmm1);
+        m_a.asm_comisd_r64_r64(X64FReg::xmm0, X64FReg::xmm1);
 
-        m_a.asm_pmovmskb_r64_r64(X64Reg::rax, X64FReg::xmm0);
-        m_a.asm_and_r64_imm8(X64Reg::rax, 1);
-        m_a.asm_push_r64(X64Reg::rax);
+        (m_a.*T)(".compare_1" + label);
+
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
     }
 
-    void visit_F64Eq() { handleF64Compare(Fcmp::eq); }
-    void visit_F64Gt() { handleF64Compare(Fcmp::gt); }
-    void visit_F64Ge() { handleF64Compare(Fcmp::ge); }
-    void visit_F64Lt() { handleF64Compare(Fcmp::lt); }
-    void visit_F64Le() { handleF64Compare(Fcmp::le); }
-    void visit_F64Ne() { handleF64Compare(Fcmp::ne); }
+    void visit_F64Eq() { handleF64Compare<&X86Assembler::asm_je_label>(); }
+    void visit_F64Gt() { handleF64Compare<&X86Assembler::asm_jg_label>(); }
+    void visit_F64Ge() { handleF64Compare<&X86Assembler::asm_jge_label>(); }
+    void visit_F64Lt() { handleF64Compare<&X86Assembler::asm_jl_label>(); }
+    void visit_F64Le() { handleF64Compare<&X86Assembler::asm_jle_label>(); }
+    void visit_F64Ne() { handleF64Compare<&X86Assembler::asm_jne_label>(); }
 
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities

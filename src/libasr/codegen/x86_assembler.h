@@ -1401,6 +1401,28 @@ public:
         modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
         EMIT("pmovmskb " + r2s(r64) + ", " + r2s(s64));
     }
+
+    // UCOMISD—Unordered Compare Scalar Double Precision Floating-Point Values and Set EFLAGS
+    void asm_ucomisd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2e);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("ucomisd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // COMISD—Compare Scalar Ordered Double Precision Floating-Point Values and Set EFLAGS
+    void asm_comisd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2f);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("comisd " + r2s(r64) + ", " + r2s(s64));
+    }
 };
 
 
