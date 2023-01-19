@@ -665,7 +665,7 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + tab + "if (i+1!=a.current_end_point)\n";
                 tmp_gen += indent + tab + tab + tab + "printf(\", \");\n";
                 tmp_gen += indent + tab + "}\n";
-                tmp_gen += indent + tab + "printf(\"]\\n\");\n";
+                tmp_gen += indent + tab + "printf(\"]\");\n";
             } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
                 ASR::Tuple_t *tt = ASR::down_cast<ASR::Tuple_t>(t);
                 tmp_gen += indent + signature + " {\n";
@@ -678,11 +678,15 @@ class CCPPDSUtils {
                     if (i+1 != tt->n_type)
                         tmp_gen += indent + tab + "printf(\", \");\n";
                 }
-                tmp_gen += indent + tab + "printf(\")\\n\");\n";
+                tmp_gen += indent + tab + "printf(\")\");\n";
             } else if (ASR::is_a<ASR::Complex_t>(*t)) {
                 tmp_gen += indent + signature + " {\n";
                 std::string print_type = get_print_type(t, false);
                 tmp_gen += indent + tab + "printf(\"" + print_type + "\", creal(a), cimag(a));\n";
+            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+                tmp_gen += indent + signature + " {\n";
+                std::string print_type = get_print_type(t, false);
+                tmp_gen += indent + tab + "printf(\"'" + print_type + "'\", a);\n";
             } else {
                 tmp_gen += indent + signature + " {\n";
                 std::string print_type = get_print_type(t, false);

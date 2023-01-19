@@ -354,6 +354,8 @@ def tester_main(compiler, single_test):
                         help="Exclude specific backends, only works when -b is not specified"),
     parser.add_argument("--no-llvm", action="store_true",
                         help="Skip LLVM tests")
+    parser.add_argument("--skip-run-with-dbg", action="store_true",
+                        help="Skip runtime tests with debugging information enabled")
     parser.add_argument("-s", "--sequential", action="store_true",
                         help="Run all tests sequentially")
     args = parser.parse_args()
@@ -371,6 +373,7 @@ def tester_main(compiler, single_test):
         args.exclude_backend)) if args.exclude_backend and specific_backends is None else None
     verbose = args.verbose
     no_llvm = args.no_llvm
+    skip_run_with_dbg = args.skip_run_with_dbg
 
     # So that the tests find the `lcompiler` executable
     os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
@@ -397,7 +400,8 @@ def tester_main(compiler, single_test):
                         specific_backends=specific_backends,
                         excluded_backends=excluded_backends,
                         verbose=verbose,
-                        no_llvm=no_llvm)
+                        no_llvm=no_llvm,
+                        skip_run_with_dbg=skip_run_with_dbg)
     # run in parallel
     else:
         single_tester_partial_args = partial(
@@ -406,7 +410,8 @@ def tester_main(compiler, single_test):
             specific_backends=specific_backends,
             excluded_backends=excluded_backends,
             verbose=verbose,
-            no_llvm=no_llvm)
+            no_llvm=no_llvm,
+            skip_run_with_dbg=skip_run_with_dbg)
         with ThreadPoolExecutor() as ex:
             futures = ex.map(single_tester_partial_args, filtered_tests)
             for f in futures:

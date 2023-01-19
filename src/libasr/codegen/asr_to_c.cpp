@@ -973,6 +973,11 @@ R"(
                 }
                 tmp_gen += ");\n";
                 out += tmp_gen;
+                if (ASR::is_a<ASR::ListConstant_t>(*x.m_values[i]) ||
+                        ASR::is_a<ASR::TupleConstant_t>(*x.m_values[i])) {
+                    out += src;
+                    src = const_var_names[get_hash((ASR::asr_t*)x.m_values[i])];
+                }
                 tmp_gen = indent + "printf(\"";
                 v.clear();
                 std::string p_func = c_ds_api->get_print_func(value_type);
