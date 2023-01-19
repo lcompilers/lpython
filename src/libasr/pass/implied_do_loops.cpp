@@ -33,7 +33,7 @@ private:
     bool contains_array;
     std::string rl_path;
 public:
-    // Public to surpress a warning
+    // Public to suppress a warning
     ASR::TranslationUnit_t &unit;
 
     ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit,

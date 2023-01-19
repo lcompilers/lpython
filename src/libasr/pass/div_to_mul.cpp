@@ -17,7 +17,7 @@ using ASR::is_a;
 
 /*
 
-This ASR pass replaces divison operation with multiplication
+This ASR pass replaces division operation with multiplication
 if the divisor can be evaluated to a constant at compile time.
 
 Converts:

@@ -1809,7 +1809,7 @@ inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
                     throw SemanticError(msg, loc);
                 }
             } else {
-                // An expression is beind used for `len` that cannot be evaluated
+                // An expression is being used for `len` that cannot be evaluated
                 a_len = -3;
             }
             break;
@@ -2092,7 +2092,7 @@ class ReplaceReturnWithGotoVisitor: public ASR::BaseStmtReplacer<ReplaceReturnWi
 
 // Singleton LabelGenerator so that it generates
 // unique labels for different statements, from
-// whereever it is called (be it ASR passes, be it
+// wherever it is called (be it ASR passes, be it
 // AST to ASR transition, etc).
 class LabelGenerator {
     private:

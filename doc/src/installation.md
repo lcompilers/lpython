@@ -116,7 +116,7 @@ Next, `cd` to the root of the repository and run
 ```
 
 Now, you can launch Visual Studio and open the LFortran folder.
-Before the first build you have to set up the `ZLib`-pathes: Go to the CMake-Settings (Project -> CMake Setttings for lfortran) and check `Show advanced variables`. Scroll to the `ZLIB_...` variables and set:
+Before the first build you have to set up the `ZLib`-pathes: Go to the CMake-Settings (Project -> CMake Settings for lfortran) and check `Show advanced variables`. Scroll to the `ZLIB_...` variables and set:
 - `ZLIB_INCLUDE_DIR` = \<Conda-Installation-Path\>\Library\include
 - `ZLIB_LIBRARY_[DEBUG|RELEASE]` = \<Conda-Installation-Path\>\Library\lib\zlib.lib
 

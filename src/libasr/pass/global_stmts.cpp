@@ -131,7 +131,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             }
             unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
         } else {
-            // The last item was a statement, create a subroutine (returing
+            // The last item was a statement, create a subroutine (returning
             // nothing)
             ASR::asr_t *fn = ASR::make_Function_t(
                 al, loc,
