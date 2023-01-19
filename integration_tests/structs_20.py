@@ -1,7 +1,8 @@
 from ltypes import (i8, dataclass, i32, f32, c32, f64, i16, i64, c64,
-    ccall, CPtr, c_p_pointer, Pointer, packed)
+    ccall, CPtr, c_p_pointer, Pointer, packed, ccallable)
 from numpy import empty, int8, int16, float32, complex64
 
+@ccallable
 @packed
 @dataclass
 class buffer_struct_packed:
@@ -22,6 +23,7 @@ def fill_buffer(buffer_cptr: CPtr):
     pass
 
 def f():
+    i: i32
     b: CPtr = get_buffer()
     pb: Pointer[buffer_struct_packed] = c_p_pointer(b, buffer_struct_packed)
     pb.buffer8 = empty(32, dtype=int8)
