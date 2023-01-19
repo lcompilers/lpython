@@ -847,6 +847,11 @@ R"(#include <stdio.h>
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
                 src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = NULL;\n";
             }
+            if (ASR::is_a<ASR::ListConstant_t>(*x.m_args[i]) ||
+                    ASR::is_a<ASR::TupleConstant_t>(*x.m_args[i])) {
+                src_tmp += src;
+                src = const_var_names[get_hash((ASR::asr_t*)x.m_args[i])];
+            }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
                         var_name + ".data[" + std::to_string(i) +"]") + "\n";
         }
@@ -956,12 +961,12 @@ R"(#include <stdio.h>
         const_name += std::to_string(const_vars_count);
         const_vars_count += 1;
         const_name = current_scope->get_unique_name(const_name);
-        std::string var_name = const_name, tmp_src = "";
-        tmp_src = indent + list_type_c + "* " + var_name + " = ";
-        tmp_src += list_section_func + "(&" + list_var + ", " + left + ", " +
+        std::string var_name = const_name, tmp_src_gen = "";
+        tmp_src_gen = indent + list_type_c + "* " + var_name + " = ";
+        tmp_src_gen += list_section_func + "(&" + list_var + ", " + left + ", " +
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
-        src = tmp_src;
+        src = tmp_src_gen;
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
