@@ -1,6 +1,7 @@
 from ltypes import i32, CPtr, dataclass, c_p_pointer, p_c_pointer, \
-         pointer, empty_c_void_p, Pointer
+         pointer, empty_c_void_p, Pointer, ccallable
 
+@ccallable
 @dataclass
 class S:
     a: i32
