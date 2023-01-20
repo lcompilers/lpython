@@ -177,6 +177,14 @@ class c_complex(ctypes.Structure):
             return self.real == other and self.imag == 0.0
         return super().__eq__(other)
 
+    def __sub__(self, other):
+        import numpy as np
+        if isinstance(other, (complex, np.complex64, np.complex128)):
+            return complex(self.real - other.real, self.imag - other.imag)
+        elif isinstance(other, (int, float)):
+            return complex(self.real - other, self.imag)
+        raise NotImplementedError()
+
 class c_float_complex(c_complex):
     _fields_ = [("real", ctypes.c_float), ("imag", ctypes.c_float)]
 
@@ -283,8 +291,11 @@ class CTypes:
             raise Exception("kwargs are not supported")
         new_args = []
         for arg in args:
+            import numpy as np
             if isinstance(arg, str):
                 new_args.append(arg.encode("utf-8"))
+            elif isinstance(arg, np.ndarray):
+                new_args.append(arg.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(arg.dtype))))
             else:
                 new_args.append(arg)
         return self.cf(*new_args)
