@@ -186,6 +186,15 @@ static std::string r2s(X64FReg xmm) {
     }
 }
 
+enum Fcmp : uint8_t {
+    eq = 0,
+    gt = 6, // (NLE in docs)
+    ge = 5, // (NLT in docs)
+    lt = 1,
+    le = 2,
+    ne = 4
+};
+
 static std::string m2s(X64Reg *base, X64Reg *index, uint8_t scale, int64_t disp) {
     std::string r;
     r = "[";
@@ -917,7 +926,7 @@ public:
 
     void asm_sub_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
         m_code.push_back(m_al, 0x29);
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
@@ -962,7 +971,7 @@ public:
 
     void asm_cmp_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
         m_code.push_back(m_al, 0x39);
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
@@ -974,6 +983,19 @@ public:
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
         EMIT("cmp " + r2s(r32) + ", " + r2s(s32));
+    }
+
+    // CMPSD—Compare Scalar Double Precision Floating-Point Value
+    void asm_cmpsd_r64_r64(X64FReg r64, X64FReg s64, uint8_t imm8) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0xc2);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
+        EMIT("cmpsd " + r2s(r64) + ", " + r2s(s64) + ", " + i2s(imm8));
     }
 
     void asm_jmp_imm8(uint8_t imm8) {
@@ -1171,6 +1193,15 @@ public:
         EMIT("lea " + r2s(r32) + ", " + m2s(base, index, scale, disp));
     }
 
+    void asm_and_r64_imm8(X64Reg r64, uint8_t imm8) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0x83);
+        modrm_sib_disp(m_code, m_al, X86Reg::esp, &r32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
+        EMIT("and " + r2s(r32) + ", " + i2s(imm8));
+    }
+
     void asm_and_r32_imm32(X86Reg r32, uint32_t imm32) {
         if (r32 == X86Reg::eax) {
             m_code.push_back(m_al, 0x25);
@@ -1355,6 +1386,42 @@ public:
         modrm_sib_disp(m_code, m_al,
                 r32, &s32, nullptr, 1, 0, false);
         EMIT("cvttsd2si " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // PMOVMSKB—Move Byte Mask
+    // Creates a mask made up of the most significant bit of each byte
+    // of the source operand (second operand) and stores the result in the low byte
+    // or word of the destination operand (first operand)
+    void asm_pmovmskb_r32_r64(X86Reg r32, X64FReg s64) {
+        X86Reg s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0xd7);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("pmovmskb " + r2s(r32) + ", " + r2s(s64));
+    }
+
+    // UCOMISD—Unordered Compare Scalar Double Precision Floating-Point Values and Set EFLAGS
+    void asm_ucomisd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2e);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("ucomisd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // COMISD—Compare Scalar Ordered Double Precision Floating-Point Values and Set EFLAGS
+    void asm_comisd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x66);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2f);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("comisd " + r2s(r64) + ", " + r2s(s64));
     }
 };
 
