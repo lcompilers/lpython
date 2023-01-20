@@ -219,11 +219,11 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         if ((int)localidx < no_of_params) {
             std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
             if (var_type == "i32") {
-                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + localidx));
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
                 m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
-                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + localidx));
+                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
             } else {
@@ -254,11 +254,11 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
             if (var_type == "i32") {
                 m_a.asm_pop_r64(X64Reg::rax);
-                m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64Reg::rax);
             } else if (var_type == "f64") {
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
-                m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64FReg::xmm0);
+                m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64FReg::xmm0);
                 m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // remove from stack top
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
@@ -311,6 +311,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
     void visit_I32DivS() {
         handleI32Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
+    }
+
+    void visit_I32Eqz() {
+        m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
+        m_a.asm_push_r64(X64Reg::rax);
+        handle_I32Compare<&X86Assembler::asm_je_label>();
     }
 
     using JumpFn = void(X86Assembler::*)(const std::string&);
@@ -373,6 +379,31 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Sub() { handleF64Operations<&X86Assembler::asm_subsd_r64_r64>(); }
     void visit_F64Mul() { handleF64Operations<&X86Assembler::asm_mulsd_r64_r64>(); }
     void visit_F64Div() { handleF64Operations<&X86Assembler::asm_divsd_r64_r64>(); }
+
+    void handleF64Compare(Fcmp cmp) {
+        X64Reg stack_top = X64Reg::rsp;
+        // load second operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
+        // load first operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
+
+        m_a.asm_cmpsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1, cmp);
+        /* From Assembly Docs:
+            The result of the compare is a 64-bit value of all 1s (TRUE) or all 0s (FALSE).
+        */
+        m_a.asm_pmovmskb_r32_r64(X86Reg::eax, X64FReg::xmm0);
+        m_a.asm_and_r64_imm8(X64Reg::rax, 1);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+
+    void visit_F64Eq() { handleF64Compare(Fcmp::eq); }
+    void visit_F64Gt() { handleF64Compare(Fcmp::gt); }
+    void visit_F64Ge() { handleF64Compare(Fcmp::ge); }
+    void visit_F64Lt() { handleF64Compare(Fcmp::lt); }
+    void visit_F64Le() { handleF64Compare(Fcmp::le); }
+    void visit_F64Ne() { handleF64Compare(Fcmp::ne); }
 
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
