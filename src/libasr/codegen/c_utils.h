@@ -1115,6 +1115,56 @@ class CCPPDSUtils {
             generated_code += tmp_gen;
         }
 
+        std::string get_dict_type(ASR::Dict_t* dict_type) {
+            if (!ASR::is_a<ASR::Integer_t>(dict_type->m_key_type)) {
+                throw CodeGenError("Only Integer keys supported for now in C-dictionary");
+            }
+            std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)dict_type, true);
+            if (typecodeToDStype.find(dict_type_code) != typecodeToDStype.end()) {
+                return typecodeToDStype[dict_type_code];
+            }
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_struct_type = "struct " + dict_type_code;
+            typecodeToDStype[dict_type_code] = dict_struct_type;
+            std::string tmp_gen = "";
+            tmp_gen += indent + dict_struct_type + " {\n";
+            tmp_gen += indent + tab + \
+                    CUtils::get_c_type_from_ttype_t(dict_type->m_key_type) + " key;\n";
+            tmp_gen += indent + tab + \
+                    CUtils::get_c_type_from_ttype_t(dict_type->m_value_type) + " value;\n";
+            tmp_gen += indent + tab + "int capacity;\n";
+            tmp_gen += indent + tab + "bool *present;\n";
+            tmp_gen += indent + "};\n\n";
+            func_decls += tmp_gen;
+            dict_init(dict_type, dict_struct_type, dict_type_code);
+            return dict_struct_type;
+        }
+
+        void dict_init(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_init_func = global_scope->get_unique_name("dict_init_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_init"] = dict_init_func;
+            std::string signature = "void " + dict_init_func + "(" + dict_struct_type + "* x, int32_t capacity)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "x->capacity = capacity;\n";
+            generated_code += indent + tab + "x->key = (" + key + "*) " +
+                              "malloc(capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "x->value = (" + val + "*) " +
+                              "malloc(capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "x->present = (bool*) " + \
+                              "malloc(capacity * sizeof(bool));\n";
+            generated_code += indent + tab + "memset(x->present, false," +\
+                              "capacity * sizeof(bool));\n";
+            generated_code += indent + "}\n\n";
+        }
+
         ~CCPPDSUtils() {
             typecodeToDStype.clear();
             generated_code.clear();
