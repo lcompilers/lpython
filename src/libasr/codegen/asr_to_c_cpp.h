@@ -654,7 +654,8 @@ R"(#include <stdio.h>
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
-            visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
+            ASR::Var_t* x_m_target = ASR::down_cast<ASR::Var_t>(x.m_target);
+            visit_Var(*x_m_target);
             target = src;
             if (!is_c && ASRUtils::is_array(ASRUtils::expr_type(x.m_target))) {
                 target += "->data";

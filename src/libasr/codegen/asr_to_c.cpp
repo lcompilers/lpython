@@ -526,9 +526,23 @@ public:
                 sub = "static " + sub;
             }
             if (dims.size() == 0 && v.m_symbolic_value) {
-                this->visit_expr(*v.m_symbolic_value);
-                std::string init = src;
-                sub += " = " + init;
+                ASR::expr_t* init_expr = v.m_symbolic_value;
+                if( !ASR::is_a<ASR::Const_t>(*v.m_type) ) {
+                    for( size_t i = 0; i < v.n_dependencies; i++ ) {
+                        std::string variable_name = v.m_dependencies[i];
+                        ASR::symbol_t* dep_sym = current_scope->resolve_symbol(variable_name);
+                        if( (dep_sym && ASR::is_a<ASR::Variable_t>(*dep_sym) &&
+                            !ASR::down_cast<ASR::Variable_t>(dep_sym)->m_symbolic_value) )  {
+                            init_expr = nullptr;
+                            break;
+                        }
+                    }
+                }
+                if( init_expr ) {
+                    this->visit_expr(*init_expr);
+                    std::string init = src;
+                    sub += " = " + init;
+                }
             }
         }
         return sub;
