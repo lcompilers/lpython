@@ -209,9 +209,20 @@ public:
         return typename_T + "* " + v_name;
     }
 
-    std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true,
-                                      bool use_templates_for_arrays=false)
+    std::string convert_variable_decl(const ASR::Variable_t &v, DeclarationOptions* decl_options=nullptr)
     {
+        bool use_static;
+        bool use_templates_for_arrays;
+
+        if( decl_options ) {
+            CPPDeclarationOptions* cpp_decl_options = reinterpret_cast<CPPDeclarationOptions*>(decl_options);
+            use_static = cpp_decl_options->use_static;
+            use_templates_for_arrays = cpp_decl_options->use_templates_for_arrays;
+        } else {
+            use_static = true;
+            use_templates_for_arrays = false;
+        }
+
         std::string sub;
         bool use_ref = (v.m_intent == ASRUtils::intent_out ||
                         v.m_intent == ASRUtils::intent_inout ||

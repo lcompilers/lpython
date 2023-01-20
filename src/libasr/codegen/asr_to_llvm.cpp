@@ -2893,7 +2893,19 @@ public:
                     fill_array_details_(ptr, m_dims, n_dims,
                         is_malloc_array_type,
                         is_array_type, is_list, v->m_type);
-                    if( v->m_symbolic_value != nullptr &&
+                    ASR::expr_t* init_expr = v->m_symbolic_value;
+                    if( !ASR::is_a<ASR::Const_t>(*v->m_type) ) {
+                        for( size_t i = 0; i < v->n_dependencies; i++ ) {
+                            std::string variable_name = v->m_dependencies[i];
+                            ASR::symbol_t* dep_sym = x.m_symtab->resolve_symbol(variable_name);
+                            if( (dep_sym && ASR::is_a<ASR::Variable_t>(*dep_sym) &&
+                                !ASR::down_cast<ASR::Variable_t>(dep_sym)->m_symbolic_value) )  {
+                                init_expr = nullptr;
+                                break;
+                            }
+                        }
+                    }
+                    if( init_expr != nullptr &&
                         !ASR::is_a<ASR::List_t>(*v->m_type)) {
                         target_var = ptr;
                         tmp = nullptr;
