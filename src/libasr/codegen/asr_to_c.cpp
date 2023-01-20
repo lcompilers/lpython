@@ -849,7 +849,7 @@ R"(
 
     }
 
-    void visit_EnumMember(const ASR::EnumMember_t& x) {
+    void visit_EnumStaticMember(const ASR::EnumStaticMember_t& x) {
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         src = std::string(enum_var->m_name);
     }

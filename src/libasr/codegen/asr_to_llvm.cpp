@@ -1543,7 +1543,7 @@ public:
         list_api->append(plist, item, asr_list->m_type, module.get(), name2memidx);
     }
 
-    void visit_UnionRef(const ASR::UnionRef_t& x) {
+    void visit_UnionInstanceMember(const ASR::UnionInstanceMember_t& x) {
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_v);
@@ -1942,8 +1942,8 @@ public:
         if( x.m_value ) {
             if( ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
                 this->visit_expr(*x.m_value);
-            } else if( ASR::is_a<ASR::EnumMember_t>(*x.m_v) ) {
-                ASR::EnumMember_t* x_enum_member = ASR::down_cast<ASR::EnumMember_t>(x.m_v);
+            } else if( ASR::is_a<ASR::EnumStaticMember_t>(*x.m_v) ) {
+                ASR::EnumStaticMember_t* x_enum_member = ASR::down_cast<ASR::EnumStaticMember_t>(x.m_v);
                 ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x_enum_member->m_m);
                 ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
@@ -2026,7 +2026,7 @@ public:
         der_type_name = "";
         ASR::ttype_t* x_m_v_type = ASRUtils::expr_type(x.m_v);
         int64_t ptr_loads_copy = ptr_loads;
-        if( ASR::is_a<ASR::UnionRef_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v) ) {
             ptr_loads = 0;
         } else {
             ptr_loads = 2 - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
@@ -2049,7 +2049,7 @@ public:
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
         // if( (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ||
-        //      ASR::is_a<ASR::UnionRef_t>(*x.m_v)) &&
+        //      ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v)) &&
         //     is_nested_pointer(tmp) ) {
         //     tmp = CreateLoad(tmp);
         // }
@@ -4098,7 +4098,7 @@ public:
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::StructInstanceMember ||
             x.m_target->type == ASR::exprType::ListItem ||
-            x.m_target->type == ASR::exprType::UnionRef ) {
+            x.m_target->type == ASR::exprType::UnionInstanceMember ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
             is_assignment_target = false;

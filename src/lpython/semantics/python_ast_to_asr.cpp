@@ -4648,7 +4648,7 @@ public:
              ASR::symbol_t* member_sym = u_type->m_symtab->resolve_symbol(member_name);
              LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
              ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
-             tmp = ASR::make_UnionRef_t(al, loc, e, member_sym,
+             tmp = ASR::make_UnionInstanceMember_t(al, loc, e, member_sym,
                                           member_var->m_type, nullptr);
          } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
@@ -4765,7 +4765,7 @@ public:
             ASR::expr_t* t_mem = nullptr;
             if( enum_type->m_symtab->get_symbol(std::string(t_var->m_name)) == t ) {
                 ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, enum_->m_enum_type));
-                t_mem = ASRUtils::EXPR(ASR::make_EnumMember_t(al, loc, enum_type_var, t,
+                t_mem = ASRUtils::EXPR(ASR::make_EnumStaticMember_t(al, loc, enum_type_var, t,
                                         enum_type->m_type, ASRUtils::expr_value(t_var->m_symbolic_value)));
             } else {
                 t_mem = ASRUtils::EXPR(ASR::make_Var_t(al, loc, t));
@@ -4795,7 +4795,7 @@ public:
             ASR::symbol_t* member_sym = union_type->m_symtab->resolve_symbol(member_name);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
-            tmp = ASR::make_UnionRef_t(al, loc, val, member_sym,
+            tmp = ASR::make_UnionInstanceMember_t(al, loc, val, member_sym,
                                             member_var->m_type, nullptr);
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
@@ -4856,7 +4856,7 @@ public:
                 }
                 ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
                 ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
-                ASR::expr_t* enum_member_var = ASRUtils::EXPR(ASR::make_EnumMember_t(al, x.base.base.loc, enum_type_var,
+                ASR::expr_t* enum_member_var = ASRUtils::EXPR(ASR::make_EnumStaticMember_t(al, x.base.base.loc, enum_type_var,
                                                     enum_member, enum_type->m_type,
                                                     ASRUtils::expr_value(enum_member_variable->m_symbolic_value)));
                 ASR::ttype_t* enum_t = ASRUtils::TYPE(ASR::make_Enum_t(al, x.base.base.loc, t, nullptr, 0));
@@ -4919,8 +4919,8 @@ public:
                 } else if( enum_property == "name" ) {
                     ASR::expr_t* enum_ref_value = nullptr;
                     ASR::ttype_t* enum_ref_type = enum_ref->m_type;
-                    if( ASR::is_a<ASR::EnumMember_t>(*enum_ref->m_v) ) {
-                        ASR::EnumMember_t* enum_Var = ASR::down_cast<ASR::EnumMember_t>(enum_ref->m_v);
+                    if( ASR::is_a<ASR::EnumStaticMember_t>(*enum_ref->m_v) ) {
+                        ASR::EnumStaticMember_t* enum_Var = ASR::down_cast<ASR::EnumStaticMember_t>(enum_ref->m_v);
                         ASR::Variable_t* enum_m_var = ASR::down_cast<ASR::Variable_t>(enum_Var->m_m);
                         char *s = enum_m_var->m_name;
                         size_t s_size = std::string(s).size();
