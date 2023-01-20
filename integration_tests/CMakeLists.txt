@@ -226,6 +226,7 @@ RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm c)
+RUN(NAME print_float         LABELS cpython llvm wasm wasm_x64)
 RUN(NAME print_list_tuple    LABELS cpython c) # TODO: llvm doesn't completely support printing list
 
 # CPython and LLVM
