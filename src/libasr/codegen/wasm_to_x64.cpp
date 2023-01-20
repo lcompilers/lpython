@@ -346,9 +346,22 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I32LeS() { handle_I32Compare<&X86Assembler::asm_jle_label>(); }
     void visit_I32Ne() { handle_I32Compare<&X86Assembler::asm_jne_label>(); }
 
+    std::string float_to_str(double z) {
+        std::string float_str = "";
+        for (auto ch:std::to_string(z)) {
+            if (ch == '-') {
+                float_str += "neg_";
+            } else if (ch == '.') {
+                float_str += "_dot_";
+            } else {
+                float_str += ch;
+            }
+        }
+        return float_str;
+    }
+
     void visit_F64Const(double z) {
-        std::string label = "float_" + std::to_string(z);
-        // std::cerr << label << " " << z << std::endl;
+        std::string label = "float_" + float_to_str(z);
         double_consts[label] = z;
         m_a.asm_mov_r64_label(X64Reg::rax, label);
         X64Reg label_reg = X64Reg::rax;

@@ -415,6 +415,29 @@ void emit_print_double(X86Assembler &a, const std::string &name) {
 
     X64Reg base = X64Reg::rbp;
     a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 16); // load argument into floating-point register
+
+    // if z >= 0 then print it
+    a.asm_mov_r64_imm64(X64Reg::rax, 0);
+    a.asm_cvtsi2sd_r64_r64(X64FReg::xmm1, X64Reg::rax);
+    a.asm_cmpsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1, Fcmp::ge);
+    a.asm_pmovmskb_r32_r64(X86Reg::eax, X64FReg::xmm0);
+    a.asm_and_r64_imm8(X64Reg::rax, 1);
+    a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 16); // load argument back into floating-point register
+    a.asm_cmp_r64_imm8(X64Reg::rax, 1);
+    a.asm_je_label("_print_float_int_part");
+
+    {
+        // the float to be printed is < 0, so print '-' symbol and
+        // multiply the float with -1
+        emit_print_64(a, "string_neg", 1);
+
+        a.asm_mov_r64_imm64(X64Reg::rax, 1);
+        a.asm_neg_r64(X64Reg::rax);
+        a.asm_cvtsi2sd_r64_r64(X64FReg::xmm1, X64Reg::rax);
+        a.asm_mulsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1);
+    }
+
+    a.add_label("_print_float_int_part");
     a.asm_cvttsd2si_r64_r64(X64Reg::rax, X64FReg::xmm0);
     a.asm_push_r64(X64Reg::rax);
 
