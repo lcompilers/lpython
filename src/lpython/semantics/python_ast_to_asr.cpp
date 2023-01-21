@@ -6166,37 +6166,6 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
     return tu;
 }
 
-class PickleVisitor : public AST::PickleBaseVisitor<PickleVisitor>
-{
-public:
-    std::string get_str() {
-        return s;
-    }
-};
-
-std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
-    PickleVisitor v;
-    v.use_colors = colors;
-    v.indent = indent;
-    v.visit_ast(ast);
-    return v.get_str();
-}
-
-class TreeVisitor : public AST::TreeBaseVisitor<TreeVisitor>
-{
-public:
-    std::string get_str() {
-        return s;
-    }
-};
-
-std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
-    TreeVisitor v;
-    v.use_colors = colors;
-    v.visit_ast(ast);
-    return v.get_str();
-}
-
 std::string get_parent_dir(const std::string &path) {
     int idx = path.size()-1;
     while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;

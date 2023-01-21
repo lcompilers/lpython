@@ -147,6 +147,17 @@ int emit_ast(const std::string &infile,
     if (compiler_options.tree) {
         std::cout << LCompilers::LPython::pickle_tree_python(*ast,
             compiler_options.use_colors) << std::endl;
+    } else if (compiler_options.json) {
+        LCompilers::LocationManager lm;
+        {
+            LCompilers::LocationManager::FileLocations fl;
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            std::string input = LCompilers::read_file(infile);
+            lm.init_simple(input);
+            lm.file_ends.push_back(input.size());
+        }
+         std::cout << LCompilers::LPython::pickle_json(*ast, lm) << std::endl;
     } else {
         std::cout << LCompilers::LPython::pickle_python(*ast,
             compiler_options.use_colors, compiler_options.indent) << std::endl;
@@ -196,6 +207,8 @@ int emit_asr(const std::string &infile,
     if (compiler_options.tree) {
         std::cout << LCompilers::LPython::pickle_tree(*asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
+    } else if (compiler_options.json) {
+         std::cout << LCompilers::LPython::pickle_json(*asr, lm) << std::endl;
     } else {
         std::cout << LCompilers::LPython::pickle(*asr, compiler_options.use_colors,
             compiler_options.indent, with_intrinsic_modules) << std::endl;
@@ -1396,6 +1409,7 @@ int main(int argc, char *argv[])
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
         app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
+        app.add_flag("--json", compiler_options.json, "Print ASR/AST Json format");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_option("--skip-pass", skip_pass, "Skip an ASR pass in default pipeline");
         app.add_flag("--disable-main", compiler_options.disable_main, "Do not generate any code for the `main` function");
