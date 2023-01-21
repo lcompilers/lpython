@@ -133,10 +133,6 @@ std::string pickle_json(LPython::AST::ast_t &ast, LocationManager &lm) {
     return v.get_str();
 }
 
-std::string pickle_json(LPython::AST::Module_t &ast, LocationManager &lm) {
-    return pickle_json((LPython::AST::ast_t &)ast, lm);
-}
-
 /********************** ASR Pickle Json *******************/
 class ASRJsonVisitor :
     public ASR::JsonBaseVisitor<ASRJsonVisitor>
