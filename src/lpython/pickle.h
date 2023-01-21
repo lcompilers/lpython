@@ -1,7 +1,9 @@
 #ifndef LFORTRAN_PICKLE_H
 #define LFORTRAN_PICKLE_H
 
+#include <lpython/python_ast.h>
 #include <libasr/asr.h>
+#include <libasr/location.h>
 
 namespace LCompilers::LPython {
 
@@ -14,6 +16,12 @@ namespace LCompilers::LPython {
     // Print the tree structure
     std::string pickle_tree(ASR::asr_t &asr, bool colors, bool show_intrinsic_modules);
     std::string pickle_tree(ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules);
+
+    std::string pickle_json(AST::ast_t &ast, LocationManager &lm);
+    std::string pickle_json(AST::Module_t &ast, LocationManager &lm);
+
+    std::string pickle_json(ASR::asr_t &asr, LocationManager &lm);
+    std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm);
 
 }
 
