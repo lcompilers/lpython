@@ -9,9 +9,24 @@
 
 namespace LCompilers::LPython {
 
-/* -----------------------------------------------------------------------*/
-// ASR
+/********************** AST Pickle *******************/
+class PickleVisitor : public AST::PickleBaseVisitor<PickleVisitor>
+{
+public:
+    std::string get_str() {
+        return s;
+    }
+};
 
+std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
+    PickleVisitor v;
+    v.use_colors = colors;
+    v.indent = indent;
+    v.visit_ast(ast);
+    return v.get_str();
+}
+
+/********************** ASR Pickle *******************/
 class ASRPickleVisitor :
     public ASR::PickleBaseVisitor<ASRPickleVisitor>
 {
@@ -91,6 +106,23 @@ std::string pickle(ASR::TranslationUnit_t &asr, bool colors, bool indent, bool s
     return pickle((ASR::asr_t &)asr, colors, indent, show_intrinsic_modules);
 }
 
+/********************** AST Pickle Tree *******************/
+class ASTTreeVisitor : public AST::TreeBaseVisitor<ASTTreeVisitor>
+{
+public:
+    std::string get_str() {
+        return s;
+    }
+};
+
+std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
+    ASTTreeVisitor v;
+    v.use_colors = colors;
+    v.visit_ast(ast);
+    return v.get_str();
+}
+
+/********************** ASR Pickle Tree *******************/
 class ASRTreeVisitor :
     public ASR::TreeBaseVisitor<ASRTreeVisitor>
 {
