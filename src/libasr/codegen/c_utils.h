@@ -1116,7 +1116,7 @@ class CCPPDSUtils {
         }
 
         std::string get_dict_type(ASR::Dict_t* dict_type) {
-            if (!ASR::is_a<ASR::Integer_t>(dict_type->m_key_type)) {
+            if (!ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
                 throw CodeGenError("Only Integer keys supported for now in C-dictionary");
             }
             std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)dict_type, true);
@@ -1138,6 +1138,8 @@ class CCPPDSUtils {
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
             dict_init(dict_type, dict_struct_type, dict_type_code);
+            dict_resize(dict_type, dict_struct_type, dict_type_code);
+            dict_insert(dict_type, dict_struct_type, dict_type_code);
             return dict_struct_type;
         }
 
@@ -1162,6 +1164,77 @@ class CCPPDSUtils {
                               "malloc(capacity * sizeof(bool));\n";
             generated_code += indent + tab + "memset(x->present, false," +\
                               "capacity * sizeof(bool));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_resize(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_rez_func = global_scope->get_unique_name("dict_resize_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_resize"] = dict_rez_func;
+            std::string signature = "void " + dict_rez_func + "(" + dict_struct_type + "* x)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + key + "*tmp_key = (" + key + "*) " +
+                              "malloc(x->capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "memcpy(tmp_key, x->key, x->capacity * sizeof(" +\
+                                                key + ");\n";
+            generated_code += indent + tab + val + "*tmp_val = (" + val + "*) " +
+                              "malloc(x->capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "memcpy(tmp_val, x->val, x->capacity * sizeof(" +\
+                                                val + ");\n";
+            generated_code += indent + tab + "bool *tmp_p = (bool*) " +
+                              "malloc(x->capacity * sizeof(bool));\n";
+            generated_code += indent + tab + \
+                    "memcpy(tmp_p, x->present, x->capacity * sizeof(bool);\n";
+            generated_code += indent + tab + "x->capacity = 2*x->capacity;\n";
+            generated_code += indent + tab + "free(x->key); free(x->val); free(x->present);\n";
+            generated_code += indent + tab + "x->key = (" + key + "*) " +
+                              "malloc(x->capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "x->value = (" + val + "*) " +
+                              "malloc(x->capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "x->present = (bool*) " + \
+                              "malloc(x->capacity * sizeof(bool));\n";
+            generated_code += indent + tab + "memset(x->present, false," +\
+                              "x->capacity * sizeof(bool));\n";
+            generated_code += indent + tab + "for(size_t i=0; i<x->capacity/2; i++) {\n";
+            generated_code += indent + tab + tab + "if(tmp_p[i]) {\n";
+            generated_code += indent + tab + tab + tab + "int j=tmp_key[i]\%x->capacity;\n";
+            generated_code += indent + tab + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
+            generated_code += indent + tab + tab + tab + \
+                "x->key[j] = tmp_key[i]; x->val[j] = tmp_val[i]; x->present[j] = true;\n";
+            generated_code += indent + tab + tab + "}\n" + indent + tab + "}\n";
+            generated_code += indent + tab + tab + "free(tmp_key); free(tmp_val); free(tmp_p);\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_insert(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_in_func = global_scope->get_unique_name("dict_insert_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_insert"] = dict_in_func;
+            std::string dict_rz = typecodeToDSfuncs[dict_type_code]["dict_resize"];
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = "void " + dict_in_func + "(" + dict_struct_type + "* x, " +\
+                                        key + " k," + val + " v)" ;
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "int j=k\%x->capacity; int c = 0;\n";
+            generated_code += indent + tab + "while(c < x->capacity && x->present[j]) j=(j+1)\%x->capacity, c++;\n";
+            generated_code += indent + tab + "if (c == x->capacity) {\n";
+            generated_code += indent + tab + tab + dict_rz + "(x);\n";
+            generated_code += indent + tab + tab + "j=k\%x->capacity;\n";
+            generated_code += indent + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + \
+                "x->key[j] = k; x->val[j] = v; x->present[j] = true;\n";
             generated_code += indent + "}\n\n";
         }
 
