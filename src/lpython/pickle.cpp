@@ -1,7 +1,6 @@
 #include <string>
 
 #include <lpython/pickle.h>
-#include <lpython/pickle.h>
 #include <lpython/bigint.h>
 #include <lpython/python_ast.h>
 #include <libasr/asr_utils.h>
