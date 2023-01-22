@@ -36,9 +36,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
-    std::map<std::string, std::string> label_to_str;
     uint32_t block_id;
     std::vector<std::pair<uint32_t, Block>> blocks;
+    std::map<std::string, std::string> label_to_str;
     std::map<std::string, double> double_consts;
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
@@ -107,7 +107,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 break;
             }
             default: {
-                std::cerr << "Unsupported func_idx";
+                std::cerr << "Unsupported func_idx\n";
             }
         }
     }
