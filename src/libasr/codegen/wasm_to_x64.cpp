@@ -36,22 +36,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
-    int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
     uint32_t block_id;
     std::vector<std::pair<uint32_t, Block>> blocks;
     std::map<std::string, double> double_consts;
-
-    /*
-     A data segment in wasm uses a set of instructions/expressions to specify
-     the offset in memory where the string/data is to be stored.
-     To obtain the string offset we need to decode these set of instructions.
-     Since, we currently support compile-time strings and the string offset is
-     stored in last_vis_i32_const, the instructions are not needed for us at the moment.
-     The following variables helps us control the emitting of instructions when
-     deconding a data segment in wasm.
-    */
-    bool decoding_data_segment;
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -60,7 +48,6 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
         block_id = 1;
-        decoding_data_segment = false;
     }
 
     void visit_Return() {
@@ -96,14 +83,17 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             }
             case 4: {  // print_str
 
-                // pop the string length and string location
-                // we do not need them at the moment
-                m_a.asm_pop_r64(X64Reg::rax);
-                m_a.asm_pop_r64(X64Reg::rax);
-
-                // we need compile-time string length and location
-                std::string label = "string" + std::to_string(last_last_vis_i32_const);
-                emit_print_64(m_a, label, label_to_str[label].size());
+                m_a.asm_pop_r64(X64Reg::rdx); // length
+                m_a.asm_pop_r64(X64Reg::rax); // location
+                {
+                    // write system call
+                    m_a.asm_mov_r64_label(X64Reg::rsi, "master_string"); // base_memory
+                    m_a.asm_add_r64_r64(X64Reg::rsi, X64Reg::rax); // base_memory + location
+                    m_a.asm_mov_r64_imm64(X64Reg::rax, 1); // system call no (1 for write)
+                    m_a.asm_mov_r64_imm64(X64Reg::rdi, 1); // stdout_file no
+                    // rsi stores location, length is already stored in rdx
+                    m_a.asm_syscall();
+                }
                 break;
             }
             case 5: {  // flush_buf
@@ -281,15 +271,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_I32Const(int32_t value) {
-        if (!decoding_data_segment) {
-            m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
-            if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
-            m_a.asm_push_r64(X64Reg::rax);
-        }
-
-        // TODO: Following seems/is hackish. Fix/Improve it.
-        last_last_vis_i32_const = last_vis_i32_const;
-        last_vis_i32_const = value;
+        m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
+        if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
     }
 
     template<typename F>
@@ -430,15 +414,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         emit_print_int_64(m_a, "print_i64");
         emit_print_double(m_a, "print_f64");
 
-        decoding_data_segment = true;
         // declare compile-time strings
+        std::string master_string = "";
         for (uint32_t i = 0; i < data_segments.size(); i++) {
-            offset = data_segments[i].insts_start_index;
-            decode_instructions();
-            std::string label = "string" + std::to_string(last_vis_i32_const);
-            label_to_str[label] = data_segments[i].text;
+            master_string += data_segments[i].text;
         }
-        decoding_data_segment = false;
+        label_to_str["master_string"] = master_string;
 
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx].name);
