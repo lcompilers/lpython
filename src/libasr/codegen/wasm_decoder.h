@@ -264,11 +264,15 @@ class WASMDecoder {
             data_segments.p[i].insts_start_index = offset;
 
             // read i32.const
-            assert(read_b8(wasm_bytes, offset) == 0x41);
+            if (read_b8(wasm_bytes, offset) != 0x41) {
+                throw CodeGenError("DecodeDataSection: Invalid byte for i32.const");
+            }
             // read the integer (memory location)
             read_i32(wasm_bytes, offset);
             // read expr end
-            assert(read_b8(wasm_bytes, offset) == 0x0B);
+            if (read_b8(wasm_bytes, offset) != 0x0B) {
+                throw CodeGenError("DecodeDataSection: Invalid byte for expr end");
+            }
 
             uint32_t text_size = read_u32(wasm_bytes, offset);
             data_segments.p[i].text.resize(
