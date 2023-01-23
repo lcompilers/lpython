@@ -287,6 +287,10 @@ filename = "ltypes1.py"
 llvm = true
 
 [[test]]
+filename = "print_str.py"
+wat = true
+
+[[test]]
 filename = "../integration_tests/test_builtin.py"
 asr = true
 
