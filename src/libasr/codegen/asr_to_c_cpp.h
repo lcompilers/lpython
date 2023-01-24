@@ -481,6 +481,7 @@ R"(#include <stdio.h>
             std::string indent(indentation_level*indentation_spaces, ' ');
             std::string decl;
             std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+            bool has_typevar = false;
             for (auto &item : var_order) {
                 ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
                 if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
@@ -493,7 +494,16 @@ R"(#include <stdio.h>
                             decl += ";\n";
                         }
                     }
+                    if (ASR::is_a<ASR::TypeParameter_t>(*v->m_type)) {
+                        has_typevar = true;
+                        break;
+                    }
                 }
+            }
+            if (has_typevar) {
+                indentation_level -= 1;
+                src = "";
+                return;
             }
 
             current_function = &x;

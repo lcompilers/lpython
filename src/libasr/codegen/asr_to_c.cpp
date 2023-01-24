@@ -516,6 +516,9 @@ public:
                     sub = format_type_c("", "const " + const_underlying_type + " ",
                                         v.m_name, false, false);
                 }
+            } else if (ASR::is_a<ASR::TypeParameter_t>(*v_m_type)) {
+                // Ignore type variables
+                return "";
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v_m_type->type)
@@ -606,12 +609,14 @@ R"(
         strcat_def += indent + tab + "return strcat(str_tmp, y);\n";
         strcat_def += indent + "}\n\n";
 
+        std::string unit_src_tmp;
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                unit_src += convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
+                unit_src_tmp = convert_variable_decl(*v);
+                unit_src += unit_src_tmp;
+                if(unit_src_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var )) {
                     unit_src += ";\n";
                 }
             }
@@ -742,14 +747,16 @@ R"(
         // Topologically sort all program functions
         // and then define them in the right order
         std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        std::string decl_tmp;
         for (auto &item : var_order) {
             ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 decl += indent1;
-                decl += convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
+                decl_tmp = convert_variable_decl(*v);
+                decl += decl_tmp;
+                if(decl_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var )) {
                     decl += ";\n";
                 }
             }
