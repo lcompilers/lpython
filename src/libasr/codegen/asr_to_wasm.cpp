@@ -882,6 +882,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     wasm::emit_i32_and(m_code_section, m_al);
                     break;
                 };
+                case ASR::binopType::BitOr: {
+                    wasm::emit_i32_or(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::BitXor: {
+                    wasm::emit_i32_xor(m_code_section, m_al);
+                    break;
+                };
                 default: {
                     throw CodeGenError(
                         "ICE IntegerBinop kind 4: unknown operation");
@@ -931,6 +939,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     wasm::emit_i64_and(m_code_section, m_al);
                     break;
                 };
+                case ASR::binopType::BitOr: {
+                    wasm::emit_i64_or(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::BitXor: {
+                    wasm::emit_i64_xor(m_code_section, m_al);
+                    break;
+                };
                 default: {
                     throw CodeGenError(
                         "ICE IntegerBinop kind 8: unknown operation");
@@ -938,6 +954,28 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         } else {
             throw CodeGenError("IntegerBinop: Integer kind not supported");
+        }
+    }
+
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_arg);
+        ASR::Integer_t *i = ASR::down_cast<ASR::Integer_t>(x.m_type);
+        // there is no direct bit-invert inst in wasm,
+        // so xor-ing with -1 (sequence of 32/64 1s)
+        if(i->m_kind == 4){
+            wasm::emit_i32_const(m_code_section, m_al, -1);
+            wasm::emit_i32_xor(m_code_section, m_al);
+        }
+        else if(i->m_kind == 8){
+            wasm::emit_i64_const(m_code_section, m_al, -1LL);
+            wasm::emit_i64_xor(m_code_section, m_al);
+        }
+        else{
+            throw CodeGenError("IntegerBitNot: Only kind 4 and 8 supported");
         }
     }
 
