@@ -1062,7 +1062,8 @@ public:
                     check_type_restriction(subs, rt_subs, rt, loc);
                 }
 
-                ASR::symbol_t *t = get_generic_function(subs, rt_subs, func);
+                //ASR::symbol_t *t = get_generic_function(subs, rt_subs, func);
+                ASR::symbol_t *t = get_generic_function(subs, rt_subs, s);
                 std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
 
                 // Currently ignoring keyword arguments for generic function calls
@@ -1336,10 +1337,10 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::Function_t *func) {
+            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::symbol_t *func) {
         int new_function_num;
         ASR::symbol_t *t;
-        std::string func_name = func->m_name;
+        std::string func_name = ASRUtils::symbol_name(func);
         if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
             new_function_num = generic_func_nums[func_name];
             for (int i=0; i<generic_func_nums[func_name]; i++) {
@@ -1371,8 +1372,8 @@ public:
         std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, rt_subs, func->m_symtab->parent,
-                new_func_name, func);
+        t = pass_instantiate_generic_function(al, subs, rt_subs, 
+            ASRUtils::symbol_parent_symtab(func), new_func_name, func);
         dependencies.erase(func_name);
         dependencies.insert(new_func_name);
         return t;

@@ -390,18 +390,10 @@ public:
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
+        std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
         std::string new_func_name, ASR::symbol_t *sym) {
     ASR::symbol_t* sym2 = ASRUtils::symbol_get_past_external(sym);
     ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(sym2);
-    FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
-    ASR::asr_t *new_function = tf.instantiate_Function(func);
-    return ASR::down_cast<ASR::symbol_t>(new_function);
-}
-
-ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
-        std::string new_func_name, ASR::Function_t *func) {
     FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
     ASR::asr_t *new_function = tf.instantiate_Function(func);
     return ASR::down_cast<ASR::symbol_t>(new_function);
