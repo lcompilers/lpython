@@ -1343,7 +1343,7 @@ public:
         if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
             new_function_num = generic_func_nums[func_name];
             for (int i=0; i<generic_func_nums[func_name]; i++) {
-                std::string generic_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(i);
+                std::string generic_func_name = "__asr_generic_" + func_name + "_" + std::to_string(i);
                 if (generic_func_subs.find(generic_func_name) != generic_func_subs.end()) {
                     std::map<std::string, ASR::ttype_t*> subs_check = generic_func_subs[generic_func_name];
                     if (subs_check.size() != subs.size()) { continue; }
@@ -1368,7 +1368,7 @@ public:
             new_function_num = 0;
         }
         generic_func_nums[func_name] = new_function_num + 1;
-        std::string new_func_name = "__lpython_generic_" + func_name + "_"
+        std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
         t = pass_instantiate_generic_function(al, subs, rt_subs, func->m_symtab->parent,
