@@ -1,4 +1,4 @@
-from ltypes import TypeVar, restriction
+from ltypes import TypeVar, restriction, i32
 
 T = TypeVar('T')
 
@@ -15,6 +15,6 @@ def add_string(x: str, y: str) -> str:
 def f(x: T, y: T, **kwargs) -> T:
     return add(x,y)
 
-print(f(1,2, add=add_integer))
+print(f(1, 2, add=add_integer))
 print(f("a","b",add=add_string))
 print(f("c","d",add=add_string))

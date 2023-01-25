@@ -17,7 +17,7 @@ def add_integer(x: i32, y: i32) -> i32:
 def add_float(x: f32, y: f32) -> f32:
     return x + y
 
-def g(n: i32, m: i32, a: T[n,m], b: T[n,m]) -> T[n,m]:
+def g(n: i32, m: i32, a: T[n,m], b: T[n,m], **kwargs) -> T[n,m]:
     r: T[n,m]
     r = empty([n,m])
     i: i32
