@@ -243,35 +243,6 @@ public:
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         std::string call_name = ASRUtils::symbol_name(x->m_name);
-        //if ((name && ASRUtils::is_restriction_function(name) && rt_subs.find(call_name) == rt_subs.end()) ||
-        //    !name) {
-        //    if (call_name.compare("add") == 0) {
-        //        ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
-        //        ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
-        //        ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
-        //        ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
-        //        if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
-        //                (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type))) {
-        //            return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
-        //        } else {
-        //            throw SemanticError("Intrinsic plus not yet supported for this type", x->base.base.loc);
-        //        }
-        //    } else if (call_name.compare("zero") == 0) {
-        //        ASR::expr_t* arg = duplicate_expr(x->m_args[0].m_value);
-        //        ASR::ttype_t* arg_type = substitute_type(ASRUtils::expr_type(arg));
-        //        if (ASRUtils::is_integer(*arg_type)) {
-        //            return ASR::make_IntegerConstant_t(al, x->base.base.loc, 0, arg_type);
-        //        } else if (ASRUtils::is_real(*arg_type)) {
-        //            return ASR::make_RealConstant_t(al, x->base.base.loc, 0, arg_type);
-        //        }
-        //    } else if (call_name.compare("div") == 0) {
-        //        ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
-        //        ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
-        //        return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Div, x->base.base.loc);
-        //    }
-        //    LCOMPILERS_ASSERT(false); // should never happen
-        //    name = rt_subs[call_name];
-        //}
         if (ASRUtils::is_restriction_function(name)) {
             name = rt_subs[call_name];
         } else if (ASRUtils::is_generic_function(name)) {
