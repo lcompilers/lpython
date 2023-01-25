@@ -1304,7 +1304,7 @@ char *get_base_name(char *filename) {
 
 #ifdef HAVE_LFORTRAN_LINK
 int shared_lib_callback(struct dl_phdr_info *info,
-        size_t /* size */, void *_data) {
+        size_t size, void *_data) {
     struct Stacktrace *d = (struct Stacktrace *) _data;
     for (int i = 0; i < info->dlpi_phnum; i++) {
         if (info->dlpi_phdr[i].p_type == PT_LOAD) {
