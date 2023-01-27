@@ -14,6 +14,24 @@ def add(x: T, y: T) -> T:
 def div(x: T, k: i32) -> f64:
     pass
 
+def empty_integer(x: i32) -> i32:
+    return 0
+
+def add_integer(x: i32, y: i32) -> i32:
+    return x + y
+
+def div_integer(x: i32, k: i32) -> f64:
+    return x / k
+
+def empty_float(x: f64) -> f64:
+    return 0.0
+
+def add_float(x: f64, y: f64) -> f64:
+    return x + y
+
+def div_float(x: f64, k: i32) -> f64:
+    return x / k
+
 def empty_string(x: str) -> str:
     return ""
 
@@ -34,6 +52,6 @@ def mean(x: list[T], **kwargs) -> f64:
         res = add(res, x[i])
     return div(res, k)
 
-print(mean([1,2,3]))
-print(mean([1.0,2.0,3.0]))
+print(mean([1,2,3], zero=empty_integer, add=add_integer, div=div_integer))
+print(mean([1.0,2.0,3.0], zero=empty_float, add=add_float, div=div_float))
 print(mean(["a","b","c"], zero=empty_string, add=add_string, div=div_string))

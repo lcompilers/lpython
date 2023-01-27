@@ -1,4 +1,4 @@
-from ltypes import TypeVar
+from ltypes import TypeVar, i32
 from numpy import empty
 
 T = TypeVar('T')
