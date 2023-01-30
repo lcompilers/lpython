@@ -10,7 +10,7 @@ from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
 def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
-                specific_backends=None, excluded_backends=None):
+                no_color, specific_backends=None, excluded_backends=None):
     filename = test["filename"]
     def is_included(backend):
          return test.get(backend, False) \
@@ -36,7 +36,10 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
                   pass_ not in optimization_passes):
         raise Exception(f"Unknown pass: {pass_}")
-    log.debug(f"{color(style.bold)} START TEST: {color(style.reset)} {filename}")
+    if no_color:
+        log.debug(f" START TEST: {filename}")
+    else:
+        log.debug(f"{color(style.bold)} START TEST: {color(style.reset)} {filename}")
 
     extra_args = f"--no-error-banner {show_verbose}"
 

@@ -29,6 +29,7 @@ LIBASR_DIR = os.path.dirname(TESTER_DIR)
 SRC_DIR = os.path.dirname(LIBASR_DIR)
 ROOT_DIR = os.path.dirname(SRC_DIR)
 
+no_color = False
 
 class RunException(Exception):
     pass
@@ -329,7 +330,10 @@ def run_test(testname, basename, cmd, infile, update_reference=False,
         raise RunException(
             "Testing with reference output failed." +
             full_err_str)
-    log.debug(s + " " + check())
+    if no_color:
+        log.debug(s + " PASS")
+    else:
+        log.debug(s + " " + check())
 
 
 def tester_main(compiler, single_test):
@@ -358,6 +362,8 @@ def tester_main(compiler, single_test):
                         help="Skip runtime tests with debugging information enabled")
     parser.add_argument("-s", "--sequential", action="store_true",
                         help="Run all tests sequentially")
+    parser.add_argument("--no-color", action="store_true",
+                    help="Turn off colored tests output")
     args = parser.parse_args()
     update_reference = args.update
     list_tests = args.list
@@ -374,6 +380,8 @@ def tester_main(compiler, single_test):
     verbose = args.verbose
     no_llvm = args.no_llvm
     skip_run_with_dbg = args.skip_run_with_dbg
+    global no_color
+    no_color = args.no_color
 
     # So that the tests find the `lcompiler` executable
     os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
@@ -401,7 +409,8 @@ def tester_main(compiler, single_test):
                         excluded_backends=excluded_backends,
                         verbose=verbose,
                         no_llvm=no_llvm,
-                        skip_run_with_dbg=skip_run_with_dbg)
+                        skip_run_with_dbg=skip_run_with_dbg,
+                        no_color=no_color)
     # run in parallel
     else:
         single_tester_partial_args = partial(
@@ -411,7 +420,8 @@ def tester_main(compiler, single_test):
             excluded_backends=excluded_backends,
             verbose=verbose,
             no_llvm=no_llvm,
-            skip_run_with_dbg=skip_run_with_dbg)
+            skip_run_with_dbg=skip_run_with_dbg,
+            no_color=no_color)
         with ThreadPoolExecutor() as ex:
             futures = ex.map(single_tester_partial_args, filtered_tests)
             for f in futures:
@@ -423,5 +433,9 @@ def tester_main(compiler, single_test):
     if update_reference:
         log.info("Test references updated.")
     else:
-        log.info(
-            f"{(color(fg.green) + color(style.bold))}TESTS PASSED{color(fg.reset) + color(style.reset)}")
+        if no_color:
+            log.info("TESTS PASSED")
+        else:
+            log.info(
+                f"{(color(fg.green) + color(style.bold))}TESTS PASSED"
+                f"{color(fg.reset) + color(style.reset)}")
