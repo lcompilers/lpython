@@ -173,8 +173,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             /*
             From WebAssembly Docs:
                 The exact effect of branch depends on that control construct.
-                In case of block or if it is a forward jump, resuming execution after the matching end.
-                In case of loop it is a backward jump to the beginning of the loop.
+                In case of block or if, it is a forward jump, resuming execution after the matching end.
+                In case of loop, it is a backward jump to the beginning of the loop.
             */
             case Block::LOOP: m_a.asm_jmp_label(".loop.head_" + label); break;
             case Block::IF: m_a.asm_jmp_label(".else_" + label); break;
