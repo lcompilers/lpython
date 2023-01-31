@@ -775,13 +775,6 @@ public:
         EMIT("ret");
     }
 
-    void asm_xor_r32_r32(X86Reg r32, X86Reg s32) {
-        m_code.push_back(m_al, 0x31);
-        modrm_sib_disp(m_code, m_al,
-                s32, &r32, nullptr, 1, 0, false);
-        EMIT("xor " + r2s(r32) + ", " + r2s(s32));
-    }
-
     void asm_mov_r32_imm32(X86Reg r32, uint32_t imm32) {
         m_code.push_back(m_al, 0xb8 + r32);
         push_back_uint32(m_code, m_al, imm32);
@@ -1246,6 +1239,13 @@ public:
         m_code.push_back(m_al, 0x33);
         modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
         EMIT("xor " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    void asm_xor_r32_r32(X86Reg r32, X86Reg s32) {
+        m_code.push_back(m_al, 0x31);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("xor " + r2s(r32) + ", " + r2s(s32));
     }
 
     void asm_syscall() {
