@@ -87,10 +87,38 @@ def test_bitxor():
     assert(r == -1)
     assert(s == -2147483643)
 
+def test_left_shift():
+    a: i32 = 4
+    shift_amount: i32 = 2
+    b: i32 = a << shift_amount
+    print(b)
+    assert b == 16
+
+    a = -16
+    shift_amount = 2
+    b = a << shift_amount
+    print(b)
+    assert b == -64
+
+def test_right_shift():
+    a: i32 = 16
+    shift_amount: i32 = 2
+    b: i32 = a >> shift_amount
+    print(b)
+    assert b == 4
+
+    a = -16
+    shift_amount = 2
+    b = a >> shift_amount
+    print(b)
+    assert b == -4
+
 def main0():
     test_bitnot()
     test_bitand()
     test_bitor()
     test_bitxor()
+    test_left_shift()
+    test_right_shift()
 
 main0()
