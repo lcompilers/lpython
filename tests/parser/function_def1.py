@@ -1,6 +1,6 @@
 from ltypes import i32, overload
 
-def greet(name):
+def xgreet(name):
     """
     This function greets to
     the person passed in as
