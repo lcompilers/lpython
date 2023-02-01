@@ -1254,6 +1254,38 @@ public:
         EMIT("syscall");
     }
 
+    // SHL - Shift Logical/Unsigned Left
+    void asm_shl_r64_cl(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xD3);
+        modrm_sib_disp(m_code, m_al, X86Reg::esp, &r32, nullptr, 1, 0, false);
+        EMIT("shl " + r2s(r64) + ", cl");
+    }
+
+    // SHL - Shift Logical/Unsigned Left
+    void asm_shl_r32_cl(X86Reg r32) {
+        m_code.push_back(m_al, 0xD3);
+        modrm_sib_disp(m_code, m_al, X86Reg::esp, &r32, nullptr, 1, 0, false);
+        EMIT("shl " + r2s(r32) + ", cl");
+    }
+
+    // SAR - Shift Arithmetic/Signed Right
+    void asm_sar_r64_cl(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xD3);
+        modrm_sib_disp(m_code, m_al, X86Reg::edi, &r32, nullptr, 1, 0, false);
+        EMIT("sar " + r2s(r64) + ", cl");
+    }
+
+    // SAR - Shift Arithmetic/Signed Right
+    void asm_sar_r32_cl(X86Reg r32) {
+        m_code.push_back(m_al, 0xD3);
+        modrm_sib_disp(m_code, m_al, X86Reg::edi, &r32, nullptr, 1, 0, false);
+        EMIT("sar " + r2s(r32) + ", cl");
+    }
+
     void asm_fld_m32(X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         m_code.push_back(m_al, 0xd9);
