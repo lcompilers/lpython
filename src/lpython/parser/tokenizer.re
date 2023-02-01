@@ -264,8 +264,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             re2c:define:YYCTYPE = "unsigned char";
 
             end = "\x00";
-            whitespace = [ \t\v\r]+;
-            newline = "\n";
+            whitespace = [ \t\v]+;
+            newline = "\n" | "\r\n";
             digit = [0-9];
             int_oct = "0"[oO]([0-7] | "_" [0-7])+;
             int_bin = "0"[bB]([01] | "_" [01])+;

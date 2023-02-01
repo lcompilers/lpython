@@ -15,7 +15,9 @@ src/bin/lpython --show-ast tests/doconcurrentloop_01.py
 src/bin/lpython --show-asr tests/doconcurrentloop_01.py
 src/bin/lpython --show-cpp tests/doconcurrentloop_01.py
 
-if $WIN != "1":
+if $WIN == "1":
+    python run_tests.py --skip-run-with-dbg --no-color
+else:
     python run_tests.py
     cd integration_tests
     python run_tests.py -j16 -b llvm cpython c wasm

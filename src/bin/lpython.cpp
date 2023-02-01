@@ -1067,7 +1067,7 @@ int link_executable(const std::vector<std::string> &infiles,
             for (auto &s : infiles) {
                 cmd += s + " ";
             }
-            cmd += runtime_library_dir + "\\lpython_runtime_static.lib";
+            cmd += runtime_library_dir + "\\lpython_runtime_static.lib > NUL";
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
