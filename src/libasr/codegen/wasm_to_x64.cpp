@@ -309,6 +309,19 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         handleI32Opt([&](){ m_a.asm_xor_r64_r64(X64Reg::rax, X64Reg::rbx);});
     }
 
+    void visit_I32Shl() {
+        m_a.asm_pop_r64(X64Reg::rcx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_shl_r64_cl(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+    void visit_I32ShrS() {
+        m_a.asm_pop_r64(X64Reg::rcx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_sar_r64_cl(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
+     }
+
     void visit_I32Eqz() {
         m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
         m_a.asm_push_r64(X64Reg::rax);
