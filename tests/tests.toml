@@ -64,8 +64,7 @@ cpp = true
 wat = true
 
 [[test]]
-filename = "expr3.py"
-ast = true
+filename = "errors/type_mismatch.py"
 asr = true
 
 [[test]]
