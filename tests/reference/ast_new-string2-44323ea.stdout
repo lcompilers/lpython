@@ -8,5 +8,5 @@ class a:
 " ())] [])) (Expr (ConstantStr "
     "\\"
 " ())) (Expr (ConstantStr "
-    '\\'
+    '\'
 " ()))] [])
