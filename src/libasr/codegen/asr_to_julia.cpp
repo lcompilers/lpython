@@ -1422,9 +1422,9 @@ public:
             if (s[idx] == '\n') {
                 src += "\\n";
             } else if (s[idx] == '\\') {
-                src += "\\\\";
+                src += "\\";
             } else if (s[idx] == '\"') {
-                src += "\\\"";
+                src += "\"";
             } else {
                 src += s[idx];
             }

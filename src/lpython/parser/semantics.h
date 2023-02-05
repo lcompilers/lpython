@@ -800,6 +800,9 @@ char* unescape(Allocator &al, LCompilers::Str &s) {
         if (s.p[idx] == '\\' && s.p[idx+1] == 'n') {
             x += "\n";
             idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == '\'') {
+            x += "'";
+            idx++;
         } else {
             x += s.p[idx];
         }
