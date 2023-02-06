@@ -4361,7 +4361,7 @@ public:
                     x.base.base.loc);
             }
             if (call_name != "range") {
-                throw SemanticError("Only range(..) supported as for loop iteration for now",
+                throw SemanticError(call_name + "(..) is not supported as for loop iteration for now",
                     x.base.base.loc);
             }
             Vec<ASR::expr_t*> args;
