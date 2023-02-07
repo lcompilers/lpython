@@ -62,29 +62,34 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_EmtpyBlockType() {}
 
     void call_imported_function(uint32_t func_idx) {
-        switch (func_idx) {
-            case 0: {  // print_i32
-                m_a.asm_call_label("print_i64");
-                m_a.asm_pop_r64(X64Reg::r15); // pop the passed argument
-                break;
-            }
-            case 1: {  // print_i64
-                std::cerr << "Call to print_i64() is not yet supported\n";
-                break;
-            }
-            case 2: {  // print_f32
-                std::cerr << "Call to print_f32() is not yet supported\n";
-                break;
-            }
-            case 3: {  // print_f64
-                m_a.asm_call_label("print_f64");
-                m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the passed argument
-                break;
-            }
-            case 4: {  // print_str
 
-                m_a.asm_pop_r64(X64Reg::rdx); // length
-                m_a.asm_pop_r64(X64Reg::rax); // location
+        switch (func_idx) {
+            case 0: {  // proc_exit
+            /*
+                TODO: This way increases the number of intructions.
+                There is a possibility that we can wrap these statements
+                with some add label and then just jump/call to that label
+            */
+                m_a.asm_pop_r64(X64Reg::rdi); // get exit code from stack top
+                m_a.asm_mov_r64_imm64(X64Reg::rax, 60); // sys_exit
+                m_a.asm_syscall(); // syscall
+                break;
+            }
+            case 1: {  // fd_write
+            /*
+                TODO: This way increases the number of intructions.
+                There is a possibility that we can wrap these statements
+                with some add label and then just jump/call to that label
+            */
+
+                m_a.asm_pop_r64(X64Reg::r11); // mem_loc to write return value (not usefull for us currently)
+                m_a.asm_pop_r64(X64Reg::r12); // no of iov vectors (always emitted 1 by wasm, not usefull for us currently)
+                m_a.asm_pop_r64(X64Reg::r13); // mem_loc to string iov vector
+                m_a.asm_pop_r64(X64Reg::r14); // filetypes (1 for stdout, not usefull for us currently)
+
+                X64Reg base = X64Reg::r13;
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 0); // location
+                m_a.asm_mov_r64_m64(X64Reg::rdx, &base, nullptr, 1, 4); // length
                 {
                     // write system call
                     m_a.asm_mov_r64_label(X64Reg::rsi, "master_string"); // base_memory
@@ -96,16 +101,6 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 }
                 break;
             }
-            case 5: {  // flush_buf
-                emit_print_64(m_a, "string_newline", 1);
-                break;
-            }
-            case 6: {  // set_exit_code
-                m_a.asm_pop_r64(X64Reg::rdi); // get exit code from stack top
-                m_a.asm_mov_r64_imm64(X64Reg::rax, 60); // sys_exit
-                m_a.asm_syscall(); // syscall
-                break;
-            }
             default: {
                 std::cerr << "Unsupported func_idx\n";
             }
@@ -113,7 +108,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_Call(uint32_t func_idx) {
-        if (func_idx <= 6U) {
+        if (func_idx <= 1U) {
             call_imported_function(func_idx);
             return;
         }
@@ -428,19 +423,19 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Ne() { handleF64Compare(Fcmp::ne); }
 
     void gen_x64_bytes() {
-        {   // Initialize/Modify values of entities
-            exports.back().name = "_start"; // Update _lcompilers_main() to _start
-            label_to_str["string_newline"] = "\n";
-            label_to_str["string_neg"] = "-"; // - symbol for printing negative ints
-            label_to_str["string_dot"] = "."; // . symbol for printing floats
-        }
+        // {   // Initialize/Modify values of entities
+            // exports.back().name = "_start"; // Update _lcompilers_main() to _start
+            // label_to_str["string_newline"] = "\n";
+            // label_to_str["string_neg"] = "-"; // - symbol for printing negative ints
+            // label_to_str["string_dot"] = "."; // . symbol for printing floats
+        // }
 
         emit_elf64_header(m_a);
-        emit_print_int_64(m_a, "print_i64");
-        emit_print_double(m_a, "print_f64");
+        // emit_print_int_64(m_a, "print_i64");
+        // emit_print_double(m_a, "print_f64");
 
         // declare compile-time strings
-        std::string master_string = "";
+        std::string master_string = "    "; /* in wasm memory starts after 4 bytes*/
         for (uint32_t i = 0; i < data_segments.size(); i++) {
             master_string += data_segments[i].text;
         }
