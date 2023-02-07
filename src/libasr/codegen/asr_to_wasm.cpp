@@ -107,8 +107,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_imports = 0;
         no_of_data_segments = 0;
 
-        min_no_pages = 100;  // fixed 6.4 Mb memory currently
-        max_no_pages = 100;  // fixed 6.4 Mb memory currently
+        min_no_pages = 256;  // fixed 16.384 Mb memory currently
+        max_no_pages = 256;  // fixed 16.384 Mb memory currently
 
         m_type_section.reserve(m_al, 1024 * 128);
         m_import_section.reserve(m_al, 1024 * 128);
@@ -211,6 +211,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
                 for (auto &item : p->m_symtab->get_scope()) {
+                    if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                        ASR::Function_t *fn =
+                            ASR::down_cast<ASR::Function_t>(item.second);
+                        if (fn->m_abi == ASR::abiType::BindC &&
+                            fn->m_deftype == ASR::deftypeType::Interface &&
+                            !ASRUtils::is_intrinsic_function2(fn)) {
+                            wasm::emit_import_fn(m_import_section, m_al, "js",
+                                                 fn->m_name, no_of_types);
+                            no_of_imports++;
+                            emit_function_prototype(*fn);
+                        }
+                    }
+                }
+            } else if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                for (auto &item : m->m_symtab->get_scope()) {
                     if (ASR::is_a<ASR::Function_t>(*item.second)) {
                         ASR::Function_t *fn =
                             ASR::down_cast<ASR::Function_t>(item.second);
@@ -627,30 +643,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
         if (x.m_abi == ASR::abiType::BindC &&
             x.m_deftype == ASR::deftypeType::Interface) {
-            if (ASRUtils::is_intrinsic_function2(&x)) {
-                diag.codegen_warning_label(
-                    "WASM: C Intrinsic Functions not yet spported",
-                    {x.base.base.loc}, std::string(x.m_name));
-            }
+            // if (ASRUtils::is_intrinsic_function2(&x)) {
+            //     diag.codegen_warning_label(
+            //         "WASM: C Intrinsic Functions not yet spported",
+            //         {x.base.base.loc}, std::string(x.m_name));
+            // }
             return true;
         }
-        for (size_t i = 0; i < x.n_body; i++) {
-            if (x.m_body[i]->type == ASR::stmtType::SubroutineCall) {
-                auto sub_call = (const ASR::SubroutineCall_t &)(*x.m_body[i]);
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
-                    ASRUtils::symbol_get_past_external(sub_call.m_name));
-                if (s->m_abi == ASR::abiType::BindC &&
-                    s->m_deftype == ASR::deftypeType::Interface &&
-                    ASRUtils::is_intrinsic_function2(s)) {
-                    diag.codegen_warning_label(
-                        "WASM: Calls to C Intrinsic Functions are not yet "
-                        "supported",
-                        {x.m_body[i]->base.loc},
-                        "Function: calls " + std::string(s->m_name));
-                    return true;
-                }
-            }
-        }
+        // for (size_t i = 0; i < x.n_body; i++) {
+        //     if (x.m_body[i]->type == ASR::stmtType::SubroutineCall) {
+        //         auto sub_call = (const ASR::SubroutineCall_t &)(*x.m_body[i]);
+        //         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
+        //             ASRUtils::symbol_get_past_external(sub_call.m_name));
+        //         if (s->m_abi == ASR::abiType::BindC &&
+        //             s->m_deftype == ASR::deftypeType::Interface &&
+        //             ASRUtils::is_intrinsic_function2(s)) {
+        //             diag.codegen_warning_label(
+        //                 "WASM: Calls to C Intrinsic Functions are not yet "
+        //                 "supported",
+        //                 {x.m_body[i]->base.loc},
+        //                 "Function: calls " + std::string(s->m_name));
+        //             return true;
+        //         }
+        //     }
+        // }
         return false;
     }
 

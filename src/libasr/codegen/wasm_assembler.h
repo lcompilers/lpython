@@ -777,10 +777,10 @@ void emit_branch_if(Vec<uint8_t> &code, Allocator &al, uint32_t label_idx) {
 
 void save_js_glue(std::string filename) {
     std::string js_glue =
-        R"(function define_imports(memory, outputBuffer, exit_code, stdout_print) {
+        R"(function define_imports(exports, outputBuffer, exit_code, stdout_print) {
     const printNum = (num) => outputBuffer.push(num.toString());
     const printStr = (startIdx, strSize) => outputBuffer.push(
-        new TextDecoder("utf8").decode(new Uint8Array(memory.buffer, startIdx, strSize)));
+        new TextDecoder("utf8").decode(new Uint8Array(exports.memory.buffer, startIdx, strSize)));
     const flushBuffer = () => {
         stdout_print(outputBuffer.join(" ") + "\n");
         outputBuffer.length = 0;
@@ -789,7 +789,6 @@ void save_js_glue(std::string filename) {
     const cpu_time = (time) => (Date.now() / 1000); // Date.now() returns milliseconds, so divide by 1000
     var imports = {
         js: {
-            memory: memory,
             /* functions */
             print_i32: printNum,
             print_i64: printNum,
@@ -798,7 +797,8 @@ void save_js_glue(std::string filename) {
             print_str: printStr,
             flush_buf: flushBuffer,
             set_exit_code: set_exit_code,
-            cpu_time: cpu_time
+            cpu_time: cpu_time,
+            ...exports
         },
     };
     return imports;
@@ -812,27 +812,37 @@ async function run_wasm(bytes, imports) {
     } catch(e) { console.log(e); }
 }
 
-async function execute_code(bytes, stdout_print) {
+async function execute_code(bytes, exports, stdout_print) {
     var exit_code = {val: 1}; /* non-zero exit code */
     var outputBuffer = [];
-    var memory = new WebAssembly.Memory({ initial: 100, maximum: 100 }); // fixed 6.4 Mb memory currently
-    var imports = define_imports(memory, outputBuffer, exit_code, stdout_print);
+    // var memory = new WebAssembly.Memory({ initial: 100, maximum: 100 }); // fixed 6.4 Mb memory currently
+    var imports = define_imports(exports, outputBuffer, exit_code, stdout_print);
     await run_wasm(bytes, imports);
     return exit_code.val;
 }
 
-function main() {
+function main(functionExports) {
     const fs = require("fs");
     const wasmBuffer = fs.readFileSync(")" +
         filename + R"(");
-    execute_code(wasmBuffer, (text) => process.stdout.write(text))
+    execute_code(wasmBuffer, functionExports, (text) => process.stdout.write(text))
         .then((exit_code) => {
             process.exit(exit_code);
         })
         .catch((e) => console.log(e))
 }
 
-main();
+async function main2() {
+    const fs = require("fs");
+    const wasi = require('wasi');
+    const importOjbect = {wasi_snapshot_preview1: (new wasi.WASI()).wasiImport}
+    const wasmBuffer = fs.readFileSync("src/libasr/runtime/rt_lib.wasm");
+    var res = await WebAssembly.instantiate(wasmBuffer, importOjbect);
+    const exports = res.instance.exports;
+    main(exports);
+}
+
+main2().then().catch((e) => console.log(e));
 )";
     filename += ".js";
     std::ofstream out(filename);

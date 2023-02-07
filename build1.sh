@@ -15,3 +15,5 @@ cmake \
     -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
     .
 cmake --build . -j16 --target install
+
+emcc -DWASM_RT_LIB src/libasr/runtime/lfortran_intrinsics.c -o src/libasr/runtime/rt_lib.wasm -s WASM=1 --no-entry
