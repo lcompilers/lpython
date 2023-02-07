@@ -358,9 +358,16 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
             result += indent + ")";
         }
 
+        for (uint32_t i = 0; i < memories.size(); i++) {
+            result += indent + "(memory (;" + std::to_string(i) + ";) " +
+                      std::to_string(memories[i].first) + " " +
+                      ((memories[i].second > 0) ?
+                      std::to_string(memories[i].second) : "") + ")";
+        }
+
         for (uint32_t i = 0; i < exports.size(); i++) {
             result += indent + "(export \"" + exports.p[i].name + "\" (" +
-                      kind_to_string[exports.p[i].kind] + " $" +
+                      kind_to_string[exports.p[i].kind] + " " +
                       std::to_string(exports.p[i].index) + "))";
         }
 
