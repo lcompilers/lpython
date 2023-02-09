@@ -861,11 +861,30 @@ main();
     out.close();
 }
 
+void save_js_glue_wasi(std::string filename) {
+    std::string js_glue =
+R"(async function main() {
+    const fs = require("fs");
+    const { WASI } = require("wasi");
+    const wasi = new WASI();
+    const importObject = { wasi_snapshot_preview1: wasi.wasiImport };
+    const wasm = await WebAssembly.compile(fs.readFileSync(")" + filename + R"("));
+    const instance = await WebAssembly.instantiate(wasm, importObject);
+    wasi.start(instance);
+}
+main();
+)";
+    filename += ".js";
+    std::ofstream out(filename);
+    out << js_glue;
+    out.close();
+}
+
 void save_bin(Vec<uint8_t> &code, std::string filename) {
     std::ofstream out(filename);
     out.write((const char *)code.p, code.size());
     out.close();
-    save_js_glue(filename);
+    save_js_glue_wasi(filename);
 }
 
 /**************************** Type Conversion Operations
