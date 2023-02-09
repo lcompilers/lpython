@@ -89,9 +89,16 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_pop_r64(X64Reg::r13); // mem_loc to string iov vector
                 m_a.asm_pop_r64(X64Reg::r14); // filetypes (1 for stdout, not usefull for us currently)
 
-                X64Reg base = X64Reg::r13;
-                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 0); // location
-                m_a.asm_mov_r64_m64(X64Reg::rdx, &base, nullptr, 1, 4); // length
+                m_a.asm_mov_r64_label(X64Reg::rbx, "master_string");
+                m_a.asm_add_r64_r64(X64Reg::rbx, X64Reg::r13);
+
+                m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
+                m_a.asm_mov_r64_imm64(X64Reg::rdx, 0);
+                // TODO: Currently this uses a combination of i32 and i64 registers. Fix it in upcoming PRs.
+                X86Reg base = X86Reg::ebx;
+                m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 0); // location
+                m_a.asm_mov_r32_m32(X86Reg::edx, &base, nullptr, 1, 4); // length
+
                 {
                     // write system call
                     m_a.asm_mov_r64_label(X64Reg::rsi, "master_string"); // base_memory
