@@ -115,8 +115,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             return;
         }
 
-        func_idx -= 7u; // adjust function index as per imports
-        m_a.asm_call_label(exports[func_idx].name);
+        func_idx -= 2u; // adjust function index as per imports
+        m_a.asm_call_label(exports[func_idx + 1 /* offset by 1 becaz of mem export */].name);
 
         // Pop the passed function arguments
         wasm::FuncType func_type = func_types[type_indices[func_idx]];
@@ -578,7 +578,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         label_to_str["master_string"] = master_string;
 
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
-            m_a.add_label(exports[idx].name);
+            m_a.add_label(exports[idx + 1].name);
             {
                 // Initialize the stack
                 m_a.asm_push_r64(X64Reg::rbp);
