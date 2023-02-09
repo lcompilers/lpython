@@ -77,12 +77,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     Vec<uint8_t> m_type_section;
     Vec<uint8_t> m_import_section;
     Vec<uint8_t> m_func_section;
+    Vec<uint8_t> m_memory_section;
     Vec<uint8_t> m_export_section;
     Vec<uint8_t> m_code_section;
     Vec<uint8_t> m_data_section;
 
     uint32_t no_of_types;
     uint32_t no_of_functions;
+    uint32_t no_of_memories;
+    uint32_t no_of_exports;
     uint32_t no_of_imports;
     uint32_t no_of_data_segments;
     uint32_t avail_mem_loc;
@@ -104,6 +107,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_types = 0;
         avail_mem_loc = 0;
         no_of_functions = 0;
+        no_of_memories = 0;
+        no_of_exports = 0;
         no_of_imports = 0;
         no_of_data_segments = 0;
 
@@ -113,6 +118,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         m_type_section.reserve(m_al, 1024 * 128);
         m_import_section.reserve(m_al, 1024 * 128);
         m_func_section.reserve(m_al, 1024 * 128);
+        m_memory_section.reserve(m_al, 1024 * 128);
         m_export_section.reserve(m_al, 1024 * 128);
         m_code_section.reserve(m_al, 1024 * 128);
         m_data_section.reserve(m_al, 1024 * 128);
@@ -121,9 +127,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void get_wasm(Vec<uint8_t> &code) {
         code.reserve(m_al, 8U /* preamble size */ +
                                8U /* (section id + section size) */ *
-                                   6U /* number of sections */
+                                   7U /* number of sections */
                                + m_type_section.size() +
                                m_import_section.size() + m_func_section.size() +
+                               m_memory_section.size() +
                                m_export_section.size() + m_code_section.size() +
                                m_data_section.size());
 
@@ -134,7 +141,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                            // no of functions
         wasm::encode_section(code, m_import_section, m_al, 2U, no_of_imports);
         wasm::encode_section(code, m_func_section, m_al, 3U, no_of_functions);
-        wasm::encode_section(code, m_export_section, m_al, 7U, no_of_functions);
+        wasm::encode_section(code, m_memory_section, m_al, 5U, no_of_memories);
+        wasm::encode_section(code, m_export_section, m_al, 7U, no_of_exports);
         wasm::encode_section(code, m_code_section, m_al, 10U, no_of_functions);
         wasm::encode_section(code, m_data_section, m_al, 11U,
                              no_of_data_segments);
@@ -155,7 +163,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         return nullptr;
     }
 
-    void import_function(ImportFunc &import_func) {
+    void import_function(ImportFunc &import_func, const std::string &env) {
         Vec<ASR::expr_t *> params;
         params.reserve(m_al, import_func.param_types.size());
         uint32_t var_idx;
@@ -181,7 +189,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             nullptr, 0, nullptr, 0, false, false, false);
         m_import_func_asr_map[import_func.name] = func;
 
-        wasm::emit_import_fn(m_import_section, m_al, "js", import_func.name,
+        wasm::emit_import_fn(m_import_section, m_al, env, import_func.name,
                              no_of_types);
         emit_function_prototype(*((ASR::Function_t *)func));
         no_of_imports++;
@@ -201,7 +209,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
 
         for (auto ImportFunc : import_funcs) {
-            import_function(ImportFunc);
+            import_function(ImportFunc, "js");
         }
 
         // In WASM: The indices of the imports precede the indices of other
@@ -243,6 +251,16 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_imports++;
     }
 
+    void emit_wasi_imports() {
+        std::vector<ImportFunc> wasi_imports_funcs = {
+            {"proc_exit", {{ASR::ttypeType::Integer, 4}}, {}}
+        };
+
+        for (auto wasi_func:wasi_imports_funcs) {
+            import_function(wasi_func, "wasi_snapshot_preview1");
+        }
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -251,7 +269,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         global_scope = x.m_global_scope;
         global_scope_loc = x.base.base.loc;
 
-        emit_imports();
+        // emit_imports();
+        emit_wasi_imports();
+        wasm::emit_declare_mem(m_memory_section, m_al, min_no_pages, max_no_pages);
+        no_of_memories++;
+        wasm::emit_export_mem(m_export_section, m_al, "memory", 0
+        /* WebAssembly currently supports only single instance of memory with index 0*/);
+        no_of_exports++;
 
         {
             // Pre-declare all functions first, then generate code
@@ -351,7 +375,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         // Generate main program code
         auto main_func = ASR::make_Function_t(
-            m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_lcompilers_main"),
+            m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
             nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
@@ -598,12 +622,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (size_t i = 0; i < x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
-        if (strcmp(x.m_name, "_lcompilers_main") == 0) {
+        if (strcmp(x.m_name, "_start") == 0) {
             wasm::emit_i32_const(m_code_section, m_al, 0 /* zero exit code */);
             wasm::emit_call(
                 m_code_section, m_al,
                 m_func_name_idx_map[get_hash(
-                                        m_import_func_asr_map["set_exit_code"])]
+                                        m_import_func_asr_map["proc_exit"])]
                     ->index);
         }
         if ((x.n_body == 0) ||
@@ -619,6 +643,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_export_fn(m_export_section, m_al, x.m_name,
                              cur_sym_info->index);  //  add function to export
         no_of_functions++;
+        no_of_exports++;
     }
 
     bool is_unsupported_function(const ASR::Function_t &x) {
@@ -2079,11 +2104,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void exit() {
         // exit_code would be on stack, so set this exit code using
-        // set_exit_code(). this exit code would be read by JavaScript glue code
+        // proc_exit(). this exit code would be read by JavaScript glue code
         wasm::emit_call(
             m_code_section, m_al,
             m_func_name_idx_map[get_hash(
-                                    m_import_func_asr_map["set_exit_code"])]
+                                    m_import_func_asr_map["proc_exit"])]
                 ->index);
         wasm::emit_unreachable(m_code_section, m_al);  // raise trap/exception
     }

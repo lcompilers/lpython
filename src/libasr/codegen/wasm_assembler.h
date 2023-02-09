@@ -168,6 +168,20 @@ void emit_import_fn(Vec<uint8_t> &code, Allocator &al,
     emit_u32(code, al, type_idx);
 }
 
+void emit_declare_mem(Vec<uint8_t> &code, Allocator &al,
+                     uint32_t min_no_pages, uint32_t max_no_pages = 0) {
+    if (max_no_pages) {
+        emit_b8(code, al,
+                0x01);  // for specifying min and max page limits of memory
+        emit_u32(code, al, min_no_pages);
+        emit_u32(code, al, max_no_pages);
+    } else {
+        emit_b8(code, al,
+                0x00);  // for specifying only min page limit of memory
+        emit_u32(code, al, min_no_pages);
+    }
+}
+
 void emit_import_mem(Vec<uint8_t> &code, Allocator &al,
                      const std::string &mod_name, const std::string &mem_name,
                      uint32_t min_no_pages, uint32_t max_no_pages = 0) {
@@ -184,6 +198,13 @@ void emit_import_mem(Vec<uint8_t> &code, Allocator &al,
                 0x00);  // for specifying only min page limit of memory
         emit_u32(code, al, min_no_pages);
     }
+}
+
+void emit_export_mem(Vec<uint8_t> &code, Allocator &al, const std::string &name,
+                    uint32_t idx) {
+    emit_str(code, al, name);
+    emit_b8(code, al, 0x02);  // for exporting memory
+    emit_u32(code, al, idx);
 }
 
 void encode_section(Vec<uint8_t> &des, Vec<uint8_t> &section_content,
