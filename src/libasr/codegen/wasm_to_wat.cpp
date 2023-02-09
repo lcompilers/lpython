@@ -286,6 +286,20 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                " align=" + std::to_string(1U << mem_align);
     }
 
+    std::string get_escaped_str(const std::string &s, bool is_iov) {
+        std::string escaped_str = "";
+        for (auto ch:s) {
+            if (!is_iov && ch >= 32) {
+                escaped_str += ch;
+            } else {
+                std::string byte(2, ' ');
+                sprintf(byte.data(), "%02x", uint8_t(ch));
+                escaped_str += "\\" + byte;
+            }
+        }
+        return escaped_str;
+    }
+
     std::string gen_wat() {
         std::string result = "(module";
         std::string indent = "\n    ";
@@ -381,8 +395,8 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                 date_segment_insts = this->src;
             }
             result += indent + "(data (;" + std::to_string(i) + ";) (" +
-                      date_segment_insts + ") \"" + data_segments[i].text +
-                      "\")";
+                      date_segment_insts + ") \"" +
+                      get_escaped_str(data_segments[i].text, (i % 2 == 0)) + "\")";
         }
 
         result += "\n)\n";
