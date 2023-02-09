@@ -89,7 +89,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_pop_r64(X64Reg::r13); // mem_loc to string iov vector
                 m_a.asm_pop_r64(X64Reg::r14); // filetypes (1 for stdout, not usefull for us currently)
 
-                m_a.asm_mov_r64_label(X64Reg::rbx, "master_string");
+                m_a.asm_mov_r64_label(X64Reg::rbx, "base_memory");
                 m_a.asm_add_r64_r64(X64Reg::rbx, X64Reg::r13);
 
                 m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
@@ -101,7 +101,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
                 {
                     // write system call
-                    m_a.asm_mov_r64_label(X64Reg::rsi, "master_string"); // base_memory
+                    m_a.asm_mov_r64_label(X64Reg::rsi, "base_memory");
                     m_a.asm_add_r64_r64(X64Reg::rsi, X64Reg::rax); // base_memory + location
                     m_a.asm_mov_r64_imm64(X64Reg::rax, 1); // system call no (1 for write)
                     m_a.asm_mov_r64_imm64(X64Reg::rdi, 1); // stdout_file no
@@ -581,11 +581,11 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         // emit_print_double(m_a, "print_f64");
 
         // declare compile-time strings
-        std::string master_string = "    "; /* in wasm memory starts after 4 bytes*/
+        std::string base_memory = "    "; /* in wasm backend, memory starts after 4 bytes*/
         for (uint32_t i = 0; i < data_segments.size(); i++) {
-            master_string += data_segments[i].text;
+            base_memory += data_segments[i].text;
         }
-        label_to_str["master_string"] = master_string;
+        label_to_str["base_memory"] = base_memory;
 
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx + 1].name);
