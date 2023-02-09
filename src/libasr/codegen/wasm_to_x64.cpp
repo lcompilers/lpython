@@ -61,6 +61,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
     void visit_EmtpyBlockType() {}
 
+    void visit_Drop() { m_a.asm_pop_r64(X64Reg::rax); }
+
     void call_imported_function(uint32_t func_idx) {
 
         switch (func_idx) {
@@ -350,6 +352,121 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I32LeS() { handle_I32Compare<&X86Assembler::asm_jle_label>(); }
     void visit_I32Ne() { handle_I32Compare<&X86Assembler::asm_jne_label>(); }
 
+    void visit_I64Const(int32_t value) {
+        m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
+        if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+
+    template<typename F>
+    void handleI64Opt(F && f) {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        f();
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+
+    void visit_I64Add() {
+        handleI64Opt([&](){ m_a.asm_add_r64_r64(X64Reg::rax, X64Reg::rbx);});
+    }
+    void visit_I64Sub() {
+        handleI64Opt([&](){ m_a.asm_sub_r64_r64(X64Reg::rax, X64Reg::rbx);});
+    }
+    void visit_I64Mul() {
+        handleI64Opt([&](){ m_a.asm_mul_r64(X64Reg::rbx);});
+    }
+    void visit_I64DivS() {
+        handleI64Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
+    }
+
+    void visit_I64And() {
+        handleI64Opt([&](){ m_a.asm_and_r64_r64(X64Reg::rax, X64Reg::rbx);});
+    }
+
+    void visit_I64Or() {
+        handleI64Opt([&](){ m_a.asm_or_r64_r64(X64Reg::rax, X64Reg::rbx);});
+    }
+
+    void visit_I64Xor() {
+        handleI64Opt([&](){ m_a.asm_xor_r64_r64(X64Reg::rax, X64Reg::rbx);});
+    }
+
+    void visit_I64RemS() {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_div_r64(X64Reg::rbx);
+        m_a.asm_push_r64(X64Reg::rdx);
+    }
+
+    void visit_I32WrapI64() {
+        // empty, since i32's and i64's are considered similar currently.
+    }
+
+    void visit_I64Store(uint32_t /*mem_align*/, uint32_t /*mem_offset*/) {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        // Store value rbx at location rax
+        X64Reg base = X64Reg::rax;
+        m_a.asm_mov_m64_r64(&base, nullptr, 1, 0, X64Reg::rbx);
+    }
+
+    void visit_I64Shl() {
+        m_a.asm_pop_r64(X64Reg::rcx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_shl_r64_cl(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+    void visit_I64ShrS() {
+        m_a.asm_pop_r64(X64Reg::rcx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_sar_r64_cl(X64Reg::rax);
+        m_a.asm_push_r64(X64Reg::rax);
+     }
+
+    void visit_I64Eqz() {
+        m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
+        m_a.asm_push_r64(X64Reg::rax);
+        handle_I64Compare<&X86Assembler::asm_je_label>();
+    }
+
+    template<JumpFn T>
+    void handle_I64Compare() {
+        std::string label = std::to_string(offset);
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        // `rax` and `rbx` contain the left and right operands, respectively
+        m_a.asm_cmp_r64_r64(X64Reg::rax, X64Reg::rbx);
+
+        (m_a.*T)(".compare_1" + label);
+
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
+    }
+
+    void visit_I64Eq() { handle_I64Compare<&X86Assembler::asm_je_label>(); }
+    void visit_I64GtS() { handle_I64Compare<&X86Assembler::asm_jg_label>(); }
+    void visit_I64GeS() { handle_I64Compare<&X86Assembler::asm_jge_label>(); }
+    void visit_I64LtS() { handle_I64Compare<&X86Assembler::asm_jl_label>(); }
+    void visit_I64LeS() { handle_I64Compare<&X86Assembler::asm_jle_label>(); }
+    void visit_I64Ne() { handle_I64Compare<&X86Assembler::asm_jne_label>(); }
+
+    void visit_I64TruncF64S() {
+        X64Reg stack_top = X64Reg::rsp;
+        m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0); // load into floating-point register
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // increment stack and deallocate space
+        m_a.asm_cvttsd2si_r64_r64(X64Reg::rax, X64FReg::xmm0); // rax now contains value int(xmm0)
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+
+    void visit_I64ExtendI32S() {
+        // empty, since all i32's are already considered as i64's currently.
+    }
+
     std::string float_to_str(double z) {
         std::string float_str = "";
         for (auto ch:std::to_string(z)) {
@@ -421,6 +538,13 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Lt() { handleF64Compare(Fcmp::lt); }
     void visit_F64Le() { handleF64Compare(Fcmp::le); }
     void visit_F64Ne() { handleF64Compare(Fcmp::ne); }
+
+    void visit_F64ConvertI64S() {
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_cvtsi2sd_r64_r64(X64FReg::xmm0, X64Reg::rax);
+        X64Reg stack_top = X64Reg::rsp;
+        m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
+    }
 
     void gen_x64_bytes() {
         // {   // Initialize/Modify values of entities
