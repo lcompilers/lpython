@@ -208,6 +208,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32") {
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
                 m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "i64") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
+                m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
                 m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
@@ -220,6 +223,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             localidx -= no_of_params;
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
+                m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "i64") {
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
@@ -242,6 +248,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32") {
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64Reg::rax);
+            } else if (var_type == "i64") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64Reg::rax);
             } else if (var_type == "f64") {
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
@@ -254,6 +263,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             localidx -= no_of_params;
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
+            } else if (var_type == "i64") {
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
             } else if (var_type == "f64") {
