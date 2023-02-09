@@ -37,6 +37,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     X86Assembler &m_a;
     uint32_t cur_func_idx;
     uint32_t block_id;
+    uint32_t NO_OF_IMPORTS;
     std::vector<std::pair<uint32_t, Block>> blocks;
     std::map<std::string, std::string> label_to_str;
     std::map<std::string, double> double_consts;
@@ -48,6 +49,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
         block_id = 1;
+        NO_OF_IMPORTS = 0;
     }
 
     void visit_Return() {
@@ -119,12 +121,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_Call(uint32_t func_idx) {
-        if (func_idx <= 1U) {
+        if (func_idx < NO_OF_IMPORTS) {
             call_imported_function(func_idx);
             return;
         }
 
-        func_idx -= 2u; // adjust function index as per imports
+        func_idx -= NO_OF_IMPORTS; // adjust function index as per imports
         m_a.asm_call_label(exports[func_idx + 1 /* offset by 1 becaz of mem export */].name);
 
         // Pop the passed function arguments
@@ -594,6 +596,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         }
         label_to_str["base_memory"] = base_memory;
 
+        NO_OF_IMPORTS = imports.size();
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx + 1].name);
             {
