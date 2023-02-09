@@ -332,6 +332,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_b8(m_code_section, m_al, wasm::type::i64);
         }
 
+        // locals 0 is given parameter
+        // locals 1 is digits_cnt
+        // locals 2 is divisor (in powers of 10)
+        // locals 3 is loop counter (counts upto digits_cnt (which is decreasing))
+        // locals 4 is extra copy of given parameter
+
         emit_if_else([&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
             wasm::emit_i64_const(m_code_section, m_al, 0);
@@ -368,11 +374,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_i64_add(m_code_section, m_al);
             wasm::emit_set_local(m_code_section, m_al, 1);
             wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
             wasm::emit_i64_const(m_code_section, m_al, 10);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
-            wasm::emit_f64_div(m_code_section, m_al);
-            wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
+            wasm::emit_i64_div_s(m_code_section, m_al);
             wasm::emit_set_local(m_code_section, m_al, 0);
         });
 
@@ -389,19 +392,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_i64_const(m_code_section, m_al, 1);
             wasm::emit_set_local(m_code_section, m_al, 2);
             wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_i64_sub(m_code_section, m_al);
             wasm::emit_set_local(m_code_section, m_al, 3);
 
             emit_loop([&](){
                 wasm::emit_get_local(m_code_section, m_al, 3);
-                wasm::emit_i64_const(m_code_section, m_al, 1);
-                wasm::emit_i64_add(m_code_section, m_al);
-
                 wasm::emit_get_local(m_code_section, m_al, 1);
-                wasm::emit_i64_const(m_code_section, m_al, 1);
-                wasm::emit_i64_sub(m_code_section, m_al);
-                wasm::emit_i64_le_s(m_code_section, m_al);
+                wasm::emit_i64_lt_s(m_code_section, m_al);
             }, [&](){
                 wasm::emit_get_local(m_code_section, m_al, 3);
                 wasm::emit_i64_const(m_code_section, m_al, 1);
@@ -415,11 +411,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
 
             wasm::emit_get_local(m_code_section, m_al, 4);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
             wasm::emit_get_local(m_code_section, m_al, 2);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
-            wasm::emit_f64_div(m_code_section, m_al);
-            wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
+            wasm::emit_i64_div_s(m_code_section, m_al);
             wasm::emit_i64_const(m_code_section, m_al, 10);
             wasm::emit_i64_rem_s(m_code_section, m_al);
 
