@@ -4652,12 +4652,14 @@ public:
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
         llvm::Value *zero, *cond;
+        llvm::AllocaInst *result;
         if (ASRUtils::is_integer(*x.m_type)) {
             int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
             int init_value_bits = 8*a_kind;
             zero = llvm::ConstantInt::get(context,
                             llvm::APInt(init_value_bits, 0));
             cond = builder->CreateICmpEQ(left_val, zero);
+            result = builder->CreateAlloca(getIntType(a_kind), nullptr);
         } else if (ASRUtils::is_real(*x.m_type)) {
             int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
             int init_value_bits = 8*a_kind;
@@ -4668,31 +4670,39 @@ public:
                 zero = llvm::ConstantFP::get(context,
                                     llvm::APFloat((double)0));
             }
+            result = builder->CreateAlloca(getFPType(a_kind), nullptr);
             cond = builder->CreateFCmpUEQ(left_val, zero);
         } else if (ASRUtils::is_character(*x.m_type)) {
             zero = llvm::Constant::getNullValue(character_type);
             cond = lfortran_str_cmp(left_val, zero, "_lpython_str_compare_eq");
+            result = builder->CreateAlloca(character_type, nullptr);
         } else if (ASRUtils::is_logical(*x.m_type)) {
             zero = llvm::ConstantInt::get(context,
                             llvm::APInt(1, 0));
             cond = builder->CreateICmpEQ(left_val, zero);
+            result = builder->CreateAlloca(getIntType(1), nullptr);
         } else {
             throw CodeGenError("Only Integer, Real, Strings and Logical types are supported "
             "in logical binary operation.", x.base.base.loc);
         }
         switch (x.m_op) {
             case ASR::logicalbinopType::And: {
-                tmp = right_val;
-                create_if_else(cond, [=]() {
-                    tmp = left_val;
-                }, []() {});
+                create_if_else(cond, [&, result, left_val]() {
+                    LLVM::CreateStore(*builder, left_val, result);
+                }, [&, result, right_val]() {
+                    LLVM::CreateStore(*builder, right_val, result);
+                });
+                tmp = LLVM::CreateLoad(*builder, result);
                 break;
             };
             case ASR::logicalbinopType::Or: {
-                tmp = left_val;
-                create_if_else(cond, [=]() {
-                    tmp = right_val;
-                }, []() {});
+                create_if_else(cond, [&, result, right_val]() {
+                    LLVM::CreateStore(*builder, right_val, result);
+
+                }, [&, result, left_val]() {
+                    LLVM::CreateStore(*builder, left_val, result);
+                });
+                tmp = LLVM::CreateLoad(*builder, result);
                 break;
             };
             case ASR::logicalbinopType::Xor: {
