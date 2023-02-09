@@ -578,16 +578,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void gen_x64_bytes() {
-        // {   // Initialize/Modify values of entities
-            // exports.back().name = "_start"; // Update _lcompilers_main() to _start
-            // label_to_str["string_newline"] = "\n";
-            // label_to_str["string_neg"] = "-"; // - symbol for printing negative ints
-            // label_to_str["string_dot"] = "."; // . symbol for printing floats
-        // }
-
         emit_elf64_header(m_a);
-        // emit_print_int_64(m_a, "print_i64");
-        // emit_print_double(m_a, "print_f64");
 
         // declare compile-time strings
         std::string base_memory = "    "; /* in wasm backend, memory starts after 4 bytes*/

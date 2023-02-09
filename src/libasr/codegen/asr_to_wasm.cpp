@@ -556,7 +556,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         global_scope = x.m_global_scope;
         global_scope_loc = x.base.base.loc;
 
-        // emit_imports();
         avail_mem_loc += 4; /* initial 4 bytes to store return values of wasi funcs*/
         emit_wasi_imports();
 
