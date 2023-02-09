@@ -312,7 +312,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         handleI32Opt([&](){ m_a.asm_mul_r64(X64Reg::rbx);});
     }
     void visit_I32DivS() {
-        handleI32Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
+        handleI32Opt([&](){
+            m_a.asm_mov_r64_imm64(X64Reg::rdx, 0);
+            m_a.asm_div_r64(X64Reg::rbx);
+        });
     }
 
     void visit_I32And() {
@@ -397,7 +400,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         handleI64Opt([&](){ m_a.asm_mul_r64(X64Reg::rbx);});
     }
     void visit_I64DivS() {
-        handleI64Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
+        handleI64Opt([&](){
+            m_a.asm_mov_r64_imm64(X64Reg::rdx, 0);
+            m_a.asm_div_r64(X64Reg::rbx);});
     }
 
     void visit_I64And() {
@@ -415,6 +420,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I64RemS() {
         m_a.asm_pop_r64(X64Reg::rbx);
         m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_mov_r64_imm64(X64Reg::rdx, 0);
         m_a.asm_div_r64(X64Reg::rbx);
         m_a.asm_push_r64(X64Reg::rdx);
     }
