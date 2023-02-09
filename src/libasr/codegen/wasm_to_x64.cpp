@@ -183,7 +183,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 In case of loop, it is a backward jump to the beginning of the loop.
             */
             case Block::LOOP: m_a.asm_jmp_label(".loop.head_" + label); break;
-            case Block::IF: m_a.asm_jmp_label(".else_" + label); break;
+            case Block::IF: m_a.asm_jmp_label(".endif_" + label); break;
         }
     }
 
@@ -522,10 +522,11 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
         // load first operand into floating-point register
         m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
-        // no need to pop this operand since we need space to output back result
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
 
         (m_a.*T)(X64FReg::xmm0, X64FReg::xmm1);
 
+        m_a.asm_sub_r64_imm32(X64Reg::rsp, 8); // decrement stack and create space
         // store float result back on stack top;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
     }
