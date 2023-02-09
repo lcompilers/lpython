@@ -100,6 +100,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                     m_a.asm_mov_r64_imm64(X64Reg::rdi, 1); // stdout_file no
                     // rsi stores location, length is already stored in rdx
                     m_a.asm_syscall();
+
+                    m_a.asm_push_r64(X64Reg::rax); // push return value onto stack
                 }
                 break;
             }
@@ -554,6 +556,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64ConvertI64S() {
         m_a.asm_pop_r64(X64Reg::rax);
         m_a.asm_cvtsi2sd_r64_r64(X64FReg::xmm0, X64Reg::rax);
+        m_a.asm_sub_r64_imm32(X64Reg::rsp, 8); // decrement stack and create space
         X64Reg stack_top = X64Reg::rsp;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
