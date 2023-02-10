@@ -629,6 +629,7 @@ TEST_CASE("print integer") {
     LCompilers::X86Assembler a(al, false);
 
     LCompilers::emit_elf32_header(a);
+    emit_data_string(a, "string_neg", "-"); // - symbol for printing negative ints/floats
     LCompilers::emit_print_int(a, "print_int");
     LCompilers::emit_exit(a, "exit", 0);
     a.add_label("_start");
