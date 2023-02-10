@@ -62,6 +62,7 @@ public:
 
         emit_elf32_header(m_a);
 
+        emit_data_string(m_a, "string_neg", "-"); // - symbol for printing negative ints/floats
         // Add runtime library functions
         emit_print_int(m_a, "print_int");
         emit_exit(m_a, "my_exit", 0);
