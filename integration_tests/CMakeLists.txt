@@ -191,7 +191,7 @@ macro(RUN)
                 message(STATUS "${WASM_EXEC_RUNTIME} version: ${WASM_EXEC_VERSION}")
                 set(WASM_EXEC_FLAGS "--experimental-wasm-bigint")
             endif()
-
+            set(WASM_EXEC_FLAGS ${WASM_EXEC_FLAGS} "--experimental-wasi-unstable-preview1")
             add_test(${name} ${WASM_EXEC_RUNTIME} ${WASM_EXEC_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${name}.js)
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
@@ -212,6 +212,8 @@ RUN(NAME variable_decl_01         LABELS cpython llvm c)
 RUN(NAME variable_decl_02         LABELS cpython llvm c)
 RUN(NAME array_expr_01            LABELS cpython llvm)
 RUN(NAME array_expr_02            LABELS cpython llvm)
+RUN(NAME array_01            LABELS cpython llvm wasm)
+RUN(NAME array_02            LABELS cpython wasm)
 RUN(NAME bindc_01            LABELS cpython llvm c)
 RUN(NAME bindc_02            LABELS cpython llvm c)
 RUN(NAME bindc_04            LABELS llvm c)
@@ -226,6 +228,7 @@ RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm c)
+RUN(NAME print_05            LABELS cpython llvm wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm wasm wasm_x64)
 RUN(NAME print_list_tuple    LABELS cpython c) # TODO: llvm doesn't completely support printing list
 

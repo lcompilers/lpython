@@ -213,8 +213,6 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
-
-    emit_data_string(a, "string_neg", "-"); // - symbol for printing negative ints
 }
 
 void emit_print_float(X86Assembler &a, const std::string &name) {
@@ -263,8 +261,6 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
     a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
-
-    emit_data_string(a, "string_dot", "."); // - symbol for printing floats
 }
 
 /************************* 64-bit functions **************************/
