@@ -219,7 +219,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_fld_m32(&base, nullptr, 1, 4 * (2 + no_of_params - (int)localidx - 1));
                 m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0);
             } else {
-                throw CodeGenError("WASM_X86: Var type not supported");
+                throw AssemblerError("WASM_X86: Var type not supported");
             }
 
         } else {
@@ -234,7 +234,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_fld_m32(&base, nullptr, 1, -4 * (1 + localidx));
                 m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0);
             } else {
-                throw CodeGenError("WASM_X86: Var type not supported");
+                throw AssemblerError("WASM_X86: Var type not supported");
             }
         }
     }
@@ -253,7 +253,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_fstp_m32(&base, nullptr, 1, 4 * (2 + no_of_params - (int)localidx - 1)); // store float at variable location
                 m_a.asm_add_r32_imm32(X86Reg::esp, 4); // increment stack top and thus pop the value to be set
             } else {
-                throw CodeGenError("WASM_X86: Var type not supported");
+                throw AssemblerError("WASM_X86: Var type not supported");
             }
 
         } else {
@@ -268,7 +268,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_fstp_m32(&base, nullptr, 1, -4 * (1 + (int)localidx)); // store float at variable location
                 m_a.asm_add_r32_imm32(X86Reg::esp, 4); // increment stack top and thus pop the value to be set
             } else {
-                throw CodeGenError("WASM_X86: Var type not supported");
+                throw AssemblerError("WASM_X86: Var type not supported");
             }
         }
     }

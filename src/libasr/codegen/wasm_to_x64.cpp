@@ -228,7 +228,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
             } else {
-                throw CodeGenError("WASM_X64: Var type not supported");
+                throw AssemblerError("WASM_X64: Var type not supported");
             }
         } else {
             localidx -= no_of_params;
@@ -245,7 +245,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
             } else {
-                throw CodeGenError("WASM_X64: Var type not supported");
+                throw AssemblerError("WASM_X64: Var type not supported");
             }
         }
     }
@@ -268,7 +268,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64FReg::xmm0);
                 m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // remove from stack top
             } else {
-                throw CodeGenError("WASM_X64: Var type not supported");
+                throw AssemblerError("WASM_X64: Var type not supported");
             }
         } else {
             localidx -= no_of_params;
@@ -285,7 +285,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64FReg::xmm0);
                 m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // remove from stack top
             } else {
-                throw CodeGenError("WASM_X64: Var type not supported");
+                throw AssemblerError("WASM_X64: Var type not supported");
             }
         }
     }
