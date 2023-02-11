@@ -122,7 +122,7 @@ public:
             }
             print_stmt = ASRUtils::STMT(ASR::make_Print_t(
                 al, x.base.base.loc, nullptr, body.p, body.size(),
-                nullptr, nullptr));
+                x.m_separator, x.m_end));
             pass_result.push_back(al, print_stmt);
             print_body.clear();
         }
