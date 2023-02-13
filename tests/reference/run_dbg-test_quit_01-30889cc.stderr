@@ -1,5 +1,2 @@
-  File "tests/runtime_errors/test_quit_01.py", line 4
-    test()
-  File "tests/runtime_errors/test_quit_01.py", line 2
-    quit(10)
+warning: The `runtime stacktrace` is not enabled. To get the stacktraces, re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`
 STOP

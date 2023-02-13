@@ -1,5 +1,2 @@
-  File "tests/runtime_errors/test_assert_01.py", line 4
-    test()
-  File "tests/runtime_errors/test_assert_01.py", line 2
-    assert False
+warning: The `runtime stacktrace` is not enabled. To get the stacktraces, re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`
 AssertionError
