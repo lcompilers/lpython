@@ -55,8 +55,18 @@ def test_list_02():
         assert x[i] == y[i]
 
 
+def test_list_03():
+    x: list[i32]
+    x.append(2)
+    assert len(x) == 1
+    x.append(10)
+    assert len(x) == 2
+    assert x[0] == 2 and x[1] == 10
+
+
 def tests():
     test_list_01()
     test_list_02()
+    test_list_03()
 
 tests()
