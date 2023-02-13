@@ -945,6 +945,20 @@ R"(#include <stdio.h>
         }
     }
 
+    void visit_DictInsert(const ASR::DictInsert_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
+        std::string dict_insert_fun = c_ds_api->get_dict_insert_func(t);
+        self().visit_expr(*x.m_a);
+        std::string d_var = std::move(src);
+        self().visit_expr(*x.m_key);
+        std::string key = std::move(src);
+        self().visit_expr(*x.m_value);
+        std::string val = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + dict_insert_fun + "(&" + d_var + ", " + key + ", " + val + ");\n";
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);

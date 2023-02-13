@@ -1115,6 +1115,16 @@ class CCPPDSUtils {
             generated_code += tmp_gen;
         }
 
+        std::string get_dict_insert_func(ASR::Dict_t* d_type) {
+            std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
+            return typecodeToDSfuncs[dict_type_code]["dict_insert"];
+        }
+
+        std::string get_dict_init_func(ASR::Dict_t* d_type) {
+            std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
+            return typecodeToDSfuncs[dict_type_code]["dict_init"];
+        }
+
         std::string get_dict_type(ASR::Dict_t* dict_type) {
             if (!ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
                 throw CodeGenError("Only Integer keys supported for now in C-dictionary");
@@ -1130,9 +1140,9 @@ class CCPPDSUtils {
             std::string tmp_gen = "";
             tmp_gen += indent + dict_struct_type + " {\n";
             tmp_gen += indent + tab + \
-                    CUtils::get_c_type_from_ttype_t(dict_type->m_key_type) + " key;\n";
+                    CUtils::get_c_type_from_ttype_t(dict_type->m_key_type) + " *key;\n";
             tmp_gen += indent + tab + \
-                    CUtils::get_c_type_from_ttype_t(dict_type->m_value_type) + " value;\n";
+                    CUtils::get_c_type_from_ttype_t(dict_type->m_value_type) + " *value;\n";
             tmp_gen += indent + tab + "int capacity;\n";
             tmp_gen += indent + tab + "bool *present;\n";
             tmp_gen += indent + "};\n\n";
@@ -1179,20 +1189,20 @@ class CCPPDSUtils {
             std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
             std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
             generated_code += indent + signature + " {\n";
-            generated_code += indent + tab + key + "*tmp_key = (" + key + "*) " +
+            generated_code += indent + tab + key + " *tmp_key = (" + key + " *) " +
                               "malloc(x->capacity * sizeof(" + key + "));\n";
             generated_code += indent + tab + "memcpy(tmp_key, x->key, x->capacity * sizeof(" +\
-                                                key + ");\n";
-            generated_code += indent + tab + val + "*tmp_val = (" + val + "*) " +
+                                                key + "));\n";
+            generated_code += indent + tab + val + " *tmp_val = (" + val + " *) " +
                               "malloc(x->capacity * sizeof(" + val + "));\n";
-            generated_code += indent + tab + "memcpy(tmp_val, x->val, x->capacity * sizeof(" +\
-                                                val + ");\n";
-            generated_code += indent + tab + "bool *tmp_p = (bool*) " +
+            generated_code += indent + tab + "memcpy(tmp_val, x->value, x->capacity * sizeof(" +\
+                                                val + "));\n";
+            generated_code += indent + tab + "bool *tmp_p = (bool *) " +
                               "malloc(x->capacity * sizeof(bool));\n";
             generated_code += indent + tab + \
-                    "memcpy(tmp_p, x->present, x->capacity * sizeof(bool);\n";
+                    "memcpy(tmp_p, x->present, x->capacity * sizeof(bool));\n";
             generated_code += indent + tab + "x->capacity = 2*x->capacity;\n";
-            generated_code += indent + tab + "free(x->key); free(x->val); free(x->present);\n";
+            generated_code += indent + tab + "free(x->key); free(x->value); free(x->present);\n";
             generated_code += indent + tab + "x->key = (" + key + "*) " +
                               "malloc(x->capacity * sizeof(" + key + "));\n";
             generated_code += indent + tab + "x->value = (" + val + "*) " +
@@ -1206,7 +1216,7 @@ class CCPPDSUtils {
             generated_code += indent + tab + tab + tab + "int j=tmp_key[i]\%x->capacity;\n";
             generated_code += indent + tab + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
             generated_code += indent + tab + tab + tab + \
-                "x->key[j] = tmp_key[i]; x->val[j] = tmp_val[i]; x->present[j] = true;\n";
+                "x->key[j] = tmp_key[i]; x->value[j] = tmp_val[i]; x->present[j] = true;\n";
             generated_code += indent + tab + tab + "}\n" + indent + tab + "}\n";
             generated_code += indent + tab + tab + "free(tmp_key); free(tmp_val); free(tmp_p);\n";
             generated_code += indent + "}\n\n";
@@ -1234,7 +1244,7 @@ class CCPPDSUtils {
             generated_code += indent + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
             generated_code += indent + tab + "}\n";
             generated_code += indent + tab + \
-                "x->key[j] = k; x->val[j] = v; x->present[j] = true;\n";
+                "x->key[j] = k; x->value[j] = v; x->present[j] = true;\n";
             generated_code += indent + "}\n\n";
         }
 
