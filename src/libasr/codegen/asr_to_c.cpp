@@ -493,6 +493,15 @@ public:
                 std::string list_type_c = c_ds_api->get_list_type(t);
                 sub = format_type_c("", list_type_c, v.m_name,
                                     false, false);
+                if( v.m_intent == ASRUtils::intent_local &&
+                    !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
+                      ASR::is_a<ASR::StructType_t>(
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
+                    std::string indent(indentation_level * indentation_spaces, ' ');
+                    std::string list_init = c_ds_api->get_list_init_func(t);
+                    sub = sub + ";\n" + indent + list_init + "(&" + v.m_name + ", 8)";
+                }
+
             } else if (ASR::is_a<ASR::Tuple_t>(*v_m_type)) {
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v_m_type);
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
