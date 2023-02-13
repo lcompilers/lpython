@@ -4680,7 +4680,7 @@ public:
             zero = llvm::ConstantInt::get(context,
                             llvm::APInt(1, 0));
             cond = builder->CreateICmpEQ(left_val, zero);
-            result = builder->CreateAlloca(getIntType(1), nullptr);
+            result = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         } else {
             throw CodeGenError("Only Integer, Real, Strings and Logical types are supported "
             "in logical binary operation.", x.base.base.loc);
