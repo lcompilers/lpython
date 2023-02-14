@@ -110,8 +110,8 @@ public:
             }
         }
 
-        for (size_t i=0; i<x->n_restrictions; i++) {
-            rts.push_back(ASR::down_cast<ASR::Function_t>(x->m_restrictions[i]));
+        for (size_t i=0; i<ASRUtils::get_FunctionType(x)->n_restrictions; i++) {
+            rts.push_back(ASR::down_cast<ASR::Function_t>(ASRUtils::get_FunctionType(x)->m_restrictions[i]));
         }
 
         Vec<ASR::stmt_t*> body;
@@ -123,14 +123,14 @@ public:
             }
         }
 
-        ASR::abiType func_abi = x->m_abi;
+        ASR::abiType func_abi = ASRUtils::get_FunctionType(x)->m_abi;
         ASR::accessType func_access = x->m_access;
-        ASR::deftypeType func_deftype = x->m_deftype;
-        char *bindc_name = x->m_bindc_name;
+        ASR::deftypeType func_deftype = ASRUtils::get_FunctionType(x)->m_deftype;
+        char *bindc_name = ASRUtils::get_FunctionType(x)->m_bindc_name;
 
-        bool func_elemental = x->m_elemental;
-        bool func_pure = x->m_pure;
-        bool func_module = x->m_module;
+        bool func_elemental = ASRUtils::get_FunctionType(x)->m_elemental;
+        bool func_pure = ASRUtils::get_FunctionType(x)->m_pure;
+        bool func_module = ASRUtils::get_FunctionType(x)->m_module;
 
         Vec<char*> deps_vec;
         deps_vec.reserve(al, dependencies.size());
@@ -138,7 +138,7 @@ public:
             deps_vec.push_back(al, s2c(al, dep));
         }
 
-        ASR::asr_t *result = ASR::make_Function_t(
+        ASR::asr_t *result = ASRUtils::make_Function_t_util(
             al, x->base.base.loc,
             current_scope, s2c(al, new_func_name),
             deps_vec.p, deps_vec.size(),
@@ -146,8 +146,8 @@ public:
             body.p, body.size(),
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
-            func_elemental, func_pure, func_module, x->m_inline,
-            x->m_static, nullptr, 0, nullptr, 0, false, false, false);
+            func_elemental, func_pure, func_module, ASRUtils::get_FunctionType(x)->m_inline,
+            ASRUtils::get_FunctionType(x)->m_static, nullptr, 0, nullptr, 0, false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         func_scope->add_symbol(new_func_name, t);

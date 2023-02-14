@@ -425,7 +425,7 @@ public:
     std::string get_function_declaration(const ASR::Function_t& x)
     {
         std::string sub, inl, ret_type;
-        if (x.m_inline) {
+        if (ASRUtils::get_FunctionType(x)->m_inline) {
             inl = "@inline ";
         }
         if (x.m_return_var) {
@@ -665,7 +665,8 @@ public:
             sym_info[get_hash((ASR::asr_t*) &x)] = s;
         }
         std::string sub = get_function_declaration(x);
-        if (x.m_abi == ASR::abiType::BindC && x.m_deftype == ASR::deftypeType::Interface) {
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
+            ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
         } else {
             indentation_level += 1;
             std::string indent(indentation_level * indentation_spaces, ' ');

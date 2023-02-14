@@ -327,10 +327,10 @@ R"(#include <stdio.h>
         template_for_Kokkos.clear();
         template_number = 0;
         std::string sub, inl, static_attr;
-        if (x.m_inline) {
+        if (ASRUtils::get_FunctionType(x)->m_inline) {
             inl = "inline __attribute__((always_inline)) ";
         }
-        if( x.m_static ) {
+        if( ASRUtils::get_FunctionType(x)->m_static ) {
             static_attr = "static ";
         }
         if (x.m_return_var) {
@@ -471,8 +471,8 @@ R"(#include <stdio.h>
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub = get_function_declaration(x);
-        if (x.m_abi == ASR::abiType::BindC
-                && x.m_deftype == ASR::deftypeType::Interface) {
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
+            && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
         } else {
             sub += "\n";

@@ -28,7 +28,7 @@ public:
     void visit_Function(const ASR::Function_t &x) {
         if (x.m_return_var) {
             uint64_t h = get_hash((ASR::asr_t*)&x);
-            if (x.m_abi != ASR::abiType::BindC) {
+            if (ASRUtils::get_FunctionType(x)->m_abi != ASR::abiType::BindC) {
                 fn_declarations[h] = x.m_name;
             }
         }
