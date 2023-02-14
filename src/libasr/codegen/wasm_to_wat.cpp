@@ -41,6 +41,12 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
     void visit_LocalSet(uint32_t localidx) {
         src += indent + "local.set " + std::to_string(localidx);
     }
+    void visit_GlobalGet(uint32_t globalidx) {
+        src += indent + "global.get " + std::to_string(globalidx);
+    }
+    void visit_GlobalSet(uint32_t globalidx) {
+        src += indent + "global.set " + std::to_string(globalidx);
+    }
     void visit_EmtpyBlockType() {}
     void visit_If() {
         src += indent + "if";
@@ -333,6 +339,20 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                     std::to_string(imports[i].mem_page_size_limits.second) +
                     "))";
             }
+        }
+
+        for (uint32_t i = 0; i < globals.size(); i++) {
+            std::string global_initialization_insts = "";
+            {
+                this->offset = globals.p[i].insts_start_idx;
+                this->indent = "";
+                this->src = "";
+                decode_instructions();
+                global_initialization_insts = this->src;
+            }
+            result += indent + "(global $" + std::to_string(i);
+            result += " " + var_type_to_string[globals[i].type];
+            result += " (" + global_initialization_insts + "))";
         }
 
         for (uint32_t i = 0; i < type_indices.size(); i++) {

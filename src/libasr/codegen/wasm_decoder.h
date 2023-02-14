@@ -60,6 +60,7 @@ class WASMDecoder {
     Vec<wasm::Import> imports;
     Vec<uint32_t> type_indices;
     Vec<std::pair<uint32_t, uint32_t>> memories;
+    Vec<wasm::Global> globals;
     Vec<wasm::Export> exports;
     Vec<wasm::Code> codes;
     Vec<wasm::Data> data_segments;
@@ -223,6 +224,19 @@ class WASMDecoder {
         }
     }
 
+    void decode_global_section(uint32_t offset) {
+        // read global section contents
+        uint32_t no_of_globals = read_u32(wasm_bytes, offset);
+        DEBUG("no_of_globals: " + std::to_string(no_of_globals));
+        globals.resize(al, no_of_globals);
+
+        for (uint32_t i = 0; i < no_of_globals; i++) {
+            globals.p[i].type = read_b8(wasm_bytes, offset);
+            globals.p[i].mut = read_b8(wasm_bytes, offset);
+            globals.p[i].insts_start_idx = offset;
+        }
+    }
+
     void decode_export_section(uint32_t offset) {
         // read export section contents
         uint32_t no_of_exports = read_u32(wasm_bytes, offset);
@@ -340,6 +354,10 @@ class WASMDecoder {
                     break;
                 case 5U:
                     decode_memory_section(index);
+                    // exit(0);
+                    break;
+                case 6U:
+                    decode_global_section(index);
                     // exit(0);
                     break;
                 case 7U:
