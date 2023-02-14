@@ -78,6 +78,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     Vec<uint8_t> m_import_section;
     Vec<uint8_t> m_func_section;
     Vec<uint8_t> m_memory_section;
+    Vec<uint8_t> m_global_section;
     Vec<uint8_t> m_export_section;
     Vec<uint8_t> m_code_section;
     Vec<uint8_t> m_data_section;
@@ -85,6 +86,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t no_of_types;
     uint32_t no_of_functions;
     uint32_t no_of_memories;
+    uint32_t no_of_globals;
     uint32_t no_of_exports;
     uint32_t no_of_imports;
     uint32_t no_of_data_segments;
@@ -110,6 +112,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         avail_mem_loc = 0;
         no_of_functions = 0;
         no_of_memories = 0;
+        no_of_globals = 0;
         no_of_exports = 0;
         no_of_imports = 0;
         no_of_data_segments = 0;
@@ -121,6 +124,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         m_import_section.reserve(m_al, 1024 * 128);
         m_func_section.reserve(m_al, 1024 * 128);
         m_memory_section.reserve(m_al, 1024 * 128);
+        m_global_section.reserve(m_al, 1024 * 128);
         m_export_section.reserve(m_al, 1024 * 128);
         m_code_section.reserve(m_al, 1024 * 128);
         m_data_section.reserve(m_al, 1024 * 128);
@@ -129,10 +133,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void get_wasm(Vec<uint8_t> &code) {
         code.reserve(m_al, 8U /* preamble size */ +
                                8U /* (section id + section size) */ *
-                                   7U /* number of sections */
+                                   8U /* number of sections */
                                + m_type_section.size() +
                                m_import_section.size() + m_func_section.size() +
-                               m_memory_section.size() +
+                               m_memory_section.size() + m_global_section.size() +
                                m_export_section.size() + m_code_section.size() +
                                m_data_section.size());
 
@@ -144,6 +148,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::encode_section(code, m_import_section, m_al, 2U, no_of_imports);
         wasm::encode_section(code, m_func_section, m_al, 3U, no_of_functions);
         wasm::encode_section(code, m_memory_section, m_al, 5U, no_of_memories);
+        wasm::encode_section(code, m_global_section, m_al, 6U, no_of_globals);
         wasm::encode_section(code, m_export_section, m_al, 7U, no_of_exports);
         wasm::encode_section(code, m_code_section, m_al, 10U, no_of_functions);
         wasm::encode_section(code, m_data_section, m_al, 11U,
@@ -548,6 +553,16 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_exports++;
     }
 
+    void declare_global_vars() {
+        { // global variable to hold the available memory location
+            m_global_section.push_back(m_al, wasm::type::i32);
+            m_global_section.push_back(m_al, 0x01 /* mutable */);
+            wasm::emit_i32_const(m_global_section, m_al, 0);
+            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+            no_of_globals++;
+        }
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -563,6 +578,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_memories++;
         wasm::emit_export_mem(m_export_section, m_al, "memory", 0 /* mem_idx */);
         no_of_exports++;
+
+        declare_global_vars();
 
         emit_string(" ");
         emit_string("\n");
