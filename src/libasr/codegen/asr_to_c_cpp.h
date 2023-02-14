@@ -959,6 +959,21 @@ R"(#include <stdio.h>
         src = indent + dict_insert_fun + "(&" + d_var + ", " + key + ", " + val + ");\n";
     }
 
+    void visit_DictItem(const ASR::DictItem_t& x) {
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(x.m_a));
+        std::string dict_get_fun = c_ds_api->get_dict_get_func(dict_type);
+
+        this->visit_expr(*x.m_a);
+        std::string d_var = std::move(src);
+
+        this->visit_expr(*x.m_key);
+        std::string k = std::move(src);
+
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + dict_get_fun + "(&" + d_var + ", " + k + ")";
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
