@@ -144,17 +144,18 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             ASR::symbol_t* new_symbol = nullptr;
             std::string new_name = std::string(x->m_name) + suffix;
             if( ASR::is_a<ASR::Function_t>( *((ASR::symbol_t*) x) ) ) {
+                ASR::FunctionType_t* x_func_type = ASRUtils::get_FunctionType(x);
                 std::string new_bindc_name = "";
-                if( x->m_bindc_name ) {
-                    new_bindc_name = std::string(x->m_bindc_name) + suffix;
+                if( x_func_type->m_bindc_name ) {
+                    new_bindc_name = std::string(x_func_type->m_bindc_name) + suffix;
                 }
-                ASR::asr_t* new_subrout = ASR::make_Function_t(al, x->base.base.loc,
+                ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x->base.base.loc,
                                             new_symtab, s2c(al, new_name), x->m_dependencies, x->n_dependencies,
                                             new_args.p, new_args.size(),  new_body.p, new_body.size(),
-                                            return_var, x->m_abi, x->m_access, x->m_deftype,
-                                            s2c(al, new_bindc_name), x->m_elemental,
-                                            x->m_pure, x->m_module, x->m_inline,
-                                            x->m_static, nullptr, 0, nullptr, 0, false, false, false);
+                                            return_var, x_func_type->m_abi, x->m_access, x_func_type->m_deftype,
+                                            s2c(al, new_bindc_name), x_func_type->m_elemental,
+                                            x_func_type->m_pure, x_func_type->m_module, x_func_type->m_inline,
+                                            x_func_type->m_static, nullptr, 0, nullptr, 0, false, false, false);
                 new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
             }
             current_scope->add_symbol(new_name, new_symbol);

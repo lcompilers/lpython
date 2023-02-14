@@ -108,7 +108,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = ASRUtils::intent_return_var;
 
 
-            ASR::asr_t *fn = ASR::make_Function_t(
+            ASR::asr_t *fn = ASRUtils::make_Function_t_util(
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,
@@ -133,7 +133,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         } else {
             // The last item was a statement, create a subroutine (returning
             // nothing)
-            ASR::asr_t *fn = ASR::make_Function_t(
+            ASR::asr_t *fn = ASRUtils::make_Function_t_util(
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,

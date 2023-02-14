@@ -405,13 +405,13 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         for (auto &item : mod2->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                if (s->m_abi == ASR::abiType::Source) {
-                    s->m_abi = ASR::abiType::Intrinsic;
+                if (ASRUtils::get_FunctionType(s)->m_abi == ASR::abiType::Source) {
+                    ASRUtils::get_FunctionType(s)->m_abi = ASR::abiType::Intrinsic;
                 }
                 if (s->n_body == 0) {
                     std::string name = s->m_name;
                     if (name == "ubound" || name == "lbound") {
-                        s->m_deftype = ASR::deftypeType::Interface;
+                        ASRUtils::get_FunctionType(s)->m_deftype = ASR::deftypeType::Interface;
                     }
                 }
             }
@@ -771,8 +771,8 @@ public:
                 return i;
             }
         }
-        for ( size_t i = 0; i < orig_func->n_restrictions; i++ ) {
-            ASR::symbol_t* rt = orig_func->m_restrictions[i];
+        for ( size_t i = 0; i < ASRUtils::get_FunctionType(orig_func)->n_restrictions; i++ ) {
+            ASR::symbol_t* rt = ASRUtils::get_FunctionType(orig_func)->m_restrictions[i];
             std::string rt_name = ASRUtils::symbol_name(rt);
             if ( rt_name == arg_name ) {
                 return -2;
@@ -1036,9 +1036,9 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
-            if (func->m_is_restriction) {
+            if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
                 rt_vec.push_back(s);
-            } else if (func->n_type_params > 0) {
+            } else if (ASRUtils::get_FunctionType(func)->n_type_params > 0) {
                 if (n_pos_args != func->n_args) {
                     std::string fnd = std::to_string(n_pos_args);
                     std::string org = std::to_string(func->n_args);
@@ -1056,9 +1056,9 @@ public:
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                     check_type_substitution(subs, param_type, arg_type, loc);
                 }
-                for (size_t i=0; i<func->n_restrictions; i++) {
+                for (size_t i=0; i<ASRUtils::get_FunctionType(func)->n_restrictions; i++) {
                     ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(
-                        func->m_restrictions[i]);
+                        ASRUtils::get_FunctionType(func)->m_restrictions[i]);
                     check_type_restriction(subs, rt_subs, rt, loc);
                 }
 
@@ -1091,7 +1091,7 @@ public:
             }
             if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;
-                if( func->m_elemental && args.size() == 1 &&
+                if( ASRUtils::get_FunctionType(func)->m_elemental && args.size() == 1 &&
                     ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
                     a_type = ASRUtils::expr_type(args[0].m_value);
                 } else {
@@ -1372,7 +1372,7 @@ public:
         std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, rt_subs, 
+        t = pass_instantiate_generic_function(al, subs, rt_subs,
             ASRUtils::symbol_parent_symtab(func), new_func_name, func);
         dependencies.erase(func_name);
         dependencies.insert(new_func_name);
@@ -3471,7 +3471,7 @@ public:
                 for( auto& dep: dependencies ) {
                     func_deps.push_back(al, s2c(al, dep));
                 }
-                tmp = ASR::make_Function_t(
+                tmp = ASRUtils::make_Function_t_util(
                     al, x.base.base.loc,
                     /* a_symtab */ current_scope,
                     /* a_name */ s2c(al, sym_name),
@@ -3495,7 +3495,7 @@ public:
             for( auto& dep: dependencies ) {
                 func_deps.push_back(al, s2c(al, dep));
             }
-            tmp = ASR::make_Function_t(
+            tmp = ASRUtils::make_Function_t_util(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
                 /* a_name */ s2c(al, sym_name),
@@ -3921,8 +3921,9 @@ public:
         for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
         v.m_body = body.p;
         v.n_body = body.size();
-        v.m_restrictions = rts.p;
-        v.n_restrictions = rts.size();
+        ASR::FunctionType_t* v_func_type = ASR::down_cast<ASR::FunctionType_t>(v.m_function_signature);
+        v_func_type->m_restrictions = rts.p;
+        v_func_type->n_restrictions = rts.size();
         Vec<char*> func_deps;
         func_deps.reserve(al, dependencies.size());
         for( auto& dep: dependencies ) {
@@ -3940,7 +3941,7 @@ public:
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
-            if (!f->m_is_restriction) {
+            if (!ASRUtils::get_FunctionType(f)->m_is_restriction) {
                 handle_fn(x, *f);
             }
         } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {

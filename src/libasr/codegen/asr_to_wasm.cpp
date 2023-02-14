@@ -197,7 +197,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                        ASR::down_cast<ASR::symbol_t>(variable));
             return_var = ASRUtils::EXPR(var);
         }
-        auto func = ASR::make_Function_t(
+        auto func = ASRUtils::make_Function_t_util(
             m_al, global_scope_loc, global_scope, s2c(m_al, import_func.name),
             nullptr, 0, params.data(), params.size(), nullptr, 0, return_var,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -238,8 +238,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     if (ASR::is_a<ASR::Function_t>(*item.second)) {
                         ASR::Function_t *fn =
                             ASR::down_cast<ASR::Function_t>(item.second);
-                        if (fn->m_abi == ASR::abiType::BindC &&
-                            fn->m_deftype == ASR::deftypeType::Interface &&
+                        if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
+                            ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
                             !ASRUtils::is_intrinsic_function2(fn)) {
                             wasm::emit_import_fn(m_import_section, m_al, "js",
                                                  fn->m_name, no_of_types);
@@ -251,8 +251,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *fn =
                     ASR::down_cast<ASR::Function_t>(item.second);
-                if (fn->m_abi == ASR::abiType::BindC &&
-                    fn->m_deftype == ASR::deftypeType::Interface &&
+                if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
+                    ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
                     !ASRUtils::is_intrinsic_function2(fn)) {
                     wasm::emit_import_fn(m_import_section, m_al, "js",
                                             fn->m_name, no_of_types);
@@ -672,7 +672,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         declare_all_functions(*x.m_symtab);
 
         // Generate main program code
-        auto main_func = ASR::make_Function_t(
+        auto main_func = ASRUtils::make_Function_t_util(
             m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
             nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
@@ -948,8 +948,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (!x.n_body) {
             return true;
         }
-        if (x.m_abi == ASR::abiType::BindC &&
-            x.m_deftype == ASR::deftypeType::Interface) {
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
+            ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
             if (ASRUtils::is_intrinsic_function2(&x)) {
                 diag.codegen_warning_label(
                     "WASM: C Intrinsic Functions not yet spported",
@@ -962,8 +962,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 auto sub_call = (const ASR::SubroutineCall_t &)(*x.m_body[i]);
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                     ASRUtils::symbol_get_past_external(sub_call.m_name));
-                if (s->m_abi == ASR::abiType::BindC &&
-                    s->m_deftype == ASR::deftypeType::Interface &&
+                if (ASRUtils::get_FunctionType(s)->m_abi == ASR::abiType::BindC &&
+                    ASRUtils::get_FunctionType(s)->m_deftype == ASR::deftypeType::Interface &&
                     ASRUtils::is_intrinsic_function2(s)) {
                     diag.codegen_warning_label(
                         "WASM: Calls to C Intrinsic Functions are not yet "

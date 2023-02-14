@@ -265,7 +265,8 @@ void set_intrinsic(ASR::symbol_t* sym) {
         }
         case ASR::symbolType::Function: {
             ASR::Function_t* function_sym = ASR::down_cast<ASR::Function_t>(sym);
-            function_sym->m_abi = ASR::abiType::Intrinsic;
+            ASR::FunctionType_t* func_sym_type = ASR::down_cast<ASR::FunctionType_t>(function_sym->m_function_signature);
+            func_sym_type->m_abi = ASR::abiType::Intrinsic;
             break;
         }
         case ASR::symbolType::StructType: {
@@ -431,7 +432,9 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                                 err("Unable to resolve matched function for operator overloading, " + matched_func_name, loc);
                             }
                             ASR::ttype_t *return_type = nullptr;
-                            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
+                            if( ASRUtils::get_FunctionType(func)->m_elemental &&
+                                func->n_args == 1 &&
+                                ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
                                 return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(a_args[0].m_value));
                             } else {
                                 return_type = ASRUtils::expr_type(func->m_return_var);
@@ -813,7 +816,9 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                                 err("Unable to resolve matched function for operator overloading, " + matched_func_name, loc);
                             }
                             ASR::ttype_t *return_type = nullptr;
-                            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
+                            if( ASRUtils::get_FunctionType(func)->m_elemental &&
+                                func->n_args == 1 &&
+                                ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
                                 return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(a_args[0].m_value));
                             } else {
                                 return_type = ASRUtils::expr_type(func->m_return_var);
@@ -968,7 +973,9 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     if( ASR::is_a<ASR::Function_t>(*final_sym) ) {
         ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(final_sym);
         if (func->m_return_var) {
-            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
+            if( ASRUtils::get_FunctionType(func)->m_elemental &&
+                func->n_args == 1 &&
+                ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
                 return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(args[0].m_value));
             } else {
                 return_type = ASRUtils::EXPR2VAR(func->m_return_var)->m_type;
