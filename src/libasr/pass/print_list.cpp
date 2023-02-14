@@ -313,29 +313,45 @@ class PrintListVisitor
                     for (auto &e: print_tmp) {
                         tmp_vec.push_back(al, e);
                     }
-                    if(x.m_separator){
-                    print_stmt = ASRUtils::STMT(
-                        ASR::make_Print_t(al, x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
-                                    x.m_separator, x.m_separator));
-                    } else{
-                    print_stmt = ASRUtils::STMT(
-                        ASR::make_Print_t(al, x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
-                                    x.m_separator, space));
+                    if (x.m_separator) {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(al,
+                            x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
+                            x.m_separator, x.m_separator));
+                    } else {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(al,
+                            x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
+                            x.m_separator, space));
                     }
                     print_tmp.clear();
                     pass_result.push_back(al, print_stmt);
                 }
                 if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i]))){
-                    if (x.m_separator){
-                        print_list_helper(x.m_values[i], x.m_separator, i == x.n_values - 1 ? x.m_end : x.m_separator, x.base.base.loc);
+                    if (x.m_separator) {
+                        if (i == x.n_values - 1) {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
+                        }
                     } else {
-                        print_list_helper(x.m_values[i], x.m_separator, i == x.n_values - 1 ? x.m_end : space, x.base.base.loc);
+                        if (i == x.n_values - 1) {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_list_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
+                        }
                     }
                 } else {
                     if (x.m_separator){
-                        print_tuple_helper(x.m_values[i], x.m_separator, i == x.n_values - 1 ? x.m_end : x.m_separator, x.base.base.loc);
+                        if (i == x.n_values - 1) {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
+                        }
                     } else {
-                        print_tuple_helper(x.m_values[i], x.m_separator, i == x.n_values - 1 ? x.m_end : space, x.base.base.loc);
+                        if (i == x.n_values - 1) {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_tuple_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
+                        }
                     }
                 }
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
