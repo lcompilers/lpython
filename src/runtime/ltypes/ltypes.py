@@ -453,16 +453,16 @@ class PointerToStruct:
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
-    if is_dataclass(targettype):
-        # return after wrapping newa inside PointerToStruct
-        targettype_ptr = ctypes.POINTER(convert_type_to_ctype(targettype))
-        newa = ctypes.cast(cptr, targettype_ptr)
-        return PointerToStruct(newa)
-    elif isinstance(targettype, Array):
+    if isinstance(targettype, Array):
         targettype_ptr = convert_type_to_ctype(targettype)
         newa = ctypes.cast(cptr, targettype_ptr)
         return newa
     else:
+        targettype_ptr = ctypes.POINTER(convert_type_to_ctype(targettype))
+        newa = ctypes.cast(cptr, targettype_ptr)
+        if is_dataclass(targettype):
+            # return after wrapping newa inside PointerToStruct
+            return PointerToStruct(newa)
         return newa
 
 def p_c_pointer(ptr, cptr):
