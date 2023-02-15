@@ -1951,22 +1951,22 @@ public:
             throw SemanticAbort();
         }
 
-        if (ASRUtils::is_integer(*dest_type)) {
+        left_type = ASRUtils::expr_type(left);
+        right_type = ASRUtils::expr_type(right);
+        if( !ASRUtils::check_equal_type(left_type, right_type) ) {
+            std::string ltype = ASRUtils::type_to_str_python(left_type);
+            std::string rtype = ASRUtils::type_to_str_python(right_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in binary operator; the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                            {left->base.loc, right->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
 
-            ASR::ttype_t* left_type = ASRUtils::expr_type(left);
-            ASR::ttype_t* right_type = ASRUtils::expr_type(right);
-            if( !ASRUtils::check_equal_type(left_type, right_type) ) {
-                std::string ltype = ASRUtils::type_to_str_python(left_type);
-                std::string rtype = ASRUtils::type_to_str_python(right_type);
-                diag.add(diag::Diagnostic(
-                    "Type mismatch in binary operator; the types must be compatible",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                                {left->base.loc, right->base.loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
+        if (ASRUtils::is_integer(*dest_type)) {
             ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
             int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
             int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
@@ -2027,21 +2027,6 @@ public:
                 throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
-            cast_helper(left, right, false);
-            ASR::ttype_t* left_type = ASRUtils::expr_type(left);
-            ASR::ttype_t* right_type = ASRUtils::expr_type(right);
-            if( !ASRUtils::check_equal_type(left_type, right_type) ) {
-                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
-                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
-                diag.add(diag::Diagnostic(
-                    "Type mismatch in binary operator; the types must be compatible",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                                {left->base.loc, right->base.loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
             ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
             int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
             int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
