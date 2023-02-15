@@ -338,7 +338,7 @@ def test_sign():
 
 def test_real():
     c: c32
-    c = c32(4) + 3j
+    c = c32(4) + c32(3j)
     assert abs(f64(real(c)) - 4.0) < eps
 
     c2: c64
@@ -360,7 +360,7 @@ def test_real():
 
 def test_imag():
     c: c32
-    c = c32(4) + 3j
+    c = c32(4) + c32(3j)
     assert abs(f64(imag(c)) - 3.0) < eps
 
     c2: c64

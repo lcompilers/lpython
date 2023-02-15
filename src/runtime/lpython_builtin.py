@@ -315,12 +315,12 @@ def complex(x: f64) -> c64:
 @interface
 @overload
 def complex(x: i32) -> c32:
-    return c32(x) + c32(0)*1j
+    return c32(x) + c32(0)*c32(1j)
 
 @interface
 @overload
 def complex(x: f32) -> c32:
-    return c32(x) + c32(0)*1j
+    return c32(x) + c32(0)*c32(1j)
 
 @interface
 @overload
