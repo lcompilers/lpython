@@ -2632,7 +2632,7 @@ public:
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
                    name == "f64" || name == "c32" || name == "c64" ||
-                   name == "i16") {
+                   name == "i16" || name == "i8") {
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, 1);
             ASR::ttype_t *type = get_type_from_var_annotation(name,
