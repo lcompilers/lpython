@@ -458,7 +458,12 @@ def c_p_pointer(cptr, targettype):
     if is_dataclass(targettype):
         # return after wrapping newa inside PointerToStruct
         return PointerToStruct(newa)
-    return newa
+    elif isinstance(targettype, Array):
+        targettype_ptr = convert_type_to_ctype(targettype)
+        newa = ctypes.cast(cptr, targettype_ptr)
+        return newa
+    else:
+        return newa
 
 def p_c_pointer(ptr, cptr):
     if isinstance(ptr, ctypes.c_void_p):
