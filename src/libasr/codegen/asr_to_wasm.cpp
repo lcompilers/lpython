@@ -587,11 +587,369 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_exports++;
     }
 
+    void emit_complex_add_32() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f32_add(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f32_add(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "add_c32", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_add_64() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f64_add(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f64_add(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "add_c64", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_sub_32() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f32_sub(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f32_sub(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "sub_c32", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_sub_64() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f64_sub(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f64_sub(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "sub_c64", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_mul_32() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_f32_sub(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_f32_add(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "mul_c32", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_mul_64() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            uint32_t no_of_params = 4;
+            wasm::emit_u32(m_type_section, m_al, 4); // no of params
+            for (size_t i = 0; i < no_of_params; i++) {
+                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            }
+            wasm::emit_u32(m_type_section, m_al, 2); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_f64_sub(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 3);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 2);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_f64_add(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "mul_c64", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_abs_32() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            wasm::emit_u32(m_type_section, m_al, 2); // no of params
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            wasm::emit_u32(m_type_section, m_al, 1); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_f32_mul(m_code_section, m_al);
+
+        wasm::emit_f32_add(m_code_section, m_al);
+        wasm::emit_f32_sqrt(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "abs_c32", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
+    void emit_complex_abs_64() {
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            wasm::emit_u32(m_type_section, m_al, 2); // no of params
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            wasm::emit_u32(m_type_section, m_al, 1); // no of results
+            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
+            no_of_types++;
+        }
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_get_local(m_code_section, m_al, 0);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_get_local(m_code_section, m_al, 1);
+        wasm::emit_f64_mul(m_code_section, m_al);
+
+        wasm::emit_f64_add(m_code_section, m_al);
+        wasm::emit_f64_sqrt(m_code_section, m_al);
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, "abs_c64", func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
     void declare_global_vars() {
         { // global variable to hold the available memory location
             m_global_section.push_back(m_al, wasm::type::i32);
             m_global_section.push_back(m_al, 0x01 /* mutable */);
             wasm::emit_i32_const(m_global_section, m_al, 0);
+            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+            no_of_globals++;
+        }
+        { // global variable to handle 32-bit complex nums
+            m_global_section.push_back(m_al, wasm::type::f32);
+            m_global_section.push_back(m_al, 0x01 /* mutable */);
+            wasm::emit_f32_const(m_global_section, m_al, 0.0);
+            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+            no_of_globals++;
+        }
+        { // global variable to handle 64-bit complex nums
+            m_global_section.push_back(m_al, wasm::type::f64);
+            m_global_section.push_back(m_al, 0x01 /* mutable */);
+            wasm::emit_f64_const(m_global_section, m_al, 0.0);
             wasm::emit_expr_end(m_global_section, m_al);  // end instructions
             no_of_globals++;
         }
@@ -619,12 +977,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         emit_string("\n");
         emit_string("-");
         emit_string(".");
+        emit_string("(");
+        emit_string(")");
+        emit_string(",");
         digits_mem_loc = avail_mem_loc;
         for (int i = 0; i < 10; i++) {
             emit_string(std::to_string(i));
         }
         emit_print_int();
         emit_print_float();
+        emit_complex_add_32();
+        emit_complex_add_64();
+        emit_complex_sub_32();
+        emit_complex_sub_64();
+        emit_complex_mul_32();
+        emit_complex_mul_64();
+        emit_complex_abs_32();
+        emit_complex_abs_64();
 
         {
             // Pre-declare all functions first, then generate code
@@ -826,6 +1195,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Characters of kind 1 only supported");
                     }
                 }
+            }  else if (ASRUtils::is_complex(*v->m_type)) {
+                ASR::Complex_t *v_comp =
+                    ASR::down_cast<ASR::Complex_t>(v->m_type);
+
+                if (is_array) {
+                    wasm::emit_b8(code, m_al, wasm::type::i32);
+                } else {
+                    if (v_comp->m_kind == 4) {
+                        wasm::emit_b8(code, m_al, wasm::type::f32);
+                    } else if (v_comp->m_kind == 8) {
+                        wasm::emit_b8(code, m_al, wasm::type::f64);
+                    } else {
+                        throw CodeGenError(
+                            "Complex numbers of kind 4 and 8 only supported yet");
+                    }
+                }
             } else {
                 // throw CodeGenError("Param, Result, Var Types other than
                 // integer, floating point and logical not yet supported");
@@ -855,6 +1240,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                   v);  // emit the type of this var
                     m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = var_idx++;
                     local_vars_cnt++;
+                    if (!ASRUtils::is_array(v->m_type) && ASRUtils::is_complex(*v->m_type)) {
+                        // emit type again for imaginary part
+                        wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
+                        emit_var_type(m_code_section, v);  // emit the type of this var
+                        var_idx++;
+                        local_vars_cnt++;
+                    }
                 }
             }
         }
@@ -876,6 +1268,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         LCOMPILERS_ASSERT(m_var_name_idx_map.find(
                                             get_hash((ASR::asr_t *)v)) !=
                                         m_var_name_idx_map.end())
+                        if (ASRUtils::is_complex(*v->m_type)) {
+                            wasm::emit_set_local(
+                            m_code_section, m_al,
+                            m_var_name_idx_map[get_hash((ASR::asr_t *)v)] + 1);
+                        }
                         wasm::emit_set_local(
                             m_code_section, m_al,
                             m_var_name_idx_map[get_hash((ASR::asr_t *)v)]);
@@ -921,6 +1318,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             emit_var_type(m_type_section, arg);
             m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] =
                 s->no_of_variables++;
+            if (!ASRUtils::is_array(arg->m_type) && ASRUtils::is_complex(*arg->m_type)) {
+                // emit type again for imaginary part
+                emit_var_type(m_type_section, arg);  // emit the type of this var
+                s->no_of_variables++;
+            }
             if (arg->m_intent == ASR::intentType::Out ||
                 arg->m_intent == ASR::intentType::InOut ||
                 arg->m_intent == ASR::intentType::Unspecified) {
@@ -930,10 +1332,17 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         /********************* Result Types List *********************/
         if (x.m_return_var) {  // It is a function
-            wasm::emit_u32(m_type_section, m_al,
-                           1U);  // there is just one return variable
             s->return_var = ASRUtils::EXPR2VAR(x.m_return_var);
-            emit_var_type(m_type_section, s->return_var);
+            if (!ASRUtils::is_array(s->return_var->m_type) && ASRUtils::is_complex(*s->return_var->m_type)) {
+                wasm::emit_u32(m_type_section, m_al, 2U); // there are two return variables
+                // emit type for real part
+                emit_var_type(m_type_section, s->return_var); // emit the type of this var
+                // emit type again for imaginary part
+                emit_var_type(m_type_section, s->return_var); // emit the type of this var
+            } else {
+                wasm::emit_u32(m_type_section, m_al, 1U); // there is just one return variable
+                emit_var_type(m_type_section, s->return_var);
+            }
         } else {  // It is a subroutine
             uint32_t len_idx_type_section_return_types_list =
                 wasm::emit_len_placeholder(m_type_section, m_al);
@@ -943,6 +1352,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     arg->m_intent == ASR::intentType::InOut ||
                     arg->m_intent == ASR::intentType::Unspecified) {
                     emit_var_type(m_type_section, arg);
+                    if (!ASRUtils::is_array(arg->m_type) && ASRUtils::is_complex(*arg->m_type)) {
+                        // emit type again for imaginary part
+                        emit_var_type(m_type_section, arg);  // emit the type of this var
+                    }
                 }
             }
             wasm::fixup_len(m_type_section, m_al,
@@ -1193,6 +1606,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             LCOMPILERS_ASSERT(
                 m_var_name_idx_map.find(get_hash((ASR::asr_t *)asr_target)) !=
                 m_var_name_idx_map.end());
+            if (ASRUtils::is_complex(*asr_target->m_type)) {
+                // first set the imaginary part
+                wasm::emit_set_local(m_code_section, m_al,
+                m_var_name_idx_map[get_hash((ASR::asr_t *)asr_target)] + 1u);
+            }
             wasm::emit_set_local(
                 m_code_section, m_al,
                 m_var_name_idx_map[get_hash((ASR::asr_t *)asr_target)]);
@@ -1473,6 +1891,63 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_left);
+        this->visit_expr(*x.m_right);
+        LCOMPILERS_ASSERT(ASRUtils::is_complex(*x.m_type));
+        int a_kind = ASR::down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                if (a_kind == 4) {
+                    wasm::emit_call(m_code_section, m_al, 4);
+                } else {
+                    wasm::emit_call(m_code_section, m_al, 5);
+                }
+                break;
+            };
+            case ASR::binopType::Sub: {
+                if (a_kind == 4) {
+                    wasm::emit_call(m_code_section, m_al, 6);
+                } else {
+                    wasm::emit_call(m_code_section, m_al, 7);
+                }
+                break;
+            };
+            case ASR::binopType::Mul: {
+                if (a_kind == 4) {
+                    wasm::emit_call(m_code_section, m_al, 8);
+                } else {
+                    wasm::emit_call(m_code_section, m_al, 9);
+                }
+                break;
+            };
+            // case ASR::binopType::Div: {
+            //     if (a_kind == 4) {
+            //         fn_name = "_lfortran_complex_div_32";
+            //     } else {
+            //         fn_name = "_lfortran_complex_div_64";
+            //     }
+            //     break;
+            // };
+            // case ASR::binopType::Pow: {
+            //     if (a_kind == 4) {
+            //         fn_name = "_lfortran_complex_pow_32";
+            //     } else {
+            //         fn_name = "_lfortran_complex_pow_64";
+            //     }
+            //     break;
+            // };
+            default: {
+                throw CodeGenError("ComplexBinOp: Binary operator '" + ASRUtils::binop_to_str_python(x.m_op) + "' not supported",
+                    x.base.base.loc);
+            }
+        }
+    }
+
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
         if (x.m_value) {
             visit_expr(*x.m_value);
@@ -1508,6 +1983,29 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_f64_neg(m_code_section, m_al);
         } else {
             throw CodeGenError("RealUnaryMinus: Only kind 4 and 8 supported");
+        }
+    }
+
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
+        }
+        ASR::Complex_t *f = ASR::down_cast<ASR::Complex_t>(x.m_type);
+        if (f->m_kind == 4) {
+            this->visit_expr(*x.m_arg);
+            wasm::emit_f32_neg(m_code_section, m_al);
+            wasm::emit_set_global(m_code_section, m_al, 1);
+            wasm::emit_f32_neg(m_code_section, m_al);
+            wasm::emit_get_global(m_code_section, m_al, 1);
+        } else if (f->m_kind == 8) {
+            this->visit_expr(*x.m_arg);
+            wasm::emit_f64_neg(m_code_section, m_al);
+            wasm::emit_set_global(m_code_section, m_al, 2);
+            wasm::emit_f64_neg(m_code_section, m_al);
+            wasm::emit_get_global(m_code_section, m_al, 2);
+        } else {
+            throw CodeGenError("ComplexUnaryMinus: Only kind 4 and 8 supported");
         }
     }
 
@@ -1771,7 +2269,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     m_var_name_idx_map[get_hash((ASR::asr_t *)v)]);
                 break;
             }
-
+            case ASR::ttypeType::Complex: {
+                LCOMPILERS_ASSERT(
+                    m_var_name_idx_map.find(get_hash((ASR::asr_t *)v)) !=
+                    m_var_name_idx_map.end());
+                wasm::emit_get_local(
+                    m_code_section, m_al,
+                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)]); // get real part
+                wasm::emit_get_local(
+                    m_code_section, m_al,
+                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] + 1); // get imag part
+                break;
+            }
             default:
                 throw CodeGenError(
                     "Only Integer and Float Variable types currently "
@@ -1933,11 +2442,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_get_local(m_code_section, m_al,
                                  m_var_name_idx_map[get_hash(
                                      (ASR::asr_t *)cur_sym_info->return_var)]);
+            if (!ASRUtils::is_array(cur_sym_info->return_var->m_type)
+                && ASRUtils::is_complex(*cur_sym_info->return_var->m_type)) {
+                wasm::emit_get_local(m_code_section, m_al,
+                                 m_var_name_idx_map[get_hash(
+                                     (ASR::asr_t *)cur_sym_info->return_var)] + 1);
+            }
         } else {
             for (auto return_var : cur_sym_info->referenced_vars) {
                 wasm::emit_get_local(
                     m_code_section, m_al,
                     m_var_name_idx_map[get_hash((ASR::asr_t *)(return_var))]);
+                if (!ASRUtils::is_array(return_var->m_type)
+                    && ASRUtils::is_complex(*return_var->m_type)) {
+                    wasm::emit_get_local(m_code_section, m_al,
+                                    m_var_name_idx_map[get_hash(
+                                        (ASR::asr_t *)return_var)] + 1);
+                }
             }
         }
         wasm::emit_b8(m_code_section, m_al,
@@ -1994,6 +2515,25 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             default: {
                 throw CodeGenError("Constant Logical: Only kind 4 supported");
+            }
+        }
+    }
+
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        switch( a_kind ) {
+            case 4: {
+                wasm::emit_f32_const(m_code_section, m_al, x.m_re);
+                wasm::emit_f32_const(m_code_section, m_al, x.m_im);
+                break;
+            }
+            case 8: {
+                wasm::emit_f64_const(m_code_section, m_al, x.m_re);
+                wasm::emit_f64_const(m_code_section, m_al, x.m_im);
+                break;
+            }
+            default: {
+                throw CodeGenError("kind type is not supported");
             }
         }
     }
@@ -2193,11 +2733,65 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 break;
             }
             case (ASR::cast_kindType::RealToComplex): {
-                throw CodeGenError("Complex types are not supported yet.");
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if (arg_kind == dest_kind) {
+
+                } else if (arg_kind == 4 && dest_kind == 8) {
+                    wasm::emit_f64_promote_f32(m_code_section, m_al);
+                } else if (arg_kind == 8 && dest_kind == 4) {
+                    wasm::emit_f32_demote_f64(m_code_section, m_al);
+                } else {
+                    std::string msg = "RealToComplex: Conversion from " +
+                                        std::to_string(arg_kind) + " to " +
+                                        std::to_string(dest_kind) +
+                                        " not implemented yet.";
+                    throw CodeGenError(msg);
+                }
+                switch(dest_kind)
+                {
+                    case 4:
+                        wasm::emit_f32_const(m_code_section, m_al, 0.0);
+                        break;
+                    case 8:
+                        wasm::emit_f64_const(m_code_section, m_al, 0.0);
+                        break;
+                    default:
+                        throw CodeGenError("RealToComplex: Only 32 and 64 bits real kinds are supported.");
+                }
                 break;
             }
             case (ASR::cast_kindType::IntegerToComplex): {
-                throw CodeGenError("Complex types are not supported yet.");
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if (arg_kind > 0 && dest_kind > 0) {
+                    if (arg_kind == 4 && dest_kind == 4) {
+                        wasm::emit_f32_convert_i32_s(m_code_section, m_al);
+                    } else if (arg_kind == 8 && dest_kind == 8) {
+                        wasm::emit_f64_convert_i64_s(m_code_section, m_al);
+                    } else if (arg_kind == 4 && dest_kind == 8) {
+                        wasm::emit_f64_convert_i32_s(m_code_section, m_al);
+                    } else if (arg_kind == 8 && dest_kind == 4) {
+                        wasm::emit_f32_convert_i64_s(m_code_section, m_al);
+                    } else {
+                        std::string msg = "IntegerToComplex: Conversion from " +
+                                          std::to_string(arg_kind) + " to " +
+                                          std::to_string(dest_kind) +
+                                          " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
+                switch(dest_kind)
+                {
+                    case 4:
+                        wasm::emit_f32_const(m_code_section, m_al, 0.0);
+                        break;
+                    case 8:
+                        wasm::emit_f64_const(m_code_section, m_al, 0.0);
+                        break;
+                    default:
+                        throw CodeGenError("RealToComplex: Only 32 and 64 bits real kinds are supported.");
+                }
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical): {
@@ -2250,7 +2844,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 break;
             }
             case (ASR::cast_kindType::ComplexToLogical): {
-                throw CodeGenError("Complex types are not supported yet.");
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if (arg_kind == 4) {
+                    wasm::emit_call(m_code_section, m_al, 10);
+                    wasm::emit_f32_const(m_code_section, m_al, 0.0);
+                    wasm::emit_f32_gt(m_code_section, m_al);
+                } else if (arg_kind == 8) {
+                    wasm::emit_call(m_code_section, m_al, 11);
+                    wasm::emit_f64_const(m_code_section, m_al, 0.0);
+                    wasm::emit_f64_gt(m_code_section, m_al);
+                } else {
+                    std::string msg = "ComplexToLogical: Conversion from kinds " +
+                                        std::to_string(arg_kind) + " to " +
+                                        std::to_string(dest_kind) +
+                                        " not supported";
+                    throw CodeGenError(msg);
+                }
                 break;
             }
             case (ASR::cast_kindType::LogicalToInteger): {
@@ -2326,16 +2936,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 break;
             }
             case (ASR::cast_kindType::ComplexToComplex): {
-                throw CodeGenError("Complex types are not supported yet.");
+                throw CodeGenError("ComplexToComplex: Complex types are not supported yet.");
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal): {
-                throw CodeGenError("Complex types are not supported yet.");
+                throw CodeGenError("ComplexToReal: Complex types are not supported yet.");
                 break;
             }
             default:
                 throw CodeGenError("Cast kind not implemented");
         }
+    }
+
+    void visit_ComplexRe(const ASR::ComplexRe_t &x) {
+        this->visit_expr(*x.m_arg);
+        wasm::emit_drop(m_code_section, m_al);
+    }
+
+    void visit_ComplexIm(const ASR::ComplexIm_t &x) {
+        this->visit_expr(*x.m_arg);
+
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
+        wasm::emit_set_global(m_code_section, m_al, (a_kind == 4) ? 1 : 2);
+        wasm::emit_drop(m_code_section, m_al);
+        wasm::emit_get_global(m_code_section, m_al, (a_kind == 4) ? 1 : 2);
     }
 
     void emit_call_fd_write(int filetype, const std::string &str, int iov_vec_len, int return_val_mem_loc) {
@@ -2412,6 +3036,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                             m_import_func_asr_map["fd_write"])]
                         ->index);
                 wasm::emit_drop(m_code_section, m_al);
+            } else if (t->type == ASR::ttypeType::Complex) {
+                emit_call_fd_write(1, "(", 1, 0);
+                this->visit_expr(*x.m_values[i]);
+                wasm::emit_drop(m_code_section, m_al); // drop imag part
+                if (a_kind == 4) {
+                    wasm::emit_f64_promote_f32(m_code_section, m_al);
+                }
+                wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
+                emit_call_fd_write(1, ",", 1, 0);
+                this->visit_expr(*x.m_values[i]);
+                if (a_kind == 4) {
+                    wasm::emit_f64_promote_f32(m_code_section, m_al);
+                }
+                wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
+                emit_call_fd_write(1, ")", 1, 0);
+                wasm::emit_drop(m_code_section, m_al); // drop real part
             }
         }
 
