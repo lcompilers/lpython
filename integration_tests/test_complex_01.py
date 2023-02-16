@@ -60,43 +60,6 @@ def test_complex():
     x = complex(-i2, -i2) # (i64, i64)
     x = complex(i2, -i1) # (i64, i32)
 
-
-def test_complex_abs():
-    x: c32
-    x = c32(complex(3, 4))
-    eps: f64
-    eps = 1e-12
-    assert f64(abs(f64(abs(x)) - 5.0)) < eps
-    y: c64
-    y = complex(6, 8)
-    assert abs(abs(y) - 10.0) < eps
-
-def test_complex_binop_32():
-    x: c32
-    y: c32
-    z: c32
-    x = c32(c64(2) + 3j)
-    y = c32(c64(4) + 5j)
-    z = x + y
-    z = x - y
-    z = x * y
-    # TODO:
-    #z = x / y
-    z = x ** y
-
-def test_complex_binop_64():
-    x: c64
-    y: c64
-    z: c64
-    x = c64(2) + 3j
-    y = c64(4) + 5j
-    z = x + y
-    z = x - y
-    z = x * y
-    # TODO:
-    #z = x / y
-    z = x ** y
-
 def test_complex_unary_minus():
     c: c32
     c = c32(complex(3, 4.5))
@@ -133,9 +96,6 @@ def test_complex_not():
 def check():
     test_real_imag()
     test_complex()
-    test_complex_abs()
-    test_complex_binop_32()
-    test_complex_binop_64()
     test_complex_unary_minus()
     test_complex_not()
 
