@@ -97,6 +97,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t max_no_pages;
 
     std::map<uint64_t, uint32_t> m_var_name_idx_map;
+    std::map<std::string, uint32_t> m_global_var_name_idx_map;
     std::map<uint64_t, SymbolFuncInfo *> m_func_name_idx_map;
     std::map<std::string, ASR::asr_t *> m_import_func_asr_map;
     std::map<std::string, uint32_t> m_string_to_iov_loc_map;
@@ -715,28 +716,21 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         });
     }
 
-    void declare_global_vars() {
-        { // global variable to hold the available memory location
-            m_global_section.push_back(m_al, wasm::type::i32);
-            m_global_section.push_back(m_al, 0x01 /* mutable */);
-            wasm::emit_i32_const(m_global_section, m_al, 0);
-            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
-            no_of_globals++;
+    template <typename T>
+    void declare_global_var(wasm::type var_type, std::string name, T initial_value, bool isMutable) {
+        m_global_section.push_back(m_al, var_type);
+        m_global_section.push_back(m_al, isMutable);
+        switch (var_type)
+        {
+            case wasm::type::i32: wasm::emit_i32_const(m_global_section, m_al, initial_value); break;
+            case wasm::type::i64: wasm::emit_i64_const(m_global_section, m_al, initial_value); break;
+            case wasm::type::f32: wasm::emit_f32_const(m_global_section, m_al, initial_value); break;
+            case wasm::type::f64: wasm::emit_f64_const(m_global_section, m_al, initial_value); break;
+            default: throw CodeGenError("declare_global_var: Unsupport var_type"); break;
         }
-        { // global variable to handle 32-bit complex nums
-            m_global_section.push_back(m_al, wasm::type::f32);
-            m_global_section.push_back(m_al, 0x01 /* mutable */);
-            wasm::emit_f32_const(m_global_section, m_al, 0.0);
-            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
-            no_of_globals++;
-        }
-        { // global variable to handle 64-bit complex nums
-            m_global_section.push_back(m_al, wasm::type::f64);
-            m_global_section.push_back(m_al, 0x01 /* mutable */);
-            wasm::emit_f64_const(m_global_section, m_al, 0.0);
-            wasm::emit_expr_end(m_global_section, m_al);  // end instructions
-            no_of_globals++;
-        }
+        wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+        m_global_var_name_idx_map[name] = no_of_globals;
+        no_of_globals++;
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -755,7 +749,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_export_mem(m_export_section, m_al, "memory", 0 /* mem_idx */);
         no_of_exports++;
 
-        declare_global_vars();
+        declare_global_var(wasm::type::i32, "cur_mem_loc", 0, true);
+        declare_global_var(wasm::type::f32, "tmp_reg_f32", 0, true);
+        declare_global_var(wasm::type::f64, "tmp_reg_f64", 0, true);
 
         emit_string(" ");
         emit_string("\n");
@@ -1779,15 +1775,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (f->m_kind == 4) {
             this->visit_expr(*x.m_arg);
             wasm::emit_f32_neg(m_code_section, m_al);
-            wasm::emit_set_global(m_code_section, m_al, 1);
+            wasm::emit_set_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f32"]);
             wasm::emit_f32_neg(m_code_section, m_al);
-            wasm::emit_get_global(m_code_section, m_al, 1);
+            wasm::emit_get_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f32"]);
         } else if (f->m_kind == 8) {
             this->visit_expr(*x.m_arg);
             wasm::emit_f64_neg(m_code_section, m_al);
-            wasm::emit_set_global(m_code_section, m_al, 2);
+            wasm::emit_set_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f64"]);
             wasm::emit_f64_neg(m_code_section, m_al);
-            wasm::emit_get_global(m_code_section, m_al, 2);
+            wasm::emit_get_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f64"]);
         } else {
             throw CodeGenError("ComplexUnaryMinus: Only kind 4 and 8 supported");
         }
@@ -2740,9 +2736,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         this->visit_expr(*x.m_arg);
 
         int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
-        wasm::emit_set_global(m_code_section, m_al, (a_kind == 4) ? 1 : 2);
+        wasm::emit_set_global(m_code_section, m_al,
+        (a_kind == 4) ? m_global_var_name_idx_map["tmp_reg_f32"]
+            : m_global_var_name_idx_map["tmp_reg_f64"]);
         wasm::emit_drop(m_code_section, m_al);
-        wasm::emit_get_global(m_code_section, m_al, (a_kind == 4) ? 1 : 2);
+        wasm::emit_get_global(m_code_section, m_al,
+        (a_kind == 4) ? m_global_var_name_idx_map["tmp_reg_f32"]
+            : m_global_var_name_idx_map["tmp_reg_f64"]);
     }
 
     void emit_call_fd_write(int filetype, const std::string &str, int iov_vec_len, int return_val_mem_loc) {
@@ -2824,14 +2824,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 this->visit_expr(*x.m_values[i]);
                 if (a_kind == 4) {
                     wasm::emit_f64_promote_f32(m_code_section, m_al);
-                    wasm::emit_set_global(m_code_section, m_al, 2);
+                    wasm::emit_set_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f64"]);
                     wasm::emit_f64_promote_f32(m_code_section, m_al);
                 } else {
-                    wasm::emit_set_global(m_code_section, m_al, 2);
+                    wasm::emit_set_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f64"]);
                 }
                 wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
                 emit_call_fd_write(1, ",", 1, 0);
-                wasm::emit_get_global(m_code_section, m_al, 2);
+                wasm::emit_get_global(m_code_section, m_al, m_global_var_name_idx_map["tmp_reg_f64"]);
                 wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
                 emit_call_fd_write(1, ")", 1, 0);
             }
