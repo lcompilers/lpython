@@ -397,584 +397,322 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_print_int() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            wasm::emit_u32(m_type_section, m_al, 1); // no of params
-            wasm::emit_b8(m_type_section, m_al, wasm::type::i64);
-            wasm::emit_u32(m_type_section, m_al, 0); // no of results
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({i64}, {}, {i64, i64, i64, i64}, "print_i64", [&](){
+            // locals 0 is given parameter
+            // locals 1 is digits_cnt
+            // locals 2 is divisor (in powers of 10)
+            // locals 3 is loop counter (counts upto digits_cnt (which is decreasing))
+            // locals 4 is extra copy of given parameter
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 4u); // no of local vars
-        for (int i = 0; i < 4; i++) {
-            wasm::emit_u32(m_code_section, m_al, 1u); // count of local vars of this type
-            wasm::emit_b8(m_code_section, m_al, wasm::type::i64);
-        }
+            emit_if_else([&](){
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
+                wasm::emit_i64_eq(m_code_section, m_al);
+            }, [&](){
+                emit_call_fd_write(1, "0", 1, 0);
+                wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+            }, [&](){});
 
-        // locals 0 is given parameter
-        // locals 1 is digits_cnt
-        // locals 2 is divisor (in powers of 10)
-        // locals 3 is loop counter (counts upto digits_cnt (which is decreasing))
-        // locals 4 is extra copy of given parameter
-
-        emit_if_else([&](){
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_eq(m_code_section, m_al);
-        }, [&](){
-            emit_call_fd_write(1, "0", 1, 0);
-            wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        }, [&](){});
-
-        emit_if_else([&](){
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_lt_s(m_code_section, m_al);
-        }, [&](){
-            emit_call_fd_write(1, "-", 1, 0);
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, -1);
-            wasm::emit_i64_mul(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 0);
-        }, [&](){});
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_set_local(m_code_section, m_al, 4);
-        wasm::emit_i64_const(m_code_section, m_al, 0);
-        wasm::emit_set_local(m_code_section, m_al, 1);
-
-        emit_loop([&](){
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_gt_s(m_code_section, m_al);
-        }, [&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_i64_add(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 1);
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_i64_const(m_code_section, m_al, 10);
-            wasm::emit_i64_div_s(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 0);
-        });
-
-        emit_loop([&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_gt_s(m_code_section, m_al);
-        }, [&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_i64_sub(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 1);
-
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_set_local(m_code_section, m_al, 2);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_set_local(m_code_section, m_al, 3);
-
-            emit_loop([&](){
-                wasm::emit_get_local(m_code_section, m_al, 3);
-                wasm::emit_get_local(m_code_section, m_al, 1);
+            emit_if_else([&](){
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
                 wasm::emit_i64_lt_s(m_code_section, m_al);
             }, [&](){
-                wasm::emit_get_local(m_code_section, m_al, 3);
+                emit_call_fd_write(1, "-", 1, 0);
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_i64_const(m_code_section, m_al, -1);
+                wasm::emit_i64_mul(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 0);
+            }, [&](){});
+
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_set_local(m_code_section, m_al, 4);
+            wasm::emit_i64_const(m_code_section, m_al, 0);
+            wasm::emit_set_local(m_code_section, m_al, 1);
+
+            emit_loop([&](){
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
+                wasm::emit_i64_gt_s(m_code_section, m_al);
+            }, [&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
                 wasm::emit_i64_const(m_code_section, m_al, 1);
                 wasm::emit_i64_add(m_code_section, m_al);
-                wasm::emit_set_local(m_code_section, m_al, 3);
-                wasm::emit_get_local(m_code_section, m_al, 2);
+                wasm::emit_set_local(m_code_section, m_al, 1);
+                wasm::emit_get_local(m_code_section, m_al, 0);
                 wasm::emit_i64_const(m_code_section, m_al, 10);
-                wasm::emit_i64_mul(m_code_section, m_al);
-                wasm::emit_set_local(m_code_section, m_al, 2);
+                wasm::emit_i64_div_s(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 0);
             });
 
+            emit_loop([&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
+                wasm::emit_i64_gt_s(m_code_section, m_al);
+            }, [&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
+                wasm::emit_i64_const(m_code_section, m_al, 1);
+                wasm::emit_i64_sub(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 1);
 
-            wasm::emit_get_local(m_code_section, m_al, 4);
-            wasm::emit_get_local(m_code_section, m_al, 2);
-            wasm::emit_i64_div_s(m_code_section, m_al);
-            wasm::emit_i64_const(m_code_section, m_al, 10);
-            wasm::emit_i64_rem_s(m_code_section, m_al);
+                wasm::emit_i64_const(m_code_section, m_al, 1);
+                wasm::emit_set_local(m_code_section, m_al, 2);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
+                wasm::emit_set_local(m_code_section, m_al, 3);
 
-            /* The digit is on stack */
-            wasm::emit_i64_const(m_code_section, m_al, 12 /* 4 + 4 + 4 (iov vec + str size)*/);
-            wasm::emit_i64_mul(m_code_section, m_al);
-            wasm::emit_i64_const(m_code_section, m_al, digits_mem_loc);
-            wasm::emit_i64_add(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 0); // temporary save
+                emit_loop([&](){
+                    wasm::emit_get_local(m_code_section, m_al, 3);
+                    wasm::emit_get_local(m_code_section, m_al, 1);
+                    wasm::emit_i64_lt_s(m_code_section, m_al);
+                }, [&](){
+                    wasm::emit_get_local(m_code_section, m_al, 3);
+                    wasm::emit_i64_const(m_code_section, m_al, 1);
+                    wasm::emit_i64_add(m_code_section, m_al);
+                    wasm::emit_set_local(m_code_section, m_al, 3);
+                    wasm::emit_get_local(m_code_section, m_al, 2);
+                    wasm::emit_i64_const(m_code_section, m_al, 10);
+                    wasm::emit_i64_mul(m_code_section, m_al);
+                    wasm::emit_set_local(m_code_section, m_al, 2);
+                });
 
-            {
-                wasm::emit_i32_const(m_code_section, m_al, 1); // file type: 1 for stdout
-                wasm::emit_get_local(m_code_section, m_al, 0); // use stored digit
-                wasm::emit_i32_wrap_i64(m_code_section, m_al);
-                wasm::emit_i32_const(m_code_section, m_al, 1); // size of iov vector
-                wasm::emit_i32_const(m_code_section, m_al, 0); // mem_loction to return no. of bytes written
-                // call WASI fd_write
-                wasm::emit_call(
-                    m_code_section, m_al,
-                    m_func_name_idx_map[get_hash(
-                                            m_import_func_asr_map["fd_write"])]
-                        ->index);
-                wasm::emit_drop(m_code_section, m_al);
-            }
 
+                wasm::emit_get_local(m_code_section, m_al, 4);
+                wasm::emit_get_local(m_code_section, m_al, 2);
+                wasm::emit_i64_div_s(m_code_section, m_al);
+                wasm::emit_i64_const(m_code_section, m_al, 10);
+                wasm::emit_i64_rem_s(m_code_section, m_al);
+
+                /* The digit is on stack */
+                wasm::emit_i64_const(m_code_section, m_al, 12 /* 4 + 4 + 4 (iov vec + str size)*/);
+                wasm::emit_i64_mul(m_code_section, m_al);
+                wasm::emit_i64_const(m_code_section, m_al, digits_mem_loc);
+                wasm::emit_i64_add(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 0); // temporary save
+
+                {
+                    wasm::emit_i32_const(m_code_section, m_al, 1); // file type: 1 for stdout
+                    wasm::emit_get_local(m_code_section, m_al, 0); // use stored digit
+                    wasm::emit_i32_wrap_i64(m_code_section, m_al);
+                    wasm::emit_i32_const(m_code_section, m_al, 1); // size of iov vector
+                    wasm::emit_i32_const(m_code_section, m_al, 0); // mem_loction to return no. of bytes written
+                    // call WASI fd_write
+                    wasm::emit_call(
+                        m_code_section, m_al,
+                        m_func_name_idx_map[get_hash(
+                                                m_import_func_asr_map["fd_write"])]
+                            ->index);
+                    wasm::emit_drop(m_code_section, m_al);
+                }
+
+            });
         });
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "print_i64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
     }
 
     void emit_print_float() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            wasm::emit_u32(m_type_section, m_al, 1); // no of params
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_u32(m_type_section, m_al, 0); // no of results
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f64}, {}, {i64, i64, i64}, "print_f64", [&](){
+            emit_if_else([&](){
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_f64_const(m_code_section, m_al, 0);
+                wasm::emit_f64_lt(m_code_section, m_al);
+            }, [&](){
+                emit_call_fd_write(1, "-", 1, 0);
+                wasm::emit_get_local(m_code_section, m_al, 0);
+                wasm::emit_f64_const(m_code_section, m_al, -1);
+                wasm::emit_f64_mul(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 0);
+            }, [&](){});
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 3u); // no of local vars
-        for (int i = 0; i < 3; i++) {
-            wasm::emit_u32(m_code_section, m_al, 1u); // count of local vars of this type
-            wasm::emit_b8(m_code_section, m_al, wasm::type::i64);
-        }
-
-        emit_if_else([&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_f64_const(m_code_section, m_al, 0);
-            wasm::emit_f64_lt(m_code_section, m_al);
-        }, [&](){
-            emit_call_fd_write(1, "-", 1, 0);
-            wasm::emit_get_local(m_code_section, m_al, 0);
-            wasm::emit_f64_const(m_code_section, m_al, -1);
-            wasm::emit_f64_mul(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 0);
-        }, [&](){});
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
-        wasm::emit_call(m_code_section, m_al, no_of_imports /* print_i64 */);
-        emit_call_fd_write(1, ".", 1, 0);
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
-        wasm::emit_f64_convert_i64_s(m_code_section, m_al);
-        wasm::emit_f64_sub(m_code_section, m_al);
-        wasm::emit_f64_const(m_code_section, m_al, 1e8);
-        wasm::emit_f64_mul(m_code_section, m_al);
-        wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
-        wasm::emit_set_local(m_code_section, m_al, 2); /* save the current fractional part value */
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_set_local(m_code_section, m_al, 3); /* save the another copy */
-
-        wasm::emit_i64_const(m_code_section, m_al, 0);
-        wasm::emit_set_local(m_code_section, m_al, 1); // digits_cnt
-
-        emit_loop([&](){
-            wasm::emit_get_local(m_code_section, m_al, 2);
-            wasm::emit_i64_const(m_code_section, m_al, 0);
-            wasm::emit_i64_gt_s(m_code_section, m_al);
-        }, [&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_i64_add(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 1);
-
-            wasm::emit_get_local(m_code_section, m_al, 2);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
-            wasm::emit_i64_const(m_code_section, m_al, 10);
-            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
-            wasm::emit_f64_div(m_code_section, m_al);
             wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 2);
+            wasm::emit_call(m_code_section, m_al, 2 /* print_i64 */);
+            emit_call_fd_write(1, ".", 1, 0);
+
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
+            wasm::emit_f64_convert_i64_s(m_code_section, m_al);
+            wasm::emit_f64_sub(m_code_section, m_al);
+            wasm::emit_f64_const(m_code_section, m_al, 1e8);
+            wasm::emit_f64_mul(m_code_section, m_al);
+            wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
+            wasm::emit_set_local(m_code_section, m_al, 2); /* save the current fractional part value */
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_set_local(m_code_section, m_al, 3); /* save the another copy */
+
+            wasm::emit_i64_const(m_code_section, m_al, 0);
+            wasm::emit_set_local(m_code_section, m_al, 1); // digits_cnt
+
+            emit_loop([&](){
+                wasm::emit_get_local(m_code_section, m_al, 2);
+                wasm::emit_i64_const(m_code_section, m_al, 0);
+                wasm::emit_i64_gt_s(m_code_section, m_al);
+            }, [&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
+                wasm::emit_i64_const(m_code_section, m_al, 1);
+                wasm::emit_i64_add(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 1);
+
+                wasm::emit_get_local(m_code_section, m_al, 2);
+                wasm::emit_f64_convert_i64_s(m_code_section, m_al);
+                wasm::emit_i64_const(m_code_section, m_al, 10);
+                wasm::emit_f64_convert_i64_s(m_code_section, m_al);
+                wasm::emit_f64_div(m_code_section, m_al);
+                wasm::emit_i64_trunc_f64_s(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 2);
+            });
+
+            emit_loop([&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
+                wasm::emit_i64_const(m_code_section, m_al, 8);
+                wasm::emit_i64_lt_s(m_code_section, m_al);
+            }, [&](){
+                wasm::emit_get_local(m_code_section, m_al, 1);
+                wasm::emit_i64_const(m_code_section, m_al, 1);
+                wasm::emit_i64_add(m_code_section, m_al);
+                wasm::emit_set_local(m_code_section, m_al, 1);
+
+                emit_call_fd_write(1, "0", 1, 0);
+            });
+
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_call(m_code_section, m_al, 2 /* print_i64 */);
         });
-
-        emit_loop([&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 8);
-            wasm::emit_i64_lt_s(m_code_section, m_al);
-        }, [&](){
-            wasm::emit_get_local(m_code_section, m_al, 1);
-            wasm::emit_i64_const(m_code_section, m_al, 1);
-            wasm::emit_i64_add(m_code_section, m_al);
-            wasm::emit_set_local(m_code_section, m_al, 1);
-
-            emit_call_fd_write(1, "0", 1, 0);
-        });
-
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_call(m_code_section, m_al, no_of_imports /* print_i64 */);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "print_f64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
     }
 
     void emit_complex_add_32() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "add_c32", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f32_add(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f32_add(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f32_add(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "add_c32", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f32_add(m_code_section, m_al);
+        });
     }
 
     void emit_complex_add_64() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "add_c64", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f64_add(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f64_add(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f64_add(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "add_c64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f64_add(m_code_section, m_al);
+        });
     }
 
     void emit_complex_sub_32() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "sub_c32", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f32_sub(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f32_sub(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f32_sub(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "sub_c32", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f32_sub(m_code_section, m_al);
+        });
     }
 
     void emit_complex_sub_64() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "sub_c64", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f64_sub(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
-
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f64_sub(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f64_sub(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "sub_c64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f64_sub(m_code_section, m_al);
+        });
     }
 
     void emit_complex_mul_32() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "mul_c32", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f32_mul(m_code_section, m_al);
+            wasm::emit_f32_sub(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f32_mul(m_code_section, m_al);
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        wasm::emit_f32_sub(m_code_section, m_al);
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f32_mul(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f32_mul(m_code_section, m_al);
-
-        wasm::emit_f32_add(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "mul_c32", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_f32_add(m_code_section, m_al);
+        });
     }
 
     void emit_complex_mul_64() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            uint32_t no_of_params = 4;
-            wasm::emit_u32(m_type_section, m_al, 4); // no of params
-            for (size_t i = 0; i < no_of_params; i++) {
-                wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            }
-            wasm::emit_u32(m_type_section, m_al, 2); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "mul_c64", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f64_mul(m_code_section, m_al);
+            wasm::emit_f64_sub(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f64_mul(m_code_section, m_al);
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 3);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        wasm::emit_f64_sub(m_code_section, m_al);
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 2);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 3);
-        wasm::emit_f64_mul(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 2);
-        wasm::emit_f64_mul(m_code_section, m_al);
-
-        wasm::emit_f64_add(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "mul_c64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_f64_add(m_code_section, m_al);
+        });
     }
 
     void emit_complex_abs_32() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            wasm::emit_u32(m_type_section, m_al, 2); // no of params
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            wasm::emit_u32(m_type_section, m_al, 1); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f32);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f32, f32}, {f32}, {}, "abs_c32", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_f32_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_f32_mul(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_f32_mul(m_code_section, m_al);
-
-        wasm::emit_f32_add(m_code_section, m_al);
-        wasm::emit_f32_sqrt(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "abs_c32", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_f32_add(m_code_section, m_al);
+            wasm::emit_f32_sqrt(m_code_section, m_al);
+        });
     }
 
     void emit_complex_abs_64() {
-        uint32_t func_idx = no_of_types;
-        { // type declaration
-            wasm::emit_b8(m_type_section, m_al, 0x60);
-            wasm::emit_u32(m_type_section, m_al, 2); // no of params
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            wasm::emit_u32(m_type_section, m_al, 1); // no of results
-            wasm::emit_b8(m_type_section, m_al, wasm::type::f64);
-            no_of_types++;
-        }
-        /*** Reference Function Prototype ***/
-        wasm::emit_u32(m_func_section, m_al, func_idx);
+        using namespace wasm;
+        define_emit_func({f64, f64}, {f64}, {}, "abs_c64", [&](){
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_get_local(m_code_section, m_al, 0);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        /*** Function Body Starts Here ***/
-        uint32_t len_idx_code_section_func_size =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        wasm::emit_u32(m_code_section, m_al, 0u); // no of local vars
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_get_local(m_code_section, m_al, 1);
+            wasm::emit_f64_mul(m_code_section, m_al);
 
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_get_local(m_code_section, m_al, 0);
-        wasm::emit_f64_mul(m_code_section, m_al);
-
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_get_local(m_code_section, m_al, 1);
-        wasm::emit_f64_mul(m_code_section, m_al);
-
-        wasm::emit_f64_add(m_code_section, m_al);
-        wasm::emit_f64_sqrt(m_code_section, m_al);
-
-        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
-        wasm::emit_expr_end(m_code_section, m_al);
-        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
-
-        /*** Export the function ***/
-        wasm::emit_export_fn(m_export_section, m_al, "abs_c64", func_idx);  //  add function to export
-        no_of_functions++;
-        no_of_exports++;
+            wasm::emit_f64_add(m_code_section, m_al);
+            wasm::emit_f64_sqrt(m_code_section, m_al);
+        });
     }
 
     void declare_global_vars() {
