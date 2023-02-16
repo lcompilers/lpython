@@ -350,6 +350,52 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         cur_loop_nesting_level = prev_cur_loop_nesting_level;
     }
 
+    void define_emit_func(
+        std::vector<wasm::type> params,
+        std::vector<wasm::type> results,
+        std::vector<wasm::type> locals,
+        std::string func_name,
+        std::function<void()> func_body) {
+
+        uint32_t func_idx = no_of_types;
+        { // type declaration
+            wasm::emit_b8(m_type_section, m_al, 0x60);
+            wasm::emit_u32(m_type_section, m_al, params.size()); // no of params
+            for (auto param:params) {
+                wasm::emit_b8(m_type_section, m_al, param);
+            }
+            wasm::emit_u32(m_type_section, m_al, results.size()); // no of results
+            for (auto result:results) {
+                wasm::emit_b8(m_type_section, m_al, result);
+            }
+            no_of_types++;
+        }
+
+        /*** Reference Function Prototype ***/
+        wasm::emit_u32(m_func_section, m_al, func_idx);
+
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            wasm::emit_len_placeholder(m_code_section, m_al);
+
+        wasm::emit_u32(m_code_section, m_al, locals.size());
+        for (auto local:locals) {
+            wasm::emit_u32(m_code_section, m_al, 1u); // count of local vars of this type
+            wasm::emit_b8(m_code_section, m_al, local);
+        }
+
+        func_body();
+
+        wasm::emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        wasm::emit_expr_end(m_code_section, m_al);
+        wasm::fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
+
+        /*** Export the function ***/
+        wasm::emit_export_fn(m_export_section, m_al, func_name, func_idx);  //  add function to export
+        no_of_functions++;
+        no_of_exports++;
+    }
+
     void emit_print_int() {
         uint32_t func_idx = no_of_types;
         { // type declaration
