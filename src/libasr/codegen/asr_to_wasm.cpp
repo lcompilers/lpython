@@ -3038,19 +3038,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             } else if (t->type == ASR::ttypeType::Complex) {
                 emit_call_fd_write(1, "(", 1, 0);
                 this->visit_expr(*x.m_values[i]);
-                wasm::emit_drop(m_code_section, m_al); // drop imag part
                 if (a_kind == 4) {
                     wasm::emit_f64_promote_f32(m_code_section, m_al);
+                    wasm::emit_set_global(m_code_section, m_al, 2);
+                    wasm::emit_f64_promote_f32(m_code_section, m_al);
+                } else {
+                    wasm::emit_set_global(m_code_section, m_al, 2);
                 }
                 wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
                 emit_call_fd_write(1, ",", 1, 0);
-                this->visit_expr(*x.m_values[i]);
-                if (a_kind == 4) {
-                    wasm::emit_f64_promote_f32(m_code_section, m_al);
-                }
+                wasm::emit_get_global(m_code_section, m_al, 2);
                 wasm::emit_call(m_code_section, m_al, 3  /* print_f64 */);
                 emit_call_fd_write(1, ")", 1, 0);
-                wasm::emit_drop(m_code_section, m_al); // drop real part
             }
         }
 
