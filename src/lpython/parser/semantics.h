@@ -803,6 +803,12 @@ char* unescape(Allocator &al, LCompilers::Str &s) {
         } else if (s.p[idx] == '\\' && s.p[idx+1] == '\'') {
             x += "'";
             idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == 't') {
+            x += "\t";
+            idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == 'b') {
+            x += "\b";
+            idx++;
         } else {
             x += s.p[idx];
         }

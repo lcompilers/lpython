@@ -1426,6 +1426,10 @@ public:
                 src += "\\";
             } else if (s[idx] == '\"') {
                 src += "\"";
+            } else if (s[idx] == '\t') {
+                src += "\\t";
+            } else if (s[idx] == '\b') {
+                src += "\\b";
             } else {
                 src += s[idx];
             }
