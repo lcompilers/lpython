@@ -109,10 +109,9 @@ class WASMDecoder {
         func_types.resize(al, no_of_func_types);
 
         for (uint32_t i = 0; i < no_of_func_types; i++) {
-            if (wasm_bytes[offset] != 0x60) {
+            if (read_b8(wasm_bytes, offset) != 0x60) {
                 throw CodeGenError("Invalid type section");
             }
-            offset++;
 
             // read result type 1
             uint32_t no_of_params = read_u32(wasm_bytes, offset);

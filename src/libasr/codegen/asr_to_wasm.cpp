@@ -2879,7 +2879,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                 }
                 break;
-                break;
             }
             case (ASR::cast_kindType::LogicalToReal): {
                 int arg_kind = -1, dest_kind = -1;
