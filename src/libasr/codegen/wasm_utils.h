@@ -16,6 +16,12 @@ struct FuncType {
     Vec<uint8_t> result_types;
 };
 
+struct Global {
+    uint8_t type;
+    uint8_t mut;
+    uint32_t insts_start_idx;
+};
+
 struct Export {
     std::string name;
     uint8_t kind;

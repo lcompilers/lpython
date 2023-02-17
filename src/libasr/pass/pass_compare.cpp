@@ -217,7 +217,7 @@ public:
         // Return
         body.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, loc)));
 
-        ASR::asr_t *fn = ASR::make_Function_t(
+        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
             al, loc,
             /* a_symtab */ tup_compare_symtab,
             /* a_name */ s2c(al, fn_name),
@@ -408,7 +408,7 @@ public:
         // Return
         body.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, loc)));
 
-        ASR::asr_t *fn = ASR::make_Function_t(
+        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
             al, loc,
             /* a_symtab */ list_compare_symtab,
             /* a_name */ s2c(al, fn_name),

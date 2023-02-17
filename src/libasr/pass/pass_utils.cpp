@@ -544,7 +544,7 @@ namespace LCompilers {
             for( size_t i = 0; i < fallback_while_loop.size(); i++ ) {
                 body.push_back(al, fallback_while_loop[i]);
             }
-            ASR::asr_t* vector_copy_asr = ASR::make_Function_t(al,
+            ASR::asr_t* vector_copy_asr = ASRUtils::make_Function_t_util(al,
                 unit.base.base.loc,
                 vector_copy_symtab,
                 s2c(al, vector_copy_name), nullptr, 0, arg_exprs.p, arg_exprs.size(),

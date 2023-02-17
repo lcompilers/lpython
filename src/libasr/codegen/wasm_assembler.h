@@ -236,6 +236,18 @@ void emit_set_local(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     emit_u32(code, al, idx);
 }
 
+// function to emit get global variable at given index
+void emit_get_global(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+    code.push_back(al, 0x23);
+    emit_u32(code, al, idx);
+}
+
+// function to emit set global variable at given index
+void emit_set_global(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+    code.push_back(al, 0x24);
+    emit_u32(code, al, idx);
+}
+
 // function to emit call instruction
 void emit_call(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x10);

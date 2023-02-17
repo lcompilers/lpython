@@ -144,7 +144,7 @@ public:
             std::vector<llvm::Type*> proc_types_i;
             nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
-            if (calls_out && x.m_deftype == ASR::Implementation){
+            if (calls_out && ASRUtils::get_FunctionType(x)->m_deftype == ASR::Implementation){
                 if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash)
                     == calls_to.end() && calls_to.size() >= 1){
                     /* Parent function does not call the nested function - if

@@ -11,6 +11,7 @@
     (type (;9;) (func (param) (result)))
     (import "wasi_snapshot_preview1" "proc_exit" (func (;0;) (type 0)))
     (import "wasi_snapshot_preview1" "fd_write" (func (;1;) (type 1)))
+    (global $0 i32 (i32.const 0))
     (func $2 (type 2) (param i64) (result)
         (local i64 i64 i64 i64)
         local.get 0

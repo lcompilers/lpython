@@ -327,10 +327,10 @@ R"(#include <stdio.h>
         template_for_Kokkos.clear();
         template_number = 0;
         std::string sub, inl, static_attr;
-        if (x.m_inline) {
+        if (ASRUtils::get_FunctionType(x)->m_inline) {
             inl = "inline __attribute__((always_inline)) ";
         }
-        if( x.m_static ) {
+        if( ASRUtils::get_FunctionType(x)->m_static ) {
             static_attr = "static ";
         }
         if (x.m_return_var) {
@@ -471,8 +471,8 @@ R"(#include <stdio.h>
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub = get_function_declaration(x);
-        if (x.m_abi == ASR::abiType::BindC
-                && x.m_deftype == ASR::deftypeType::Interface) {
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
+            && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
         } else {
             sub += "\n";
@@ -481,6 +481,7 @@ R"(#include <stdio.h>
             std::string indent(indentation_level*indentation_spaces, ' ');
             std::string decl;
             std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+            bool has_typevar = false;
             for (auto &item : var_order) {
                 ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
                 if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
@@ -493,7 +494,16 @@ R"(#include <stdio.h>
                             decl += ";\n";
                         }
                     }
+                    if (ASR::is_a<ASR::TypeParameter_t>(*v->m_type)) {
+                        has_typevar = true;
+                        break;
+                    }
                 }
+            }
+            if (has_typevar) {
+                indentation_level -= 1;
+                src = "";
+                return;
             }
 
             current_function = &x;

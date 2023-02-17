@@ -319,7 +319,7 @@ public:
         list_section_stmt = ASRUtils::STMT(ASR::make_Return_t(al, loc));
         body.push_back(al, list_section_stmt);
 
-        ASR::asr_t *fn = ASR::make_Function_t(
+        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
             al, loc,
             /* a_symtab */ list_section_symtab,
             /* a_name */ s2c(al, fn_name),
@@ -490,7 +490,7 @@ public:
         list_concat_stmt = ASRUtils::STMT(ASR::make_Return_t(al, loc));
         body.push_back(al, list_concat_stmt);
 
-        ASR::asr_t *fn = ASR::make_Function_t(
+        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
             al, loc,
             /* a_symtab */ list_concat_symtab,
             /* a_name */ s2c(al, fn_name),

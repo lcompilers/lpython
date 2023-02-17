@@ -420,11 +420,12 @@ public:
     void visit_Function(const ASR::Function_t &x) {
 
         // Only process bind(c) subprograms for now
-        if (x.m_abi != ASR::abiType::BindC) return;
+        if (ASRUtils::get_FunctionType(x)->m_abi != ASR::abiType::BindC) return;
 
         // Return type and function name
-        bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
-        std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
+        bool bindc_name_not_given = (ASRUtils::get_FunctionType(x)->m_bindc_name == NULL ||
+                                     !strcmp("", ASRUtils::get_FunctionType(x)->m_bindc_name));
+        std::string effective_name = bindc_name_not_given ? x.m_name : ASRUtils::get_FunctionType(x)->m_bindc_name;
 
         ASR::Variable_t *rtnvar = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string rtnvar_type;

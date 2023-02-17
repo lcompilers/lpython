@@ -757,6 +757,10 @@ filename = "errors/test_binop2.py"
 asr = true
 
 [[test]]
+filename = "errors/test_binop3.py"
+asr = true
+
+[[test]]
 filename = "errors/test_dict1.py"
 asr = true
 
