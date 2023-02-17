@@ -970,8 +970,7 @@ R"(#include <stdio.h>
         this->visit_expr(*x.m_key);
         std::string k = std::move(src);
 
-        std::string indent(indentation_level * indentation_spaces, ' ');
-        src = indent + dict_get_fun + "(&" + d_var + ", " + k + ")";
+        src = dict_get_fun + "(&" + d_var + ", " + k + ")";
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
@@ -1135,6 +1134,18 @@ R"(#include <stdio.h>
         }
         self().visit_expr(*x.m_arg);
         src = src + ".length";
+    }
+
+    void visit_DictLen(const ASR::DictLen_t& x) {
+        if ( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_arg);
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
+        std::string dict_len_fun = c_ds_api->get_dict_len_func(t);
+        self().visit_expr(*x.m_arg);
+        src = dict_len_fun + "(&" + src + ")";
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
