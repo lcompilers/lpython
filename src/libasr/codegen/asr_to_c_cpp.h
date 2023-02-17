@@ -931,6 +931,34 @@ R"(#include <stdio.h>
         src = src_tmp;
     }
 
+    void visit_DictConstant(const ASR::DictConstant_t& x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        const_name += std::to_string(const_vars_count);
+        const_vars_count += 1;
+        const_name = current_scope->get_unique_name(const_name);
+        std::string var_name = const_name;
+        const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(x.m_type);
+        std::string dict_type_c = c_ds_api->get_dict_type(t);
+        std::string src_tmp = "";
+        src_tmp += indent + dict_type_c + " " + var_name + ";\n";
+        std::string dict_init_func = c_ds_api->get_dict_init_func(t);
+        std::string dict_ins_func = c_ds_api->get_dict_insert_func(t);
+        src_tmp += indent + dict_init_func + "(&" + var_name + ", " +
+               std::to_string(x.n_keys) + ");\n";
+        for ( size_t i = 0; i < x.n_keys; i++ ) {
+            self().visit_expr(*x.m_keys[i]);
+            std::string k, v;
+            k = std::move(src);
+            self().visit_expr(*x.m_values[i]);
+            v = std::move(src);
+            src_tmp += indent + dict_ins_func + "(&" + var_name + ", " +\
+                                k + ", " + v + ");\n";
+        }
+        src = src_tmp;
+    }
+
     void visit_TupleCompare(const ASR::TupleCompare_t& x) {
         ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
         std::string tup_cmp_func = c_ds_api->get_compare_func(type);

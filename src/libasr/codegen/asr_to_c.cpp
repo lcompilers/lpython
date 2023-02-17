@@ -503,8 +503,6 @@ public:
                 std::string dict_type_c = c_ds_api->get_dict_type(t);
                 sub = format_type_c("", dict_type_c, v.m_name,
                                     false, false);
-                std::string dict_init_fun = c_ds_api->get_dict_init_func(t);
-                sub = sub + ";\n" + dict_init_fun + "(&" + v.m_name + ", 8)";
             } else if (ASR::is_a<ASR::CPtr_t>(*v_m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v_m_type)) {

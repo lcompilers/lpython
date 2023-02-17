@@ -1213,7 +1213,7 @@ class CCPPDSUtils {
                               "malloc(x->capacity * sizeof(bool));\n";
             generated_code += indent + tab + \
                     "memcpy(tmp_p, x->present, x->capacity * sizeof(bool));\n";
-            generated_code += indent + tab + "x->capacity = 2*x->capacity;\n";
+            generated_code += indent + tab + "x->capacity = 2*x->capacity+1;\n";
             generated_code += indent + tab + "free(x->key); free(x->value); free(x->present);\n";
             generated_code += indent + tab + "x->key = (" + key + "*) " +
                               "malloc(x->capacity * sizeof(" + key + "));\n";
