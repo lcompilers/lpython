@@ -73,6 +73,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t nesting_level;
     uint32_t cur_loop_nesting_level;
     bool is_prototype_only;
+    ASR::Function_t* main_func;
 
     Vec<uint8_t> m_type_section;
     Vec<uint8_t> m_import_section;
@@ -103,11 +104,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     std::map<std::string, uint32_t> m_self_func_name_idx_map;
     std::map<std::string, uint32_t> m_string_to_iov_loc_map;
 
+    std::map<std::string,void (LCompilers::ASRToWASMVisitor::*)(int)> m_self_funcs_map;
+
    public:
     ASRToWASMVisitor(Allocator &al, diag::Diagnostics &diagnostics)
         : m_al(al), diag(diagnostics) {
         intrinsic_module = false;
         is_prototype_only = false;
+        main_func = nullptr;
         nesting_level = 0;
         cur_loop_nesting_level = 0;
         no_of_types = 0;
@@ -357,9 +361,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         std::vector<wasm::type> results,
         std::vector<wasm::type> locals,
         std::string func_name,
-        std::function<void()> func_body) {
+        std::function<void()> func_body,
+        int func_idx = -1
+        ) {
 
-        uint32_t func_idx = no_of_types;
+        if (func_idx == -1) {
+            func_idx = no_of_types++;
+        }
+
         { // type declaration
             wasm::emit_b8(m_type_section, m_al, 0x60);
             wasm::emit_u32(m_type_section, m_al, params.size()); // no of params
@@ -370,7 +379,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             for (auto result:results) {
                 wasm::emit_b8(m_type_section, m_al, result);
             }
-            no_of_types++;
         }
 
         /*** Reference Function Prototype ***/
@@ -394,12 +402,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         /*** Export the function ***/
         wasm::emit_export_fn(m_export_section, m_al, func_name, func_idx);  //  add function to export
-        m_self_func_name_idx_map[func_name] = func_idx;
         no_of_functions++;
         no_of_exports++;
     }
 
-    void emit_print_int() {
+    void emit_print_int(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({i64}, {}, {i64, i64, i64, i64}, "print_i64", [&](){
             // locals 0 is given parameter
@@ -509,10 +516,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 }
 
             });
-        });
+        }, fn_idx);
     }
 
-    void emit_print_float() {
+    void emit_print_float(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f64}, {}, {i64, i64, i64}, "print_f64", [&](){
             emit_if_else([&](){
@@ -581,10 +588,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
             wasm::emit_get_local(m_code_section, m_al, 3);
             wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["print_i64"]);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_add_32() {
+    void emit_complex_add_32(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "add_c32", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -594,10 +601,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_get_local(m_code_section, m_al, 1);
             wasm::emit_get_local(m_code_section, m_al, 3);
             wasm::emit_f32_add(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_add_64() {
+    void emit_complex_add_64(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "add_c64", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -607,10 +614,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_get_local(m_code_section, m_al, 1);
             wasm::emit_get_local(m_code_section, m_al, 3);
             wasm::emit_f64_add(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_sub_32() {
+    void emit_complex_sub_32(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "sub_c32", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -620,10 +627,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_get_local(m_code_section, m_al, 1);
             wasm::emit_get_local(m_code_section, m_al, 3);
             wasm::emit_f32_sub(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_sub_64() {
+    void emit_complex_sub_64(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "sub_c64", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -633,10 +640,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_get_local(m_code_section, m_al, 1);
             wasm::emit_get_local(m_code_section, m_al, 3);
             wasm::emit_f64_sub(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_mul_32() {
+    void emit_complex_mul_32(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f32, f32, f32, f32}, {f32, f32}, {}, "mul_c32", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -658,10 +665,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_f32_mul(m_code_section, m_al);
 
             wasm::emit_f32_add(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_mul_64() {
+    void emit_complex_mul_64(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f64, f64, f64, f64}, {f64, f64}, {}, "mul_c64", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -683,10 +690,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_f64_mul(m_code_section, m_al);
 
             wasm::emit_f64_add(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_abs_32() {
+    void emit_complex_abs_32(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f32, f32}, {f32}, {}, "abs_c32", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -699,10 +706,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
             wasm::emit_f32_add(m_code_section, m_al);
             wasm::emit_f32_sqrt(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
-    void emit_complex_abs_64() {
+    void emit_complex_abs_64(int fn_idx = -1) {
         using namespace wasm;
         define_emit_func({f64, f64}, {f64}, {}, "abs_c64", [&](){
             wasm::emit_get_local(m_code_section, m_al, 0);
@@ -715,7 +722,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
             wasm::emit_f64_add(m_code_section, m_al);
             wasm::emit_f64_sqrt(m_code_section, m_al);
-        });
+        }, fn_idx);
     }
 
     template <typename T>
@@ -766,16 +773,17 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (int i = 0; i < 10; i++) {
             emit_string(std::to_string(i));
         }
-        emit_print_int();
-        emit_print_float();
-        emit_complex_add_32();
-        emit_complex_add_64();
-        emit_complex_sub_32();
-        emit_complex_sub_64();
-        emit_complex_mul_32();
-        emit_complex_mul_64();
-        emit_complex_abs_32();
-        emit_complex_abs_64();
+
+        m_self_funcs_map["print_i64"] = &ASRToWASMVisitor::emit_print_int;
+        m_self_funcs_map["print_f64"] = &ASRToWASMVisitor::emit_print_float;
+        m_self_funcs_map["add_c32"] = &ASRToWASMVisitor::emit_complex_add_32;
+        m_self_funcs_map["add_c64"] = &ASRToWASMVisitor::emit_complex_add_64;
+        m_self_funcs_map["sub_c32"] = &ASRToWASMVisitor::emit_complex_sub_32;
+        m_self_funcs_map["sub_c64"] = &ASRToWASMVisitor::emit_complex_sub_64;
+        m_self_funcs_map["mul_c32"] = &ASRToWASMVisitor::emit_complex_mul_32;
+        m_self_funcs_map["mul_c64"] = &ASRToWASMVisitor::emit_complex_mul_64;
+        m_self_funcs_map["abs_c32"] = &ASRToWASMVisitor::emit_complex_abs_32;
+        m_self_funcs_map["abs_c64"] = &ASRToWASMVisitor::emit_complex_abs_64;
 
         {
             // Pre-declare all functions first, then generate code
@@ -790,9 +798,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                     x.m_global_scope->get_scope().end());
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
                     if (ASR::is_a<ASR::Module_t>(*mod)) {
-                        ASR::Module_t *m =
-                            ASR::down_cast<ASR::Module_t>(mod);
-                        declare_all_functions(*(m->m_symtab));
+                        visit_symbol(*mod);
                     }
                 }
 
@@ -802,9 +808,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 // then the main program:
                 for (auto &item : x.m_global_scope->get_scope()) {
                     if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                        ASR::Program_t *p =
-                            ASR::down_cast<ASR::Program_t>(item.second);
-                        declare_all_functions(*(p->m_symtab));
+                        visit_symbol(*item.second);
                     }
                 }
             }
@@ -845,6 +849,21 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 visit_symbol(*item.second);
             }
         }
+
+        std::vector<std::pair<std::string, uint32_t>> ordered_self_funcs_name_idx;
+        for (auto self_func:m_self_func_name_idx_map) {
+            ordered_self_funcs_name_idx.push_back(self_func);
+        }
+
+        sort(ordered_self_funcs_name_idx.begin(),
+            ordered_self_funcs_name_idx.end(),
+            [](std::pair<std::string, uint32_t> &a, std::pair<std::string, uint32_t> &b){
+                return a.second < b.second;
+        });
+
+        for (auto self_func:ordered_self_funcs_name_idx) {
+            (this->*m_self_funcs_map[self_func.first])(self_func.second);
+        }
     }
 
     void declare_all_functions(const SymbolTable &symtab) {
@@ -876,14 +895,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         declare_all_functions(*x.m_symtab);
 
         // Generate main program code
-        auto main_func = ASRUtils::make_Function_t_util(
-            m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
-            nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
-            ASR::abiType::Source, ASR::accessType::Public,
-            ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-            nullptr, 0, nullptr, 0, false, false, false);
-        emit_function_prototype(*((ASR::Function_t *)main_func));
-        emit_function_body(*((ASR::Function_t *)main_func));
+        if (main_func == nullptr) {
+            main_func = (ASR::Function_t *)ASRUtils::make_Function_t_util(
+                m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
+                nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
+                ASR::abiType::Source, ASR::accessType::Public,
+                ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
+                nullptr, 0, nullptr, 0, false, false, false);
+        }
+        this->visit_Function(*main_func);
     }
 
     void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v) {
@@ -1685,24 +1705,42 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         switch (x.m_op) {
             case ASR::binopType::Add: {
                 if (a_kind == 4) {
+                    if (m_self_func_name_idx_map.find("add_c32") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["add_c32"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["add_c32"]);
                 } else {
+                    if (m_self_func_name_idx_map.find("add_c64") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["add_c64"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["add_c64"]);
                 }
                 break;
             };
             case ASR::binopType::Sub: {
                 if (a_kind == 4) {
+                    if (m_self_func_name_idx_map.find("sub_c32") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["sub_c32"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["sub_c32"]);
                 } else {
+                    if (m_self_func_name_idx_map.find("sub_c64") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["sub_c64"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["sub_c64"]);
                 }
                 break;
             };
             case ASR::binopType::Mul: {
                 if (a_kind == 4) {
+                    if (m_self_func_name_idx_map.find("mul_c32") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["mul_c32"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["mul_c32"]);
                 } else {
+                    if (m_self_func_name_idx_map.find("mul_c64") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["mul_c64"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["mul_c64"]);
                 }
                 break;
@@ -2629,10 +2667,16 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 if (arg_kind == 4) {
+                    if (m_self_func_name_idx_map.find("abs_c32") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["abs_c32"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["abs_c32"]);
                     wasm::emit_f32_const(m_code_section, m_al, 0.0);
                     wasm::emit_f32_gt(m_code_section, m_al);
                 } else if (arg_kind == 8) {
+                    if (m_self_func_name_idx_map.find("abs_c64") == m_self_func_name_idx_map.end()) {
+                        m_self_func_name_idx_map["abs_c64"] = no_of_types++;
+                    }
                     wasm::emit_call(m_code_section, m_al, m_self_func_name_idx_map["abs_c64"]);
                     wasm::emit_f64_const(m_code_section, m_al, 0.0);
                     wasm::emit_f64_gt(m_code_section, m_al);
@@ -2773,6 +2817,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
 
             if (ASRUtils::is_integer(*t) || ASRUtils::is_logical(*t)) {
+                if (m_self_func_name_idx_map.find("print_i64") == m_self_func_name_idx_map.end()) {
+                    m_self_func_name_idx_map["print_i64"] = no_of_types++;
+                }
                 this->visit_expr(*x.m_values[i]);
                 switch (a_kind) {
                     case 4: {
@@ -2791,6 +2838,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                 }
             } else if (ASRUtils::is_real(*t)) {
+                if (m_self_func_name_idx_map.find("print_i64") == m_self_func_name_idx_map.end()) {
+                    m_self_func_name_idx_map["print_i64"] = no_of_types++;
+                }
+                if (m_self_func_name_idx_map.find("print_f64") == m_self_func_name_idx_map.end()) {
+                    m_self_func_name_idx_map["print_f64"] = no_of_types++;
+                }
                 this->visit_expr(*x.m_values[i]);
                 switch (a_kind) {
                     case 4: {
@@ -2822,6 +2875,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         ->index);
                 wasm::emit_drop(m_code_section, m_al);
             } else if (t->type == ASR::ttypeType::Complex) {
+                if (m_self_func_name_idx_map.find("print_i64") == m_self_func_name_idx_map.end()) {
+                    m_self_func_name_idx_map["print_i64"] = no_of_types++;
+                }
+                if (m_self_func_name_idx_map.find("print_f64") == m_self_func_name_idx_map.end()) {
+                    m_self_func_name_idx_map["print_f64"] = no_of_types++;
+                }
                 emit_call_fd_write(1, "(", 1, 0);
                 this->visit_expr(*x.m_values[i]);
                 if (a_kind == 4) {
