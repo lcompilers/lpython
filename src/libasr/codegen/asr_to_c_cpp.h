@@ -853,6 +853,8 @@ R"(#include <stdio.h>
                 src += "\\t";
             } else if (s[idx] == '\b') {
                 src += "\\b";
+            } else if (s[idx] == '\v') {
+                src += "\\v";
             } else {
                 src += s[idx];
             }

@@ -809,6 +809,9 @@ char* unescape(Allocator &al, LCompilers::Str &s) {
         } else if (s.p[idx] == '\\' && s.p[idx+1] == 'b') {
             x += "\b";
             idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == 'v') {
+            x += "\v";
+            idx++;
         } else {
             x += s.p[idx];
         }
