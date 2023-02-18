@@ -299,7 +299,7 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                 escaped_str += ch;
             } else {
                 std::string byte(2, ' ');
-                sprintf(byte.data(), "%02x", uint8_t(ch));
+                snprintf(byte.data(), 3, "%02x", uint8_t(ch));
                 escaped_str += "\\" + byte;
             }
         }
