@@ -1010,3 +1010,8 @@ run_with_dbg = true
 [[test]]
 filename = "runtime_errors/test_raise_01.py"
 run_with_dbg = true
+
+[[test]]
+filename = "escape_character1.py"
+ast = true
+asr = true
