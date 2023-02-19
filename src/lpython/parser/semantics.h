@@ -720,6 +720,55 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
+char *get_raw_string(Allocator &al, std::string s) {
+    std::string x;
+    for (size_t idx=0; idx < s.size(); idx++) {
+        if (s[idx] == '\n') {
+            x += "\\n";
+        } else if (s[idx] == '\t') {
+            x += "\\t";
+        } else if (s[idx] == '\b') {
+            x += "\\b";
+        } else if (s[idx] == '\v') {
+            x += "\\v";
+        } else if (s[idx] == '\\' && (s[idx+1] == 'n' || s[idx+1] == 'N'
+                || s[idx+1] == 't' || s[idx+1] == 'b' || s[idx+1] == 'v')) {
+            x += "\\\\";
+            x += s[idx+1];
+            idx++;
+        } else if (s[idx] == '\\') {
+            x += "\\\\";
+        } else if (s[idx] == '"') {
+            x += "\\\"";
+        } else {
+            x += s[idx];
+        }
+    }
+    return LCompilers::s2c(al, x);
+}
+
+char* escape_string(Allocator &al, LCompilers::Str &s) {
+    std::string x;
+    for (size_t idx=0; idx < s.size(); idx++) {
+        if (s.p[idx] == '\n') {
+            x += "\\n";
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == '\n') {
+            idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == '\\') {
+            x += "\\\\";
+            idx++;
+        } else if (s.p[idx] == '\\' && s.p[idx+1] == '\'') {
+            x += '\'';
+            idx++;
+        } else if (s.p[idx-1] != '\\' && s.p[idx] == '"') {
+            x += "\\\"";
+        } else {
+            x += s.p[idx];
+        }
+    }
+    return LCompilers::s2c(al, x);
+}
+
 static inline ast_t* concat_string(Allocator &al, Location &l,
         expr_t *string, std::string str, expr_t *string_literal) {
     std::string str1 = "";
@@ -794,28 +843,12 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
     return tmp;
 }
 
-char* unescape(Allocator &al, LCompilers::Str &s) {
-    std::string x;
-    for (size_t idx=0; idx < s.size(); idx++) {
-        if (s.p[idx] == '\\' && s.p[idx+1] == 'n') {
-            x += "\n";
-            idx++;
-        } else if (s.p[idx] == '\\' && s.p[idx+1] == '\'') {
-            x += "'";
-            idx++;
-        } else {
-            x += s.p[idx];
-        }
-    }
-    return LCompilers::s2c(al, x);
-}
-
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape(p.m_a, x), nullptr)
-#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), y.str(), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, escape_string(p.m_a, x), nullptr)
+#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), escape_string(p.m_a, y), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
@@ -867,6 +900,9 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
         for (size_t i = 0; i < strs.size(); i++) {
             if (strs[i][0] == '"') {
                 strs[i] = strs[i].substr(1, strs[i].length() - 2);
+                if (strcmp(prefix, "fr") == 0 || strcmp(prefix, "rf") == 0) {
+                    strs[i] = std::string(get_raw_string(al, strs[i]));
+                }
                 tmp = make_ConstantStr_t(al, l, LCompilers::s2c(al, strs[i]), nullptr);
                 exprs.push_back(al, down_cast<expr_t>(tmp));
             } else {
@@ -877,17 +913,19 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0
-            || strcmp(prefix, "rb") == 0) {
-        std::string str = std::string(s);
-        size_t start_pos = 0;
-        while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
-                str.replace(start_pos, 1, "\\n");
-                start_pos += 2;
-        }
+    } else if (strcmp(prefix, "b") == 0) {
+        std::string str_1 = std::string(s);
+        LCompilers::Str str_2;
+        str_2.from_str_view(str_1);
+        str_1 = escape_string(al, str_2);
+        str_1 = "b'" + str_1 + "'";
+        tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str_1), nullptr);
+    } else if (strcmp(prefix, "br") == 0|| strcmp(prefix, "rb") == 0) {
+        std::string str = std::string(get_raw_string(al, std::string(s)));
         str = "b'" + str + "'";
         tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str), nullptr);
     } else if (strcmp(prefix, "r") == 0 ) {
+        s = get_raw_string(al, std::string(s));
         tmp = make_ConstantStr_t(al, l,  s, nullptr);
     } else if (strcmp(prefix, "u") == 0 ) {
         tmp = make_ConstantStr_t(al, l,  s, LCompilers::s2c(al, "u"));
