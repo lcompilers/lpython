@@ -3125,8 +3125,23 @@ public:
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
+                int i = 0;
                 index = ASRUtils::EXPR(tmp);
-                int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
+                ASR::expr_t* val = ASRUtils::expr_value(index);
+                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
+                    i = ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n;
+                    int tuple_size =  ASR::down_cast<ASR::Tuple_t>(type)->n_type;
+                    if (i < 0) {
+                        i = tuple_size + i;
+                        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                                        4, nullptr, 0));
+                        index = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                            al, loc, i, int_type));
+                    }
+                    if (i >= tuple_size || i < 0) {
+                        throw SemanticError("TupleIndex out of range", loc);
+                    }
+                }
                 tmp = make_TupleItem_t(al, loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
                 return false;
