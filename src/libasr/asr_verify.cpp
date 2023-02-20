@@ -268,7 +268,8 @@ public:
             ASR::Var_t* target_Var = ASR::down_cast<ASR::Var_t>(target);
             ASR::ttype_t* target_type = nullptr;
             if( ASR::is_a<ASR::Variable_t>(*target_Var->m_v) ||
-                ASR::is_a<ASR::ExternalSymbol_t>(*target_Var->m_v)) {
+                (ASR::is_a<ASR::ExternalSymbol_t>(*target_Var->m_v) &&
+                 ASR::down_cast<ASR::ExternalSymbol_t>(target_Var->m_v)->m_external) ) {
                 target_type = ASRUtils::expr_type(target);
             }
             if( target_type && ASR::is_a<ASR::Const_t>(*target_type) ) {

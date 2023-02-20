@@ -409,7 +409,9 @@ def tester_main(compiler, single_test):
                 specific_backends=specific_backends,
                 excluded_backends=excluded_backends,
                 verbose=verbose,
-                no_llvm=no_llvm)
+                no_llvm=no_llvm,
+                skip_run_with_dbg=True,
+                no_color=True)
     filtered_tests = [test for test in filtered_tests if 'extrafiles' not in test]
 
     if args.sequential:
