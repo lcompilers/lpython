@@ -30,6 +30,7 @@
 
 namespace LCompilers {
 
+
 // Platform dependent fast unique hash:
 static inline uint64_t get_hash(ASR::asr_t *node)
 {
@@ -1164,7 +1165,7 @@ R"(#include <stdio.h>
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
-        member = ASRUtils::symbol_name(x.m_m);
+        member = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(x.m_m));
         if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ||
             ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v) ||
             ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ) {
@@ -1601,10 +1602,19 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: allocate(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::symbol_t* a = x.m_args[i].m_a;
+            ASR::symbol_t* tmp_sym = nullptr;
+            ASR::expr_t* tmp_expr = x.m_args[i].m_a;
+            if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                tmp_sym = tmp_var->m_v;
+            } else {
+                throw CodeGenError("Cannot deallocate variables in expression " +
+                                    std::to_string(tmp_expr->type),
+                                    tmp_expr->base.loc);
+            }
             //ASR::dimension_t* dims = x.m_args[i].m_dims;
             //size_t n_dims = x.m_args[i].n_dims;
-            out += std::string(ASRUtils::symbol_name(a)) + ", ";
+            out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
         }
         out += ");\n";
         src = out;
@@ -1631,7 +1641,17 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: deallocate(";
         for (size_t i=0; i<x.n_vars; i++) {
-            out += std::string(ASRUtils::symbol_name(x.m_vars[i])) + ", ";
+            ASR::symbol_t* tmp_sym = nullptr;
+            ASR::expr_t* tmp_expr = x.m_vars[i];
+            if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                tmp_sym = tmp_var->m_v;
+            } else {
+                throw CodeGenError("Cannot deallocate variables in expression " +
+                                    std::to_string(tmp_expr->type),
+                                    tmp_expr->base.loc);
+            }
+            out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
         }
         out += ");\n";
         src = out;

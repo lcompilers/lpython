@@ -64,10 +64,20 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                 return ;
             }
             ASR::alloc_arg_t& xx = const_cast<ASR::alloc_arg_t&>(x);
-            ASR::symbol_t* x_sym = xx.m_a;
+            ASR::symbol_t* x_sym = nullptr;
+            ASR::expr_t* tmp_expr = xx.m_a;
+            if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                x_sym = tmp_var->m_v;
+            } else {
+                throw LCompilersException(
+                    "Cannot deallocate variables in expression " +
+                    std::to_string(tmp_expr->type));
+            }
             std::string x_sym_name = std::string(ASRUtils::symbol_name(x_sym));
             if( current_proc_scope->get_symbol(x_sym_name) != x_sym ) {
-                xx.m_a = current_proc_scope->get_symbol(x_sym_name);
+                ASR::symbol_t* x_sym_new = current_proc_scope->get_symbol(x_sym_name);
+                xx.m_a = ASRUtils::EXPR(ASR::make_Var_t(al,  x_sym_new->base.loc, x_sym_new));
             }
         }
 
@@ -200,6 +210,11 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
 
             is_editing_procedure = true;
             current_proc_scope = x->m_symtab;
+            for( auto& itr: x->m_symtab->get_scope() ) {
+                if( ASR::is_a<ASR::Variable_t>(*itr.second) ) {
+                    PassVisitor::visit_ttype(*ASR::down_cast<ASR::Variable_t>(itr.second)->m_type);
+                }
+            }
             for( size_t i = 0; i < x->n_body; i++ ) {
                 visit_stmt(*x->m_body[i]);
             }
@@ -341,6 +356,7 @@ class ReplaceFunctionCalls: public ASR::BaseExprReplacer<ReplaceFunctionCalls> {
             }
         }
 
+        LCOMPILERS_ASSERT(new_args.size() == ASR::down_cast<ASR::Function_t>(new_func_sym)->n_args);
         ASR::expr_t* new_call = ASRUtils::EXPR(ASR::make_FunctionCall_t(al,
                                     x->base.base.loc, new_func_sym, new_func_sym,
                                     new_args.p, new_args.size(), x->m_type, nullptr,

@@ -667,7 +667,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s =
                     ASR::down_cast<ASR::Function_t>(item.second);
-                this->visit_Function(*s);
+                if (ASRUtils::get_FunctionType(s)->n_type_params == 0) {
+                    this->visit_Function(*s);
+                }
             }
         }
     }
@@ -2442,6 +2444,49 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                     m_import_func_asr_map["proc_exit"])]
                 ->index);
         wasm::emit_unreachable(m_code_section, m_al);  // raise trap/exception
+    }
+
+    void visit_ArrayBound(const ASR::ArrayBound_t& x) {
+        ASR::ttype_t *ttype = ASRUtils::expr_type(x.m_v);
+        uint32_t kind = ASRUtils::extract_kind_from_ttype_t(ttype);
+        ASR::dimension_t *m_dims;
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(ttype, m_dims);
+        if (kind != 4) {
+            throw CodeGenError("ArrayBound: Kind 4 only supported currently");
+        }
+
+        if (x.m_dim) {
+            ASR::expr_t *val = ASRUtils::expr_value(x.m_dim);
+
+            if (!ASR::is_a<ASR::IntegerConstant_t>(*val)) {
+                throw CodeGenError("ArrayBound: Only constant dim values supported currently");
+            }
+            ASR::IntegerConstant_t *dimDir = ASR::down_cast<ASR::IntegerConstant_t>(val);
+            if (x.m_bound == ASR::arrayboundType::LBound) {
+                this->visit_expr(*m_dims[dimDir->m_n - 1].m_start);
+            } else {
+                this->visit_expr(*m_dims[dimDir->m_n - 1].m_start);
+                this->visit_expr(*m_dims[dimDir->m_n - 1].m_length);
+                wasm::emit_i32_add(m_code_section, m_al);
+                wasm::emit_i32_const(m_code_section, m_al, 1);
+                wasm::emit_i32_sub(m_code_section, m_al);
+            }
+        } else {
+            if (x.m_bound == ASR::arrayboundType::LBound) {
+                wasm::emit_i32_const(m_code_section, m_al, 1);
+            } else {
+                // emit the whole array size
+                if (!m_dims[0].m_length) {
+                    throw CodeGenError(
+                        "ArrayBound: Dimension length for index 0 does not exist");
+                }
+                this->visit_expr(*(m_dims[0].m_length));
+                for (int i = 1; i < n_dims; i++) {
+                    this->visit_expr(*m_dims[i].m_length);
+                    wasm::emit_i32_mul(m_code_section, m_al);
+                }
+            }
+        }
     }
 
     void visit_Stop(const ASR::Stop_t &x) {

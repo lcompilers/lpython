@@ -3993,7 +3993,7 @@ public:
             throw SemanticError("Delete statement must be operated on at least one target",
                     x.base.base.loc);
         }
-        Vec<ASR::symbol_t*> targets;
+        Vec<ASR::expr_t*> targets;
         targets.reserve(al, x.n_targets);
         for (size_t i=0; i<x.n_targets; i++) {
             AST::expr_t *target = x.m_targets[i];
@@ -4005,7 +4005,7 @@ public:
                             x.base.base.loc);
                 }
                 ASR::symbol_t *s = current_scope->resolve_symbol(var_name);
-                targets.push_back(al, s);
+                targets.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, target->base.loc, s)));
             } else {
                 throw SemanticError("Only Name supported for now as target of Delete",
                         x.base.base.loc);
