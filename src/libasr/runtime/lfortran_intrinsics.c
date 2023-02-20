@@ -854,7 +854,7 @@ LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
 
     int s_len = strlen(s);
     if(idx1 > s_len || idx1 <= (-1*s_len)){
-        printf("String index out of Bounds\n");
+        printf("String index out of bounds\n");
         exit(1);
     }
     if(idx1 <= 0) {

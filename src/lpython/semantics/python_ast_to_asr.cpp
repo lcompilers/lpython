@@ -3139,7 +3139,7 @@ public:
                             al, loc, i, int_type));
                     }
                     if (i >= tuple_size || i < 0) {
-                        throw SemanticError("TupleIndex out of range", loc);
+                        throw SemanticError("Tuple index out of bounds", loc);
                     }
                 }
                 tmp = make_TupleItem_t(al, loc, value, index,
