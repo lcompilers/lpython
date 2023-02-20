@@ -131,7 +131,7 @@ presence = Required | Optional
 -- the code in optimizations).
 
 -- abi=LFortranModule/GFortranModule/BindC: the symbol's implementation is
--- stored as machine code in some object file that needs to be linked in. It
+-- stored as machine code in some object file that must be linked in. It
 -- uses the specified ABI (one of LFortran module, GFortran module or C ABI).
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
