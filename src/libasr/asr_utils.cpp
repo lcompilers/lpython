@@ -797,8 +797,6 @@ bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
                 intrinsic_op_name) != nullptr) {
             result = true;
         } else {
-        result = false;
-        result = false;
             result = false;
         }
     }
