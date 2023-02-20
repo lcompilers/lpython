@@ -91,7 +91,7 @@ ASR is the simplest way to generate Fortran code, as one does not
 have to worry about the detailed syntax (as in AST) about how and where
 things are declared. One specifies the symbol table for a module, then for
 each symbol (functions, global variables, types, ...) one specifies the local
-variables and if this is an interface then one needs to specify where one can
+variables and if this is an interface then one must specify where one can
 find an implementation, otherwise a body is supplied with statements, those
 nodes are almost the same as in AST, except that each variable is just a
 reference to a symbol in the symbol table (so by construction one cannot have
