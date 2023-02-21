@@ -3304,7 +3304,7 @@ public:
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
-        bool is_deterministic = false;
+        bool is_deterministic = true;
         bool is_side_effect_free = false;
 
         if (x.n_decorator_list > 0) {
@@ -3454,6 +3454,12 @@ public:
                 Vec<char*> func_deps;
                 func_deps.reserve(al, dependencies.size());
                 for( auto& dep: dependencies ) {
+                    ASR::symbol_t *sym = current_scope->resolve_symbol(dep);
+                    if (ASR::is_a<ASR::Variable_t>(*sym)) {
+                        is_deterministic = false;
+                    } else if (ASR::is_a<ASR::Function_t>(*sym)) {
+                        is_deterministic &= ASR::down_cast<ASR::Function_t>(sym)->m_deterministic;
+                    }
                     func_deps.push_back(al, s2c(al, dep));
                 }
                 tmp = ASRUtils::make_Function_t_util(
@@ -3478,6 +3484,12 @@ public:
             Vec<char*> func_deps;
             func_deps.reserve(al, dependencies.size());
             for( auto& dep: dependencies ) {
+                ASR::symbol_t *sym = current_scope->resolve_symbol(dep);
+                if (ASR::is_a<ASR::Variable_t>(*sym)) {
+                    is_deterministic = false;
+                } else if (ASR::is_a<ASR::Function_t>(*sym)) {
+                    is_deterministic &= ASR::down_cast<ASR::Function_t>(sym)->m_deterministic;
+                }
                 func_deps.push_back(al, s2c(al, dep));
             }
             tmp = ASRUtils::make_Function_t_util(
