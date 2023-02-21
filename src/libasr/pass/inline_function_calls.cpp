@@ -202,6 +202,9 @@ public:
             if( ASR::is_a<ASR::ExternalSymbol_t>(*routine) &&
                 inline_external_symbol_calls) {
                 routine = ASRUtils::symbol_get_past_external(x.m_name);
+                if( !ASR::is_a<ASR::Function_t>(*routine) ) {
+                    return ;
+                }
             } else {
                 return ;
             }

@@ -163,7 +163,7 @@ stmt
     | Associate(expr target, expr value)
     | Cycle()
     -- deallocates if allocated otherwise throws a runtime error
-    | ExplicitDeallocate(symbol* vars)
+    | ExplicitDeallocate(expr* vars)
     -- deallocates if allocated otherwise does nothing
     | ImplicitDeallocate(symbol* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
@@ -286,6 +286,7 @@ expr
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
     | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
+    | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
@@ -317,6 +318,8 @@ expr
 
     | PointerNullConstant(ttype type)
     | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
+
+    | IntrinsicFunctionSqrt(expr arg, ttype type, expr? value)
 
 
 -- `len` in Character:
@@ -357,9 +360,9 @@ ttype
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
     | FunctionType(ttype* arg_types, ttype? return_var_type,
-         abi abi, deftype deftype, string? bindc_name, bool elemental,
-         bool pure, bool module, bool inline, bool static, ttype* type_params,
-         symbol* restrictions, bool is_restriction)
+        abi abi, deftype deftype, string? bindc_name, bool elemental,
+        bool pure, bool module, bool inline, bool static, ttype* type_params,
+        symbol* restrictions, bool is_restriction)
 
 restriction_arg = RestrictionArg(identifier restriction_name, symbol restriction_func)
 
@@ -399,7 +402,7 @@ cast_kind
 
 dimension = (expr? start, expr? length)
 
-alloc_arg = (symbol a, dimension* dims)
+alloc_arg = (expr a, dimension* dims)
 
 attribute = Attribute(identifier name, attribute_arg *args)
 
@@ -415,7 +418,7 @@ do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
-type_stmt = TypeStmt(symbol sym, stmt* body)
+type_stmt = TypeStmtName(symbol sym, stmt* body) | TypeStmtType(ttype type, stmt* body)
 
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 
