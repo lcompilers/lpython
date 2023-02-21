@@ -952,7 +952,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             x.m_deftype == ASR::deftypeType::Interface) {
             if (ASRUtils::is_intrinsic_function2(&x)) {
                 diag.codegen_warning_label(
-                    "WASM: C Intrinsic Functions not yet supported",
+                    "WASM: C Intrinsic Functions not yet supported ",
                     {x.base.base.loc}, std::string(x.m_name));
             }
             return true;
