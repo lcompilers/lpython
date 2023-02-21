@@ -1,304 +1,114 @@
 (module
     (type (;0;) (func (param i32) (result)))
     (type (;1;) (func (param i32 i32 i32 i32) (result i32)))
-    (type (;2;) (func (param i64) (result)))
-    (type (;3;) (func (param f64) (result)))
+    (type (;2;) (func (param) (result)))
+    (type (;3;) (func (param) (result)))
     (type (;4;) (func (param) (result)))
     (type (;5;) (func (param) (result)))
-    (type (;6;) (func (param) (result)))
-    (type (;7;) (func (param) (result)))
     (import "wasi_snapshot_preview1" "proc_exit" (func (;0;) (type 0)))
     (import "wasi_snapshot_preview1" "fd_write" (func (;1;) (type 1)))
-    (global $0 i32 (i32.const 0))
-    (func $2 (type 2) (param i64) (result)
-        (local i64 i64 i64 i64)
-        local.get 0
-        i64.const 0
-        i64.eq
-        if
-            i32.const 1
-            i32.const 52
-            i32.const 1
-            i32.const 0
-            call 1
-            drop
-            return
-        else
-        end
-        local.get 0
-        i64.const 0
-        i64.lt_s
-        if
-            i32.const 1
-            i32.const 28
-            i32.const 1
-            i32.const 0
-            call 1
-            drop
-            local.get 0
-            i64.const -1
-            i64.mul
-            local.set 0
-        else
-        end
-        local.get 0
-        local.set 4
-        i64.const 0
-        local.set 1
-        loop
-            local.get 0
-            i64.const 0
-            i64.gt_s
-            if
-                local.get 1
-                i64.const 1
-                i64.add
-                local.set 1
-                local.get 0
-                i64.const 10
-                i64.div_s
-                local.set 0
-                br 1
-            else
-            end
-        end
-        loop
-            local.get 1
-            i64.const 0
-            i64.gt_s
-            if
-                local.get 1
-                i64.const 1
-                i64.sub
-                local.set 1
-                i64.const 1
-                local.set 2
-                i64.const 0
-                local.set 3
-                loop
-                    local.get 3
-                    local.get 1
-                    i64.lt_s
-                    if
-                        local.get 3
-                        i64.const 1
-                        i64.add
-                        local.set 3
-                        local.get 2
-                        i64.const 10
-                        i64.mul
-                        local.set 2
-                        br 1
-                    else
-                    end
-                end
-                local.get 4
-                local.get 2
-                i64.div_s
-                i64.const 10
-                i64.rem_s
-                i64.const 12
-                i64.mul
-                i64.const 52
-                i64.add
-                local.set 0
-                i32.const 1
-                local.get 0
-                i32.wrap_i64
-                i32.const 1
-                i32.const 0
-                call 1
-                drop
-                br 1
-            else
-            end
-        end
+    (global $0 (mut i32) (i32.const 0))
+    (global $1 (mut f32) (f32.const 0.000000))
+    (global $2 (mut f64) (f64.const 0.000000))
+    (func $2 (type 2) (param) (result)
+        (local)
+        call 3
         return
     )
-    (func $3 (type 3) (param f64) (result)
-        (local i64 i64 i64)
-        local.get 0
-        f64.const 0.000000
-        f64.lt
-        if
-            i32.const 1
-            i32.const 28
-            i32.const 1
-            i32.const 0
-            call 1
-            drop
-            local.get 0
-            f64.const -1.000000
-            f64.mul
-            local.set 0
-        else
-        end
-        local.get 0
-        i64.trunc_f64_s
-        call 2
-        i32.const 1
-        i32.const 40
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        local.get 0
-        local.get 0
-        i64.trunc_f64_s
-        f64.convert_i64_s
-        f64.sub
-        f64.const 100000000.000000
-        f64.mul
-        i64.trunc_f64_s
-        local.set 2
-        local.get 2
-        local.set 3
-        i64.const 0
-        local.set 1
-        loop
-            local.get 2
-            i64.const 0
-            i64.gt_s
-            if
-                local.get 1
-                i64.const 1
-                i64.add
-                local.set 1
-                local.get 2
-                f64.convert_i64_s
-                i64.const 10
-                f64.convert_i64_s
-                f64.div
-                i64.trunc_f64_s
-                local.set 2
-                br 1
-            else
-            end
-        end
-        loop
-            local.get 1
-            i64.const 8
-            i64.lt_s
-            if
-                local.get 1
-                i64.const 1
-                i64.add
-                local.set 1
-                i32.const 1
-                i32.const 52
-                i32.const 1
-                i32.const 0
-                call 1
-                drop
-                br 1
-            else
-            end
-        end
-        local.get 3
-        call 2
+    (func $3 (type 3) (param) (result)
+        (local)
+        call 4
         return
     )
     (func $4 (type 4) (param) (result)
         (local)
-        call 5
+        i32.const 1
+        i32.const 208
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 224
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 240
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 256
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 272
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 288
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
+        i32.const 1
+        i32.const 16
+        i32.const 1
+        i32.const 0
+        call 1
+        drop
         return
     )
     (func $5 (type 5) (param) (result)
         (local)
-        call 6
-        return
-    )
-    (func $6 (type 6) (param) (result)
-        (local)
-        i32.const 1
-        i32.const 172
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 188
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 204
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 220
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 236
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 252
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        i32.const 1
-        i32.const 16
-        i32.const 1
-        i32.const 0
-        call 1
-        drop
-        return
-    )
-    (func $7 (type 7) (param) (result)
-        (local)
-        call 4
+        call 2
         i32.const 0
         call 0
         return
     )
     (memory (;0;) 100 100)
     (export "memory" (memory 0))
-    (export "print_i64" (func 2))
-    (export "print_f64" (func 3))
-    (export "_lpython_main_program" (func 4))
-    (export "main0" (func 5))
-    (export "printCompOperations" (func 6))
-    (export "_start" (func 7))
+    (export "_lpython_main_program" (func 2))
+    (export "main0" (func 3))
+    (export "printCompOperations" (func 4))
+    (export "_start" (func 5))
     (data (;0;) (i32.const 4) "\0c\00\00\00\01\00\00\00")
     (data (;1;) (i32.const 12) "    ")
     (data (;2;) (i32.const 16) "\18\00\00\00\01\00\00\00")
@@ -308,35 +118,41 @@
     (data (;6;) (i32.const 40) "\30\00\00\00\01\00\00\00")
     (data (;7;) (i32.const 48) ".   ")
     (data (;8;) (i32.const 52) "\3c\00\00\00\01\00\00\00")
-    (data (;9;) (i32.const 60) "0   ")
+    (data (;9;) (i32.const 60) "(   ")
     (data (;10;) (i32.const 64) "\48\00\00\00\01\00\00\00")
-    (data (;11;) (i32.const 72) "1   ")
+    (data (;11;) (i32.const 72) ")   ")
     (data (;12;) (i32.const 76) "\54\00\00\00\01\00\00\00")
-    (data (;13;) (i32.const 84) "2   ")
+    (data (;13;) (i32.const 84) ",   ")
     (data (;14;) (i32.const 88) "\60\00\00\00\01\00\00\00")
-    (data (;15;) (i32.const 96) "3   ")
+    (data (;15;) (i32.const 96) "0   ")
     (data (;16;) (i32.const 100) "\6c\00\00\00\01\00\00\00")
-    (data (;17;) (i32.const 108) "4   ")
+    (data (;17;) (i32.const 108) "1   ")
     (data (;18;) (i32.const 112) "\78\00\00\00\01\00\00\00")
-    (data (;19;) (i32.const 120) "5   ")
+    (data (;19;) (i32.const 120) "2   ")
     (data (;20;) (i32.const 124) "\84\00\00\00\01\00\00\00")
-    (data (;21;) (i32.const 132) "6   ")
+    (data (;21;) (i32.const 132) "3   ")
     (data (;22;) (i32.const 136) "\90\00\00\00\01\00\00\00")
-    (data (;23;) (i32.const 144) "7   ")
+    (data (;23;) (i32.const 144) "4   ")
     (data (;24;) (i32.const 148) "\9c\00\00\00\01\00\00\00")
-    (data (;25;) (i32.const 156) "8   ")
+    (data (;25;) (i32.const 156) "5   ")
     (data (;26;) (i32.const 160) "\a8\00\00\00\01\00\00\00")
-    (data (;27;) (i32.const 168) "9   ")
-    (data (;28;) (i32.const 172) "\b4\00\00\00\05\00\00\00")
-    (data (;29;) (i32.const 180) "x < y   ")
-    (data (;30;) (i32.const 188) "\c4\00\00\00\06\00\00\00")
-    (data (;31;) (i32.const 196) "x !< y  ")
-    (data (;32;) (i32.const 204) "\d4\00\00\00\05\00\00\00")
-    (data (;33;) (i32.const 212) "x > y   ")
-    (data (;34;) (i32.const 220) "\e4\00\00\00\06\00\00\00")
-    (data (;35;) (i32.const 228) "x !> y  ")
-    (data (;36;) (i32.const 236) "\f4\00\00\00\06\00\00\00")
-    (data (;37;) (i32.const 244) "x == y  ")
-    (data (;38;) (i32.const 252) "\04\01\00\00\06\00\00\00")
-    (data (;39;) (i32.const 260) "x != y  ")
+    (data (;27;) (i32.const 168) "6   ")
+    (data (;28;) (i32.const 172) "\b4\00\00\00\01\00\00\00")
+    (data (;29;) (i32.const 180) "7   ")
+    (data (;30;) (i32.const 184) "\c0\00\00\00\01\00\00\00")
+    (data (;31;) (i32.const 192) "8   ")
+    (data (;32;) (i32.const 196) "\cc\00\00\00\01\00\00\00")
+    (data (;33;) (i32.const 204) "9   ")
+    (data (;34;) (i32.const 208) "\d8\00\00\00\05\00\00\00")
+    (data (;35;) (i32.const 216) "x < y   ")
+    (data (;36;) (i32.const 224) "\e8\00\00\00\06\00\00\00")
+    (data (;37;) (i32.const 232) "x !< y  ")
+    (data (;38;) (i32.const 240) "\f8\00\00\00\05\00\00\00")
+    (data (;39;) (i32.const 248) "x > y   ")
+    (data (;40;) (i32.const 256) "\08\01\00\00\06\00\00\00")
+    (data (;41;) (i32.const 264) "x !> y  ")
+    (data (;42;) (i32.const 272) "\18\01\00\00\06\00\00\00")
+    (data (;43;) (i32.const 280) "x == y  ")
+    (data (;44;) (i32.const 288) "\28\01\00\00\06\00\00\00")
+    (data (;45;) (i32.const 296) "x != y  ")
 )
