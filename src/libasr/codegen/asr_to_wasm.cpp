@@ -72,8 +72,9 @@ enum RT_FUNCS {
     mul_c64 = 7,
     abs_c32 = 9,
     abs_c64 = 10,
+    rt_funcs_last = 11, // keep this as the last enumerator
 };
-const int NO_OF_RT_FUNCS = 11;
+const int NO_OF_RT_FUNCS = rt_funcs_last;
 
 class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
    public:
