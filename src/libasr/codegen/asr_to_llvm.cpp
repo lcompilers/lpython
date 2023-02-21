@@ -1056,19 +1056,19 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
-    llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
+    llvm::Value* lfortran_str_item(llvm::Value* str, llvm::Value* idx1)
     {
-        std::string runtime_func_name = "_lfortran_str_copy";
+        std::string runtime_func_name = "_lfortran_str_item";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     character_type, {
-                        character_type, llvm::Type::getInt32Ty(context), llvm::Type::getInt32Ty(context)
+                        character_type, llvm::Type::getInt32Ty(context)
                     }, false);
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
-        return builder->CreateCall(fn, {str, idx1, idx2});
+        return builder->CreateCall(fn, {str, idx1});
     }
 
     llvm::Value* lfortran_str_slice(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2,
@@ -1827,7 +1827,7 @@ public:
                 std::vector<llvm::Value*> idx_vec = {idx};
                 p = CreateGEP(str, idx_vec);
             } else {
-                p = lfortran_str_copy(str, idx, idx);
+                p = lfortran_str_item(str, idx);
             }
             // TODO: Currently the string starts at the right location, but goes to the end of the original string.
             // We have to allocate a new string, copy it and add null termination.
@@ -1910,7 +1910,9 @@ public:
         // llvm::Value *p = CreateGEP(str, idx_vec);
         // TODO: Currently the string starts at the right location, but goes to the end of the original string.
         // We have to allocate a new string, copy it and add null termination.
-        llvm::Value *p = lfortran_str_copy(str, idx1, idx2);
+        llvm::Value *step = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+        llvm::Value *present = llvm::ConstantInt::get(context, llvm::APInt(1, 1));
+        llvm::Value *p = lfortran_str_slice(str, idx1, idx2, step, present, present);
 
         tmp = builder->CreateAlloca(character_type, nullptr);
         builder->CreateStore(p, tmp);
@@ -4784,7 +4786,7 @@ public:
         llvm::Value *idx = tmp;
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *str = tmp;
-        tmp = lfortran_str_copy(str, idx, idx);
+        tmp = lfortran_str_item(str, idx);
     }
 
     void visit_StringSection(const ASR::StringSection_t& x) {
