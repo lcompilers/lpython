@@ -661,6 +661,7 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         Vec<ASR::stmt_t*> pass_result;
         Vec<ASR::expr_t*> result_lbound, result_ubound, result_inc;
         bool remove_original_statement;
+        Vec<ASR::stmt_t*>* parent_body;
 
     public:
 
@@ -668,7 +669,7 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         al(al_), use_custom_loop_params(false),
         replacer(al_, pass_result, use_custom_loop_params,
                  result_lbound, result_ubound, result_inc),
-        remove_original_statement(false) {
+        remove_original_statement(false), parent_body(nullptr) {
             pass_result.n = 0;
             result_lbound.n = 0;
             result_ubound.n = 0;
@@ -684,11 +685,19 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
             Vec<ASR::stmt_t*> body;
             body.reserve(al, n_body);
+            if( parent_body ) {
+                for (size_t j=0; j < pass_result.size(); j++) {
+                    parent_body->push_back(al, pass_result[j]);
+                }
+            }
             for (size_t i=0; i<n_body; i++) {
                 pass_result.n = 0;
                 pass_result.reserve(al, 1);
                 remove_original_statement = false;
+                Vec<ASR::stmt_t*>* parent_body_copy = parent_body;
+                parent_body = &body;
                 visit_stmt(*m_body[i]);
+                parent_body = parent_body_copy;
                 for (size_t j=0; j < pass_result.size(); j++) {
                     body.push_back(al, pass_result[j]);
                 }
@@ -699,6 +708,7 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
             m_body = body.p;
             n_body = body.size();
             replacer.result_var = nullptr;
+            pass_result.n = 0;
         }
 
         ASR::symbol_t* create_subroutine_from_function(ASR::Function_t* s) {
