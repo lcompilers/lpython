@@ -97,8 +97,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     Allocator &m_al;
     diag::Diagnostics &diag;
 
-    SymbolTable *global_scope;
-    Location global_scope_loc;
     SymbolFuncInfo *cur_sym_info;
     uint32_t nesting_level;
     uint32_t cur_loop_nesting_level;
@@ -206,9 +204,21 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_imports++;
     }
 
-    void emit_wasi_imports() {
+    void import_function2(ASR::Function_t* fn) {
+        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
+        if (ASRUtils::get_FunctionType(fn)->m_deftype != ASR::deftypeType::Interface) return;
+        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
+        if (ASRUtils::is_intrinsic_function2(fn)) return;
+
+        wasm::emit_import_fn(m_import_section, m_al, "js", fn->m_name, no_of_types);
+        no_of_imports++;
+        emit_function_prototype(*fn);
+    }
+
+    void emit_imports(SymbolTable *global_scope) {
         using namespace wasm;
 
+        avail_mem_loc += 4; /* initial 4 bytes to store return values of wasi funcs*/
         import_function(proc_exit, {i32}, {});
         import_function(fd_write, {i32, i32, i32, i32}, {i32});
 
@@ -220,29 +230,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
                 for (auto &item : p->m_symtab->get_scope()) {
                     if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                        ASR::Function_t *fn =
-                            ASR::down_cast<ASR::Function_t>(item.second);
-                        if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
-                            ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
-                            !ASRUtils::is_intrinsic_function2(fn)) {
-                            wasm::emit_import_fn(m_import_section, m_al, "js",
-                                                 fn->m_name, no_of_types);
-                            no_of_imports++;
-                            emit_function_prototype(*fn);
-                        }
+                        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
+                        import_function2(fn);
                     }
                 }
             } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *fn =
-                    ASR::down_cast<ASR::Function_t>(item.second);
-                if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
-                    ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
-                    !ASRUtils::is_intrinsic_function2(fn)) {
-                    wasm::emit_import_fn(m_import_section, m_al, "js",
-                                            fn->m_name, no_of_types);
-                    no_of_imports++;
-                    emit_function_prototype(*fn);
-                }
+                ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
+                import_function2(fn);
             }
         }
     }
@@ -695,11 +689,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
 
-        global_scope = x.m_global_scope;
-        global_scope_loc = x.base.base.loc;
-
-        avail_mem_loc += 4; /* initial 4 bytes to store return values of wasi funcs*/
-        emit_wasi_imports();
+        emit_imports(x.m_global_scope);
 
         wasm::emit_declare_mem(m_memory_section, m_al, min_no_pages, max_no_pages);
         no_of_memories++;
