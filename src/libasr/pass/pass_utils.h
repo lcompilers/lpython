@@ -22,6 +22,23 @@ namespace LCompilers {
         ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
                                       const Location& loc, ASR::ttype_t* _type);
 
+        static inline bool is_elemental(ASR::symbol_t* x) {
+            x = ASRUtils::symbol_get_past_external(x);
+            if( !ASR::is_a<ASR::Function_t>(*x) ) {
+                return false;
+            }
+            return ASRUtils::get_FunctionType(
+                ASR::down_cast<ASR::Function_t>(x))->m_elemental;
+        }
+
+        void fix_dimension(ASR::Cast_t* x, ASR::expr_t* arg_expr);
+
+        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                                ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope);
+
+        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                                ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope);
+
         void create_vars(Vec<ASR::expr_t*>& vars, int n_vars, const Location& loc,
                          Allocator& al, SymbolTable*& current_scope, std::string suffix="_k",
                          ASR::intentType intent=ASR::intentType::Local);

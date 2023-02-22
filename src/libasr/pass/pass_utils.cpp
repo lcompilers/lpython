@@ -201,6 +201,69 @@ namespace LCompilers {
             return array_ref;
         }
 
+        ASR::ttype_t* get_matching_type(ASR::expr_t* sibling, Allocator& al) {
+            ASR::ttype_t* sibling_type = ASRUtils::expr_type(sibling);
+            if( sibling->type != ASR::exprType::Var ) {
+                return sibling_type;
+            }
+            ASR::dimension_t* m_dims;
+            int ndims;
+            PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
+            for( int i = 0; i < ndims; i++ ) {
+                if( m_dims[i].m_start != nullptr ||
+                    m_dims[i].m_length != nullptr ) {
+                    return sibling_type;
+                }
+            }
+            Vec<ASR::dimension_t> new_m_dims;
+            new_m_dims.reserve(al, ndims);
+            for( int i = 0; i < ndims; i++ ) {
+                ASR::dimension_t new_m_dim;
+                new_m_dim.loc = m_dims[i].loc;
+                new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", al);
+                new_m_dim.m_length = ASRUtils::compute_length_from_start_end(al, new_m_dim.m_start,
+                                        PassUtils::get_bound(sibling, i + 1, "ubound", al));
+                new_m_dims.push_back(al, new_m_dim);
+            }
+            return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
+        }
+
+        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                                ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope) {
+            ASR::expr_t* idx_var = nullptr;
+            std::string str_name = "~" + std::to_string(counter) + suffix;
+            char* idx_var_name = s2c(al, str_name);
+
+            if( current_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
+                ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, nullptr, 0,
+                                                        ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                                                        var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required,
+                                                        false);
+                current_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
+                idx_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+            } else {
+                ASR::symbol_t* idx_sym = current_scope->get_symbol(std::string(idx_var_name));
+                idx_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
+            }
+
+            return idx_var;
+        }
+
+        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                                ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope) {
+            ASR::ttype_t* var_type = get_matching_type(sibling, al);
+            return create_var(counter, suffix, loc, var_type, al, current_scope);
+        }
+
+        void fix_dimension(ASR::Cast_t* x, ASR::expr_t* arg_expr) {
+            ASR::ttype_t* x_type = const_cast<ASR::ttype_t*>(x->m_type);
+            ASR::ttype_t* arg_type = ASRUtils::expr_type(arg_expr);
+            ASR::dimension_t* m_dims;
+            int ndims;
+            PassUtils::get_dim_rank(arg_type, m_dims, ndims);
+            PassUtils::set_dim_rank(x_type, m_dims, ndims);
+        }
+
         void create_vars(Vec<ASR::expr_t*>& vars, int n_vars, const Location& loc,
                          Allocator& al, SymbolTable*& current_scope, std::string suffix,
                          ASR::intentType intent) {
