@@ -81,7 +81,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     Allocator &m_al;
     diag::Diagnostics &diag;
 
-    bool intrinsic_module;
     SymbolTable *global_scope;
     Location global_scope_loc;
     SymbolFuncInfo *cur_sym_info;
@@ -116,7 +115,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     std::map<std::string, uint32_t> m_global_var_name_idx_map;
     std::map<uint64_t, SymbolFuncInfo *> m_func_name_idx_map;
     std::map<std::string, ASR::asr_t *> m_import_func_asr_map;
-    std::map<std::string, uint32_t> m_self_func_name_idx_map;
     std::map<std::string, uint32_t> m_string_to_iov_loc_map;
 
     std::vector<void (LCompilers::ASRToWASMVisitor::*)(int)> m_rt_funcs_map;
@@ -125,7 +123,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
    public:
     ASRToWASMVisitor(Allocator &al, diag::Diagnostics &diagnostics)
         : m_al(al), diag(diagnostics) {
-        intrinsic_module = false;
         is_prototype_only = false;
         main_func = nullptr;
         nesting_level = 0;
@@ -238,62 +235,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_import_fn(m_import_section, m_al, env, import_func.name,
                              no_of_types);
         emit_function_prototype(*((ASR::Function_t *)func));
-        no_of_imports++;
-    }
-
-    void emit_imports() {
-        std::vector<ImportFunc> import_funcs = {
-            {"print_i32", {{ASR::ttypeType::Integer, 4}}, {}},
-            {"print_i64", {{ASR::ttypeType::Integer, 8}}, {}},
-            {"print_f32", {{ASR::ttypeType::Real, 4}}, {}},
-            {"print_f64", {{ASR::ttypeType::Real, 8}}, {}},
-            {"print_str",
-             {{ASR::ttypeType::Integer, 4}, {ASR::ttypeType::Integer, 4}},
-             {}},
-            {"flush_buf", {}, {}},
-            {"set_exit_code", {{ASR::ttypeType::Integer, 4}}, {}}};
-
-
-        for (auto ImportFunc : import_funcs) {
-            import_function(ImportFunc, "js");
-        }
-
-        // In WASM: The indices of the imports precede the indices of other
-        // definitions in the same index space. Therefore, declare the import
-        // functions before defined functions
-        for (auto &item : global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
-                for (auto &item : p->m_symtab->get_scope()) {
-                    if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                        ASR::Function_t *fn =
-                            ASR::down_cast<ASR::Function_t>(item.second);
-                        if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
-                            ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
-                            !ASRUtils::is_intrinsic_function2(fn)) {
-                            wasm::emit_import_fn(m_import_section, m_al, "js",
-                                                 fn->m_name, no_of_types);
-                            no_of_imports++;
-                            emit_function_prototype(*fn);
-                        }
-                    }
-                }
-            } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *fn =
-                    ASR::down_cast<ASR::Function_t>(item.second);
-                if (ASRUtils::get_FunctionType(fn)->m_abi == ASR::abiType::BindC &&
-                    ASRUtils::get_FunctionType(fn)->m_deftype == ASR::deftypeType::Interface &&
-                    !ASRUtils::is_intrinsic_function2(fn)) {
-                    wasm::emit_import_fn(m_import_section, m_al, "js",
-                                            fn->m_name, no_of_types);
-                    no_of_imports++;
-                    emit_function_prototype(*fn);
-                }
-            }
-        }
-
-        wasm::emit_import_mem(m_import_section, m_al, "js", "memory",
-                              min_no_pages, max_no_pages);
         no_of_imports++;
     }
 
@@ -849,19 +790,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // Process procedures first:
         declare_all_functions(*x.m_global_scope);
 
-        // // Then do all the modules in the right order
-        // std::vector<std::string> build_order
-        //     = LFortran::ASRUtils::determine_module_dependencies(x);
-        // for (auto &item : build_order) {
-        //     LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-        //         != x.m_global_scope->get_scope().end());
-        //     if (!startswith(item, "lfortran_intrinsic")) {
-        //         ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-        //         visit_symbol(*mod);
-        //         // std::cout << "I am here -2: " << src << std::endl;
-        //     }
-        // }
-
         // then the main program:
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
@@ -896,15 +824,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Module(const ASR::Module_t &x) {
-        if (startswith(x.m_name, "lfortran_intrinsic_")) {
-            intrinsic_module = true;
-        } else {
-            intrinsic_module = false;
-        }
-
         // Generate the bodies of functions and subroutines
         declare_all_functions(*x.m_symtab);
-        intrinsic_module = false;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -1762,22 +1683,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 }
                 break;
             };
-            // case ASR::binopType::Div: {
-            //     if (a_kind == 4) {
-            //         fn_name = "_lfortran_complex_div_32";
-            //     } else {
-            //         fn_name = "_lfortran_complex_div_64";
-            //     }
-            //     break;
-            // };
-            // case ASR::binopType::Pow: {
-            //     if (a_kind == 4) {
-            //         fn_name = "_lfortran_complex_pow_32";
-            //     } else {
-            //         fn_name = "_lfortran_complex_pow_64";
-            //     }
-            //     break;
-            // };
             default: {
                 throw CodeGenError("ComplexBinOp: Binary operator '" + ASRUtils::binop_to_str_python(x.m_op) + "' not supported",
                     x.base.base.loc);
@@ -2458,11 +2363,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
             ASRUtils::symbol_get_past_external(x.m_name));
-        // TODO: use a mapping with a hash(s) instead:
-        // std::string sym_name = s->m_name;
-        // if (sym_name == "exit") {
-        //     sym_name = "_xx_lcompilers_changed_exit_xx";
-        // }
 
         Vec<ASR::expr_t *> vars_passed_by_refs;
         vars_passed_by_refs.reserve(m_al, s->n_args);
