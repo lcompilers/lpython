@@ -109,10 +109,9 @@ class WASMDecoder {
         func_types.resize(al, no_of_func_types);
 
         for (uint32_t i = 0; i < no_of_func_types; i++) {
-            if (wasm_bytes[offset] != 0x60) {
+            if (read_b8(wasm_bytes, offset) != 0x60) {
                 throw CodeGenError("Invalid type section");
             }
-            offset++;
 
             // read result type 1
             uint32_t no_of_params = read_u32(wasm_bytes, offset);
@@ -234,6 +233,20 @@ class WASMDecoder {
             globals.p[i].type = read_b8(wasm_bytes, offset);
             globals.p[i].mut = read_b8(wasm_bytes, offset);
             globals.p[i].insts_start_idx = offset;
+
+            wasm::read_b8(wasm_bytes, offset);
+            switch (globals[i].type)
+            {
+                case 0x7F: wasm::read_i32(wasm_bytes, offset); break;
+                case 0x7E: wasm::read_i64(wasm_bytes, offset); break;
+                case 0x7D: wasm::read_f32(wasm_bytes, offset); break;
+                case 0x7C: wasm::read_f64(wasm_bytes, offset); break;
+                default: throw CodeGenError("decode_global_section: Unsupport global type"); break;
+            }
+
+            if (read_b8(wasm_bytes, offset) != 0x0B) {
+                throw AssemblerError("decode_global_section: Invalid byte for expr end");
+            }
         }
     }
 

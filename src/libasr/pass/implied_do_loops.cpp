@@ -166,47 +166,112 @@ public:
                 return ;
             }
 
-            LCOMPILERS_ASSERT_MSG(PassUtils::get_rank(x.m_target) == 1,
-                                "Initialisation using ArrayConstant is "
-                                "supported only for single dimensional arrays.")
-            ASR::Var_t* arr_var = ASR::down_cast<ASR::Var_t>(x.m_target);
-            Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, 1, x.base.base.loc, al, current_scope);
-            ASR::expr_t* idx_var = idx_vars[0];
-            ASR::expr_t* lb = PassUtils::get_bound(x.m_target, 1, "lbound", al);
-            ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1,
-                                        ASRUtils::expr_type(idx_var)));
-            ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al,
-                                            arr_var->base.base.loc, idx_var, lb, nullptr));
-            pass_result.push_back(al, assign_stmt);
-            for( size_t k = 0; k < arr_init->n_args; k++ ) {
-                ASR::expr_t* curr_init = arr_init->m_args[k];
-                if( ASR::is_a<ASR::ImpliedDoLoop_t>(*curr_init) ) {
-                    ASR::ImpliedDoLoop_t* idoloop = ASR::down_cast<ASR::ImpliedDoLoop_t>(curr_init);
-                    create_do_loop(idoloop, arr_var, idx_var);
-                } else {
-                    Vec<ASR::array_index_t> args;
-                    ASR::array_index_t ai;
-                    ai.loc = arr_var->base.base.loc;
-                    ai.m_left = nullptr;
-                    ai.m_right = idx_var;
-                    ai.m_step = nullptr;
-                    args.reserve(al, 1);
-                    args.push_back(al, ai);
-                    ASR::ttype_t* array_ref_type = ASRUtils::expr_type(ASRUtils::EXPR((ASR::asr_t*)arr_var));
-                    Vec<ASR::dimension_t> empty_dims;
-                    empty_dims.reserve(al, 1);
-                    array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
-                    ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.base.loc,
-                                                                        ASRUtils::EXPR((ASR::asr_t*)arr_var),
-                                                                        args.p, args.size(),
-                                                                        array_ref_type, ASR::arraystorageType::RowMajor,
-                                                                        nullptr));
-                    ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
-                    pass_result.push_back(al, assign_stmt);
-                    ASR::expr_t* increment = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, arr_var->base.base.loc, idx_var, ASR::binopType::Add, const_1, ASRUtils::expr_type(idx_var), nullptr));
-                    assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, increment, nullptr));
-                    pass_result.push_back(al, assign_stmt);
+            if( ASR::is_a<ASR::Var_t>(*x.m_target) ) {
+                LCOMPILERS_ASSERT_MSG(PassUtils::get_rank(x.m_target) == 1,
+                                    "Initialisation using ArrayConstant is "
+                                    "supported only for single dimensional arrays.")
+                ASR::Var_t* arr_var = ASR::down_cast<ASR::Var_t>(x.m_target);
+                Vec<ASR::expr_t*> idx_vars;
+                PassUtils::create_idx_vars(idx_vars, 1, x.base.base.loc, al, current_scope);
+                ASR::expr_t* idx_var = idx_vars[0];
+                ASR::expr_t* lb = PassUtils::get_bound(x.m_target, 1, "lbound", al);
+                ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1,
+                                            ASRUtils::expr_type(idx_var)));
+                ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al,
+                                                arr_var->base.base.loc, idx_var, lb, nullptr));
+                pass_result.push_back(al, assign_stmt);
+                for( size_t k = 0; k < arr_init->n_args; k++ ) {
+                    ASR::expr_t* curr_init = arr_init->m_args[k];
+                    if( ASR::is_a<ASR::ImpliedDoLoop_t>(*curr_init) ) {
+                        ASR::ImpliedDoLoop_t* idoloop = ASR::down_cast<ASR::ImpliedDoLoop_t>(curr_init);
+                        create_do_loop(idoloop, arr_var, idx_var);
+                    } else {
+                        Vec<ASR::array_index_t> args;
+                        ASR::array_index_t ai;
+                        ai.loc = arr_var->base.base.loc;
+                        ai.m_left = nullptr;
+                        ai.m_right = idx_var;
+                        ai.m_step = nullptr;
+                        args.reserve(al, 1);
+                        args.push_back(al, ai);
+                        ASR::ttype_t* array_ref_type = ASRUtils::expr_type(ASRUtils::EXPR((ASR::asr_t*)arr_var));
+                        Vec<ASR::dimension_t> empty_dims;
+                        empty_dims.reserve(al, 1);
+                        array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
+                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.base.loc,
+                                                                            ASRUtils::EXPR((ASR::asr_t*)arr_var),
+                                                                            args.p, args.size(),
+                                                                            array_ref_type, ASR::arraystorageType::RowMajor,
+                                                                            nullptr));
+                        ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
+                        pass_result.push_back(al, assign_stmt);
+                        ASR::expr_t* increment = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, arr_var->base.base.loc, idx_var, ASR::binopType::Add, const_1, ASRUtils::expr_type(idx_var), nullptr));
+                        assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, increment, nullptr));
+                        pass_result.push_back(al, assign_stmt);
+                    }
+                }
+            } else if( ASR::is_a<ASR::ArraySection_t>(*x.m_target) ) {
+                ASR::ArraySection_t* target_section = ASR::down_cast<ASR::ArraySection_t>(x.m_target);
+                int sliced_dims_count = 0;
+                size_t sliced_dim_index = 0;
+                for( size_t i = 0; i < target_section->n_args; i++ ) {
+                    if( !(target_section->m_args[i].m_left == nullptr &&
+                          target_section->m_args[i].m_right != nullptr &&
+                          target_section->m_args[i].m_step == nullptr) ) {
+                        sliced_dims_count += 1;
+                        sliced_dim_index = i + 1;
+                    }
+                }
+                if( sliced_dims_count != 1 ) {
+                    throw LCompilersException("Target expressions only having one "
+                                                "dimension sliced are supported for now.");
+                }
+
+                Vec<ASR::expr_t*> idx_vars;
+                PassUtils::create_idx_vars(idx_vars, 1, x.base.base.loc, al, current_scope);
+                ASR::expr_t* idx_var = idx_vars[0];
+                ASR::expr_t* lb = PassUtils::get_bound(target_section->m_v, sliced_dim_index, "lbound", al);
+                ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1,
+                                            ASRUtils::expr_type(idx_var)));
+                ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al,
+                                                target_section->base.base.loc, idx_var, lb, nullptr));
+                pass_result.push_back(al, assign_stmt);
+                for( size_t k = 0; k < arr_init->n_args; k++ ) {
+                    ASR::expr_t* curr_init = arr_init->m_args[k];
+                    if( ASR::is_a<ASR::ImpliedDoLoop_t>(*curr_init) ) {
+                        throw LCompilersException("Do loops in array initialiser expressions not supported yet.");
+                    } else {
+                        Vec<ASR::array_index_t> args;
+                        args.reserve(al, target_section->n_args);
+                        for( size_t i = 0; i < target_section->n_args; i++ ) {
+                            if( i + 1 == sliced_dim_index ) {
+                                ASR::array_index_t ai;
+                                ai.loc = target_section->base.base.loc;
+                                ai.m_left = nullptr;
+                                ai.m_step = nullptr;
+                                ai.m_right = idx_var;
+                                args.push_back(al, ai);
+                            } else {
+                                args.push_back(al, target_section->m_args[i]);
+                            }
+                        }
+
+                        ASR::ttype_t* array_ref_type = ASRUtils::expr_type(x.m_target);
+                        Vec<ASR::dimension_t> empty_dims;
+                        empty_dims.reserve(al, 1);
+                        array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
+
+                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, target_section->base.base.loc,
+                                                                            target_section->m_v,
+                                                                            args.p, args.size(),
+                                                                            array_ref_type, ASR::arraystorageType::RowMajor,
+                                                                            nullptr));
+                        ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, target_section->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
+                        pass_result.push_back(al, assign_stmt);
+                        ASR::expr_t* increment = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, target_section->base.base.loc, idx_var, ASR::binopType::Add, const_1, ASRUtils::expr_type(idx_var), nullptr));
+                        assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, target_section->base.base.loc, idx_var, increment, nullptr));
+                        pass_result.push_back(al, assign_stmt);
+                    }
                 }
             }
         } else if( !ASR::is_a<ASR::ArrayConstant_t>(*x.m_value) &&

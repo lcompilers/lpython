@@ -107,7 +107,7 @@ class Product(AST):
 
 # A generic visitor for the meta-AST that describes ASDL. This can be used by
 # emitters. Note that this visitor does not provide a generic visit method, so a
-# subclass needs to define visit methods from visitModule to as deep as the
+# subclass must define visit methods from visitModule to as deep as the
 # interesting node.
 # We also define a Check visitor that makes sure the parsed ASDL is well-formed.
 

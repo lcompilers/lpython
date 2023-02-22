@@ -1211,8 +1211,7 @@ R"(
         std::string idx = std::move(src);
         this->visit_expr(*x.m_arg);
         std::string str = std::move(src);
-        src = "(char *)memcpy((char *)calloc(2U, sizeof(char)), "
-                + str + " + " + idx + " - 1, 1U)";
+        src = "_lfortran_str_item(" + str + ", " + idx + ")";
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
