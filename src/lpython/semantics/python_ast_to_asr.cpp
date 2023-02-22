@@ -3128,7 +3128,10 @@ public:
                 int i = 0;
                 index = ASRUtils::EXPR(tmp);
                 ASR::expr_t* val = ASRUtils::expr_value(index);
-                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
+                if (!val) {
+                    throw SemanticError("Runtime Indexing with Tuples is not yet supported", loc);
+                }
+                if (ASR::is_a<ASR::IntegerConstant_t>(*val)) {
                     i = ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n;
                     int tuple_size =  ASR::down_cast<ASR::Tuple_t>(type)->n_type;
                     if (i < 0) {
