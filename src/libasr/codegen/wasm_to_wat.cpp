@@ -350,8 +350,10 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                 decode_instructions();
                 global_initialization_insts = this->src;
             }
+            std::string global_type = ((globals[i].mut == 0x00) ? var_type_to_string[globals[i].type]:
+            "(mut " + var_type_to_string[globals[i].type] + ")" );
             result += indent + "(global $" + std::to_string(i);
-            result += " " + var_type_to_string[globals[i].type];
+            result += " " + global_type;
             result += " (" + global_initialization_insts + "))";
         }
 

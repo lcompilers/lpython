@@ -849,27 +849,20 @@ LFORTRAN_API char* _lfortran_strrepeat_c(char* s, int32_t n)
     return dest_char;
 }
 
-// idx1 and idx2 both start from 1
-LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
+// idx starts from 1
+LFORTRAN_API char* _lfortran_str_item(char* s, int32_t idx) {
 
     int s_len = strlen(s);
-    if(idx1 > s_len || idx1 <= (-1*s_len)){
-        printf("String index out of bounds\n");
+    int original_idx = idx - 1;
+    if (idx < 1) idx += s_len;
+    if (idx < 1 || idx >= s_len + 1) {
+        printf("String index: %d is out of Bounds\n", original_idx);
         exit(1);
     }
-    if(idx1 <= 0) {
-        idx1 = s_len + idx1;
-    }
-    if(idx2 <= 0) {
-        idx2 = s_len + idx2;
-    }
-    char* dest_char = (char*)malloc(idx2-idx1+2);
-    for (int i=idx1; i <= idx2; i++)
-    {
-        dest_char[i-idx1] = s[i-1];
-    }
-    dest_char[idx2-idx1+1] = '\0';
-    return dest_char;
+    char* res = (char*)malloc(2);
+    res[0] = s[idx-1];
+    res[1] = '\0';
+    return res;
 }
 
 LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int32_t step,
@@ -1229,14 +1222,23 @@ LFORTRAN_API void _lpython_close(int64_t fd)
 }
 
 LFORTRAN_API int32_t _lfortran_ichar(char *c) {
-    return (int32_t) c[0];
+     return (int32_t) c[0];
 }
 
 LFORTRAN_API int32_t _lfortran_iachar(char *c) {
     return (int32_t) c[0];
 }
 
-// >> Command line arguments >> ------------------------------------------------
+LFORTRAN_API int32_t _lfortran_all(bool *mask, int32_t n) {
+    for (size_t i = 0; i < n; i++) {
+        if (!mask[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Command line arguments
 int32_t argc;
 char **argv;
 
