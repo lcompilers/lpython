@@ -3129,7 +3129,8 @@ public:
                 index = ASRUtils::EXPR(tmp);
                 ASR::expr_t* val = ASRUtils::expr_value(index);
                 if (!val) {
-                    throw SemanticError("Runtime Indexing with Tuples is not yet supported", loc);
+                    throw SemanticError("Runtime Indexing with " + ASRUtils::type_to_str_python(type) +
+                    " is not possible.", loc);
                 }
                 if (ASR::is_a<ASR::IntegerConstant_t>(*val)) {
                     i = ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n;
