@@ -4327,6 +4327,8 @@ public:
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         ASR::expr_t *for_iter_type = nullptr;
+        ASR::stmt_t *assign_to_j = nullptr;
+        ASR::stmt_t *i_update = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_iter);
             std::string call_name;
@@ -4442,13 +4444,27 @@ public:
 
             head.m_v = ASRUtils::EXPR(explicit_iter_var);
         } else {
-            body.reserve(al, x.n_body);
+            body.reserve(al, x.n_body + 2);
             head.m_v = target;
         }
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        std::string name = "j";
+        ASR::expr_t *j = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(
+            al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, x.base.base.loc, current_scope, s2c(al, name), nullptr, 0, ASR::intentType::Local,
+                nullptr, nullptr, ASR::storage_typeType::Default,
+                ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0)),
+                ASR::abiType::Source, ASR::accessType::Public,
+                ASR::presenceType::Required, false))));
+        assign_to_j = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, j, target, nullptr));
+        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target,
+                    ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc, j,
+                    ASR::binopType::Add, constant_one, a_type, nullptr)), nullptr));
+        body.push_back(al, assign_to_j);
         transform_stmts(body, x.n_body, x.m_body);
+        body.push_back(al, i_update);
         int32_t total_syms = current_scope->get_scope().size();
         if( total_syms > 0 ) {
             std::string name = parent_scope->get_unique_name("block");
