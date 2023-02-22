@@ -307,6 +307,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         emit_if_else(test_cond, [&](){
             loop_block();
+            // From WebAssembly Docs:
+            // Unlike with other index spaces, indexing of labels is relative by
+            // nesting depth, that is, label 0 refers to the innermost structured
+            // control instruction enclosing the referring branch instruction, while
+            // increasing indices refer to those farther out.
             wasm::emit_branch(m_code_section, m_al, nesting_level -
                 cur_loop_nesting_level - 1);  // emit_branch and label the loop
         }, [&](){});
@@ -2892,67 +2897,35 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_If(const ASR::If_t &x) {
-        this->visit_expr(*x.m_test);
-        wasm::emit_b8(m_code_section, m_al, 0x04);  // emit if start
-        wasm::emit_b8(m_code_section, m_al, 0x40);  // empty block type
-        nesting_level++;
-        for (size_t i = 0; i < x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-        wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
-        for (size_t i = 0; i < x.n_orelse; i++) {
-            this->visit_stmt(*x.m_orelse[i]);
-        }
-        nesting_level--;
-        wasm::emit_expr_end(m_code_section, m_al);  // emit if end
+        emit_if_else([&](){ this->visit_expr(*x.m_test); }, [&](){
+            for (size_t i = 0; i < x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        }, [&](){
+            for (size_t i = 0; i < x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+            }
+        });
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        uint32_t prev_cur_loop_nesting_level = cur_loop_nesting_level;
-        cur_loop_nesting_level = nesting_level;
-
-        wasm::emit_b8(m_code_section, m_al, 0x03);  // emit loop start
-        wasm::emit_b8(m_code_section, m_al, 0x40);  // empty block type
-
-        nesting_level++;
-
-        this->visit_expr(*x.m_test);  // emit test condition
-
-        wasm::emit_b8(m_code_section, m_al, 0x04);  // emit if
-        wasm::emit_b8(m_code_section, m_al, 0x40);  // empty block type
-
-        for (size_t i = 0; i < x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-
-        // From WebAssembly Docs:
-        // Unlike with other index spaces, indexing of labels is relative by
-        // nesting depth, that is, label 0 refers to the innermost structured
-        // control instruction enclosing the referring branch instruction, while
-        // increasing indices refer to those farther out.
-
-        wasm::emit_branch(
-            m_code_section, m_al,
-            nesting_level -
-                cur_loop_nesting_level);  // emit_branch and label the loop
-        wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
-        wasm::emit_expr_end(m_code_section, m_al);  // end if
-
-        nesting_level--;
-        wasm::emit_expr_end(m_code_section, m_al);  // end loop
-        cur_loop_nesting_level = prev_cur_loop_nesting_level;
+        emit_loop([&](){ this->visit_expr(*x.m_test); }, [&](){
+            for (size_t i = 0; i < x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        });
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
         wasm::emit_branch(m_code_section, m_al,
                           nesting_level - cur_loop_nesting_level -
-                              1U);  // branch to end of if
+                              2U);  // branch to end of if
     }
 
     void visit_Cycle(const ASR::Cycle_t & /* x */) {
         wasm::emit_branch(
             m_code_section, m_al,
-            nesting_level - cur_loop_nesting_level);  // branch to start of loop
+            nesting_level - cur_loop_nesting_level - 1U);  // branch to start of loop
     }
 
     void visit_Assert(const ASR::Assert_t &x) {
