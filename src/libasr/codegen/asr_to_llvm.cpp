@@ -1514,6 +1514,27 @@ public:
         tmp = builder->CreateCall(fn, {int_val});
     }
 
+    void visit_IntegerBitCount(const ASR::IntegerBitCount_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr(*x.m_a);
+        llvm::Value *int_val = tmp;
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        std::string runtime_func_name = "_lpython_bit_count" + std::to_string(int_kind);
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        getIntType(int_kind)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        tmp = builder->CreateCall(fn, {int_val});
+    }
+
     void visit_Ichar(const ASR::Ichar_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);

@@ -808,6 +808,38 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
     return res;
 }
 
+LFORTRAN_API int32_t _lpython_bit_count1(int8_t num)
+{
+    int32_t res = 0;
+    num = abs(num);
+    for(; num; num >>= 1, res += num & 1);
+    return res;
+}
+
+LFORTRAN_API int32_t _lpython_bit_count2(int16_t num)
+{
+    int32_t res = 0;
+    num = abs(num);
+    for(; num; num >>= 1, res += num & 1);
+    return res;
+}
+
+LFORTRAN_API int32_t _lpython_bit_count4(int32_t num)
+{
+    int32_t res = 0;
+    num = abs(num);
+    for(; num; num >>= 1, res += num & 1);
+    return res;
+}
+
+LFORTRAN_API int32_t _lpython_bit_count8(int64_t num)
+{
+    int32_t res = 0;
+    num = llabs(num);
+    for(; num; num >>= 1, res += num & 1);
+    return res;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
