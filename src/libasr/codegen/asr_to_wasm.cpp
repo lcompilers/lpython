@@ -666,6 +666,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_globals++;
     }
 
+    void declare_symbols(const ASR::TranslationUnit_t &x) {
+        {
+            // Process intrinsic modules in the right order
+            std::vector<std::string> build_order =
+                ASRUtils::determine_module_dependencies(x);
+            for (auto &item : build_order) {
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
+                                x.m_global_scope->get_scope().end());
+                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                this->visit_symbol(*mod);
+            }
+        }
+
+        // Process procedures first:
+        declare_all_functions(*x.m_global_scope);
+
+        // then the main program:
+        for (auto &item : x.m_global_scope->get_scope()) {
+            if (ASR::is_a<ASR::Program_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
+        }
+    }
+
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -713,53 +737,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             // Pre-declare all functions first, then generate code
             // Otherwise some function might not be found.
             is_prototype_only = true;
-            {
-                // Process intrinsic modules in the right order
-                std::vector<std::string> build_order =
-                    ASRUtils::determine_module_dependencies(x);
-                for (auto &item : build_order) {
-                    LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
-                                    x.m_global_scope->get_scope().end());
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                    if (ASR::is_a<ASR::Module_t>(*mod)) {
-                        visit_symbol(*mod);
-                    }
-                }
-
-                // Process procedures first:
-                declare_all_functions(*x.m_global_scope);
-
-                // then the main program:
-                for (auto &item : x.m_global_scope->get_scope()) {
-                    if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                        visit_symbol(*item.second);
-                    }
-                }
-            }
+            declare_symbols(x);
             is_prototype_only = false;
         }
+        declare_symbols(x);
 
-        {
-            // Process intrinsic modules in the right order
-            std::vector<std::string> build_order =
-                ASRUtils::determine_module_dependencies(x);
-            for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
-                                x.m_global_scope->get_scope().end());
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                this->visit_symbol(*mod);
-            }
-        }
-
-        // Process procedures first:
-        declare_all_functions(*x.m_global_scope);
-
-        // then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                visit_symbol(*item.second);
-            }
-        }
 
         std::vector<std::pair<uint32_t, int>> ordered_rt_funcs_type_idx;
         for (int i = 0; i < NO_OF_RT_FUNCS; i++) {
