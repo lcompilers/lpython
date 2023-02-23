@@ -24,6 +24,7 @@
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/utils.h>
+#include <libasr/pass/pass_utils.h>
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
 #include <lpython/semantics/python_comptime_eval.h>
@@ -4451,17 +4452,11 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         std::string name = "j";
-        ASR::expr_t *j = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(
-            al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                al, x.base.base.loc, current_scope, s2c(al, name), nullptr, 0, ASR::intentType::Local,
-                nullptr, nullptr, ASR::storage_typeType::Default,
-                ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0)),
-                ASR::abiType::Source, ASR::accessType::Public,
-                ASR::presenceType::Required, false))));
+        ASR::expr_t *j;
+        j = PassUtils::create_auxiliary_variable(x.base.base.loc,
+                name, al, current_scope, a_type);
         assign_to_j = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, j, target, nullptr));
-        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target,
-                    ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc, j,
-                    ASR::binopType::Add, constant_one, a_type, nullptr)), nullptr));
+        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target, j, nullptr));
         body.push_back(al, assign_to_j);
         transform_stmts(body, x.n_body, x.m_body);
         body.push_back(al, i_update);
