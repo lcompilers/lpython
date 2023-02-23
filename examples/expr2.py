@@ -1,7 +1,7 @@
 def main0():
     x: i32
     x = (2+3)*5
-    print(x)
+    print(x.bit_count(32))
 
 main0()
 

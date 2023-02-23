@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_bit_count-d477211",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_bit_count.py",
+    "infile_hash": "f4fb07bb07dfd3e0784e7bc9dd25e700765d982de98d40c362859b73",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_bit_count-d477211.stderr",
+    "stderr_hash": "914208228b8f0ce7dd44ee9a49a913d53f5bfaaf97a197a979411bf3",
+    "returncode": 2
+}

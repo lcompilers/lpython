@@ -400,6 +400,7 @@ RUN(NAME logical_binop1      LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm c)
 RUN(NAME test_str_comparison LABELS cpython llvm c)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
+RUN(NAME test_bit_count      LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
