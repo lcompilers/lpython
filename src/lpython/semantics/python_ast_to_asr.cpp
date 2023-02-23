@@ -4328,7 +4328,7 @@ public:
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         ASR::expr_t *for_iter_type = nullptr;
-        ASR::stmt_t *assign_to_j = nullptr;
+        ASR::stmt_t *assign_to_dummy = nullptr;
         ASR::stmt_t *i_update = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_iter);
@@ -4451,13 +4451,13 @@ public:
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-        std::string name = current_scope->get_unique_name("_j");
-        ASR::expr_t *j;
-        j = PassUtils::create_auxiliary_variable(x.base.base.loc,
+        std::string name = current_scope->get_unique_name("_1_for_dummy");
+        ASR::expr_t *dummy;
+        dummy = PassUtils::create_auxiliary_variable(x.base.base.loc,
                 name, al, current_scope, a_type);
-        assign_to_j = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, j, target, nullptr));
-        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target, j, nullptr));
-        body.push_back(al, assign_to_j);
+        assign_to_dummy = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, dummy, target, nullptr));
+        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target, dummy, nullptr));
+        body.push_back(al, assign_to_dummy);
         transform_stmts(body, x.n_body, x.m_body);
         body.push_back(al, i_update);
         int32_t total_syms = current_scope->get_scope().size();
