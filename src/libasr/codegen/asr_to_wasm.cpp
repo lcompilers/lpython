@@ -101,6 +101,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t nesting_level;
     uint32_t cur_loop_nesting_level;
     bool is_prototype_only;
+    bool is_local_vars_only;
+    bool is_initialize_vars_only;
     ASR::Function_t* main_func;
 
     Vec<uint8_t> m_type_section;
@@ -138,6 +140,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     ASRToWASMVisitor(Allocator &al, diag::Diagnostics &diagnostics)
         : m_al(al), diag(diagnostics) {
         is_prototype_only = false;
+        is_local_vars_only = false;
+        is_initialize_vars_only = false;
         main_func = nullptr;
         nesting_level = 0;
         cur_loop_nesting_level = 0;
@@ -1031,6 +1035,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             s;  // add function to map
     }
 
+    template <typename T>
+    void visit_BlockStatements(const T& x) {
+        for (size_t i = 0; i < x.n_body; i++) {
+            if (ASR::is_a<ASR::BlockCall_t>(*x.m_body[i])) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        }
+    }
+
     void emit_function_body(const ASR::Function_t &x) {
         LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)&x)) !=
                         m_func_name_idx_map.end());
@@ -1046,21 +1059,27 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             wasm::emit_len_placeholder(m_code_section, m_al);
 
         {
+            is_local_vars_only = true;
             int params_cnt = cur_sym_info->no_of_variables;
             /********************* Local Vars Types List *********************/
             uint32_t len_idx_code_section_local_vars_list =
                 wasm::emit_len_placeholder(m_code_section, m_al);
 
             emit_local_vars(x.m_symtab);
+            visit_BlockStatements(x);
 
             // fixup length of local vars list
             wasm::emit_u32_b32_idx(m_code_section, m_al,
                                 len_idx_code_section_local_vars_list,
                                 cur_sym_info->no_of_variables - params_cnt);
+            is_local_vars_only = false;
         }
 
         {
+            is_initialize_vars_only = true;
             initialize_local_vars(x.m_symtab);
+            visit_BlockStatements(x);
+            is_initialize_vars_only = false;
         }
 
         for (size_t i = 0; i < x.n_body; i++) {
@@ -1128,6 +1147,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             return;
         }
         emit_function_body(x);
+    }
+
+    void visit_BlockCall(const ASR::BlockCall_t &x) {
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
+        ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
+        if (is_local_vars_only) {
+            emit_local_vars(block->m_symtab);
+            visit_BlockStatements(*block);
+        } else if (is_initialize_vars_only) {
+            initialize_local_vars(block->m_symtab);
+            visit_BlockStatements(*block);
+        } else {
+            for (size_t i = 0; i < block->n_body; i++) {
+                this->visit_stmt(*block->m_body[i]);
+            }
+        }
     }
 
     uint32_t emit_memory_store(ASR::expr_t *v) {
