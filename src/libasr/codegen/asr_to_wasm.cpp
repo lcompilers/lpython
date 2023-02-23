@@ -102,7 +102,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t cur_loop_nesting_level;
     bool is_prototype_only;
     bool is_local_vars_only;
-    bool is_initialize_vars_only;
     ASR::Function_t* main_func;
 
     Vec<uint8_t> m_type_section;
@@ -141,7 +140,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         : m_al(al), diag(diagnostics) {
         is_prototype_only = false;
         is_local_vars_only = false;
-        is_initialize_vars_only = false;
         main_func = nullptr;
         nesting_level = 0;
         cur_loop_nesting_level = 0;
@@ -1075,12 +1073,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             is_local_vars_only = false;
         }
 
-        {
-            is_initialize_vars_only = true;
-            initialize_local_vars(x.m_symtab);
-            visit_BlockStatements(x);
-            is_initialize_vars_only = false;
-        }
+        initialize_local_vars(x.m_symtab);
 
         for (size_t i = 0; i < x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
@@ -1155,10 +1148,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (is_local_vars_only) {
             emit_local_vars(block->m_symtab);
             visit_BlockStatements(*block);
-        } else if (is_initialize_vars_only) {
-            initialize_local_vars(block->m_symtab);
-            visit_BlockStatements(*block);
         } else {
+            initialize_local_vars(block->m_symtab);
             for (size_t i = 0; i < block->n_body; i++) {
                 this->visit_stmt(*block->m_body[i]);
             }
