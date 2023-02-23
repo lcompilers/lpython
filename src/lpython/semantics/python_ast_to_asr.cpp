@@ -3132,6 +3132,7 @@ public:
                     throw SemanticError("Runtime Indexing with " + ASRUtils::type_to_str_python(type) +
                     " is not possible.", loc);
                 }
+
                 if (ASR::is_a<ASR::IntegerConstant_t>(*val)) {
                     i = ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n;
                     int tuple_size =  ASR::down_cast<ASR::Tuple_t>(type)->n_type;
