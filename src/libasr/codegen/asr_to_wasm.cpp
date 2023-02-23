@@ -897,42 +897,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
-    template <typename T>
-    void emit_local_vars(const T &x,
-                         int var_idx /* starting index for local vars */) {
-        /********************* Local Vars Types List *********************/
-        uint32_t len_idx_code_section_local_vars_list =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        int local_vars_cnt = 0;
-        for (auto &item : x.m_symtab->get_scope()) {
+    void emit_local_vars(SymbolTable* symtab) {
+        for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == ASRUtils::intent_local ||
                     v->m_intent == ASRUtils::intent_return_var) {
-                    wasm::emit_u32(m_code_section, m_al,
-                                   1U);  // count of local vars of this type
-                    emit_var_type(m_code_section,
-                                  v);  // emit the type of this var
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = var_idx++;
-                    local_vars_cnt++;
+                    wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
+                    emit_var_type(m_code_section, v);  // emit the type of this var
+                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables++;
                     if (!ASRUtils::is_array(v->m_type) && ASRUtils::is_complex(*v->m_type)) {
                         // emit type again for imaginary part
                         wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
                         emit_var_type(m_code_section, v);  // emit the type of this var
-                        var_idx++;
-                        local_vars_cnt++;
+                        cur_sym_info->no_of_variables++;
                     }
                 }
             }
         }
-        // fixup length of local vars list
-        wasm::emit_u32_b32_idx(m_code_section, m_al,
-                               len_idx_code_section_local_vars_list,
-                               local_vars_cnt);
+    }
 
+    void initialize_local_vars(SymbolTable* symtab) {
         // initialize the value for local variables if initialization exists
-        for (auto &item : x.m_symtab->get_scope()) {
+        for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
@@ -978,7 +966,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         }
     }
-
     void emit_function_prototype(const ASR::Function_t &x) {
         SymbolFuncInfo *s = new SymbolFuncInfo;
 
@@ -1058,7 +1045,24 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         uint32_t len_idx_code_section_func_size =
             wasm::emit_len_placeholder(m_code_section, m_al);
 
-        emit_local_vars(x, cur_sym_info->no_of_variables);
+        {
+            int params_cnt = cur_sym_info->no_of_variables;
+            /********************* Local Vars Types List *********************/
+            uint32_t len_idx_code_section_local_vars_list =
+                wasm::emit_len_placeholder(m_code_section, m_al);
+
+            emit_local_vars(x.m_symtab);
+
+            // fixup length of local vars list
+            wasm::emit_u32_b32_idx(m_code_section, m_al,
+                                len_idx_code_section_local_vars_list,
+                                cur_sym_info->no_of_variables - params_cnt);
+        }
+
+        {
+            initialize_local_vars(x.m_symtab);
+        }
+
         for (size_t i = 0; i < x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
