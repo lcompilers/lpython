@@ -4451,7 +4451,7 @@ public:
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-        std::string name = "j";
+        std::string name = current_scope->get_unique_name("_j");
         ASR::expr_t *j;
         j = PassUtils::create_auxiliary_variable(x.base.base.loc,
                 name, al, current_scope, a_type);
