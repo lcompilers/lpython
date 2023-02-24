@@ -208,6 +208,48 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.add_label(".else_" + label);
     }
 
+    void visit_GlobalGet(uint32_t globalidx) {
+        std::string loc = "global_" + std::to_string(globalidx);
+        std::string var_type = var_type_to_string[globals[globalidx].type];
+
+        X64Reg base = X64Reg::rbx;
+        m_a.asm_mov_r64_label(X64Reg::rbx, loc);
+        if (var_type == "i32" || var_type == "i64") {
+            m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 0);
+            m_a.asm_push_r64(X64Reg::rax);
+        } else if (var_type == "f32" || var_type == "f64") {
+            m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 0);
+            m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
+            X64Reg stack_top = X64Reg::rsp;
+            m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
+        } else {
+            throw AssemblerError("WASM_X64: Var type not supported");
+        }
+    }
+
+    void visit_GlobalSet(uint32_t globalidx) {
+        if (globals[globalidx].mut == 0) {
+            throw AssemblerError("Attempt to modify unmutable global variable");
+        }
+
+        std::string loc = "global_" + std::to_string(globalidx);
+        std::string var_type = var_type_to_string[globals[globalidx].type];
+
+        X64Reg base = X64Reg::rbx;
+        m_a.asm_mov_r64_label(X64Reg::rbx, loc);
+        if (var_type == "i32" || var_type == "i64") {
+            m_a.asm_pop_r64(X64Reg::rax);
+            m_a.asm_mov_m64_r64(&base, nullptr, 1, 0, X64Reg::rax);
+        } else if (var_type == "f32" || var_type == "f64") {
+            X64Reg stack_top = X64Reg::rsp;
+            m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+            m_a.asm_add_r64_imm32(X64Reg::rsp,  8); // deallocate space
+            m_a.asm_movsd_m64_r64(&base, nullptr, 1, 0, X64FReg::xmm0);
+        } else {
+            throw AssemblerError("WASM_X64: Var type not supported");
+        }
+    }
+
     void visit_LocalGet(uint32_t localidx) {
         X64Reg base = X64Reg::rbp;
         auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
@@ -544,6 +586,36 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         for (auto &d : double_consts) {
             emit_double_const(m_a, d.first, d.second);
+        }
+
+        for (size_t i = 0; i < globals.size(); i++) {
+            uint32_t tmp_offset = globals[i].insts_start_idx;
+            wasm::read_b8(wasm_bytes, tmp_offset); // read byte for i32/i64/f32/f64.const
+
+            std::string global_loc = "global_" + std::to_string(i);
+            switch (globals[i].type) {
+                case 0x7F: {
+                    int32_t val = wasm::read_i32(wasm_bytes, offset);
+                    emit_i64_const(m_a, global_loc, val);
+                    break;
+                }
+                case 0x7E: {
+                    int64_t val = wasm::read_i64(wasm_bytes, offset);
+                    emit_i64_const(m_a, global_loc, val);
+                    break;
+                }
+                case 0x7D: {
+                    float val = wasm::read_f32(wasm_bytes, offset);
+                    emit_double_const(m_a, global_loc, val);
+                    break;
+                }
+                case 0x7C: {
+                    double val = wasm::read_f64(wasm_bytes, offset);
+                    emit_double_const(m_a, global_loc, val);
+                    break;
+                }
+                default: throw CodeGenError("decode_global_section: Unsupport global type"); break;
+            }
         }
 
         emit_elf64_footer(m_a);

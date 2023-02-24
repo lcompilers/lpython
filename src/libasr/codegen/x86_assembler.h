@@ -1512,6 +1512,10 @@ void emit_exit2(X86Assembler &a, const std::string &name);
 
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
+void emit_i32_const(X86Assembler &a, const std::string &label,
+    const int32_t z);
+void emit_i64_const(X86Assembler &a, const std::string &label,
+    const int64_t z);
 void emit_float_const(X86Assembler &a, const std::string &label,
     const float z);
 void emit_double_const(X86Assembler &a, const std::string &label,
