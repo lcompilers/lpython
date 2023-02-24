@@ -60,9 +60,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_Unreachable() {}
-
     void visit_EmtpyBlockType() {}
-
     void visit_Drop() { m_a.asm_pop_r64(X64Reg::rax); }
 
     void call_imported_function(uint32_t func_idx) {
@@ -378,7 +376,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I32LeS() { handle_I32Compare<&X86Assembler::asm_jle_label>(); }
     void visit_I32Ne() { handle_I32Compare<&X86Assembler::asm_jne_label>(); }
 
-    void visit_I64Const(int32_t value) {
+    void visit_I64Const(int64_t value) {
         m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
         if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
         m_a.asm_push_r64(X64Reg::rax);
