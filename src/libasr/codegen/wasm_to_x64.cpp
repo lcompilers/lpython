@@ -217,7 +217,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32" || var_type == "i64") {
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
                 m_a.asm_push_r64(X64Reg::rax);
-            } else if (var_type == "f64") {
+            } else if (var_type == "f32" || var_type == "f64") {
                 m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1));
                 X64Reg stack_top = X64Reg::rsp;
@@ -231,7 +231,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32" || var_type == "i64") {
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
-            } else if (var_type == "f64") {
+            } else if (var_type == "f32" || var_type == "f64") {
                 m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 X64Reg stack_top = X64Reg::rsp;
@@ -251,7 +251,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32" || var_type == "i64") {
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64Reg::rax);
-            } else if (var_type == "f64") {
+            } else if (var_type == "f32" || var_type == "f64") {
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + no_of_params - (int)localidx - 1), X64FReg::xmm0);
@@ -265,7 +265,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             if (var_type == "i32" || var_type == "i64") {
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
-            } else if (var_type == "f64") {
+            } else if (var_type == "f32" || var_type == "f64") {
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64FReg::xmm0);
@@ -492,6 +492,22 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         X64Reg stack_top = X64Reg::rsp;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
+
+    void visit_F32Const(float z) { visit_F64Const(double(z)); }
+
+    void visit_F32Add() { visit_F64Add(); }
+    void visit_F32Sub() { visit_F64Sub(); }
+    void visit_F32Mul() { visit_F64Mul(); }
+    void visit_F32Div() { visit_F64Div(); }
+
+    void visit_F32Eq() { visit_F64Eq(); }
+    void visit_F32Gt() { visit_F64Gt(); }
+    void visit_F32Ge() { visit_F64Ge(); }
+    void visit_F32Lt() { visit_F64Lt(); }
+    void visit_F32Le() { visit_F64Le(); }
+    void visit_F32Ne() { visit_F64Ne(); }
+
+    void visit_F32ConvertI64S() { visit_F64ConvertI32S(); }
 
     void gen_x64_bytes() {
         emit_elf64_header(m_a);
