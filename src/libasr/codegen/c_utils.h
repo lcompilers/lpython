@@ -395,6 +395,12 @@ class CCPPDSUtils {
                     result = func + "(" + value + ", &" + target + ");";
                     break;
                 }
+                case ASR::ttypeType::Dict : {
+                    std::string d_type_code = ASRUtils::get_type_code(t, true);
+                    std::string func = typecodeToDSfuncs[d_type_code]["dict_deepcopy"];
+                    result = func + "(&" + value + ", &" + target + ");";
+                    break;
+                }
                 case ASR::ttypeType::Character : {
                     if (is_c) {
                         result = "_lfortran_strcpy(&" + target + ", " + value + ");";
@@ -1135,6 +1141,11 @@ class CCPPDSUtils {
             return typecodeToDSfuncs[dict_type_code]["dict_init"];
         }
 
+        std::string get_dict_deepcopy_func(ASR::Dict_t* d_type) {
+            std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
+            return typecodeToDSfuncs[dict_type_code]["dict_deepcopy"];
+        }
+
         std::string get_dict_type(ASR::Dict_t* dict_type) {
             if (!ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
                 throw CodeGenError("Only Integer keys supported for now in C-dictionary");
@@ -1162,6 +1173,7 @@ class CCPPDSUtils {
             dict_insert(dict_type, dict_struct_type, dict_type_code);
             dict_get_item(dict_type, dict_struct_type, dict_type_code);
             dict_len(dict_type, dict_struct_type, dict_type_code);
+            dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
             return dict_struct_type;
         }
 
@@ -1296,6 +1308,35 @@ class CCPPDSUtils {
             generated_code += indent + tab + "int32_t len = 0;\n";
             generated_code += indent + tab + "for(int i=0; i<x->capacity; i++) len += (int)x->present[i];\n";
             generated_code += indent + tab + "return len;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_deepcopy(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_dc_func = global_scope->get_unique_name("dict_deepcopy_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_deepcopy"] = dict_dc_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = "void " + dict_dc_func + "("
+                                + dict_struct_type + "* src, "
+                                + dict_struct_type + "* dest)";
+            func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "dest->capacity = src->capacity;\n";
+            generated_code += indent + tab + "dest->key = (" + key + "*) " +
+                              "malloc(dest->capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "dest->value = (" + val + "*) " +
+                              "malloc(dest->capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "dest->present = (bool*) " + \
+                              "malloc(dest->capacity * sizeof(bool));\n";
+            generated_code += indent + tab + "memcpy(dest->key, src->key, " +
+                                "src->capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "memcpy(dest->value, src->value, " +
+                                "src->capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "memcpy(dest->present, src->present, " +
+                                "src->capacity * sizeof(bool));\n";
             generated_code += indent + "}\n\n";
         }
 

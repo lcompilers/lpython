@@ -662,6 +662,8 @@ R"(#include <stdio.h>
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
         bool is_target_tup = ASR::is_a<ASR::Tuple_t>(*m_target_type);
         bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
+        bool is_target_dict = ASR::is_a<ASR::Dict_t>(*m_target_type);
+        bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
@@ -775,6 +777,15 @@ R"(#include <stdio.h>
                 src += indent + dc_func + "(" + const_name + ", &" + target + ");\n";
             } else {
                 src += indent + dc_func + "(" + value + ", &" + target + ");\n";
+            }
+        } else if ( is_target_dict && is_value_dict ) {
+            ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_target));
+            std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
+            if( ASR::is_a<ASR::DictConstant_t>(*x.m_value) ) {
+                src += value;
+                src += indent + dc_func + "(&" + const_name + ", &" + target + ");\n";
+            } else {
+                src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
             }
         } else {
             if( is_c ) {
