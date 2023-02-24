@@ -101,6 +101,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t nesting_level;
     uint32_t cur_loop_nesting_level;
     bool is_prototype_only;
+    bool is_local_vars_only;
     ASR::Function_t* main_func;
 
     Vec<uint8_t> m_type_section;
@@ -138,6 +139,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     ASRToWASMVisitor(Allocator &al, diag::Diagnostics &diagnostics)
         : m_al(al), diag(diagnostics) {
         is_prototype_only = false;
+        is_local_vars_only = false;
         main_func = nullptr;
         nesting_level = 0;
         cur_loop_nesting_level = 0;
@@ -897,42 +899,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
-    template <typename T>
-    void emit_local_vars(const T &x,
-                         int var_idx /* starting index for local vars */) {
-        /********************* Local Vars Types List *********************/
-        uint32_t len_idx_code_section_local_vars_list =
-            wasm::emit_len_placeholder(m_code_section, m_al);
-        int local_vars_cnt = 0;
-        for (auto &item : x.m_symtab->get_scope()) {
+    void emit_local_vars(SymbolTable* symtab) {
+        for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == ASRUtils::intent_local ||
                     v->m_intent == ASRUtils::intent_return_var) {
-                    wasm::emit_u32(m_code_section, m_al,
-                                   1U);  // count of local vars of this type
-                    emit_var_type(m_code_section,
-                                  v);  // emit the type of this var
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = var_idx++;
-                    local_vars_cnt++;
+                    wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
+                    emit_var_type(m_code_section, v);  // emit the type of this var
+                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables++;
                     if (!ASRUtils::is_array(v->m_type) && ASRUtils::is_complex(*v->m_type)) {
                         // emit type again for imaginary part
                         wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
                         emit_var_type(m_code_section, v);  // emit the type of this var
-                        var_idx++;
-                        local_vars_cnt++;
+                        cur_sym_info->no_of_variables++;
                     }
                 }
             }
         }
-        // fixup length of local vars list
-        wasm::emit_u32_b32_idx(m_code_section, m_al,
-                               len_idx_code_section_local_vars_list,
-                               local_vars_cnt);
+    }
 
+    void initialize_local_vars(SymbolTable* symtab) {
         // initialize the value for local variables if initialization exists
-        for (auto &item : x.m_symtab->get_scope()) {
+        for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
@@ -978,7 +968,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         }
     }
-
     void emit_function_prototype(const ASR::Function_t &x) {
         SymbolFuncInfo *s = new SymbolFuncInfo;
 
@@ -1044,6 +1033,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             s;  // add function to map
     }
 
+    template <typename T>
+    void visit_BlockStatements(const T& x) {
+        for (size_t i = 0; i < x.n_body; i++) {
+            if (ASR::is_a<ASR::BlockCall_t>(*x.m_body[i])) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        }
+    }
+
     void emit_function_body(const ASR::Function_t &x) {
         LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)&x)) !=
                         m_func_name_idx_map.end());
@@ -1058,17 +1056,35 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         uint32_t len_idx_code_section_func_size =
             wasm::emit_len_placeholder(m_code_section, m_al);
 
-        emit_local_vars(x, cur_sym_info->no_of_variables);
+        {
+            is_local_vars_only = true;
+            int params_cnt = cur_sym_info->no_of_variables;
+            /********************* Local Vars Types List *********************/
+            uint32_t len_idx_code_section_local_vars_list =
+                wasm::emit_len_placeholder(m_code_section, m_al);
+
+            emit_local_vars(x.m_symtab);
+            visit_BlockStatements(x);
+
+            // fixup length of local vars list
+            wasm::emit_u32_b32_idx(m_code_section, m_al,
+                                len_idx_code_section_local_vars_list,
+                                cur_sym_info->no_of_variables - params_cnt);
+            is_local_vars_only = false;
+        }
+
+        initialize_local_vars(x.m_symtab);
+
         for (size_t i = 0; i < x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
+
         if (strcmp(x.m_name, "_start") == 0) {
             wasm::emit_i32_const(m_code_section, m_al, 0 /* zero exit code */);
             wasm::emit_call(m_code_section, m_al, m_import_func_idx_map[proc_exit]);
         }
-        if ((x.n_body == 0) ||
-            ((x.n_body > 0) &&
-             !ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body - 1]))) {
+
+        if (x.n_body == 0 || !ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body - 1])) {
             handle_return();
         }
         wasm::emit_expr_end(m_code_section, m_al);
@@ -1124,6 +1140,20 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             return;
         }
         emit_function_body(x);
+    }
+
+    void visit_BlockCall(const ASR::BlockCall_t &x) {
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
+        ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
+        if (is_local_vars_only) {
+            emit_local_vars(block->m_symtab);
+            visit_BlockStatements(*block);
+        } else {
+            initialize_local_vars(block->m_symtab);
+            for (size_t i = 0; i < block->n_body; i++) {
+                this->visit_stmt(*block->m_body[i]);
+            }
+        }
     }
 
     uint32_t emit_memory_store(ASR::expr_t *v) {
