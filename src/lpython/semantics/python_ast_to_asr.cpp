@@ -3146,6 +3146,8 @@ public:
                     if (i >= tuple_size || i < 0) {
                         throw SemanticError("Tuple index out of bounds", loc);
                     }
+                } else {
+                    throw SemanticError("Tuple indices must be constant integers", loc);
                 }
                 tmp = make_TupleItem_t(al, loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
