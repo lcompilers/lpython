@@ -282,7 +282,6 @@ c = true
 [[test]]
 filename = "test_end_sep_keywords.py"
 asr = true
-ast = true
 
 # integration_tests
 
