@@ -1495,7 +1495,7 @@ public:
 
 
 // Generate an ELF 32 bit header and footer
-// With these two functions, one only has to generate a `_start` assembly
+// With these two functions, one only must generate a `_start` assembly
 // function to have a working binary on Linux.
 void emit_elf32_header(X86Assembler &a, uint32_t p_flags=5);
 void emit_elf32_footer(X86Assembler &a);
@@ -1504,7 +1504,7 @@ void emit_exit(X86Assembler &a, const std::string &name,
     uint32_t exit_code);
 
 // this is similar to emit_exit() but takes the argument (i.e. exit code)
-// from top of stack. To call this exit2, one needs to jump to it
+// from top of stack. To call this exit2, one must jump to it
 // instead of call it. (Because calling pushes the instruction address and
 // base pointer value (ebp) of previous function and thus makes the
 // exit code parameter less reachable)
@@ -1522,7 +1522,7 @@ void emit_print_int(X86Assembler &a, const std::string &name);
 void emit_print_float(X86Assembler &a, const std::string &name);
 
 // Generate an ELF 64 bit header and footer
-// With these two functions, one only has to generate a `_start` assembly
+// With these two functions, one only must generate a `_start` assembly
 // function to have a working binary on Linux.
 void emit_elf64_header(X86Assembler &a, uint32_t p_flags=5);
 void emit_elf64_footer(X86Assembler &a);

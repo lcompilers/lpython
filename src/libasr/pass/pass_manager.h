@@ -39,8 +39,8 @@
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
 #include <libasr/pass/pass_array_by_data.h>
 #include <libasr/pass/pass_list_expr.h>
-#include <libasr/pass/pass_compare.h>
 #include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/transform_optional_argument_functions.h>
 #include <libasr/asr_verify.h>
 
 #include <map>
@@ -83,7 +83,7 @@ namespace LCompilers {
             {"pass_list_expr", &pass_list_expr},
             {"pass_array_by_data", &pass_array_by_data},
             {"subroutine_from_function", &pass_create_subroutine_from_function},
-            {"pass_compare", &pass_compare}
+            {"transform_optional_argument_functions", &pass_transform_optional_argument_functions}
         };
 
         bool is_fast;
@@ -111,6 +111,10 @@ namespace LCompilers {
             }
         }
 
+        public:
+
+        bool rtlib=false;
+
         void _parse_pass_arg(std::string& arg, std::vector<std::string>& passes) {
             if (arg == "") return;
 
@@ -136,20 +140,16 @@ namespace LCompilers {
             }
         }
 
-        public:
-
-        bool rtlib=false;
-
         PassManager(): is_fast{false}, apply_default_passes{false} {
             _passes = {
                 "global_stmts",
                 "class_constructor",
                 "implied_do_loops",
-                "pass_array_by_data",
                 "pass_list_expr",
                 "arr_slice",
                 "subroutine_from_function",
                 "array_op",
+                "pass_array_by_data",
                 "print_arr",
                 "print_list",
                 "array_dim_intrinsics_update",
@@ -157,7 +157,8 @@ namespace LCompilers {
                 "forall",
                 "select_case",
                 "inline_function_calls",
-                "unused_functions"
+                "unused_functions",
+                "transform_optional_argument_functions"
             };
 
             _with_optimization_passes = {
@@ -182,17 +183,16 @@ namespace LCompilers {
                 "sign_from_value",
                 "div_to_mul",
                 "fma",
+                "transform_optional_argument_functions",
                 "inline_function_calls"
             };
 
             _user_defined_passes.clear();
-            _skip_passes.clear();
         }
 
         void parse_pass_arg(std::string& arg_pass, std::string& skip_pass) {
             _user_defined_passes.clear();
             _skip_passes.clear();
-
             _parse_pass_arg(arg_pass, _user_defined_passes);
             _parse_pass_arg(skip_pass, _skip_passes);
         }

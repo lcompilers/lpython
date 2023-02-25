@@ -70,7 +70,11 @@ public:
                                          ASRUtils::symbol_get_past_external(dt_der->m_derived_type));
         for( size_t i = 0; i < std::min(dt_dertype->n_members, x.n_args); i++ ) {
             ASR::symbol_t* member = dt_dertype->m_symtab->resolve_symbol(std::string(dt_dertype->m_members[i], strlen(dt_dertype->m_members[i])));
-            ASR::expr_t* derived_ref = ASRUtils::EXPR(ASRUtils::getStructInstanceMember_t(al, x.base.base.loc, (ASR::asr_t*)result_var, member, current_scope));
+            ASR::symbol_t *v = nullptr;
+            if (is_a<ASR::Var_t>(*result_var)) {
+                v = down_cast<ASR::Var_t>(result_var)->m_v;
+            }
+            ASR::expr_t* derived_ref = ASRUtils::EXPR(ASRUtils::getStructInstanceMember_t(al, x.base.base.loc, (ASR::asr_t*)result_var, v, member, current_scope));
             ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, derived_ref, x.m_args[i], nullptr));
             pass_result.push_back(al, assign);
         }

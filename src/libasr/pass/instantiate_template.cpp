@@ -110,8 +110,9 @@ public:
             }
         }
 
-        for (size_t i=0; i<ASRUtils::get_FunctionType(x)->n_restrictions; i++) {
-            rts.push_back(ASR::down_cast<ASR::Function_t>(ASRUtils::get_FunctionType(x)->m_restrictions[i]));
+        for (size_t i=0; i < ASRUtils::get_FunctionType(x)->n_restrictions; i++) {
+            rts.push_back(ASR::down_cast<ASR::Function_t>(
+                ASRUtils::get_FunctionType(x)->m_restrictions[i]));
         }
 
         Vec<ASR::stmt_t*> body;
@@ -128,7 +129,7 @@ public:
         ASR::deftypeType func_deftype = ASRUtils::get_FunctionType(x)->m_deftype;
         char *bindc_name = ASRUtils::get_FunctionType(x)->m_bindc_name;
 
-        bool func_elemental = ASRUtils::get_FunctionType(x)->m_elemental;
+        bool func_elemental =  ASRUtils::get_FunctionType(x)->m_elemental;
         bool func_pure = ASRUtils::get_FunctionType(x)->m_pure;
         bool func_module = ASRUtils::get_FunctionType(x)->m_module;
 

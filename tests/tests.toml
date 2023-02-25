@@ -298,7 +298,11 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_complex.py"
+filename = "../integration_tests/test_complex_01.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_complex_02.py"
 asr = true
 
 [[test]]
@@ -993,6 +997,14 @@ run = true
 
 [[test]]
 filename = "runtime_errors/test_list_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_str_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_str_02.py"
 run = true
 
 [[test]]

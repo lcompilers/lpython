@@ -103,6 +103,13 @@ public:
         ASR::stmt_t* back = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
                                             nullptr, nullptr, 0, nullptr, backspace));
         for (size_t i=0; i<x.n_values; i++) {
+            // TODO: This will disallow printing array pointer in Fortran
+            // Pointers are treated the same as normal variables in Fortran
+            // However, LPython prints the address of pointers when you do
+            // print(some_pointer). Same goes for C/C++ (if we add their frontends in future).
+            // So we need to figure out a way to de-couple printing support from libasr
+            // or add nodes according to the frontends because each frontend will have a different
+            // way of handling printing of pointers and non-pointers
             if (!ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_values[i])) &&
                 PassUtils::is_array(x.m_values[i])) {
                 if (print_body.size() > 0) {
