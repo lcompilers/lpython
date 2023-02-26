@@ -18,8 +18,7 @@ Converts:
     print(a, b, l, sep="pqr", end="xyz") # l is a list (but not a & b)
 
 to:
-
-    print(a, b, sep="pqr")
+    print(a, b, sep="pqr", end="")
     print("[", end="")
     for i in range(len(l)):
         print(l[i], end="")
@@ -300,26 +299,61 @@ class PrintListVisitor
 
     void visit_Print(const ASR::Print_t &x) {
         std::vector<ASR::expr_t*> print_tmp;
+        ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
+        al, x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+        ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, " "), str_type_len_1));
         for (size_t i=0; i<x.n_values; i++) {
             if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i])) ||
                 ASR::is_a<ASR::Tuple_t>(*ASRUtils::expr_type(x.m_values[i]))) {
                 if (!print_tmp.empty()) {
                     Vec<ASR::expr_t*> tmp_vec;
+                    ASR::stmt_t *print_stmt;
                     tmp_vec.reserve(al, print_tmp.size());
                     for (auto &e: print_tmp) {
                         tmp_vec.push_back(al, e);
                     }
-                    ASR::stmt_t *print_stmt = ASRUtils::STMT(
-                        ASR::make_Print_t(al, x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
-                                    x.m_separator, nullptr));
+                    if (x.m_separator) {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(al,
+                            x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
+                            x.m_separator, x.m_separator));
+                    } else {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(al,
+                            x.base.base.loc, nullptr, tmp_vec.p, tmp_vec.size(),
+                            x.m_separator, space));
+                    }
                     print_tmp.clear();
                     pass_result.push_back(al, print_stmt);
-
                 }
-                if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i])))
-                    print_list_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
-                else
-                    print_tuple_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
+                if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i]))){
+                    if (x.m_separator) {
+                        if (i == x.n_values - 1) {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
+                        }
+                    } else {
+                        if (i == x.n_values - 1) {
+                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_list_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
+                        }
+                    }
+                } else {
+                    if (x.m_separator){
+                        if (i == x.n_values - 1) {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
+                        }
+                    } else {
+                        if (i == x.n_values - 1) {
+                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
+                        } else {
+                            print_tuple_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
+                        }
+                    }
+                }
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
                     pass_result.push_back(al, print_pass_result_tmp[j]);
                 print_pass_result_tmp.n = 0;

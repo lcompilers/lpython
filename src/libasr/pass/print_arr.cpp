@@ -60,6 +60,10 @@ public:
         ASR::stmt_t* doloop = nullptr;
         ASR::stmt_t* empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, loc,
                                             nullptr, nullptr, 0, nullptr, nullptr));
+        ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
+        al, loc, 1, 1, nullptr, nullptr, 0));
+        ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, loc, s2c(al, " "), str_type_len_1));
         for( int i = n_dims - 1; i >= 0; i-- ) {
             ASR::do_loop_head_t head;
             head.m_v = idx_vars[i];
@@ -75,7 +79,7 @@ public:
                 print_args.reserve(al, 1);
                 print_args.push_back(al, ref);
                 ASR::stmt_t* print_stmt = ASRUtils::STMT(ASR::make_Print_t(al, loc, nullptr,
-                                                                print_args.p, print_args.size(), nullptr, nullptr));
+                                                                print_args.p, print_args.size(), nullptr, space));
                 doloop_body.push_back(al, print_stmt);
             } else {
                 doloop_body.push_back(al, doloop);
@@ -88,9 +92,16 @@ public:
 
     void visit_Print(const ASR::Print_t& x) {
         std::vector<ASR::expr_t*> print_body;
-        ASR::stmt_t* empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
-                                            nullptr, nullptr, 0, nullptr, nullptr));
+        ASR::stmt_t* empty_print_endl;
         ASR::stmt_t* print_stmt;
+        ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
+        al, x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+        ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, " "), str_type_len_1));
+        ASR::expr_t *backspace = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, "\b"), str_type_len_1));
+        ASR::stmt_t* back = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                            nullptr, nullptr, 0, nullptr, backspace));
         for (size_t i=0; i<x.n_values; i++) {
             // TODO: This will disallow printing array pointer in Fortran
             // Pointers are treated the same as normal variables in Fortran
@@ -107,15 +118,38 @@ public:
                     for (size_t j=0; j<print_body.size(); j++) {
                         body.push_back(al, print_body[j]);
                     }
-                    print_stmt = ASRUtils::STMT(ASR::make_Print_t(
-                        al, x.base.base.loc, nullptr, body.p, body.size(),
-                        nullptr, nullptr));
+                    if (x.m_separator) {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(
+                            al, x.base.base.loc, nullptr, body.p, body.size(),
+                            x.m_separator, x.m_separator));
+                    } else {
+                        print_stmt = ASRUtils::STMT(ASR::make_Print_t(
+                            al, x.base.base.loc, nullptr, body.p, body.size(),
+                            nullptr, space));
+                    }
                     pass_result.push_back(al, print_stmt);
-                    pass_result.push_back(al, empty_print_endl);
                     print_body.clear();
                 }
                 print_stmt = print_array_using_doloop(x.m_values[i], x.base.base.loc);
                 pass_result.push_back(al, print_stmt);
+                pass_result.push_back(al, back);
+                if (x.m_separator) {
+                    if (i == x.n_values - 1) {
+                        empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                                nullptr, nullptr, 0, nullptr, x.m_end));
+                    } else {
+                        empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                                nullptr, nullptr, 0, nullptr, x.m_separator));
+                    }
+                } else {
+                    if (i == x.n_values - 1) {
+                        empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                                nullptr, nullptr, 0, nullptr, x.m_end));
+                    } else {
+                        empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                                nullptr, nullptr, 0, nullptr, nullptr));
+                    }
+                }
                 pass_result.push_back(al, empty_print_endl);
             } else {
                 print_body.push_back(x.m_values[i]);
@@ -129,7 +163,7 @@ public:
             }
             print_stmt = ASRUtils::STMT(ASR::make_Print_t(
                 al, x.base.base.loc, nullptr, body.p, body.size(),
-                nullptr, nullptr));
+                x.m_separator, x.m_end));
             pass_result.push_back(al, print_stmt);
             print_body.clear();
         }
