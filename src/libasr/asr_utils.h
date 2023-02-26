@@ -1145,7 +1145,7 @@ static inline std::string binop_to_str_python(const ASR::binopType t) {
 
 static inline bool is_immutable(const ASR::ttype_t *type) {
     return ((ASR::is_a<ASR::Character_t>(*type) || ASR::is_a<ASR::Tuple_t>(*type)
-        || ASR::is_a<ASR::Complex_t>(*type)));
+        || ASR::is_a<ASR::Complex_t>(*type)) || ASR::is_a<ASR::Integer_t>(*type) || ASR::is_a<ASR::Real_t>(*type));
 }
 
 // Returns a list of values
