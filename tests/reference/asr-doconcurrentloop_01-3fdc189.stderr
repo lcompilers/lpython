@@ -1,0 +1,5 @@
+semantic error: 'f32[:]' object does not support item assignment
+ --> tests/doconcurrentloop_01.py:8:9
+  |
+8 |         c[i] = a[i] + scalar * b[i]
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^ 

@@ -1,0 +1,5 @@
+semantic error: 'f64[9217]' object does not support item assignment
+  --> tests/../integration_tests/vec_01.py:10:9
+   |
+10 |         b[i] = 5.0
+   |         ^^^^^^^^^^ 

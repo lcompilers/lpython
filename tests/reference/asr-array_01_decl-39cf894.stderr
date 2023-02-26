@@ -1,0 +1,5 @@
+semantic error: 'i16[:]' object does not support item assignment
+  --> tests/../integration_tests/array_01_decl.py:10:5
+   |
+10 |     xi16[2] = i16(32)
+   |     ^^^^^^^^^^^^^^^^^ 

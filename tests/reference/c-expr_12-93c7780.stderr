@@ -1,0 +1,5 @@
+semantic error: 'i16[:]' object does not support item assignment
+ --> tests/../integration_tests/expr_12.py:4:5
+  |
+4 |     y[0] = i16(1)
+  |     ^^^^^^^^^^^^^ 

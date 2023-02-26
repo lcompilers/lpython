@@ -1,0 +1,5 @@
+semantic error: 'i32' object does not support item assignment
+ --> tests/errors/test_assign9.py:6:5
+  |
+6 |     i[0] = 500
+  |     ^^^^^^^^^^ 
