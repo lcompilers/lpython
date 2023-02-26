@@ -674,6 +674,31 @@ def _lpython_str_capitalize(x: str) -> str:
     return x
 
 @overload
+def _lpython_str_title(x: str) -> str:
+    res: str
+    res = ""
+    flag: i32
+    flag = 1
+    i: str
+    for i in x:
+        if flag==1:
+            if ord('a') <= ord(i) and ord('z') >= ord(i):
+                res+=chr(ord(i)-32)
+                flag = 0
+            else:
+                if ord('A') <= ord(i) and ord('Z') >= ord(i):
+                    flag = 0
+                res+=i
+        else:
+            if ord('A') <= ord(i) and ord('Z') >= ord(i):
+                res+=chr(ord(i)+32)
+            else:
+                if not ord('a') <= ord(i) and ord('z') >= ord(i):
+                    flag = 1
+                res+=i
+    return res
+
+@overload
 def _lpython_str_lower(x: str) -> str:
     res: str
     res = ""
@@ -681,6 +706,18 @@ def _lpython_str_lower(x: str) -> str:
     for i in x:
         if ord('A') <= ord(i) and ord('Z') >= ord(i):
             res += chr(ord(i) +32)
+        else:
+            res += i
+    return res
+
+@overload
+def _lpython_str_upper(x: str) -> str:
+    res: str
+    res = ""
+    i:str
+    for i in x:
+        if ord('a') <= ord(i) and ord('z') >= ord(i):
+            res += chr(ord(i) -32)
         else:
             res += i
     return res

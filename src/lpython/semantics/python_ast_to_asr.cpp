@@ -5543,12 +5543,32 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
+        } else if (attr_name == "title") {
+            if (args.size() != 0) {
+                throw SemanticError("str.title() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_title";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else if (attr_name == "lower") {
             if (args.size() != 0) {
                 throw SemanticError("str.lower() takes no arguments",
                     loc);
             }
             fn_call_name = "_lpython_str_lower";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "upper"){
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_upper";
             ASR::call_arg_t arg;
             arg.loc = loc;
             arg.m_value = s_var;
@@ -5691,6 +5711,23 @@ public:
             if (s_var.length() > 0) {
                 s_var[0] = toupper(s_var[0]);
             }
+        } else if (attr_name == "title"){
+            if (args.size() != 0) {
+                throw SemanticError("str.title() takes no arguments",
+                    loc);
+            }
+            int flag = 1;
+            for(auto &i : s_var) {
+                if(flag){
+                    i = toupper(i);
+                    if(i>='A' && i<='Z') flag = 0;
+                    else flag = 1;
+                }else{
+                    i = tolower(i);
+                    if(i>='a' && i<='z') flag = 0;
+                    else flag = 1;
+                }
+            }
         } else if (attr_name == "lower") {
             if (args.size() != 0) {
                 throw SemanticError("str.lower() takes no arguments",
@@ -5699,6 +5736,16 @@ public:
             for (auto &i : s_var) {
                 if (i >= 'A' && i<= 'Z') {
                     i = tolower(i);
+                }
+            }
+        } else if (attr_name == "upper") {
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                    loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'a' && i<= 'z') {
+                    i = toupper(i);
                 }
             }
         } else if (attr_name == "find") {

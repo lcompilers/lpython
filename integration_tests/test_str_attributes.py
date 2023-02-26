@@ -9,6 +9,27 @@ def capitalize():
     assert "empty string" .capitalize() == "Empty string"
     assert "".capitalize() == ""
 
+def title():
+    s: str
+    s = "tom and jerry"
+    assert s.title() == "Tom And Jerry"
+    s = "12wddd"
+    assert s.title() == "12Wddd"
+    s = " tom and jerry"
+    assert s.title() == " Tom And Jerry"
+    s = "empty string"
+    assert s.title() == "Empty String"
+    s = "hello b2b2b2 and 3g3g3g"
+    assert s.title() == "Hello B2B2B2 And 3G3G3G"
+    s = "hello-world"
+    assert s.title() == "Hello-World"
+    s = ""
+    assert s.title() == ""
+    s = "rAndOM CApS"
+    assert s.title() == "Random Caps"
+    assert "empty string" .title() == "Empty String"
+    assert "".title() == ""
+    assert "RANdom CApS" .title() == "Random Caps"
 
 def lower():
     s: str
@@ -17,6 +38,12 @@ def lower():
     assert "DDd12Vv" .lower() == "ddd12vv"
     assert "".lower() == ""
 
+def upper():
+    s: str
+    s = "AaaaAABBbbbbBB!@12223BN"
+    assert s.upper() == "AAAAAABBBBBBBB!@12223BN"
+    assert "DDd12Vv" .upper() == "DDD12VV"
+    assert "".upper() == ""
 
 def strip():
     s: str
@@ -81,7 +108,9 @@ def startswith():
 
 def check():
     capitalize()
+    title()
     lower()
+    upper()
     strip()
     swapcase()
     find()
