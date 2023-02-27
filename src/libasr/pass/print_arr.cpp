@@ -94,14 +94,33 @@ public:
         std::vector<ASR::expr_t*> print_body;
         ASR::stmt_t* empty_print_endl;
         ASR::stmt_t* print_stmt;
+        ASR::ttype_t *str_type_len_0 = ASRUtils::TYPE(ASR::make_Character_t(
+        al, x.base.base.loc, 1, 0, nullptr, nullptr, 0));
         ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
         al, x.base.base.loc, 1, 1, nullptr, nullptr, 0));
         ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
         al, x.base.base.loc, s2c(al, " "), str_type_len_1));
         ASR::expr_t *backspace = ASRUtils::EXPR(ASR::make_StringConstant_t(
         al, x.base.base.loc, s2c(al, "\b"), str_type_len_1));
-        ASR::stmt_t* back = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
-                                            nullptr, nullptr, 0, nullptr, backspace));
+        ASR::expr_t *open_bracket = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, "["), str_type_len_1));
+        ASR::expr_t *close_bracket = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, "]"), str_type_len_1));
+        ASR::expr_t *empty_str = ASRUtils::EXPR(ASR::make_StringConstant_t(
+        al, x.base.base.loc, s2c(al, ""), str_type_len_0));
+        Vec<ASR::expr_t *> v1, v2, v3;
+        v1.reserve(al, 1);
+        v2.reserve(al, 1);
+        v3.reserve(al, 1);
+        v1.push_back(al, open_bracket);
+        v2.push_back(al, close_bracket);
+        v3.push_back(al, backspace);
+        ASR::stmt_t *print_open_bracket = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+            nullptr, v1.p, v1.size(), nullptr, empty_str));
+        ASR::stmt_t *print_close_bracket = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+            nullptr, v2.p, v2.size(), nullptr, empty_str));
+        ASR::stmt_t *print_backspace = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+            nullptr, v3.p, v3.size(), nullptr, empty_str));
         for (size_t i=0; i<x.n_values; i++) {
             // TODO: This will disallow printing array pointer in Fortran
             // Pointers are treated the same as normal variables in Fortran
@@ -130,9 +149,11 @@ public:
                     pass_result.push_back(al, print_stmt);
                     print_body.clear();
                 }
+                pass_result.push_back(al, print_open_bracket);
                 print_stmt = print_array_using_doloop(x.m_values[i], x.base.base.loc);
                 pass_result.push_back(al, print_stmt);
-                pass_result.push_back(al, back);
+                pass_result.push_back(al, print_backspace);
+                pass_result.push_back(al, print_close_bracket);
                 if (x.m_separator) {
                     if (i == x.n_values - 1) {
                         empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
@@ -147,7 +168,7 @@ public:
                                                 nullptr, nullptr, 0, nullptr, x.m_end));
                     } else {
                         empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
-                                                nullptr, nullptr, 0, nullptr, nullptr));
+                                                nullptr, nullptr, 0, nullptr, space));
                     }
                 }
                 pass_result.push_back(al, empty_print_endl);
