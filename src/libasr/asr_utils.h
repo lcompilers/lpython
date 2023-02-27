@@ -1908,7 +1908,100 @@ inline bool is_derived_type_similar(ASR::StructType_t* a, ASR::StructType_t* b) 
         std::string(b->m_name) == "~abstract_type");
 }
 
-inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
+// TODO: Scaled up implementation for all exprTypes
+// One way is to do it in asdl_cpp.py
+inline bool expr_equal(ASR::expr_t* x, ASR::expr_t* y) {
+    if( x->type != y->type ) {
+        return false;
+    }
+
+    switch( x->type ) {
+        case ASR::exprType::IntegerBinOp: {
+            ASR::IntegerBinOp_t* intbinop_x = ASR::down_cast<ASR::IntegerBinOp_t>(x);
+            ASR::IntegerBinOp_t* intbinop_y = ASR::down_cast<ASR::IntegerBinOp_t>(y);
+            if( intbinop_x->m_op != intbinop_y->m_op ) {
+                return false;
+            }
+            bool left_left = expr_equal(intbinop_x->m_left, intbinop_y->m_left);
+            bool left_right = expr_equal(intbinop_x->m_left, intbinop_y->m_right);
+            bool right_left = expr_equal(intbinop_x->m_right, intbinop_y->m_left);
+            bool right_right = expr_equal(intbinop_x->m_right, intbinop_y->m_right);
+            switch( intbinop_x->m_op ) {
+                case ASR::binopType::Add:
+                case ASR::binopType::Mul:
+                case ASR::binopType::BitAnd:
+                case ASR::binopType::BitOr:
+                case ASR::binopType::BitXor: {
+                    return (left_left && right_right) || (left_right && right_left);
+                }
+                case ASR::binopType::Sub:
+                case ASR::binopType::Div:
+                case ASR::binopType::Pow:
+                case ASR::binopType::BitLShift:
+                case ASR::binopType::BitRShift: {
+                    return (left_left && right_right);
+                }
+            }
+            break;
+        }
+        case ASR::exprType::Var: {
+            ASR::Var_t* var_x = ASR::down_cast<ASR::Var_t>(x);
+            ASR::Var_t* var_y = ASR::down_cast<ASR::Var_t>(y);
+            return var_x->m_v == var_y->m_v;
+        }
+        default: {
+            // Let it pass for now.
+            return true;
+        }
+    }
+
+    // Let it pass for now.
+    return true;
+}
+
+inline bool dimension_expr_equal(ASR::expr_t* dim_a, ASR::expr_t* dim_b) {
+    if( !(dim_a && dim_b) ) {
+        return true;
+    }
+    ASR::expr_t* dim_a_fallback = nullptr;
+    ASR::expr_t* dim_b_fallback = nullptr;
+    if( ASR::is_a<ASR::Var_t>(*dim_a) &&
+        ASR::is_a<ASR::Variable_t>(
+            *ASR::down_cast<ASR::Var_t>(dim_a)->m_v) ) {
+        dim_a_fallback = ASRUtils::EXPR2VAR(dim_a)->m_symbolic_value;
+    }
+    if( ASR::is_a<ASR::Var_t>(*dim_b) &&
+        ASR::is_a<ASR::Variable_t>(
+            *ASR::down_cast<ASR::Var_t>(dim_b)->m_v) ) {
+        dim_b_fallback = ASRUtils::EXPR2VAR(dim_b)->m_symbolic_value;
+    }
+    if( !ASRUtils::expr_equal(dim_a, dim_b) &&
+        !(dim_a_fallback && ASRUtils::expr_equal(dim_a_fallback, dim_b)) &&
+        !(dim_b_fallback && ASRUtils::expr_equal(dim_a, dim_b_fallback)) ) {
+        return false;
+    }
+    return true;
+}
+
+inline bool dimensions_equal(ASR::dimension_t* dims_a, size_t n_dims_a,
+    ASR::dimension_t* dims_b, size_t n_dims_b) {
+    if( n_dims_a != n_dims_b ) {
+        return false;
+    }
+
+    for( size_t i = 0; i < n_dims_a; i++ ) {
+        ASR::dimension_t dim_a = dims_a[i];
+        ASR::dimension_t dim_b = dims_b[i];
+        if( !dimension_expr_equal(dim_a.m_length, dim_b.m_length) ||
+            !dimension_expr_equal(dim_a.m_start, dim_b.m_start) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
+    bool check_for_dimensions=false) {
     // TODO: If anyone of the input or argument is derived type then
     // add support for checking member wise types and do not compare
     // directly. From stdlib_string len(pattern) error
@@ -1922,7 +2015,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
                 ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(a);
                 ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(b);
                 if (a2->m_kind == b2->m_kind) {
-                    return true;
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
                 } else {
                     return false;
                 }
@@ -1935,7 +2034,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
                 ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(a);
                 ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(b);
                 if (a2->m_kind == b2->m_kind) {
-                    return true;
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
                 } else {
                     return false;
                 }
@@ -1945,7 +2050,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
                 ASR::Complex_t *a2 = ASR::down_cast<ASR::Complex_t>(a);
                 ASR::Complex_t *b2 = ASR::down_cast<ASR::Complex_t>(b);
                 if (a2->m_kind == b2->m_kind) {
-                    return true;
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
                 } else {
                     return false;
                 }
@@ -1955,7 +2066,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
                 ASR::Logical_t *a2 = ASR::down_cast<ASR::Logical_t>(a);
                 ASR::Logical_t *b2 = ASR::down_cast<ASR::Logical_t>(b);
                 if (a2->m_kind == b2->m_kind) {
-                    return true;
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
                 } else {
                     return false;
                 }
@@ -1965,7 +2082,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b) {
                 ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(a);
                 ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(b);
                 if (a2->m_kind == b2->m_kind) {
-                    return true;
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
                 } else {
                     return false;
                 }
