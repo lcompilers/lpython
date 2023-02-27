@@ -24,7 +24,6 @@
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/utils.h>
-#include <libasr/pass/pass_utils.h>
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
 #include <lpython/semantics/python_comptime_eval.h>
@@ -3794,6 +3793,7 @@ public:
     ASR::asr_t *asr;
     std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
     int64_t gotoids;
+    std::vector<ASR::symbol_t*> do_loop_variables;
 
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -4136,6 +4136,15 @@ public:
             }
             ASR::stmt_t *overloaded=nullptr;
             tmp = nullptr;
+            if (target->type == ASR::exprType::Var) {
+                ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(target);
+                ASR::symbol_t *sym = var->m_v;
+                if (do_loop_variables.size() > 0 && std::find(do_loop_variables.begin(), do_loop_variables.end(), sym) != do_loop_variables.end()) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
+                    std::string var_name = std::string(v->m_name);
+                    throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
+                }
+            }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
         }
@@ -4328,8 +4337,6 @@ public:
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         ASR::expr_t *for_iter_type = nullptr;
-        ASR::stmt_t *assign_to_dummy = nullptr;
-        ASR::stmt_t *i_update = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_iter);
             std::string call_name;
@@ -4423,6 +4430,12 @@ public:
         ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
                                             x.base.base.loc);
 
+        if (target) {
+            ASR::Var_t* loop_var = ASR::down_cast<ASR::Var_t>(target);
+            ASR::symbol_t* loop_var_sym = loop_var->m_v;
+            do_loop_variables.push_back(loop_var_sym);
+        }
+
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
@@ -4445,21 +4458,13 @@ public:
 
             head.m_v = ASRUtils::EXPR(explicit_iter_var);
         } else {
-            body.reserve(al, x.n_body + 2);
+            body.reserve(al, x.n_body);
             head.m_v = target;
         }
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-        std::string name = current_scope->get_unique_name("_1_for_dummy");
-        ASR::expr_t *dummy;
-        dummy = PassUtils::create_auxiliary_variable(x.base.base.loc,
-                name, al, current_scope, a_type);
-        assign_to_dummy = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, dummy, target, nullptr));
-        i_update = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target, dummy, nullptr));
-        body.push_back(al, assign_to_dummy);
         transform_stmts(body, x.n_body, x.m_body);
-        body.push_back(al, i_update);
         int32_t total_syms = current_scope->get_scope().size();
         if( total_syms > 0 ) {
             std::string name = parent_scope->get_unique_name("block");
@@ -4487,6 +4492,10 @@ public:
         } else {
             tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
+        }
+
+        if (!do_loop_variables.empty()) {
+            do_loop_variables.pop_back();
         }
     }
 
