@@ -1384,7 +1384,8 @@ public:
         ASR::dimension_t dim;
         dim.loc = loc;
         if (ASR::is_a<ASR::IntegerConstant_t>(*value) ||
-            ASR::is_a<ASR::Var_t>(*value)) {
+            ASR::is_a<ASR::Var_t>(*value) ||
+            ASR::is_a<ASR::IntegerBinOp_t>(*value)) {
             ASR::ttype_t *itype = ASRUtils::expr_type(value);
             ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, itype));
             ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
@@ -2235,11 +2236,24 @@ public:
     }
 
     ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
-        const Location& loc) {
+        AST::expr_t* ast_type_expr, const Location& loc) {
         this->visit_expr(*ast_cptr);
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         this->visit_expr(*ast_pptr);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(ast_type_expr->base.loc, *ast_type_expr);
+        ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
+        if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
+            diag.add(diag::Diagnostic(
+                "Type mismatch in c_p_pointer and target variable, the types must match",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch between target variable type "
+                                "and c_p_pointer allocation type)",
+                            {target_type->base.loc, asr_alloc_type->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         return ASR::make_CPtrToPointer_t(al, loc, cptr,
                                          pptr, nullptr);
     }
@@ -2269,7 +2283,8 @@ public:
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
                 AST::expr_t* pptr = assign_ast_target;
-                tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+                tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
+                                                   x.base.base.loc);
                 // if( current_body ) {
                 //     current_body->push_back(al, ASRUtils::STMT(tmp));
                 // }
@@ -4034,7 +4049,8 @@ public:
             AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
             AST::expr_t* cptr = c_p_pointer_call->m_args[0];
             AST::expr_t* pptr = x.m_targets[0];
-            tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+            tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
+                                               x.base.base.loc);
             is_c_p_pointer_call = is_c_p_pointer_call;
             return ;
         }
@@ -5508,6 +5524,19 @@ public:
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         visit_expr(*x.m_args[1]);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1]);
+        ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
+        if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
+            diag.add(diag::Diagnostic(
+                "Type mismatch in c_p_pointer and target variable, the types must match",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch ('" + ASRUtils::type_to_str_python(target_type) +
+                                "' and '" + ASRUtils::type_to_str_python(asr_alloc_type) + "')",
+                            {target_type->base.loc, asr_alloc_type->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
                                          pptr, nullptr);
     }
