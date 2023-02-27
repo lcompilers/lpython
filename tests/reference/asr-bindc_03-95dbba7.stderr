@@ -1,0 +1,5 @@
+semantic error: Type mismatch in c_p_pointer and target variable, the types must match
+  --> tests/errors/bindc_03.py:20:16
+   |
+20 |     C: Pointer[i16[n]] = c_p_pointer(b, i16[n * k])
+   |                ^^^^^^                   ^^^^^^^^^^ type mismatch between target variable type and c_p_pointer allocation type)
