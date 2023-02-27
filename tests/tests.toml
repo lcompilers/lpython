@@ -979,6 +979,10 @@ filename = "errors/loop_02.py"
 asr = true
 
 [[test]]
+filename = "errors/loop_03.py"
+asr = true
+
+[[test]]
 filename = "errors/test_goto.py"
 asr = true
 

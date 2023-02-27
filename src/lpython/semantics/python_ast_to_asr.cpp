@@ -3830,6 +3830,7 @@ public:
     ASR::asr_t *asr;
     std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
     int64_t gotoids;
+    std::vector<ASR::symbol_t*> do_loop_variables;
 
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -4173,6 +4174,15 @@ public:
             }
             ASR::stmt_t *overloaded=nullptr;
             tmp = nullptr;
+            if (target->type == ASR::exprType::Var) {
+                ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(target);
+                ASR::symbol_t *sym = var->m_v;
+                if (do_loop_variables.size() > 0 && std::find(do_loop_variables.begin(), do_loop_variables.end(), sym) != do_loop_variables.end()) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
+                    std::string var_name = std::string(v->m_name);
+                    throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
+                }
+            }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
         }
@@ -4458,6 +4468,12 @@ public:
         ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
                                             x.base.base.loc);
 
+        if (target) {
+            ASR::Var_t* loop_var = ASR::down_cast<ASR::Var_t>(target);
+            ASR::symbol_t* loop_var_sym = loop_var->m_v;
+            do_loop_variables.push_back(loop_var_sym);
+        }
+
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
@@ -4514,6 +4530,10 @@ public:
         } else {
             tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
+        }
+
+        if (!do_loop_variables.empty()) {
+            do_loop_variables.pop_back();
         }
     }
 
