@@ -2446,14 +2446,16 @@ public:
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(
                         item.second);
                 visit_Variable(*v);
-            }
-            if (is_a<ASR::Function_t>(*item.second)) {
+            } else if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *v = down_cast<ASR::Function_t>(
                         item.second);
                 if (ASRUtils::get_FunctionType(v)->n_type_params == 0) {
                     instantiate_function(*v);
                     declare_needed_global_types(*v);
                 }
+            } else if (is_a<ASR::EnumType_t>(*item.second)) {
+                ASR::EnumType_t *et = down_cast<ASR::EnumType_t>(item.second);
+                visit_EnumType(*et);
             }
         }
         finish_module_init_function_prototype(x);
