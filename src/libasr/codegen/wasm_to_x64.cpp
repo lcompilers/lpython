@@ -539,6 +539,27 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
 
+    void visit_F64ConvertI32S() { visit_F64ConvertI64S(); } // I32's considered as I64's currently
+    void visit_F64PromoteF32() { } // F32's considered as F64's currently
+
+    void visit_F64Neg() {
+        visit_F64Const(double(-1.0));
+        visit_F64Mul();
+    }
+
+    void visit_F64Sqrt() {
+        X64Reg stack_top = X64Reg::rsp;
+        // load operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
+
+        m_a.asm_sqrtsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); // perform sqrt operation
+
+        m_a.asm_sub_r64_imm32(X64Reg::rsp, 8); // decrement stack and create space
+        m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store the result on stack top;
+    }
+
+
     void visit_F32Const(float z) { visit_F64Const(double(z)); }
 
     void visit_F32Add() { visit_F64Add(); }
@@ -554,6 +575,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F32Ne() { visit_F64Ne(); }
 
     void visit_F32ConvertI64S() { visit_F64ConvertI32S(); }
+    void visit_F32Neg() { visit_F64Neg(); }
+    void visit_F32Sqrt() { visit_F64Sqrt(); }
 
     void gen_x64_bytes() {
         emit_elf64_header(m_a, 7U);
