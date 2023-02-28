@@ -346,7 +346,7 @@ RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm c)
 RUN(NAME test_cmath          LABELS cpython llvm c)
-RUN(NAME test_complex_01        LABELS cpython llvm c wasm)
+RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME test_complex_02        LABELS cpython llvm c)
 RUN(NAME test_max_min        LABELS cpython llvm c)
 RUN(NAME test_global         LABELS cpython llvm c)

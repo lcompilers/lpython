@@ -1491,6 +1491,17 @@ public:
         modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
         EMIT("comisd " + r2s(r64) + ", " + r2s(s64));
     }
+
+    // SQRTSD—Compute Square Root of Scalar Double Precision Floating-Point Value
+    void asm_sqrtsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x51);
+        modrm_sib_disp(m_code, m_al, r32, &s32, nullptr, 1, 0, false);
+        EMIT("sqrtsd " + r2s(r64) + ", " + r2s(s64));
+    }
 };
 
 
@@ -1512,6 +1523,10 @@ void emit_exit2(X86Assembler &a, const std::string &name);
 
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
+void emit_i32_const(X86Assembler &a, const std::string &label,
+    const int32_t z);
+void emit_i64_const(X86Assembler &a, const std::string &label,
+    const int64_t z);
 void emit_float_const(X86Assembler &a, const std::string &label,
     const float z);
 void emit_double_const(X86Assembler &a, const std::string &label,
