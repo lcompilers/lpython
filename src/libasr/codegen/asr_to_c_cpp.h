@@ -957,7 +957,7 @@ R"(#include <stdio.h>
         std::string dict_init_func = c_ds_api->get_dict_init_func(t);
         std::string dict_ins_func = c_ds_api->get_dict_insert_func(t);
         src_tmp += indent + dict_init_func + "(&" + var_name + ", " +
-               std::to_string(x.n_keys) + ");\n";
+               std::to_string(x.n_keys) + " + 1);\n";
         for ( size_t i = 0; i < x.n_keys; i++ ) {
             self().visit_expr(*x.m_keys[i]);
             std::string k, v;
