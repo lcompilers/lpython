@@ -456,9 +456,13 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
     std::string float_to_str(double z) {
         std::string float_str = "";
-        for (auto ch:std::to_string(z)) {
+        std::ostringstream strs;
+        strs << z;
+        for (auto ch:strs.str()) {
             if (ch == '-') {
                 float_str += "neg_";
+            } else if (ch == '+') {
+                float_str += "_plus_";
             } else if (ch == '.') {
                 float_str += "_dot_";
             } else {
