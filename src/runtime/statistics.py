@@ -220,8 +220,7 @@ def harmonic_mean(x: list[f64]) -> f64:
 
     return k / sum
 
-
-# TODO: Use generics to support other types.
+@overload
 def mode(x: list[i32]) -> i32:
     k: i32 = len(x)
     c: i32
@@ -242,6 +241,29 @@ def mode(x: list[i32]) -> i32:
             max_count = count[x[c]]
             ans = x[c]
     return ans
+
+@overload
+def mode(x: list[i64]) -> i64:
+    k: i32 = len(x)
+    c: i32
+    count: dict[i64, i32] = {i64(0): 0}
+
+    # insert keys in the dictionary
+    for c in range(k):
+        count[x[c]] = 0
+
+    # update the frequencies
+    for c in range(k):
+        count[x[c]] = count[x[c]] + 1
+
+    max_count: i32 = 0
+    ans: i64
+    for c in range(k):
+        if max_count < count[x[c]]:
+            max_count = count[x[c]]
+            ans = x[c]
+    return ans
+
 
 @overload
 def variance(x: list[f64]) -> f64:
