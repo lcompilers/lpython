@@ -5,9 +5,9 @@
     "infile_hash": "eb012561316a4c1f1359bf7b5a0b9aee40944ece197a5bafd387a19f",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "asr-vec_01-66ac423.stderr",
-    "stderr_hash": "06e261dce693fc9366339d10eb1f41346f62eb47cee11c994d0b3d08",
-    "returncode": 2
+    "stdout": "asr-vec_01-66ac423.stdout",
+    "stdout_hash": "bb491671263245c0b02b6c5951b478c71731f832023ec6a8559f7a66",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
 }
