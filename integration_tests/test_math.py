@@ -1,4 +1,4 @@
-from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
+from math import (factorial, isqrt, perm, comb, degrees, radians, exp, exp2, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
                   modf, fsum, prod, dist)
 import math
@@ -59,6 +59,11 @@ def test_exp():
     i: f64
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
+
+def test_exp2():
+    i: f64
+    i = exp2(2.34)
+    assert abs(i - 5.06302637588112) < eps
 
 
 def test_pow():
@@ -262,6 +267,7 @@ def check():
     test_degrees()
     test_radians()
     test_exp()
+    test_exp2()
     test_pow()
     test_fabs()
     test_ldexp()
