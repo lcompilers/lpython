@@ -1,5 +1,0 @@
-semantic error: 'i16[3]' object does not support item assignment
-  --> tests/../integration_tests/bindc_02.py:12:5
-   |
-12 |     y[0] = i16(1)
-   |     ^^^^^^^^^^^^^ 

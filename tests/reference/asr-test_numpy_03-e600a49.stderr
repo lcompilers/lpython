@@ -1,5 +1,0 @@
-semantic error: 'i32[2]' object does not support item assignment
-  --> tests/../integration_tests/test_numpy_03.py:14:5
-   |
-14 |     newshape[0] = 256
-   |     ^^^^^^^^^^^^^^^^^ 

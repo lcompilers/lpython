@@ -1,5 +1,0 @@
-semantic error: 'i32' object does not support item assignment
-  --> tests/../integration_tests/generics_array_03.py:32:5
-   |
-32 |     a_int[0,0] = 400
-   |     ^^^^^^^^^^^^^^^^ 

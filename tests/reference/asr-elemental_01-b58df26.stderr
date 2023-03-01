@@ -1,5 +1,0 @@
-semantic error: 'f64[101]' object does not support item assignment
-  --> tests/../integration_tests/elemental_01.py:63:9
-   |
-63 |         array_a[i] = float(i)
-   |         ^^^^^^^^^^^^^^^^^^^^^ 
