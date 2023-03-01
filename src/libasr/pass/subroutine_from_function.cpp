@@ -95,6 +95,36 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             }
         }
 
+        void visit_Module(const ASR::Module_t &x) {
+            // FIXME: this is a hack, we need to pass in a non-const `x`,
+            // which requires to generate a TransformVisitor.
+            ASR::Module_t &xx = const_cast<ASR::Module_t&>(x);
+            current_scope = xx.m_symtab;
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (is_a<ASR::Function_t>(*item.second)) {
+                    ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                    if (s->m_return_var) {
+                        /*
+                        * A function which returns an array will be converted
+                        * to a subroutine with the destination array as the last
+                        * argument. This helps in avoiding deep copies and the
+                        * destination memory directly gets filled inside the subroutine.
+                        */
+                        if( PassUtils::is_aggregate_type(s->m_return_var) ) {
+                            ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                            // Update the symtab with this function changes
+                            xx.m_symtab->add_symbol(item.first, s_sub);
+                        }
+                    }
+                }
+            }
+
+            // Now visit everything else
+            for (auto &item : x.m_symtab->get_scope()) {
+                this->visit_symbol(*item.second);
+            }
+        }
+
         void visit_Program(const ASR::Program_t &x) {
             std::vector<std::pair<std::string, ASR::symbol_t*> > replace_vec;
             // FIXME: this is a hack, we need to pass in a non-const `x`,

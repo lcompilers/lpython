@@ -32,20 +32,6 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
-{
-    main0();
-}
-
-void main0()
-{
-    int32_t i;
-    int64_t j;
-    i = test_factorial_1(4);
-    i = test_factorial_2(4);
-    j = test_factorial_3(5);
-}
-
 int32_t test_factorial_1(int32_t x)
 {
     int32_t _lpython_return_variable;
@@ -92,6 +78,20 @@ int64_t test_factorial_3(int32_t x)
     }
     _lpython_return_variable = result;
     return _lpython_return_variable;
+}
+
+void main0()
+{
+    int32_t i;
+    int64_t j;
+    i = test_factorial_1(4);
+    i = test_factorial_2(4);
+    j = test_factorial_3(5);
+}
+
+void _lpython_main_program()
+{
+    main0();
 }
 
 namespace {

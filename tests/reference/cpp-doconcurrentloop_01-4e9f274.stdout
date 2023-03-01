@@ -42,9 +42,16 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
+
+template <typename T0, typename T1, typename T2>
+void triad(T0* a, T1* b, float scalar, T2* c)
 {
-    main0();
+    int32_t N;
+    int32_t i;
+    N = 1234;
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N - 1+1), KOKKOS_LAMBDA(const long i) {
+        c->data->operator[](i - c->dims[0].lower_bound) = a->data->operator[](i - a->dims[0].lower_bound) + scalar*b->data->operator[](i - b->dims[0].lower_bound);
+    });
 }
 
 void main0()
@@ -77,16 +84,9 @@ void main0()
     std::cout << "End Stream Triad" << std::endl;
 }
 
-
-template <typename T0, typename T1, typename T2>
-void triad(T0* a, T1* b, float scalar, T2* c)
+void _lpython_main_program()
 {
-    int32_t N;
-    int32_t i;
-    N = 1234;
-    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N - 1+1), KOKKOS_LAMBDA(const long i) {
-        c->data->operator[](i - c->dims[0].lower_bound) = a->data->operator[](i - a->dims[0].lower_bound) + scalar*b->data->operator[](i - b->dims[0].lower_bound);
-    });
+    main0();
 }
 
 namespace {

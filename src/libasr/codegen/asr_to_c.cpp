@@ -726,6 +726,54 @@ R"(
               ds_funcs_defined + util_funcs_defined;
     }
 
+    void visit_Module(const ASR::Module_t &x) {
+        std::string unit_src = "";
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                std::string unit_src_tmp;
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
+                    item.second);
+                unit_src_tmp = convert_variable_decl(*v);
+                unit_src += unit_src_tmp;
+                if(unit_src_tmp.size() > 0 &&
+                        (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                        v->m_intent == ASRUtils::intent_return_var )) {
+                    unit_src += ";\n";
+                }
+            }
+        }
+        std::map<std::string, std::vector<std::string>> struct_dep_graph;
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::StructType_t>(*item.second) ||
+                    ASR::is_a<ASR::EnumType_t>(*item.second) ||
+                    ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                std::vector<std::string> struct_deps_vec;
+                std::pair<char**, size_t> struct_deps_ptr = ASRUtils::symbol_dependencies(item.second);
+                for( size_t i = 0; i < struct_deps_ptr.second; i++ ) {
+                    struct_deps_vec.push_back(std::string(struct_deps_ptr.first[i]));
+                }
+                struct_dep_graph[item.first] = struct_deps_vec;
+            }
+        }
+
+        std::vector<std::string> struct_deps = ASRUtils::order_deps(struct_dep_graph);
+        for (auto &item : struct_deps) {
+            ASR::symbol_t* struct_sym = x.m_symtab->get_symbol(item);
+            visit_symbol(*struct_sym);
+        }
+
+        // Topologically sort all module functions
+        // and then define them in the right order
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            visit_Function(*s);
+            unit_src += src;
+        }
+        src = unit_src;
+    }
+
     void visit_Program(const ASR::Program_t &x) {
         // Topologically sort all program functions
         // and then define them in the right order

@@ -34,17 +34,16 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
+double __lpython_overloaded_0__pow(int32_t x, int32_t y)
 {
-    main0();
+    double _lpython_return_variable;
+    _lpython_return_variable = (double)(std::pow(x, y));
+    return _lpython_return_variable;
 }
 
-void main0()
-{
-    int32_t c;
-    test_pow();
-    c = test_pow_1(1, 2);
-}
+float _lfortran_caimag(std::complex<float> x);
+
+double _lfortran_zaimag(std::complex<double> x);
 
 void test_pow()
 {
@@ -61,16 +60,17 @@ int32_t test_pow_1(int32_t a, int32_t b)
     return _lpython_return_variable;
 }
 
-double __lpython_overloaded_0__pow(int32_t x, int32_t y)
+void main0()
 {
-    double _lpython_return_variable;
-    _lpython_return_variable = (double)(std::pow(x, y));
-    return _lpython_return_variable;
+    int32_t c;
+    test_pow();
+    c = test_pow_1(1, 2);
 }
 
-float _lfortran_caimag(std::complex<float> x);
-
-double _lfortran_zaimag(std::complex<double> x);
+void _lpython_main_program()
+{
+    main0();
+}
 
 namespace {
 

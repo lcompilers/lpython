@@ -429,4 +429,5 @@ RUN(NAME comp_01 LABELS cpython llvm wasm wasm_x64)
 RUN(NAME bit_operations_i32 LABELS cpython llvm wasm wasm_x64)
 RUN(NAME bit_operations_i64 LABELS cpython llvm wasm)
 
-RUN(NAME test_argv_01    LABELS llvm) # TODO: Test using CPython
+RUN(NAME test_argv_01      LABELS llvm) # TODO: Test using CPython
+RUN(NAME global_syms_01    LABELS cpython)
