@@ -208,10 +208,11 @@ def test_mode():
     k = mode(c)
     assert k == 2
 
-    d: list[i32]
-    d = [-1, 2, -3, -5, -3, -1, 4, -2, 4, -5, -3, 4, -3]
-    k = mode(d)
-    assert k == -3
+    d: list[i64]
+    d = [i64(-1), i64(2), i64(-3), i64(-5), i64(-3), i64(-1), i64(4), i64(-2), i64(4), i64(-5), i64(-3), i64(4), i64(-3)]
+    l: i64
+    l = mode(d)
+    assert l == i64(-3)
 
 
 def check():
