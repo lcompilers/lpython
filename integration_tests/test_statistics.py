@@ -207,7 +207,7 @@ def test_mode():
     k: i32
     k = mode(c)
     assert k == 2
-    
+
     d: list[i32]
     d = [-1, 2, -3, -5, -3, -1, 4, -2, 4, -5, -3, 4, -3]
     k = mode(d)
@@ -215,8 +215,7 @@ def test_mode():
 
     e: list[i64]
     e = [i64(-1), i64(2), i64(-3), i64(-5), i64(-3), i64(-1), i64(4), i64(-2), i64(4), i64(-5), i64(-3), i64(4), i64(-3)]
-    l: i64
-    l = mode(e)
+    l: i64 = mode(e)
     assert l == i64(-3)
 
 
