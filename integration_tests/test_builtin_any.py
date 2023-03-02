@@ -1,6 +1,6 @@
 from ltypes import f32, f64, i32, i64
 
-def test_all():
+def test_any():
     arr_i32 :list[i32]
     arr_i32 = [6, 3]
     res_i32 :bool = all(arr_i32)
@@ -26,4 +26,4 @@ def test_all():
     assert res_bool == True
 
 
-test_all()
+test_any()
