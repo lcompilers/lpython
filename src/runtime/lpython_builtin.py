@@ -100,6 +100,122 @@ def abs(c: c64) -> f64:
     b = _lfortran_zaimag(c)
     return (a**2.0 + b**2.0)**(1/2)
 
+# all
+# supported data types: i32, i64, f32, f64, bool
+
+@overload
+def all(arr: list[i32]) -> bool:
+    """
+    Return True if all elements of the iterable are true (or if the iterable is empty).
+    """
+    i: i32
+    for i in range(len(arr)):
+        if not arr[i]:
+            return False
+    return True
+
+@overload
+def all(arr: list[i64]) -> bool:
+    """
+    Return True if all elements of the iterable are true (or if the iterable is empty).
+    """
+    i: i32
+    for i in range(len(arr)):
+        if not arr[i]:
+            return False
+    return True
+
+@overload
+def all(arr: list[f32]) -> bool:
+    """
+    Return True if all elements of the iterable are true (or if the iterable is empty).
+    """
+    i: i32
+    for i in range(len(arr)):
+        if not arr[i]:
+            return False
+    return True
+
+@overload
+def all(arr: list[f64]) -> bool:
+    """
+    Return True if all elements of the iterable are true (or if the iterable is empty).
+    """
+    i: i32
+    for i in range(len(arr)):
+        if not arr[i]:
+            return False
+    return True
+
+@overload
+def all(arr: list[bool]) -> bool:
+    """
+    Return True if all elements of the iterable are true (or if the iterable is empty).
+    """
+    i: i32
+    for i in range(len(arr)):
+        if not arr[i]:
+            return False
+    return True
+
+# any
+# supported data types: i32, i64, f32, f64, bool
+
+@overload
+def any(arr: list[i32]) -> bool:
+    """
+    Return True if any element of the iterable is true. If the iterable is empty, return False.
+    """
+    i: i32
+    for i in range(len(arr)):
+        if arr[i]:
+            return True
+    return False
+
+@overload
+def any(arr: list[i64]) -> bool:
+    """
+    Return True if any element of the iterable is true. If the iterable is empty, return False.
+    """
+    i: i32
+    for i in range(len(arr)):
+        if arr[i]:
+            return True
+    return False
+
+@overload
+def any(arr: list[f32]) -> bool:
+    """
+    Return True if any element of the iterable is true. If the iterable is empty, return False.
+    """
+    i: i32
+    for i in range(len(arr)):
+        if arr[i]:
+            return True
+    return False
+
+@overload
+def any(arr: list[f64]) -> bool:
+    """
+    Return True if any element of the iterable is true. If the iterable is empty, return False.
+    """
+    i: i32
+    for i in range(len(arr)):
+        if arr[i]:
+            return True
+    return False
+
+@overload
+def any(arr: list[bool]) -> bool:
+    """
+    Return True if any element of the iterable is true. If the iterable is empty, return False.
+    """
+    i: i32
+    for i in range(len(arr)):
+        if arr[i]:
+            return True
+    return False
+
 @interface
 def len(s: str) -> i32:
     """
