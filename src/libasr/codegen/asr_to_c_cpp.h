@@ -662,6 +662,8 @@ R"(#include <stdio.h>
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
         bool is_target_tup = ASR::is_a<ASR::Tuple_t>(*m_target_type);
         bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
+        bool is_target_dict = ASR::is_a<ASR::Dict_t>(*m_target_type);
+        bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
@@ -775,6 +777,15 @@ R"(#include <stdio.h>
                 src += indent + dc_func + "(" + const_name + ", &" + target + ");\n";
             } else {
                 src += indent + dc_func + "(" + value + ", &" + target + ");\n";
+            }
+        } else if ( is_target_dict && is_value_dict ) {
+            ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_target));
+            std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
+            if( ASR::is_a<ASR::DictConstant_t>(*x.m_value) ) {
+                src += value;
+                src += indent + dc_func + "(&" + const_name + ", &" + target + ");\n";
+            } else {
+                src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
             }
         } else {
             if( is_c ) {
@@ -931,6 +942,34 @@ R"(#include <stdio.h>
         src = src_tmp;
     }
 
+    void visit_DictConstant(const ASR::DictConstant_t& x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        const_name += std::to_string(const_vars_count);
+        const_vars_count += 1;
+        const_name = current_scope->get_unique_name(const_name);
+        std::string var_name = const_name;
+        const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(x.m_type);
+        std::string dict_type_c = c_ds_api->get_dict_type(t);
+        std::string src_tmp = "";
+        src_tmp += indent + dict_type_c + " " + var_name + ";\n";
+        std::string dict_init_func = c_ds_api->get_dict_init_func(t);
+        std::string dict_ins_func = c_ds_api->get_dict_insert_func(t);
+        src_tmp += indent + dict_init_func + "(&" + var_name + ", " +
+               std::to_string(x.n_keys) + " + 1);\n";
+        for ( size_t i = 0; i < x.n_keys; i++ ) {
+            self().visit_expr(*x.m_keys[i]);
+            std::string k, v;
+            k = std::move(src);
+            self().visit_expr(*x.m_values[i]);
+            v = std::move(src);
+            src_tmp += indent + dict_ins_func + "(&" + var_name + ", " +\
+                                k + ", " + v + ");\n";
+        }
+        src = src_tmp;
+    }
+
     void visit_TupleCompare(const ASR::TupleCompare_t& x) {
         ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
         std::string tup_cmp_func = c_ds_api->get_compare_func(type);
@@ -943,6 +982,34 @@ R"(#include <stdio.h>
         if (x.m_op == ASR::cmpopType::NotEq) {
             src = "!" + src;
         }
+    }
+
+    void visit_DictInsert(const ASR::DictInsert_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
+        std::string dict_insert_fun = c_ds_api->get_dict_insert_func(t);
+        self().visit_expr(*x.m_a);
+        std::string d_var = std::move(src);
+        self().visit_expr(*x.m_key);
+        std::string key = std::move(src);
+        self().visit_expr(*x.m_value);
+        std::string val = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + dict_insert_fun + "(&" + d_var + ", " + key + ", " + val + ");\n";
+    }
+
+    void visit_DictItem(const ASR::DictItem_t& x) {
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(x.m_a));
+        std::string dict_get_fun = c_ds_api->get_dict_get_func(dict_type);
+
+        this->visit_expr(*x.m_a);
+        std::string d_var = std::move(src);
+
+        this->visit_expr(*x.m_key);
+        std::string k = std::move(src);
+
+        src = dict_get_fun + "(&" + d_var + ", " + k + ")";
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
@@ -1106,6 +1173,18 @@ R"(#include <stdio.h>
         }
         self().visit_expr(*x.m_arg);
         src = src + ".length";
+    }
+
+    void visit_DictLen(const ASR::DictLen_t& x) {
+        if ( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_arg);
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
+        std::string dict_len_fun = c_ds_api->get_dict_len_func(t);
+        self().visit_expr(*x.m_arg);
+        src = dict_len_fun + "(&" + src + ")";
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
