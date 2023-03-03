@@ -1016,7 +1016,7 @@ R"(
     void visit_Assert(const ASR::Assert_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
-        tmp_src.clear();
+        bracket_open++;
         if (x.m_msg) {
             out += "ASSERT_MSG(";
             visit_expr(*x.m_test);
@@ -1028,12 +1028,8 @@ R"(
             visit_expr(*x.m_test);
             out += src + ");\n";
         }
-        src = "";
-        if (!tmp_src.empty()) {
-            for (auto &s: tmp_src) src += s;
-        }
-        src += out;
-        tmp_src.clear();
+        bracket_open--;
+        src = check_tmp_buffer() + out;
     }
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
@@ -1069,6 +1065,7 @@ R"(
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string tmp_gen = indent + "printf(\"", out = "";
+        bracket_open++;
         std::vector<std::string> v;
         std::string separator;
         if (x.m_separator) {
@@ -1093,11 +1090,6 @@ R"(
                 }
                 tmp_gen += ");\n";
                 out += tmp_gen;
-                if (ASR::is_a<ASR::ListConstant_t>(*x.m_values[i]) ||
-                        ASR::is_a<ASR::TupleConstant_t>(*x.m_values[i])) {
-                    out += src;
-                    src = const_var_names[get_hash((ASR::asr_t*)x.m_values[i])];
-                }
                 tmp_gen = indent + "printf(\"";
                 v.clear();
                 std::string p_func = c_ds_api->get_print_func(value_type);
@@ -1129,8 +1121,9 @@ R"(
             }
         }
         tmp_gen += ");\n";
+        bracket_open--;
         out += tmp_gen;
-        src = out;
+        src = this->check_tmp_buffer() + out;
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
