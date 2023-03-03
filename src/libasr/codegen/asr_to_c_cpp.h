@@ -103,7 +103,7 @@ public:
     bool gen_stdcomplex;
     bool is_c;
     std::set<std::string> headers;
-    std::vector<std::string> tmp_src;
+    std::vector<std::string> tmp_buffer_src;
 
     SymbolTable* global_scope;
     int64_t lower_bound;
@@ -116,6 +116,7 @@ public:
     std::string const_name;
     size_t const_vars_count;
     size_t loop_end_count;
+    int bracket_open;
 
     SymbolTable* current_scope;
     bool is_string_concat_present;
@@ -128,7 +129,7 @@ public:
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
         const_name{"constname"},
-        const_vars_count{0}, loop_end_count{0},
+        const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
         }
 
@@ -196,6 +197,15 @@ R"(#include <stdio.h>
         }
 
         src = unit_src;
+    }
+
+    std::string check_tmp_buffer() {
+        std::string ret = "";
+        if (bracket_open == 0 && !tmp_buffer_src.empty()) {
+            for (auto &s: tmp_buffer_src) ret += s;
+            tmp_buffer_src.clear();
+        }
+        return ret;
     }
 
     void visit_Module(const ASR::Module_t &x) {
@@ -319,6 +329,7 @@ R"(#include <stdio.h>
             self().visit_stmt(*block->m_body[i]);
             body += src;
         }
+        decl += check_tmp_buffer();
         src = open_paranthesis + decl + body + close_paranthesis;
         indentation_level -= 1;
     }
@@ -406,6 +417,7 @@ R"(#include <stdio.h>
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
         std::string func = static_attr + inl + sub + sym_name + "(";
+        bracket_open++;
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
@@ -422,6 +434,7 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) func += ", ";
         }
         func += ")";
+        bracket_open--;
         if( is_c || template_for_Kokkos.empty() ) {
             return func;
         }
@@ -513,6 +526,7 @@ R"(#include <stdio.h>
                 self().visit_stmt(*x.m_body[i]);
                 current_body += src;
             }
+            decl += check_tmp_buffer();
             current_function = nullptr;
             bool visited_return = false;
 
@@ -573,11 +587,13 @@ R"(#include <stdio.h>
             }
         } else {
             std::string args;
+            bracket_open++;
             for (size_t i=0; i<x.n_args; i++) {
                 self().visit_expr(*x.m_args[i].m_value);
                 args += src;
                 if (i < x.n_args-1) args += ", ";
             }
+            bracket_open--;
             src = fn_name + "(" + args + ")";
         }
         last_expr_precedence = 2;
@@ -587,10 +603,12 @@ R"(#include <stdio.h>
             const_vars_count += 1;
             const_name = current_scope->get_unique_name(const_name);
             std::string indent(indentation_level*indentation_spaces, ' ');
-            current_body += indent + c_ds_api->get_list_type(list_type) + " " +
-                                const_name + " = " + src + ";\n";
+            tmp_buffer_src.push_back(check_tmp_buffer() + indent + c_ds_api->get_list_type(list_type) + " " +
+                                const_name + " = " + src + ";\n");
             src = const_name;
+            return;
         }
+        src = check_tmp_buffer() + src;
     }
 
     void visit_SizeOfType(const ASR::SizeOfType_t& x) {
@@ -699,7 +717,6 @@ R"(#include <stdio.h>
                 ASR::TupleConstant_t *tup_const = ASR::down_cast<ASR::TupleConstant_t>(x.m_value);
                 self().visit_TupleConstant(*tup_const);
                 val_name = const_var_names[get_hash((ASR::asr_t*)tup_const)];
-                src_tmp += src;
             } else if (ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) {
                 self().visit_FunctionCall(*ASR::down_cast<ASR::FunctionCall_t>(x.m_value));
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(tup_c->m_type);
@@ -719,7 +736,7 @@ R"(#include <stdio.h>
                 src_tmp += indent + c_ds_api->get_deepcopy(t,
                         val_name + ".element_" + std::to_string(i), src) + "\n";
             }
-            src = src_tmp;
+            src = check_tmp_buffer() + src_tmp;
             return;
         } else {
             LCOMPILERS_ASSERT(false)
@@ -751,42 +768,23 @@ R"(#include <stdio.h>
         } else {
             src.clear();
         }
+        src = check_tmp_buffer();
         if( is_target_list && is_value_list ) {
             ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
             std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
-            if( ASR::is_a<ASR::ListConstant_t>(*x.m_value) ) {
-                src += value;
-                ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_value);
-                std::string var_name = const_var_names[get_hash((ASR::asr_t*)l_const)];
-                src += indent + list_dc_func + "(&" + var_name + ", &" + target + ");\n\n";
-            } else if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
+            if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
                 src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
-            } else if (ASR::is_a<ASR::ListSection_t>(*x.m_value)) {
-                src += value;
-                ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_value);
-                std::string var_name = const_var_names[get_hash((ASR::asr_t*)l_sec)];
-                src += indent + list_dc_func + "(" + var_name + ", &" + target + ");\n\n";
             } else {
                 src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
             }
         } else if ( is_target_tup && is_value_tup ) {
             ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
-            if( ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
-                src += value;
-                src += indent + dc_func + "(" + const_name + ", &" + target + ");\n";
-            } else {
-                src += indent + dc_func + "(" + value + ", &" + target + ");\n";
-            }
+            src += indent + dc_func + "(" + value + ", &" + target + ");\n";
         } else if ( is_target_dict && is_value_dict ) {
             ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
-            if( ASR::is_a<ASR::DictConstant_t>(*x.m_value) ) {
-                src += value;
-                src += indent + dc_func + "(&" + const_name + ", &" + target + ");\n";
-            } else {
-                src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
-            }
+            src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
         } else {
             if( is_c ) {
                 std::string alloc = "";
@@ -906,16 +904,12 @@ R"(#include <stdio.h>
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
                 src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = NULL;\n";
             }
-            if (ASR::is_a<ASR::ListConstant_t>(*x.m_args[i]) ||
-                    ASR::is_a<ASR::TupleConstant_t>(*x.m_args[i])) {
-                src_tmp += src;
-                src = const_var_names[get_hash((ASR::asr_t*)x.m_args[i])];
-            }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
                         var_name + ".data[" + std::to_string(i) +"]") + "\n";
         }
         src_tmp += indent + var_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
-        src = src_tmp;
+        src = var_name;
+        tmp_buffer_src.push_back(src_tmp);
     }
 
     void visit_TupleConstant(const ASR::TupleConstant_t& x) {
@@ -939,7 +933,8 @@ R"(#include <stdio.h>
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, var_name + ele) + "\n";
         }
         src_tmp += indent + var_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
-        src = src_tmp;
+        src = var_name;
+        tmp_buffer_src.push_back(src_tmp);
     }
 
     void visit_DictConstant(const ASR::DictConstant_t& x) {
@@ -967,21 +962,25 @@ R"(#include <stdio.h>
             src_tmp += indent + dict_ins_func + "(&" + var_name + ", " +\
                                 k + ", " + v + ");\n";
         }
-        src = src_tmp;
+        src = var_name;
+        tmp_buffer_src.push_back(src_tmp);
     }
 
     void visit_TupleCompare(const ASR::TupleCompare_t& x) {
         ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
         std::string tup_cmp_func = c_ds_api->get_compare_func(type);
+        bracket_open++;
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         self().visit_expr(*x.m_right);
         std::string right = std::move(src);
+        bracket_open--;
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = tup_cmp_func + "(" + left + ", " + right + ")";
         if (x.m_op == ASR::cmpopType::NotEq) {
             src = "!" + src;
         }
+        src = check_tmp_buffer() + src;
     }
 
     void visit_DictInsert(const ASR::DictInsert_t& x) {
@@ -1016,33 +1015,38 @@ R"(#include <stdio.h>
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_append_func = c_ds_api->get_list_append_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_a);
         std::string list_var = std::move(src);
         self().visit_expr(*x.m_ele);
         std::string element = std::move(src);
+        bracket_open--;
         std::string indent(indentation_level * indentation_spaces, ' ');
-        src = indent + list_append_func + "(&" + list_var + ", " + element + ");\n";
+        src = check_tmp_buffer();
+        src += indent + list_append_func + "(&" + list_var + ", " + element + ");\n";
     }
 
     void visit_ListConcat(const ASR::ListConcat_t& x) {
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
         std::string list_concat_func = c_ds_api->get_list_concat_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         if (!ASR::is_a<ASR::ListConcat_t>(*x.m_left)) {
             left = "&" + left;
         }
         self().visit_expr(*x.m_right);
+        bracket_open--;
         std::string rig = std::move(src);
         if (!ASR::is_a<ASR::ListConcat_t>(*x.m_right)) {
             rig = "&" + rig;
         }
-        std::string indent(indentation_level * indentation_spaces, ' ');
-        src = list_concat_func + "(" + left + ", " + rig + ")";
+        src = check_tmp_buffer() + list_concat_func + "(" + left + ", " + rig + ")";
     }
 
     void visit_ListSection(const ASR::ListSection_t& x) {
         std::string left, right, step, l_present, r_present;
+        bracket_open++;
         if (x.m_section.m_left) {
             self().visit_expr(*x.m_section.m_left);
             left = src;
@@ -1066,7 +1070,7 @@ R"(#include <stdio.h>
             step = "1";
         }
         self().visit_expr(*x.m_a);
-
+        bracket_open--;
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_var = std::move(src);
@@ -1081,80 +1085,69 @@ R"(#include <stdio.h>
         tmp_src_gen += list_section_func + "(&" + list_var + ", " + left + ", " +
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
-        src = tmp_src_gen;
+        tmp_buffer_src.push_back(tmp_src_gen);
+        src = "* " + var_name;
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_clear_func = c_ds_api->get_list_clear_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_a);
+        bracket_open--;
         std::string list_var = std::move(src);
         std::string indent(indentation_level * indentation_spaces, ' ');
-        src = indent + list_clear_func + "(&" + list_var + ");\n";
+        src = check_tmp_buffer() + indent + list_clear_func + "(&" + list_var + ");\n";
     }
 
     void visit_ListCompare(const ASR::ListCompare_t& x) {
         ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
         std::string list_cmp_func = c_ds_api->get_compare_func(type);
+        bracket_open++;
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         self().visit_expr(*x.m_right);
-        std::string right = std::move(src), tmp_gen="";
+        bracket_open--;
+        std::string right = std::move(src), tmp_gen= "";
         std::string indent(indentation_level * indentation_spaces, ' ');
-        if (ASR::is_a<ASR::ListConstant_t>(*x.m_left) ) {
-            tmp_gen += left;
-            ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_left);
-            left = const_var_names[get_hash((ASR::asr_t*)l_const)];
-        } else if (ASR::is_a<ASR::ListSection_t>(*x.m_left)) {
-            tmp_gen += left;
-            ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_left);
-            left = "*" + const_var_names[get_hash((ASR::asr_t*)l_sec)];
-        }
-
-        if (ASR::is_a<ASR::ListConstant_t>(*x.m_right) ) {
-            tmp_gen += right;
-            ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_right);
-            right = const_var_names[get_hash((ASR::asr_t*)l_const)];
-        } else if (ASR::is_a<ASR::ListSection_t>(*x.m_right)) {
-            tmp_gen += right;
-            ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_right);
-            right = "*" + const_var_names[get_hash((ASR::asr_t*)l_sec)];
-        }
         std::string val = list_cmp_func + "(" + left + ", " + right + ")";
         if (x.m_op == ASR::cmpopType::NotEq) {
             val = "!" + val;
         }
-        src = val;
-        if (tmp_gen.size() > 0) {
-            tmp_src.push_back(tmp_gen);
-        }
+        src = check_tmp_buffer() + val;
     }
 
     void visit_ListInsert(const ASR::ListInsert_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_insert_func = c_ds_api->get_list_insert_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_a);
         std::string list_var = std::move(src);
         self().visit_expr(*x.m_ele);
         std::string element = std::move(src);
         self().visit_expr(*x.m_pos);
+        bracket_open--;
         std::string pos = std::move(src);
         std::string indent(indentation_level * indentation_spaces, ' ');
-        src = indent + list_insert_func + "(&" + list_var + ", " + pos + ", " + element + ");\n";
+        src = check_tmp_buffer();
+        src += indent + list_insert_func + "(&" + list_var + ", " + pos + ", " + element + ");\n";
     }
 
     void visit_ListRemove(const ASR::ListRemove_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_remove_func = c_ds_api->get_list_remove_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_a);
         std::string list_var = std::move(src);
         self().visit_expr(*x.m_ele);
+        bracket_open--;
         std::string element = std::move(src);
         std::string indent(indentation_level * indentation_spaces, ' ');
-        src = indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
+        src = check_tmp_buffer();
+        src += indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
     }
 
     void visit_ListLen(const ASR::ListLen_t& x) {
@@ -1756,6 +1749,7 @@ R"(#include <stdio.h>
         for (size_t i = 0; i < x.n_body; i++) {
             if (i > 0)
                 out += indent + "else if (";
+            bracket_open++;
             ASR::case_stmt_t* stmt = x.m_body[i];
             if (stmt->type == ASR::case_stmtType::CaseStmt) {
                 ASR::CaseStmt_t* case_stmt = ASR::down_cast<ASR::CaseStmt_t>(stmt);
@@ -1766,6 +1760,7 @@ R"(#include <stdio.h>
                     out += var + " == " + src;
                 }
                 out += ") {\n";
+                bracket_open--;
                 indentation_level += 1;
                 for (size_t j = 0; j < case_stmt->n_body; j++) {
                     this->visit_stmt(*case_stmt->m_body[j]);
@@ -1798,6 +1793,7 @@ R"(#include <stdio.h>
                     out += left + " <= " + var + " <= " + right;
                 }
                 out += ") {\n";
+                bracket_open--;
                 indentation_level += 1;
                 for (size_t j = 0; j < case_stmt_range->n_body; j++) {
                     this->visit_stmt(*case_stmt_range->m_body[j]);
@@ -1817,18 +1813,21 @@ R"(#include <stdio.h>
             out += indent + "}\n";
             indentation_level -= 1;
         }
-        src = out;
+        src = check_tmp_buffer() + out;
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
+        bracket_open++;
         std::string out = indent + "while (";
         self().visit_expr(*x.m_test);
         out += src + ") {\n";
+        bracket_open--;
+        out = check_tmp_buffer() + out;
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             self().visit_stmt(*x.m_body[i]);
-            out += src;
+            out += check_tmp_buffer() + src;
         }
         out += indent + "}\n";
         indentation_level -= 1;
@@ -1969,12 +1968,15 @@ R"(#include <stdio.h>
         current_body = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "if (";
+        bracket_open++;
         self().visit_expr(*x.m_test);
         out += src + ") {\n";
+        bracket_open--;
+        out = check_tmp_buffer() + out;
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             self().visit_stmt(*x.m_body[i]);
-            current_body += src;
+            current_body += check_tmp_buffer() + src;
         }
         out += current_body;
         out += indent + "}";
@@ -1985,7 +1987,7 @@ R"(#include <stdio.h>
             out += " else {\n";
             for (size_t i=0; i<x.n_orelse; i++) {
                 self().visit_stmt(*x.m_orelse[i]);
-                current_body += src;
+                current_body += check_tmp_buffer() + src;
             }
             out += current_body;
             out += indent + "}\n";
