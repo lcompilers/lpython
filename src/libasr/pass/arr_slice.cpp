@@ -183,8 +183,8 @@ class ArraySectionVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArraySe
 
         void call_replacer() {
             replacer.current_expr = current_expr;
-            replacer.replace_expr(*current_expr);
             replacer.current_scope = current_scope;
+            replacer.replace_expr(*current_expr);
         }
 
         void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
