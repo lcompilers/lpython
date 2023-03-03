@@ -1,0 +1,5 @@
+code generation error: Type number '16' not supported
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:106:1
+    |
+106 | T = TypeVar('T')
+    | ^^^^^^^^^^^^^^^^ 

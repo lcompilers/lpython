@@ -3,3 +3,8 @@ style suggestion: Could have used '**' instead of 'pow'
    |
 11 |     assert i32(pow(a, b)) == 32
    |                ^^^^^^^^^ '**' could be used instead
+code generation error: Type number '16' not supported
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:106:1
+    |
+106 | T = TypeVar('T')
+    | ^^^^^^^^^^^^^^^^ 
