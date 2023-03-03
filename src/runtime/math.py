@@ -564,9 +564,18 @@ def tan(x: f64) -> f64:
     return _lfortran_dtan(x)
 
 @ccall
+def _lfortran_slog(x: f32) -> f32:
+    pass
+
+@overload
+def log(x: f32) -> f32:
+    return _lfortran_slog(x)
+
+@ccall
 def _lfortran_dlog(x: f64) -> f64:
     pass
 
+@overload
 def log(x: f64) -> f64:
     return _lfortran_dlog(x)
 
@@ -682,20 +691,42 @@ def atanh(x: f64) -> f64:
 def expm1(x: f64) -> f64:
     return exp(x) - 1.0
 
+@ccall
+def _lfortran_slog1p(x: f32) -> f32:
+    pass
 
+@overload
+def log1p(x: f32) -> f32:
+    return _lfortran_slog1p(x)
+
+@ccall
+def _lfortran_dlog1p(x: f64) -> f64:
+    pass
+
+@overload
 def log1p(x: f64) -> f64:
-    return log(1.0 + x)
-
-
-def fmod(x: f64, y: f64) -> f64:
-    if y == 0.0:
-        raise ValueError('math domain error')
-    return _lfortran_dfmod(x, y)
+    return _lfortran_dlog1p(x)
 
 
 @ccall
 def _lfortran_dfmod(x: f64, y: f64) -> f64:
     pass
+
+@overload
+def fmod(x: f64, y: f64) -> f64:
+    if y == 0.0:
+        raise ValueError('math domain error')
+    return _lfortran_dfmod(x, y)
+
+@ccall
+def _lfortran_sfmod(x: f32, y: f32) -> f32:
+    pass
+
+@overload
+def fmod(x: f32, y: f32) -> f32:
+    if y == f32(0.0):
+        raise ValueError('math domain error')
+    return _lfortran_sfmod(x, y)
 
 
 def remainder(x: f64, y: f64) -> f64:

@@ -76,6 +76,8 @@ LFORTRAN_API float _lfortran_slog(float x);
 LFORTRAN_API double _lfortran_dlog(double x);
 LFORTRAN_API float_complex_t _lfortran_clog(float_complex_t x);
 LFORTRAN_API double_complex_t _lfortran_zlog(double_complex_t x);
+LFORTRAN_API float _lfortran_slog1p(float x);
+LFORTRAN_API double _lfortran_dlog1p(double x);
 LFORTRAN_API float _lfortran_serf(float x);
 LFORTRAN_API double _lfortran_derf(double x);
 LFORTRAN_API float _lfortran_serfc(float x);

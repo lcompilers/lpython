@@ -299,6 +299,16 @@ LFORTRAN_API double _lfortran_dlog(double x)
     return log(x);
 }
 
+LFORTRAN_API float _lfortran_slog1p(float x)
+{
+    return log1pf(x);
+}
+
+LFORTRAN_API double _lfortran_dlog1p(double x)
+{
+    return log1p(x);
+}
+
 LFORTRAN_API float_complex_t _lfortran_clog(float_complex_t x)
 {
     return clogf(x);

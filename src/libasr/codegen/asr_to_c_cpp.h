@@ -30,7 +30,6 @@
 
 namespace LCompilers {
 
-
 // Platform dependent fast unique hash:
 static inline uint64_t get_hash(ASR::asr_t *node)
 {
@@ -505,6 +504,29 @@ R"(#include <stdio.h>
                 indentation_level -= 1;
                 src = "";
                 return;
+            }
+
+            for (auto &item : x.m_symtab->get_scope()) {
+                ASR::symbol_t* var_sym = item.second;
+                if( ASR::is_a<ASR::ExternalSymbol_t>(*var_sym) ) {
+                    ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(var_sym);
+                    ASR::symbol_t* v_sym = v_ext->m_external;
+                    if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
+                        ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(v_sym);
+                        if( v->m_symbolic_value ) {
+                            if( is_c ) {
+                                CDeclarationOptions c_decl_options;
+                                c_decl_options.declare_as_constant = true;
+                                c_decl_options.const_name = v_ext->m_name;
+                                decl += indent + self().convert_variable_decl(*v, &c_decl_options) + ";\n";
+                            } else {
+                                // TODO: Do for CPP when the use case shows up
+                                decl += indent + self().convert_variable_decl(*v) + ";\n";
+                            }
+                            src.clear();
+                        }
+                    }
+                }
             }
 
             current_function = &x;
@@ -1233,9 +1255,9 @@ R"(#include <stdio.h>
             sv->m_intent == ASRUtils::intent_inout) &&
             is_c && ASRUtils::is_array(sv->m_type) &&
             ASRUtils::is_pointer(sv->m_type)) {
-            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+            src = "(*" + std::string(ASRUtils::symbol_name(x.m_v)) + ")";
         } else {
-            src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+            src = std::string(ASRUtils::symbol_name(x.m_v));
         }
         last_expr_precedence = 2;
     }
