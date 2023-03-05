@@ -79,6 +79,12 @@ public:
             visit_symbol(*sym);
         }
 
+        std::vector<std::string> build_order = ASRUtils::determine_module_dependencies(x);
+        for (auto &item : build_order) {
+            ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+            visit_symbol(*mod);
+        }
+
         // Then the main program:
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
@@ -87,6 +93,19 @@ public:
         }
 
         emit_elf32_footer(m_a);
+    }
+
+    void visit_Module(const ASR::Module_t &x) {
+        std::vector<std::string> func_order
+            = ASRUtils::determine_function_definition_order(x.m_symtab);
+        for (size_t i = 0; i < func_order.size(); i++) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(func_order[i]);
+            // Ignore external symbols because they are already defined by the loop above.
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue;
+            }
+            visit_symbol(*sym);
+        }
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -504,7 +523,8 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
+            ASRUtils::symbol_get_past_external(x.m_name));
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

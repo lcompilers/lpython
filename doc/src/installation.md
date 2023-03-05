@@ -41,7 +41,7 @@ First we have to install dependencies, for example using Conda:
 conda create -n lf python cmake llvmdev
 conda activate lf
 ```
-Then download a tarball from 
+Then download a tarball from
 [https://lfortran.org/download/](https://lfortran.org/download/),
 e.g.:
 ```bash
@@ -121,6 +121,66 @@ Before the first build you have to set up the `ZLib`-pathes: Go to the CMake-Set
 - `ZLIB_LIBRARY_[DEBUG|RELEASE]` = \<Conda-Installation-Path\>\Library\lib\zlib.lib
 
 Then you can generate the CMake-Cache and build the project.
+
+## Build from Git on Windows with WSL
+* In windows search "turn windows features on or off".
+* Tick Windows subsystem for Linux.
+* Press OK and restart computer.
+* Go to Microsoft store and download Ubuntu 22.04, and launch it.
+* Run the following commands.
+
+```bash
+wget  https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh -b -p $HOME/conda_root
+export PATH="$HOME/conda_root/bin:$PATH"
+conda init bash # (shell name)
+```
+* This adds all requirements used by Conda in the `.bashrc` file.
+* After that, close the existing terminal and open a new one.
+* Run the following
+```bash
+conda create -n lp -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml clangdev git
+conda activate lp
+```
+* Note that Conda is slow for installing packages with specified versions.
+* Instead use Mamba for faster installation, with the following commands (this is optional; if the above command works without any lag, then proceed to the next step):
+```bash
+conda create -n lp -c conda-forge re2c python cmake make toml numpy mamba clangdev git
+mamba install llvmdev=11.0.1 bison=3.4
+conda activate lp
+```
+* Run the following to install other required packages:
+```bash
+sudo apt update
+sudo apt-get install build-essential binutils-dev
+sudo apt-get install zlib1g-dev
+```
+* You can change the directory to a Windows location using `cd /mnt/[drive letter]/[windows location]`.
+* e.g. `cd mnt/c/Users/name/source/repos/`
+
+* Now clone the LPython git repository
+```bash
+git clone https://github.com/lcompilers/lpython.git
+cd lpython
+```
+
+* Run the following commands to build the project:
+```bash
+./build0.sh
+cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DCMAKE_INSTALL_PREFIX=`pwd`/inst .\
+make -j8
+```
+
+* If everything compiles, you can use LPython as follows
+```bash
+./src/bin/lpython examples/expr2.py
+```
+
+* Run tests
+```bash
+ctest
+./run_tests.py
+```
 
 ## Enabling the Jupyter Kernel
 

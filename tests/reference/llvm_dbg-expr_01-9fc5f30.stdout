@@ -5,16 +5,16 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
 
-define void @_lpython_main_program() !dbg !3 {
+define void @__module__global_symbols__lpython_main_program() !dbg !3 {
 .entry:
-  call void @main0(), !dbg !6
+  call void @__module__global_symbols_main0(), !dbg !6
   br label %return, !dbg !6
 
 return:                                           ; preds = %.entry
   ret void, !dbg !6
 }
 
-define void @main0() !dbg !7 {
+define void @__module__global_symbols_main0() !dbg !7 {
 .entry:
   %x = alloca i32, align 4, !dbg !8
   call void @llvm.dbg.declare(metadata i32* %x, metadata !9, metadata !DIExpression()), !dbg !11
@@ -41,7 +41,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) !dbg !22 {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1), !dbg !25
-  call void @_lpython_main_program(), !dbg !25
+  call void @__module__global_symbols__lpython_main_program(), !dbg !25
   ret i32 0, !dbg !25
 }
 

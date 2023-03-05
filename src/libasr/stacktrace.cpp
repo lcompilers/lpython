@@ -40,7 +40,7 @@
 
 #ifdef HAVE_LFORTRAN_BFD
 // For bfd_* family of functions for loading debugging symbols from the binary
-// This is the only nonstandard header file and the binary needs to be linked
+// This is the only nonstandard header file and the binary must be linked
 // with "-lbfd".
 // Note: on macOS, one must call `dsymutil` on any binary in order for BFD to
 // be able to find line number information. Example:
@@ -189,9 +189,9 @@ void get_local_address(StacktraceItem &item)
 
 
 /* Demangles the function name if needed (if the 'name' is coming from C, it
-   doesn't have to be demangled, if it's coming from C++, it needs to be).
+   doesn't have to be demangled, if it's coming from C++, it must be).
 
-   Makes sure that it ends with (), which is automatic in C++, but it has to be
+   Makes sure that it ends with (), which is automatic in C++, but it must be
    added by hand in C.
 */
 std::string demangle_function_name(std::string name)

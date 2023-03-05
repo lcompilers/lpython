@@ -102,7 +102,7 @@ def ceil(x: f32) -> i32:
 @overload
 def fsum(arr: list[i32]) -> f64:
     """
-    Sum of the elements of `arr`.
+    Floating-point sum of the elements of `arr`.
     """
     sum: f64
     sum = 0.0
@@ -115,7 +115,7 @@ def fsum(arr: list[i32]) -> f64:
 @overload
 def fsum(arr: list[i64]) -> f64:
     """
-    Sum of the elements of `arr`.
+    Floating-point sum of the elements of `arr`.
     """
     sum: f64
     sum = 0.0
@@ -128,7 +128,7 @@ def fsum(arr: list[i64]) -> f64:
 @overload
 def fsum(arr: list[f32]) -> f64:
     """
-    Sum of the elements of `arr`.
+    Floating-point sum of the elements of `arr`.
     """
     sum: f64
     sum = 0.0
@@ -141,7 +141,7 @@ def fsum(arr: list[f32]) -> f64:
 @overload
 def fsum(arr: list[f64]) -> f64:
     """
-    Sum of the elements of `arr`.
+    Floating-point sum of the elements of `arr`.
     """
     sum: f64
     sum = 0.0

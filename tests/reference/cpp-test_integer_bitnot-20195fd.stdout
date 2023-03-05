@@ -29,11 +29,6 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
-{
-    f();
-}
-
 void f()
 {
     int32_t i;
@@ -43,6 +38,11 @@ void f()
     assert (res == -6);
     i = -235346;
     assert (~i == 235345);
+}
+
+void _lpython_main_program()
+{
+    f();
 }
 
 namespace {

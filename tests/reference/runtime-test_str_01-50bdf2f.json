@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_str_01-50bdf2f",
+    "cmd": "lpython {infile}",
+    "infile": "tests/runtime_errors/test_str_01.py",
+    "infile_hash": "5f1245b9162a004ea90aee813606b7a14a2d06802c8eb2ebd6220f9b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-test_str_01-50bdf2f.stdout",
+    "stdout_hash": "ae5584858d62f3df08abdd365ea09fed0a7aa75f0f10698a7f7c2508",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 1
+}

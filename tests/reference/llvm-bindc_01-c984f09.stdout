@@ -7,7 +7,7 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [13 x i8] c"%lld%s%lld%s\00", align 1
 
-define void @_lpython_main_program() {
+define void @__module__global_symbols__lpython_main_program() {
 .entry:
   %0 = load void*, void** @queries, align 8
   %1 = bitcast void* %0 to i16*
@@ -28,7 +28,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @_lpython_main_program()
+  call void @__module__global_symbols__lpython_main_program()
   ret i32 0
 }
 

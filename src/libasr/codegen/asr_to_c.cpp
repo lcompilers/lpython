@@ -498,6 +498,11 @@ public:
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
                 sub = format_type_c("", tuple_type_c, v.m_name,
                                     false, false);
+            } else if (ASR::is_a<ASR::Dict_t>(*v_m_type)) {
+                ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(v_m_type);
+                std::string dict_type_c = c_ds_api->get_dict_type(t);
+                sub = format_type_c("", dict_type_c, v.m_name,
+                                    false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v_m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v_m_type)) {
@@ -724,6 +729,54 @@ R"(
         }
         src = to_include + head + array_types_decls + unit_src +
               ds_funcs_defined + util_funcs_defined;
+    }
+
+    void visit_Module(const ASR::Module_t &x) {
+        std::string unit_src = "";
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                std::string unit_src_tmp;
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
+                    item.second);
+                unit_src_tmp = convert_variable_decl(*v);
+                unit_src += unit_src_tmp;
+                if(unit_src_tmp.size() > 0 &&
+                        (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                        v->m_intent == ASRUtils::intent_return_var )) {
+                    unit_src += ";\n";
+                }
+            }
+        }
+        std::map<std::string, std::vector<std::string>> struct_dep_graph;
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::StructType_t>(*item.second) ||
+                    ASR::is_a<ASR::EnumType_t>(*item.second) ||
+                    ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                std::vector<std::string> struct_deps_vec;
+                std::pair<char**, size_t> struct_deps_ptr = ASRUtils::symbol_dependencies(item.second);
+                for( size_t i = 0; i < struct_deps_ptr.second; i++ ) {
+                    struct_deps_vec.push_back(std::string(struct_deps_ptr.first[i]));
+                }
+                struct_dep_graph[item.first] = struct_deps_vec;
+            }
+        }
+
+        std::vector<std::string> struct_deps = ASRUtils::order_deps(struct_dep_graph);
+        for (auto &item : struct_deps) {
+            ASR::symbol_t* struct_sym = x.m_symtab->get_symbol(item);
+            visit_symbol(*struct_sym);
+        }
+
+        // Topologically sort all module functions
+        // and then define them in the right order
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            visit_Function(*s);
+            unit_src += src;
+        }
+        src = unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -963,7 +1016,7 @@ R"(
     void visit_Assert(const ASR::Assert_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
-        tmp_src.clear();
+        bracket_open++;
         if (x.m_msg) {
             out += "ASSERT_MSG(";
             visit_expr(*x.m_test);
@@ -975,12 +1028,8 @@ R"(
             visit_expr(*x.m_test);
             out += src + ");\n";
         }
-        src = "";
-        if (!tmp_src.empty()) {
-            for (auto &s: tmp_src) src += s;
-        }
-        src += out;
-        tmp_src.clear();
+        bracket_open--;
+        src = check_tmp_buffer() + out;
     }
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
@@ -1016,6 +1065,7 @@ R"(
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string tmp_gen = indent + "printf(\"", out = "";
+        bracket_open++;
         std::vector<std::string> v;
         std::string separator;
         if (x.m_separator) {
@@ -1040,11 +1090,6 @@ R"(
                 }
                 tmp_gen += ");\n";
                 out += tmp_gen;
-                if (ASR::is_a<ASR::ListConstant_t>(*x.m_values[i]) ||
-                        ASR::is_a<ASR::TupleConstant_t>(*x.m_values[i])) {
-                    out += src;
-                    src = const_var_names[get_hash((ASR::asr_t*)x.m_values[i])];
-                }
                 tmp_gen = indent + "printf(\"";
                 v.clear();
                 std::string p_func = c_ds_api->get_print_func(value_type);
@@ -1076,8 +1121,9 @@ R"(
             }
         }
         tmp_gen += ");\n";
+        bracket_open--;
         out += tmp_gen;
-        src = out;
+        src = this->check_tmp_buffer() + out;
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
@@ -1211,8 +1257,7 @@ R"(
         std::string idx = std::move(src);
         this->visit_expr(*x.m_arg);
         std::string str = std::move(src);
-        src = "(char *)memcpy((char *)calloc(2U, sizeof(char)), "
-                + str + " + " + idx + " - 1, 1U)";
+        src = "_lfortran_str_item(" + str + ", " + idx + ")";
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {

@@ -161,6 +161,60 @@ def pow(x: bool, y: bool) -> i32:
 def pow(c: c32, y: i32) -> c32:
     return c**c32(y)
 
+# sum
+# supported data types: i32, i64, f32, f64
+
+@overload
+def sum(arr: list[i32]) -> i32:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: i32
+    sum = 0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += arr[i]
+    return sum
+
+@overload
+def sum(arr: list[i64]) -> i64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: i64
+    sum = i64(0)
+
+    i: i32
+    for i in range(len(arr)):
+        sum += arr[i]
+    return sum
+
+@overload
+def sum(arr: list[f32]) -> f32:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f32
+    sum = f32(0.0)
+
+    i: i32
+    for i in range(len(arr)):
+        sum += arr[i]
+    return sum
+
+@overload
+def sum(arr: list[f64]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += arr[i]
+    return sum
 
 def bin(n: i32) -> str:
     """

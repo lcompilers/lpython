@@ -4,6 +4,7 @@
 #include <map>
 
 #include <libasr/alloc.h>
+#include <libasr/containers.h>
 
 namespace LCompilers  {
 
@@ -80,6 +81,10 @@ struct SymbolTable {
         size_t n_scope_names, char **m_scope_names);
 
     std::string get_unique_name(const std::string &name);
+
+    void move_symbols_from_global_scope(Allocator &al,
+        SymbolTable *module_scope, Vec<char *> &syms,
+        Vec<char *> &mod_dependencies);
 };
 
 } // namespace LCompilers
