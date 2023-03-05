@@ -116,6 +116,17 @@ public:
     std::string const_name;
     size_t const_vars_count;
     size_t loop_end_count;
+
+    // This is used to track if during the codegeneration whether or not
+    // the source is inside any bracket. bracket_open is always >= 0. We
+    // increment when we come-across a open bracket and decrement when we
+    // come-across a closing bracket.
+    // This helps in putting the extra code-generation (mainly of Constants)
+    // in the right place and avoid producing syntax errors.
+    // For example:
+    // In FunctionCall node: we do `some_fun(` -> bracket_open++
+    // and when we close the bracket `...)` -> bracket_open--
+
     int bracket_open;
 
     SymbolTable* current_scope;
