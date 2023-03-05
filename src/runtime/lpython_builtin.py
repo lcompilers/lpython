@@ -470,19 +470,32 @@ def _lpython_floordiv(a: bool, b: bool) -> bool:
 
 @overload
 def _mod(a: i32, b: i32) -> i32:
-    return a - _lpython_floordiv(a, b)*b
+    """
+    Returns a%b
+    """
+    return a - i32(_floor(a/b))*b
 
 @overload
 def _mod(a: f32, b: f32) -> f32:
-    return a - _lpython_floordiv(a, b)*b
+    """
+    Returns a%b
+    """
+    return a - f32(_floor(a/b))*b
 
 @overload
 def _mod(a: i64, b: i64) -> i64:
-    return a - _lpython_floordiv(a, b)*b
+    """
+    Returns a%b
+    """
+    print("its i64 mod")
+    return a - i64(_floor(a/b))*b 
 
 @overload
 def _mod(a: f64, b: f64) -> f64:
-    return a - _lpython_floordiv(a, b)*b
+    """
+    Returns a%b
+    """
+    return a - f64(_floor(a/b))*b  
 
 
 @overload
@@ -549,6 +562,13 @@ def min(a: f64, b: f64) -> f64:
     else:
         return b
 
+@overload
+def _floor(x: i32) -> i32:
+    return x
+
+@overload
+def _floor(x: i64) -> i64:
+    return x
 
 @overload
 def _floor(x: f64) -> i64:
