@@ -1889,6 +1889,17 @@ inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
     return a_len;
 }
 
+inline bool is_parent(SymbolTable* a, SymbolTable* b) {
+    SymbolTable* current_parent = b->parent;
+    while( current_parent ) {
+        if( current_parent == a ) {
+            return true;
+        }
+        current_parent = current_parent->parent;
+    }
+    return false;
+}
+
 inline bool is_parent(ASR::StructType_t* a, ASR::StructType_t* b) {
     ASR::symbol_t* current_parent = b->m_parent;
     while( current_parent ) {
@@ -2747,6 +2758,11 @@ static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::exp
 }
 
 static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vector<size_t>& v) {
+    if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
+        ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
+        return false;
+    }
+
     ASR::ttype_t* typei = nullptr;
     ASR::dimension_t* dims = nullptr;
     for( size_t i = 0; i < x->n_args; i++ ) {
