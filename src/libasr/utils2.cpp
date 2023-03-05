@@ -89,4 +89,4 @@ int initialize()
 #endif
 }
 
-}
+} // namespace LCompilers

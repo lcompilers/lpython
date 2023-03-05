@@ -279,6 +279,10 @@ filename = "c_interop1.py"
 asr = true
 c = true
 
+[[test]]
+filename = "test_end_sep_keywords.py"
+asr = true
+
 # integration_tests
 
 [[test]]
@@ -294,7 +298,11 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_complex.py"
+filename = "../integration_tests/test_complex_01.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_complex_02.py"
 asr = true
 
 [[test]]
@@ -434,6 +442,10 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/generics_list_01.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/global_syms_01.py"
 asr = true
 
 [[test]]
@@ -893,6 +905,14 @@ filename = "errors/test_tuple1.py"
 asr = true
 
 [[test]]
+filename = "errors/test_tuple2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_tuple3.py"
+asr = true
+
+[[test]]
 filename = "errors/test_for2.py"
 asr = true
 
@@ -963,6 +983,10 @@ filename = "errors/loop_02.py"
 asr = true
 
 [[test]]
+filename = "errors/loop_03.py"
+asr = true
+
+[[test]]
 filename = "errors/test_goto.py"
 asr = true
 
@@ -972,6 +996,10 @@ asr = true
 
 [[test]]
 filename = "errors/bindc_02.py"
+asr = true
+
+[[test]]
+filename = "errors/bindc_03.py"
 asr = true
 
 [[test]]
@@ -989,6 +1017,14 @@ run = true
 
 [[test]]
 filename = "runtime_errors/test_list_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_str_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_str_02.py"
 run = true
 
 [[test]]

@@ -31,9 +31,11 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
+int32_t test(int32_t a, int32_t b)
 {
-    main0();
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = std::pow(a, b);
+    return _lpython_return_variable;
 }
 
 int32_t check()
@@ -51,11 +53,9 @@ void main0()
     x = check();
 }
 
-int32_t test(int32_t a, int32_t b)
+void _lpython_main_program()
 {
-    int32_t _lpython_return_variable;
-    _lpython_return_variable = std::pow(a, b);
-    return _lpython_return_variable;
+    main0();
 }
 
 namespace {

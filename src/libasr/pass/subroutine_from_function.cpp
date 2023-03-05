@@ -47,12 +47,13 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             ASR::FunctionType_t* s_func_type = ASR::down_cast<ASR::FunctionType_t>(s->m_function_signature);
             ASR::asr_t* s_sub_asr = ASRUtils::make_Function_t_util(al, s->base.base.loc,
                 s->m_symtab, s->m_name, s->m_dependencies, s->n_dependencies,
-                a_args.p, a_args.size(), s->m_body, s->n_body,
-                nullptr, s_func_type->m_abi, s->m_access, s_func_type->m_deftype,
-                nullptr, false, false, false, s_func_type->m_inline, s_func_type->m_static,
-                s_func_type->m_type_params, s_func_type->n_type_params,
-                s_func_type->m_restrictions, s_func_type->n_restrictions,
-                s_func_type->m_is_restriction, s->m_deterministic, s->m_side_effect_free);
+                a_args.p, a_args.size(), s->m_body, s->n_body, nullptr,
+                s_func_type->m_abi, s->m_access, s_func_type->m_deftype,
+                nullptr, false, false, false, s_func_type->m_inline,
+                s_func_type->m_static, s_func_type->m_type_params,
+                s_func_type->n_type_params, s_func_type->m_restrictions,
+                s_func_type->n_restrictions, s_func_type->m_is_restriction,
+                s->m_deterministic, s->m_side_effect_free);
             ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
             return s_sub;
         }
@@ -90,6 +91,36 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
 
             // Now visit everything else
             for (auto &item : x.m_global_scope->get_scope()) {
+                this->visit_symbol(*item.second);
+            }
+        }
+
+        void visit_Module(const ASR::Module_t &x) {
+            // FIXME: this is a hack, we need to pass in a non-const `x`,
+            // which requires to generate a TransformVisitor.
+            ASR::Module_t &xx = const_cast<ASR::Module_t&>(x);
+            current_scope = xx.m_symtab;
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (is_a<ASR::Function_t>(*item.second)) {
+                    ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                    if (s->m_return_var) {
+                        /*
+                        * A function which returns an array will be converted
+                        * to a subroutine with the destination array as the last
+                        * argument. This helps in avoiding deep copies and the
+                        * destination memory directly gets filled inside the subroutine.
+                        */
+                        if( PassUtils::is_aggregate_type(s->m_return_var) ) {
+                            ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                            // Update the symtab with this function changes
+                            xx.m_symtab->add_symbol(item.first, s_sub);
+                        }
+                    }
+                }
+            }
+
+            // Now visit everything else
+            for (auto &item : x.m_symtab->get_scope()) {
                 this->visit_symbol(*item.second);
             }
         }

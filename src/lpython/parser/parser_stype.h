@@ -110,7 +110,7 @@ union YYSTYPE {
 static_assert(std::is_standard_layout<YYSTYPE>::value);
 static_assert(std::is_trivial<YYSTYPE>::value);
 // Ensure the YYSTYPE size is equal to Vec<AST::ast_t*>, which is a required member, so
-// YYSTYPE has to be at least as big, but it should not be bigger, otherwise it
+// YYSTYPE must be at least as big, but it should not be bigger, otherwise it
 // would reduce performance.
 static_assert(sizeof(YYSTYPE) == sizeof(Vec<LPython::AST::ast_t*>));
 

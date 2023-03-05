@@ -49,92 +49,6 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
-{
-    test_pow();
-}
-
-void test_pow()
-{
-    int32_t a;
-    double a1=  4.50000000000000000e+00;
-    double a2=  2.29999999999999982e+00;
-    int32_t b;
-    bool b1=true;
-    bool b2=false;
-    std::complex<float> c1;
-    double eps;
-    float f1;
-    float f2;
-    int64_t i;
-    int64_t i1;
-    int64_t i2;
-    int64_t j;
-    int64_t k;
-    float p;
-    int32_t x=3;
-    double y=  2.29999999999999982e+00;
-    eps =   9.99999999999999980e-13;
-    a = 2;
-    b = 5;
-    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 32);
-    a = 6;
-    b = 3;
-    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 216);
-    a = 2;
-    b = 0;
-    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 1);
-    a = 2;
-    b = -1;
-    a = 6;
-    b = -4;
-    i1 = 2;
-    i2 = 5;
-    assert ((int64_t)(__lpython_overloaded_1__pow(i1, i2)) == 32);
-    i1 = 6;
-    i2 = -3;
-    f1 = (double)(525346)/(double)(66456);
-    f2 =   3.00000000000000000e+00;
-    p = __lpython_overloaded_2__pow(f1, f2);
-    f1 = __lpython_overloaded_4__pow(a, f2);
-    f1 = __lpython_overloaded_5__pow(f2, a);
-    b1 = true;
-    b2 = false;
-    assert (__lpython_overloaded_8__pow(b1, b2) == 1);
-    assert (__lpython_overloaded_8__pow(b2, b1) == 0);
-    assert (__lpython_overloaded_8__pow(b1, b2) == 1);
-    assert (__lpython_overloaded_8__pow(false, false) == 1);
-    a1 =   4.50000000000000000e+00;
-    a2 =   2.29999999999999982e+00;
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a1, a2) -   3.17971929089206000e+01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a2, a1) -   4.24399889427765871e+01) < eps);
-    x = 3;
-    y =   2.29999999999999982e+00;
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x, y) -   1.25135025328431819e+01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(y, x) -   1.21669999999999980e+01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x,   5.50000000000000000e+00) -   4.20888346239237194e+02) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(2, -1) -   5.00000000000000000e-01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(6, -4) -   7.71604938271604895e-04) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(-3, -5) +   4.11522633744856002e-03) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(6, -4) -   7.71604938271604895e-04) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  4.50000000000000000e+00,   2.29999999999999982e+00) -   3.17971929089206000e+01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00,   0.00000000000000000e+00) -   1.00000000000000000e+00) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00, -  1.50000000000000000e+00) -   2.86687162345994395e-01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(2,   3.39999999999999991e+00) -   1.05560632861831536e+01) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(2, -  3.39999999999999991e+00) -   9.47322854068998882e-02) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(  3.39999999999999991e+00, 9) -   6.07169927664639836e+04) < eps);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(  0.00000000000000000e+00, 53) -   0.00000000000000000e+00) < eps);
-    assert ((int32_t)(__lpython_overloaded_0__pow(4, 2)) == 16);
-    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(-  4.23500000000000000e+03, 52) -  3.94800380598526379e+188) < eps);
-    i = 7;
-    j = 2;
-    k = 5;
-    assert (__lpython_overloaded_11__pow(i, j, k) == 4);
-    assert (__lpython_overloaded_10__pow(102, 3, 121) == 38);
-    c1 = __lpython_overloaded_9__complex(4, 5);
-    c1 = __lpython_overloaded_9__pow(c1, 4);
-}
-
 int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
 {
     int32_t _lpython_return_variable;
@@ -302,6 +216,92 @@ std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int32_t y
 float _lfortran_caimag(std::complex<float> x);
 
 double _lfortran_zaimag(std::complex<double> x);
+
+void test_pow()
+{
+    int32_t a;
+    double a1=  4.50000000000000000e+00;
+    double a2=  2.29999999999999982e+00;
+    int32_t b;
+    bool b1=true;
+    bool b2=false;
+    std::complex<float> c1;
+    double eps;
+    float f1;
+    float f2;
+    int64_t i;
+    int64_t i1;
+    int64_t i2;
+    int64_t j;
+    int64_t k;
+    float p;
+    int32_t x=3;
+    double y=  2.29999999999999982e+00;
+    eps =   9.99999999999999980e-13;
+    a = 2;
+    b = 5;
+    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 32);
+    a = 6;
+    b = 3;
+    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 216);
+    a = 2;
+    b = 0;
+    assert ((int32_t)(__lpython_overloaded_0__pow(a, b)) == 1);
+    a = 2;
+    b = -1;
+    a = 6;
+    b = -4;
+    i1 = 2;
+    i2 = 5;
+    assert ((int64_t)(__lpython_overloaded_1__pow(i1, i2)) == 32);
+    i1 = 6;
+    i2 = -3;
+    f1 = (double)(525346)/(double)(66456);
+    f2 =   3.00000000000000000e+00;
+    p = __lpython_overloaded_2__pow(f1, f2);
+    f1 = __lpython_overloaded_4__pow(a, f2);
+    f1 = __lpython_overloaded_5__pow(f2, a);
+    b1 = true;
+    b2 = false;
+    assert (__lpython_overloaded_8__pow(b1, b2) == 1);
+    assert (__lpython_overloaded_8__pow(b2, b1) == 0);
+    assert (__lpython_overloaded_8__pow(b1, b2) == 1);
+    assert (__lpython_overloaded_8__pow(false, false) == 1);
+    a1 =   4.50000000000000000e+00;
+    a2 =   2.29999999999999982e+00;
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a1, a2) -   3.17971929089206000e+01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a2, a1) -   4.24399889427765871e+01) < eps);
+    x = 3;
+    y =   2.29999999999999982e+00;
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x, y) -   1.25135025328431819e+01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(y, x) -   1.21669999999999980e+01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x,   5.50000000000000000e+00) -   4.20888346239237194e+02) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(2, -1) -   5.00000000000000000e-01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(6, -4) -   7.71604938271604895e-04) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(-3, -5) +   4.11522633744856002e-03) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_1__pow(6, -4) -   7.71604938271604895e-04) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  4.50000000000000000e+00,   2.29999999999999982e+00) -   3.17971929089206000e+01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00,   0.00000000000000000e+00) -   1.00000000000000000e+00) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00, -  1.50000000000000000e+00) -   2.86687162345994395e-01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(2,   3.39999999999999991e+00) -   1.05560632861831536e+01) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(2, -  3.39999999999999991e+00) -   9.47322854068998882e-02) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(  3.39999999999999991e+00, 9) -   6.07169927664639836e+04) < eps);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(  0.00000000000000000e+00, 53) -   0.00000000000000000e+00) < eps);
+    assert ((int32_t)(__lpython_overloaded_0__pow(4, 2)) == 16);
+    assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(-  4.23500000000000000e+03, 52) -  3.94800380598526379e+188) < eps);
+    i = 7;
+    j = 2;
+    k = 5;
+    assert (__lpython_overloaded_11__pow(i, j, k) == 4);
+    assert (__lpython_overloaded_10__pow(102, 3, 121) == 38);
+    c1 = __lpython_overloaded_9__complex(4, 5);
+    c1 = __lpython_overloaded_9__pow(c1, 4);
+}
+
+void _lpython_main_program()
+{
+    test_pow();
+}
 
 namespace {
 
