@@ -484,9 +484,6 @@ def _mod(a: f32, b: f32) -> f32:
 
 @overload
 def _mod(a: i64, b: i64) -> i64:
-    """
-    Returns a%b
-    """
     print("its i64 mod")
     return a - i64(_floor(a/b))*b 
 
