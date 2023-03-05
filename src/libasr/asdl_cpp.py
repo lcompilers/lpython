@@ -975,14 +975,16 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
             field.type == "array_index" or
             field.type == "alloc_arg" or
             field.type == "case_stmt" or
-            field.type == "ttype"):
+            field.type == "ttype" or
+            field.type == "dimension"):
             level = 2
             if field.seq:
                 self.used = True
                 pointer_char = ''
                 if (field.type != "call_arg" and
                     field.type != "array_index" and
-                    field.type != "alloc_arg"):
+                    field.type != "alloc_arg" and
+                    field.type != "dimension"):
                     pointer_char = '*'
                 self.emit("Vec<%s_t%s> m_%s;" % (field.type, pointer_char, field.name), level)
                 self.emit("m_%s.reserve(al, x->n_%s);" % (field.name, field.name), level)
@@ -1017,6 +1019,12 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
                     self.emit("    array_index_copy.m_right = duplicate_expr(x->m_%s[i].m_right);"%(field.name), level)
                     self.emit("    array_index_copy.m_step = duplicate_expr(x->m_%s[i].m_step);"%(field.name), level)
                     self.emit("    m_%s.push_back(al, array_index_copy);"%(field.name), level)
+                elif field.type == "dimension":
+                    self.emit("    ASR::dimension_t dim_copy;", level)
+                    self.emit("    dim_copy.loc = x->m_%s[i].loc;"%(field.name), level)
+                    self.emit("    dim_copy.m_start = self().duplicate_expr(x->m_%s[i].m_start);"%(field.name), level)
+                    self.emit("    dim_copy.m_length = self().duplicate_expr(x->m_%s[i].m_length);"%(field.name), level)
+                    self.emit("    m_%s.push_back(al, dim_copy);" % (field.name), level)
                 else:
                     self.emit("    m_%s.push_back(al, self().duplicate_%s(x->m_%s[i]));" % (field.name, field.type, field.name), level)
                 self.emit("}", level)
