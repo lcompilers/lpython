@@ -1440,16 +1440,8 @@ public:
     {
         src = "\"";
         std::string s = x.m_s;
-        for (size_t idx = 0; idx < s.size(); idx++) {
-            if (s[idx] == '\n') {
-                src += "\\n";
-            } else if (s[idx] == '\\') {
-                src += "\\\\";
-            } else if (s[idx] == '\"') {
-                src += "\\\"";
-            } else {
-                src += s[idx];
-            }
+        for (size_t idx=0; idx < s.size(); idx++) {
+            src += s[idx];
         }
         src += "\"";
         last_expr_precedence = julia_prec::Base;

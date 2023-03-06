@@ -7,6 +7,13 @@
 "
 "\\" "|"
 
+'I said \'Wow\' '
+"I said \"hi\" "
+"I said \\\"hi\" "
+'I said \'\\\'hi\\''hey\' '
+'a''b'
+"a" "b"
+
 r"""Text\\"""
 """\
 """

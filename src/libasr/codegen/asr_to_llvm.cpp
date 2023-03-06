@@ -41,6 +41,7 @@
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
+#include <libasr/string_utils.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/pass/nested_vars.h>
 #include <libasr/pass/pass_manager.h>
@@ -5472,7 +5473,8 @@ public:
     }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        tmp = builder->CreateGlobalStringPtr(x.m_s);
+        std::string s = unescape_string(al, x.m_s);
+        tmp = builder->CreateGlobalStringPtr(s);
     }
 
     inline void fetch_ptr(ASR::Variable_t* x) {
