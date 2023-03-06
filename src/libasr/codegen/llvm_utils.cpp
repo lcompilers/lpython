@@ -2344,7 +2344,17 @@ namespace LCompilers {
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
                          type_size, el_type, module);
-
+        llvm::Value* adjusted_pos = builder->CreateSelect(
+            builder->CreateICmpSGT(pos, current_end_point),
+            current_end_point,
+            pos
+        );
+        adjusted_pos = builder->CreateSelect(
+            builder->CreateICmpSGE(adjusted_pos, llvm::ConstantInt::get(context, llvm::APInt(32, 0))),
+            adjusted_pos,
+            llvm::ConstantInt::get(context, llvm::APInt(32, 0))
+        );
+        
         /* While loop equivalent in C++:
          *  end_point         // nth index of list
          *  pos               // ith index to insert the element
@@ -2365,16 +2375,6 @@ namespace LCompilers {
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
-        llvm::Value* adjusted_pos = builder->CreateSelect(
-            builder->CreateICmpSGT(pos, current_end_point),
-            current_end_point,
-            pos
-        );
-        adjusted_pos = builder->CreateSelect(
-            builder->CreateICmpSGE(adjusted_pos, llvm::ConstantInt::get(context, llvm::APInt(32, 0))),
-            adjusted_pos,
-            llvm::ConstantInt::get(context, llvm::APInt(32, 0))
-        );
         llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
         LLVM::CreateStore(*builder, read_item(list, adjusted_pos, false, *module, false), tmp_ptr);
         llvm::Value* tmp = nullptr;
