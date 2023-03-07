@@ -1,0 +1,13 @@
+{
+    "basename": "asr-global_syms_01-273906f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/global_syms_01.py",
+    "infile_hash": "e0a6aef9091285567b2b68eb47c634a65d10f5e8cb3a1f0416cc30cd",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-global_syms_01-273906f.stdout",
+    "stdout_hash": "e2fa0c80bca6d74e99d728feaa144c9b640967a65262f68eb196aac8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

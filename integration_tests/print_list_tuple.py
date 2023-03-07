@@ -20,4 +20,17 @@ def test_print_list():
     print(x, y, z, t)
 
 
-test_print_list()
+def f(y: list[i32]) -> list[i32]:
+    y.append(4)
+    return y
+
+def g():
+    print(f([1,2,3]))
+
+
+def check():
+    g()
+    test_print_list()
+
+
+check()

@@ -29,11 +29,6 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
-{
-    f();
-}
-
 void f()
 {
     bool b;
@@ -42,6 +37,11 @@ void f()
     b = (bool)(i);
     assert (b);
     std::cout << b << std::endl;
+}
+
+void _lpython_main_program()
+{
+    f();
 }
 
 namespace {

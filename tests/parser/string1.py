@@ -71,3 +71,15 @@ f"{a} Text")
 
 (b"Text"
 b"Text")
+
+r'\n'
+r"""
+Text
+123\n\t
+"""
+rb'\n'
+rf'\n'
+
+b'\n'
+b'''
+\n\\n'''

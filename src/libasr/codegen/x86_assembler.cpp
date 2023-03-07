@@ -109,6 +109,22 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     a.asm_db_imm8(s.c_str(), s.size());
 }
 
+void emit_i32_const(X86Assembler &a, const std::string &label,
+    const int32_t z) {
+    uint8_t encoded_i32[sizeof(z)];
+    std::memcpy(&encoded_i32, &z, sizeof(z));
+    a.add_label(label);
+    a.asm_db_imm8(encoded_i32, sizeof(z));
+}
+
+void emit_i64_const(X86Assembler &a, const std::string &label,
+    const int64_t z) {
+    uint8_t encoded_i64[sizeof(z)];
+    std::memcpy(&encoded_i64, &z, sizeof(z));
+    a.add_label(label);
+    a.asm_db_imm8(encoded_i64, sizeof(z));
+}
+
 void emit_float_const(X86Assembler &a, const std::string &label,
     const float z) {
     uint8_t encoded_float[sizeof(z)];

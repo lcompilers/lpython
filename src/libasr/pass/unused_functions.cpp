@@ -32,6 +32,16 @@ public:
                 fn_declarations[h] = x.m_name;
             }
         }
+
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(x.m_args[i]);
+            // Consider a function as argument as used
+            if( ASR::is_a<ASR::Function_t>(*arg_var->m_v) ) {
+                uint64_t h = get_hash((ASR::asr_t*)arg_var->m_v);
+                fn_used[h] = ASR::down_cast<ASR::Function_t>(arg_var->m_v)->m_name;
+            }
+        }
+
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
