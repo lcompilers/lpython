@@ -163,10 +163,34 @@ def test_chr():
     assert(chr(125) == '}') # testing compile time implementation
     assert(right_brace == '}') # testing runtime implementation
 
+def more_test():
+    p: i32
+    q: i32
+    r: i32
+    s: i32
+    p = 97 # char 'a'
+    q = 112 # char 'p'
+    r = 10 # newline char
+    s = 65 # char 'A'
+
+    print(chr(p))
+    print(chr(q))
+    print(chr(r))
+    print(chr(s))
+
+    a: str
+    b: str
+    c: str
+    d: str
+    a = "!"
+    b = " "
+    c = "Z"
+    d = "g"
+    print(ord(a))
+    print(ord(b))
+    print(ord(c))
+    print(ord(d))
 
 test_ord()
 test_chr()
-
-
-
-    
+more_test()

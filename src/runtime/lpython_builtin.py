@@ -1,32 +1,6 @@
 from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
-
-def ord(s: str) -> i32: # currently supports characters with unicode value between 32 to 126
-    """
-    Returns an integer representing the Unicode code
-    point of a given unicode character. This is the inverse of `chr()`.
-    """
-    if len(s) != 1:
-        return -1 # not a character
-    i: i32
-    for i in range(32, 127):
-        if chr(i) == s:
-            return i
-
-
-def chr(i: i32) -> str: # currently supports unicode values between 32 to 126
-    """
-    Returns the string representing a unicode character from
-    the given Unicode code point. This is the inverse of `ord()`.
-    """
-    if i < 32 or i > 126:
-        return "Not yet supported"
-    all_chars: str
-    all_chars = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
-    return all_chars[i - 32]
-
-
 #: abs() as a generic procedure.
 #: supported types for argument:
 #: i8, i16, i32, i64, f32, f64, bool, c32, c64
