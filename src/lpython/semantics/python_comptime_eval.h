@@ -211,7 +211,7 @@ struct PythonIntrinsicProcedures {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(arg2)->m_n;
             return ASR::down_cast<ASR::expr_t>(
-                ASR::make_IntegerConstant_t(al, loc, a%b, type));
+                ASR::make_IntegerConstant_t(al, loc, ((a%b)+b)%b, type));
         } else if (ASRUtils::is_real(*type)) {
             double a = ASR::down_cast<ASR::RealConstant_t>(arg1)->m_r;
             double b = ASR::down_cast<ASR::RealConstant_t>(arg2)->m_r;
