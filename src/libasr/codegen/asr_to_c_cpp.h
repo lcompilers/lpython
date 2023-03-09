@@ -1179,8 +1179,27 @@ R"(#include <stdio.h>
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_arg);
         ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
         std::string dict_len_fun = c_ds_api->get_dict_len_func(t);
+        bracket_open++;
         self().visit_expr(*x.m_arg);
         src = dict_len_fun + "(&" + src + ")";
+        bracket_open--;
+    }
+
+    void visit_DictPop(const ASR::DictPop_t& x) {
+        if ( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
+        std::string dict_pop_fun = c_ds_api->get_dict_pop_func(t);
+        bracket_open++;
+        self().visit_expr(*x.m_a);
+        std::string d = std::move(src);
+        self().visit_expr(*x.m_key);
+        std::string k = std::move(src);
+        src = dict_pop_fun + "(&" + d + ", "  + k + ")";
+        bracket_open--;
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {

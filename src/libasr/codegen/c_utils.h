@@ -1136,6 +1136,11 @@ class CCPPDSUtils {
             return typecodeToDSfuncs[dict_type_code]["dict_len"];
         }
 
+        std::string get_dict_pop_func(ASR::Dict_t* d_type) {
+            std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
+            return typecodeToDSfuncs[dict_type_code]["dict_pop"];
+        }
+
         std::string get_dict_init_func(ASR::Dict_t* d_type) {
             std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
             return typecodeToDSfuncs[dict_type_code]["dict_init"];
@@ -1173,6 +1178,7 @@ class CCPPDSUtils {
             dict_insert(dict_type, dict_struct_type, dict_type_code);
             dict_get_item(dict_type, dict_struct_type, dict_type_code);
             dict_len(dict_type, dict_struct_type, dict_type_code);
+            dict_pop(dict_type, dict_struct_type, dict_type_code);
             dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
             return dict_struct_type;
         }
@@ -1308,6 +1314,30 @@ class CCPPDSUtils {
             generated_code += indent + tab + "int32_t len = 0;\n";
             generated_code += indent + tab + "for(int i=0; i<x->capacity; i++) len += (int)x->present[i];\n";
             generated_code += indent + tab + "return len;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_pop(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_pop_func = global_scope->get_unique_name("dict_pop_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_pop"] = dict_pop_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = val + " " + dict_pop_func + "(" + dict_struct_type + "* x, " + key + " k)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "int j = k % x->capacity;\n";
+            generated_code += indent + tab + "for(int i=0; i < x->capacity; i++) {\n";
+            generated_code += indent + tab + tab + "if (x->present[j] && x->key[j] == k) {\n";
+            generated_code += indent + tab + tab + tab + "x->present[j] = false;\n";
+            generated_code += indent + tab + tab + tab + "return x->value[j];\n";
+            generated_code += indent + tab + tab + "}\n";
+            generated_code += indent + tab + tab + "j = (j+1)%x->capacity;\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + "printf(\"Key not found\\n\"); exit(1);\n";
             generated_code += indent + "}\n\n";
         }
 
