@@ -1267,7 +1267,7 @@ class CCPPDSUtils {
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int j=k\%x->capacity; int c = 0;\n";
-            generated_code += indent + tab + "while(c < x->capacity && x->present[j]) j=(j+1)\%x->capacity, c++;\n";
+            generated_code += indent + tab + "while(c < x->capacity && x->present[j] && x->key[j]!=k) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (c == x->capacity) {\n";
             generated_code += indent + tab + tab + dict_rz + "(x);\n";
             generated_code += indent + tab + tab + "j=k\%x->capacity;\n";
@@ -1291,8 +1291,8 @@ class CCPPDSUtils {
             func_decls += indent + "inline " + signature + ";\n";
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
-            generated_code += indent + tab + "int j=k\%x->capacity;\n";
-            generated_code += indent + tab + "while(x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity;\n";
+            generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
+            generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
             generated_code += indent + tab + "printf(\"Key not found\");\n";
             generated_code += indent + tab + "exit(1);\n";
@@ -1329,13 +1329,13 @@ class CCPPDSUtils {
             func_decls += indent + "inline " + signature + ";\n";
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
-            generated_code += indent + tab + "int j = k % x->capacity;\n";
+            generated_code += indent + tab + "int j = k\%x->capacity;\n";
             generated_code += indent + tab + "for(int i=0; i < x->capacity; i++) {\n";
             generated_code += indent + tab + tab + "if (x->present[j] && x->key[j] == k) {\n";
             generated_code += indent + tab + tab + tab + "x->present[j] = false;\n";
             generated_code += indent + tab + tab + tab + "return x->value[j];\n";
             generated_code += indent + tab + tab + "}\n";
-            generated_code += indent + tab + tab + "j = (j+1)%x->capacity;\n";
+            generated_code += indent + tab + tab + "j = (j+1)\%x->capacity;\n";
             generated_code += indent + tab + "}\n";
             generated_code += indent + tab + "printf(\"Key not found\\n\"); exit(1);\n";
             generated_code += indent + "}\n\n";
