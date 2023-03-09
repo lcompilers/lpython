@@ -217,6 +217,12 @@ namespace LCompilers {
                     transform_stmts(xx.m_body, xx.n_body);
                 }
 
+                void visit_WhileLoop(const ASR::WhileLoop_t& x) {
+                    ASR::WhileLoop_t& xx = const_cast<ASR::WhileLoop_t&>(x);
+                    self().visit_expr(*xx.m_test);
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
                 void visit_If(const ASR::If_t& x) {
                     ASR::If_t &xx = const_cast<ASR::If_t&>(x);
                     self().visit_expr(*xx.m_test);
