@@ -274,38 +274,6 @@ public:
                     }
                 }
             }
-        } else if( !ASR::is_a<ASR::ArrayConstant_t>(*x.m_value) &&
-                   !ASR::is_a<ASR::FunctionCall_t>(*x.m_value) && // This will be converted to SubroutineCall in array_op.cpp
-                   PassUtils::is_array(x.m_target)) {
-            contains_array = true;
-            visit_expr(*(x.m_value)); // TODO: Add support for updating contains array in all types of expressions
-            if( contains_array ) {
-                return ;
-            }
-
-            int n_dims = PassUtils::get_rank(x.m_target);
-            Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
-            ASR::stmt_t* doloop = nullptr;
-            for( int i = n_dims - 1; i >= 0; i-- ) {
-                ASR::do_loop_head_t head;
-                head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al);
-                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al);
-                head.m_increment = nullptr;
-                head.loc = head.m_v->base.loc;
-                Vec<ASR::stmt_t*> doloop_body;
-                doloop_body.reserve(al, 1);
-                if( doloop == nullptr ) {
-                    ASR::expr_t* ref = PassUtils::create_array_ref(x.m_target, idx_vars, al);
-                    ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, ref, x.m_value, nullptr));
-                    doloop_body.push_back(al, assign);
-                } else {
-                    doloop_body.push_back(al, doloop);
-                }
-                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
-            }
-            pass_result.push_back(al, doloop);
         }
     }
 };

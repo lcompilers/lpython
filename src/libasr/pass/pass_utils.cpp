@@ -346,6 +346,51 @@ namespace LCompilers {
             }
         }
 
+        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, Vec<ASR::expr_t*>& loop_vars,
+                             std::vector<int>& loop_var_indices,
+                             Vec<ASR::expr_t*>& vars, Vec<ASR::expr_t*>& incs,
+                             const Location& loc, Allocator& al,
+                             SymbolTable*& current_scope, std::string suffix) {
+            idx_vars.reserve(al, incs.size());
+            loop_vars.reserve(al, 1);
+            for (size_t i = 0; i < incs.size(); i++) {
+                if( incs[i] == nullptr ) {
+                    idx_vars.push_back(al, vars[i]);
+                    continue;
+                }
+                std::string idx_var_name = "__" + std::to_string(i + 1) + suffix;
+                ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                if( current_scope->get_symbol(idx_var_name) != nullptr ) {
+                    ASR::symbol_t* idx_sym = current_scope->get_symbol(idx_var_name);
+                    if( ASR::is_a<ASR::Variable_t>(*idx_sym) ) {
+                        ASR::Variable_t* idx_var = ASR::down_cast<ASR::Variable_t>(idx_sym);
+                        if( !(ASRUtils::check_equal_type(idx_var->m_type, int32_type) &&
+                              idx_var->m_symbolic_value == nullptr) ) {
+                            idx_var_name = current_scope->get_unique_name(idx_var_name);
+                        }
+                    } else {
+                        idx_var_name = current_scope->get_unique_name(idx_var_name);
+                    }
+                }
+                char* var_name = s2c(al, idx_var_name);;
+                ASR::expr_t* var = nullptr;
+                if( current_scope->get_symbol(idx_var_name) == nullptr ) {
+                    ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, var_name, nullptr, 0,
+                                            ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                                            int32_type, ASR::abiType::Source, ASR::accessType::Public,
+                                            ASR::presenceType::Required, false);
+                    current_scope->add_symbol(idx_var_name, ASR::down_cast<ASR::symbol_t>(idx_sym));
+                    var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+                } else {
+                    ASR::symbol_t* idx_sym = current_scope->get_symbol(idx_var_name);
+                    var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
+                }
+                idx_vars.push_back(al, var);
+                loop_vars.push_back(al, var);
+                loop_var_indices.push_back(i);
+            }
+        }
+
         ASR::symbol_t* import_generic_procedure(std::string func_name, std::string module_name,
                                        Allocator& al, ASR::TranslationUnit_t& unit,
                                        LCompilers::PassOptions& pass_options,
