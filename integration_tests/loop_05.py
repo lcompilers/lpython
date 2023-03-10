@@ -3,8 +3,9 @@ def f():
     while True:
         j = j + 1
         print(j)
-        if(j>4):
+        if j > 4:
             break
     print("out of outer loop")
+    assert j == 5
 
 f()
