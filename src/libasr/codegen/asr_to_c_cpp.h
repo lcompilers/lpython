@@ -346,10 +346,14 @@ R"(#include <stdio.h>
     }
 
     // Returns the declaration, no semi colon at the end
-    std::string get_function_declaration(const ASR::Function_t &x) {
+    std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar) {
         template_for_Kokkos.clear();
         template_number = 0;
         std::string sub, inl, static_attr;
+
+        // This helps to check if the function is generic.
+        // If it is generic we skip the codegen for that function.
+        has_typevar = false;
         if (ASRUtils::get_FunctionType(x)->m_inline) {
             inl = "inline __attribute__((always_inline)) ";
         }
@@ -412,6 +416,9 @@ R"(#include <stdio.h>
                 ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
                 std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
                 sub = pointer_type_str + "*";
+            } else if (ASR::is_a<ASR::TypeParameter_t>(*return_var->m_type)) {
+                has_typevar = true;
+                return "";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
                     std::string(x.m_name) +
@@ -432,6 +439,11 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+            if (ASR::is_a<ASR::TypeParameter_t>(*arg->m_type)) {
+                has_typevar = true;
+                bracket_open--;
+                return "";
+            }
             if( is_c ) {
                 CDeclarationOptions c_decl_options;
                 c_decl_options.pre_initialise_derived_type = false;
@@ -456,11 +468,13 @@ R"(#include <stdio.h>
     }
 
     std::string declare_all_functions(const SymbolTable &scope) {
-        std::string code;
+        std::string code, t;
         for (auto &item : scope.get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                code += get_function_declaration(*s) + ";\n";
+                bool has_typevar = false;
+                t = get_function_declaration(*s, has_typevar);
+                if (!has_typevar) code += t  + ";\n";
             }
         }
         return code;
@@ -495,7 +509,13 @@ R"(#include <stdio.h>
             s.intrinsic_function = false;
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
-        std::string sub = get_function_declaration(x);
+        bool has_typevar = false;
+        std::string sub = get_function_declaration(x, has_typevar);
+        if (has_typevar) {
+            indentation_level -= 1;
+            src = "";
+            return;
+        }
         if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
             && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
@@ -506,7 +526,6 @@ R"(#include <stdio.h>
             std::string indent(indentation_level*indentation_spaces, ' ');
             std::string decl;
             std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
-            bool has_typevar = false;
             for (auto &item : var_order) {
                 ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
                 if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
