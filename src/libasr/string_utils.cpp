@@ -129,5 +129,32 @@ std::string join_paths(const std::vector<std::string> &paths) {
     return p;
 }
 
+std::string unescape_string(Allocator &/*al*/, std::string s) {
+    std::string x;
+    for (size_t idx=0; idx < s.size(); idx++) {
+        if (s[idx] == '\\' && s[idx+1] == 'n') {
+            x += "\n";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == 't') {
+            x += "\t";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == 'b') {
+            x += "\b";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == 'v') {
+            x += "\v";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == '\\') {
+            x += "\\";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == '"') {
+            x += '"';
+            idx++;
+        } else {
+            x += s[idx];
+        }
+    }
+    return x;
+}
 
 } // namespace LCompilers

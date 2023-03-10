@@ -6,6 +6,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/bwriter.h>
 #include <libasr/string_utils.h>
+#include <libasr/exception.h>
 
 using LCompilers::ASRUtils::symbol_parent_symtab;
 using LCompilers::ASRUtils::symbol_name;
@@ -231,21 +232,59 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_EnumType(const EnumType_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
 };
 
 class FixExternalSymbolsVisitor : public BaseWalkVisitor<FixExternalSymbolsVisitor>
 {
 private:
     SymbolTable *global_symtab;
+    SymbolTable *current_scope;
     SymbolTable *external_symtab;
 public:
-    FixExternalSymbolsVisitor(SymbolTable &symtab) : external_symtab{&symtab} {}
+    int attempt;
+    bool fixed_external_syms;
+
+
+    FixExternalSymbolsVisitor(SymbolTable &symtab) : external_symtab{&symtab},
+    attempt{0}, fixed_external_syms{true} {}
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         global_symtab = x.m_global_scope;
         for (auto &a : x.m_global_scope->get_scope()) {
             this->visit_symbol(*a.second);
         }
+    }
+
+    void visit_Module(const Module_t& x) {
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
+        BaseWalkVisitor<FixExternalSymbolsVisitor>::visit_Module(x);
+        current_scope = current_scope_copy;
+    }
+
+    void visit_Function(const Function_t& x) {
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
+        BaseWalkVisitor<FixExternalSymbolsVisitor>::visit_Function(x);
+        current_scope = current_scope_copy;
+    }
+
+    void visit_AssociateBlock(const AssociateBlock_t& x) {
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
+        BaseWalkVisitor<FixExternalSymbolsVisitor>::visit_AssociateBlock(x);
+        current_scope = current_scope_copy;
     }
 
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
@@ -262,6 +301,7 @@ public:
         if (startswith(module_name, "lfortran_intrinsic_iso")) {
             module_name = module_name.substr(19);
         }
+
         if (global_symtab->get_symbol(module_name) != nullptr) {
             Module_t *m = down_cast<Module_t>(global_symtab->get_symbol(module_name));
             symbol_t *sym = m->m_symtab->find_scoped_symbol(original_name, x.n_scope_names, x.m_scope_names);
@@ -286,7 +326,38 @@ public:
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
+        } else if (current_scope->resolve_symbol(module_name) != nullptr) {
+            ASR::symbol_t* m_sym = ASRUtils::symbol_get_past_external(
+                                    current_scope->resolve_symbol(module_name));
+            if( !m_sym ) {
+                fixed_external_syms = false;
+                return ;
+            }
+
+            symbol_t *sym = nullptr;
+            if( ASR::is_a<ASR::StructType_t>(*m_sym) ) {
+                StructType_t *m = down_cast<StructType_t>(m_sym);
+                sym = m->m_symtab->find_scoped_symbol(original_name,
+                        x.n_scope_names, x.m_scope_names);
+            } else if( ASR::is_a<ASR::EnumType_t>(*m_sym) ) {
+                EnumType_t *m = down_cast<EnumType_t>(m_sym);
+                sym = m->m_symtab->find_scoped_symbol(original_name,
+                        x.n_scope_names, x.m_scope_names);
+            }
+            if (sym) {
+                // FIXME: this is a hack, we need to pass in a non-const `x`.
+                ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
+                xx.m_external = sym;
+            } else {
+                throw LCompilersException("ExternalSymbol cannot be resolved, the symbol '"
+                    + original_name + "' was not found in the module '"
+                    + module_name + "' (but the module was found)");
+            }
         } else {
+            if( attempt <= 1 ) {
+                fixed_external_syms = false;
+                return ;
+            }
             throw LCompilersException("ExternalSymbol cannot be resolved, the module '"
                 + module_name + "' was not found, so the symbol '"
                 + original_name + "' could not be resolved");
@@ -303,7 +374,13 @@ public:
 void fix_external_symbols(ASR::TranslationUnit_t &unit,
         SymbolTable &external_symtab) {
     ASR::FixExternalSymbolsVisitor e(external_symtab);
+    e.fixed_external_syms = true;
+    e.attempt = 1;
     e.visit_TranslationUnit(unit);
+    if( !e.fixed_external_syms ) {
+        e.attempt = 2;
+        e.visit_TranslationUnit(unit);
+    }
 }
 
 ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
@@ -322,8 +399,13 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    diag::Diagnostics diagnostics;
-    LCOMPILERS_ASSERT(asr_verify(*tu, false, diagnostics));
+#if defined(WITH_LFORTRAN_ASSERT)
+        diag::Diagnostics diagnostics;
+        if (!asr_verify(*tu, false, diagnostics)) {
+            std::cerr << diagnostics.render2();
+            throw LCompilersException("Verify failed");
+        };
+#endif
 
     return node;
 }

@@ -1559,6 +1559,9 @@ int main(int argc, char *argv[])
         // TODO: for now we ignore the other filenames, only handle
         // the first:
         std::string arg_file = arg_files[0];
+        if (CLI::NonexistentPath(arg_file).empty()){
+            throw LCompilers::LCompilersException("No such file or directory: " + arg_file);
+        }
 
         std::string outfile;
         std::string basename;

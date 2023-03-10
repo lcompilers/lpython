@@ -1384,7 +1384,8 @@ public:
         ASR::dimension_t dim;
         dim.loc = loc;
         if (ASR::is_a<ASR::IntegerConstant_t>(*value) ||
-            ASR::is_a<ASR::Var_t>(*value)) {
+            ASR::is_a<ASR::Var_t>(*value) ||
+            ASR::is_a<ASR::IntegerBinOp_t>(*value)) {
             ASR::ttype_t *itype = ASRUtils::expr_type(value);
             ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, itype));
             ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
@@ -2235,11 +2236,24 @@ public:
     }
 
     ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
-        const Location& loc) {
+        AST::expr_t* ast_type_expr, const Location& loc) {
         this->visit_expr(*ast_cptr);
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         this->visit_expr(*ast_pptr);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(ast_type_expr->base.loc, *ast_type_expr);
+        ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
+        if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
+            diag.add(diag::Diagnostic(
+                "Type mismatch in c_p_pointer and target variable, the types must match",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch between target variable type "
+                                "and c_p_pointer allocation type)",
+                            {target_type->base.loc, asr_alloc_type->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         return ASR::make_CPtrToPointer_t(al, loc, cptr,
                                          pptr, nullptr);
     }
@@ -2269,7 +2283,8 @@ public:
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
                 AST::expr_t* pptr = assign_ast_target;
-                tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+                tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
+                                                   x.base.base.loc);
                 // if( current_body ) {
                 //     current_body->push_back(al, ASRUtils::STMT(tmp));
                 // }
@@ -3125,8 +3140,30 @@ public:
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
+                int i = 0;
                 index = ASRUtils::EXPR(tmp);
-                int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
+                ASR::expr_t* val = ASRUtils::expr_value(index);
+                if (!val) {
+                    throw SemanticError("Runtime Indexing with " + ASRUtils::type_to_str_python(type) +
+                    " is not possible.", loc);
+                }
+
+                if (ASR::is_a<ASR::IntegerConstant_t>(*val)) {
+                    i = ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n;
+                    int tuple_size =  ASR::down_cast<ASR::Tuple_t>(type)->n_type;
+                    if (i < 0) {
+                        i = tuple_size + i;
+                        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                                        4, nullptr, 0));
+                        index = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                            al, loc, i, int_type));
+                    }
+                    if (i >= tuple_size || i < 0) {
+                        throw SemanticError("Tuple index out of bounds", loc);
+                    }
+                } else {
+                    throw SemanticError("Tuple indices must be constant integers", loc);
+                }
                 tmp = make_TupleItem_t(al, loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
                 return false;
@@ -3135,19 +3172,6 @@ public:
             }
             ai.m_right = index;
             if (ASRUtils::is_character(*type)) {
-                ASR::expr_t* val = ASRUtils::expr_value(index);
-                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
-                    if (ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n < 0) {
-                        // Replace `x[-1]` to `x[len(x)+(-1)]`
-                        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-                                                        al, loc, 4, nullptr, 0));
-                        ASR::expr_t *list_len = ASRUtils::EXPR(ASR::make_StringLen_t(
-                                    al, loc, value, int_type, nullptr));
-                        ASR::expr_t *neg_idx = ASRUtils::expr_value(index);
-                        index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
-                            list_len, ASR::binopType::Add, neg_idx, int_type, nullptr));
-                    }
-                }
                 index = index_add_one(loc, index);
                 ai.m_right = index;
                 tmp = ASR::make_StringItem_t(al, loc, value, index, type, nullptr);
@@ -3806,6 +3830,7 @@ public:
     ASR::asr_t *asr;
     std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
     int64_t gotoids;
+    std::vector<ASR::symbol_t*> do_loop_variables;
 
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -3993,7 +4018,7 @@ public:
             throw SemanticError("Delete statement must be operated on at least one target",
                     x.base.base.loc);
         }
-        Vec<ASR::symbol_t*> targets;
+        Vec<ASR::expr_t*> targets;
         targets.reserve(al, x.n_targets);
         for (size_t i=0; i<x.n_targets; i++) {
             AST::expr_t *target = x.m_targets[i];
@@ -4005,7 +4030,7 @@ public:
                             x.base.base.loc);
                 }
                 ASR::symbol_t *s = current_scope->resolve_symbol(var_name);
-                targets.push_back(al, s);
+                targets.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, target->base.loc, s)));
             } else {
                 throw SemanticError("Only Name supported for now as target of Delete",
                         x.base.base.loc);
@@ -4025,7 +4050,8 @@ public:
             AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
             AST::expr_t* cptr = c_p_pointer_call->m_args[0];
             AST::expr_t* pptr = x.m_targets[0];
-            tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+            tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
+                                               x.base.base.loc);
             is_c_p_pointer_call = is_c_p_pointer_call;
             return ;
         }
@@ -4148,6 +4174,15 @@ public:
             }
             ASR::stmt_t *overloaded=nullptr;
             tmp = nullptr;
+            if (target->type == ASR::exprType::Var) {
+                ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(target);
+                ASR::symbol_t *sym = var->m_v;
+                if (do_loop_variables.size() > 0 && std::find(do_loop_variables.begin(), do_loop_variables.end(), sym) != do_loop_variables.end()) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
+                    std::string var_name = std::string(v->m_name);
+                    throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
+                }
+            }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
         }
@@ -4433,6 +4468,12 @@ public:
         ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
                                             x.base.base.loc);
 
+        if (target) {
+            ASR::Var_t* loop_var = ASR::down_cast<ASR::Var_t>(target);
+            ASR::symbol_t* loop_var_sym = loop_var->m_v;
+            do_loop_variables.push_back(loop_var_sym);
+        }
+
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
@@ -4489,6 +4530,10 @@ public:
         } else {
             tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
+        }
+
+        if (!do_loop_variables.empty()) {
+            do_loop_variables.pop_back();
         }
     }
 
@@ -5499,6 +5544,19 @@ public:
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         visit_expr(*x.m_args[1]);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1]);
+        ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
+        if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
+            diag.add(diag::Diagnostic(
+                "Type mismatch in c_p_pointer and target variable, the types must match",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch ('" + ASRUtils::type_to_str_python(target_type) +
+                                "' and '" + ASRUtils::type_to_str_python(asr_alloc_type) + "')",
+                            {target_type->base.loc, asr_alloc_type->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
                                          pptr, nullptr);
     }
@@ -6226,7 +6284,13 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
             pass_options.run_fun = "_lpython_main_program";
             pass_options.runtime_library_dir = get_runtime_library_dir();
             pass_wrap_global_stmts_into_program(al, *tu, pass_options);
-            LCOMPILERS_ASSERT(asr_verify(*tu, true, diagnostics));
+#if defined(WITH_LFORTRAN_ASSERT)
+            diag::Diagnostics diagnostics;
+            if (!asr_verify(*tu, true, diagnostics)) {
+                std::cerr << diagnostics.render2();
+                throw LCompilersException("Verify failed");
+            };
+#endif
         }
     }
 

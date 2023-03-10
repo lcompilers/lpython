@@ -4191,7 +4191,7 @@ class Option : public OptionBase<Option> {
     bool flag_like_{false};
     /// Control option to run the callback to set the default
     bool run_callback_for_default_{false};
-    /// flag indicating a separator needs to be injected after each argument call
+    /// flag indicating a separator must be injected after each argument call
     bool inject_separator_{false};
     ///@}
 
@@ -4745,7 +4745,7 @@ class Option : public OptionBase<Option> {
         }
 
         if(!envname_.empty()) {
-            // this needs to be the original since envname_ shouldn't match on case insensitivity
+            // this must be the original since envname_ shouldn't match on case insensitivity
             return (name == envname_);
         }
         return false;
@@ -7585,7 +7585,7 @@ class App {
     }
 
     /// Parse "one" argument (some may eat more than one), delegate to parent if fails, add to missing if missing
-    /// from master return false if the parse has failed and needs to return to parent
+    /// from master return false if the parse has failed and must return to parent
     bool _parse_single(std::vector<std::string> &args, bool &positional_only) {
         bool retval = true;
         detail::Classifier classifier = positional_only ? detail::Classifier::NONE : _recognize(args.back());
@@ -7886,7 +7886,7 @@ class App {
         int min_num = (std::min)(op->get_type_size_min(), op->get_items_expected_min());
         int max_num = op->get_items_expected_max();
         // check container like options to limit the argument size to a single type if the allow_extra_flags argument is
-        // set. 16 is somewhat arbitrary (needs to be at least 4)
+        // set. 16 is somewhat arbitrary (must be at least 4)
         if(max_num >= detail::expected_max_vector_size / 16 && !op->get_allow_extra_args()) {
             auto tmax = op->get_type_size_max();
             max_num = detail::checked_multiply(tmax, op->get_expected_min()) ? tmax : detail::expected_max_vector_size;

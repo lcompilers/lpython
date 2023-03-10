@@ -920,8 +920,18 @@ public:
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string out, _dims;
         for (size_t i = 0; i < x.n_args; i++) {
+            ASR::symbol_t* tmp_sym = nullptr;
+            ASR::expr_t* tmp_expr = x.m_args[i].m_a;
+            if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                tmp_sym = tmp_var->m_v;
+            } else {
+                throw CodeGenError("Cannot deallocate variables in expression " +
+                                    std::to_string(tmp_expr->type),
+                                    tmp_expr->base.loc);
+            }
             const ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(
-                ASRUtils::symbol_get_past_external(x.m_args[i].m_a));
+                ASRUtils::symbol_get_past_external(tmp_sym));
 
             // Skip pointer allocation
             if (!ASRUtils::is_array(v->m_type))
@@ -1151,6 +1161,17 @@ public:
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = indent + "println(Base.stderr, \"ERROR STOP\")\n";
         src += indent + "exit(1)\n";
+    }
+
+    void visit_IntrinsicFunctionSqrt(const ASR::IntrinsicFunctionSqrt_t &x) {
+        /*
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
+        */
+        this->visit_expr(*x.m_arg);
+        src = "sqrt(" + src + ")";
     }
 
     void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t& /*x*/)
@@ -1419,22 +1440,8 @@ public:
     {
         src = "\"";
         std::string s = x.m_s;
-        for (size_t idx = 0; idx < s.size(); idx++) {
-            if (s[idx] == '\n') {
-                src += "\\n";
-            } else if (s[idx] == '\\') {
-                src += "\\";
-            } else if (s[idx] == '\"') {
-                src += "\"";
-            } else if (s[idx] == '\t') {
-                src += "\\t";
-            } else if (s[idx] == '\b') {
-                src += "\\b";
-            } else if (s[idx] == '\v') {
-                src += "\\v";
-            } else {
-                src += s[idx];
-            }
+        for (size_t idx=0; idx < s.size(); idx++) {
+            src += s[idx];
         }
         src += "\"";
         last_expr_precedence = julia_prec::Base;
@@ -1465,7 +1472,7 @@ public:
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
-        member = ASRUtils::symbol_name(x.m_m);
+        member = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(x.m_m));
         src = der_expr + "." + member;
     }
 

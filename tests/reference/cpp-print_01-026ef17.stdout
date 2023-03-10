@@ -29,11 +29,6 @@ namespace {
 }
 
 // Implementations
-void _lpython_main_program()
-{
-    f();
-}
-
 void f()
 {
     std::string x;
@@ -48,6 +43,11 @@ void f()
     std::cout << "x" << "*\n" << "y" << "*\n" << "z" << y;
     std::cout << "1" << ":" << "2" << std::endl;
     std::cout << "LCompilers" << " " << "LPython" << std::endl;
+}
+
+void _lpython_main_program()
+{
+    f();
 }
 
 namespace {

@@ -423,8 +423,8 @@ public:
         if (ASRUtils::get_FunctionType(x)->m_abi != ASR::abiType::BindC) return;
 
         // Return type and function name
-        bool bindc_name_not_given = (ASRUtils::get_FunctionType(x)->m_bindc_name == NULL ||
-                                     !strcmp("", ASRUtils::get_FunctionType(x)->m_bindc_name));
+        bool bindc_name_not_given = ASRUtils::get_FunctionType(x)->m_bindc_name == NULL ||
+                                    !strcmp("", ASRUtils::get_FunctionType(x)->m_bindc_name);
         std::string effective_name = bindc_name_not_given ? x.m_name : ASRUtils::get_FunctionType(x)->m_bindc_name;
 
         ASR::Variable_t *rtnvar = ASRUtils::EXPR2VAR(x.m_return_var);

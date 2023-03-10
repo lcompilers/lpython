@@ -1880,7 +1880,7 @@ struct QueryData
 
 struct DOCTEST_INTERFACE IReporter
 {
-    // The constructor has to accept "const ContextOptions&" as a single argument
+    // The constructor must accept "const ContextOptions&" as a single argument
     // which has most of the options for the run + a pointer to the stdout stream
     // Reporter(const ContextOptions& in)
 
