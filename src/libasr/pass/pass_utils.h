@@ -50,6 +50,12 @@ namespace LCompilers {
                              std::vector<int>& value_indices, const Location& loc, Allocator& al,
                              SymbolTable*& current_scope, std::string suffix="_k");
 
+        void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, Vec<ASR::expr_t*>& loop_vars,
+                             std::vector<int>& loop_var_indices,
+                             Vec<ASR::expr_t*>& vars, Vec<ASR::expr_t*>& incs,
+                             const Location& loc, Allocator& al,
+                             SymbolTable*& current_scope, std::string suffix="_k");
+
         ASR::expr_t* create_compare_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                             ASR::cmpopType op);
 
