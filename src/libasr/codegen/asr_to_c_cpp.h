@@ -512,7 +512,6 @@ R"(#include <stdio.h>
         bool has_typevar = false;
         std::string sub = get_function_declaration(x, has_typevar);
         if (has_typevar) {
-            indentation_level -= 1;
             src = "";
             return;
         }
