@@ -326,32 +326,16 @@ class PrintListTupleVisitor
                     pass_result.push_back(al, print_stmt);
                 }
                 if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i]))){
-                    if (x.m_separator) {
-                        if (i == x.n_values - 1) {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
-                        }
+                    if (i == x.n_values - 1) {
+                        print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
                     } else {
-                        if (i == x.n_values - 1) {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_list_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
-                        }
+                        print_list_helper(x.m_values[i], x.m_separator, (x.m_separator ? x.m_separator : space), x.base.base.loc);
                     }
                 } else {
-                    if (x.m_separator){
-                        if (i == x.n_values - 1) {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
-                        }
+                    if (i == x.n_values - 1) {
+                        print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
                     } else {
-                        if (i == x.n_values - 1) {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_tuple_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
-                        }
+                        print_tuple_helper(x.m_values[i], x.m_separator, (x.m_separator ? x.m_separator : space), x.base.base.loc);
                     }
                 }
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
