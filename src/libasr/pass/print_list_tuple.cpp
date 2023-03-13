@@ -53,10 +53,11 @@ Converts:
 
 to:
     print("(", end="")
-    for i in range(3):
-        print(a[i], end="")
-        if i < len(a) - 1:
-            print(", ", end="")
+    print(a[0], sep="", end="")
+    print(", ", sep="", end="")
+    print("'", a[1], "'", sep="", end="")
+    print(", ", sep="", end="")
+    print(a[2], sep="", end="")
     print(")", sep="pqr", end="xyz")
 
 It also works the same way for nested lists/tuples using recursion.
