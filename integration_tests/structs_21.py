@@ -18,10 +18,19 @@ def f(c: CPtr):
     print(A)
     assert A == 3
 
+def g(c: CPtr):
+    i: i32
+    for i in range(3):
+        p: Pointer[S] = c_p_pointer(c, S)
+        A: i32 = p.a
+        print(A)
+        assert A == 3
+
 def main():
     s: S = S(3)
     p: CPtr = empty_c_void_p()
     p_c_pointer(pointer(s, S), p)
     f(p)
+    g(p)
 
 main()

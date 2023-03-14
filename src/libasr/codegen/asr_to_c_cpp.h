@@ -324,6 +324,8 @@ R"(#include <stdio.h>
         std::string close_paranthesis = indent + "}\n";
         indent += std::string(indentation_spaces, ' ');
         indentation_level += 1;
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = block->m_symtab;
         std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(block->m_symtab);
         for (auto &item : var_order) {
             ASR::symbol_t* var_sym = block->m_symtab->get_symbol(item);
@@ -343,6 +345,7 @@ R"(#include <stdio.h>
         decl += check_tmp_buffer();
         src = open_paranthesis + decl + body + close_paranthesis;
         indentation_level -= 1;
+        current_scope = current_scope_copy;
     }
 
     // Returns the declaration, no semi colon at the end
