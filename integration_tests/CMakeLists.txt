@@ -231,7 +231,8 @@ RUN(NAME print_04            LABELS cpython llvm c)
 RUN(NAME print_06            LABELS cpython llvm c)
 RUN(NAME print_05            LABELS cpython llvm wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm wasm wasm_x64)
-RUN(NAME print_list_tuple    LABELS cpython c) # TODO: llvm doesn't completely support printing list
+RUN(NAME print_list_tuple_01    LABELS cpython llvm c)
+RUN(NAME print_list_tuple_02    LABELS cpython llvm c)
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c)

@@ -4,14 +4,14 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/print_list.h>
+#include <libasr/pass/print_list_tuple.h>
 
 namespace LCompilers {
 
 /*
 This ASR pass replaces print list or print tuple with print every value,
 comma_space, brackets and newline. The function
-`pass_replace_print_list` transforms the ASR tree in-place.
+`pass_replace_print_list_tuple` transforms the ASR tree in-place.
 
 Converts:
 
@@ -53,23 +53,24 @@ Converts:
 
 to:
     print("(", end="")
-    for i in range(3):
-        print(a[i], end="")
-        if i < len(a) - 1:
-            print(", ", end="")
+    print(a[0], sep="", end="")
+    print(", ", sep="", end="")
+    print("'", a[1], "'", sep="", end="")
+    print(", ", sep="", end="")
+    print(a[2], sep="", end="")
     print(")", sep="pqr", end="xyz")
 
 It also works the same way for nested lists/tuples using recursion.
 */
 
-class PrintListVisitor
-    : public PassUtils::PassVisitor<PrintListVisitor> {
+class PrintListTupleVisitor
+    : public PassUtils::PassVisitor<PrintListTupleVisitor> {
    private:
     std::string rl_path;
 
    public:
    Vec<ASR::stmt_t*> print_pass_result_tmp;
-    PrintListVisitor(Allocator &al, const std::string &rl_path_)
+    PrintListTupleVisitor(Allocator &al, const std::string &rl_path_)
         : PassVisitor(al, nullptr), rl_path(rl_path_) {
         pass_result.reserve(al, 1);
         print_pass_result_tmp.reserve(al, 1);
@@ -326,32 +327,16 @@ class PrintListVisitor
                     pass_result.push_back(al, print_stmt);
                 }
                 if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i]))){
-                    if (x.m_separator) {
-                        if (i == x.n_values - 1) {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
-                        }
+                    if (i == x.n_values - 1) {
+                        print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
                     } else {
-                        if (i == x.n_values - 1) {
-                            print_list_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_list_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
-                        }
+                        print_list_helper(x.m_values[i], x.m_separator, (x.m_separator ? x.m_separator : space), x.base.base.loc);
                     }
                 } else {
-                    if (x.m_separator){
-                        if (i == x.n_values - 1) {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_separator, x.base.base.loc);
-                        }
+                    if (i == x.n_values - 1) {
+                        print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
                     } else {
-                        if (i == x.n_values - 1) {
-                            print_tuple_helper(x.m_values[i], x.m_separator, x.m_end, x.base.base.loc);
-                        } else {
-                            print_tuple_helper(x.m_values[i], x.m_separator, space, x.base.base.loc);
-                        }
+                        print_tuple_helper(x.m_values[i], x.m_separator, (x.m_separator ? x.m_separator : space), x.base.base.loc);
                     }
                 }
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
@@ -376,11 +361,11 @@ class PrintListVisitor
     }
 };
 
-void pass_replace_print_list(
+void pass_replace_print_list_tuple(
     Allocator &al, ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions &pass_options) {
     std::string rl_path = pass_options.runtime_library_dir;
-    PrintListVisitor v(al, rl_path);
+    PrintListTupleVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
 }
 
