@@ -10,6 +10,7 @@ namespace LCompilers  {
 
 namespace ASR {
     struct asr_t;
+    struct stmt_t;
     struct symbol_t;
 }
 
@@ -84,7 +85,7 @@ struct SymbolTable {
 
     void move_symbols_from_global_scope(Allocator &al,
         SymbolTable *module_scope, Vec<char *> &syms,
-        Vec<char *> &mod_dependencies);
+        Vec<char *> &mod_dependencies, Vec<ASR::stmt_t*> &var_init);
 };
 
 } // namespace LCompilers

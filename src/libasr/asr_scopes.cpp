@@ -137,10 +137,11 @@ std::string SymbolTable::get_unique_name(const std::string &name) {
 
 void SymbolTable::move_symbols_from_global_scope(Allocator &al,
         SymbolTable *module_scope, Vec<char *> &syms,
-        Vec<char *> &mod_dependencies) {
+        Vec<char *> &mod_dependencies, Vec<ASR::stmt_t*> &var_init) {
     // TODO: This isn't scalable. We have write a visitor in asdl_cpp.py
     syms.reserve(al, 4);
     mod_dependencies.reserve(al, 4);
+    var_init.reserve(al, 4);
     for (auto &a : scope) {
         switch (a.second->type) {
             case (ASR::symbolType::Module): {
@@ -225,6 +226,21 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
             } case (ASR::symbolType::Variable) : {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
                 v->m_parent_symtab = module_scope;
+                if (v->m_symbolic_value && !ASR::is_a<ASR::Const_t>(*v->m_type)) {
+                    ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(
+                        al, v->base.base.loc, (ASR::symbol_t *) v));
+                    ASR::asr_t* assign = ASR::make_Assignment_t(al,
+                        v->base.base.loc, v_expr, v->m_symbolic_value, nullptr);
+                    var_init.push_back(al, ASRUtils::STMT(assign));
+                    v->m_symbolic_value = nullptr;
+                    v->m_value = nullptr;
+                    Vec<char*> v_dependencies;
+                    v_dependencies.reserve(al, 1);
+                    ASRUtils::collect_variable_dependencies(al,
+                        v_dependencies, v->m_type);
+                    v->m_dependencies = v_dependencies.p;
+                    v->n_dependencies = v_dependencies.size();
+                }
                 module_scope->add_symbol(a.first, (ASR::symbol_t *) v);
                 syms.push_back(al, s2c(al, a.first));
                 break;

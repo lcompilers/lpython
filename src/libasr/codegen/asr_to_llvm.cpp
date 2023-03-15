@@ -2296,6 +2296,14 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::List) {
+            llvm::StructType* list_type = static_cast<llvm::StructType*>(
+                get_type_from_ttype_t_util(x.m_type));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, list_type);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantStruct::get(list_type,
+                llvm::Constant::getNullValue(list_type)));
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
         } else {
@@ -7015,7 +7023,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_manager.apply_passes(al, &asr, pass_options, diagnostics);
 
     // Uncomment for debugging the ASR after the transformation
-    // std::cout << pickle(asr, true, true, true) << std::endl;
+    // std::cout << LPython::pickle(asr, true, true, true) << std::endl;
 
     v.nested_func_types = pass_find_nested_vars(asr, context,
         v.nested_globals, v.nested_call_out, v.nesting_map);
