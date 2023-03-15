@@ -7,7 +7,8 @@
 namespace LCompilers {
 
     Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics, Platform &platform, int64_t default_lower_bound);
+        diag::Diagnostics &diagnostics, CompilerOptions &co,
+        int64_t default_lower_bound);
 
 } // namespace LCompilers
 

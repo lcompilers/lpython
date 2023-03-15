@@ -250,8 +250,7 @@ int emit_cpp(const std::string &infile,
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LCompilers::asr_to_cpp(al, *asr, diagnostics,
-        compiler_options.platform, 0);
+    auto res = LCompilers::asr_to_cpp(al, *asr, diagnostics, compiler_options, 0);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -295,8 +294,7 @@ int emit_c(const std::string &infile,
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LCompilers::asr_to_c(al, *asr, diagnostics,
-        compiler_options.platform, 0);
+    auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
