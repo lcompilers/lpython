@@ -103,6 +103,17 @@ inst\bin\lpython examples\expr2.py -o a.out
 a.out
 ```
 
+- After you update a test case file, you also need to update all the reference results associated with that test case:   
+
+```
+python run_tests.py -u --skip-run-with-dbg
+```
+
+- To see all the options associated with LPython test suite, use:
+```
+python run_tests.py --help
+```
+
 ## Tests (Linux or MacOs):
 
 Run tests:
