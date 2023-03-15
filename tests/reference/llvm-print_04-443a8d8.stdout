@@ -1,10 +1,10 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@u = global i64 -922337203685477580
-@x = global i32 -2147483648
-@y = global i16 -32768
-@z = global i8 -128
+@u = global i64 0
+@x = global i32 0
+@y = global i16 0
+@z = global i8 0
 @0 = private unnamed_addr constant [2 x i8] c" \00", align 1
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [7 x i8] c"%lld%s\00", align 1
@@ -20,6 +20,10 @@ source_filename = "LFortran"
 
 define void @__module__global_symbols__lpython_main_program() {
 .entry:
+  store i64 -922337203685477580, i64* @u, align 4
+  store i32 -2147483648, i32* @x, align 4
+  store i16 -32768, i16* @y, align 2
+  store i8 -128, i8* @z, align 1
   %0 = load i64, i64* @u, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i64 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
   %1 = load i32, i32* @x, align 4
