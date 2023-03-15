@@ -23,7 +23,6 @@ class ReplaceStructTypeConstructor: public ASR::BaseExprReplacer<ReplaceStructTy
     Vec<ASR::stmt_t*>& pass_result;
     bool& remove_original_statement;
     bool& inside_symtab;
-    bool& apply_again;
     std::map<SymbolTable*, Vec<ASR::stmt_t*>>& symtab2decls;
 
     public:
@@ -32,13 +31,12 @@ class ReplaceStructTypeConstructor: public ASR::BaseExprReplacer<ReplaceStructTy
     ASR::expr_t* result_var;
 
     ReplaceStructTypeConstructor(Allocator& al_, Vec<ASR::stmt_t*>& pass_result_,
-        bool& remove_original_statement_, bool& inside_symtab_, bool& apply_again_,
+        bool& remove_original_statement_, bool& inside_symtab_,
         std::map<SymbolTable*, Vec<ASR::stmt_t*>>& symtab2decls_) :
     al(al_), pass_result(pass_result_),
     remove_original_statement(remove_original_statement_),
-    inside_symtab(inside_symtab_), apply_again(apply_again_),
-    symtab2decls(symtab2decls_), current_scope(nullptr),
-    result_var(nullptr) {}
+    inside_symtab(inside_symtab_), symtab2decls(symtab2decls_),
+    current_scope(nullptr), result_var(nullptr) {}
 
     void replace_StructTypeConstructor(ASR::StructTypeConstructor_t* x) {
         if( x->n_args == 0 ) {
@@ -133,7 +131,6 @@ class StructTypeConstructorVisitor : public ASR::CallReplacerOnExpressionsVisito
         Allocator& al;
         bool remove_original_statement;
         bool inside_symtab;
-        bool apply_again;
         ReplaceStructTypeConstructor replacer;
         Vec<ASR::stmt_t*> pass_result;
         std::map<SymbolTable*, Vec<ASR::stmt_t*>> symtab2decls;
@@ -142,10 +139,9 @@ class StructTypeConstructorVisitor : public ASR::CallReplacerOnExpressionsVisito
 
         StructTypeConstructorVisitor(Allocator& al_) :
         al(al_), remove_original_statement(false),
-        inside_symtab(true), apply_again(false),
-        replacer(al_, pass_result,
+        inside_symtab(true), replacer(al_, pass_result,
             remove_original_statement, inside_symtab,
-            apply_again, symtab2decls) {
+            symtab2decls) {
             pass_result.n = 0;
             pass_result.reserve(al, 0);
         }
@@ -173,7 +169,6 @@ class StructTypeConstructorVisitor : public ASR::CallReplacerOnExpressionsVisito
             for (size_t i = 0; i < n_body; i++) {
                 pass_result.n = 0;
                 pass_result.reserve(al, 1);
-                apply_again = false;
                 remove_original_statement = false;
                 replacer.result_var = nullptr;
                 visit_stmt(*m_body[i]);
@@ -225,6 +220,8 @@ void pass_replace_class_constructor(Allocator &al,
     const LCompilers::PassOptions& /*pass_options*/) {
     StructTypeConstructorVisitor v(al);
     v.visit_TranslationUnit(unit);
+    PassUtils::UpdateDependenciesVisitor w(al);
+    w.visit_TranslationUnit(unit);
 }
 
 
