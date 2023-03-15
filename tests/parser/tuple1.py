@@ -35,3 +35,5 @@ a = ( # type: ignore
     x,
     y,
 )
+
+t : tuple[i32, i32] = 2,3    # Without bracket annotated assignment of tuples
