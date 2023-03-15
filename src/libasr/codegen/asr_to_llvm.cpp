@@ -5563,8 +5563,9 @@ public:
                 break;
             }
             case ASR::ttypeType::Struct: {
-                ASR::Struct_t* der = (ASR::Struct_t*)(&(x->m_type->base));
-                ASR::StructType_t* der_type = (ASR::StructType_t*)(&(der->m_derived_type->base));
+                ASR::Struct_t* der = ASR::down_cast<ASR::Struct_t>(x->m_type);
+                ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(
+                    ASRUtils::symbol_get_past_external(der->m_derived_type));
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {
@@ -5584,8 +5585,9 @@ public:
                 break;
             }
             case ASR::ttypeType::Class: {
-                ASR::Class_t* der = (ASR::Class_t*)(&(x->m_type->base));
-                ASR::ClassType_t* der_type = (ASR::ClassType_t*)(&(der->m_class_type->base));
+                ASR::Class_t* der = ASR::down_cast<ASR::Class_t>(x->m_type);
+                ASR::ClassType_t* der_type = ASR::down_cast<ASR::ClassType_t>(
+                    ASRUtils::symbol_get_past_external(der->m_class_type));
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {
