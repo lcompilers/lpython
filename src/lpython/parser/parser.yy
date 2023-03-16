@@ -490,7 +490,7 @@ augassign_op
 
 ann_assignment_statement
     : expr ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
-    | expr ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
+    | expr ":" expr "=" tuple_list { $$ = ANNASSIGN_02($1, $3, $5, @$); }
     ;
 
 delete_statement
