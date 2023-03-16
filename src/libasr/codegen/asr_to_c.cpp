@@ -17,6 +17,11 @@
 #include <map>
 #include <utility>
 
+#define CHECK_FAST_C(compiler_options, x)                         \
+        if (compiler_options.fast && x.m_value != nullptr) {    \
+            visit_expr(*x.m_value);                             \
+            return;                                             \
+        }                                                       \
 
 namespace LCompilers {
 
@@ -30,9 +35,9 @@ public:
 
     int counter;
 
-    ASRToCVisitor(diag::Diagnostics &diag, Platform &platform,
+    ASRToCVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                   int64_t default_lower_bound)
-         : BaseCCPPVisitor(diag, platform, false, false, true, default_lower_bound),
+         : BaseCCPPVisitor(diag, co.platform, co, false, false, true, default_lower_bound),
            array_types_decls(std::string("\nstruct dimension_descriptor\n"
                                          "{\n    int32_t lower_bound, length;\n};\n")),
            c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
@@ -970,15 +975,18 @@ R"(
     }
 
     void visit_EnumStaticMember(const ASR::EnumStaticMember_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         src = std::string(enum_var->m_name);
     }
 
     void visit_EnumValue(const ASR::EnumValue_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
     }
 
     void visit_EnumName(const ASR::EnumName_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         int64_t min_value = INT64_MAX;
         ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
@@ -1127,6 +1135,7 @@ R"(
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
@@ -1144,6 +1153,7 @@ R"(
     }
 
     void visit_ArrayReshape(const ASR::ArrayReshape_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_array);
         std::string array = src;
         visit_expr(*x.m_shape);
@@ -1166,6 +1176,7 @@ R"(
     }
 
     void visit_ArrayBound(const ASR::ArrayBound_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
@@ -1203,6 +1214,7 @@ R"(
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_v);
         std::string array = src;
         std::string out = array;
@@ -1253,6 +1265,7 @@ R"(
     }
 
     void visit_StringItem(const ASR::StringItem_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_idx);
         std::string idx = std::move(src);
         this->visit_expr(*x.m_arg);
@@ -1261,6 +1274,7 @@ R"(
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
+        CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_arg);
         src = "strlen(" + src + ")";
     }
@@ -1276,7 +1290,7 @@ R"(
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics, Platform &platform,
+    diag::Diagnostics &diagnostics, CompilerOptions &co,
     int64_t default_lower_bound)
 {
 
@@ -1286,7 +1300,7 @@ Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
     pass_replace_array_op(al, asr, pass_options);
     pass_unused_functions(al, asr, pass_options);
     pass_replace_class_constructor(al, asr, pass_options);
-    ASRToCVisitor v(diagnostics, platform, default_lower_bound);
+    ASRToCVisitor v(diagnostics, co, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {

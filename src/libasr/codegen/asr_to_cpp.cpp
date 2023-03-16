@@ -77,9 +77,9 @@ public:
     std::map<std::string, std::map<std::string,
              std::map<size_t, std::string>>> eltypedims2arraytype;
 
-    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform,
+    ASRToCPPVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                     int64_t default_lower_bound)
-        : BaseCCPPVisitor(diag, platform, true, true, false,
+        : BaseCCPPVisitor(diag, co.platform, co, true, true, false,
                           default_lower_bound),
           array_types_decls(std::string("\nstruct dimension_descriptor\n"
                                         "{\n    int32_t lower_bound, length;\n};\n")) {}
@@ -739,13 +739,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 };
 
 Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics, Platform &platform,
+    diag::Diagnostics &diagnostics, CompilerOptions &co,
     int64_t default_lower_bound)
 {
     LCompilers::PassOptions pass_options;
     pass_options.always_run = true;
     pass_unused_functions(al, asr, pass_options);
-    ASRToCPPVisitor v(diagnostics, platform, default_lower_bound);
+    ASRToCPPVisitor v(diagnostics, co, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {

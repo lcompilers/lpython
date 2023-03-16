@@ -27,6 +27,12 @@
 #include <map>
 #include <tuple>
 
+#define CHECK_FAST_C_CPP(compiler_options, x)                         \
+        if (compiler_options.fast && x.m_value != nullptr) {    \
+            self().visit_expr(*x.m_value);                      \
+            return;                                             \
+        }                                                       \
+
 
 namespace LCompilers {
 
@@ -86,6 +92,7 @@ public:
     Platform platform;
     std::string src;
     std::string current_body;
+    CompilerOptions &compiler_options;
     int indentation_level;
     int indentation_spaces;
     // The precedence of the last expression, using the table:
@@ -133,9 +140,9 @@ public:
     bool is_string_concat_present;
 
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
-            bool gen_stdstring, bool gen_stdcomplex, bool is_c,
+            CompilerOptions &_compiler_options, bool gen_stdstring, bool gen_stdcomplex, bool is_c,
             int64_t default_lower_bound) : diag{diag},
-            platform{platform},
+            platform{platform}, compiler_options{_compiler_options},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
@@ -584,6 +591,7 @@ R"(#include <stdio.h>
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
             ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
@@ -642,11 +650,13 @@ R"(#include <stdio.h>
     }
 
     void visit_SizeOfType(const ASR::SizeOfType_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         std::string c_type = CUtils::get_c_type_from_ttype_t(x.m_arg);
         src = "sizeof(" + c_type + ")";
     }
 
     void visit_StringSection(const ASR::StringSection_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         std::string arg, left, right, step, left_present, rig_present;
         arg = src;
@@ -677,11 +687,13 @@ R"(#include <stdio.h>
     }
 
     void visit_StringChr(const ASR::StringChr_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         src = "_lfortran_str_chr(" + src + ")";
     }
 
     void visit_StringOrd(const ASR::StringOrd_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         if (ASR::is_a<ASR::StringConstant_t>(*x.m_arg)) {
             src = "(int)" + src + "[0]";
@@ -691,6 +703,7 @@ R"(#include <stdio.h>
     }
 
     void visit_StringRepeat(const ASR::StringRepeat_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_left);
         std::string s = src;
         self().visit_expr(*x.m_right);
@@ -891,10 +904,7 @@ R"(#include <stdio.h>
 
     void visit_StringConcat(const ASR::StringConcat_t& x) {
         is_string_concat_present = true;
-        if( x.m_value ) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         self().visit_expr(*x.m_right);
@@ -1049,6 +1059,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ListConcat(const ASR::ListConcat_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
         std::string list_concat_func = c_ds_api->get_list_concat_func(t);
         bracket_open++;
@@ -1067,6 +1078,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ListSection(const ASR::ListSection_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         std::string left, right, step, l_present, r_present;
         bracket_open++;
         if (x.m_section.m_left) {
@@ -1124,6 +1136,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ListCompare(const ASR::ListCompare_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
         std::string list_cmp_func = c_ds_api->get_compare_func(type);
         bracket_open++;
@@ -1173,28 +1186,19 @@ R"(#include <stdio.h>
     }
 
     void visit_ListLen(const ASR::ListLen_t& x) {
-        if( x.m_value ) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         src = src + ".current_end_point";
     }
 
     void visit_TupleLen(const ASR::TupleLen_t& x) {
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         src = src + ".length";
     }
 
     void visit_DictLen(const ASR::DictLen_t& x) {
-        if ( x.m_value ) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_arg);
         ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
         std::string dict_len_fun = c_ds_api->get_dict_len_func(t);
@@ -1205,10 +1209,7 @@ R"(#include <stdio.h>
     }
 
     void visit_DictPop(const ASR::DictPop_t& x) {
-        if ( x.m_value ) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(t_ttype);
         std::string dict_pop_fun = c_ds_api->get_dict_pop_func(t);
@@ -1222,10 +1223,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        if( x.m_value ) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_a);
         std::string list_var = std::move(src);
         self().visit_expr(*x.m_pos);
@@ -1235,10 +1233,7 @@ R"(#include <stdio.h>
     }
 
     void visit_TupleItem(const ASR::TupleItem_t& x) {
-        if (x.m_value) {
-            self().visit_expr(*x.m_value);
-            return ;
-        }
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_a);
         std::string tup_var = std::move(src);
         ASR::expr_t *pos_val = ASRUtils::expr_value(x.m_pos);
@@ -1275,6 +1270,7 @@ R"(#include <stdio.h>
     }
 
     void visit_StructInstanceMember(const ASR::StructInstanceMember_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
@@ -1289,6 +1285,7 @@ R"(#include <stdio.h>
     }
 
     void visit_UnionInstanceMember(const ASR::UnionInstanceMember_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
@@ -1297,6 +1294,7 @@ R"(#include <stdio.h>
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
@@ -1448,6 +1446,7 @@ R"(#include <stdio.h>
     }
 
     void visit_IntegerBitLen(const ASR::IntegerBitLen_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_a);
         int arg_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch (arg_kind) {
@@ -1482,6 +1481,7 @@ R"(#include <stdio.h>
 
     template<typename T>
     void handle_Compare(const T &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -1516,6 +1516,7 @@ R"(#include <stdio.h>
     }
 
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -1540,6 +1541,7 @@ R"(#include <stdio.h>
 
     template <typename T>
     void handle_UnaryMinus(const T &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -1552,6 +1554,7 @@ R"(#include <stdio.h>
 
     void visit_ComplexRe(const ASR::ComplexRe_t &x) {
         headers.insert("complex");
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         if (is_c) {
             src = "creal(" + src + ")";
@@ -1562,6 +1565,7 @@ R"(#include <stdio.h>
 
     void visit_ComplexIm(const ASR::ComplexIm_t &x) {
         headers.insert("complex");
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         if (is_c) {
             src = "cimag(" + src + ")";
@@ -1571,6 +1575,7 @@ R"(#include <stdio.h>
     }
 
     void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -1582,6 +1587,7 @@ R"(#include <stdio.h>
     }
 
     void visit_GetPointer(const ASR::GetPointer_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         std::string arg_src = std::move(src);
         std::string addr_prefix = "&";
@@ -1593,6 +1599,7 @@ R"(#include <stdio.h>
     }
 
     void visit_PointerToCPtr(const ASR::PointerToCPtr_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         std::string arg_src = std::move(src);
         if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ) {
@@ -1616,6 +1623,7 @@ R"(#include <stdio.h>
 
     template <typename T>
     void handle_BinOp(const T &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -1672,6 +1680,7 @@ R"(#include <stdio.h>
     }
 
     void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -2041,6 +2050,7 @@ R"(#include <stdio.h>
     void visit_IfExp(const ASR::IfExp_t &x) {
         // IfExp is like a ternary operator in c++
         // test ? body : orelse;
+        CHECK_FAST_C_CPP(compiler_options, x)
         std::string out = "(";
         self().visit_expr(*x.m_test);
         out += src + ") ? (";
