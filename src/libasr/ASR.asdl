@@ -224,7 +224,7 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | FunctionCall(symbol name, symbol? original_name, call_arg* args,
             ttype type, expr? value, expr? dt)
-    | StructTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,

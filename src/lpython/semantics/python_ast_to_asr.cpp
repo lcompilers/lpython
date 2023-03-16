@@ -1138,15 +1138,12 @@ public:
                     s_generic, args_new.p, args_new.size(), nullptr);
             }
         } else if(ASR::is_a<ASR::StructType_t>(*s)) {
-            Vec<ASR::expr_t*> args_new;
-            args_new.reserve(al, args.size());
-            visit_expr_list(args, args.size(), args_new);
             ASR::StructType_t* StructType = ASR::down_cast<ASR::StructType_t>(s);
             for( size_t i = 0; i < std::min(args.size(), StructType->n_members); i++ ) {
                 std::string member_name = StructType->m_members[i];
                 ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
                                                 StructType->m_symtab->resolve_symbol(member_name));
-                ASR::expr_t* arg_new_i = args_new[i];
+                ASR::expr_t* arg_new_i = args[i].m_value;
                 cast_helper(member_var->m_type, arg_new_i, arg_new_i->base.loc);
                 ASR::ttype_t* left_type = member_var->m_type;
                 ASR::ttype_t* right_type = ASRUtils::expr_type(arg_new_i);
@@ -1162,10 +1159,10 @@ public:
                     );
                     throw SemanticAbort();
                 }
-                args_new.p[i] = arg_new_i;
+                args.p[i].m_value = arg_new_i;
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, stemp, nullptr, 0));
-            return ASR::make_StructTypeConstructor_t(al, loc, stemp, args_new.p, args_new.size(), der_type, nullptr);
+            return ASR::make_StructTypeConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
