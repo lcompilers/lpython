@@ -211,13 +211,24 @@ struct PythonIntrinsicProcedures {
         if (ASRUtils::is_integer(*type)) {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(arg2)->m_n;
+            if(b == 0) { // Zero Division
+                throw SemanticError("Integer division or modulo by zero",loc);
+            }
+
+            // Refer the following link to understand how modulo in C++ is modified to behave like Python.
+            // https://stackoverflow.com/questions/1907565/c-and-python-different-behaviour-of-the-modulo-operation
             return ASR::down_cast<ASR::expr_t>(
-                ASR::make_IntegerConstant_t(al, loc, a%b, type));
+                ASR::make_IntegerConstant_t(al, loc, ((a%b)+b)%b, type));
         } else if (ASRUtils::is_real(*type)) {
             double a = ASR::down_cast<ASR::RealConstant_t>(arg1)->m_r;
             double b = ASR::down_cast<ASR::RealConstant_t>(arg2)->m_r;
+            if (b == 0) { // Zero Division
+                throw SemanticError("Float division or modulo by zero", loc);
+            }
+
+            // https://stackoverflow.com/questions/1907565/c-and-python-different-behaviour-of-the-modulo-operation
             return ASR::down_cast<ASR::expr_t>(
-                ASR::make_RealConstant_t(al, loc, std::fmod(a, b), type));
+                ASR::make_RealConstant_t(al, loc, std::fmod(std::fmod(a, b) + b, b), type));
         } else {
             throw SemanticError("_mod() must have both integer or both real arguments.", loc);
         }

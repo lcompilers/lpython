@@ -11,6 +11,8 @@ def main0():
     b: i32
     a = 10
     b = -5
+    eps: f64
+    eps = 1e-12
     assert test_multiply(a, b) == -50
     i: i64
     i = i64(1)
@@ -69,6 +71,12 @@ def main0():
     assert a == 0
     b **= 4
     assert b == 256
+    # Test Issue 1562
+    assert ((-8)%3) == 1
+    assert ((8)%-3) == -1
+    assert (-8%-3) == -2
+    assert abs((11.0%-3.0) - (-1.0)) < eps
+    assert abs((-11.0%3.0) - (1.0)) < eps
 
 
 main0()
