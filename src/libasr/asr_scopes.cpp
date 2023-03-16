@@ -226,7 +226,10 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
             } case (ASR::symbolType::Variable) : {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
                 v->m_parent_symtab = module_scope;
-                if (v->m_symbolic_value && !ASR::is_a<ASR::Const_t>(*v->m_type)) {
+                // Make the Assignment statement only for the data-types (List,
+                // Dict, ...), that cannot be handled in the LLVM global scope
+                if (v->m_symbolic_value && !ASR::is_a<ASR::Const_t>(*v->m_type)
+                        && ASR::is_a<ASR::List_t>(*v->m_type)) {
                     ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(
                         al, v->base.base.loc, (ASR::symbol_t *) v));
                     ASR::asr_t* assign = ASR::make_Assignment_t(al,
