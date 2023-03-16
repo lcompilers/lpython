@@ -242,6 +242,7 @@ R"(#include <stdio.h>
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 std::string decl = self().convert_variable_decl(*v);
+                decl = check_tmp_buffer() + decl;
                 bool used_define_for_const = (ASR::is_a<ASR::Const_t>(*v->m_type) &&
                         v->m_intent == ASRUtils::intent_local);
                 if (used_define_for_const) {
@@ -300,11 +301,12 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                decl += self().convert_variable_decl(*v);
+                std::string d = self().convert_variable_decl(*v);
                 if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                     v->m_intent == ASRUtils::intent_return_var ) {
-                    decl += ";\n";
+                    d += ";\n";
                 }
+                decl += check_tmp_buffer() + d;
             }
         }
 
@@ -336,11 +338,12 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = block->m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                decl += indent + self().convert_variable_decl(*v);
+                std::string d = indent + self().convert_variable_decl(*v);
                 if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                     v->m_intent == ASRUtils::intent_return_var ) {
-                    decl += ";\n";
+                    d += ";\n";
                 }
+                decl += check_tmp_buffer() + d;
             }
         }
         for (size_t i=0; i<block->n_body; i++) {
@@ -539,11 +542,12 @@ R"(#include <stdio.h>
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                     if (v->m_intent == ASRUtils::intent_local ||
                         v->m_intent == ASRUtils::intent_return_var) {
-                        decl += indent + self().convert_variable_decl(*v);
+                        std::string d = indent + self().convert_variable_decl(*v);
                         if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                             v->m_intent == ASRUtils::intent_return_var ) {
-                            decl += ";\n";
+                            d += ";\n";
                         }
+                        decl += check_tmp_buffer() + d;
                     }
                     if (ASR::is_a<ASR::TypeParameter_t>(*v->m_type)) {
                         has_typevar = true;

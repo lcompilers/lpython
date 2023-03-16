@@ -1248,7 +1248,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             auto res = LCompilers::asr_to_cpp(al, *asr.result, diagnostics,
-                compiler_options.platform, 0);
+                compiler_options, 0);
             out = diagnostics.render(lm, compiler_options);
             if (res.ok) {
                 out += res.result;
