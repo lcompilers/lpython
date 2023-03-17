@@ -20,4 +20,10 @@ def f():
     i = i32(int(s))
     assert i == -1234
 
+    assert int("  3   ") == 3
+    assert int("+3") == 3
+    assert int("\n3") == 3
+    assert int("3\n") == 3
+    assert int("\r\t\n3\r\t\n") == 3
+
 f()
