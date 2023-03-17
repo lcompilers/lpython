@@ -230,6 +230,7 @@ RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test 
 RUN(NAME print_04            LABELS cpython llvm c)
 RUN(NAME print_06            LABELS cpython llvm c)
 RUN(NAME print_05            LABELS cpython llvm wasm wasm_x64)
+RUN(NAME print_07            LABELS cpython llvm c)
 RUN(NAME print_float         LABELS cpython llvm wasm wasm_x64)
 RUN(NAME print_list_tuple_01    LABELS cpython llvm c)
 RUN(NAME print_list_tuple_02    LABELS cpython llvm c)
