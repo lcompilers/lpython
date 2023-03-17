@@ -470,6 +470,26 @@ def _lpython_floordiv(a: f32, b: f32) -> f32:
     return resultf32
 
 @overload
+def _lpython_floordiv(a: i8, b: i8) -> i8:
+    r: f64 # f32 rounds things up and gives incorrect results
+    r = float(a)/float(b)
+    result: i8
+    result = i8(r)
+    if r >= 0.0 or f64(result) == r:
+        return result
+    return result - i8(1)
+
+@overload
+def _lpython_floordiv(a: i16, b: i16) -> i16:
+    r: f64 # f32 rounds things up and gives incorrect results
+    r = float(a)/float(b)
+    result: i16
+    result = i16(r)
+    if r >= 0.0 or f64(result) == r:
+        return result
+    return result - i16(1)
+
+@overload
 def _lpython_floordiv(a: i32, b: i32) -> i32:
     r: f64 # f32 rounds things up and gives incorrect results
     r = float(a)/float(b)

@@ -24,7 +24,7 @@ struct dimension_descriptor
 };
 // Forward declarations
 void test_binop();
-bool __lpython_overloaded_4___lpython_floordiv(bool a, bool b);
+bool __lpython_overloaded_6___lpython_floordiv(bool a, bool b);
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
 namespace {
@@ -49,11 +49,11 @@ void test_binop()
     x = std::pow((int)(true), (int)(false));
     b1 = true;
     b2 = false;
-    x = (int)(__lpython_overloaded_4___lpython_floordiv(b1, b1));
+    x = (int)(__lpython_overloaded_6___lpython_floordiv(b1, b1));
     x = std::pow((int)(b1), (int)(b2));
 }
 
-bool __lpython_overloaded_4___lpython_floordiv(bool a, bool b)
+bool __lpython_overloaded_6___lpython_floordiv(bool a, bool b)
 {
     bool _lpython_return_variable;
     if (b == false) {
