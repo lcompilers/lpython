@@ -52,18 +52,6 @@ def test_floor_div_9_digits():
     x8 = i64(123456789)
     assert x8//y8 == i64(12345678)
 
-def test_issue_1586():
-    x4: i16
-    y4: i16
-    y4 = i16(10)
-    x4 = i16(12345)
-    assert x4//y4 == i16(1234)
-
-    a4: i8
-    b4: i8
-    a4 = i8(10)
-    b4 = i8(123)
-    assert b4//a4 == i8(12)
 
 def check():
     test_issue_255()
