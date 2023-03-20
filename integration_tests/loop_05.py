@@ -1,5 +1,7 @@
+from ltypes import i32
+
 def f():
-    j :i32 = 0
+    j: i32 = 0
     while True:
         j = j + 1
         print(j)

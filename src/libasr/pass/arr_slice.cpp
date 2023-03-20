@@ -98,7 +98,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
     void replace_ArraySection(ASR::ArraySection_t* x) {
         LCOMPILERS_ASSERT(current_scope != nullptr);
         ASR::expr_t* x_arr_var = x->m_v;
-        std::string new_name = "~" + std::to_string(slice_counter) + "_slice";
+        std::string new_name = "__libasr__created__section__" + std::to_string(slice_counter) + "_slice";
         slice_counter += 1;
         char* new_var_name = s2c(al, new_name);
         ASR::ttype_t* slice_asr_type = get_array_from_slice(x, x_arr_var);
