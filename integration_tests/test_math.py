@@ -1,6 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
-                  modf, fsum, prod, dist)
+                  modf, fsum, prod, dist, exp2)
 import math
 from ltypes import i32, i64, f32, f64
 
@@ -60,6 +60,10 @@ def test_exp():
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
 
+def test_exp2():
+    i: f64
+    i = exp2(4.3)
+    assert abs(i - 19.698310613518657) < eps
 
 def test_pow():
     eps: f64
@@ -262,6 +266,7 @@ def check():
     test_degrees()
     test_radians()
     test_exp()
+    test_exp2()
     test_pow()
     test_fabs()
     test_ldexp()

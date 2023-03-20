@@ -1,6 +1,6 @@
 from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
                   lgamma, asin, acos, atan, atan2, asinh, acosh, atanh,
-                  tanh, sinh, cosh, hypot, copysign)
+                  tanh, sinh, cosh, hypot, copysign, cbrt)
 from ltypes import f64
 
 def test_trig():
@@ -20,6 +20,11 @@ def test_sqrt():
     eps: f64 = 1e-12
     assert abs(sqrt(2.0) - 1.4142135623730951) < eps
     assert abs(sqrt(9.0) - 3.0) < eps
+
+def test_cbrt():
+    eps: f64 = 1e-12
+    assert abs(cbrt(124.0) - 4.986630952238646) < eps
+    assert abs(cbrt(39.0) - 3.3912114430141664) < eps
 
 def test_log():
     eps: f64 = 1e-12
@@ -57,6 +62,7 @@ def test_hypot():
 def check():
     test_trig()
     test_sqrt()
+    test_cbrt()
     test_log()
     test_special()
     test_hyperbolic()
