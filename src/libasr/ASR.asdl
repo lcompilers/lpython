@@ -321,6 +321,8 @@ expr
 
     | IntrinsicFunctionSqrt(expr arg, ttype type, expr? value)
 
+    | SymbolicCall(expr arg, ttype type, expr? value)
+
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
@@ -359,6 +361,7 @@ ttype
     | Const(ttype type)
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
+    | Symbolic()
     | FunctionType(ttype* arg_types, ttype? return_var_type,
         abi abi, deftype deftype, string? bindc_name, bool elemental,
         bool pure, bool module, bool inline, bool static, ttype* type_params,

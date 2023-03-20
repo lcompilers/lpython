@@ -1,10 +1,6 @@
-def main0():
-    x: i32
-    x = (2+3)*5
+def main():
+    x: symbolic = Symbolic('x')
     print(x)
 
-main0()
+main()
 
-# Not implemented yet in LPython:
-#if __name__ == "__main__":
-#    main()

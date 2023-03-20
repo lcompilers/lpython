@@ -916,6 +916,8 @@ public:
                 4, dims.p, dims.size()));
         } else if (var_annotation == "CPtr") {
             type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+        } else if (var_annotation == "symbolic") {
+            type = ASRUtils::TYPE(ASR::make_Symbolic_t(al, loc));
         } else if (var_annotation == "pointer") {
             LCOMPILERS_ASSERT(n_args == 1);
             AST::expr_t* underlying_type = m_args[0];
@@ -6175,6 +6177,12 @@ public:
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
+            } else if (call_name == "Symbolic") {
+                LCOMPILERS_ASSERT(args.size() == 1)
+                tmp = ASR::make_SymbolicCall_t(al, x.base.base.loc,
+                    args[0].m_value,ASRUtils::TYPE(ASR::make_Symbolic_t(
+                    al, x.base.base.loc)), nullptr);
+                return ;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
