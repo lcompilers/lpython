@@ -469,7 +469,7 @@ def exp2(x: f64) -> f64:
     """
     Return `2` raised to the power `x`.
     """
-    return 2**x
+    return f64((2.0)**x)
 
 
 def mod(a: i32, b: i32) -> i32:
