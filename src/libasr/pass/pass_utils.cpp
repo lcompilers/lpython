@@ -231,7 +231,7 @@ namespace LCompilers {
         ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
                                 ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope) {
             ASR::expr_t* idx_var = nullptr;
-            std::string str_name = "~" + std::to_string(counter) + suffix;
+            std::string str_name = "__libasr__created__var__" + std::to_string(counter) + suffix;
             char* idx_var_name = s2c(al, str_name);
 
             if( current_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
