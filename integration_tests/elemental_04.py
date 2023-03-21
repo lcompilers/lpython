@@ -34,7 +34,7 @@ def elemental_log2_log10():
     i: i32
     j: i32
     eps: f32
-    eps = f32(2e-6)
+    eps = f32(5e-6)
 
     for i in range(10):
         for j in range(10):

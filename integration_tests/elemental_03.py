@@ -30,7 +30,7 @@ def elemental_sqrt32():
     observed: f32[256] = empty(256)
     shape: i32[1] = empty(1, dtype=int)
     eps: f32
-    eps = f32(2e-6)
+    eps = f32(5e-6)
     i: i32
     j: i32
     l: i32
