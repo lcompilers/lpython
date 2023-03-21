@@ -213,6 +213,11 @@ def test_mode():
     k = mode(d)
     assert k == -3
 
+    e: list[i64]
+    e = [i64(-1), i64(2), i64(-3), i64(-5), i64(-3), i64(-1), i64(4), i64(-2), i64(4), i64(-5), i64(-3), i64(4), i64(-3)]
+    l: i64 = mode(e)
+    assert l == i64(-3)
+
 
 def check():
     test_mean()
