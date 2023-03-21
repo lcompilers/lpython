@@ -50,8 +50,8 @@ using LCompilers::endswith;
 using LCompilers::CompilerOptions;
 using LCompilers::LPython::parse_python_file;
 
-enum Backend {
-    llvm, cpp, x86, wasm, wasm_x86, wasm_x64
+enum class Backend {
+    llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -1534,6 +1534,8 @@ int main(int argc, char *argv[])
 
         if (arg_backend == "llvm") {
             backend = Backend::llvm;
+        } else if (arg_backend == "c") {
+            backend = Backend::c;
         } else if (arg_backend == "cpp") {
             backend = Backend::cpp;
         } else if (arg_backend == "x86") {
@@ -1545,7 +1547,7 @@ int main(int argc, char *argv[])
         } else if (arg_backend == "wasm_x64") {
             backend = Backend::wasm_x64;
         } else {
-            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm, wasm_x86, wasm_x64." << std::endl;
+            std::cerr << "The backend must be one of: llvm, c, cpp, x86, wasm, wasm_x86, wasm_x64." << std::endl;
             return 1;
         }
 
