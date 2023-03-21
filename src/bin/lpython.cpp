@@ -1721,7 +1721,7 @@ int main(int argc, char *argv[])
 
             if (compiler_options.arg_o == "") {
                 if (backend == Backend::wasm) {
-                    err = system(("node " + outfile +".js").c_str());
+                    err = system(("node --experimental-wasi-unstable-preview1 " + outfile +".js").c_str());
                 } else {
                     if (compiler_options.platform == LCompilers::Platform::Windows) {
                         return system(outfile.c_str());
