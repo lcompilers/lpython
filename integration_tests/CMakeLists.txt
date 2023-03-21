@@ -125,28 +125,6 @@ macro(RUN)
             if (${RUN_FAIL})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-
-        elseif(KIND STREQUAL "cpython_3_11")
-            # We need this support for New Python 3.11 functions 
-            # CPython test
-            if (RUN_EXTRAFILES)
-                set(PY_MOD "${name}_mod")
-                add_library(${PY_MOD} SHARED ${RUN_EXTRAFILES})
-                set_target_properties(${PY_MOD} PROPERTIES LINKER_LANGUAGE C)
-            else()
-                set(PY_MOD "")
-            endif()
-
-            add_test(${name} python3.11 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
-            set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
-            endif()
-            if (${RUN_FAIL})
-                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
-            endif()
-
         elseif(KIND STREQUAL "x86")
             # x86 test
             add_custom_command(
@@ -317,7 +295,7 @@ RUN(NAME test_import_02      LABELS cpython llvm c)
 RUN(NAME test_import_03      LABELS cpython llvm c)
 RUN(NAME test_import_04      IMPORT_PATH ..
         LABELS cpython llvm c)
-RUN(NAME test_math           LABELS cpython_3_11 llvm)
+RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
 RUN(NAME test_numpy_03       LABELS cpython llvm c)
@@ -352,7 +330,8 @@ RUN(NAME test_builtin_round  LABELS cpython llvm c)
 RUN(NAME test_builtin_divmod LABELS cpython llvm c)
 RUN(NAME test_builtin_sum    LABELS cpython llvm c)
 RUN(NAME test_math1          LABELS cpython llvm c)
-RUN(NAME test_math_02        LABELS cpython_3_11 llvm)
+RUN(NAME test_math_02        LABELS cpython llvm)
+RUN(NAME test_math_03        LABELS llvm)
 RUN(NAME test_pass_compare   LABELS cpython llvm c)
 RUN(NAME test_c_interop_01   LABELS cpython llvm c)
 RUN(NAME test_c_interop_02   LABELS cpython llvm c
