@@ -60,7 +60,6 @@ def test_exp():
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
 
-
 def test_pow():
     eps: f64
     eps = 1e-12
