@@ -589,6 +589,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         label_to_str["base_memory"] = base_memory;
 
         NO_OF_IMPORTS = imports.size();
+
+        m_a.add_label("text_segment_start");
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx + 1].name);
             {
@@ -607,12 +609,15 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         }
 
-        for (auto &s : label_to_str) {
-            emit_data_string(m_a, s.first, s.second);
-        }
-
         for (auto &d : double_consts) {
             emit_double_const(m_a, d.first, d.second);
+        }
+
+        m_a.add_label("text_segment_end");
+
+        m_a.add_label("data_segment_start");
+        for (auto &s : label_to_str) {
+            emit_data_string(m_a, s.first, s.second);
         }
 
         for (size_t i = 0; i < globals.size(); i++) {
@@ -644,6 +649,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 default: throw CodeGenError("decode_global_section: Unsupport global type"); break;
             }
         }
+        m_a.add_label("data_segment_end");
 
         emit_elf64_footer(m_a);
     }
