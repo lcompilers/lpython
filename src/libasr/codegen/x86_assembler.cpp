@@ -62,7 +62,6 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dw_imm16(0);  // e_shnum
     a.asm_dw_imm16(0);  // e_shstrndx
 
-    a.add_var("ehdrsize", a.pos()-a.get_defined_symbol("ehdr").value);
 
     /* Elf32_Phdr */
     a.add_label("phdr");
@@ -74,9 +73,11 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dd_label("filesize"); // p_memsz
     a.asm_dd_imm32(p_flags);        // p_flags
     a.asm_dd_imm32(0x1000);   // p_align
+    a.add_label("phdr_end");
 
-    a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
-    a.add_var("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
+    a.add_var("ehdrsize", "ehdr", "phdr");
+    a.add_var("phdrsize", "phdr", "phdr_end");
+    a.add_var("e_phoff", "ehdr", "phdr");
 }
 
 void emit_elf32_footer(X86Assembler &a) {
