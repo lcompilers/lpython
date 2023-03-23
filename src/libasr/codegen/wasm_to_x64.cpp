@@ -590,6 +590,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         NO_OF_IMPORTS = imports.size();
 
+        m_a.align_by_byte(0x1000);
         m_a.add_label("text_segment_start");
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx + 1].name);
@@ -615,6 +616,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         m_a.add_label("text_segment_end");
 
+        m_a.align_by_byte(0x1000);
         m_a.add_label("data_segment_start");
         for (auto &s : label_to_str) {
             emit_data_string(m_a, s.first, s.second);

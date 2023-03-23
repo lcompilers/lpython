@@ -30,6 +30,7 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #include <sstream>
 #include <fstream>
 #include <map>
+#include <cmath>
 
 #include <libasr/alloc.h>
 #include <libasr/containers.h>
@@ -463,6 +464,15 @@ public:
 
     Vec<uint8_t>& get_machine_code() {
         return m_code;
+    }
+
+    void align_by_byte(uint64_t alignment) {
+        uint64_t code_size = m_code.size() ;
+        uint64_t padding_size = (alignment * ceil(code_size / (double)alignment)) - code_size;
+        for (size_t i = 0; i < padding_size; i++) {
+            m_code.push_back(m_al, 0);
+        }
+        EMIT("times " + std::to_string(padding_size) + " db 0");
     }
 
     void define_symbol(const std::string &name, uint32_t value) {
