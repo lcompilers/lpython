@@ -775,6 +775,21 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
         res = res and (j == len(sub))
     return res
 
+@overload
+def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+
+    if(len(suffix) > len(s)):
+        return False
+    
+    i : i32
+    i = 0
+    while(i < len(suffix)):
+        if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
+            return False
+        i += 1
+        
+    return True
+
 
 def list(s: str) -> list[str]:
     l: list[str] = []

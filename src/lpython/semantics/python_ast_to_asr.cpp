@@ -5665,13 +5665,13 @@ public:
             fn_args.push_back(al, arg);
         } else if (attr_name == "startswith") {
             if(args.size() != 1) {
-                throw SemanticError("str.startwith() takes one argument",
+                throw SemanticError("str.startswith() takes one argument",
                         loc);
             }
             ASR::expr_t *arg_sub = args[0].m_value;
             ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
             if (!ASRUtils::is_character(*arg_sub_type)) {
-                throw SemanticError("str.startwith() takes one argument of type: str",
+                throw SemanticError("str.startswith() takes one argument of type: str",
                         loc);
             }
             fn_call_name = "_lpython_str_startswith";
@@ -5683,6 +5683,38 @@ public:
             sub.m_value = args[0].m_value;
             fn_args.push_back(al, str);
             fn_args.push_back(al, sub);
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->  
+                Return True if the string ends with the specified suffix, otherwise return False.
+
+                arg_sub: Substring argument provided inside endswith() function
+                arg_sub_type: Type of Substring argument
+                fn_call_name: Name of the Function that has logic/implementation of endswith() function
+                str: Associates with string on which endswith() function will act on
+                suffix: Associates with the suffix string which is provided as an argument to endswith() function
+            */
+            if(args.size() != 1) {
+                throw SemanticError("str.endswith() takes only one argument", loc);
+            }
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_endswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t suffix;
+            suffix.loc = loc;
+            suffix.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, suffix);
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -5872,6 +5904,62 @@ public:
                 args.push_back(al, sub_arg);
                 tmp = make_call_helper(al, fn_div, current_scope, args,
                         "_lpython_str_startswith", loc);
+            }
+            return;
+        } else if (attr_name == "endswith") {
+            /* 
+                str.endswith(suffix)     ---->  
+                Return True if the string ends with the specified suffix, otherwise return False.
+            */
+
+            if (args.size() != 1) {
+                throw SemanticError("str.endswith() takes one arguments", loc);
+            }
+
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
+            }
+            
+            if (ASRUtils::expr_value(arg_suffix) != nullptr) {
+                /*
+                    Invoked when Suffix argument is provided as a constant string
+                */
+                ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
+                std::string suffix = suffix_constant->m_s;
+                
+                bool res = true;
+                if (suffix.size() > s_var.size()) 
+                    res = false;
+                else 
+                    res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
+                
+                tmp = ASR::make_LogicalConstant_t(al, loc, res, 
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+    
+            } else {
+                /*
+                    Invoked when Suffix argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".endswith(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_endswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_suffix;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
             }
             return;
         } else {
