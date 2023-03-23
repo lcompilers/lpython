@@ -5683,6 +5683,73 @@ public:
             sub.m_value = args[0].m_value;
             fn_args.push_back(al, str);
             fn_args.push_back(al, sub);
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->  
+                Return True if the string ends with the specified suffix, otherwise return False.
+
+                arg_sub: Substring argument provided inside endswith() function
+                arg_sub_type: Type of Substring argument
+                fn_call_name: Name of the Function that has logic/implementation of endswith() function
+                str: Associates with string on which endswith() function will act on
+                suffix: Associates with the suffix string which is provided as an argument to endswith() function
+            */
+            if(args.size() != 1) {
+                throw SemanticError("str.endswith() takes only one argument", loc);
+            }
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_endswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t suffix;
+            suffix.loc = loc;
+            suffix.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, suffix);
+        } else if (attr_name == "partition") {
+
+            /*  
+                str.partition(seperator)        ---->
+
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
+                before the separator, the separator itself, and the part after the separator. 
+                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                by two empty strings.
+            */
+            
+            if(args.size() != 1) {
+                throw SemanticError("str.partition() takes one argument",
+                        loc);
+            }
+
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one argument of type: str",
+                        loc);
+            }
+
+            fn_call_name = "_lpython_str_partition";
+
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t seperator;
+            seperator.loc = loc;
+            seperator.m_value = args[0].m_value;
+
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, seperator);
+
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -5874,6 +5941,164 @@ public:
                         "_lpython_str_startswith", loc);
             }
             return;
+        } else if (attr_name == "endswith") {
+            /* 
+                str.endswith(suffix)     ---->  
+                Return True if the string ends with the specified suffix, otherwise return False.
+            */
+
+            if (args.size() != 1) {
+                throw SemanticError("str.endswith() takes one arguments", loc);
+            }
+
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
+            }
+            
+            if (ASRUtils::expr_value(arg_suffix) != nullptr) {
+                /*
+                    Invoked when Suffix argument is provided as a constant string
+                */
+                ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
+                std::string suffix = suffix_constant->m_s;
+                
+                bool res = true;
+                if (suffix.size() > s_var.size()) 
+                    res = false;
+                else 
+                    res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
+                
+                tmp = ASR::make_LogicalConstant_t(al, loc, res, 
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+    
+            } else {
+                /*
+                    Invoked when Suffix argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".endswith(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_endswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_suffix;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
+            }
+            return;
+        } else if (attr_name == "partition") {
+            
+            /*  
+                str.partition(seperator)        ---->
+
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
+                before the separator, the separator itself, and the part after the separator. 
+                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                by two empty strings.
+            */
+
+            if (args.size() != 1) {
+                throw SemanticError("str.partition() takes one arguments",
+                        loc);
+            }
+
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one arguments of type: str",
+                    arg_seperator->base.loc);
+            }
+
+            if(s_var.size() == 0) {
+                throw SemanticError("string to undergo partition cannot be empty",loc);
+            }
+
+            if (ASRUtils::expr_value(arg_seperator) != nullptr) {
+                /*
+                    Invoked when Seperator argument is provided as a constant string
+                */
+                ASR::StringConstant_t* seperator_constant = ASR::down_cast<ASR::StringConstant_t>(arg_seperator);
+                std::string seperator = seperator_constant->m_s;
+
+                if(seperator.size() == 0) {
+                    throw SemanticError("empty separator", arg_seperator->base.loc);
+                }
+                
+                /*
+                    using KMP algorithm to find seperator inside string 
+                    res_tuple: stores the resulting 3-tuple expression ---> 
+                    (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
+                    (if seperator does not exist)  tuple:   (string, "", "")
+                    res_tuple_type: stores the type of each expression present in resulting 3-tuple
+                */
+                int seperator_pos = KMP_string_match(s_var, seperator);
+
+                Vec<ASR::expr_t *> res_tuple;
+                Vec<ASR::ttype_t *> res_tuple_type;
+                res_tuple.reserve(al, 3); 
+                res_tuple_type.reserve(al, 3);
+
+                std :: string first_res, second_res, third_res;
+
+                if(seperator_pos == -1) {
+                    /* seperator does not exist */
+                    first_res = s_var;
+                    second_res = "";
+                    third_res = "";
+                } else {
+                    first_res = s_var.substr(0, seperator_pos);
+                    second_res = seperator;
+                    third_res = s_var.substr(seperator_pos + seperator.size());
+                }
+
+                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, first_res), arg_seperator_type)));
+                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, second_res), arg_seperator_type)));
+                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, third_res), arg_seperator_type)));
+
+                res_tuple_type.push_back(al, arg_seperator_type);
+                res_tuple_type.push_back(al,arg_seperator_type);
+                res_tuple_type.push_back(al,arg_seperator_type);
+
+                ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc, res_tuple_type.p, res_tuple_type.n));
+                tmp = ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.size(), tuple_type);
+    
+            } else {
+                /*
+                    Invoked when Seperator argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".seperator(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_seperator;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
+            }
+
+            return;
+
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
                     loc);

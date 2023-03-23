@@ -77,7 +77,9 @@ struct PythonIntrinsicProcedures {
             {"_lpython_str_lstrip", {m_builtin, &not_implemented}},
             {"_lpython_str_strip", {m_builtin, &not_implemented}},
             {"_lpython_str_swapcase", {m_builtin, &not_implemented}},
-            {"_lpython_str_startswith", {m_builtin, &not_implemented}}
+            {"_lpython_str_startswith", {m_builtin, &not_implemented}},
+            {"_lpython_str_endswith", {m_builtin, &not_implemented}},
+            {"_lpython_str_partition", {m_builtin, &not_implemented}}
         };
     }
 

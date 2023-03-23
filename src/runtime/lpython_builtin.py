@@ -775,6 +775,45 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
         res = res and (j == len(sub))
     return res
 
+@overload
+def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+
+    if(len(suffix) > len(s)):
+        return False
+    
+    i : i32
+    i = 0
+    while(i < len(suffix)):
+        if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
+            return False
+        i += 1
+        
+    return True
+
+@overload
+def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
+
+    """
+    Returns a 3-tuple splitted around seperator
+    """
+
+    if(len(s) == 0):
+        raise ValueError('empty string cannot be partitioned')
+
+    if(len(sep) == 0):
+        raise ValueError('empty seperator')
+
+    res : tuple[str, str, str]
+    ind : i32
+    ind = _lpython_str_find(s, sep)
+    
+    if(ind == -1):
+        res = (s, "", "")
+    else: 
+        res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
+
+    return res
+
 
 def list(s: str) -> list[str]:
     l: list[str] = []
