@@ -283,7 +283,7 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
 
 /************************* 64-bit functions **************************/
 
-void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
+void emit_elf64_header(X86Assembler &a) {
     /* Elf64_Ehdr */
     a.add_label("ehdr");
     // e_ident

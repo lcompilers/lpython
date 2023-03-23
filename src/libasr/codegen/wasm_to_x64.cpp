@@ -579,7 +579,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F32Sqrt() { visit_F64Sqrt(); }
 
     void gen_x64_bytes() {
-        emit_elf64_header(m_a, 7U);
+        emit_elf64_header(m_a);
 
         // declare compile-time strings
         std::string base_memory = "    "; /* in wasm backend, memory starts after 4 bytes*/

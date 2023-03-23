@@ -1542,7 +1542,7 @@ void emit_print_float(X86Assembler &a, const std::string &name);
 // Generate an ELF 64 bit header and footer
 // With these two functions, one only must generate a `_start` assembly
 // function to have a working binary on Linux.
-void emit_elf64_header(X86Assembler &a, uint32_t p_flags=5);
+void emit_elf64_header(X86Assembler &a);
 void emit_elf64_footer(X86Assembler &a);
 
 void emit_exit_64(X86Assembler &a, std::string label, int exit_code);
