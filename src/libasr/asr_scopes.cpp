@@ -202,6 +202,21 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
                     mod_dependencies.push_back(al, es->m_module_name);
                 }
                 es->m_parent_symtab = module_scope;
+                ASR::symbol_t *s = ASRUtils::symbol_get_past_external(a.second);
+                LCOMPILERS_ASSERT(s);
+                if (ASR::is_a<ASR::Variable_t>(*s)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+                    if (v->m_symbolic_value && !ASR::is_a<ASR::Const_t>(*v->m_type)
+                            && ASR::is_a<ASR::List_t>(*v->m_type)) {
+                        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(
+                            al, v->base.base.loc, (ASR::symbol_t *) es));
+                        ASR::expr_t *value = v->m_symbolic_value;
+                        
+                        ASR::asr_t* assign = ASR::make_Assignment_t(al,
+                            v->base.base.loc, target, value, nullptr);
+                        var_init.push_back(al, ASRUtils::STMT(assign));
+                    }
+                }
                 module_scope->add_symbol(a.first, (ASR::symbol_t *) es);
                 syms.push_back(al, s2c(al, a.first));
                 break;
@@ -250,7 +265,7 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
             } default : {
                 throw LCompilersException("Moving the symbol:`" + a.first +
                     "` from global scope is not implemented yet");
-            };
+            }
         }
     }
 }
