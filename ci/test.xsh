@@ -19,6 +19,8 @@ if $WIN == "1":
     python run_tests.py --skip-run-with-dbg --no-color
 else:
     python run_tests.py
+    src/bin/lpython examples/expr2.py
+    src/bin/lpython --backend=c examples/expr2.py
     cd integration_tests
     python run_tests.py -j16 -b llvm cpython c wasm
 
