@@ -5928,8 +5928,7 @@ public:
                 */
                 ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
                 std::string suffix = suffix_constant->m_s;
-
-                std :: cout << suffix << " " << s_var << std :: endl;
+                
                 bool res = true;
                 if (suffix.size() > s_var.size()) 
                     res = false;
