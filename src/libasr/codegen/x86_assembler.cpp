@@ -81,7 +81,8 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
 }
 
 void emit_elf32_footer(X86Assembler &a) {
-    a.add_var_size("filesize");
+    a.add_label("footer");
+    a.add_var("filesize", "ehdr", "footer");
 }
 
 void emit_exit(X86Assembler &a, const std::string &name,

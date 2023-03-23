@@ -42,12 +42,10 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT(s) emit("    ", s)
 #    define EMIT_LABEL(s) emit("", s)
 #    define EMIT_VAR(a, b, c) emit("    ", a + " equ " + c + " - " + b)
-#    define EMIT_VAR_SIZE(a) emit("\n", a + " equ $ - $$\n") // $ is current addr, $$ is start addr
 #else
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
 #    define EMIT_VAR(a, b)
-#    define EMIT_VAR_SIZE(a)
 #endif
 
 namespace LCompilers {
@@ -556,13 +554,6 @@ public:
     void add_label(const std::string &label) {
         define_symbol(label, pos());
         EMIT_LABEL(label + ":");
-    }
-
-    void add_var_size(const std::string &var) {
-        uint64_t val = pos() - origin();
-        // TODO: Support 64-bit or 8 byte parameter val in define_symbol()
-        define_symbol(var, val);
-        EMIT_VAR_SIZE(var);
     }
 
     void add_var64(const std::string &var, const std::string &start, const std::string &end) {
