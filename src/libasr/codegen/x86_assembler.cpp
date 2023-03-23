@@ -282,7 +282,7 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
 /************************* 64-bit functions **************************/
 
 void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
-    /* Elf32_Ehdr */
+    /* Elf64_Ehdr */
     a.add_label("ehdr");
     // e_ident
     a.asm_db_imm8(0x7F);
@@ -320,7 +320,7 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
 
     a.add_var("ehdrsize", a.pos()-a.get_defined_symbol("ehdr").value);
 
-    /* Elf32_Phdr */
+    /* Elf64_Phdr */
     a.add_label("phdr");
     a.asm_dd_imm32(1);        // p_type
     a.asm_dd_imm32(p_flags);  // p_flags
