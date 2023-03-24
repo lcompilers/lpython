@@ -403,9 +403,6 @@ ehdr:
     dw 0x0000
     dw 0x0000
     dw 0x0000
-
-ehdrsize equ 0x00000034
-
 phdr:
     dd 0x00000001
     dd 0x00000000
@@ -415,12 +412,10 @@ phdr:
     dd filesize
     dd 0x00000005
     dd 0x00001000
-
-phdrsize equ 0x00000020
-
-
-e_phoff equ 0x00000034
-
+phdr_end:
+    ehdrsize equ phdr - ehdr
+    phdrsize equ phdr_end - phdr
+    e_phoff equ phdr - ehdr
 msg:
     db 0x48
     db 0x65
@@ -446,9 +441,8 @@ exit:
     mov eax, 0x00000001
     mov ebx, 0x00000000
     int 0x80
-
-filesize equ $ - $$
-
+footer:
+    filesize equ footer - ehdr
 )""");
     CHECK(asm_code == ref);
 #endif
