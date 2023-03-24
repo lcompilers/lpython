@@ -2,7 +2,7 @@
     "basename": "asr-test_numpy_03-e600a49",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_numpy_03.py",
-    "infile_hash": "bb5a2c89cf7b5c9a341e54751a8fdbda25e6de637b2e60ed87eff898",
+    "infile_hash": "7adaceaf3fd681036b880955e851507a36d42b61fae4e8b0b5527ac9",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_numpy_03-e600a49.stdout",

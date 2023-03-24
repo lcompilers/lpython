@@ -2,7 +2,7 @@
     "basename": "c-func_static_01-fc146ec",
     "cmd": "lpython --no-color --show-c {infile}",
     "infile": "tests/../integration_tests/func_static_01.py",
-    "infile_hash": "33b4434e54b59722232bb2712288cda05ba70bffa9f8161ce8a2c4f4",
+    "infile_hash": "073b018c3b06cdbf34c603363c53e12bf471a80c457aecc676316c29",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "c-func_static_01-fc146ec.stdout",

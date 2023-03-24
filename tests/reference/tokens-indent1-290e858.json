@@ -2,11 +2,11 @@
     "basename": "tokens-indent1-290e858",
     "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
     "infile": "tests/tokens/indent1.py",
-    "infile_hash": "c0eef37090fca7aa852c58b85802275f51f71fd8bdfe2c8e043f7fef",
+    "infile_hash": "e8d2e3a0872f5aea8db4b6631f2fcb0e562dda5b3f59ff247cb9aaa9",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "tokens-indent1-290e858.stdout",
-    "stdout_hash": "8c7536776e4ef90939cf1e1262d667c479f170e6993cdf6c54abc593",
+    "stdout_hash": "9b71c23ca510cf5a4529540766fb16fc3c5b59bc7225efcfe25b3f0b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

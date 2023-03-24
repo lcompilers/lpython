@@ -2,7 +2,7 @@
     "basename": "runtime-test_str_01-50bdf2f",
     "cmd": "lpython {infile}",
     "infile": "tests/runtime_errors/test_str_01.py",
-    "infile_hash": "5f1245b9162a004ea90aee813606b7a14a2d06802c8eb2ebd6220f9b",
+    "infile_hash": "7fb9748271af03bfa35e190a4514480662f42263ebfa0a6b2e082868",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "runtime-test_str_01-50bdf2f.stdout",
