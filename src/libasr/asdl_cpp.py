@@ -1520,7 +1520,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(    's.append("()");', 3)
                     self.emit("}", 2)
                 else:
-                    self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+                    if field.name == "intrinsic_id":
+                        self.emit('s.append(self().convert_intrinsic_id(x.m_%s));' % field.name, 2)
+                    else:
+                        self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "float" and not field.seq and not field.opt:
                 self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "bool" and not field.seq and not field.opt:
