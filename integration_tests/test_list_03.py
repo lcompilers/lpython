@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def test_list_01(n: i32) -> i32:
     a: list[i32] = []

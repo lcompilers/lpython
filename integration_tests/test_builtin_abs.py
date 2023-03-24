@@ -1,4 +1,4 @@
-from ltypes import f32, f64, i32, i64, i8, i16
+from lpython import f32, f64, i32, i64, i8, i16
 
 def test_abs():
     x: f64

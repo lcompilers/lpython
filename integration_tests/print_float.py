@@ -1,4 +1,4 @@
-from ltypes import f64
+from lpython import f64
 
 def main0():
     x: f64 = 0.00012

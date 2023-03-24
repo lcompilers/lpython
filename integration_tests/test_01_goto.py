@@ -1,4 +1,4 @@
-from ltypes import with_goto, i32
+from lpython import with_goto, i32
 
 @with_goto
 def f() -> i32:

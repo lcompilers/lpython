@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c32, c64
+from lpython import i32, i64, f32, f64, c32, c64
 
 def test_real_imag():
     x: c64

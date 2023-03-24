@@ -1,4 +1,4 @@
-from ltypes import i32, f64, Const
+from lpython import i32, f64, Const
 
 μ: Const[f64] = 1.45136923488338105028
 

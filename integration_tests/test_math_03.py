@@ -1,5 +1,5 @@
 from math import (cbrt, exp2)
-from ltypes import f64
+from lpython import f64
 
 eps: f64
 eps = 1e-12

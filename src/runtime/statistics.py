@@ -1,4 +1,4 @@
-from ltypes import i32, f64, i64, f64, overload
+from lpython import i32, f64, i64, f64, overload
 
 
 @overload

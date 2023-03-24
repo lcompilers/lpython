@@ -1,4 +1,4 @@
-from ltypes import c32
+from lpython import c32
 
 def test_issue_1524():
     y: c32

@@ -1,4 +1,4 @@
-from ltypes import Const, i32, i64, f32, f64
+from lpython import Const, i32, i64, f32, f64
 
 def test_const_variables():
     xci: Const[i32] = i32(0.0)

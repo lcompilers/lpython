@@ -1,4 +1,4 @@
-from ltypes import c64, f32
+from lpython import c64, f32
 
 def test_dict():
     d: dict[c64, f32] = {}

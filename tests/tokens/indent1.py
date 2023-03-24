@@ -1,4 +1,4 @@
-from ltypes import \
+from lpython import \
     i32
 
 def test():

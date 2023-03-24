@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 
 def insert_tuples_into_list(l: list[tuple[i32, f64, str]], size: i32) -> list[tuple[i32, f64, str]]:
     i: i32

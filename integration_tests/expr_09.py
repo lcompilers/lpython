@@ -1,4 +1,4 @@
-from ltypes import i32, f64, f32
+from lpython import i32, f64, f32
 
 def main0():
     i1: i32 = 10

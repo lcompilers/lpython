@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c32, c64
+from lpython import i32, i64, f32, f64, c32, c64
 from numpy import empty
 
 def accept_multidim_i32_array(xi32: i32[:, :]) -> i32:

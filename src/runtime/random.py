@@ -1,4 +1,4 @@
-from ltypes import i32, f64, ccall
+from lpython import i32, f64, ccall
 
 e: f64 = 2.718281828459045235360287471352662497757
 eps: f64 = 1e-16

@@ -1,4 +1,4 @@
-from ltypes import i32, f32
+from lpython import i32, f32
 
 def test_Tuple():
     a1: tuple[i32, i32, i32]

@@ -1,4 +1,4 @@
-from ltypes import TypeVar
+from lpython import TypeVar
 
 T = TypeVar('T')
 

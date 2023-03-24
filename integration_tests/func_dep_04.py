@@ -1,5 +1,5 @@
 from func_dep_04_module import manhattan_distance
-from ltypes import i32
+from lpython import i32
 
 def test_manhattan_distance():
     a: i32; b: i32; c: i32; d: i32;

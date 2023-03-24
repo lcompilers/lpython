@@ -1,4 +1,4 @@
-from ltypes import f64
+from lpython import f64
 from numpy import empty
 
 def loop_vec():

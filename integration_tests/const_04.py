@@ -1,4 +1,4 @@
-from ltypes import i32, i16, Const
+from lpython import i32, i16, Const
 from numpy import empty, int16
 
 def sum_const_array(array: Const[i16[:]], size: i32) -> i16:

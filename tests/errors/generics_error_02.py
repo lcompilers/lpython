@@ -1,4 +1,4 @@
-from ltypes import TypeVar, f64, i32, restriction
+from lpython import TypeVar, f64, i32, restriction
 
 T = TypeVar('T')
 

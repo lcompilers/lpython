@@ -18,7 +18,7 @@ def A{i}(x: i32) -> i32:
     calls += f"    y = A{i}(y)\n"
 
 source = f"""\
-from ltypes import i32
+from lpython import i32
 
 {A_functions}
 

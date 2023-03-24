@@ -186,8 +186,8 @@ int save_pyc_files(const ASR::TranslationUnit_t &u,
 // * Then the LPython runtime directory
 Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir, std::string& input,
-        bool &ltypes, bool& enum_py) {
-    ltypes = false;
+        bool &lpython, bool& enum_py) {
+    lpython = false;
     enum_py = false;
     std::string file_path;
     if( *(runtime_library_dir.rbegin()) == '/' ) {
@@ -203,12 +203,12 @@ Result<std::string> get_full_path(const std::string &filename,
         if (status) {
             return file_path;
         } else {
-            // If this is `ltypes`, do a special lookup
-            if (filename == "ltypes.py") {
-                file_path = runtime_library_dir + "/ltypes/" + filename;
+            // If this is `lpython`, do a special lookup
+            if (filename == "lpython.py") {
+                file_path = runtime_library_dir + "/lpython/" + filename;
                 status = read_file(file_path, input);
                 if (status) {
-                    ltypes = true;
+                    lpython = true;
                     return file_path;
                 } else {
                     return Error();
@@ -233,9 +233,9 @@ Result<std::string> get_full_path(const std::string &filename,
 
 bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
                      std::string& infile, std::string& path_used, std::string& input,
-                     bool& ltypes, bool& enum_py) {
+                     bool& lpython, bool& enum_py) {
     for (auto path: rl_path) {
-        Result<std::string> rinfile = get_full_path(infile0, path, input, ltypes, enum_py);
+        Result<std::string> rinfile = get_full_path(infile0, path, input, lpython, enum_py);
         if (rinfile.ok) {
             infile = rinfile.result;
             path_used = path;
@@ -303,10 +303,10 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &ltypes, bool& enum_py, bool& copy,
+                            bool &lpython, bool& enum_py, bool& copy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
-    ltypes = false;
+    lpython = false;
     enum_py = false;
     copy = false;
     if( module_name == "copy" ) {
@@ -333,11 +333,11 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     std::string input;
     std::string module_dir_name = "";
     bool found = set_module_path(infile0c, rl_path, infile,
-                                 path_used, input, ltypes, enum_py);
+                                 path_used, input, lpython, enum_py);
     if( !found ) {
         input.clear();
         found = set_module_path(infile0, rl_path, infile,
-                                path_used, input, ltypes, enum_py);
+                                path_used, input, lpython, enum_py);
     } else {
         mod1 = load_pycfile(al, input, false);
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
@@ -353,7 +353,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         err("Could not find the module '" + module_name + "'. If an import path "
             "is available, please use the `-I` option to specify it", loc);
     }
-    if (ltypes) return nullptr;
+    if (lpython) return nullptr;
 
     if( compile_module ) {
         diagnostics.add(diag::Diagnostic(
@@ -578,13 +578,13 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes, enum_py, copy;
+        bool lpython, enum_py, copy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                ltypes, enum_py, copy,
+                lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
-        LCOMPILERS_ASSERT(!ltypes && !enum_py)
+        LCOMPILERS_ASSERT(!lpython && !enum_py)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -3554,14 +3554,14 @@ public:
         }
 
         /*
-            Return in case of ltypes module.
+            Return in case of lpython module.
             TODO: Restrict the check only if
-            ltypes is the same module as src/runtime/ltypes
-            For now its wild card i.e., ltypes.py present
+            lpython is the same module as src/runtime/lpython
+            For now its wild card i.e., lpython.py present
             in any directory other than src/runtime will also
             be ignored.
         */
-        if (mod_sym == "ltypes") {
+        if (mod_sym == "lpython") {
             return ;
         }
 
@@ -3630,14 +3630,14 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool ltypes, enum_py, copy;
+            bool lpython, enum_py, copy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
+                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py || copy) {
-                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+            if (lpython || enum_py || copy) {
+                // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
                 tmp = nullptr;
@@ -3688,14 +3688,14 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool ltypes, enum_py, copy;
+            bool lpython, enum_py, copy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py || copy) {
-                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+            if (lpython || enum_py || copy) {
+                // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
                 tmp = nullptr;

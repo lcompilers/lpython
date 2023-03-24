@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 
 def f():
     t1: tuple[i32, f64, str] = (1, 2.0, "3")

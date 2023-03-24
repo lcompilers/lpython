@@ -6,7 +6,7 @@ import random as r, abc as a
 import x.y.z
 import x.y.z as xyz
 
-from ltypes import i8, i16, i32, i64, f32, f64, \
+from lpython import i8, i16, i32, i64, f32, f64, \
     c32, c64, overload, ccall, TypeVar
 from __future__ import division
 from math import *

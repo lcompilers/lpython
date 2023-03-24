@@ -1,4 +1,4 @@
-from ltypes import i32, f64, ccall, dataclass
+from lpython import i32, f64, ccall, dataclass
 from numpy import empty, int32, float64
 
 @dataclass

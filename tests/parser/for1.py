@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 # fruits = ["apple", "banana", "cherry"]
 for x in fruits:

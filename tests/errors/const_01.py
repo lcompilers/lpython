@@ -1,4 +1,4 @@
-from ltypes import i32, Const
+from lpython import i32, Const
 
 def f():
     x: Const[i32]

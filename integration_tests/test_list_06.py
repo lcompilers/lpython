@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 from copy import deepcopy
 
 def check_mat_and_vec(mat: list[list[f64]], vec: list[f64]):

@@ -1,4 +1,4 @@
-from ltypes import TypeVar, restriction, i32, f32
+from lpython import TypeVar, restriction, i32, f32
 from numpy import empty
 
 n: i32

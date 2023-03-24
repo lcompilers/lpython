@@ -1,4 +1,4 @@
-from ltypes import i64
+from lpython import i64
 
 def fib(n: i64) -> i64:
     if n < i64(2):

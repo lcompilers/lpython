@@ -1,4 +1,4 @@
-from ltypes import c_p_pointer, CPtr, pointer, i16, Pointer, empty_c_void_p
+from lpython import c_p_pointer, CPtr, pointer, i16, Pointer, empty_c_void_p
 from numpy import empty, int16
 
 queries: CPtr = empty_c_void_p()

@@ -1,4 +1,4 @@
-from ltypes import Union, i32, i64, f64, f32, ccall, union
+from lpython import Union, i32, i64, f64, f32, ccall, union
 
 @ccall
 @union

@@ -1,4 +1,4 @@
-from ltypes import c32, i64
+from lpython import c32, i64
 
 def f():
     x: c32

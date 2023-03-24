@@ -2,7 +2,7 @@ from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
                   modf, fsum, prod, dist)
 import math
-from ltypes import i32, i64, f32, f64
+from lpython import i32, i64, f32, f64
 
 eps: f64
 eps = 1e-12

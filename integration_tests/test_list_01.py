@@ -1,4 +1,4 @@
-from ltypes import f64, i32
+from lpython import f64, i32
 
 def fill_list_i32(size: i32) -> list[i32]:
     aarg: list[i32] = [0, 1, 2, 3, 4]
