@@ -470,7 +470,7 @@ public:
         for (size_t i = 0; i < padding_size; i++) {
             m_code.push_back(m_al, 0);
         }
-        EMIT("times " + std::to_string(padding_size) + " db 0");
+        EMIT("\n\talign " + std::to_string(alignment) + ", db 0");
     }
 
     void define_symbol(const std::string &name, uint32_t value) {
