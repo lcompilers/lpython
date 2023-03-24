@@ -78,6 +78,55 @@ def startswith():
     assert s.startswith("sdd") == False
     assert "".startswith("ok") == False
 
+def endswith():
+
+    # The following test suite fulfils the control flow graph coverage
+    # in terms of Statement Coverage and Branch Coverage associated with endwith() functionality.
+
+    # Case 1: When string is constant and suffix is also constant 
+    assert "".endswith("") == True
+    assert "".endswith(" ") ==  False
+    assert "".endswith("%") == False
+    assert "".endswith("a1234PT#$") == False
+    assert "".endswith("blah blah") == False
+    assert " rendezvous 5:30 ".endswith("") == True
+    assert " rendezvous 5:30 ".endswith(" ") == True
+    assert " rendezvous 5:30 ".endswith(" 5:30 ") == True
+    assert " rendezvous 5:30 ".endswith("apple") == False
+    assert "two plus".endswith("longer than string") == False
+
+
+    # Case 2: When string is constant and suffix is variable
+    suffix: str
+    suffix = ""
+    assert "".endswith(suffix) == True
+    suffix = " "
+    assert "".endswith(suffix) ==  False
+    suffix = "5:30 "
+    assert " rendezvous 5:30 ".endswith(suffix) == True
+    suffix = ""
+    assert " rendezvous 5:30 ".endswith(suffix) == True
+    suffix = "apple"
+    assert " rendezvous 5:30 ".endswith(suffix) == False
+    suffix = "longer than string"
+    assert "two plus".endswith(suffix) == False
+
+    # Case 3: When string is variable and suffix is either constant or variable
+    s: str
+    s = ""
+    assert s.endswith("") == True
+    assert s.endswith("apple") == False
+    assert s.endswith(" ") == False
+    assert s.endswith(suffix) == False
+
+    s = " rendezvous 5 "
+    assert s.endswith(" $3324") == False
+    assert s.endswith("5 ") == True
+    assert s.endswith(s) == True
+    suffix = "vous 5 "
+    assert s.endswith(suffix) == True
+    suffix = "apple"
+    assert s.endswith(suffix) == False
 
 def partition():
     

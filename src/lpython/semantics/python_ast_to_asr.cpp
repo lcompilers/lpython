@@ -5665,13 +5665,13 @@ public:
             fn_args.push_back(al, arg);
         } else if (attr_name == "startswith") {
             if(args.size() != 1) {
-                throw SemanticError("str.startwith() takes one argument",
+                throw SemanticError("str.startswith() takes one argument",
                         loc);
             }
             ASR::expr_t *arg_sub = args[0].m_value;
             ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
             if (!ASRUtils::is_character(*arg_sub_type)) {
-                throw SemanticError("str.startwith() takes one argument of type: str",
+                throw SemanticError("str.startswith() takes one argument of type: str",
                         loc);
             }
             fn_call_name = "_lpython_str_startswith";
