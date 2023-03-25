@@ -1,4 +1,4 @@
-from ltypes import i64
+from lpython import i64
 
 def f():
     a: i64

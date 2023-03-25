@@ -1,4 +1,4 @@
-from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable, packed
+from lpython import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable, packed
 from numpy import empty, int8, int16, int32, int64, float32, complex64, complex128, float64
 from copy import deepcopy
 
@@ -71,7 +71,7 @@ def f():
         buffer_.buffer3[i] = c32(i + 7)
         # buffer_clink_.buffer3 is a ctypes.Array
         # of type c_float_complex (a ctypes.Structure
-        # defined in ltypes.py) and c32(i + 8) is a
+        # defined in lpython.py) and c32(i + 8) is a
         # Python object. Python doesn't allow assigning
         # a Python object to ctypes.Structure. Hence,
         # the following line is commented out.

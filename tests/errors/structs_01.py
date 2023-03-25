@@ -1,4 +1,4 @@
-from ltypes import i32, i8, packed, dataclass
+from lpython import i32, i8, packed, dataclass
 
 @packed(aligned=5)
 @dataclass

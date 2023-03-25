@@ -1,4 +1,4 @@
-from ltypes import i32, i64, i16
+from lpython import i32, i64, i16
 
 def main0():
     s: str = 'aabbcc'; c: str

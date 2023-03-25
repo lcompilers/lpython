@@ -1,4 +1,4 @@
-from ltypes import pointer, i16, Pointer
+from lpython import pointer, i16, Pointer
 
 # Testing Global Pointers
 x: Pointer[i16[:]]

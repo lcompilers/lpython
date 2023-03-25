@@ -1,4 +1,4 @@
-from ltypes import f64
+from lpython import f64
 
 def f():
     f: f64 = 4.5

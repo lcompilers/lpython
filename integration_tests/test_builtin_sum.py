@@ -1,4 +1,4 @@
-from ltypes import f32, f64, i32, i64
+from lpython import f32, f64, i32, i64
 
 def test_sum():
     arr_i32 :list[i32]

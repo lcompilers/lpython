@@ -1,4 +1,4 @@
-from ltypes import ccall, f32, f64, i32, i64
+from lpython import ccall, f32, f64, i32, i64
 
 @ccall
 def f(x: f64) -> f64:

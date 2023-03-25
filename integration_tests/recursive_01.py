@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def fib(n: i32) -> i32:
     if n <= 1:

@@ -2,7 +2,7 @@
     "basename": "c-expr_11-c452314",
     "cmd": "lpython --no-color --show-c {infile}",
     "infile": "tests/../integration_tests/expr_11.py",
-    "infile_hash": "0519507fdfc01296c8161d8fae6706269bdb2d7b7da54512f5410fca",
+    "infile_hash": "d5027dd0f515c653c66202e02cc961bfbe09e628e069ce57b5f5ffe2",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "c-expr_11-c452314.stdout",

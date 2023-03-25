@@ -1,7 +1,7 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
                         stdev, pvariance, pstdev, correlation, covariance,
                         linear_regression, mode)
-from ltypes import i32, f64, i64, f32
+from lpython import i32, f64, i64, f32
 
 
 eps: f64

@@ -1,4 +1,4 @@
-from ltypes import i32, f32, f64
+from lpython import i32, f32, f64
 from numpy import empty, reshape, int32, float64
 
 def array_expr_01():

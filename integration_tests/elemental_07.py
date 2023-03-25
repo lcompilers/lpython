@@ -1,4 +1,4 @@
-from ltypes import i32, f64, f32
+from lpython import i32, f64, f32
 from numpy import empty, tanh, reshape, int32, float64, sin, log10
 
 def verify1d(array: f32[:], result: f32[:], size: i32):

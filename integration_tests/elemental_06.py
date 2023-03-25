@@ -1,4 +1,4 @@
-from ltypes import i32, f32, f64
+from lpython import i32, f32, f64
 from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians
 from math import pi
 

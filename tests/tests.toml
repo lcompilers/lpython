@@ -286,7 +286,7 @@ asr = true
 # integration_tests
 
 [[test]]
-filename = "ltypes1.py"
+filename = "lpython1.py"
 llvm = true
 
 [[test]]

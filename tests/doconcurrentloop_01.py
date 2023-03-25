@@ -1,4 +1,4 @@
-from ltypes import f32, i32
+from lpython import f32, i32
 
 def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
     N: i32

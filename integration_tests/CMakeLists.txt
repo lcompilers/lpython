@@ -118,7 +118,7 @@ macro(RUN)
 
             add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()

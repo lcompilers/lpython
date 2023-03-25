@@ -1,4 +1,4 @@
-from ltypes import i8, i16
+from lpython import i8, i16
 
 def test_issue_1586():
     x4: i16

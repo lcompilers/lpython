@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64
+from lpython import i32, i64, f32, f64
 
 i: i32 = 5
 i2: i64 = i64(53430903434)

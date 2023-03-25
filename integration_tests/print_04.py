@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, i64
+from lpython import i8, i16, i32, i64
 
 u: i64 = i64(-922337203685477580)
 print(u)

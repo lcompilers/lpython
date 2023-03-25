@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 from copy import deepcopy
 
 def sort(l: list[i32]) -> list[i32]:

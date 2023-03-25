@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def fill_list_str(size: i32) -> list[str]:
     a: list[str] = ["0_str", "1_str"]

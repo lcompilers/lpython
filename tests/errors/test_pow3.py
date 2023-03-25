@@ -1,4 +1,4 @@
-from ltypes import i32, i64
+from lpython import i32, i64
 
 def f():
     x: list[i32]

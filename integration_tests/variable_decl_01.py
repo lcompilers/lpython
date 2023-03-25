@@ -1,4 +1,4 @@
-from ltypes import i32, i64
+from lpython import i32, i64
 from numpy import empty, int64
 
 def f(n: i32, m: i32):

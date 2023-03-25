@@ -1,4 +1,4 @@
-from ltypes import i32, f64, i64, dataclass, ccall, union, Union
+from lpython import i32, f64, i64, dataclass, ccall, union, Union
 
 @dataclass
 class A:

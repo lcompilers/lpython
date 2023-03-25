@@ -1,4 +1,4 @@
-from ltypes import i64
+from lpython import i64
 
 def test_bitnot():
     x: i64 = i64(123)

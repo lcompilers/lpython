@@ -1,4 +1,4 @@
-from ltypes import (ccall, f32, f64, i32, i64, CPtr, pointer, Pointer,
+from lpython import (ccall, f32, f64, i32, i64, CPtr, pointer, Pointer,
         p_c_pointer, empty_c_void_p)
 from numpy import empty, int32
 

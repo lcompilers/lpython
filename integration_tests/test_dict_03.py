@@ -1,4 +1,4 @@
-from ltypes import f64, i32, i64
+from lpython import f64, i32, i64
 
 def power2(i: i64, mod: i64) -> i64:
     if i == i64(0) or i == i64(1):

@@ -1,4 +1,4 @@
-from ltypes import i32, i64, dataclass, union, Union
+from lpython import i32, i64, dataclass, union, Union
 from enum import Enum
 
 @union
