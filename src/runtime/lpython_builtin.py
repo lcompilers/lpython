@@ -517,6 +517,14 @@ def _lpython_floordiv(a: bool, b: bool) -> bool:
 
 
 @overload
+def _mod(a: i8, b: i8) -> i8:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: i16, b: i16) -> i16:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
 def _mod(a: i32, b: i32) -> i32:
     return a - _lpython_floordiv(a, b)*b
 
