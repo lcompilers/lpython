@@ -361,35 +361,27 @@ class WASMDecoder {
             switch (section_id) {
                 case 1U:
                     decode_type_section(index);
-                    // exit(0);
                     break;
                 case 2U:
                     decode_imports_section(index);
-                    // exit(0);
                     break;
                 case 3U:
                     decode_function_section(index);
-                    // exit(0);
                     break;
                 case 5U:
                     decode_memory_section(index);
-                    // exit(0);
                     break;
                 case 6U:
                     decode_global_section(index);
-                    // exit(0);
                     break;
                 case 7U:
                     decode_export_section(index);
-                    // exit(0);
                     break;
                 case 10U:
                     decode_code_section(index);
-                    // exit(0)
                     break;
                 case 11U:
                     decode_data_section(index);
-                    // exit(0)
                     break;
                 default:
                     std::cout << "Unknown section id: " << section_id
