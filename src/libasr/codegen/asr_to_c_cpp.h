@@ -731,6 +731,8 @@ R"(#include <stdio.h>
         bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
         bool is_target_dict = ASR::is_a<ASR::Dict_t>(*m_target_type);
         bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
+        bool is_targe_set = ASR::is_a<ASR::Set_t>(*m_target_type);
+        bool is_value_set = ASR::is_a<ASR::Set_t>(*m_value_type);
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
@@ -834,7 +836,13 @@ R"(#include <stdio.h>
             ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
             src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
-        } else {
+        } else if(is_target_set && is_value_set)
+        {
+            ASR::Set_t* s_target = ASR::down_cast<ASR::Set_t>(ASRUtils::expr_type(x.m_target));
+            std::string dc_func = c_ds_api->get_set_deepcopy_func(s_target); 
+            src += indent + dc_func + "(" + value + ", &" + target + ");\n";
+        }
+        else {
             if( is_c ) {
                 std::string alloc = "";
                 if (alloc_return_var) {
