@@ -5798,6 +5798,88 @@ public:
         return res;
     }
 
+    void string_create_partition(std::string &s_var, ASR::expr_t* arg_seperator, 
+        const Location &loc, ASR::ttype_t *arg_seperator_type) {
+        /*
+            Invoked when Seperator argument is provided as a constant string
+        */
+        ASR::StringConstant_t* seperator_constant = ASR::down_cast<ASR::StringConstant_t>(arg_seperator);
+        std::string seperator = seperator_constant->m_s;
+
+        if(seperator.size() == 0) {
+            throw SemanticError("empty separator", arg_seperator->base.loc);
+        }
+                
+        /*
+            using KMP algorithm to find seperator inside string 
+            res_tuple: stores the resulting 3-tuple expression ---> 
+            (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
+            (if seperator does not exist)  tuple:   (string, "", "")
+            res_tuple_type: stores the type of each expression present in resulting 3-tuple
+        */
+        int seperator_pos = KMP_string_match(s_var, seperator);
+
+        Vec<ASR::expr_t *> res_tuple;
+        Vec<ASR::ttype_t *> res_tuple_type;
+        res_tuple.reserve(al, 3); 
+        res_tuple_type.reserve(al, 3);
+
+        std :: string first_res, second_res, third_res;
+
+        if(seperator_pos == -1) {
+            /* seperator does not exist */
+            first_res = s_var;
+            second_res = "";
+            third_res = "";
+        } else {
+            first_res = s_var.substr(0, seperator_pos);
+            second_res = seperator;
+            third_res = s_var.substr(seperator_pos + seperator.size());
+        }
+
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, first_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, second_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, third_res), arg_seperator_type)));
+        res_tuple_type.push_back(al, arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc, res_tuple_type.p, res_tuple_type.n));
+        tmp = ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.size(), tuple_type);
+
+        return;
+    }
+
+    void string_compile_time_evaluation(const Location &loc, std::string attr_name, std::string &s_var,
+        ASR::expr_t *arg_seperator) {
+
+            if(attr_name == "partition") {
+                /*
+                    Invoked when Seperator argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".seperator(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_seperator;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
+            }
+
+        return;
+    }
+
     void handle_constant_string_attributes(std::string &s_var,
                 Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
         if (attr_name == "capitalize") {
@@ -6025,76 +6107,13 @@ public:
             }
 
             if (ASRUtils::expr_value(arg_seperator) != nullptr) {
-                /*
-                    Invoked when Seperator argument is provided as a constant string
-                */
-                ASR::StringConstant_t* seperator_constant = ASR::down_cast<ASR::StringConstant_t>(arg_seperator);
-                std::string seperator = seperator_constant->m_s;
 
-                if(seperator.size() == 0) {
-                    throw SemanticError("empty separator", arg_seperator->base.loc);
-                }
-                
-                /*
-                    using KMP algorithm to find seperator inside string 
-                    res_tuple: stores the resulting 3-tuple expression ---> 
-                    (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
-                    (if seperator does not exist)  tuple:   (string, "", "")
-                    res_tuple_type: stores the type of each expression present in resulting 3-tuple
-                */
-                int seperator_pos = KMP_string_match(s_var, seperator);
-
-                Vec<ASR::expr_t *> res_tuple;
-                Vec<ASR::ttype_t *> res_tuple_type;
-                res_tuple.reserve(al, 3); 
-                res_tuple_type.reserve(al, 3);
-
-                std :: string first_res, second_res, third_res;
-
-                if(seperator_pos == -1) {
-                    /* seperator does not exist */
-                    first_res = s_var;
-                    second_res = "";
-                    third_res = "";
-                } else {
-                    first_res = s_var.substr(0, seperator_pos);
-                    second_res = seperator;
-                    third_res = s_var.substr(seperator_pos + seperator.size());
-                }
-
-                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, first_res), arg_seperator_type)));
-                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, second_res), arg_seperator_type)));
-                res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, third_res), arg_seperator_type)));
-
-                res_tuple_type.push_back(al, arg_seperator_type);
-                res_tuple_type.push_back(al,arg_seperator_type);
-                res_tuple_type.push_back(al,arg_seperator_type);
-
-                ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc, res_tuple_type.p, res_tuple_type.n));
-                tmp = ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.size(), tuple_type);
-    
+                string_create_partition(s_var, arg_seperator, loc, arg_seperator_type);
+            
             } else {
-                /*
-                    Invoked when Seperator argument is provided as a variable
-                    b: str = "ple"
-                    Eg: "apple".seperator(b)
-                */
-                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
-                ASR::call_arg_t str_arg;
-                str_arg.loc = loc;
 
-                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, s_var.size(), nullptr, nullptr, 0));
-                str_arg.m_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
-
-                ASR::call_arg_t sub_arg;
-                sub_arg.loc = loc;
-                sub_arg.m_value = arg_seperator;
-                args.push_back(al, str_arg);
-                args.push_back(al, sub_arg);
-
-                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
+                string_compile_time_evaluation(loc, attr_name, s_var, arg_seperator);
+                
             }
 
             return;
