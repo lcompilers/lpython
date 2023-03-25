@@ -349,9 +349,15 @@ class WASMDecoder {
                 "Expected: 0x00, 0x61, 0x73, 0x6D, 0x01, 0x00, 0x00, 0x00");
         }
         index += PREAMBLE_SIZE;
+        uint32_t expected_min_section_id = 1;
         while (index < wasm_bytes.size()) {
             uint32_t section_id = read_u32(wasm_bytes, index);
             uint32_t section_size = read_u32(wasm_bytes, index);
+            if (section_id < expected_min_section_id) {
+                throw CodeGenError("DecodeWASM: Invalid sectionId, expected id >= "
+                    + std::to_string(expected_min_section_id));
+            }
+            expected_min_section_id = section_id + 1;
             switch (section_id) {
                 case 1U:
                     decode_type_section(index);
