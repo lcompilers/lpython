@@ -717,6 +717,62 @@ R"(#include <stdio.h>
         src = "_lfortran_strrepeat_c(" + s + ", " + n + ")";
     }
 
+    void AssignmentUtil(std::string target, ASR::expr_t *m_value,
+            ASR::ttype_t *m_target_type, bool alloc_return_var=false) {
+        ASR::ttype_t* m_value_type = ASRUtils::expr_type(m_value);
+        bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
+        bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
+        bool is_target_tup = ASR::is_a<ASR::Tuple_t>(*m_target_type);
+        bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
+        bool is_target_dict = ASR::is_a<ASR::Dict_t>(*m_target_type);
+        bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
+        self().visit_expr(*m_value);
+        std::string value = src;
+        std::string indent(indentation_level*indentation_spaces, ' ');
+
+        if( ASR::is_a<ASR::Struct_t>(*m_value_type) ) {
+             if (ASR::is_a<ASR::ArrayItem_t>(*m_value) ||
+                 ASR::is_a<ASR::StructInstanceMember_t>(*m_value) ||
+                 ASR::is_a<ASR::UnionInstanceMember_t>(*m_value)) {
+                 value = "&" + value;
+             }
+        }
+        if( !from_std_vector_helper.empty() ) {
+            src = from_std_vector_helper;
+        } else {
+            src.clear();
+        }
+        src = check_tmp_buffer();
+        if( is_target_list && is_value_list ) {
+            ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(m_target_type);
+            std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
+            if (ASR::is_a<ASR::ListConcat_t>(*m_value)) {
+                src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
+            } else {
+                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+            }
+        } else if ( is_target_tup && is_value_tup ) {
+            ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(m_target_type);
+            std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
+            src += indent + dc_func + "(" + value + ", &" + target + ");\n";
+        } else if ( is_target_dict && is_value_dict ) {
+            ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(m_target_type);
+            std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
+            src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
+        } else {
+            if( is_c ) {
+                std::string alloc = "";
+                if (alloc_return_var) {
+                    // char * return variable;
+                     alloc = indent + target + " = NULL;\n";
+                }
+                src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+            } else {
+                src += indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+            }
+        }
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
@@ -725,12 +781,6 @@ R"(#include <stdio.h>
             return ;
         }
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
-        bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
-        bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
-        bool is_target_tup = ASR::is_a<ASR::Tuple_t>(*m_target_type);
-        bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
-        bool is_target_dict = ASR::is_a<ASR::Dict_t>(*m_target_type);
-        bool is_value_dict = ASR::is_a<ASR::Dict_t>(*m_value_type);
         bool alloc_return_var = false;
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
@@ -795,16 +845,6 @@ R"(#include <stdio.h>
             src = "";
             return ;
         }
-        self().visit_expr(*x.m_value);
-        std::string value = src;
-        ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_value);
-        if( ASR::is_a<ASR::Struct_t>(*value_type) ) {
-             if (ASR::is_a<ASR::ArrayItem_t>(*x.m_value) ||
-                 ASR::is_a<ASR::StructInstanceMember_t>(*x.m_value) ||
-                 ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_value)) {
-                 value = "&" + value;
-             }
-        }
         if( ASR::is_a<ASR::Struct_t>(*m_target_type) ) {
              if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target) ||
                  ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) ||
@@ -812,77 +852,48 @@ R"(#include <stdio.h>
                  target = "&" + target;
              }
         }
-        if( !from_std_vector_helper.empty() ) {
-            src = from_std_vector_helper;
-        } else {
-            src.clear();
-        }
-        src = check_tmp_buffer();
-        if( is_target_list && is_value_list ) {
-            ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
-            std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
-            if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
-                src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
-            } else {
-                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
-            }
-        } else if ( is_target_tup && is_value_tup ) {
-            ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
-            std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
-            src += indent + dc_func + "(" + value + ", &" + target + ");\n";
-        } else if ( is_target_dict && is_value_dict ) {
-            ASR::Dict_t* d_target = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_target));
-            std::string dc_func = c_ds_api->get_dict_deepcopy_func(d_target);
-            src += indent + dc_func + "(&" + value + ", &" + target + ");\n";
-        } else {
-            if( is_c ) {
-                std::string alloc = "";
-                if (alloc_return_var) {
-                    // char * return variable;
-                     alloc = indent + target + " = NULL;\n";
-                }
-                if( ASRUtils::is_array(m_target_type) && ASRUtils::is_array(m_value_type) ) {
-                    ASR::dimension_t* m_target_dims = nullptr;
-                    size_t n_target_dims = ASRUtils::extract_dimensions_from_ttype(m_target_type, m_target_dims);
-                    ASR::dimension_t* m_value_dims = nullptr;
-                    size_t n_value_dims = ASRUtils::extract_dimensions_from_ttype(m_value_type, m_value_dims);
-                    bool is_target_data_only_array = ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims) &&
-                                                     ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_target));
-                    bool is_value_data_only_array = ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims) &&
-                                                    ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_value));
-                    if( is_target_data_only_array || is_value_data_only_array ) {
-                        int64_t target_size = -1, value_size = -1;
-                        if( !is_target_data_only_array ) {
-                            target = target + "->data";
-                        } else {
-                            target_size = ASRUtils::get_fixed_size_of_array(m_target_dims, n_target_dims);
-                        }
-                        if( !is_value_data_only_array ) {
-                            value = value + "->data";
-                        } else {
-                            value_size = ASRUtils::get_fixed_size_of_array(m_value_dims, n_value_dims);
-                        }
-                        if( target_size != -1 && value_size != -1 ) {
-                            LCOMPILERS_ASSERT(target_size == value_size);
-                        }
-                        int64_t array_size = -1;
-                        if( target_size != -1 ) {
-                            array_size = target_size;
-                        } else {
-                            array_size = value_size;
-                        }
-                        src += indent + "memcpy(" + target + ", " + value + ", " + std::to_string(array_size) + "*sizeof(" +
-                                    CUtils::get_c_type_from_ttype_t(m_target_type) + "));\n";
-                    } else {
-                        src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
-                    }
+        if ( ASRUtils::is_array(m_target_type) && ASRUtils::is_array(m_value_type) ) {
+            ASR::dimension_t* m_target_dims = nullptr;
+            size_t n_target_dims = ASRUtils::extract_dimensions_from_ttype(m_target_type, m_target_dims);
+            ASR::dimension_t* m_value_dims = nullptr;
+            size_t n_value_dims = ASRUtils::extract_dimensions_from_ttype(m_value_type, m_value_dims);
+            bool is_target_data_only_array = (ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims) &&
+                                                 ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_target)));
+            bool is_value_data_only_array = (ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims) &&
+                                                ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_value)));
+            self().visit_expr(*x.m_value);
+            std::string value = src;
+            src = check_tmp_buffer();
+            if( is_target_data_only_array || is_value_data_only_array ) {
+                int64_t target_size = -1, value_size = -1;
+                if( !is_target_data_only_array ) {
+                    target = target + "->data";
                 } else {
-                    src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                    target_size = ASRUtils::get_fixed_size_of_array(m_target_dims, n_target_dims);
                 }
+                if( !is_value_data_only_array ) {
+                    value = value + "->data";
+                } else {
+                    value_size = ASRUtils::get_fixed_size_of_array(m_value_dims, n_value_dims);
+                }
+                if( target_size != -1 && value_size != -1 ) {
+                    LCOMPILERS_ASSERT(target_size == value_size);
+                }
+                int64_t array_size = -1;
+                if( target_size != -1 ) {
+                    array_size = target_size;
+                } else {
+                    array_size = value_size;
+                }
+                src += indent + "memcpy(" + target + ", " + value + ", " + std::to_string(array_size) + "*sizeof(" +
+                            CUtils::get_c_type_from_ttype_t(m_target_type) + "));\n";
             } else {
                 src += indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
             }
+            return ;
         }
+
+        AssignmentUtil(target, x.m_value, m_target_type, alloc_return_var);
         from_std_vector_helper.clear();
     }
 

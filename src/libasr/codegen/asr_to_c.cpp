@@ -192,7 +192,7 @@ public:
         std::string force_declare_name;
         bool declare_as_constant;
         std::string const_name;
-
+        bool can_assign_directly = true;
         if( decl_options ) {
             CDeclarationOptions* c_decl_options = reinterpret_cast<CDeclarationOptions*>(decl_options);
             pre_initialise_derived_type = c_decl_options->pre_initialise_derived_type;
@@ -498,16 +498,19 @@ public:
                 std::string list_type_c = c_ds_api->get_list_type(t);
                 sub = format_type_c("", list_type_c, v.m_name,
                                     false, false);
+                can_assign_directly = false;
             } else if (ASR::is_a<ASR::Tuple_t>(*v_m_type)) {
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v_m_type);
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
                 sub = format_type_c("", tuple_type_c, v.m_name,
                                     false, false);
+                can_assign_directly = false;
             } else if (ASR::is_a<ASR::Dict_t>(*v_m_type)) {
                 ASR::Dict_t* t = ASR::down_cast<ASR::Dict_t>(v_m_type);
                 std::string dict_type_c = c_ds_api->get_dict_type(t);
                 sub = format_type_c("", dict_type_c, v.m_name,
                                     false, false);
+                can_assign_directly = false;
             } else if (ASR::is_a<ASR::CPtr_t>(*v_m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v_m_type)) {
@@ -538,8 +541,11 @@ public:
             if (dims.size() == 0 && v.m_storage == ASR::storage_typeType::Save && use_static) {
                 sub = "static " + sub;
             }
-            if (dims.size() == 0 && v.m_symbolic_value) {
-                ASR::expr_t* init_expr = v.m_symbolic_value;
+            ASR::expr_t* init_expr = nullptr;
+            if (v.m_value) {
+                init_expr = v.m_value;
+            } else if (dims.size() == 0 && v.m_symbolic_value) {
+                init_expr = v.m_symbolic_value;
                 if( !ASR::is_a<ASR::Const_t>(*v.m_type) ) {
                     for( size_t i = 0; i < v.n_dependencies; i++ ) {
                         std::string variable_name = v.m_dependencies[i];
@@ -551,10 +557,17 @@ public:
                         }
                     }
                 }
-                if( init_expr ) {
-                    this->visit_expr(*init_expr);
-                    std::string init = src;
-                    sub += " = " + init;
+            }
+            if( init_expr ) {
+                std::string target = v.m_name;
+                if (can_assign_directly) {
+                    target = sub;
+                }
+                AssignmentUtil(target, init_expr, v.m_type);
+                if (!can_assign_directly) {
+                    sub += ";\n" + src;
+                } else {
+                    sub = src;
                 }
             }
         }

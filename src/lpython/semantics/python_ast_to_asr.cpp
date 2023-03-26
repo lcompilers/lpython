@@ -2210,25 +2210,6 @@ public:
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
-
-        if( init_expr && current_body) {
-            ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
-            cast_helper(v_expr, init_expr, true);
-            ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
-                                                        init_expr, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
-            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            if( !ASR::is_a<ASR::Const_t>(*type) &&
-                ASRUtils::is_aggregate_type(type) ) {
-                v_variable->m_symbolic_value = nullptr;
-                v_variable->m_value = nullptr;
-                Vec<char*> variable_dependencies_vec;
-                variable_dependencies_vec.reserve(al, 1);
-                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
-                v_variable->m_dependencies = variable_dependencies_vec.p;
-                v_variable->n_dependencies = variable_dependencies_vec.size();
-            }
-        }
         current_scope->add_symbol(var_name, v_sym);
     }
 
@@ -5685,7 +5666,7 @@ public:
             fn_args.push_back(al, sub);
         } else if (attr_name == "endswith") {
             /*
-                str.endswith(suffix)     ---->  
+                str.endswith(suffix)     ---->
                 Return True if the string ends with the specified suffix, otherwise return False.
 
                 arg_sub: Substring argument provided inside endswith() function
@@ -5907,8 +5888,8 @@ public:
             }
             return;
         } else if (attr_name == "endswith") {
-            /* 
-                str.endswith(suffix)     ---->  
+            /*
+                str.endswith(suffix)     ---->
                 Return True if the string ends with the specified suffix, otherwise return False.
             */
 
@@ -5921,23 +5902,23 @@ public:
             if (!ASRUtils::is_character(*arg_suffix_type)) {
                 throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
             }
-            
+
             if (ASRUtils::expr_value(arg_suffix) != nullptr) {
                 /*
                     Invoked when Suffix argument is provided as a constant string
                 */
                 ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
                 std::string suffix = suffix_constant->m_s;
-                
+
                 bool res = true;
-                if (suffix.size() > s_var.size()) 
+                if (suffix.size() > s_var.size())
                     res = false;
-                else 
+                else
                     res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
-                
-                tmp = ASR::make_LogicalConstant_t(al, loc, res, 
+
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
                     ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
-    
+
             } else {
                 /*
                     Invoked when Suffix argument is provided as a variable
