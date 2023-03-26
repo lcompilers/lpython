@@ -132,7 +132,7 @@ presence = Required | Optional
 
 -- abi=LFortranModule/GFortranModule/BindC: the symbol's implementation is
 -- stored as machine code in some object file that must be linked in. It
--- uses the specified ABI (one of LFortran module, GFortran module or C ABI).
+-- uses the specified ABI (one of the LFortran modules, GFortran module or C ABI).
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
 
@@ -339,7 +339,7 @@ expr
 --     and Fortran: in Python "Booleans in Python are implemented as a subclass
 --     of integers", in Fortran the "default logical kind has the same storage
 --     size as the default integer"; we currently use kind=4 as default
---     integer, so we also use kind=4 for the default logical.)
+--     integer, so we also use kind=4 for the default logic.)
 
 ttype
     = Integer(int kind, dimension* dims)
