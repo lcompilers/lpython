@@ -53,7 +53,7 @@ struct PythonIntrinsicProcedures {
 
     PythonIntrinsicProcedures() {
         comptime_eval_map = {
-            {"abs", {m_builtin, &eval_abs}},
+            // {"abs", {m_builtin, &eval_abs}},
             {"pow", {m_builtin, &eval_pow}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
@@ -133,40 +133,6 @@ struct PythonIntrinsicProcedures {
             Vec<ASR::expr_t*> &/*args*/) {
         // This intrinsic is not evaluated at compile time yet.
         return nullptr;
-    }
-
-    static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args
-            ) {
-        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 1) {
-            throw SemanticError("abs() takes exactly one argument (" +
-                std::to_string(args.size()) + " given)", loc);
-        }
-        ASR::expr_t* arg = args[0];
-        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
-        if (ASRUtils::is_real(*t)) {
-            double rv = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
-            double val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, val, real_type));
-        } else if (ASRUtils::is_integer(*t)) {
-            int64_t rv = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-            int64_t val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, val, int_type));
-        } else if (ASRUtils::is_logical(*t)) {
-            int8_t val = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
-            return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, val, int_type));
-        } else if (ASRUtils::is_complex(*t)) {
-            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
-            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_im;
-            std::complex<double> x(re, im);
-            double result = std::abs(x);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, real_type));
-        } else {
-            throw SemanticError("Argument of the abs function must be Integer, Real, Logical or Complex", loc);
-        }
     }
 
     static ASR::expr_t *eval_str(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {

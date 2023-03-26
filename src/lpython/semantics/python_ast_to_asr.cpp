@@ -19,6 +19,7 @@
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>
@@ -571,6 +572,22 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    void load_builtin_module(const Location &loc) {
+        std::string module_name = "lpython_builtin";
+
+        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        std::string rl_path = get_runtime_library_dir();
+        std::vector<std::string> paths = {rl_path, parent_dir};
+        bool ltypes, enum_py, copy;
+        load_module(al, tu_symtab, module_name,
+                loc, diag, lm, true, paths,
+                ltypes, enum_py, copy,
+                [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); },
+                allow_implicit_casting);
+        LCOMPILERS_ASSERT(!ltypes && !enum_py)
+    }
+
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
         LCOMPILERS_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
         std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
@@ -737,7 +754,7 @@ public:
     }
 
     void visit_expr_list(AST::expr_t** exprs, size_t n,
-                         Vec<ASR::expr_t*> exprs_vec) {
+                         Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
         for( size_t i = 0; i < n; i++ ) {
             this->visit_expr(*exprs[i]);
@@ -5685,7 +5702,7 @@ public:
             fn_args.push_back(al, sub);
         } else if (attr_name == "endswith") {
             /*
-                str.endswith(suffix)     ---->  
+                str.endswith(suffix)     ---->
                 Return True if the string ends with the specified suffix, otherwise return False.
 
                 arg_sub: Substring argument provided inside endswith() function
@@ -5907,8 +5924,8 @@ public:
             }
             return;
         } else if (attr_name == "endswith") {
-            /* 
-                str.endswith(suffix)     ---->  
+            /*
+                str.endswith(suffix)     ---->
                 Return True if the string ends with the specified suffix, otherwise return False.
             */
 
@@ -5921,23 +5938,23 @@ public:
             if (!ASRUtils::is_character(*arg_suffix_type)) {
                 throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
             }
-            
+
             if (ASRUtils::expr_value(arg_suffix) != nullptr) {
                 /*
                     Invoked when Suffix argument is provided as a constant string
                 */
                 ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
                 std::string suffix = suffix_constant->m_s;
-                
+
                 bool res = true;
-                if (suffix.size() > s_var.size()) 
+                if (suffix.size() > s_var.size())
                     res = false;
-                else 
+                else
                     res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
-                
-                tmp = ASR::make_LogicalConstant_t(al, loc, res, 
+
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
                     ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
-    
+
             } else {
                 /*
                     Invoked when Suffix argument is provided as a variable
@@ -6106,7 +6123,20 @@ public:
         }
 
         if (!s) {
-            if (intrinsic_procedures.is_intrinsic(call_name)) {
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)) {
+                ASRUtils::create_intrinsic_function create_func =
+                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
+                // We add the builtin module to the TranslationUnit and later
+                // be used by the IntrinsicFunction pass.
+                load_builtin_module(x.base.base.loc);
+                Vec<ASR::expr_t*> args_;
+                args_.reserve(al, x.n_args);
+                visit_expr_list(x.m_args, x.n_args, args_);
+                tmp = create_func(al, x.base.base.loc, args_,
+                    [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
+                return ;
+            } else if (intrinsic_procedures.is_intrinsic(call_name)) {
                 s = resolve_intrinsic_function(x.base.base.loc, call_name);
                 if (call_name == "pow") {
                     diag.add(diag::Diagnostic(
