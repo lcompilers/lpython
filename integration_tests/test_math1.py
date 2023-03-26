@@ -1,6 +1,6 @@
 import math
 from math import pi, e
-from ltypes import i32
+from lpython import i32
 
 
 def f():

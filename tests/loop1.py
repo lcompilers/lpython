@@ -1,4 +1,4 @@
-from ltypes import i32, i64
+from lpython import i32, i64
 
 def test_factorial_1(x: i32) -> i32:
     if x < 0:

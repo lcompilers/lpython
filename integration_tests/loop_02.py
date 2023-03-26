@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 def test_loop_01():
     i: i32 = 0
     j: i32 = 0

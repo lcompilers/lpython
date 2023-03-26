@@ -1,4 +1,4 @@
-from ltypes import i32, f32, c32
+from lpython import i32, f32, c32
 
 def test_UnaryOp():
     a: i32

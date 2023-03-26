@@ -2,7 +2,7 @@
     "basename": "asr-test_set2-d91a6f0",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_set2.py",
-    "infile_hash": "46c06330c2f51316a178c5d487fb5628d19ffb4e8f95e50653a19fcd",
+    "infile_hash": "2d561d934090bedc052b2ef17bc3ac9b59ed94298fd39cbea2c9ba15",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

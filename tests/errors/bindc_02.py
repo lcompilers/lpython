@@ -1,4 +1,4 @@
-from ltypes import i32, CPtr, ccall, dataclass
+from lpython import i32, CPtr, ccall, dataclass
 
 @dataclass
 class Struct:

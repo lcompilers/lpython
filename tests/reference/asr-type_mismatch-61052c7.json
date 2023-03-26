@@ -2,7 +2,7 @@
     "basename": "asr-type_mismatch-61052c7",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/type_mismatch.py",
-    "infile_hash": "4a8058c143819d7115c7df976f933af3aab8ca921ca0f93262e2d2c2",
+    "infile_hash": "45ee4815e13c9fc4d58572a2f4ec01f5546e1f67878a2913bda89e5c",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

@@ -1,5 +1,5 @@
 from math import floor, log2
-from ltypes import i8, i32, i16
+from lpython import i8, i32, i16
 
 def ff():
     assert -8 .bit_length() == -4

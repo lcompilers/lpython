@@ -2,7 +2,7 @@
     "basename": "asr-const_02-fce29b7",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/const_02.py",
-    "infile_hash": "488db60d4763af36319eac3275bb6091a3d71f0dccfb5c1e7155c8fa",
+    "infile_hash": "9548b6585315578b1844bea16afc1ebe3b17df7b548574c871226e47",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

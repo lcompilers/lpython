@@ -1,4 +1,4 @@
-from ltypes import i32, i64
+from lpython import i32, i64
 
 def casti32(x: i64) -> i32:
     y: i32

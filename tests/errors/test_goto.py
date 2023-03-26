@@ -1,4 +1,4 @@
-from ltypes import with_goto, goto, label, i32
+from lpython import with_goto, goto, label, i32
 
 @with_goto
 def f():

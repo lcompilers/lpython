@@ -1,5 +1,5 @@
 # Out of bound
-from ltypes import i32
+from lpython import i32
 
 def test_list():
     x: list[i32]

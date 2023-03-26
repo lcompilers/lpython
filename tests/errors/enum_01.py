@@ -1,4 +1,4 @@
-from ltypes import f64, ccall
+from lpython import f64, ccall
 from enum import Enum
 
 @ccall

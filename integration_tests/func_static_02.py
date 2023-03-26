@@ -1,4 +1,4 @@
-from ltypes import i64, static, inline
+from lpython import i64, static, inline
 
 @static
 @inline

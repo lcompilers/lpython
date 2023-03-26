@@ -2,7 +2,7 @@
     "basename": "asr-kwargs_03_error-a68cc46",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/kwargs_03_error.py",
-    "infile_hash": "9104d22c6e2912557becd7c33744f37364eb43c01b9beff5163a1a7d",
+    "infile_hash": "1cee111472c1f8b7eea276f308ac7a1fea12438606c658bd0757973c",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

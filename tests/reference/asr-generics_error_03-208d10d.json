@@ -2,7 +2,7 @@
     "basename": "asr-generics_error_03-208d10d",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/generics_error_03.py",
-    "infile_hash": "1ab7d907f1b683746e2a44b66099cc41b67893ba55f2982db8a19e38",
+    "infile_hash": "d09e6306de96ad3575262220417ea0af090d29b26c6fceb01e73fd6d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f64
+from lpython import i32, i64, f64
 from math import pi, sin, cos
 
 def test_dict():

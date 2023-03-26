@@ -1,5 +1,5 @@
 from enum import Enum
-from ltypes import i32, f64
+from lpython import i32, f64
 
 class MolecularMass(Enum):
     water: i32 = 18

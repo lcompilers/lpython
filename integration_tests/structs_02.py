@@ -1,4 +1,4 @@
-from ltypes import i32, f32, dataclass, CPtr, Pointer, c_p_pointer, pointer, ccallable, empty_c_void_p, f64
+from lpython import i32, f32, dataclass, CPtr, Pointer, c_p_pointer, pointer, ccallable, empty_c_void_p, f64
 
 @dataclass
 class A:

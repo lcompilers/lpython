@@ -1,4 +1,4 @@
-from ltypes import c32, c64
+from lpython import c32, c64
 
 def test_complex():
     c: c32

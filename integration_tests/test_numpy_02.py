@@ -1,6 +1,6 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, i64, f32, f64, c32, c64, TypeVar, overload
+from lpython import i32, i64, f32, f64, c32, c64, TypeVar, overload
 from numpy import empty, int64
 
 e: f64 = 2.718281828459045

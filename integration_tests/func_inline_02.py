@@ -1,4 +1,4 @@
-from ltypes import i32, Const, inline
+from lpython import i32, Const, inline
 
 @inline
 def f(x: i32) -> i32:

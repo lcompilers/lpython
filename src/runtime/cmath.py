@@ -1,4 +1,4 @@
-from ltypes import c64, ccall, f64, overload, c32
+from lpython import c64, ccall, f64, overload, c32
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757

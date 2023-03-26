@@ -1,4 +1,4 @@
-from ltypes import CPtr, empty_c_void_p, i32, f32, dataclass, Pointer, ccall, p_c_pointer, pointer
+from lpython import CPtr, empty_c_void_p, i32, f32, dataclass, Pointer, ccall, p_c_pointer, pointer
 
 @dataclass
 class Void:

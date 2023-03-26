@@ -1,4 +1,4 @@
-from ltypes import f64, i32
+from lpython import f64, i32
 from numpy import reshape, empty
 
 def test_nd_to_1d(a: f64[:, :]):

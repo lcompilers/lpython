@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 
 def compI32(x: i32, y: i32):
     print(x)

@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
+from lpython import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 #: abs() as a generic procedure.
@@ -515,6 +515,14 @@ def _lpython_floordiv(a: bool, b: bool) -> bool:
         raise ValueError('Denominator cannot be False or 0.')
     return a
 
+
+@overload
+def _mod(a: i8, b: i8) -> i8:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: i16, b: i16) -> i16:
+    return a - _lpython_floordiv(a, b)*b
 
 @overload
 def _mod(a: i32, b: i32) -> i32:

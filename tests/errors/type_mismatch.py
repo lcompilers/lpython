@@ -1,4 +1,4 @@
-from ltypes import i32, f32
+from lpython import i32, f32
 
 def test_cast():
     a: i32

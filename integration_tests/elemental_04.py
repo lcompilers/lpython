@@ -1,4 +1,4 @@
-from ltypes import i32, f32, f64
+from lpython import i32, f32, f64
 from numpy import empty, log, log10, log2, reshape
 from math import exp
 

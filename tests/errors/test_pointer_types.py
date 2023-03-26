@@ -1,4 +1,4 @@
-from ltypes import pointer, i16, Pointer, i32
+from lpython import pointer, i16, Pointer, i32
 
 def f():
     yptr1: Pointer[i16[:]]

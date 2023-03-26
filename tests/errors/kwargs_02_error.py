@@ -1,4 +1,4 @@
-from ltypes import f32, f64, c64
+from lpython import f32, f64, c64
 
 def func02(a: f32, b: f64, c: c64) -> c64:
     return complex(float(a), b) + c

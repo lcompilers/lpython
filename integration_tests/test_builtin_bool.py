@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, i64, f32, f64, c32, c64
+from lpython import i8, i16, i32, i64, f32, f64, c32, c64
 
 def test_bool():
     a: i32

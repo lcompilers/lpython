@@ -1,5 +1,5 @@
 from overload_testing import foo, test
-from ltypes import overload, i32, i64
+from lpython import overload, i32, i64
 import overload_testing2
 
 

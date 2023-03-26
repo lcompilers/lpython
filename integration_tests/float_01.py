@@ -1,4 +1,4 @@
-from ltypes import f64
+from lpython import f64
 
 def sqr(x: f64) -> f64:
     return x * x

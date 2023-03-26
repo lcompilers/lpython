@@ -1,4 +1,4 @@
-from ltypes import inline, i32
+from lpython import inline, i32
 
 @inline
 def add(x: i32, y: i32) -> i32:

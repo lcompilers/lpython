@@ -2,7 +2,7 @@
     "basename": "asr-test_pow3-79749ed",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_pow3.py",
-    "infile_hash": "3bcfd872ce4527547e2aeb155a5a980356c71969a1c3fa66906e7933",
+    "infile_hash": "884bdc831e2b2d01c30a2dd841307fd5674ab65e0c3819d17e3db500",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

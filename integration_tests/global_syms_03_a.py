@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 l_1: list[str] = ['Monday', 'Tuesday', 'Wednesday']
 

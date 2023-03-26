@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def test_list_section():
     x: list[i32] = []

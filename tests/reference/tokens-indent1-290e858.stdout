@@ -1,73 +1,73 @@
 (KEYWORD "from") 0:3
-(TOKEN "identifier" ltypes) 5:10
-(KEYWORD "import") 12:17
-(TOKEN "identifier" i32) 25:27
-(NEWLINE) 28:28
+(TOKEN "identifier" lpython) 5:11
+(KEYWORD "import") 13:18
+(TOKEN "identifier" i32) 26:28
 (NEWLINE) 29:29
-(KEYWORD "def") 30:32
-(TOKEN "identifier" test) 34:37
-(TOKEN "(") 38:38
-(TOKEN ")") 39:39
-(TOKEN ":") 40:40
-(NEWLINE) 41:41
-(TOKEN "indent") 42:45
-(TOKEN "identifier" print) 46:50
-(TOKEN "(") 51:51
-(TOKEN ")") 52:52
-(NEWLINE) 53:53
-(KEYWORD "if") 58:59
-(TOKEN "integer" 1) 61:61
-(TOKEN ">") 63:63
-(TOKEN "integer" 0) 65:65
-(TOKEN ":") 66:66
-(NEWLINE) 67:67
-(TOKEN "indent") 68:75
-(TOKEN "identifier" print) 76:80
-(TOKEN "(") 81:81
-(TOKEN ")") 82:82
-(NEWLINE) 83:83
-(KEYWORD "if") 92:93
-(TOKEN "integer" 2) 95:95
-(TOKEN ">") 97:97
-(TOKEN "integer" 0) 99:99
-(TOKEN ":") 100:100
-(NEWLINE) 101:101
-(TOKEN "indent") 102:113
-(TOKEN "identifier" print) 114:118
-(TOKEN "(") 119:119
-(TOKEN ")") 120:120
-(NEWLINE) 121:121
-(TOKEN "dedent") 122:125
-(TOKEN "dedent") 125:125
-(KEYWORD "if") 126:127
-(TOKEN "integer" 3) 129:129
-(TOKEN ">") 131:131
-(TOKEN "integer" 0) 133:133
-(TOKEN ":") 134:134
-(NEWLINE) 135:135
-(TOKEN "indent") 136:143
-(TOKEN "identifier" print) 144:148
-(TOKEN "(") 149:149
-(TOKEN ")") 150:150
-(NEWLINE) 151:151
+(NEWLINE) 30:30
+(KEYWORD "def") 31:33
+(TOKEN "identifier" test) 35:38
+(TOKEN "(") 39:39
+(TOKEN ")") 40:40
+(TOKEN ":") 41:41
+(NEWLINE) 42:42
+(TOKEN "indent") 43:46
+(TOKEN "identifier" print) 47:51
+(TOKEN "(") 52:52
+(TOKEN ")") 53:53
+(NEWLINE) 54:54
+(KEYWORD "if") 59:60
+(TOKEN "integer" 1) 62:62
+(TOKEN ">") 64:64
+(TOKEN "integer" 0) 66:66
+(TOKEN ":") 67:67
+(NEWLINE) 68:68
+(TOKEN "indent") 69:76
+(TOKEN "identifier" print) 77:81
+(TOKEN "(") 82:82
+(TOKEN ")") 83:83
+(NEWLINE) 84:84
+(KEYWORD "if") 93:94
+(TOKEN "integer" 2) 96:96
+(TOKEN ">") 98:98
+(TOKEN "integer" 0) 100:100
+(TOKEN ":") 101:101
+(NEWLINE) 102:102
+(TOKEN "indent") 103:114
+(TOKEN "identifier" print) 115:119
+(TOKEN "(") 120:120
+(TOKEN ")") 121:121
+(NEWLINE) 122:122
+(TOKEN "dedent") 123:126
+(TOKEN "dedent") 126:126
+(KEYWORD "if") 127:128
+(TOKEN "integer" 3) 130:130
+(TOKEN ">") 132:132
+(TOKEN "integer" 0) 134:134
+(TOKEN ":") 135:135
+(NEWLINE) 136:136
+(TOKEN "indent") 137:144
+(TOKEN "identifier" print) 145:149
+(TOKEN "(") 150:150
+(TOKEN ")") 151:151
 (NEWLINE) 152:152
-(KEYWORD "if") 161:162
-(TOKEN "integer" 4) 164:164
-(TOKEN ">") 166:166
-(TOKEN "integer" 0) 168:168
-(TOKEN ":") 169:169
-(NEWLINE) 170:170
-(TOKEN "indent") 171:182
-(TOKEN "identifier" print) 183:187
-(TOKEN "(") 188:188
-(TOKEN ")") 189:189
-(NEWLINE) 190:190
+(NEWLINE) 153:153
+(KEYWORD "if") 162:163
+(TOKEN "integer" 4) 165:165
+(TOKEN ">") 167:167
+(TOKEN "integer" 0) 169:169
+(TOKEN ":") 170:170
+(NEWLINE) 171:171
+(TOKEN "indent") 172:183
+(TOKEN "identifier" print) 184:188
+(TOKEN "(") 189:189
+(TOKEN ")") 190:190
 (NEWLINE) 191:191
-(TOKEN "dedent") 191:191
-(TOKEN "dedent") 191:191
-(TOKEN "dedent") 191:191
-(TOKEN "identifier" test) 192:195
-(TOKEN "(") 196:196
-(TOKEN ")") 197:197
-(NEWLINE) 198:198
-(EOF) 199:199
+(NEWLINE) 192:192
+(TOKEN "dedent") 192:192
+(TOKEN "dedent") 192:192
+(TOKEN "dedent") 192:192
+(TOKEN "identifier" test) 193:196
+(TOKEN "(") 197:197
+(TOKEN ")") 198:198
+(NEWLINE) 199:199
+(EOF) 200:200

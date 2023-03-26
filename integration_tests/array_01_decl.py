@@ -1,4 +1,4 @@
-from ltypes import i16, i32, i64, f32, f64, c32, c64
+from lpython import i16, i32, i64, f32, f64, c32, c64
 from numpy import empty, int16, int32, int64, float32, float64, complex64, complex128
 from enum import Enum
 

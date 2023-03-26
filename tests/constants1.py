@@ -1,4 +1,4 @@
-from ltypes import f32, i32, i64, f64
+from lpython import f32, i32, i64, f64
 
 def test_boz():
     b: str

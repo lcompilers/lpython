@@ -1,4 +1,4 @@
-from ltypes import sizeof, i64, i32, f32, f64, c32, c64, i16, ccall, CPtr
+from lpython import sizeof, i64, i32, f32, f64, c32, c64, i16, ccall, CPtr
 
 @ccall
 def cmalloc(bytes: i64) -> CPtr:
