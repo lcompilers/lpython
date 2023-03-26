@@ -152,29 +152,41 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
 }
 
 static inline ASR::symbol_t* import_intrinsic_function(Allocator &al,
-        const Location &loc, const std::string &remote_sym,
-        SymbolTable *current_scope, const Vec<ASR::call_arg_t>& args) {
+        const Location &loc, SymbolTable *current_scope,
+        const std::string &remote_sym, ASR::symbol_t *&m_original_sym,
+        const Vec<ASR::call_arg_t>& args, ASR::ttype_t *&return_type) {
     std::string module_name = "lpython_builtin";
     SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
     if (tu_symtab->get_symbol(module_name)) {
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(
             tu_symtab->get_symbol(module_name));
-        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-        if (ASR::is_a<ASR::Function_t>(*t) ||
-                ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+        m_original_sym = m->m_symtab->resolve_symbol(remote_sym);
+        if (ASR::is_a<ASR::Function_t>(*m_original_sym) ||
+                ASR::is_a<ASR::GenericProcedure_t>(*m_original_sym)) {
             std::string fn_name = remote_sym;
-            ASR::symbol_t *fn = t;
-            if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
-                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(t);
+            ASR::symbol_t *fn = m_original_sym;
+            if (ASR::is_a<ASR::GenericProcedure_t>(*m_original_sym)) {
+                ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(m_original_sym);
+                if (!current_scope->get_symbol(remote_sym)) {
+                    m_original_sym = ASR::down_cast<ASR::symbol_t>(
+                        ASR::make_ExternalSymbol_t(al, m_original_sym->base.loc,
+                        current_scope, s2c(al, fn_name), fn, m->m_name, nullptr, 0,
+                        ASRUtils::symbol_name(fn), ASR::accessType::Private));
+                    current_scope->add_symbol(s2c(al, fn_name), m_original_sym);
+                } else {
+                    m_original_sym = current_scope->get_symbol(remote_sym);
+                }
                 int idx = ASRUtils::select_generic_procedure(args, *p, loc, nullptr);
                 fn = p->m_procs[idx];
                 fn_name += "@";
                 fn_name += ASRUtils::symbol_name(fn);
             }
+            return_type = ASRUtils::expr_type(ASR::down_cast<ASR::Function_t>(
+                fn)->m_return_var);
             if (!current_scope->get_symbol(fn_name)) {
                 ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(
-                    ASR::make_ExternalSymbol_t(al, t->base.loc, current_scope,
-                    s2c(al, fn_name), fn, m->m_name, nullptr, 0,
+                    ASR::make_ExternalSymbol_t(al, m_original_sym->base.loc,
+                    current_scope, s2c(al, fn_name), fn, m->m_name, nullptr, 0,
                     ASRUtils::symbol_name(fn), ASR::accessType::Private));
                 current_scope->add_symbol(s2c(al, fn_name), fn_sym);
                 return fn_sym;
@@ -348,9 +360,16 @@ namespace Abs {
         }
         ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::is_integer(*type) && !ASRUtils::is_real(*type)
-        && !ASRUtils::is_logical(*type) && !ASRUtils::is_complex(*type)) {
+         && !ASRUtils::is_logical(*type) && !ASRUtils::is_complex(*type)) {
             err("Argument of the abs function must be Integer, Real, Logical or Complex",
                 args[0]->base.loc);
+        }
+
+        if (is_logical(*type)) {
+            type = TYPE(ASR::make_Integer_t(al, type->base.loc, 4, nullptr, 0));
+        } else if (is_complex(*type)) {
+            type = TYPE(ASR::make_Real_t(al, type->base.loc,
+                ASRUtils::extract_kind_from_ttype_t(type), nullptr, 0));
         }
 
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,
@@ -358,13 +377,17 @@ namespace Abs {
                 0, type);
     }
 
-    static inline ASR::expr_t* instantiate_Abs (instantiate_UnaryFunctionArgs) {
-        ASR::ttype_t* arg_type = arg_types[0];
+    static inline ASR::expr_t* instantiate_Abs (Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& /*arg_types*/,
+            Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
+        ASR::ttype_t* return_type;
+        ASR::symbol_t* original_name;
         ASR::symbol_t *es = UnaryIntrinsicFunction::import_intrinsic_function(al,
-            loc, "abs", scope, new_args);
+            loc, scope, "abs", original_name, new_args, return_type);
+// std::cout << ASRUtils::type_to_str_python(return_type) << "\n";
         LCOMPILERS_ASSERT(es) // TODO
-        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, es, es,
-            new_args.p, new_args.n, arg_type, compile_time_value, nullptr));
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, es, original_name,
+            new_args.p, new_args.n, return_type, compile_time_value, nullptr));
     }
 } // namespace Abs
 
