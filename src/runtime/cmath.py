@@ -250,3 +250,51 @@ def tanh(x: c64) -> c64:
 @overload
 def tanh(x: c32) -> c32:
     return _lfortran_ctanh(x)
+
+@ccall
+def _lfortran_zpolar(x: c64) -> c64:
+    pass
+
+@ccall
+def _lfortran_cpolar(x: c32) -> c32:
+    pass
+
+@overload
+def polar(x: c64) -> c64:
+    return _lfortran_zpolar(x)
+
+@overload
+def polar(x: c32) -> c32:
+    return _lfortran_cpolar(x)
+
+@ccall
+def _lfortran_zisfinite(x: c64) -> c64:
+    pass
+
+@ccall
+def _lfortran_cisfinite(x: c32) -> c32:
+    pass
+
+@overload
+def isfinite(x: c64) -> c64:
+    return _lfortran_zisfinite(x)
+
+@overload
+def isfinite(x: c32) -> c32:
+    return _lfortran_cisfinite(x)
+
+@ccall
+def _lfortran_zisinf(x: c64) -> c64:
+    pass
+
+@ccall
+def _lfortran_cisinf(x: c32) -> c32:
+    pass
+
+@overload
+def isinf(x: c64) -> c64:
+    return _lfortran_zisinf(x)
+
+@overload
+def isinf(x: c32) -> c32:
+    return _lfortran_cisinf(x)
