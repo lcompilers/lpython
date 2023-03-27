@@ -8,6 +8,7 @@ def capitalize():
     assert s.capitalize() == s
     assert "empty string" .capitalize() == "Empty string"
     assert "".capitalize() == ""
+    assert "lPyThOn".capitalize() == "Lpython"
 
 
 def lower():
