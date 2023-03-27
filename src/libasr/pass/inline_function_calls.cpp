@@ -294,18 +294,22 @@ public:
                     break;
                 }
                 ASR::ttype_t* local_var_type = func_var->m_type;
+                if( ASR::is_a<ASR::Const_t>(*local_var_type) ) {
+                    local_var_type = ASR::down_cast<ASR::Const_t>(local_var_type)->m_type;
+                }
+                LCOMPILERS_ASSERT(!ASR::is_a<ASR::Const_t>(*local_var_type));
                 ASR::symbol_t* local_var = (ASR::symbol_t*) ASR::make_Variable_t(
-                                                al, func_var->base.base.loc, current_scope,
-                                                s2c(al, local_var_name), nullptr, 0, ASR::intentType::Local,
-                                                nullptr, nullptr, ASR::storage_typeType::Default,
-                                                local_var_type, ASR::abiType::Source, ASR::accessType::Public,
-                                                ASR::presenceType::Required, false);
+                        al, func_var->base.base.loc, current_scope,
+                        s2c(al, local_var_name), nullptr, 0, ASR::intentType::Local,
+                        nullptr, nullptr, ASR::storage_typeType::Default,
+                        local_var_type, ASR::abiType::Source, ASR::accessType::Public,
+                        ASR::presenceType::Required, false);
                 current_scope->add_symbol(local_var_name, local_var);
                 arg2value[func_var_name] = local_var;
-                if( m_symbolic_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
+                if( m_symbolic_value ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_symbolic_value, local_var));
                 }
-                if( m_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
+                if( m_value ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_value, local_var));
                 }
             }

@@ -1,9 +1,9 @@
-from lpython import i32
+from lpython import i32, Const
 from numpy import empty, int32
 
 # issue-1368
 
-SIZE: i32 = i32(3)
+SIZE: Const[i32] = i32(3)
 
 def main() -> None:
     xs: i32[SIZE] = empty(SIZE, dtype=int32)
