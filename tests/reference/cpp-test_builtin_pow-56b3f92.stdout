@@ -220,11 +220,11 @@ double _lfortran_zaimag(std::complex<double> x);
 void test_pow()
 {
     int32_t a;
-    double a1=  4.50000000000000000e+00;
-    double a2=  2.29999999999999982e+00;
+    double a1;
+    double a2;
     int32_t b;
-    bool b1=true;
-    bool b2=false;
+    bool b1;
+    bool b2;
     std::complex<float> c1;
     double eps;
     float f1;
@@ -235,8 +235,8 @@ void test_pow()
     int64_t j;
     int64_t k;
     float p;
-    int32_t x=3;
-    double y=  2.29999999999999982e+00;
+    int32_t x;
+    double y;
     eps =   9.99999999999999980e-13;
     a = 2;
     b = 5;
