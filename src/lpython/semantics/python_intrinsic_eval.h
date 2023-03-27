@@ -110,6 +110,12 @@ struct IntrinsicNodeHandler {
         } else if (ASRUtils::is_integer(*type)) {
             // int() returns a 64-bit integer
             if (ASRUtils::extract_kind_from_ttype_t(type) != 8) {
+                if (ASRUtils::expr_value(arg) != nullptr) {
+                    int64_t ival = ASR::down_cast<ASR::IntegerConstant_t>(
+                                            ASRUtils::expr_value(arg))->m_n;
+                    value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                    loc, ival, to_type));
+                }
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                     al, loc, arg, ASR::cast_kindType::IntegerToInteger,
                     to_type, value));
