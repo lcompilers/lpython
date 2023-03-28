@@ -411,6 +411,7 @@ RUN(NAME test_bit_length     LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
 
 RUN(NAME test_package_01     LABELS cpython llvm)
+RUN(NAME test_pkg_lpdraw    LABELS cpython)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
 RUN(NAME generics_02         LABELS cpython llvm c)
