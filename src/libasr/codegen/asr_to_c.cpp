@@ -1290,17 +1290,10 @@ R"(
     }
 };
 
-Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
+Result<std::string> asr_to_c(Allocator & /*al*/, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics, CompilerOptions &co,
     int64_t default_lower_bound)
 {
-
-    LCompilers::PassOptions pass_options;
-    pass_options.always_run = true;
-    pass_create_subroutine_from_function(al, asr, pass_options);
-    pass_replace_array_op(al, asr, pass_options);
-    pass_unused_functions(al, asr, pass_options);
-    pass_replace_class_constructor(al, asr, pass_options);
     ASRToCVisitor v(diagnostics, co, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);

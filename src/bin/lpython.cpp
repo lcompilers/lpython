@@ -262,6 +262,7 @@ int emit_cpp(const std::string &infile,
 
 int emit_c(const std::string &infile,
     const std::string &runtime_library_dir,
+    LCompilers::PassManager& pass_manager,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
@@ -292,6 +293,13 @@ int emit_c(const std::string &infile,
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+
+    // Apply ASR passes
+    LCompilers::PassOptions pass_options;
+    pass_manager.use_default_passes();
+    pass_options.run_fun = "f";
+    pass_options.always_run = true;
+    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     diagnostics.diagnostics.clear();
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
@@ -305,7 +313,7 @@ int emit_c(const std::string &infile,
 }
 
 int emit_c_to_file(const std::string &infile, const std::string &outfile,
-    const std::string &runtime_library_dir,
+    const std::string &runtime_library_dir, LCompilers::PassManager& pass_manager,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
@@ -336,6 +344,13 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+
+     // Apply ASR passes
+    LCompilers::PassOptions pass_options;
+    pass_manager.use_default_passes();
+    pass_options.run_fun = "f";
+    pass_options.always_run = true;
+    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     diagnostics.diagnostics.clear();
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
@@ -1666,7 +1681,8 @@ int main(int argc, char *argv[])
             return emit_cpp(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_c) {
-            return emit_c(arg_file, runtime_library_dir, compiler_options);
+            return emit_c(arg_file, runtime_library_dir, lpython_pass_manager,
+                            compiler_options);
         }
         if (show_wat) {
             return emit_wat(arg_file, runtime_library_dir, compiler_options);
@@ -1741,7 +1757,8 @@ int main(int argc, char *argv[])
                         runtime_library_dir, compiler_options, time_report, backend);
             } else if (backend == Backend::c) {
                 std::string emit_file_name = basename + "__tmp__generated__.c";
-                err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir, compiler_options);
+                err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir,
+                                        lpython_pass_manager, compiler_options);
                 err = link_executable({emit_file_name}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options, rtlib_header_dir);
             } else if (backend == Backend::llvm) {
