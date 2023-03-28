@@ -2635,8 +2635,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void handle_print(const T &x) {
         for (size_t i = 0; i < x.n_values; i++) {
             if (i > 0) {
-                // print " "
-                emit_call_fd_write(1, " ", 1, 0);
+                if (x.m_separator) {
+                    wasm::emit_i32_const(m_code_section, m_al, 1); // file type: 1 for stdout
+                    this->visit_expr(*x.m_separator); // iov location
+                    wasm::emit_i32_const(m_code_section, m_al, 1); // size of iov vector
+                    wasm::emit_i32_const(m_code_section, m_al, 0); // mem_loction to return no. of bytes written
+
+                    // call WASI fd_write
+                    wasm::emit_call(m_code_section, m_al, m_import_func_idx_map[fd_write]);
+                    wasm::emit_drop(m_code_section, m_al);
+                } else {
+                    emit_call_fd_write(1, " ", 1, 0);
+                }
             }
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = ASRUtils::expr_type(v);
@@ -2721,7 +2731,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
 
         // print "\n" newline character
-        emit_call_fd_write(1, "\n", 1, 0);
+        if (x.m_end) {
+            wasm::emit_i32_const(m_code_section, m_al, 1); // file type: 1 for stdout
+            this->visit_expr(*x.m_end); // iov location
+            wasm::emit_i32_const(m_code_section, m_al, 1); // size of iov vector
+            wasm::emit_i32_const(m_code_section, m_al, 0); // mem_loction to return no. of bytes written
+
+            // call WASI fd_write
+            wasm::emit_call(m_code_section, m_al, m_import_func_idx_map[fd_write]);
+            wasm::emit_drop(m_code_section, m_al);
+        } else {
+            emit_call_fd_write(1, "\n", 1, 0);
+        }
     }
 
     void visit_Print(const ASR::Print_t &x) {
