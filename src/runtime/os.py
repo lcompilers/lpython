@@ -1,7 +1,7 @@
 from lpython import i32, i64, ccall
 
-O_RDONLY: i32 # = 0 FIXME: Assign the value 0 to O_RDONLY
-# O_WRONLY: i32 = 1
+O_RDONLY: i32 = 0 # FIXME: Assign the value 0 to O_RDONLY
+O_WRONLY: i32 = 1
 # O_RDWR  : i32 = 2
 # O_CREAT : i32 = 64
 # O_APPEND: i32 = 1024
@@ -14,6 +14,8 @@ def open(path: str, flag: i32) -> i64:
     sflag: str
     if flag == O_RDONLY:
         sflag = "r"
+    elif flag == O_WRONLY:
+        sflag = "w"
     else:
         quit(1) # not implemented yet
     return _lpython_open(path, sflag)
@@ -41,4 +43,16 @@ def close(fd: i64):
 
 @ccall
 def _lpython_close(fd: i64):
+    pass
+
+def write(fd: i64, s: str):
+    """
+    Writes `s` to the file descriptor.
+    May write partially
+    """
+    _lpython_write(fd, s)
+    return
+
+@ccall
+def _lpython_write(fd: i64, s: str):
     pass

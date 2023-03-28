@@ -1221,6 +1221,17 @@ LFORTRAN_API void _lpython_close(int64_t fd)
     }
 }
 
+LFORTRAN_API void _lpython_write(int64_t fd, char *str)
+{
+    if (fd < 0)
+    {
+        printf("Error in writing to the file!\n");
+        exit(1);
+    }
+    fwrite(str, 1, strlen(str), fd);
+    // fwrite returns the number of items written
+}
+
 LFORTRAN_API int32_t _lfortran_ichar(char *c) {
      return (int32_t) c[0];
 }
