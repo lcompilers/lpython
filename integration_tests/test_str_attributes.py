@@ -9,6 +9,9 @@ def capitalize():
     assert "empty string" .capitalize() == "Empty string"
     assert "".capitalize() == ""
     assert "lPyThOn".capitalize() == "Lpython"
+    x: str
+    x = "lPyThOn"
+    assert x.capitalize() == "Lpython"
 
 
 def lower():
