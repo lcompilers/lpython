@@ -26,7 +26,7 @@ def DisplayTerminal(H: i32, W: i32, Screen: i32[H, W]):
     for i in range(H):
         print("|", end = "")
         for j in range(W):
-            if Screen[i, j]:
+            if bool(Screen[i, j]):
                 print(".", end = "")
             else:
                 print(" ", end = "")
