@@ -516,6 +516,24 @@ public:
             "Variable::m_parent_symtab must be present in the ASR ("
                 + std::string(x.m_name) + ")");
 
+        ASR::asr_t* asr_owner = symtab->asr_owner;
+        bool is_module = false;
+        if( ASR::is_a<ASR::symbol_t>(*asr_owner) &&
+            ASR::is_a<ASR::Module_t>(
+                *ASR::down_cast<ASR::symbol_t>(asr_owner)) ) {
+            is_module = true;
+        }
+        if( symtab->parent != nullptr &&
+            !is_module) {
+            // For now restrict this check only to variables which are present
+            // inside symbols which have a body.
+            require( (x.m_symbolic_value == nullptr && x.m_value == nullptr) ||
+                     (x.m_symbolic_value != nullptr && x.m_value != nullptr) ||
+                     (x.m_symbolic_value != nullptr && ASRUtils::is_value_constant(x.m_symbolic_value)),
+                    "Initialisation of " + std::string(x.m_name) +
+                    " must reduce to a compile time constant.");
+        }
+
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
         visit_ttype(*x.m_type);

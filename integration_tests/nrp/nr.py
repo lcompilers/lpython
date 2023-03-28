@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 
 
 def func(x: f64, c: f64) -> f64:
