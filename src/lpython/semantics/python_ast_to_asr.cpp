@@ -5802,6 +5802,11 @@ public:
                 throw SemanticError("str.capitalize() takes no arguments",
                     loc);
             }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
+            }
             if (s_var.length() > 0) {
                 s_var[0] = toupper(s_var[0]);
             }
