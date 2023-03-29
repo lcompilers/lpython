@@ -1,3 +1,5 @@
+from lpython import i32
+
 def main0():
     a: i32 = 1
     b: str = "abc"

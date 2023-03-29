@@ -1,6 +1,8 @@
+from lpython import i32
+
 def Main0():
     x: i32
-    x = (2+3)* (-5)
+    x = (2 + 3) * (-5)
     y: i32 = 100
     z: i32 = 2147483647
     # w: i32 = -2147483648 # ultimately we should support printing this

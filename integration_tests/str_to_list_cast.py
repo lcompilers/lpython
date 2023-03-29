@@ -1,3 +1,5 @@
+from lpython import i32
+
 def f():
     x: list[str]
     x = list("lpython")
