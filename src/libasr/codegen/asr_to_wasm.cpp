@@ -783,8 +783,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v) {
-        // bool use_ref = (v->m_intent == ASRUtils::intent_out ||
-        //                 v->m_intent == ASRUtils::intent_inout);
         bool is_array = ASRUtils::is_array(v->m_type);
 
         if (ASRUtils::is_pointer(v->m_type)) {
@@ -792,7 +790,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::down_cast<ASR::Pointer_t>(v->m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(t2);
-                // size_t size;
                 diag.codegen_warning_label(
                     "Pointers are not currently supported", {v->base.base.loc},
                     "emitting integer for now");
@@ -899,13 +896,17 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
+    bool isLocalVar(ASR::Variable_t *v) {
+        return (v->m_intent == ASRUtils::intent_local ||
+                v->m_intent == ASRUtils::intent_return_var);
+    }
+
     void emit_local_vars(SymbolTable* symtab) {
         for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == ASRUtils::intent_local ||
-                    v->m_intent == ASRUtils::intent_return_var) {
+                if (isLocalVar(v)) {
                     wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
                     emit_var_type(m_code_section, v);  // emit the type of this var
                     m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables++;
@@ -926,8 +927,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == ASRUtils::intent_local ||
-                    v->m_intent == ASRUtils::intent_return_var) {
+                if (isLocalVar(v)) {
                     if (v->m_symbolic_value) {
                         this->visit_expr(*v->m_symbolic_value);
                         // Todo: Checking for Array is currently omitted
@@ -968,6 +968,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         }
     }
+
+    bool isRefVar(ASR::Variable_t* v) {
+        return (v->m_intent == ASRUtils::intent_out ||
+                v->m_intent == ASRUtils::intent_inout ||
+                v->m_intent == ASRUtils::intent_unspecified);
+    }
+
     void emit_function_prototype(const ASR::Function_t &x) {
         SymbolFuncInfo *s = new SymbolFuncInfo;
 
@@ -988,9 +995,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 emit_var_type(m_type_section, arg);  // emit the type of this var
                 s->no_of_variables++;
             }
-            if (arg->m_intent == ASR::intentType::Out ||
-                arg->m_intent == ASR::intentType::InOut ||
-                arg->m_intent == ASR::intentType::Unspecified) {
+            if (isRefVar(arg)) {
                 s->referenced_vars.push_back(m_al, arg);
             }
         }
@@ -1013,9 +1018,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 wasm::emit_len_placeholder(m_type_section, m_al);
             for (size_t i = 0; i < x.n_args; i++) {
                 ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-                if (arg->m_intent == ASR::intentType::Out ||
-                    arg->m_intent == ASR::intentType::InOut ||
-                    arg->m_intent == ASR::intentType::Unspecified) {
+                if (isRefVar(arg)) {
                     emit_var_type(m_type_section, arg);
                     if (!ASRUtils::is_array(arg->m_type) && ASRUtils::is_complex(*arg->m_type)) {
                         // emit type again for imaginary part
