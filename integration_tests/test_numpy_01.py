@@ -1,6 +1,6 @@
 # This test handles various aspects of local arrays using the `numpy.empty()`
 # function
-from ltypes import f64, i32
+from lpython import f64, i32
 from numpy import empty
 
 def test_local_arrays():

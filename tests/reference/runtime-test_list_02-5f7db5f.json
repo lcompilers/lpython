@@ -2,7 +2,7 @@
     "basename": "runtime-test_list_02-5f7db5f",
     "cmd": "lpython {infile}",
     "infile": "tests/runtime_errors/test_list_02.py",
-    "infile_hash": "f74ffd3eeb1f4a61b105d50f030fcd9e1095cc70d0a618763bbf367b",
+    "infile_hash": "004ac679732e715b87556ac0d6f0ea649612981999a20dad4e25acd0",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

@@ -1,4 +1,4 @@
-from ltypes import f64, i32, c64
+from lpython import f64, i32, c64
 
 
 def test_print_list():

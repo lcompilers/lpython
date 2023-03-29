@@ -1,4 +1,4 @@
-from ltypes import CPtr, empty_c_void_p, i32, Pointer, ccall, Const
+from lpython import CPtr, empty_c_void_p, i32, Pointer, ccall, Const
 
 @ccall
 def deref_array(x: Pointer[CPtr], idx: i32) -> CPtr:

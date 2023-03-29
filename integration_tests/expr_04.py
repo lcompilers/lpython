@@ -1,4 +1,4 @@
-from ltypes import i32, f32, f64, i64
+from lpython import i32, f32, f64, i64
 def main0():
     i: i32
     sum: i32

@@ -1,7 +1,7 @@
 from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
                   lgamma, asin, acos, atan, atan2, asinh, acosh, atanh,
                   tanh, sinh, cosh, hypot, copysign)
-from ltypes import f64
+from lpython import f64
 
 def test_trig():
     eps: f64 = 1e-12

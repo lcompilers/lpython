@@ -1,4 +1,4 @@
-from ltypes import f32
+from lpython import f32
 
 def f():
     f1: f32

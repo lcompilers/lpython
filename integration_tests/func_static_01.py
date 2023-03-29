@@ -1,4 +1,4 @@
-from ltypes import i64, static
+from lpython import i64, static
 
 @static
 def fib(n: i64) -> i64:

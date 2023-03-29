@@ -1,4 +1,4 @@
-from ltypes import i32, CPtr, ccall
+from lpython import i32, CPtr, ccall
 
 @ccall
 def cptr_arg(arg1: CPtr):

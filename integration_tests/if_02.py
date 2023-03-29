@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def test_if_01():
     x: bool = True

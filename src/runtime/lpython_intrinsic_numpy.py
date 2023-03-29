@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f64, f32, ccall, vectorize, overload
+from lpython import i32, i64, f64, f32, ccall, vectorize, overload
 
 pi_64: f64 = f64(3.141592653589793238462643383279502884197)
 pi_32: f32 = f32(3.141592653589793238462643383279502884197)

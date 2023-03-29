@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c32
+from lpython import i32, i64, f32, f64, c32
 
 def test_pow():
     # TODO: the commented tests should also work

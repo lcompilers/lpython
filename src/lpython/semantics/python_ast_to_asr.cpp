@@ -186,8 +186,8 @@ int save_pyc_files(const ASR::TranslationUnit_t &u,
 // * Then the LPython runtime directory
 Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir, std::string& input,
-        bool &ltypes, bool& enum_py) {
-    ltypes = false;
+        bool &lpython, bool& enum_py) {
+    lpython = false;
     enum_py = false;
     std::string file_path;
     if( *(runtime_library_dir.rbegin()) == '/' ) {
@@ -203,12 +203,12 @@ Result<std::string> get_full_path(const std::string &filename,
         if (status) {
             return file_path;
         } else {
-            // If this is `ltypes`, do a special lookup
-            if (filename == "ltypes.py") {
-                file_path = runtime_library_dir + "/ltypes/" + filename;
+            // If this is `lpython`, do a special lookup
+            if (filename == "lpython.py") {
+                file_path = runtime_library_dir + "/lpython/" + filename;
                 status = read_file(file_path, input);
                 if (status) {
-                    ltypes = true;
+                    lpython = true;
                     return file_path;
                 } else {
                     return Error();
@@ -233,9 +233,9 @@ Result<std::string> get_full_path(const std::string &filename,
 
 bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
                      std::string& infile, std::string& path_used, std::string& input,
-                     bool& ltypes, bool& enum_py) {
+                     bool& lpython, bool& enum_py) {
     for (auto path: rl_path) {
-        Result<std::string> rinfile = get_full_path(infile0, path, input, ltypes, enum_py);
+        Result<std::string> rinfile = get_full_path(infile0, path, input, lpython, enum_py);
         if (rinfile.ok) {
             infile = rinfile.result;
             path_used = path;
@@ -303,10 +303,10 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &ltypes, bool& enum_py, bool& copy,
+                            bool &lpython, bool& enum_py, bool& copy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
-    ltypes = false;
+    lpython = false;
     enum_py = false;
     copy = false;
     if( module_name == "copy" ) {
@@ -333,11 +333,11 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     std::string input;
     std::string module_dir_name = "";
     bool found = set_module_path(infile0c, rl_path, infile,
-                                 path_used, input, ltypes, enum_py);
+                                 path_used, input, lpython, enum_py);
     if( !found ) {
         input.clear();
         found = set_module_path(infile0, rl_path, infile,
-                                path_used, input, ltypes, enum_py);
+                                path_used, input, lpython, enum_py);
     } else {
         mod1 = load_pycfile(al, input, false);
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
@@ -353,7 +353,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         err("Could not find the module '" + module_name + "'. If an import path "
             "is available, please use the `-I` option to specify it", loc);
     }
-    if (ltypes) return nullptr;
+    if (lpython) return nullptr;
 
     if( compile_module ) {
         diagnostics.add(diag::Diagnostic(
@@ -554,8 +554,8 @@ public:
             std::string import_path, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
-            current_body{nullptr}, ann_assign_target_type{nullptr}, assign_ast_target{nullptr},
-            is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
+            current_body{nullptr}, ann_assign_target_type{nullptr},
+            assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -578,13 +578,13 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes, enum_py, copy;
+        bool lpython, enum_py, copy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                ltypes, enum_py, copy,
+                lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
-        LCOMPILERS_ASSERT(!ltypes && !enum_py)
+        LCOMPILERS_ASSERT(!lpython && !enum_py)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -1376,6 +1376,20 @@ public:
         return t;
     }
 
+    bool contains_local_variable(ASR::expr_t* value) {
+        if( ASR::is_a<ASR::Var_t>(*value) ) {
+            ASR::Var_t* var_value = ASR::down_cast<ASR::Var_t>(value);
+            ASR::symbol_t* var_value_sym = var_value->m_v;
+            ASR::Variable_t* var_value_variable = ASR::down_cast<ASR::Variable_t>(
+                ASRUtils::symbol_get_past_external(var_value_sym));
+            return var_value_variable->m_intent == ASR::intentType::Local;
+        }
+
+        // TODO: Let any other expression pass through
+        // Will be handled later
+        return false;
+    }
+
     void fill_dims_for_asr_type(Vec<ASR::dimension_t>& dims,
                                 ASR::expr_t* value, const Location& loc) {
         ASR::dimension_t dim;
@@ -1388,8 +1402,13 @@ public:
             ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
             ASR::expr_t* comptime_val = nullptr;
             int64_t value_int = -1;
-            ASRUtils::extract_value(ASRUtils::expr_value(value), value_int);
-            if( value_int != -1 ) {
+            if( !ASRUtils::extract_value(ASRUtils::expr_value(value), value_int) &&
+                contains_local_variable(value) ) {
+                throw SemanticError("Only those local variables which can be reduced to compile "
+                                    "time constant should be used in dimensions of an array.",
+                                    value->base.loc);
+            }
+            if (value_int != -1) {
                 comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
             }
             dim.m_start = zero;
@@ -2184,12 +2203,20 @@ public:
     }
 
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
-        ASR::expr_t* value, ASR::ttype_t* type,
-        const Location& loc, ASR::abiType abi) {
-        if( ASR::is_a<ASR::Const_t>(*type) && !init_expr ) {
+        ASR::ttype_t* type, const Location& loc, ASR::abiType abi) {
+
+        ASR::expr_t* value = nullptr;
+        if( init_expr ) {
+            value = ASRUtils::expr_value(init_expr);
+        }
+        bool is_runtime_expression = !ASRUtils::is_value_constant(value);
+        bool is_variable_const = ASR::is_a<ASR::Const_t>(*type);
+
+        if( is_variable_const && !init_expr ) {
             throw SemanticError("Constant variable " + var_name +
                 " is not initialised at declaration.", loc);
         }
+
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
@@ -2210,24 +2237,30 @@ public:
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
-        if( init_expr && current_body) {
+        if( init_expr && current_body &&
+            (is_runtime_expression || !is_variable_const)) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
                                                         init_expr, nullptr);
             current_body->push_back(al, ASRUtils::STMT(assign));
-            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            if( !ASR::is_a<ASR::Const_t>(*type) &&
-                ASRUtils::is_aggregate_type(type) ) {
-                v_variable->m_symbolic_value = nullptr;
-                v_variable->m_value = nullptr;
-                Vec<char*> variable_dependencies_vec;
-                variable_dependencies_vec.reserve(al, 1);
-                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
-                v_variable->m_dependencies = variable_dependencies_vec.p;
-                v_variable->n_dependencies = variable_dependencies_vec.size();
-            }
+
+            v_variable->m_symbolic_value = nullptr;
+            v_variable->m_value = nullptr;
+            Vec<char*> variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+            v_variable->m_dependencies = variable_dependencies_vec.p;
+            v_variable->n_dependencies = variable_dependencies_vec.size();
+        }
+
+        // Restrict this check only to symbols which have a body.
+        if( !((v_variable->m_symbolic_value == nullptr && v_variable->m_value == nullptr) ||
+              (v_variable->m_symbolic_value != nullptr && v_variable->m_value != nullptr)) &&
+              current_body ) {
+            throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
         current_scope->add_symbol(var_name, v_sym);
     }
@@ -2275,7 +2308,7 @@ public:
                 this->visit_expr(*x.m_value);
             }
             if( is_c_p_pointer_call ) {
-                create_add_variable_to_scope(var_name, nullptr, nullptr, type,
+                create_add_variable_to_scope(var_name, nullptr, type,
                     x.base.base.loc, abi);
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
@@ -2305,17 +2338,13 @@ public:
                     throw SemanticAbort();
                 }
                 init_expr = value;
-                value = nullptr;
-                if( ASR::is_a<ASR::Const_t>(*type) ) {
-                    value = ASRUtils::expr_value(init_expr);
-                }
             }
         } else {
             cast_helper(type, init_expr, init_expr->base.loc);
         }
 
         if( !is_c_p_pointer_call ) {
-            create_add_variable_to_scope(var_name, init_expr, value, type,
+            create_add_variable_to_scope(var_name, init_expr, type,
                 x.base.base.loc, abi);
         }
 
@@ -3456,8 +3485,9 @@ public:
                 std::string return_var_name = "_lpython_return_variable";
                 ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
                 ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                ASR::ttype_t* return_type_ = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
-                    storage_type = ASR::storage_typeType::Parameter;
+                    return_type_ = ASR::down_cast<ASR::Const_t>(type)->m_type;
                 }
                 Vec<char*> variable_dependencies_vec;
                 variable_dependencies_vec.reserve(al, 1);
@@ -3470,6 +3500,7 @@ public:
                 LCOMPILERS_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
                         ASR::down_cast<ASR::symbol_t>(return_var));
+                ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
                 Vec<char*> func_deps;
@@ -3490,6 +3521,7 @@ public:
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
                     tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
+                    return_variable->m_type = return_type_;
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -3554,14 +3586,14 @@ public:
         }
 
         /*
-            Return in case of ltypes module.
+            Return in case of lpython module.
             TODO: Restrict the check only if
-            ltypes is the same module as src/runtime/ltypes
-            For now its wild card i.e., ltypes.py present
+            lpython is the same module as src/runtime/lpython
+            For now its wild card i.e., lpython.py present
             in any directory other than src/runtime will also
             be ignored.
         */
-        if (mod_sym == "ltypes") {
+        if (mod_sym == "lpython") {
             return ;
         }
 
@@ -3630,14 +3662,14 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool ltypes, enum_py, copy;
+            bool lpython, enum_py, copy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
+                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py || copy) {
-                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+            if (lpython || enum_py || copy) {
+                // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
                 tmp = nullptr;
@@ -3688,14 +3720,14 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool ltypes, enum_py, copy;
+            bool lpython, enum_py, copy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py || copy) {
-                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+            if (lpython || enum_py || copy) {
+                // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
                 tmp = nullptr;
@@ -5347,16 +5379,16 @@ public:
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
-        if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
-            ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
-            return_variable->m_symbolic_value = value;
-            Vec<char*> variable_dependencies_vec;
-            variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
-                                                          return_variable->n_dependencies);
-            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
-            return_variable->m_dependencies = variable_dependencies_vec.p;
-            return_variable->n_dependencies = variable_dependencies_vec.size();
-        }
+        // if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
+        //     ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
+        //     return_variable->m_symbolic_value = value;
+        //     Vec<char*> variable_dependencies_vec;
+        //     variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
+        //                                                   return_variable->n_dependencies);
+        //     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
+        //     return_variable->m_dependencies = variable_dependencies_vec.p;
+        //     return_variable->n_dependencies = variable_dependencies_vec.size();
+        // }
 
         // We can only return one statement in `tmp`, so we insert the current
         // `tmp` into the body of the function directly
@@ -5665,13 +5697,13 @@ public:
             fn_args.push_back(al, arg);
         } else if (attr_name == "startswith") {
             if(args.size() != 1) {
-                throw SemanticError("str.startwith() takes one argument",
+                throw SemanticError("str.startswith() takes one argument",
                         loc);
             }
             ASR::expr_t *arg_sub = args[0].m_value;
             ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
             if (!ASRUtils::is_character(*arg_sub_type)) {
-                throw SemanticError("str.startwith() takes one argument of type: str",
+                throw SemanticError("str.startswith() takes one argument of type: str",
                         loc);
             }
             fn_call_name = "_lpython_str_startswith";
@@ -5683,6 +5715,38 @@ public:
             sub.m_value = args[0].m_value;
             fn_args.push_back(al, str);
             fn_args.push_back(al, sub);
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->
+                Return True if the string ends with the specified suffix, otherwise return False.
+
+                arg_sub: Substring argument provided inside endswith() function
+                arg_sub_type: Type of Substring argument
+                fn_call_name: Name of the Function that has logic/implementation of endswith() function
+                str: Associates with string on which endswith() function will act on
+                suffix: Associates with the suffix string which is provided as an argument to endswith() function
+            */
+            if(args.size() != 1) {
+                throw SemanticError("str.endswith() takes only one argument", loc);
+            }
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_endswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t suffix;
+            suffix.loc = loc;
+            suffix.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, suffix);
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -5737,6 +5801,11 @@ public:
             if (args.size() != 0) {
                 throw SemanticError("str.capitalize() takes no arguments",
                     loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
             }
             if (s_var.length() > 0) {
                 s_var[0] = toupper(s_var[0]);
@@ -5872,6 +5941,62 @@ public:
                 args.push_back(al, sub_arg);
                 tmp = make_call_helper(al, fn_div, current_scope, args,
                         "_lpython_str_startswith", loc);
+            }
+            return;
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->
+                Return True if the string ends with the specified suffix, otherwise return False.
+            */
+
+            if (args.size() != 1) {
+                throw SemanticError("str.endswith() takes one arguments", loc);
+            }
+
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
+            }
+
+            if (ASRUtils::expr_value(arg_suffix) != nullptr) {
+                /*
+                    Invoked when Suffix argument is provided as a constant string
+                */
+                ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
+                std::string suffix = suffix_constant->m_s;
+
+                bool res = true;
+                if (suffix.size() > s_var.size())
+                    res = false;
+                else
+                    res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
+
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+
+            } else {
+                /*
+                    Invoked when Suffix argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".endswith(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_endswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_suffix;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
             }
             return;
         } else {

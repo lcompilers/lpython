@@ -1,4 +1,4 @@
-from ltypes import i32, f64, c32
+from lpython import i32, f64, c32
 
 def f():
     eps: f64

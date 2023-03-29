@@ -1,4 +1,4 @@
-from ltypes import i32, i64, ccall
+from lpython import i32, i64, ccall
 
 O_RDONLY: i32 # = 0 FIXME: Assign the value 0 to O_RDONLY
 # O_WRONLY: i32 = 1

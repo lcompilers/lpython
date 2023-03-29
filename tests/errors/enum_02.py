@@ -1,4 +1,4 @@
-from ltypes import i32, ccall
+from lpython import i32, ccall
 from enum import Enum
 
 @ccall

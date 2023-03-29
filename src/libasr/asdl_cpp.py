@@ -2419,6 +2419,10 @@ static inline ASR::expr_t* expr_value0(ASR::expr_t *f)
                 LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }
+            if( ASR::down_cast<ASR::Variable_t>(s)->m_storage !=
+                ASR::storage_typeType::Parameter ) {
+                return nullptr;
+            }
             return ASR::down_cast<ASR::Variable_t>(s)->m_value;
         }""" \
                     % (name, name), 2, new_line=False)

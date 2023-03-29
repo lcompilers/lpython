@@ -1,4 +1,4 @@
-from ltypes import i32
+from lpython import i32
 
 def test_issue_1487_1(): # OR operator: a or b
     a : i32

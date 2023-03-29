@@ -2,7 +2,7 @@
     "basename": "asr-test_bitwise_on_complex-dd9568b",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_bitwise_on_complex.py",
-    "infile_hash": "249e435a3abb82895e8fef64c71459470314360fb9d7707dc33df049",
+    "infile_hash": "48f71d8eae47a14316e9e7aba182a4a03ff8cc05ae661b8e6d41dc85",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

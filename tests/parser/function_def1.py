@@ -1,4 +1,4 @@
-from ltypes import i32, overload
+from lpython import i32, overload
 
 def greet(name):
     """

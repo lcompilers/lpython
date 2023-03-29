@@ -1,8 +1,8 @@
-from ltypes import i32, i64
+from lpython import i32, i64, Const
 from numpy import empty, int64
 
 def f(n: i32, m: i32):
-    l: i32 = 2
+    l: Const[i32] = 2
     a: i64[n, m, l] = empty((n, m, l), dtype=int64)
     i: i32; j: i32; k: i32;
     for i in range(n):

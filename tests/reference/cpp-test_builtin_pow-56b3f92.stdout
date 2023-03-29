@@ -25,16 +25,16 @@ struct dimension_descriptor
 // Forward declarations
 void _lpython_main_program();
 void test_pow();
-int32_t __lpython_overloaded_0___mod(int32_t a, int32_t b);
 double __lpython_overloaded_0__abs(double x);
 double __lpython_overloaded_0__pow(int32_t x, int32_t y);
 int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z);
 int64_t __lpython_overloaded_11__pow(int64_t x, int64_t y, int64_t z);
 double __lpython_overloaded_1__pow(int64_t x, int64_t y);
-int64_t __lpython_overloaded_2___mod(int64_t a, int64_t b);
+int32_t __lpython_overloaded_2___mod(int32_t a, int32_t b);
 float __lpython_overloaded_2__pow(float x, float y);
 double __lpython_overloaded_3__pow(double x, double y);
 int32_t __lpython_overloaded_4___lpython_floordiv(int32_t a, int32_t b);
+int64_t __lpython_overloaded_4___mod(int64_t a, int64_t b);
 float __lpython_overloaded_4__pow(int32_t x, float y);
 int64_t __lpython_overloaded_5___lpython_floordiv(int64_t a, int64_t b);
 float __lpython_overloaded_5__pow(float x, int32_t y);
@@ -49,28 +49,6 @@ namespace {
 }
 
 // Implementations
-int32_t __lpython_overloaded_4___lpython_floordiv(int32_t a, int32_t b)
-{
-    int32_t _lpython_return_variable;
-    double r;
-    int32_t result;
-    r = (double)(a)/(double)(b);
-    result = (int32_t)(r);
-    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
-        _lpython_return_variable = result;
-        return _lpython_return_variable;
-    }
-    _lpython_return_variable = result - 1;
-    return _lpython_return_variable;
-}
-
-int32_t __lpython_overloaded_0___mod(int32_t a, int32_t b)
-{
-    int32_t _lpython_return_variable;
-    _lpython_return_variable = a - __lpython_overloaded_4___lpython_floordiv(a, b)*b;
-    return _lpython_return_variable;
-}
-
 double __lpython_overloaded_0__abs(double x)
 {
     double _lpython_return_variable;
@@ -91,6 +69,28 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
+int32_t __lpython_overloaded_4___lpython_floordiv(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    double r;
+    int32_t result;
+    r = (double)(a)/(double)(b);
+    result = (int32_t)(r);
+    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
+        _lpython_return_variable = result;
+        return _lpython_return_variable;
+    }
+    _lpython_return_variable = result - 1;
+    return _lpython_return_variable;
+}
+
+int32_t __lpython_overloaded_2___mod(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = a - __lpython_overloaded_4___lpython_floordiv(a, b)*b;
+    return _lpython_return_variable;
+}
+
 int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z)
 {
     int32_t _lpython_return_variable;
@@ -99,7 +99,7 @@ int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z)
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     }
-    result = __lpython_overloaded_0___mod(std::pow(x, y), z);
+    result = __lpython_overloaded_2___mod(std::pow(x, y), z);
     _lpython_return_variable = result;
     return _lpython_return_variable;
 }
@@ -119,7 +119,7 @@ int64_t __lpython_overloaded_5___lpython_floordiv(int64_t a, int64_t b)
     return _lpython_return_variable;
 }
 
-int64_t __lpython_overloaded_2___mod(int64_t a, int64_t b)
+int64_t __lpython_overloaded_4___mod(int64_t a, int64_t b)
 {
     int64_t _lpython_return_variable;
     _lpython_return_variable = a - __lpython_overloaded_5___lpython_floordiv(a, b)*b;
@@ -134,7 +134,7 @@ int64_t __lpython_overloaded_11__pow(int64_t x, int64_t y, int64_t z)
         std::cerr << "ERROR STOP" << std::endl;
         exit(1);
     }
-    result = __lpython_overloaded_2___mod(std::pow(x, y), z);
+    result = __lpython_overloaded_4___mod(std::pow(x, y), z);
     _lpython_return_variable = result;
     return _lpython_return_variable;
 }
@@ -220,11 +220,11 @@ double _lfortran_zaimag(std::complex<double> x);
 void test_pow()
 {
     int32_t a;
-    double a1=  4.50000000000000000e+00;
-    double a2=  2.29999999999999982e+00;
+    double a1;
+    double a2;
     int32_t b;
-    bool b1=true;
-    bool b2=false;
+    bool b1;
+    bool b2;
     std::complex<float> c1;
     double eps;
     float f1;
@@ -235,8 +235,8 @@ void test_pow()
     int64_t j;
     int64_t k;
     float p;
-    int32_t x=3;
-    double y=  2.29999999999999982e+00;
+    int32_t x;
+    double y;
     eps =   9.99999999999999980e-13;
     a = 2;
     b = 5;

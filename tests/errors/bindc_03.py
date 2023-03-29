@@ -1,5 +1,5 @@
 
-from ltypes import c_p_pointer, CPtr, i32, Pointer, i16
+from lpython import c_p_pointer, CPtr, i32, Pointer, i16
 
 def fill_A(k: i32, n: i32, b: CPtr) -> None:
     nk: i32 = n * k

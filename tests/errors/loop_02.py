@@ -1,4 +1,4 @@
-from ltypes import i16
+from lpython import i16
 
 def test_increment():
     i: i16

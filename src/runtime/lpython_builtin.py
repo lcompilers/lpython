@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
+from lpython import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 #: abs() as a generic procedure.
@@ -517,6 +517,14 @@ def _lpython_floordiv(a: bool, b: bool) -> bool:
 
 
 @overload
+def _mod(a: i8, b: i8) -> i8:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: i16, b: i16) -> i16:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
 def _mod(a: i32, b: i32) -> i32:
     return a - _lpython_floordiv(a, b)*b
 
@@ -660,12 +668,20 @@ def pow(x: i64, y: i64, z: i64) -> i64:
 def _lpython_str_capitalize(x: str) -> str:
     if len(x) == 0:
         return x
+    i:str
+    res:str = ""
+    for i in x:
+        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
+            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
+        else:
+            res += i
+
     val: i32
-    val = ord(x[0])
-    if val >= ord('a') and val <= ord('x'):
+    val = ord(res[0])
+    if val >= ord('a') and val <= ord('z'):
         val -= 32
-    x = chr(val) + x[1:]
-    return x
+    res = chr(val) + res[1:]
+    return res
 
 @overload
 def _lpython_str_lower(x: str) -> str:
@@ -785,6 +801,21 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
     if res:
         res = res and (j == len(sub))
     return res
+
+@overload
+def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+
+    if(len(suffix) > len(s)):
+        return False
+    
+    i : i32
+    i = 0
+    while(i < len(suffix)):
+        if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
+            return False
+        i += 1
+        
+    return True
 
 
 def list(s: str) -> list[str]:

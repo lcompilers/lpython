@@ -1,4 +1,4 @@
-from ltypes import i64
+from lpython import i64
 from os import (open, read, close, O_RDONLY)
 
 def test():

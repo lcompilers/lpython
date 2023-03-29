@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from lpython import i32, f64
 from numpy import array
 
 def test_array_01():

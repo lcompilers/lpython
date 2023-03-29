@@ -1,4 +1,4 @@
-from ltypes import c64, i32
+from lpython import c64, i32
 from copy import deepcopy
 
 def generate_complex_tensors(mat: list[list[c64]], vec: list[c64]) -> list[tuple[list[list[c64]], list[c64]]]:

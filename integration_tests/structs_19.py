@@ -1,4 +1,4 @@
-from ltypes import (i8, dataclass, i32, f32, c32, f64, i16, i64, c64,
+from lpython import (i8, dataclass, i32, f32, c32, f64, i16, i64, c64,
     ccall, CPtr, c_p_pointer, Pointer, ccallable)
 from numpy import empty, int32, int8, float32, float64, int16, int64, complex64, complex128
 

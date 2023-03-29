@@ -2,7 +2,7 @@
     "basename": "asr-test_dict11-2ab4e6c",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_dict11.py",
-    "infile_hash": "c1ffba7ea161c60aa89578a819f9c1ff89863c0e71118a40ce67a702",
+    "infile_hash": "4f1af506664662506acd3ce990f1b72ff744bb873162c9fe32dd9236",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

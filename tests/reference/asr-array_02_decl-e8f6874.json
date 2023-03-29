@@ -2,11 +2,11 @@
     "basename": "asr-array_02_decl-e8f6874",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/array_02_decl.py",
-    "infile_hash": "49bfd0530662b64164eb87c7e1bc53d518a7ccc75469dfb7ced80e5f",
+    "infile_hash": "8daa77dd2d5fe6c6f5f3ce867746c5e13290305ef7e1723ac9669285",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-array_02_decl-e8f6874.stdout",
-    "stdout_hash": "9fcfaf5cb7d6dfd6798902f102d41743c0c6c89180572345d886154f",
+    "stdout_hash": "f12c18aa34d16d8cf0410f0b814b31772763b329843bb762d8ef9c7c",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

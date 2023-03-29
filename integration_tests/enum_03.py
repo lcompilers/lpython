@@ -1,5 +1,5 @@
 from enum import Enum
-from ltypes import i32
+from lpython import i32
 
 class NegativeNumbers(Enum):
     a: i32 = -1

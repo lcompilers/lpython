@@ -1,4 +1,4 @@
-from ltypes import i32, f64, f32
+from lpython import i32, f64, f32
 from numpy import empty, arcsinh, arccosh, reshape, float64, sinh, sqrt, sin,  cosh
 
 def verify1d_arcsinh(array: f32[:], result: f32[:], size: i32):

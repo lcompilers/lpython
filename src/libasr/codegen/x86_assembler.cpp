@@ -62,7 +62,6 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dw_imm16(0);  // e_shnum
     a.asm_dw_imm16(0);  // e_shstrndx
 
-    a.add_var("ehdrsize", a.pos()-a.get_defined_symbol("ehdr").value);
 
     /* Elf32_Phdr */
     a.add_label("phdr");
@@ -74,13 +73,16 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dd_label("filesize"); // p_memsz
     a.asm_dd_imm32(p_flags);        // p_flags
     a.asm_dd_imm32(0x1000);   // p_align
+    a.add_label("phdr_end");
 
-    a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
-    a.add_var("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
+    a.add_var("ehdrsize", "ehdr", "phdr");
+    a.add_var("phdrsize", "phdr", "phdr_end");
+    a.add_var("e_phoff", "ehdr", "phdr");
 }
 
 void emit_elf32_footer(X86Assembler &a) {
-    a.add_var_size("filesize");
+    a.add_label("footer");
+    a.add_var("filesize", "ehdr", "footer");
 }
 
 void emit_exit(X86Assembler &a, const std::string &name,
@@ -281,8 +283,8 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
 
 /************************* 64-bit functions **************************/
 
-void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
-    /* Elf32_Ehdr */
+void emit_elf64_header(X86Assembler &a) {
+    /* Elf64_Ehdr */
     a.add_label("ehdr");
     // e_ident
     a.asm_db_imm8(0x7F);
@@ -313,30 +315,54 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dd_imm32(0);  // e_flags
     a.asm_dw_label("ehdrsize");  // e_ehsize
     a.asm_dw_label("phdrsize");  // e_phentsize
-    a.asm_dw_imm16(1);  // e_phnum
+    a.asm_dw_imm16(3);  // e_phnum
     a.asm_dw_imm16(0);  // e_shentsize
     a.asm_dw_imm16(0);  // e_shnum
     a.asm_dw_imm16(0);  // e_shstrndx
 
-    a.add_var("ehdrsize", a.pos()-a.get_defined_symbol("ehdr").value);
-
-    /* Elf32_Phdr */
+    /* Elf64_Phdr */
     a.add_label("phdr");
-    a.asm_dd_imm32(1);        // p_type
-    a.asm_dd_imm32(p_flags);  // p_flags
+    a.asm_dd_imm32(1);  // p_type
+    a.asm_dd_imm32(4);  // p_flags (permission to read only)
     a.asm_dq_imm64(0);        // p_offset
     a.asm_dq_imm64(a.origin());   // p_vaddr
     a.asm_dq_imm64(a.origin());   // p_paddr
-    a.asm_dq_label("filesize"); // p_filesz
-    a.asm_dq_label("filesize"); // p_memsz
+    a.asm_dq_label("phdr_size"); // p_filesz
+    a.asm_dq_label("phdr_size"); // p_memsz
     a.asm_dq_imm64(0x1000);   // p_align
 
-    a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
-    a.add_var64("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
+    /* text_segment_phdr */
+    a.add_label("text_phdr");
+    a.asm_dd_imm32(1);  // p_type
+    a.asm_dd_imm32(5);  // p_flags (permission to read and execute)
+    a.asm_dq_label("text_segment_offset"); // p_offset
+    a.asm_dq_label("text_segment_start"); // p_vaddr
+    a.asm_dq_label("text_segment_start"); // p_paddr
+    a.asm_dq_label("text_segment_size"); // p_filesz
+    a.asm_dq_label("text_segment_size"); // p_memsz
+    a.asm_dq_imm64(0x1000);   // p_align
+
+    /* data_segment_phdr */
+    a.add_label("data_phdr");
+    a.asm_dd_imm32(1);        // p_type
+    a.asm_dd_imm32(6);  // p_flags (permission to read and write)
+    a.asm_dq_label("data_segment_offset"); // p_offset
+    a.asm_dq_label("data_segment_start"); // p_vaddr
+    a.asm_dq_label("data_segment_start"); // p_paddr
+    a.asm_dq_label("data_segment_size"); // p_filesz
+    a.asm_dq_label("data_segment_size"); // p_memsz
+    a.asm_dq_imm64(0x1000);   // p_align
 }
 
 void emit_elf64_footer(X86Assembler &a) {
-    a.add_var_size("filesize");
+    a.add_var("ehdrsize", "ehdr", "phdr");
+    a.add_var("phdrsize", "phdr", "text_phdr");
+    a.add_var64("e_phoff", "ehdr", "phdr");
+    a.add_var64("phdr_size", "ehdr", "text_segment_start");
+    a.add_var64("text_segment_offset", "ehdr", "text_segment_start");
+    a.add_var64("text_segment_size", "text_segment_start", "text_segment_end");
+    a.add_var64("data_segment_offset", "ehdr", "data_segment_start");
+    a.add_var64("data_segment_size", "data_segment_start", "data_segment_end");
 }
 
 void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {

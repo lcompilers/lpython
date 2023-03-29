@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c64, overload
+from lpython import i32, i64, f32, f64, c64, overload
 
 def func01(a: i32, b: i64) -> i64:
     return int(a) + b

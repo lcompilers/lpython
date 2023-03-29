@@ -1,4 +1,4 @@
-from ltypes import i32, f64, c64
+from lpython import i32, f64, c64
 
 def set_tuple(a: i32, b: f64) -> tuple[i32, f64, str, c64]:
     t: tuple[i32, f64, str, c64]

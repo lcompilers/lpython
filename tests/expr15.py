@@ -1,4 +1,4 @@
-from ltypes import f64, c64, i32, c32
+from lpython import f64, c64, i32, c32
 
 def test1() -> f64:
     x: f64

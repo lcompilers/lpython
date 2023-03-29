@@ -2,7 +2,7 @@
     "basename": "cpp-expr15-1661c0d",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/expr15.py",
-    "infile_hash": "309febe805e4092e33e7b75adb0efdd10fbfc310a50a88718eb7cef7",
+    "infile_hash": "f3fa7c8efa999392edc0a94ff9c7820ed0c3f1e849c77655151b8d72",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-expr15-1661c0d.stdout",

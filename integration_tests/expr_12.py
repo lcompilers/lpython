@@ -1,4 +1,4 @@
-from ltypes import pointer, i16, Pointer
+from lpython import pointer, i16, Pointer
 
 def g(x: Pointer[i16[:]], y: i16[:]):
     y[0] = i16(1)

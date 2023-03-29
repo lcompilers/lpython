@@ -286,7 +286,7 @@ asr = true
 # integration_tests
 
 [[test]]
-filename = "ltypes1.py"
+filename = "lpython1.py"
 llvm = true
 
 [[test]]
@@ -410,6 +410,10 @@ asr = true
 filename = "../integration_tests/print_01.py"
 c = true
 cpp = true
+
+[[test]]
+filename = "../integration_tests/variable_decl_03.py"
+c = true
 
 [[test]]
 filename = "../integration_tests/print_02.py"

@@ -2,7 +2,7 @@
     "basename": "asr-enum_02-54656c5",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/enum_02.py",
-    "infile_hash": "6798550e5836b393a0fc498de2452048cd98dcad769d9ace6d144ecf",
+    "infile_hash": "8ef155d733622824b261f286d72fb1be235bc6e73586a7acc02906d3",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

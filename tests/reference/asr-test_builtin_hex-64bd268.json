@@ -2,11 +2,11 @@
     "basename": "asr-test_builtin_hex-64bd268",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_builtin_hex.py",
-    "infile_hash": "2b694d04794b3ca3ef013c9aa8e25beeb639a8261164904d0f8331bf",
+    "infile_hash": "e639f0251477f50376536d317630e3c026354859576a5f1b7b10bd7d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_hex-64bd268.stdout",
-    "stdout_hash": "db8027a025e65191ff5d25137f9664b5c4afebea4b61f6d1bfaf1d4d",
+    "stdout_hash": "eed826bc1b230f4f16135669797895269b20ea61abbf8065b4aee478",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

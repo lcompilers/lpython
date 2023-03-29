@@ -1,4 +1,4 @@
-from ltypes import ccall, f32, f64, i32, i64, CPtr, pointer, Pointer, p_c_pointer
+from lpython import ccall, f32, f64, i32, i64, CPtr, pointer, Pointer, p_c_pointer
 
 @ccall
 def f_i32_i32(x: i32) -> i32:

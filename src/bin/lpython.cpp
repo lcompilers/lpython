@@ -304,6 +304,53 @@ int emit_c(const std::string &infile,
     return 0;
 }
 
+int emit_c_to_file(const std::string &infile, const std::string &outfile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LCompilers::diag::Diagnostics diagnostics;
+    LCompilers::LocationManager lm;
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LCompilers::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LCompilers::LPython::AST::ast_t* ast = r.result;
+
+    diagnostics.diagnostics.clear();
+    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r1.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LCompilers::ASR::TranslationUnit_t* asr = r1.result;
+
+    diagnostics.diagnostics.clear();
+    auto res = LCompilers::asr_to_c(al, *asr, diagnostics, compiler_options, 0);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!res.ok) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    FILE *fp;
+    fp = fopen(outfile.c_str(), "w");
+    fputs(res.result.c_str(), fp);
+    fclose(fp);
+    return 0;
+}
+
 int emit_wat(const std::string &infile,
     const std::string &runtime_library_dir,
     CompilerOptions &compiler_options)
@@ -996,7 +1043,7 @@ int link_executable(const std::vector<std::string> &infiles,
     const std::string &outfile,
     const std::string &runtime_library_dir, Backend backend,
     bool static_executable, bool kokkos,
-    CompilerOptions &compiler_options)
+    CompilerOptions &compiler_options, const std::string &rtlib_header_dir)
 {
     /*
     The `gcc` line for dynamic linking that is constructed below:
@@ -1116,8 +1163,21 @@ int link_executable(const std::vector<std::string> &infiles,
         for (auto &s : infiles) {
             cmd += s + " ";
         }
-        cmd += + " -L";
+        cmd += " -L";
         cmd += " " + post_options + " -lm";
+        int err = system(cmd.c_str());
+        if (err) {
+            std::cout << "The command '" + cmd + "' failed." << std::endl;
+            return 10;
+        }
+        return 0;
+    } else if (backend == Backend::c) {
+        std::string CXX = "gcc";
+        std::string cmd = CXX + " -o " + outfile + " ";
+        for (auto &s : infiles) {
+            cmd += s + " ";
+        }
+        cmd += " -I " + rtlib_header_dir;
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -1679,6 +1739,11 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::wasm_x86 || backend == Backend::wasm_x64) {
                 err = compile_to_binary_wasm_to_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report, backend);
+            } else if (backend == Backend::c) {
+                std::string emit_file_name = basename + "__tmp__generated__.c";
+                err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir, compiler_options);
+                err = link_executable({emit_file_name}, outfile, runtime_library_dir,
+                    backend, static_link, true, compiler_options, rtlib_header_dir);
             } else if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 std::string tmp_o = outfile + ".tmp.o";
@@ -1686,7 +1751,7 @@ int main(int argc, char *argv[])
                     lpython_pass_manager, compiler_options, time_report);
                 if (err != 0) return err;
                 err = link_executable({tmp_o}, outfile, runtime_library_dir,
-                    backend, static_link, true, compiler_options);
+                    backend, static_link, true, compiler_options, rtlib_header_dir);
                 if (err != 0) return err;
 
 #ifdef HAVE_RUNTIME_STACKTRACE
@@ -1742,7 +1807,7 @@ int main(int argc, char *argv[])
             return 0;
         } else {
             return link_executable(arg_files, outfile, runtime_library_dir,
-                    backend, static_link, true, compiler_options);
+                    backend, static_link, true, compiler_options, rtlib_header_dir);
         }
     } catch(const LCompilers::LCompilersException &e) {
         std::cerr << "Internal Compiler Error: Unhandled exception" << std::endl;

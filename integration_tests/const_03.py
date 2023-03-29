@@ -1,4 +1,4 @@
-from ltypes import i64, f64, i32, Const, ccall
+from lpython import i64, f64, i32, Const, ccall
 
 CONST_1: Const[f64] = 32.0
 CONST_2: Const[f64] = CONST_1 * 2.0

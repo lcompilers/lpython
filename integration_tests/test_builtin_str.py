@@ -1,4 +1,4 @@
-from ltypes import f32, f64, i32
+from lpython import f32, f64, i32
 
 def test_str_int_float():
     s: str

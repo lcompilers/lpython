@@ -1,4 +1,4 @@
-from ltypes import i32, i64, i8, CPtr, sizeof, dataclass, ccall
+from lpython import i32, i64, i8, CPtr, sizeof, dataclass, ccall
 
 @dataclass
 class A:
