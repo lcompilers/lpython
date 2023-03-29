@@ -727,6 +727,17 @@ def _lpython_str_find(s: str, sub: str) -> i32:
 
     return res
 
+@overload
+def _lpython_list_count(l: list[i32], x: i32) -> i32:
+    count : i32
+    count = 0
+    i : i32
+    i = 0
+    for i in l:
+        if(i == x):
+            count = count + 1
+    return count
+        
 def _lpython_str_rstrip(x: str) -> str:
     ind: i32
     ind = len(x) - 1

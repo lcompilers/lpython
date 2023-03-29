@@ -68,6 +68,8 @@ struct PythonIntrinsicProcedures {
             {"max" , {m_builtin , &eval_max}},
             {"min" , {m_builtin , &eval_min}},
             {"sum" , {m_builtin , &not_implemented}},
+            // List methods
+            {"_lpython_list_count", {m_builtin, &not_implemented}},
             // The following functions for string methods are not used
             // for evaluation.
             {"_lpython_str_capitalize", {m_builtin, &not_implemented}},

@@ -5883,6 +5883,39 @@ public:
         tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
     }
 
+    void handle_list_attributes(ASR::expr_t *s_var,
+                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
+        std::string fn_call_name = "";
+        Vec<ASR::call_arg_t> fn_args;
+        fn_args.reserve(al, 1);
+        if (attr_name == "count" ) {
+            if(args.size() != 1) {
+                throw SemanticError("list.count() takes one argument",
+                        loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_integer(*arg_sub_type)) {
+                throw SemanticError("list.count() takes one argument of type: integer",
+                        loc);
+            }
+            fn_call_name = "_lpython_list_count";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t sub;
+            sub.loc = loc;
+            sub.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, sub);
+
+        } else {
+            throw SemanticError("List method not implemented: " + attr_name, loc);
+        }
+        ASR::symbol_t *fn_call = resolve_intrinsic_function(loc, fn_call_name);
+        tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name = "";
         Vec<ASR::call_arg_t> args;
@@ -5928,6 +5961,10 @@ public:
                                             ASR::make_Var_t(al, x.base.base.loc, st));
                             if (ASR::is_a<ASR::Character_t>(*(ASRUtils::expr_type(se)))) {
                                 handle_string_attributes(se, args, at->m_attr, x.base.base.loc);
+                                return;
+                            }
+                            if (ASR::is_a<ASR::List_t>(*(ASRUtils::expr_type(se)))) {
+                                handle_list_attributes(se, args, at->m_attr, x.base.base.loc);
                                 return;
                             }
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
@@ -6010,7 +6047,6 @@ public:
             throw SemanticError("Only Name or Attribute type supported in Call",
                 x.base.base.loc);
         }
-
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
         if( s && ASR::is_a<ASR::Module_t>(*s) ) {
             std::string mangled_name = ASRUtils::get_mangled_name(ASR::down_cast<ASR::Module_t>(s), call_name);
