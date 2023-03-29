@@ -5830,7 +5830,7 @@ public:
         return res;
     }
 
-    ASR::expr_t* evaluate_partition(std::string &s_var, ASR::expr_t* arg_seperator, 
+    ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator, 
         const Location &loc, ASR::ttype_t *arg_seperator_type) {
         /*
             Invoked when Seperator argument is provided as a constant string
@@ -5876,12 +5876,12 @@ public:
     }
 
     void create_partition(const Location &loc, std::string &s_var, ASR::expr_t *arg_seperator,
-        ASR::ttype_t *arg_seperator_type, ASR::expr_t *value) {
-        /*
-            Invoked when Seperator argument is provided as a variable
-            b: str = "ple"
-            Eg: "apple".seperator(b)
-        */
+        ASR::ttype_t *arg_seperator_type) {
+
+        ASR::expr_t *value = nullptr;
+        if(ASRUtils::expr_value(arg_seperator)) {
+            value = eval_partition(s_var, arg_seperator, loc, arg_seperator_type);
+        }
         ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 1);
@@ -5895,7 +5895,7 @@ public:
         args.push_back(al, str_arg);
         args.push_back(al, sub_arg);
         tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
-        ASR::down_cast<ASR::FunctionCall_t>(tmp)->m_value = value;
+        ASR::down_cast2<ASR::FunctionCall_t>(tmp)->m_value = value;
         return;
     }
 
@@ -6124,11 +6124,7 @@ public:
             if(s_var.size() == 0) {
                 throw SemanticError("string to undergo partition cannot be empty",loc);
             }
-            ASR::expr_t *value = nullptr;
-            if(ASRUtils::expr_value(arg_seperator)) {
-                value = evaluate_partition(s_var, arg_seperator, loc, arg_seperator_type);
-            }
-            create_partition(loc, s_var, arg_seperator, arg_seperator_type, value);
+            create_partition(loc, s_var, arg_seperator, arg_seperator_type);
             return;
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
