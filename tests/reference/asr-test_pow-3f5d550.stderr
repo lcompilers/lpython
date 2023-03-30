@@ -1,5 +1,2 @@
-style suggestion: Could have used '**' instead of 'pow'
- --> tests/errors/test_pow.py:2:11
-  |
-2 |     print(pow(2, 2))
-  |           ^^^^^^^^^ '**' could be used instead
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

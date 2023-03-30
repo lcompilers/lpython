@@ -5,9 +5,9 @@
     "infile_hash": "7946c522ceb16f99810780d4aba7fa2593695a4b49fb35ea1f131f53",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast-loop2-63bf329.stdout",
-    "stdout_hash": "5317e07f2df3b9e037ab5b1a76f1f1c873098a9931b4b85bc59360cd",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast-loop2-63bf329.stderr",
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }

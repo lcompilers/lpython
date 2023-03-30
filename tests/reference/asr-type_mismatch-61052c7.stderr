@@ -1,5 +1,2 @@
-semantic error: Type mismatch in shorthand operator, the types must be compatible
- --> tests/errors/type_mismatch.py:8:5
-  |
-8 |     a *= b
-  |     ^    ^ type mismatch ('i32' and 'f32')
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

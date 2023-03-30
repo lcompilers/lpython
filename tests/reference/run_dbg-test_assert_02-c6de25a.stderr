@@ -1,5 +1,2 @@
-  File "tests/runtime_errors/test_assert_02.py", line 4
-    test()
-  File "tests/runtime_errors/test_assert_02.py", line 2
-    assert 1 != 1, "One is equal to one."
-AssertionError: One is equal to one.
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

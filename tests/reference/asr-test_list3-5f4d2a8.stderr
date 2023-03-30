@@ -1,5 +1,2 @@
-semantic error: Type mismatch in 'pop', List index should be of integer type
- --> tests/errors/test_list3.py:5:15
-  |
-5 |     x = a.pop(2.2)
-  |               ^^^ type mismatch (found: 'f64', expected: 'i32')
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

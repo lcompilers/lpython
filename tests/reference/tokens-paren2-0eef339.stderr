@@ -1,5 +1,2 @@
-tokenizer error: Parentheses does not match
- --> tests/tokens/errors/paren2.py:6:3
-  |
-6 | [{]}
-  |   ^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

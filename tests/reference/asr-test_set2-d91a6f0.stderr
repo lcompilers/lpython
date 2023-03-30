@@ -1,5 +1,2 @@
-semantic error: remove() takes exactly one argument
- --> tests/errors/test_set2.py:6:5
-  |
-6 |     a.remove('error', 'error2')
-  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

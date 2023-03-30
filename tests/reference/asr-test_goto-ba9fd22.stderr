@@ -1,5 +1,2 @@
-semantic error: Label 'end' is not defined in 'f'
- --> tests/errors/test_goto.py:8:13
-  |
-8 |             goto .end
-  |             ^^^^^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

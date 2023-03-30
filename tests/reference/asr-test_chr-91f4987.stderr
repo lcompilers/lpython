@@ -1,5 +1,2 @@
-semantic error: 'f64' object cannot be interpreted as an integer
- --> tests/errors/test_chr.py:3:13
-  |
-3 |     s = chr(973.2)
-  |             ^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

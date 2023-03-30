@@ -1,5 +1,2 @@
-semantic error: 'set' object is not subscriptable
- --> tests/errors/test_set_indexing.py:7:9
-  |
-7 |     a = s[0]
-  |         ^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

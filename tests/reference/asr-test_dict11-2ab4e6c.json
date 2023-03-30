@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_dict11-2ab4e6c.stderr",
-    "stderr_hash": "4944c96752dfe5fcfc190831966428e9568e9d4b8b03a553524df84b",
-    "returncode": 2
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }
