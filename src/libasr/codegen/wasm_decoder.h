@@ -237,10 +237,10 @@ class WASMDecoder {
             wasm::read_b8(wasm_bytes, offset);
             switch (globals[i].type)
             {
-                case 0x7F: wasm::read_i32(wasm_bytes, offset); break;
-                case 0x7E: wasm::read_i64(wasm_bytes, offset); break;
-                case 0x7D: wasm::read_f32(wasm_bytes, offset); break;
-                case 0x7C: wasm::read_f64(wasm_bytes, offset); break;
+                case 0x7F: globals.p[i].n32 = wasm::read_i32(wasm_bytes, offset); break;
+                case 0x7E: globals.p[i].n64 = wasm::read_i64(wasm_bytes, offset); break;
+                case 0x7D: globals.p[i].r32 = wasm::read_f32(wasm_bytes, offset); break;
+                case 0x7C: globals.p[i].r64 = wasm::read_f64(wasm_bytes, offset); break;
                 default: throw CodeGenError("decode_global_section: Unsupport global type"); break;
             }
 

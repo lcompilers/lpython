@@ -411,6 +411,7 @@ RUN(NAME test_bit_length     LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
 
 RUN(NAME test_package_01     LABELS cpython llvm)
+RUN(NAME test_pkg_lpdraw     LABELS cpython llvm wasm)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
 RUN(NAME generics_02         LABELS cpython llvm c)
@@ -440,3 +441,4 @@ RUN(NAME test_argv_01      LABELS llvm) # TODO: Test using CPython
 RUN(NAME global_syms_01    LABELS cpython llvm c)
 RUN(NAME global_syms_02    LABELS cpython llvm c)
 RUN(NAME global_syms_03_b  LABELS cpython llvm c)
+RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)

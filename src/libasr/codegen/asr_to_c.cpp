@@ -399,12 +399,13 @@ public:
             } else if (ASRUtils::is_character(*v_m_type)) {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v_m_type);
                 bool is_fixed_size = true;
-                std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
-                if( v.m_intent == ASRUtils::intent_local &&
+                if(v.m_intent == ASRUtils::intent_local &&
                     !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
                       ASR::is_a<ASR::StructType_t>(
-                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) &&
+                    !(dims.size() == 0 && v.m_symbolic_value)) {
                     sub += " = NULL";
                     return sub;
                 }
