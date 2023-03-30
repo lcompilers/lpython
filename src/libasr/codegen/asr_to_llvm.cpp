@@ -609,7 +609,7 @@ public:
                     type_ptr = llvm::Type::getInt64Ty(context);
                     break;
                 default:
-                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported.");
+                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported, found " + std::to_string(a_kind));
             }
         }
         return type_ptr;
