@@ -623,29 +623,22 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         }
 
         for (size_t i = 0; i < globals.size(); i++) {
-            uint32_t tmp_offset = globals[i].insts_start_idx;
-            wasm::read_b8(wasm_bytes, tmp_offset); // read byte for i32/i64/f32/f64.const
-
             std::string global_loc = "global_" + std::to_string(i);
             switch (globals[i].type) {
                 case 0x7F: {
-                    int32_t val = wasm::read_i32(wasm_bytes, offset);
-                    emit_i64_const(m_a, global_loc, val);
+                    emit_i64_const(m_a, global_loc, globals[i].n32);
                     break;
                 }
                 case 0x7E: {
-                    int64_t val = wasm::read_i64(wasm_bytes, offset);
-                    emit_i64_const(m_a, global_loc, val);
+                    emit_i64_const(m_a, global_loc, globals[i].n64);
                     break;
                 }
                 case 0x7D: {
-                    float val = wasm::read_f32(wasm_bytes, offset);
-                    emit_double_const(m_a, global_loc, val);
+                    emit_double_const(m_a, global_loc, globals[i].r32);
                     break;
                 }
                 case 0x7C: {
-                    double val = wasm::read_f64(wasm_bytes, offset);
-                    emit_double_const(m_a, global_loc, val);
+                    emit_double_const(m_a, global_loc, globals[i].r64);
                     break;
                 }
                 default: throw CodeGenError("decode_global_section: Unsupport global type"); break;
