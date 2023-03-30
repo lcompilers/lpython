@@ -5,9 +5,9 @@
     "infile_hash": "498c7c40ca352ed21dde33c128aff4d59d3c329e770e3a2ff3eb3fad",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-loop3-6020091.stdout",
-    "stdout_hash": "f98dcda4a54fd19d7580613adcee035efef61bc3aa675d881f6de934",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "cpp-loop3-6020091.stderr",
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }

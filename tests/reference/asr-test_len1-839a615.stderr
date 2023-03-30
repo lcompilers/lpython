@@ -1,5 +1,2 @@
-semantic error: len() is only supported for `str`, `set`, `dict`, `list` and `tuple`
- --> tests/errors/test_len1.py:4:11
-  |
-4 |     print(len(x))
-  |           ^^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

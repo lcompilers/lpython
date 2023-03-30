@@ -1,5 +1,2 @@
-semantic error: Inconsistent type variable for the function call
-  --> tests/errors/generics_error_01.py:12:7
-   |
-12 | print(f(1,"a"))
-   |       ^^^^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

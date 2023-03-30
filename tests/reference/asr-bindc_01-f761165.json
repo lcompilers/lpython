@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-bindc_01-f761165.stderr",
-    "stderr_hash": "b2d416fa6afa00923a130cb76dbd580798a9ee0841e34980c531b050",
-    "returncode": 2
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }

@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_binop1-50b63f6.stderr",
-    "stderr_hash": "6883d11d4de52f03fa684252229715e39aa52c830d186f787159faaa",
-    "returncode": 2
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }

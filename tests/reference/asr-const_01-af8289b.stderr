@@ -1,5 +1,2 @@
-semantic error: Constant variable x is not initialised at declaration.
- --> tests/errors/const_01.py:4:5
-  |
-4 |     x: Const[i32]
-  |     ^^^^^^^^^^^^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

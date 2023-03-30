@@ -1,5 +1,2 @@
-semantic error: Assignment to loop variable `i` is not allowed
- --> tests/errors/loop_03.py:5:9
-  |
-5 |         i=i*10
-  |         ^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

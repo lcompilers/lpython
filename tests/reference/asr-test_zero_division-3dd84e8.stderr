@@ -1,5 +1,2 @@
-semantic error: integer division by zero is not allowed
- --> tests/errors/test_zero_division.py:4:16
-  |
-4 |     print(i // 0)
-  |                ^ integer division by zero
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

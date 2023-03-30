@@ -1,5 +1,2 @@
-semantic error: Only those local variables which can be reduced to compile time constant should be used in dimensions of an array.
- --> tests/errors/bindc_03.py:6:20
-  |
-6 |     A: Pointer[i16[nk]] = c_p_pointer(b, i16[k * n])
-  |                    ^^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

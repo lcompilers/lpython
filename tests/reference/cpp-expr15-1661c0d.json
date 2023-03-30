@@ -5,9 +5,9 @@
     "infile_hash": "f3fa7c8efa999392edc0a94ff9c7820ed0c3f1e849c77655151b8d72",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-expr15-1661c0d.stdout",
-    "stdout_hash": "d28209d9bf386cdf6847c10fbef3290d494ea1ce8b93822553aa202f",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "cpp-expr15-1661c0d.stderr",
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }

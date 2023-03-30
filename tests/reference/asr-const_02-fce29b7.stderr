@@ -1,5 +1,2 @@
-semantic error: Targets with Const[i32] type cannot be re-assigned.
- --> tests/errors/const_02.py:5:5
-  |
-5 |     x = 5
-  |     ^ 
+'lpython' is not recognized as an internal or external command,
+operable program or batch file.

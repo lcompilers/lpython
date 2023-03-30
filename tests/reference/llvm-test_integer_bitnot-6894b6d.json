@@ -5,9 +5,9 @@
     "infile_hash": "ce63509c56eb6c68ca6d64cc2a195644f3d2fc285f3ec8865551eff5",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "llvm-test_integer_bitnot-6894b6d.stdout",
-    "stdout_hash": "af0bd6b1156e27caa40bf623d0d05a7ce9a3233f03a74d51d154d0b4",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "llvm-test_integer_bitnot-6894b6d.stderr",
+    "stderr_hash": "3031f2dff8e23c8a20a525c7bd1260d30a78d89f0901474e01f72b35",
+    "returncode": 1
 }
