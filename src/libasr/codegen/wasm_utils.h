@@ -20,6 +20,12 @@ struct Global {
     uint8_t type;
     uint8_t mut;
     uint32_t insts_start_idx;
+    union {
+        int32_t n32;
+        int64_t n64;
+        float r32;
+        double r64;
+    };
 };
 
 struct Export {
