@@ -4698,6 +4698,12 @@ public:
         if (parallel) {
             tmp = ASR::make_DoConcurrentLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
+        } else if ( x.n_orelse > 0 ) {
+            Vec<ASR::stmt_t*> orelse;
+            orelse.reserve(al, x.n_orelse);
+            transform_stmts(orelse, x.n_orelse, x.m_orelse);
+            tmp = ASR::make_ForElse_t(al, x.base.base.loc, head,
+                body.p, body.size(), orelse.p, orelse.size());
         } else {
             tmp = ASR::make_DoLoop_t(al, x.base.base.loc, nullptr, head,
                 body.p, body.size());
