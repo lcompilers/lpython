@@ -168,6 +168,7 @@ stmt
     | ImplicitDeallocate(expr* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
     | DoLoop(identifier? name, do_loop_head head, stmt* body)
+    | ForElse(do_loop_head head, stmt* body, stmt* orelse)
     | ErrorStop(expr? code)
     | Exit(identifier? stmt_name)
     | ForAllSingle(do_loop_head head, stmt assign_stmt)
