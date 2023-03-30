@@ -14,6 +14,7 @@
     #include <lpython/utils.h>
 #endif
 
+#include <libasr/pass/for_else.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/init_expr.h>
@@ -64,6 +65,7 @@ namespace LCompilers {
         std::vector<std::string> _user_defined_passes;
         std::vector<std::string> _skip_passes, _c_skip_passes;
         std::map<std::string, pass_function> _passes_db = {
+            {"for_else", &pass_replace_forelse},
             {"do_loops", &pass_replace_do_loops},
             {"global_stmts", &pass_wrap_global_stmts_into_function},
             {"implied_do_loops", &pass_replace_implied_do_loops},
@@ -200,6 +202,7 @@ namespace LCompilers {
                 "print_arr",
                 "print_list_tuple",
                 "array_dim_intrinsics_update",
+                "for_else",
                 "do_loops",
                 "forall",
                 "select_case",

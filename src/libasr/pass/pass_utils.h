@@ -220,6 +220,12 @@ namespace LCompilers {
                     this->current_scope = current_scope_copy;
                 }
 
+                void visit_ForElse(const ASR::ForElse_t& x) {
+                    self().visit_do_loop_head(x.m_head);
+                    ASR::ForElse_t& xx = const_cast<ASR::ForElse_t&>(x);
+                    transform_stmts(xx.m_body, xx.n_body);
+                    transform_stmts(xx.m_orelse, xx.n_orelse);
+                }
         };
 
         template <class Struct>
