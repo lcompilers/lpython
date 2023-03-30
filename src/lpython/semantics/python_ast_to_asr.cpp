@@ -6315,6 +6315,10 @@ public:
         // Handled by SymbolTableVisitor already
         tmp = nullptr;
     }
+
+    void visit_Global(const AST::Global_t &/*x*/) {
+        tmp = nullptr;
+    }
 };
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
