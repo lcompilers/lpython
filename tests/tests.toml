@@ -1067,6 +1067,6 @@ run = true
 filename = "for_else/no_break.py"
 run = true
 
-# [[test]]
-# filename = "for_else/break_in_if.py"
-# run = true
+[[test]]
+filename = "for_else/break_in_if.py"
+run = true
