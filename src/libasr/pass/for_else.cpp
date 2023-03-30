@@ -9,35 +9,150 @@
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/stmt_walk_visitor.h>
 
+#include <stack>
+
+// the current code passes break_in_if.py
+
+/* FIXME:
+
+for ...
+    for ...
+        break # does not affect the orelse flag in outer loop
+else
+    ...
+
+ */
+
 namespace LCompilers {
+
+using ASR::is_a;
+using ASR::down_cast;
+using ASR::stmtType;
+
+std::map<ASR::stmt_t*, ASR::symbol_t*> doLoopFlagMap;
 
 class ExitVisitor : public ASR::StatementWalkVisitor<ExitVisitor> {
 public:
-    ASR::expr_t* flag_expr;
+    std::stack<ASR::stmt_t*> doLoopStack;
 
-    ExitVisitor(Allocator &al, ASR::expr_t* flag_expr) : StatementWalkVisitor(al) {
-        this->flag_expr = flag_expr;
+    ExitVisitor(Allocator &al) : StatementWalkVisitor(al) {
+    }
+
+    void visit_DoLoop(const ASR::DoLoop_t &x) {
+        ASR::stmt_t *doLoopStmt = (ASR::stmt_t*)(&x);
+        // std::cerr << doLoopStmt << " -- " << doLoopFlagMap[doLoopStmt] << std::endl;
+
+        ASR::DoLoop_t& xx = const_cast<ASR::DoLoop_t&>(x);
+
+        if (doLoopFlagMap.find(doLoopStmt) != doLoopFlagMap.end())
+            doLoopStack.push(doLoopStmt);
+
+        this->transform_stmts(xx.m_body, xx.n_body);
+
+        if (doLoopFlagMap.find(doLoopStmt) != doLoopFlagMap.end())
+            doLoopStack.pop();
     }
 
     void visit_Exit(const ASR::Exit_t &x) {
-        std::cerr << "Break!" << std::endl;
+        if (doLoopStack.empty())
+            return;
 
-        // Vec<ASR::stmt_t*> result;
-        // result.reserve(al, 1);
+        // std::cerr << "Break! inside " << doLoopStack.top() << std::endl;
 
-        // Location loc = x.base.base.loc;
-        // ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
-        // ASR::expr_t* false_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false, bool_type));
-        // ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, flag_expr, false_expr, nullptr));
-        // result.push_back(al, assign_stmt);
+        Vec<ASR::stmt_t*> result;
+        result.reserve(al, 1);
 
-        // pass_result = result;
+        Location loc = x.base.base.loc;
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+        ASR::symbol_t* flag_symbol = doLoopFlagMap[doLoopStack.top()];
+        ASR::expr_t* flag_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, flag_symbol));
+        ASR::expr_t* false_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false, bool_type));
+        ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, flag_expr, false_expr, nullptr));
+        result.push_back(al, assign_stmt);
+        result.push_back(al, ASRUtils::STMT(ASR::make_Exit_t(al, loc)));
 
-        auto scope = current_scope->get_scope();
-        for (auto it = scope.begin(); it != scope.end(); it++) {
-            std::cerr << "First: " << it->first << ", second: " << it->second << std::endl;
+        pass_result = result;
+
+        return;
+
+        auto current = current_scope;
+        while (current != nullptr) {
+            std::cerr << "Scope " << current << std::endl;
+            auto scope = current->get_scope();
+            for (auto it = scope.begin(); it != scope.end(); it++) {
+                if (is_a<ASR::Variable_t>(*it->second)) {
+                    std::cerr << "  Variable: " << it->first << std::endl;
+                } else if (is_a<ASR::Program_t>(*it->second)) {
+                    std::cerr << "  Program: " << it->first << std::endl;
+                } else if (is_a<ASR::Block_t>(*it->second)) {
+                    std::cerr << "  Block: " << it->first << std::endl;
+                    ASR::Block_t *block = down_cast<ASR::Block_t>(it->second);
+                    std::cerr << "    body " << block->n_body << std::endl;
+                    for (size_t i = 0; i < block->n_body; i++) {
+                        std::cerr << "      " << getStmtType(block->m_body[i]->type) << std::endl;
+                    }
+                } else if (is_a<ASR::Function_t>(*it->second)) {
+                    std::cerr << "  Function: " << it->first << std::endl;
+                    ASR::Function_t *block = down_cast<ASR::Function_t>(it->second);
+                    for (size_t i = 0; i < block->n_body; i++) {
+                        std::cerr << "      " << getStmtType(block->m_body[i]->type) << std::endl;
+                    }
+                } else {
+                    std::cerr << "  First: " << it->first << ", second: " << it->second->type << std::endl;
+                }
+            }
+            current = current->parent;
         }
+    }
 
+    std::string getStmtType(stmtType t) {
+        switch (t) {
+        case stmtType::Allocate: return "Allocate";
+        case stmtType::Assign: return "Assign";
+        case stmtType::Assignment: return "Assignment";
+        case stmtType::Associate: return "Associate";
+        case stmtType::Cycle: return "Cycle";
+        case stmtType::ExplicitDeallocate: return "ExplicitDeallocate";
+        case stmtType::ImplicitDeallocate: return "ImplicitDeallocate";
+        case stmtType::DoConcurrentLoop: return "DoConcurrentLoop";
+        case stmtType::DoLoop: return "DoLoop";
+        case stmtType::ForElse: return "ForElse";
+        case stmtType::ErrorStop: return "ErrorStop";
+        case stmtType::Exit: return "Exit";
+        case stmtType::ForAllSingle: return "ForAllSingle";
+        case stmtType::GoTo: return "GoTo";
+        case stmtType::GoToTarget: return "GoToTarget";
+        case stmtType::If: return "If";
+        case stmtType::IfArithmetic: return "IfArithmetic";
+        case stmtType::Print: return "Print";
+        case stmtType::FileOpen: return "FileOpen";
+        case stmtType::FileClose: return "FileClose";
+        case stmtType::FileRead: return "FileRead";
+        case stmtType::FileBackspace: return "FileBackspace";
+        case stmtType::FileRewind: return "FileRewind";
+        case stmtType::FileInquire: return "FileInquire";
+        case stmtType::FileWrite: return "FileWrite";
+        case stmtType::Return: return "Return";
+        case stmtType::Select: return "Select";
+        case stmtType::Stop: return "Stop";
+        case stmtType::Assert: return "Assert";
+        case stmtType::SubroutineCall: return "SubroutineCall";
+        case stmtType::Where: return "Where";
+        case stmtType::WhileLoop: return "WhileLoop";
+        case stmtType::Nullify: return "Nullify";
+        case stmtType::Flush: return "Flush";
+        case stmtType::ListAppend: return "ListAppend";
+        case stmtType::AssociateBlockCall: return "AssociateBlockCall";
+        case stmtType::SelectType: return "SelectType";
+        case stmtType::CPtrToPointer: return "CPtrToPointer";
+        case stmtType::BlockCall: return "BlockCall";
+        case stmtType::SetInsert: return "SetInsert";
+        case stmtType::SetRemove: return "SetRemove";
+        case stmtType::ListInsert: return "ListInsert";
+        case stmtType::ListRemove: return "ListRemove";
+        case stmtType::ListClear: return "ListClear";
+        case stmtType::DictInsert: return "DictInsert";
+        }
     }
 };
 
@@ -49,10 +164,6 @@ public:
     }
 
     int counter;
-
-    void visit_Exit(const ASR::Exit_t &x) {
-        std::cerr << "!!!! Break!" << std::endl;
-    }
 
     void visit_ForElse(const ASR::ForElse_t &x) {
         Location loc = x.base.base.loc;
@@ -85,26 +196,14 @@ public:
             ASR::make_Assignment_t(al, loc, flag_expr, true_expr, nullptr));
         result.push_back(al, assign_stmt);
 
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, x.n_body);
-
-        for (size_t i = 0; i < x.n_body; i++) {
-            ASR::stmt_t *stmt = x.m_body[i];
-
-            if (stmt->type == ASR::stmtType::Exit) {
-                ASR::stmt_t* assign_stmt = ASRUtils::STMT(
-                    ASR::make_Assignment_t(al, loc, flag_expr, false_expr, nullptr));
-                result.push_back(al, assign_stmt);
-            }
-
-            body.push_back(al, stmt);
-        }
-
         // convert head and body to DoLoop
-        ASR::stmt_t *stmt = ASRUtils::STMT(
-            ASR::make_DoLoop_t(al, loc, x.m_head, body.p, body.size())
+        ASR::stmt_t *doLoopStmt = ASRUtils::STMT(
+            ASR::make_DoLoop_t(al, loc, x.m_head, x.m_body, x.n_body)
         );
-        result.push_back(al, stmt);
+        result.push_back(al, doLoopStmt);
+
+        doLoopFlagMap[doLoopStmt] = flag_symbol;
+        // std::cerr << doLoopStmt << " -> " << flag_expr << std::endl;
 
         // add an If block that executes the orelse statements when the flag is true
         result.push_back(
@@ -119,8 +218,8 @@ void pass_replace_forelse(Allocator &al, ASR::TranslationUnit_t &unit,
                           const LCompilers::PassOptions& /*pass_options*/) {
     ForElseVisitor v(al);
     v.visit_TranslationUnit(unit);
-    // ExitVisitor v2(al, nullptr);
-    // v2.visit_TranslationUnit(unit);
+    ExitVisitor v2(al);
+    v2.visit_TranslationUnit(unit);
 }
 
 } // namespace LCompilers
