@@ -2284,8 +2284,7 @@ public:
             );
             throw SemanticAbort();
         }
-        return ASR::make_CPtrToPointer_t(al, loc, cptr,
-                                         pptr, nullptr);
+        return ASR::make_CPtrToPointer_t(al, loc, cptr, pptr, target_type, cptr, nullptr);
     }
 
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
@@ -5590,8 +5589,7 @@ public:
             );
             throw SemanticAbort();
         }
-        return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
-                                         pptr, nullptr);
+        return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr, pptr, target_type, cptr, nullptr);
     }
 
     ASR::asr_t* create_PointerToCPtr(const AST::Call_t& x) {
