@@ -663,6 +663,88 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_globals++;
     }
 
+    void declare_global_var(ASR::Variable_t* v) {
+        m_global_var_idx_map[get_hash((ASR::asr_t *)v)] = no_of_globals;
+        emit_var_type(m_global_section, v, no_of_globals, false);
+        m_global_section.push_back(m_al, true); // mutable
+        int kind = ASRUtils::extract_kind_from_ttype_t(v->m_type);
+        switch (v->m_type->type){
+            case ASR::ttypeType::Integer: {
+                uint64_t init_val = 0;
+                if (v->m_value) {
+                    init_val = ASR::down_cast<ASR::IntegerConstant_t>(v->m_value)->m_n;
+                }
+                switch (kind) {
+                    case 4:
+                        wasm::emit_i32_const(m_global_section, m_al, init_val);
+                        break;
+                    case 8:
+                        wasm::emit_i64_const(m_global_section, m_al, init_val);
+                        break;
+                    default:
+                        throw CodeGenError(
+                            "Declare Global: Unsupported Integer kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                double init_val = 0.0;
+                if (v->m_value) {
+                    init_val = ASR::down_cast<ASR::RealConstant_t>(v->m_value)->m_r;
+                }
+                switch (kind) {
+                    case 4:
+                        wasm::emit_f32_const(m_global_section, m_al, init_val);
+                        break;
+                    case 8:
+                        wasm::emit_f64_const(m_global_section, m_al, init_val);
+                        break;
+                    default:
+                        throw CodeGenError(
+                            "Declare Global: Unsupported Real kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                bool init_val = false;
+                if (v->m_value) {
+                    init_val = ASR::down_cast<ASR::LogicalConstant_t>(v->m_value)->m_value;
+                }
+                switch (kind) {
+                    case 4:
+                        wasm::emit_i32_const(m_global_section, m_al, init_val);
+                        break;
+                    default:
+                        throw CodeGenError(
+                            "Declare Global: Unsupported Logical kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                std::string init_val = "";
+                if (v->m_value) {
+                    init_val = ASR::down_cast<ASR::StringConstant_t>(v->m_value)->m_s;
+                }
+                emit_string(init_val);
+                switch (kind) {
+                    case 1:
+                        wasm::emit_i32_const(m_global_section, m_al, m_string_to_iov_loc_map[init_val]);
+                        break;
+                    default:
+                        throw CodeGenError(
+                            "Declare Global: Unsupported Character kind");
+                }
+                break;
+            }
+            default: {
+                throw CodeGenError("Declare Global: Type " +
+                                   ASRUtils::type_to_str(v->m_type) +
+                                   " not yet supported");
+            }
+        }
+        wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+    }
+
     void declare_symbols(const ASR::TranslationUnit_t &x) {
         {
             // Process intrinsic modules in the right order
@@ -762,9 +844,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
+    void declare_all_variables(const SymbolTable &symtab) {
+        for (auto &item : symtab.get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
+                declare_global_var(s);
+            }
+        }
+    }
+
     void visit_Module(const ASR::Module_t &x) {
         // Generate the bodies of functions and subroutines
         declare_all_functions(*x.m_symtab);
+
+        if (is_prototype_only) {
+            declare_all_variables(*x.m_symtab);
+        }
     }
 
     void visit_Program(const ASR::Program_t &x) {
