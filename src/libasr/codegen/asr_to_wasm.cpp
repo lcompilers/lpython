@@ -782,8 +782,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         this->visit_Function(*main_func);
     }
 
-    void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v) {
+    void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v, uint32_t &no_of_vars, bool emitCount) {
         bool is_array = ASRUtils::is_array(v->m_type);
+
+        if (emitCount) {
+             wasm::emit_u32(code, m_al, 1U);
+        }
 
         if (ASRUtils::is_pointer(v->m_type)) {
             ASR::ttype_t *t2 =
@@ -870,7 +874,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Characters of kind 1 only supported");
                     }
                 }
-            }  else if (ASRUtils::is_complex(*v->m_type)) {
+            } else if (ASRUtils::is_complex(*v->m_type)) {
                 ASR::Complex_t *v_comp =
                     ASR::down_cast<ASR::Complex_t>(v->m_type);
 
@@ -878,13 +882,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     wasm::emit_b8(code, m_al, wasm::type::i32);
                 } else {
                     if (v_comp->m_kind == 4) {
-                        wasm::emit_b8(code, m_al, wasm::type::f32);
+                        wasm::emit_b8(code, m_al, wasm::type::f32); // real part
+                        if (emitCount) {
+                            wasm::emit_u32(code, m_al, 1U);
+                        }
+                        wasm::emit_b8(code, m_al, wasm::type::f32); // imag part
                     } else if (v_comp->m_kind == 8) {
-                        wasm::emit_b8(code, m_al, wasm::type::f64);
+                        wasm::emit_b8(code, m_al, wasm::type::f64); // real part
+                        if (emitCount) {
+                            wasm::emit_u32(code, m_al, 1U);
+                        }
+                        wasm::emit_b8(code, m_al, wasm::type::f64); // imag part
                     } else {
                         throw CodeGenError(
                             "Complex numbers of kind 4 and 8 only supported yet");
                     }
+                    no_of_vars++;
                 }
             } else if (ASRUtils::is_generic(*v->m_type)) {
                 diag.codegen_warning_label("Unsupported variable type: " +
@@ -894,6 +907,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 "\nOnly integer, floats, logical and complex supported currently");
             }
         }
+        no_of_vars++;
     }
 
     bool isLocalVar(ASR::Variable_t *v) {
@@ -907,15 +921,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
                 if (isLocalVar(v)) {
-                    wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
-                    emit_var_type(m_code_section, v);  // emit the type of this var
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables++;
-                    if (!ASRUtils::is_array(v->m_type) && ASRUtils::is_complex(*v->m_type)) {
-                        // emit type again for imaginary part
-                        wasm::emit_u32(m_code_section, m_al, 1U);  // count of local vars of this type
-                        emit_var_type(m_code_section, v);  // emit the type of this var
-                        cur_sym_info->no_of_variables++;
-                    }
+                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables;
+                    emit_var_type(m_code_section, v, cur_sym_info->no_of_variables, true);
                 }
             }
         }
@@ -987,48 +994,28 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            emit_var_type(m_type_section, arg);
-            m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] =
-                s->no_of_variables++;
-            if (!ASRUtils::is_array(arg->m_type) && ASRUtils::is_complex(*arg->m_type)) {
-                // emit type again for imaginary part
-                emit_var_type(m_type_section, arg);  // emit the type of this var
-                s->no_of_variables++;
-            }
+            m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] = s->no_of_variables;
+            emit_var_type(m_type_section, arg, s->no_of_variables, false);
             if (isRefVar(arg)) {
                 s->referenced_vars.push_back(m_al, arg);
             }
         }
 
         /********************* Result Types List *********************/
+        uint32_t len_idx_type_section_return_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
+        uint32_t no_of_return_vars = 0;
         if (x.m_return_var) {  // It is a function
             s->return_var = ASRUtils::EXPR2VAR(x.m_return_var);
-            if (!ASRUtils::is_array(s->return_var->m_type) && ASRUtils::is_complex(*s->return_var->m_type)) {
-                wasm::emit_u32(m_type_section, m_al, 2U); // there are two return variables
-                // emit type for real part
-                emit_var_type(m_type_section, s->return_var); // emit the type of this var
-                // emit type again for imaginary part
-                emit_var_type(m_type_section, s->return_var); // emit the type of this var
-            } else {
-                wasm::emit_u32(m_type_section, m_al, 1U); // there is just one return variable
-                emit_var_type(m_type_section, s->return_var);
-            }
+            emit_var_type(m_type_section, s->return_var, no_of_return_vars, false);
         } else {  // It is a subroutine
-            uint32_t len_idx_type_section_return_types_list =
-                wasm::emit_len_placeholder(m_type_section, m_al);
             for (size_t i = 0; i < x.n_args; i++) {
                 ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
                 if (isRefVar(arg)) {
-                    emit_var_type(m_type_section, arg);
-                    if (!ASRUtils::is_array(arg->m_type) && ASRUtils::is_complex(*arg->m_type)) {
-                        // emit type again for imaginary part
-                        emit_var_type(m_type_section, arg);  // emit the type of this var
-                    }
+                    emit_var_type(m_type_section, arg, no_of_return_vars, false);
                 }
             }
-            wasm::fixup_len(m_type_section, m_al,
-                            len_idx_type_section_return_types_list);
         }
+        wasm::fixup_len(m_type_section, m_al, len_idx_type_section_return_types_list);
 
         /********************* Add Type to Map *********************/
         s->index = no_of_types++;
