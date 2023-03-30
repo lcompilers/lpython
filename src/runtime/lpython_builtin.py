@@ -811,14 +811,14 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
     """
     Returns a 3-tuple splitted around seperator
     """
-    if(len(s) == 0):
+    if len(s) == 0:
         raise ValueError('empty string cannot be partitioned')
-    if(len(sep) == 0):
+    if len(sep) == 0:
         raise ValueError('empty seperator')
     res : tuple[str, str, str]
     ind : i32
     ind = _lpython_str_find(s, sep)
-    if(ind == -1):
+    if ind == -1:
         res = (s, "", "")
     else: 
         res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
