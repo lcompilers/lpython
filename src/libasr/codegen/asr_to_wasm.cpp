@@ -126,11 +126,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t min_no_pages;
     uint32_t max_no_pages;
 
-    std::map<uint64_t, uint32_t> m_var_name_idx_map;
+    std::map<uint64_t, uint32_t> m_var_idx_map;
+    std::map<uint64_t, uint32_t> m_global_var_idx_map;
     std::map<uint64_t, SymbolFuncInfo *> m_func_name_idx_map;
     std::map<std::string, uint32_t> m_string_to_iov_loc_map;
 
-    std::vector<uint32_t> m_global_var_name_idx_map;
+    std::vector<uint32_t> m_compiler_globals;
     std::vector<uint32_t> m_import_func_idx_map;
     std::vector<void (LCompilers::ASRToWASMVisitor::*)(int)> m_rt_funcs_map;
     std::vector<int> m_rt_func_used_idx;
@@ -164,7 +165,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         m_code_section.reserve(m_al, 1024 * 128);
         m_data_section.reserve(m_al, 1024 * 128);
 
-        m_global_var_name_idx_map.resize(global_vars_cnt);
+        m_compiler_globals.resize(global_vars_cnt);
         m_import_func_idx_map.resize(import_funcs_cnt);
         m_rt_funcs_map.resize(NO_OF_RT_FUNCS);
         m_rt_func_used_idx = std::vector<int>(NO_OF_RT_FUNCS, -1);
@@ -658,7 +659,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             default: throw CodeGenError("declare_global_var: Unsupport var_type"); break;
         }
         wasm::emit_expr_end(m_global_section, m_al);  // end instructions
-        m_global_var_name_idx_map[name] = no_of_globals;
+        m_compiler_globals[name] = no_of_globals;
         no_of_globals++;
     }
 
@@ -921,7 +922,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::Variable_t *v =
                     ASR::down_cast<ASR::Variable_t>(item.second);
                 if (isLocalVar(v)) {
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables;
+                    m_var_idx_map[get_hash((ASR::asr_t *)v)] = cur_sym_info->no_of_variables;
                     emit_var_type(m_code_section, v, cur_sym_info->no_of_variables, true);
                 }
             }
@@ -930,15 +931,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void emit_var_get(ASR::Variable_t *v) {
         uint64_t hash = get_hash((ASR::asr_t *)v);
-        if (m_var_name_idx_map.find(hash) != m_var_name_idx_map.end()) {
-            uint32_t var_idx = m_var_name_idx_map[hash];
+        if (m_var_idx_map.find(hash) != m_var_idx_map.end()) {
+            uint32_t var_idx = m_var_idx_map[hash];
             wasm::emit_local_get(m_code_section, m_al, var_idx);
             if (ASRUtils::is_complex(*v->m_type)) {
                 // get the imaginary part
                 wasm::emit_local_get(m_code_section, m_al, var_idx + 1u);
             }
-        } else if (m_global_var_name_idx_map.find(hash) != m_global_var_name_idx_map.end()) {
-            uint32_t var_idx = m_global_var_name_idx_map[hash];
+        } else if (m_global_var_idx_map.find(hash) != m_global_var_idx_map.end()) {
+            uint32_t var_idx = m_global_var_idx_map[hash];
             wasm::emit_global_get(m_code_section, m_al, var_idx);
             if (ASRUtils::is_complex(*v->m_type)) {
                 // get the imaginary part
@@ -951,15 +952,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void emit_var_set(ASR::Variable_t *v) {
         uint64_t hash = get_hash((ASR::asr_t *)v);
-        if (m_var_name_idx_map.find(hash) != m_var_name_idx_map.end()) {
-            uint32_t var_idx = m_var_name_idx_map[hash];
+        if (m_var_idx_map.find(hash) != m_var_idx_map.end()) {
+            uint32_t var_idx = m_var_idx_map[hash];
             if (ASRUtils::is_complex(*v->m_type)) {
                 // set the imaginary part
                 wasm::emit_local_set(m_code_section, m_al, var_idx + 1u);
             }
             wasm::emit_local_set(m_code_section, m_al, var_idx);
-        } else if (m_global_var_name_idx_map.find(hash) != m_global_var_name_idx_map.end()) {
-            uint32_t var_idx = m_global_var_name_idx_map[hash];
+        } else if (m_global_var_idx_map.find(hash) != m_global_var_idx_map.end()) {
+            uint32_t var_idx = m_global_var_idx_map[hash];
             if (ASRUtils::is_complex(*v->m_type)) {
                 // set the imaginary part
                 wasm::emit_global_set(m_code_section, m_al, var_idx + 1u);
@@ -1020,7 +1021,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] = s->no_of_variables;
+            m_var_idx_map[get_hash((ASR::asr_t *)arg)] = s->no_of_variables;
             emit_var_type(m_type_section, arg, s->no_of_variables, false);
             if (isRefVar(arg)) {
                 s->referenced_vars.push_back(m_al, arg);
@@ -1705,15 +1706,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (f->m_kind == 4) {
             this->visit_expr(*x.m_arg);
             wasm::emit_f32_neg(m_code_section, m_al);
-            wasm::emit_global_set(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f32]);
+            wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
             wasm::emit_f32_neg(m_code_section, m_al);
-            wasm::emit_global_get(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f32]);
+            wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
         } else if (f->m_kind == 8) {
             this->visit_expr(*x.m_arg);
             wasm::emit_f64_neg(m_code_section, m_al);
-            wasm::emit_global_set(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f64]);
+            wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
             wasm::emit_f64_neg(m_code_section, m_al);
-            wasm::emit_global_get(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f64]);
+            wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
         } else {
             throw CodeGenError("ComplexUnaryMinus: Only kind 4 and 8 supported");
         }
@@ -2578,12 +2579,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
         wasm::emit_global_set(m_code_section, m_al,
-        (a_kind == 4) ? m_global_var_name_idx_map[tmp_reg_f32]
-            : m_global_var_name_idx_map[tmp_reg_f64]);
+        (a_kind == 4) ? m_compiler_globals[tmp_reg_f32]
+            : m_compiler_globals[tmp_reg_f64]);
         wasm::emit_drop(m_code_section, m_al);
         wasm::emit_global_get(m_code_section, m_al,
-        (a_kind == 4) ? m_global_var_name_idx_map[tmp_reg_f32]
-            : m_global_var_name_idx_map[tmp_reg_f64]);
+        (a_kind == 4) ? m_compiler_globals[tmp_reg_f32]
+            : m_compiler_globals[tmp_reg_f64]);
     }
 
     void emit_call_fd_write(int filetype, const std::string &str, int iov_vec_len, int return_val_mem_loc) {
@@ -2672,14 +2673,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 this->visit_expr(*x.m_values[i]);
                 if (a_kind == 4) {
                     wasm::emit_f64_promote_f32(m_code_section, m_al);
-                    wasm::emit_global_set(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f64]);
+                    wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
                     wasm::emit_f64_promote_f32(m_code_section, m_al);
                 } else {
-                    wasm::emit_global_set(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f64]);
+                    wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
                 }
                 wasm::emit_call(m_code_section, m_al, m_rt_func_used_idx[print_f64]);
                 emit_call_fd_write(1, ",", 1, 0);
-                wasm::emit_global_get(m_code_section, m_al, m_global_var_name_idx_map[tmp_reg_f64]);
+                wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
                 wasm::emit_call(m_code_section, m_al, m_rt_func_used_idx[print_f64]);
                 emit_call_fd_write(1, ")", 1, 0);
             }
