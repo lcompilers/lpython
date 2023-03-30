@@ -225,25 +225,25 @@ void encode_section(Vec<uint8_t> &des, Vec<uint8_t> &section_content,
 void emit_drop(Vec<uint8_t> &code, Allocator &al) { code.push_back(al, 0x1A); }
 
 // function to emit get local variable at given index
-void emit_get_local(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+void emit_local_get(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x20);
     emit_u32(code, al, idx);
 }
 
 // function to emit set local variable at given index
-void emit_set_local(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+void emit_local_set(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x21);
     emit_u32(code, al, idx);
 }
 
 // function to emit get global variable at given index
-void emit_get_global(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+void emit_global_get(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x23);
     emit_u32(code, al, idx);
 }
 
 // function to emit set global variable at given index
-void emit_set_global(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
+void emit_global_set(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x24);
     emit_u32(code, al, idx);
 }
