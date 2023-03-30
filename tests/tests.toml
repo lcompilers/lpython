@@ -1058,3 +1058,15 @@ run_with_dbg = true
 [[test]]
 filename = "runtime_errors/test_raise_01.py"
 run_with_dbg = true
+
+[[test]]
+filename = "for_else/with_break.py"
+run = true
+
+[[test]]
+filename = "for_else/no_break.py"
+run = true
+
+# [[test]]
+# filename = "for_else/break_in_if.py"
+# run = true
