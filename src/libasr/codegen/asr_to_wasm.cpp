@@ -928,6 +928,48 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
+    void emit_var_get(ASR::Variable_t *v) {
+        uint64_t hash = get_hash((ASR::asr_t *)v);
+        if (m_var_name_idx_map.find(hash) != m_var_name_idx_map.end()) {
+            uint32_t var_idx = m_var_name_idx_map[hash];
+            wasm::emit_local_get(m_code_section, m_al, var_idx);
+            if (ASRUtils::is_complex(*v->m_type)) {
+                // get the imaginary part
+                wasm::emit_local_get(m_code_section, m_al, var_idx + 1u);
+            }
+        } else if (m_global_var_name_idx_map.find(hash) != m_global_var_name_idx_map.end()) {
+            uint32_t var_idx = m_global_var_name_idx_map[hash];
+            wasm::emit_global_get(m_code_section, m_al, var_idx);
+            if (ASRUtils::is_complex(*v->m_type)) {
+                // get the imaginary part
+                wasm::emit_global_get(m_code_section, m_al, var_idx + 1u);
+            }
+        } else {
+            throw CodeGenError("Variable " + std::string(v->m_name) + " not declared");
+        }
+    }
+
+    void emit_var_set(ASR::Variable_t *v) {
+        uint64_t hash = get_hash((ASR::asr_t *)v);
+        if (m_var_name_idx_map.find(hash) != m_var_name_idx_map.end()) {
+            uint32_t var_idx = m_var_name_idx_map[hash];
+            if (ASRUtils::is_complex(*v->m_type)) {
+                // set the imaginary part
+                wasm::emit_local_set(m_code_section, m_al, var_idx + 1u);
+            }
+            wasm::emit_local_set(m_code_section, m_al, var_idx);
+        } else if (m_global_var_name_idx_map.find(hash) != m_global_var_name_idx_map.end()) {
+            uint32_t var_idx = m_global_var_name_idx_map[hash];
+            if (ASRUtils::is_complex(*v->m_type)) {
+                // set the imaginary part
+                wasm::emit_global_set(m_code_section, m_al, var_idx + 1u);
+            }
+            wasm::emit_global_set(m_code_section, m_al, var_idx);
+        } else {
+            throw CodeGenError("Variable " + std::string(v->m_name) + " not declared");
+        }
+    }
+
     void initialize_local_vars(SymbolTable* symtab) {
         // initialize the value for local variables if initialization exists
         for (auto &item : symtab->get_scope()) {
@@ -937,18 +979,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 if (isLocalVar(v)) {
                     if (v->m_symbolic_value) {
                         this->visit_expr(*v->m_symbolic_value);
-                        // Todo: Checking for Array is currently omitted
-                        LCOMPILERS_ASSERT(m_var_name_idx_map.find(
-                                            get_hash((ASR::asr_t *)v)) !=
-                                        m_var_name_idx_map.end())
-                        if (ASRUtils::is_complex(*v->m_type)) {
-                            wasm::emit_local_set(
-                            m_code_section, m_al,
-                            m_var_name_idx_map[get_hash((ASR::asr_t *)v)] + 1);
-                        }
-                        wasm::emit_local_set(
-                            m_code_section, m_al,
-                            m_var_name_idx_map[get_hash((ASR::asr_t *)v)]);
+                        emit_var_set(v);
                     } else if (ASRUtils::is_array(v->m_type)) {
                         uint32_t kind =
                             ASRUtils::extract_kind_from_ttype_t(v->m_type);
@@ -961,14 +992,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             total_array_size *= dim;
                         }
 
-                        LCOMPILERS_ASSERT(m_var_name_idx_map.find(
-                                            get_hash((ASR::asr_t *)v)) !=
-                                        m_var_name_idx_map.end());
                         wasm::emit_i32_const(m_code_section, m_al,
                                              avail_mem_loc);
-                        wasm::emit_local_set(
-                            m_code_section, m_al,
-                            m_var_name_idx_map[get_hash((ASR::asr_t *)v)]);
+                        emit_var_set(v);
                         avail_mem_loc += kind * total_array_size;
                     }
                 }
@@ -1295,17 +1321,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             this->visit_expr(*x.m_value);
             ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(x.m_target);
-            LCOMPILERS_ASSERT(
-                m_var_name_idx_map.find(get_hash((ASR::asr_t *)asr_target)) !=
-                m_var_name_idx_map.end());
-            if (ASRUtils::is_complex(*asr_target->m_type)) {
-                // first set the imaginary part
-                wasm::emit_local_set(m_code_section, m_al,
-                m_var_name_idx_map[get_hash((ASR::asr_t *)asr_target)] + 1u);
-            }
-            wasm::emit_local_set(
-                m_code_section, m_al,
-                m_var_name_idx_map[get_hash((ASR::asr_t *)asr_target)]);
+            emit_var_set(asr_target);
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
             emit_array_item_address_onto_stack(
                 *(ASR::down_cast<ASR::ArrayItem_t>(x.m_target)));
@@ -1954,31 +1970,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Real:
-            case ASR::ttypeType::Character: {
-                LCOMPILERS_ASSERT(
-                    m_var_name_idx_map.find(get_hash((ASR::asr_t *)v)) !=
-                    m_var_name_idx_map.end());
-                wasm::emit_local_get(
-                    m_code_section, m_al,
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)]);
-                break;
-            }
+            case ASR::ttypeType::Character:
             case ASR::ttypeType::Complex: {
-                LCOMPILERS_ASSERT(
-                    m_var_name_idx_map.find(get_hash((ASR::asr_t *)v)) !=
-                    m_var_name_idx_map.end());
-                wasm::emit_local_get(
-                    m_code_section, m_al,
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)]); // get real part
-                wasm::emit_local_get(
-                    m_code_section, m_al,
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)v)] + 1); // get imag part
+                emit_var_get(v);
                 break;
             }
             default:
                 throw CodeGenError(
-                    "Only Integer and Float Variable types currently "
-                    "supported");
+                    "Only Integer, Float, Bool, Character, Complex "
+                    "variable types supported currently");
         }
     }
 
@@ -2081,33 +2081,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void handle_return() {
         if (cur_sym_info->return_var) {
-            LCOMPILERS_ASSERT(m_var_name_idx_map.find(get_hash(
-                                (ASR::asr_t *)cur_sym_info->return_var)) !=
-                            m_var_name_idx_map.end());
-            wasm::emit_local_get(m_code_section, m_al,
-                                 m_var_name_idx_map[get_hash(
-                                     (ASR::asr_t *)cur_sym_info->return_var)]);
-            if (!ASRUtils::is_array(cur_sym_info->return_var->m_type)
-                && ASRUtils::is_complex(*cur_sym_info->return_var->m_type)) {
-                wasm::emit_local_get(m_code_section, m_al,
-                                 m_var_name_idx_map[get_hash(
-                                     (ASR::asr_t *)cur_sym_info->return_var)] + 1);
-            }
+            emit_var_get(cur_sym_info->return_var);
         } else {
             for (auto return_var : cur_sym_info->referenced_vars) {
-                wasm::emit_local_get(
-                    m_code_section, m_al,
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)(return_var))]);
-                if (!ASRUtils::is_array(return_var->m_type)
-                    && ASRUtils::is_complex(*return_var->m_type)) {
-                    wasm::emit_local_get(m_code_section, m_al,
-                                    m_var_name_idx_map[get_hash(
-                                        (ASR::asr_t *)return_var)] + 1);
-                }
+                emit_var_get(return_var);
             }
         }
-        wasm::emit_b8(m_code_section, m_al,
-                      0x0F);  // emit wasm return instruction
+        wasm::emit_b8(m_code_section, m_al, 0x0F); // wasm return
     }
 
     void visit_Return(const ASR::Return_t & /* x */) { handle_return(); }
@@ -2291,13 +2271,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         m_func_name_idx_map[get_hash((ASR::asr_t *)s)]->index);
         for (auto return_expr : vars_passed_by_refs) {
             if (ASR::is_a<ASR::Var_t>(*return_expr)) {
-                auto return_var = ASRUtils::EXPR2VAR(return_expr);
-                LCOMPILERS_ASSERT(
-                m_var_name_idx_map.find(get_hash((ASR::asr_t *)return_var)) !=
-                m_var_name_idx_map.end());
-                wasm::emit_local_set(
-                    m_code_section, m_al,
-                    m_var_name_idx_map[get_hash((ASR::asr_t *)return_var)]);
+                ASR::Variable_t* return_var = ASRUtils::EXPR2VAR(return_expr);
+                emit_var_set(return_var);
             } else if (ASR::is_a<ASR::ArrayItem_t>(*return_expr)) {
                 // emit_memory_store(ASRUtils::EXPR(return_var));
 
