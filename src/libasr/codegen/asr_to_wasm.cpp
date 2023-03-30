@@ -886,12 +886,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Complex numbers of kind 4 and 8 only supported yet");
                     }
                 }
-            } else {
-                // throw CodeGenError("Param, Result, Var Types other than
-                // integer, floating point and logical not yet supported");
+            } else if (ASRUtils::is_generic(*v->m_type)) {
                 diag.codegen_warning_label("Unsupported variable type: " +
-                                               ASRUtils::type_to_str(v->m_type),
-                                           {v->base.base.loc}, "here");
+                        ASRUtils::type_to_str(v->m_type), {v->base.base.loc}, "here");
+            } else {
+                throw CodeGenError("Unsupported type: " + ASRUtils::type_to_str(v->m_type) +
+                "\nOnly integer, floats, logical and complex supported currently");
             }
         }
     }
