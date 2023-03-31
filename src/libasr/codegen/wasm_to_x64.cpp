@@ -60,7 +60,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_Unreachable() {}
+
     void visit_EmtpyBlockType() {}
+
     void visit_Drop() { m_a.asm_pop_r64(X64Reg::rax); }
 
     void call_imported_function(uint32_t func_idx) {

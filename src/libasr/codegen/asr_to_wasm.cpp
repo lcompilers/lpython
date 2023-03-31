@@ -11,6 +11,7 @@
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/pass_array_by_data.h>
+#include <libasr/pass/print_arr.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 
@@ -73,9 +74,11 @@ const int NO_OF_RT_FUNCS = rt_funcs_last;
 
 enum GLOBAL_VAR {
     cur_mem_loc = 0,
-    tmp_reg_f32 = 1,
-    tmp_reg_f64 = 2,
-    global_vars_cnt = 3
+    tmp_reg_i32 = 1,
+    tmp_reg_i64 = 2,
+    tmp_reg_f32 = 3,
+    tmp_reg_f64 = 4,
+    global_vars_cnt = 5
 };
 
 enum IMPORT_FUNC {
@@ -675,7 +678,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         switch (v->m_type->type){
             case ASR::ttypeType::Integer: {
                 uint64_t init_val = 0;
-                if (v->m_value) {
+                if (v->m_value && ASR::is_a<ASR::IntegerConstant_t>(*v->m_value)) {
                     init_val = ASR::down_cast<ASR::IntegerConstant_t>(v->m_value)->m_n;
                 }
                 switch (kind) {
@@ -741,9 +744,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 break;
             }
             default: {
-                throw CodeGenError("Declare Global: Type " +
-                                   ASRUtils::type_to_str(v->m_type) +
-                                   " not yet supported");
+                diag.codegen_warning_label("Declare Global: Type "
+                 + ASRUtils::type_to_str(v->m_type) + " not yet supported", {v->base.base.loc}, "");
+                wasm::emit_i32_const(m_global_section, m_al, 0);
             }
         }
         wasm::emit_expr_end(m_global_section, m_al);  // end instructions
@@ -786,6 +789,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         no_of_exports++;
 
         declare_global_var(wasm::type::i32, cur_mem_loc, 0, true);
+        declare_global_var(wasm::type::i32, tmp_reg_i32, 0, true);
+        declare_global_var(wasm::type::i64, tmp_reg_i64, 0, true);
         declare_global_var(wasm::type::f32, tmp_reg_f32, 0, true);
         declare_global_var(wasm::type::f64, tmp_reg_f64, 0, true);
 
@@ -886,7 +891,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         bool is_array = ASRUtils::is_array(v->m_type);
 
         if (emitCount) {
-             wasm::emit_u32(code, m_al, 1U);
+            wasm::emit_u32(code, m_al, 1U);
         }
 
         if (ASRUtils::is_pointer(v->m_type)) {
@@ -999,12 +1004,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                     no_of_vars++;
                 }
-            } else if (ASRUtils::is_generic(*v->m_type)) {
-                diag.codegen_warning_label("Unsupported variable type: " +
-                        ASRUtils::type_to_str(v->m_type), {v->base.base.loc}, "here");
             } else {
-                throw CodeGenError("Unsupported type: " + ASRUtils::type_to_str(v->m_type) +
-                "\nOnly integer, floats, logical and complex supported currently");
+                diag.codegen_warning_label("Unsupported variable type: " +
+                        ASRUtils::type_to_str(v->m_type), {v->base.base.loc},
+                        "Only integer, floats, logical and complex supported currently");
+                wasm::emit_b8(code, m_al, wasm::type::i32);
             }
         }
         no_of_vars++;
@@ -1116,7 +1120,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         /********************* Parameter Types List *********************/
         s->referenced_vars.reserve(m_al, x.n_args);
-        wasm::emit_u32(m_type_section, m_al, x.n_args);
+        uint32_t len_idx_type_section_param_types_list =
+                wasm::emit_len_placeholder(m_type_section, m_al);
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
@@ -1126,6 +1131,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 s->referenced_vars.push_back(m_al, arg);
             }
         }
+        wasm::fixup_len(m_type_section, m_al,
+                            len_idx_type_section_param_types_list);
 
         /********************* Result Types List *********************/
         uint32_t len_idx_type_section_return_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
@@ -1215,6 +1222,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     bool is_unsupported_function(const ASR::Function_t &x) {
+        if (strcmp(x.m_name, "_start") == 0) return false;
+
         if (!x.n_body) {
             return true;
         }
@@ -2244,6 +2253,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
+    void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_re);
+        this->visit_expr(*x.m_im);
+    }
+
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch( a_kind ) {
@@ -2337,10 +2355,123 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             visit_expr(*x.m_args[i].m_value);
         }
 
-        LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)fn)) !=
-                        m_func_name_idx_map.end())
-        wasm::emit_call(m_code_section, m_al,
-                        m_func_name_idx_map[get_hash((ASR::asr_t *)fn)]->index);
+        uint64_t hash = get_hash((ASR::asr_t *)fn);
+        if (m_func_name_idx_map.find(hash) != m_func_name_idx_map.end()) {
+            wasm::emit_call(m_code_section, m_al, m_func_name_idx_map[hash]->index);
+        } else {
+            if (strcmp(fn->m_name, "c_caimag") == 0) {
+                LCOMPILERS_ASSERT(x.n_args == 1);
+                wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
+                wasm::emit_drop(m_code_section, m_al);
+                wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
+            } else if (strcmp(fn->m_name, "c_zaimag") == 0) {
+                wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
+                wasm::emit_drop(m_code_section, m_al);
+                wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
+            } else {
+                throw CodeGenError("FunctionCall: Function " + std::string(fn->m_name) + " not found");
+            }
+        }
+    }
+
+    void temp_value_set(ASR::expr_t* expr) {
+        auto ttype = ASRUtils::expr_type(expr);
+        auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
+        GLOBAL_VAR global_var;
+        switch (ttype->type) {
+            case ASR::ttypeType::Integer: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    case 8: global_var = tmp_reg_i64; break;
+                    default: throw CodeGenError(
+                        "temp_value_set: Unsupported Integer kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_f32; break;
+                    case 8: global_var = tmp_reg_f64; break;
+                    default: throw CodeGenError(
+                        "temp_value_set: Unsupported Real kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    default: throw CodeGenError(
+                        "temp_value_set: Unsupported Logical kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    case 8: global_var = tmp_reg_i64; break;
+                    default: throw CodeGenError(
+                        "temp_value_set: Unsupported Character kind");
+                }
+                break;
+            }
+            default: {
+                throw CodeGenError("temp_value_set: Type " +
+                                   ASRUtils::type_to_str(ttype) +
+                                   " not yet supported");
+            }
+        }
+        wasm::emit_global_set(m_code_section, m_al,
+                            m_compiler_globals[global_var]);
+    }
+
+    void temp_value_get(ASR::expr_t* expr) {
+        auto ttype = ASRUtils::expr_type(expr);
+        auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
+        GLOBAL_VAR global_var;
+        switch (ttype->type) {
+            case ASR::ttypeType::Integer: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    case 8: global_var = tmp_reg_i64; break;
+                    default: throw CodeGenError(
+                        "temp_value_get: Unsupported Integer kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_f32; break;
+                    case 8: global_var = tmp_reg_f64; break;
+                    default: throw CodeGenError(
+                        "temp_value_get: Unsupported Real kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    default: throw CodeGenError(
+                        "temp_value_get: Unsupported Logical kind");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                switch (kind) {
+                    case 4: global_var = tmp_reg_i32; break;
+                    case 8: global_var = tmp_reg_i64; break;
+                    default: throw CodeGenError(
+                        "temp_value_get: Unsupported Character kind");
+                }
+                break;
+            }
+            default: {
+                throw CodeGenError("temp_value_get: Type " +
+                                   ASRUtils::type_to_str(ttype) +
+                                   " not yet supported");
+            }
+        }
+        wasm::emit_global_get(m_code_section, m_al,
+                            m_compiler_globals[global_var]);
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
@@ -2365,20 +2496,22 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 "the number of parameters");
         }
 
-        LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)s)) !=
-                        m_func_name_idx_map.end())
-        wasm::emit_call(m_code_section, m_al,
-                        m_func_name_idx_map[get_hash((ASR::asr_t *)s)]->index);
-        for (auto return_expr : vars_passed_by_refs) {
+        uint64_t hash = get_hash((ASR::asr_t *)s);
+        if (m_func_name_idx_map.find(hash) != m_func_name_idx_map.end()) {
+            wasm::emit_call(m_code_section, m_al, m_func_name_idx_map[hash]->index);
+        } else {
+            throw CodeGenError("SubroutineCall: Function " + std::string(s->m_name) + " not found");
+        }
+        for (int i = (int)vars_passed_by_refs.size() - 1; i >= 0; i--) {
+            ASR::expr_t* return_expr = vars_passed_by_refs[i];
             if (ASR::is_a<ASR::Var_t>(*return_expr)) {
                 ASR::Variable_t* return_var = ASRUtils::EXPR2VAR(return_expr);
                 emit_var_set(return_var);
             } else if (ASR::is_a<ASR::ArrayItem_t>(*return_expr)) {
-                // emit_memory_store(ASRUtils::EXPR(return_var));
-
-                throw CodeGenError(
-                    "Passing array elements as arguments (with intent out, "
-                    "inout, unspecified) to Subroutines is not yet supported");
+                temp_value_set(return_expr);
+                emit_array_item_address_onto_stack(*(ASR::down_cast<ASR::ArrayItem_t>(return_expr)));
+                temp_value_get(return_expr);
+                emit_memory_store(return_expr);
             } else {
                 LCOMPILERS_ASSERT(false);
             }
@@ -2656,11 +2789,46 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 break;
             }
             case (ASR::cast_kindType::ComplexToComplex): {
-                throw CodeGenError("ComplexToComplex: Complex types are not supported yet.");
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if (arg_kind > 0 && dest_kind > 0 && arg_kind != dest_kind) {
+                    if (arg_kind == 4 && dest_kind == 8) {
+                        wasm::emit_f64_promote_f32(m_code_section, m_al);
+                        wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
+                        wasm::emit_f64_promote_f32(m_code_section, m_al);
+                        wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f64]);
+                    } else if (arg_kind == 8 && dest_kind == 4) {
+                        wasm::emit_f32_demote_f64(m_code_section, m_al);
+                        wasm::emit_global_set(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
+                        wasm::emit_f32_demote_f64(m_code_section, m_al);
+                        wasm::emit_global_get(m_code_section, m_al, m_compiler_globals[tmp_reg_f32]);
+                    } else {
+                        std::string msg = "ComplexToComplex: Conversion from " +
+                                          std::to_string(arg_kind) + " to " +
+                                          std::to_string(dest_kind) +
+                                          " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal): {
-                throw CodeGenError("ComplexToReal: Complex types are not supported yet.");
+                wasm::emit_drop(m_code_section, m_al); // drop imag part
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if (arg_kind > 0 && dest_kind > 0 && arg_kind != dest_kind) {
+                    if (arg_kind == 4 && dest_kind == 8) {
+                        wasm::emit_f64_promote_f32(m_code_section, m_al);
+                    } else if (arg_kind == 8 && dest_kind == 4) {
+                        wasm::emit_f32_demote_f64(m_code_section, m_al);
+                    } else {
+                        std::string msg = "ComplexToReal: Conversion from " +
+                                          std::to_string(arg_kind) + " to " +
+                                          std::to_string(dest_kind) +
+                                          " not implemented yet.";
+                        throw CodeGenError(msg);
+                    }
+                }
                 break;
             }
             default:
@@ -2984,13 +3152,14 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
     Vec<uint8_t> wasm_bytes;
 
     LCompilers::PassOptions pass_options;
-    pass_replace_do_loops(al, asr, pass_options);
     pass_array_by_data(al, asr, pass_options);
+    pass_replace_print_arr(al, asr, pass_options);
+    pass_replace_do_loops(al, asr, pass_options);
     pass_options.always_run = true;
     pass_unused_functions(al, asr, pass_options);
 
 #ifdef SHOW_ASR
-    std::cout << pickle(asr, true /* use colors */, true /* indent */,
+    std::cout << LCompilers::LFortran::pickle(asr, false /* use colors */, true /* indent */,
                         true /* with_intrinsic_modules */)
               << std::endl;
 #endif
