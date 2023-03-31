@@ -4,6 +4,7 @@
 #include <lpython/bigint.h>
 #include <lpython/python_ast.h>
 #include <libasr/asr_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/string_utils.h>
 #include <libasr/location.h>
 
@@ -89,6 +90,20 @@ public:
         } else {
             ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
         };
+    }
+
+    std::string convert_intrinsic_id(int x) {
+        std::string s;
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::green));
+        }
+        s.append(ASRUtils::get_intrinsic_name(x));
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        return s;
     }
 };
 
