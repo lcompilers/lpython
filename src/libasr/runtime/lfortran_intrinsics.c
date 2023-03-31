@@ -1228,7 +1228,7 @@ LFORTRAN_API void _lpython_write(int64_t fd, char *str)
         printf("Error in writing to the file!\n");
         exit(1);
     }
-    fwrite(str, 1, strlen(str), fd);
+    fwrite(str, 1, strlen(str), (FILE*)fd);
     // fwrite returns the number of items written
 }
 
