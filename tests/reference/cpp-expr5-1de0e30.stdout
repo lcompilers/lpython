@@ -23,19 +23,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_StrOp_concat();
 namespace {
 }
 
 // Implementations
-void test_StrOp_concat()
-{
-    std::string s;
-    s = std::string("3") + std::string("4");
-    s = std::string("a ") + std::string("test");
-    s = std::string(std::string("test") + std::string("test")) + std::string("test");
-}
-
 namespace {
 
 void main2() {
