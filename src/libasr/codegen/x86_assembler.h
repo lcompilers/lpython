@@ -46,6 +46,7 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
 #    define EMIT_VAR(a, b)
+#    define EMIT_VAR_SIZE(a)
 #endif
 
 namespace LCompilers {

@@ -147,6 +147,10 @@ namespace LCompilers {
                     ASR::dimension_t* m_dims;
                     get_dim_rank(x_type, m_dims, n_dims);
                 }
+            } else if (ASR::is_a<ASR::StructInstanceMember_t>(*x)) {
+                ASR::ttype_t *x_type = ASR::down_cast<ASR::StructInstanceMember_t>(x)->m_type;
+                ASR::dimension_t* m_dims;
+                get_dim_rank(x_type, m_dims, n_dims);
             }
             return n_dims;
         }
@@ -423,7 +427,7 @@ namespace LCompilers {
                                                         s2c(al, sym), t,
                                                         s2c(al, module_name), nullptr, 0, s2c(al, remote_sym),
                                                         ASR::accessType::Private);
-            current_scope->add_symbol(sym, ASR::down_cast<ASR::symbol_t>(fn));
+            current_scope->add_or_overwrite_symbol(sym, ASR::down_cast<ASR::symbol_t>(fn));
             v = ASR::down_cast<ASR::symbol_t>(fn);
             current_scope = current_scope_copy;
             return v;
@@ -503,17 +507,18 @@ namespace LCompilers {
         ASR::expr_t* create_compare_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                                 ASR::cmpopType op) {
             ASR::ttype_t* type = ASRUtils::expr_type(left);
+            ASR::ttype_t* cmp_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
             // TODO: compute `value`:
             if (ASRUtils::is_integer(*type)) {
-                return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, left, op, right, type, nullptr));
+                return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, left, op, right, cmp_type, nullptr));
             } else if (ASRUtils::is_real(*type)) {
-                return ASRUtils::EXPR(ASR::make_RealCompare_t(al, loc, left, op, right, type, nullptr));
+                return ASRUtils::EXPR(ASR::make_RealCompare_t(al, loc, left, op, right, cmp_type, nullptr));
             } else if (ASRUtils::is_complex(*type)) {
-                return ASRUtils::EXPR(ASR::make_ComplexCompare_t(al, loc, left, op, right, type, nullptr));
+                return ASRUtils::EXPR(ASR::make_ComplexCompare_t(al, loc, left, op, right, cmp_type, nullptr));
             } else if (ASRUtils::is_logical(*type)) {
-                return ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, loc, left, op, right, type, nullptr));
+                return ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, loc, left, op, right, cmp_type, nullptr));
             } else if (ASRUtils::is_character(*type)) {
-                return ASRUtils::EXPR(ASR::make_StringCompare_t(al, loc, left, op, right, type, nullptr));
+                return ASRUtils::EXPR(ASR::make_StringCompare_t(al, loc, left, op, right, cmp_type, nullptr));
             } else {
                 throw LCompilersException("Type not supported");
             }
@@ -688,7 +693,7 @@ namespace LCompilers {
                                         target, value, nullptr));
             loop_body.push_back(al, copy_stmt);
             ASR::stmt_t* fallback_loop = ASRUtils::STMT(ASR::make_DoLoop_t(al, do_loop_head.loc,
-                                            do_loop_head, loop_body.p, loop_body.size()));
+                                            nullptr, do_loop_head, loop_body.p, loop_body.size()));
             Vec<ASR::stmt_t*> fallback_while_loop = replace_doloop(al, *ASR::down_cast<ASR::DoLoop_t>(fallback_loop),
                                                                   (int) ASR::cmpopType::Lt);
             for( size_t i = 0; i < fallback_while_loop.size(); i++ ) {
@@ -879,8 +884,8 @@ namespace LCompilers {
             for (size_t i=0; i<loop.n_body; i++) {
                 body.push_back(al, loop.m_body[i]);
             }
-            ASR::stmt_t *stmt2 = ASRUtils::STMT(ASR::make_WhileLoop_t(al, loc, cond,
-                body.p, body.size()));
+            ASR::stmt_t *stmt2 = ASRUtils::STMT(ASR::make_WhileLoop_t(al, loc,
+                loop.m_name, cond, body.p, body.size()));
             Vec<ASR::stmt_t*> result;
             result.reserve(al, 2);
             if( stmt1 ) {

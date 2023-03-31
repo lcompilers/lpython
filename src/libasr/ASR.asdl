@@ -95,7 +95,7 @@ symbol
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
     | StructType(symbol_table symtab, identifier name, identifier* dependencies,
-        identifier* members, abi abi, access access, bool is_packed,
+        identifier* members, abi abi, access access, bool is_packed, bool is_abstract,
         expr? alignment, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* dependencies,
         identifier* members, abi abi, access access, enumtype enum_value_type,
@@ -107,7 +107,7 @@ symbol
         abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument,
-        identifier proc_name, symbol proc, abi abi)
+        identifier proc_name, symbol proc, abi abi, bool is_deferred)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
 
@@ -161,15 +161,15 @@ stmt
     | Assign(int label, identifier variable)
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
-    | Cycle()
+    | Cycle(identifier? stmt_name)
     -- deallocates if allocated otherwise throws a runtime error
     | ExplicitDeallocate(expr* vars)
     -- deallocates if allocated otherwise does nothing
-    | ImplicitDeallocate(symbol* vars)
+    | ImplicitDeallocate(expr* vars)
     | DoConcurrentLoop(do_loop_head head, stmt* body)
-    | DoLoop(do_loop_head head, stmt* body)
+    | DoLoop(identifier? name, do_loop_head head, stmt* body)
     | ErrorStop(expr? code)
-    | Exit()
+    | Exit(identifier? stmt_name)
     | ForAllSingle(do_loop_head head, stmt assign_stmt)
         -- GoTo points to a GoToTarget with the corresponding target_id within
         -- the same procedure. We currently use `int` IDs to link GoTo with
@@ -201,12 +201,12 @@ stmt
     | Assert(expr test, expr? msg)
     | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
     | Where(expr test, stmt* body, stmt* orelse)
-    | WhileLoop(expr test, stmt* body)
+    | WhileLoop(identifier? name, expr test, stmt* body)
     | Nullify(symbol* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
-    | SelectType(type_stmt* body, stmt* default)
+    | SelectType(expr selector, type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
@@ -224,6 +224,8 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | FunctionCall(symbol name, symbol? original_name, call_arg* args,
             ttype type, expr? value, expr? dt)
+    | IntrinsicFunction(int intrinsic_id, expr* args, int overload_id,
+            ttype type, expr? value)
     | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
@@ -418,7 +420,10 @@ do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 
-type_stmt = TypeStmtName(symbol sym, stmt* body) | TypeStmtType(ttype type, stmt* body)
+type_stmt
+    = TypeStmtName(symbol sym, stmt* body)
+    | ClassStmt(symbol sym, stmt* body)
+    | TypeStmtType(ttype type, stmt* body)
 
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 

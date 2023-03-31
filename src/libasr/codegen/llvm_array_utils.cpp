@@ -312,6 +312,30 @@ namespace LCompilers {
             builder->CreateStore(arr_first, first_ptr);
         }
 
+        void SimpleCMODescriptor::fill_array_details(
+            llvm::Value* source, llvm::Value* destination,
+            ASR::ttype_t* /*asr_shape_type*/, bool ignore_data) {
+            if( !ignore_data ) {
+                // TODO: Implement data filling to destination array
+                LCOMPILERS_ASSERT(false);
+            }
+
+            llvm::Value* source_offset_val = LLVM::CreateLoad(*builder, llvm_utils->create_gep(source, 1));
+            llvm::Value* dest_offset = llvm_utils->create_gep(destination, 1);
+            builder->CreateStore(source_offset_val, dest_offset);
+
+            llvm::Value* source_dim_des_val = LLVM::CreateLoad(*builder, llvm_utils->create_gep(source, 2));
+            llvm::Value* dest_dim_des_ptr = llvm_utils->create_gep(destination, 2);
+            builder->CreateStore(source_dim_des_val, dest_dim_des_ptr);
+
+            llvm::Value* source_allocated_flag = this->get_is_allocated_flag(source);
+            llvm::Value* destination_allocated_flag_ptr = llvm_utils->create_gep(destination, 3);
+            builder->CreateStore(source_allocated_flag, destination_allocated_flag_ptr);
+
+            llvm::Value* source_rank = this->get_rank(source, false);
+            this->set_rank(destination, source_rank);
+        };
+
         void SimpleCMODescriptor::fill_malloc_array_details(
         llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
         std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
@@ -436,7 +460,8 @@ namespace LCompilers {
 
         llvm::Value* SimpleCMODescriptor::get_single_element(llvm::Value* array,
             std::vector<llvm::Value*>& m_args, int n_args, bool data_only,
-            bool is_fixed_size, llvm::Value** llvm_diminfo) {
+            bool is_fixed_size, llvm::Value** llvm_diminfo, bool polymorphic,
+            llvm::Type* polymorphic_type) {
             llvm::Value* tmp = nullptr;
             // TODO: Uncomment later
             // bool check_for_bounds = is_explicit_shape(v);
@@ -453,7 +478,13 @@ namespace LCompilers {
             } else {
                 idx = cmo_convertor_single_element(array, m_args, n_args, check_for_bounds);
                 llvm::Value* full_array = get_pointer_to_data(array);
-                tmp = llvm_utils->create_ptr_gep(LLVM::CreateLoad(*builder, full_array), idx);
+                if( polymorphic ) {
+                    full_array = llvm_utils->create_gep(LLVM::CreateLoad(*builder, full_array), 1);
+                    full_array = builder->CreateBitCast(LLVM::CreateLoad(*builder, full_array), polymorphic_type);
+                    tmp = llvm_utils->create_ptr_gep(full_array, idx);
+                } else {
+                    tmp = llvm_utils->create_ptr_gep(LLVM::CreateLoad(*builder, full_array), idx);
+                }
             }
             return tmp;
         }

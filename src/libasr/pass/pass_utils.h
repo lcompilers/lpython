@@ -107,7 +107,7 @@ namespace LCompilers {
         }
 
         template <class Struct>
-        class PassVisitor: public ASR::BaseWalkVisitor<Struct> {
+        class PassVisitor: public ASR::ASRPassBaseWalkVisitor<Struct> {
 
             private:
 
@@ -118,10 +118,10 @@ namespace LCompilers {
                 bool asr_changed, retain_original_stmt, remove_original_stmt;
                 Allocator& al;
                 Vec<ASR::stmt_t*> pass_result;
-                SymbolTable* current_scope;
 
-                PassVisitor(Allocator& al_, SymbolTable* current_scope_): al{al_},
-                current_scope{current_scope_} {
+                PassVisitor(Allocator& al_, SymbolTable* current_scope_): al{al_}
+                {
+                    this->current_scope = current_scope_;
                     pass_result.n = 0;
                 }
 
@@ -164,7 +164,8 @@ namespace LCompilers {
                     // FIXME: this is a hack, we need to pass in a non-const `x`,
                     // which requires to generate a TransformVisitor.
                     ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-                    current_scope = xx.m_symtab;
+                    SymbolTable* current_scope_copy = this->current_scope;
+                    this->current_scope = xx.m_symtab;
                     transform_stmts(xx.m_body, xx.n_body);
 
                     // Transform nested functions and subroutines
@@ -182,13 +183,15 @@ namespace LCompilers {
                             self().visit_Block(*s);
                         }
                     }
+                    this->current_scope = current_scope_copy;
                 }
 
                 void visit_Function(const ASR::Function_t &x) {
                     // FIXME: this is a hack, we need to pass in a non-const `x`,
                     // which requires to generate a TransformVisitor.
                     ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-                    current_scope = xx.m_symtab;
+                    SymbolTable* current_scope_copy = this->current_scope;
+                    this->current_scope = xx.m_symtab;
                     transform_stmts(xx.m_body, xx.n_body);
 
                     for (auto &item : x.m_symtab->get_scope()) {
@@ -200,68 +203,12 @@ namespace LCompilers {
                             ASR::Block_t *s = ASR::down_cast<ASR::Block_t>(item.second);
                             self().visit_Block(*s);
                         }
+                        if (ASR::is_a<ASR::AssociateBlock_t>(*item.second)) {
+                            ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
+                            self().visit_AssociateBlock(*s);
+                        }
                     }
-                }
-
-                void visit_AssociateBlock(const ASR::AssociateBlock_t& x) {
-                    ASR::AssociateBlock_t &xx = const_cast<ASR::AssociateBlock_t&>(x);
-                    current_scope = xx.m_symtab;
-                    transform_stmts(xx.m_body, xx.n_body);
-                }
-
-                void visit_Block(const ASR::Block_t& x) {
-                    ASR::Block_t &xx = const_cast<ASR::Block_t&>(x);
-                    current_scope = xx.m_symtab;
-                    transform_stmts(xx.m_body, xx.n_body);
-
-                    for (auto &item : x.m_symtab->get_scope()) {
-                        self().visit_symbol(*item.second);
-                    }
-                }
-
-                void visit_DoLoop(const ASR::DoLoop_t& x) {
-                    self().visit_do_loop_head(x.m_head);
-                    ASR::DoLoop_t& xx = const_cast<ASR::DoLoop_t&>(x);
-                    transform_stmts(xx.m_body, xx.n_body);
-                }
-
-                void visit_WhileLoop(const ASR::WhileLoop_t& x) {
-                    ASR::WhileLoop_t& xx = const_cast<ASR::WhileLoop_t&>(x);
-                    self().visit_expr(*xx.m_test);
-                    transform_stmts(xx.m_body, xx.n_body);
-                }
-
-                void visit_If(const ASR::If_t& x) {
-                    ASR::If_t &xx = const_cast<ASR::If_t&>(x);
-                    self().visit_expr(*xx.m_test);
-                    transform_stmts(xx.m_body, xx.n_body);
-                    transform_stmts(xx.m_orelse, xx.n_orelse);
-                }
-
-                void visit_CaseStmt(const ASR::CaseStmt_t& x) {
-                    ASR::CaseStmt_t &xx = const_cast<ASR::CaseStmt_t&>(x);
-                    for (size_t i=0; i<xx.n_test; i++) {
-                        self().visit_expr(*xx.m_test[i]);
-                    }
-                    transform_stmts(xx.m_body, xx.n_body);
-                }
-
-                void visit_CaseStmt_Range(const ASR::CaseStmt_Range_t& x) {
-                    ASR::CaseStmt_Range_t &xx = const_cast<ASR::CaseStmt_Range_t&>(x);
-                    if (xx.m_start)
-                        self().visit_expr(*xx.m_start);
-                    if (xx.m_end)
-                        self().visit_expr(*xx.m_end);
-                    transform_stmts(xx.m_body, xx.n_body);
-                }
-
-                void visit_Select(const ASR::Select_t& x) {
-                    ASR::Select_t &xx = const_cast<ASR::Select_t&>(x);
-                    self().visit_expr(*xx.m_test);
-                    for (size_t i=0; i<xx.n_body; i++) {
-                        self().visit_case_stmt(*xx.m_body[i]);
-                    }
-                    transform_stmts(xx.m_default, xx.n_default);
+                    this->current_scope = current_scope_copy;
                 }
 
         };
@@ -543,7 +490,7 @@ namespace LCompilers {
                 }
             }
             ASR::stmt_t* doloop = ASRUtils::STMT(ASR::make_DoLoop_t(replacer->al, arr_var->base.base.loc,
-                                                                    head, doloop_body.p, doloop_body.size()));
+                                                                    nullptr, head, doloop_body.p, doloop_body.size()));
             result_vec->push_back(replacer->al, doloop);
         }
 

@@ -1,6 +1,7 @@
 #ifndef LFORTRAN_STACKTRACE_H
 #define LFORTRAN_STACKTRACE_H
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

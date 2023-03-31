@@ -1789,7 +1789,17 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: implicit deallocate(";
         for (size_t i=0; i<x.n_vars; i++) {
-            out += std::string(ASRUtils::symbol_name(x.m_vars[i])) + ", ";
+            ASR::symbol_t* tmp_sym = nullptr;
+            ASR::expr_t* tmp_expr = x.m_vars[i];
+            if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                tmp_sym = tmp_var->m_v;
+            } else {
+                throw CodeGenError("Cannot deallocate variables in expression " +
+                                    std::to_string(tmp_expr->type),
+                                    tmp_expr->base.loc);
+            }
+            out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
         }
         out += ");\n";
         src = out;

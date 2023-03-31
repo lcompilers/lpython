@@ -631,6 +631,11 @@ public:
         variable_dependencies.push_back(x_mv_name);
     }
 
+    void visit_ImplicitDeallocate(const ImplicitDeallocate_t &x) {
+        // TODO: check that every allocated variable is deallocated.
+        BaseWalkVisitor::visit_ImplicitDeallocate(x);
+    }
+
     void check_var_external(const ASR::expr_t &x) {
         if (ASR::is_a<ASR::Var_t>(x)) {
             ASR::symbol_t *s = ((ASR::Var_t*)&x)->m_v;

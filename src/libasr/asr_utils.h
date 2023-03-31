@@ -5,6 +5,7 @@
 #include <map>
 #include <set>
 #include <limits>
+#include <complex>
 
 #include <libasr/assert.h>
 #include <libasr/asr.h>
@@ -106,6 +107,16 @@ static inline ASR::Function_t* EXPR2FUN(const ASR::expr_t *f)
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
     return ASR::expr_type0(f);
+}
+
+static inline ASR::ttype_t* subs_expr_type(std::map<std::string, ASR::ttype_t*> subs,
+        const ASR::expr_t *expr) {
+    ASR::ttype_t *ttype = ASRUtils::expr_type(expr);
+    if (ASR::is_a<ASR::TypeParameter_t>(*ttype)) {
+        ASR::TypeParameter_t *tparam = ASR::down_cast<ASR::TypeParameter_t>(ttype);
+        ttype = subs[tparam->m_param];
+    }
+    return ttype;
 }
 
 static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
@@ -277,6 +288,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Struct: {
             return ASRUtils::symbol_name(ASR::down_cast<ASR::Struct_t>(t)->m_derived_type);
+        }
+        case ASR::ttypeType::Class: {
+            return ASRUtils::symbol_name(ASR::down_cast<ASR::Class_t>(t)->m_class_type);
         }
         case ASR::ttypeType::Union: {
             return "union";
@@ -801,7 +815,21 @@ static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
     return true;
 }
 
-template <typename T>
+static inline bool extract_value(ASR::expr_t* value_expr,
+    std::complex<double>& value) {
+    if( !ASR::is_a<ASR::ComplexConstant_t>(*value_expr) ) {
+        return false;
+    }
+
+    ASR::ComplexConstant_t* value_const = ASR::down_cast<ASR::ComplexConstant_t>(value_expr);
+    value = std::complex(value_const->m_re, value_const->m_im);
+    return true;
+}
+
+template <typename T,
+    typename = typename std::enable_if<
+        std::is_same<T, std::complex<double>>::value == false &&
+        std::is_same<T, std::complex<float>>::value == false>::type>
 static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
     if( !is_value_constant(value_expr) ) {
         return false;
@@ -2804,11 +2832,15 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
             continue;
         }
         typei = ASRUtils::expr_type(x->m_args[i]);
+        if( ASR::is_a<ASR::Class_t>(*typei) ) {
+            continue;
+        }
         int n_dims = ASRUtils::extract_dimensions_from_ttype(typei, dims);
         ASR::Variable_t* argi = ASRUtils::EXPR2VAR(x->m_args[i]);
         if( ASRUtils::is_dimension_empty(dims, n_dims) &&
             (argi->m_intent == ASRUtils::intent_in ||
-             argi->m_intent == ASRUtils::intent_out) &&
+             argi->m_intent == ASRUtils::intent_out ||
+             argi->m_intent == ASRUtils::intent_inout) &&
             argi->m_storage != ASR::storage_typeType::Allocatable) {
             v.push_back(i);
         }
@@ -2894,6 +2926,16 @@ static inline ASR::EnumType_t* get_EnumType_from_symbol(ASR::symbol_t* s) {
     ASR::symbol_t* enum_type_cand = ASR::down_cast<ASR::symbol_t>(s_var->m_parent_symtab->asr_owner);
     LCOMPILERS_ASSERT(ASR::is_a<ASR::EnumType_t>(*enum_type_cand));
     return ASR::down_cast<ASR::EnumType_t>(enum_type_cand);
+}
+
+static inline bool is_abstract_class_type(ASR::ttype_t* type) {
+    if( !ASR::is_a<ASR::Class_t>(*type) ) {
+        return false;
+    }
+    ASR::Class_t* class_t = ASR::down_cast<ASR::Class_t>(type);
+    return std::string( ASRUtils::symbol_name(
+                ASRUtils::symbol_get_past_external(class_t->m_class_type))
+                ) == "~abstract_type";
 }
 
 static inline void set_enum_value_type(ASR::enumtypeType &enum_value_type,

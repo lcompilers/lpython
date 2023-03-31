@@ -26,6 +26,7 @@
 #include <libasr/pass/arr_slice.h>
 #include <libasr/pass/flip_sign.h>
 #include <libasr/pass/div_to_mul.h>
+#include <libasr/pass/intrinsic_function.h>
 #include <libasr/pass/fma.h>
 #include <libasr/pass/loop_unroll.h>
 #include <libasr/pass/sign_from_value.h>
@@ -65,6 +66,7 @@ namespace LCompilers {
             {"global_stmts", &pass_wrap_global_stmts_into_function},
             {"implied_do_loops", &pass_replace_implied_do_loops},
             {"array_op", &pass_replace_array_op},
+            {"intrinsic_function", &pass_replace_intrinsic_function},
             {"arr_slice", &pass_replace_arr_slice},
             {"print_arr", &pass_replace_print_arr},
             {"print_list_tuple", &pass_replace_print_list_tuple},
@@ -94,15 +96,44 @@ namespace LCompilers {
         void _apply_passes(Allocator& al, ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions &pass_options,
                            diag::Diagnostics &diagnostics) {
+            if (pass_options.pass_cumulative) {
+                int _pass_max_idx = -1, _opt_max_idx = -1;
+                for (std::string &current_pass: passes) {
+                    auto it1 = std::find(_passes.begin(), _passes.end(), current_pass);
+                    if (it1 != _passes.end()) {
+                        _pass_max_idx = std::max(_pass_max_idx,
+                                            (int)(it1 - _passes.begin()));
+                    }
+                    auto it2 = std::find(_with_optimization_passes.begin(),
+                                    _with_optimization_passes.end(), current_pass);
+                    if (it2 != _with_optimization_passes.end()) {
+                        _opt_max_idx = std::max(_opt_max_idx,
+                                            (int)(it2 - _with_optimization_passes.begin()));
+                    }
+                }
+                passes.clear();
+                if (_pass_max_idx != -1) {
+                    for (int i=0; i<=_pass_max_idx; i++)
+                        passes.push_back(_passes[i]);
+                }
+                if (_opt_max_idx != -1) {
+                    for (int i=0; i<=_opt_max_idx; i++)
+                        passes.push_back(_with_optimization_passes[i]);
+                }
+            }
             for (size_t i = 0; i < passes.size(); i++) {
                 // TODO: rework the whole pass manager: construct the passes
                 // ahead of time (not at the last minute), and remove this much
                 // earlier
                 // Note: this is not enough for rtlib, we also need to include
                 // it
+
                 if (rtlib && passes[i] == "unused_functions") continue;
                 if( std::find(_skip_passes.begin(), _skip_passes.end(), passes[i]) != _skip_passes.end())
                     continue;
+                if (pass_options.verbose) {
+                    std::cerr << "ASR Pass starts: '" << passes[i] << "'\n";
+                }
                 _passes_db[passes[i]](al, *asr, pass_options);
             #if defined(WITH_LFORTRAN_ASSERT)
                 if (!asr_verify(*asr, true, diagnostics)) {
@@ -110,6 +141,9 @@ namespace LCompilers {
                     throw LCompilersException("Verify failed");
                 };
             #endif
+                if (pass_options.verbose) {
+                    std::cerr << "ASR Pass ends: '" << passes[i] << "'\n";
+                }
             }
         }
 
@@ -152,6 +186,7 @@ namespace LCompilers {
                 "arr_slice",
                 "subroutine_from_function",
                 "array_op",
+                "intrinsic_function",
                 "pass_array_by_data",
                 "print_arr",
                 "print_list_tuple",
@@ -173,6 +208,7 @@ namespace LCompilers {
                 "arr_slice",
                 "subroutine_from_function",
                 "array_op",
+                "intrinsic_function",
                 "print_arr",
                 "print_list_tuple",
                 "loop_vectorise",

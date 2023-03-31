@@ -174,7 +174,7 @@ public:
 
         ASR::ttype_t *type = substitute_type(x->m_type);
 
-        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, ASR::arraystorageType::RowMajor, m_value);
+        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, x->m_storage_format, m_value);
     }
 
     ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {
@@ -217,7 +217,7 @@ public:
         head.m_end = duplicate_expr(x->m_head.m_end);
         head.m_increment = duplicate_expr(x->m_head.m_increment);
         head.loc = x->m_head.m_v->base.loc;
-        return ASR::make_DoLoop_t(al, x->base.base.loc, head, m_body.p, x->n_body);
+        return ASR::make_DoLoop_t(al, x->base.base.loc, x->m_name, head, m_body.p, x->n_body);
     }
 
     ASR::asr_t* duplicate_Cast(ASR::Cast_t *x) {
@@ -230,8 +230,8 @@ public:
     }
 
     ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
-        std::string sym_name = ASRUtils::symbol_name(x->m_name);
-        ASR::symbol_t *name = func_scope->get_symbol(sym_name);
+        std::string call_name = ASRUtils::symbol_name(x->m_name);
+        ASR::symbol_t *name = func_scope->get_symbol(call_name);
         Vec<ASR::call_arg_t> args;
         args.reserve(al, x->n_args);
         for (size_t i=0; i<x->n_args; i++) {
@@ -243,11 +243,10 @@ public:
         ASR::ttype_t* type = substitute_type(x->m_type);
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
-        std::string call_name = ASRUtils::symbol_name(x->m_name);
         if (ASRUtils::is_restriction_function(name)) {
             name = rt_subs[call_name];
         } else if (ASRUtils::is_generic_function(name)) {
-            std::string nested_func_name = "__asr_generic_" + sym_name;
+            std::string nested_func_name = current_scope->get_unique_name("__asr_generic_" + call_name);
             ASR::symbol_t* name2 = ASRUtils::symbol_get_past_external(name);
             ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(name2);
             FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope, nested_func_name);
@@ -258,6 +257,34 @@ public:
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
+
+    ASR::asr_t* duplicate_SubroutineCall(ASR::SubroutineCall_t *x) {
+        std::string call_name = ASRUtils::symbol_name(x->m_name);
+        ASR::symbol_t *name = func_scope->get_symbol(call_name);
+        Vec<ASR::call_arg_t> args;
+        args.reserve(al, x->n_args);
+        for (size_t i=0; i<x->n_args; i++) {
+            ASR::call_arg_t new_arg;
+            new_arg.loc = x->m_args[i].loc;
+            new_arg.m_value = duplicate_expr(x->m_args[i].m_value);
+            args.push_back(al, new_arg);
+        }
+        ASR::expr_t* dt = duplicate_expr(x->m_dt);
+        if (ASRUtils::is_restriction_function(name)) {
+            name = rt_subs[call_name];
+        } else {
+            std::string nested_func_name = current_scope->get_unique_name("__asr_generic_" + call_name);
+            ASR::symbol_t* name2 = ASRUtils::symbol_get_past_external(name);
+            ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(name2);
+            FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope, nested_func_name);
+            ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
+            name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
+        }
+        dependencies.insert(std::string(ASRUtils::symbol_name(name)));
+        return ASR::make_SubroutineCall_t(al, x->base.base.loc, name /* change this */,
+            x->m_original_name, args.p, args.size(), dt);
+    }
+
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
         if (ASR::is_a<ASR::List_t>(*param_type)) {

@@ -157,7 +157,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest);
 LFORTRAN_API char* _lfortran_strrepeat_c(char* s, int32_t n);
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest);
 LFORTRAN_API void _lfortran_strcpy(char** x, char *y);
-LFORTRAN_API int _lfortran_str_len(char** s);
+LFORTRAN_API int32_t _lfortran_str_len(char** s);
 LFORTRAN_API int _lfortran_str_ord(char** s);
 LFORTRAN_API int _lfortran_str_ord_c(char* s);
 LFORTRAN_API char* _lfortran_str_chr(int c);
@@ -167,9 +167,12 @@ LFORTRAN_API void _lfortran_memset(void* s, int32_t c, int32_t size);
 LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size);
 LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size);
 LFORTRAN_API void _lfortran_free(char* ptr);
+LFORTRAN_API void _lfortran_string_alloc(char** ptr, int32_t len);
 LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s);
 LFORTRAN_API char* _lfortran_str_item(char* s, int32_t idx);
 LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int32_t step,
+                        bool idx1_present, bool idx2_present);
+LFORTRAN_API char* _lfortran_str_slice_assign(char* s, char *r, int32_t idx1, int32_t idx2, int32_t step,
                         bool idx1_present, bool idx2_present);
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y);
 LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y);
@@ -209,15 +212,20 @@ LFORTRAN_API void _lfortran_i64sys_clock(
 LFORTRAN_API void _lfortran_sp_rand_num(float *x);
 LFORTRAN_API void _lfortran_dp_rand_num(double *x);
 LFORTRAN_API int64_t _lpython_open(char *path, char *flags);
+LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status);
 LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n);
+LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num);
 LFORTRAN_API void _lpython_close(int64_t fd);
+LFORTRAN_API void _lfortran_close(int32_t unit_num);
 LFORTRAN_API int32_t _lfortran_ichar(char *c);
 LFORTRAN_API int32_t _lfortran_iachar(char *c);
 LFORTRAN_API int32_t _lfortran_all(bool *mask, int32_t n);
 LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]);
-LFORTRAN_API int32_t _lpython_get_argc();
+LFORTRAN_API void _lpython_get_argc(int32_t *res);
 LFORTRAN_API char *_lpython_get_argv(int32_t index);
 LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors);
+LFORTRAN_API char *_lfortran_get_env_variable(char *name);
+LFORTRAN_API int _lfortran_exec_command(char *cmd);
 
 #ifdef __cplusplus
 }

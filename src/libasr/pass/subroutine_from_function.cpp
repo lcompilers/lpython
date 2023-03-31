@@ -86,7 +86,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             // of the function (which returned array) now points
             // to the newly created subroutine.
             for( auto& item: replace_vec ) {
-                xx.m_global_scope->add_symbol(item.first, item.second);
+                xx.m_global_scope->overwrite_symbol(item.first, item.second);
             }
 
             // Now visit everything else
@@ -96,6 +96,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
         }
 
         void visit_Module(const ASR::Module_t &x) {
+            std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
             // FIXME: this is a hack, we need to pass in a non-const `x`,
             // which requires to generate a TransformVisitor.
             ASR::Module_t &xx = const_cast<ASR::Module_t&>(x);
@@ -112,11 +113,17 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
                         */
                         if( PassUtils::is_aggregate_type(s->m_return_var) ) {
                             ASR::symbol_t* s_sub = create_subroutine_from_function(s);
-                            // Update the symtab with this function changes
-                            xx.m_symtab->add_symbol(item.first, s_sub);
+                            replace_vec.push_back(std::make_pair(item.first, s_sub));
                         }
                     }
                 }
+            }
+
+            // Updating the symbol table so that now the name
+            // of the function (which returned array) now points
+            // to the newly created subroutine.
+            for( auto& item: replace_vec ) {
+                current_scope->overwrite_symbol(item.first, item.second);
             }
 
             // Now visit everything else
@@ -154,7 +161,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             // of the function (which returned array) now points
             // to the newly created subroutine.
             for( auto& item: replace_vec ) {
-                current_scope->add_symbol(item.first, item.second);
+                current_scope->overwrite_symbol(item.first, item.second);
             }
 
             for (auto &item : x.m_symtab->get_scope()) {
