@@ -7,7 +7,8 @@ def test():
     fd: i64
     n: i64
     fd = open(path, O_WRONLY)
-    write(fd, b"Hello world!\n")
+    b: str = b"Hello world!\n"
+    write(fd, b)
     close(fd)
 
     fd = open(path, O_RDONLY)
@@ -16,6 +17,6 @@ def test():
     close(fd)
     
     print(s)
-    # assert b==s
+    assert b==s
 
 test()
