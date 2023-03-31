@@ -2740,6 +2740,15 @@ public:
         tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s, type);
     }
 
+    void visit_ConstantBytes(const AST::ConstantBytes_t &x) {
+        char *s = x.m_value;
+        // std::cout << x.m_value << std::endl;     // b'Hello world!\n'
+        size_t s_size = std::string(s).size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                1, s_size, nullptr, nullptr, 0));
+        tmp = ASR::make_BytesConstant_t(al, x.base.base.loc, s, type);
+    }
+
     void visit_ConstantBool(const AST::ConstantBool_t &x) {
         bool b = x.m_value;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,

@@ -5485,6 +5485,11 @@ public:
         tmp = builder->CreateGlobalStringPtr(s);
     }
 
+    void visit_BytesConstant(const ASR::BytesConstant_t &x) {       // for now, copied from StringConstant
+        std::string s = unescape_string(al, x.m_s);
+        tmp = builder->CreateGlobalStringPtr(s);
+    }
+
     inline void fetch_ptr(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         LCOMPILERS_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
