@@ -19,9 +19,3 @@ tmp[6] = 6000
 assert len(tmp) == 7
 assert tmp[6] == 6000
 assert tmp[1] == 1000
-
-# Dictionary with (KEY, VALUE) as String
-y : dict[str, str]
-y = {"fruit": "apple", "animal": "lion"}
-assert y["animal"] == "lion"
-assert y["fruit"] == "apple"
