@@ -5747,6 +5747,41 @@ public:
             // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
             fn_args.push_back(al, str);
             fn_args.push_back(al, suffix);
+        } else if (attr_name == "partition") {
+
+            /*  
+                str.partition(seperator)        ---->
+
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
+                before the separator, the separator itself, and the part after the separator. 
+                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                by two empty strings.
+            */
+            
+            if(args.size() != 1) {
+                throw SemanticError("str.partition() takes one argument",
+                        loc);
+            }
+
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one argument of type: str",
+                        loc);
+            }
+
+            fn_call_name = "_lpython_str_partition";
+
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t seperator;
+            seperator.loc = loc;
+            seperator.m_value = args[0].m_value;
+
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, seperator);
+
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -5793,6 +5828,75 @@ public:
             }
         }
         return res;
+    }
+
+    ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator, 
+        const Location &loc, ASR::ttype_t *arg_seperator_type) {
+        /*
+            Invoked when Seperator argument is provided as a constant string
+        */
+        ASR::StringConstant_t* seperator_constant = ASR::down_cast<ASR::StringConstant_t>(arg_seperator);
+        std::string seperator = seperator_constant->m_s;
+        if(seperator.size() == 0) {
+            throw SemanticError("empty separator", arg_seperator->base.loc);
+        }
+        /*
+            using KMP algorithm to find seperator inside string 
+            res_tuple: stores the resulting 3-tuple expression ---> 
+            (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
+            (if seperator does not exist)  tuple:   (string, "", "")
+            res_tuple_type: stores the type of each expression present in resulting 3-tuple
+        */
+        int seperator_pos = KMP_string_match(s_var, seperator);
+        Vec<ASR::expr_t *> res_tuple;
+        Vec<ASR::ttype_t *> res_tuple_type;
+        res_tuple.reserve(al, 3); 
+        res_tuple_type.reserve(al, 3);
+        std :: string first_res, second_res, third_res;
+        if(seperator_pos == -1) {
+            /* seperator does not exist */
+            first_res = s_var;
+            second_res = "";
+            third_res = "";
+        } else {
+            first_res = s_var.substr(0, seperator_pos);
+            second_res = seperator;
+            third_res = s_var.substr(seperator_pos + seperator.size());
+        }
+
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, first_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, second_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, third_res), arg_seperator_type)));
+        res_tuple_type.push_back(al, arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc, res_tuple_type.p, res_tuple_type.n));
+        ASR::expr_t* value = ASRUtils::EXPR(ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.size(), tuple_type));
+        return value;
+    }
+
+    void create_partition(const Location &loc, std::string &s_var, ASR::expr_t *arg_seperator,
+        ASR::ttype_t *arg_seperator_type) {
+
+        ASR::expr_t *value = nullptr;
+        if(ASRUtils::expr_value(arg_seperator)) {
+            value = eval_partition(s_var, arg_seperator, loc, arg_seperator_type);
+        }
+        ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
+        Vec<ASR::call_arg_t> args;
+        args.reserve(al, 1);
+        ASR::call_arg_t str_arg;
+        str_arg.loc = loc;
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, s_var.size(), nullptr, nullptr, 0));
+        str_arg.m_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+        ASR::call_arg_t sub_arg;
+        sub_arg.loc = loc;
+        sub_arg.m_value = arg_seperator;
+        args.push_back(al, str_arg);
+        args.push_back(al, sub_arg);
+        tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
+        ASR::down_cast2<ASR::FunctionCall_t>(tmp)->m_value = value;
+        return;
     }
 
     void handle_constant_string_attributes(std::string &s_var,
@@ -5998,6 +6102,29 @@ public:
 
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
             }
+            return;
+        } else if (attr_name == "partition") {
+            /*  
+                str.partition(seperator)        ---->
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
+                before the separator, the separator itself, and the part after the separator. 
+                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                by two empty strings.
+            */
+            if (args.size() != 1) {
+                throw SemanticError("str.partition() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one arguments of type: str",
+                    arg_seperator->base.loc);
+            }
+            if(s_var.size() == 0) {
+                throw SemanticError("string to undergo partition cannot be empty",loc);
+            }
+            create_partition(loc, s_var, arg_seperator, arg_seperator_type);
             return;
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",

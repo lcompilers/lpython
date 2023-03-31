@@ -132,6 +132,50 @@ def endswith():
     suffix = "apple"
     assert s.endswith(suffix) == False
 
+def partition():
+    
+    # Note: Both string or seperator cannot be empty 
+    # Case 1: When string is constant and seperator is also constant 
+    assert "   ".partition(" ") == (""," ","  ")
+    assert "apple mango".partition(" ") == ("apple"," ","mango")
+    assert "applemango".partition("afdnjkfsn") ==  ("applemango","","")
+    assert "applemango".partition("an") == ("applem", "an", "go")
+    assert "applemango".partition("mango") == ("apple", "mango", "")
+    assert "applemango".partition("applemango") == ("", "applemango", "")
+    assert "applemango".partition("ppleman") == ("a", "ppleman", "go")
+    assert "applemango".partition("pplt") == ("applemango", "", "")
+
+    # Case 2: When string is constant and seperator is variable
+    seperator: str
+    seperator = " "
+    assert "   ".partition(seperator) == (""," ","  ")
+    seperator = " "
+    assert "apple mango".partition(seperator) ==  ("apple"," ","mango")
+    seperator = "5:30 "
+    assert " rendezvous 5:30 ".partition(seperator) == (" rendezvous ", "5:30 ", "")
+    seperator = "^&"
+    assert "@#$%^&*()#!".partition(seperator) == ("@#$%", "^&", "*()#!")
+    seperator = "daddada "
+    assert " rendezvous 5:30 ".partition(seperator) == (" rendezvous 5:30 ", "", "")
+    seperator = "longer than string"
+    assert "two plus".partition(seperator) == ("two plus", "", "")
+
+    # Case 3: When string is variable and seperator is either constant or variable
+    s: str
+    s = "tomorrow"
+    assert s.partition("apple") == ("tomorrow", "", "")
+    assert s.partition("rr") == ("tomo", "rr", "ow")
+    assert s.partition(seperator) == ("tomorrow", "", "")
+
+    s = "rendezvous 5"
+    assert s.partition(" ") == ("rendezvous", " ", "5")
+    assert s.partition("5") == ("rendezvous ", "5", "")
+    assert s.partition(s) == ("", "rendezvous 5", "")
+    seperator = "vous "
+    assert s.partition(seperator) == ("rendez", "vous ", "5")
+    seperator = "apple"
+    assert s.partition(seperator) == ("rendezvous 5", "", "")
+
 def check():
     capitalize()
     lower()
@@ -140,5 +184,6 @@ def check():
     find()
     startswith()
     endswith()
+    partition()
 
 check()
