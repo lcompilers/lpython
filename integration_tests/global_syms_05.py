@@ -1,4 +1,4 @@
-from lpython import i32, str
+from lpython import i32
 
 # GLOBAL Dictionary
 x: dict[i32, i32]
