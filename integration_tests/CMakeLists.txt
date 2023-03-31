@@ -441,3 +441,4 @@ RUN(NAME test_argv_01      LABELS llvm) # TODO: Test using CPython
 RUN(NAME global_syms_01    LABELS cpython llvm c)
 RUN(NAME global_syms_02    LABELS cpython llvm c)
 RUN(NAME global_syms_03_b  LABELS cpython llvm c)
+RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)
