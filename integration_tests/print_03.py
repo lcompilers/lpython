@@ -1,3 +1,5 @@
+from lpython import i32
+
 def Main0():
     x: i32
     x = (2+3)* (-5)
