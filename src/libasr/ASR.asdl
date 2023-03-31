@@ -261,6 +261,7 @@ expr
     | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
+    | BytesConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
     | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)

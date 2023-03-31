@@ -242,6 +242,11 @@ class ASTNodeVisitor(ASDLVisitor):
                 seq = ""
             self.emit("%s m_%s;%s" % (type_, f.name, seq), 2)
             args.append("%s a_%s" % (type_, f.name))
+
+            if cons.name == "ConstantBytes" and f.name == "value":
+                lines.append("*(a_%s+(strlen(a_%s)-1)) = '\\0';" % (f.name, f.name))
+                lines.append("a_%s += 2;" % (f.name))
+
             lines.append("n->m_%s = a_%s;" % (f.name, f.name))
             if f.name in ["global_scope", "symtab"]:
                 lines.append("a_%s->asr_owner = (asr_t*)n;" % (f.name))
