@@ -207,7 +207,6 @@ stmt
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
     | SelectType(type_stmt* body, stmt* default)
-    | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
     | SetRemove(expr a, expr ele)
@@ -320,7 +319,7 @@ expr
     | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
 
     | IntrinsicFunctionSqrt(expr arg, ttype type, expr? value)
-
+    | CPtrToPointer(expr cptr, expr ptr, ttype type, expr value, expr? shape)
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time

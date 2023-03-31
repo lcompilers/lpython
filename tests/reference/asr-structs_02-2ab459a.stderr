@@ -1,0 +1,28 @@
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  Binary file "[0m[1m[35m$DIR/src/bin/lpython[39m[0m[2m", in _start()[0m
+[2m  File "[0m[1m[35m./csu/../csu/libc-start.c[39m[0m[2m", line 392, in __libc_start_main_impl()[0m
+[2m  File "[0m[1m[35m./csu/../sysdeps/nptl/libc_start_call_main.h[39m[0m[2m", line 58, in __libc_start_call_main()[0m
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1662, in ??[0m
+    return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 195, in ??[0m
+    compiler_options, true, infile);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 6375, in LCompilers::LPython::python_ast_to_asr(Allocator&, LCompilers::LocationManager&, LCompilers::LPython::AST::ast_t&, LCompilers::diag::Diagnostics&, LCompilers::CompilerOptions&, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool)[0m
+    ast_overload, allow_implicit_casting);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 6327, in LCompilers::LPython::body_visitor(Allocator&, LCompilers::LocationManager&, LCompilers::LPython::AST::Module_t const&, LCompilers::diag::Diagnostics&, LCompilers::ASR::asr_t*, bool, std::map<int, LCompilers::ASR::symbol_t*, std::less<int>, std::allocator<std::pair<int const, LCompilers::ASR::symbol_t*> > >&, bool)[0m
+    b.visit_Module(ast);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3927, in LCompilers::LPython::BodyVisitor::visit_Module(LCompilers::LPython::AST::Module_t const&)[0m
+    visit_stmt(*x.m_body[i]);
+[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882, in LCompilers::LPython::AST::BaseVisitor<LCompilers::LPython::BodyVisitor>::visit_stmt(LCompilers::LPython::AST::stmt_t const&)[0m
+    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
+[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1750, in ??[0m
+    case stmtType::FunctionDef: { v.visit_FunctionDef((const FunctionDef_t &)x); return; }
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3987, in LCompilers::LPython::BodyVisitor::visit_FunctionDef(LCompilers::LPython::AST::FunctionDef_t const&)[0m
+    handle_fn(x, *f);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3962, in LCompilers::LPython::BodyVisitor::handle_fn(LCompilers::LPython::AST::FunctionDef_t const&, LCompilers::ASR::Function_t&)[0m
+    transform_stmts(body, x.n_body, x.m_body);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3889, in LCompilers::LPython::BodyVisitor::transform_stmts(LCompilers::Vec<LCompilers::ASR::stmt_t*>&, unsigned long, LCompilers::LPython::AST::stmt_t**)[0m
+    ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
+[2m  File "[0m[1m[35m$DIR/src/libasr/asr_utils.h[39m[0m[2m", line 37, in ??[0m
+    return ASR::down_cast<ASR::stmt_t>(f);
+AssertFailed: is_a<T>(*f)

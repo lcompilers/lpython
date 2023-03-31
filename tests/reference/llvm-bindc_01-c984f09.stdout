@@ -9,9 +9,11 @@ source_filename = "LFortran"
 
 define void @__module__global_symbols__lpython_main_program() {
 .entry:
+  %_lpython_main_program1 = alloca i16, align 2
   %0 = load void*, void** @queries, align 8
   %1 = bitcast void* %0 to i16*
   store i16* %1, i16** @x, align 8
+  store i16** @x, i16* %_lpython_main_program1, align 8
   %2 = load void*, void** @queries, align 8
   %3 = ptrtoint void* %2 to i64
   %4 = load i16*, i16** @x, align 8

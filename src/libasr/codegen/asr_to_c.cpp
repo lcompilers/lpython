@@ -1042,10 +1042,11 @@ R"(
     }
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
+        CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_cptr);
-        std::string source_src = std::move(src);
+        std::string source_src = src;
         visit_expr(*x.m_ptr);
-        std::string dest_src = std::move(src);
+        std::string dest_src = src;
         src = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
