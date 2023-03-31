@@ -664,6 +664,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void declare_global_var(ASR::Variable_t* v) {
+        if (v->m_type->type == ASR::ttypeType::TypeParameter) {
+            // Ignore type variables
+            return;
+        }
         m_global_var_idx_map[get_hash((ASR::asr_t *)v)] = no_of_globals;
         emit_var_type(m_global_section, v, no_of_globals, false);
         m_global_section.push_back(m_al, true); // mutable
