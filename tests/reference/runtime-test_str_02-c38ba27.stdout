@@ -1,1 +1,1 @@
-String index: -8 is out of Bounds
+The command 'link /NOLOGO /OUT:test_str_02.out test_str_02.out.tmp.o $DIR\src\bin/../runtime\lpython_runtime_static.lib > NUL' failed.
