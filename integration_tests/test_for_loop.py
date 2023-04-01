@@ -1,3 +1,5 @@
+from lpython import i32
+
 def test_issue_1153():
     start: list[i32] = [-10, 0, 10]
     stop: list[i32] = [20, 0, -20]
