@@ -1,4 +1,4 @@
-from lpython import c_p_pointer, CPtr, pointer, i32, Pointer, ccall, p_c_pointer, dataclass
+from lpython import c_p_pointer, CPtr, pointer, i32, Pointer, ccall, p_c_pointer, dataclass, ccallable
 
 @dataclass
 class ArrayWrapped:
