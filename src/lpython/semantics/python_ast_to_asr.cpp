@@ -19,6 +19,7 @@
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
+#include <libasr/pass/global_stmts.h>
 #include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>
@@ -520,6 +521,9 @@ public:
     */
     std::vector<ASR::asr_t *> tmp_vec;
 
+    // Used to store the initializer for the global variables like list, ...
+    Vec<ASR::asr_t *> global_init;
+
     Allocator &al;
     LocationManager &lm;
     SymbolTable *current_scope;
@@ -557,6 +561,7 @@ public:
             current_body{nullptr}, ann_assign_target_type{nullptr},
             assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
+        global_init.reserve(al, 1);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
@@ -2239,13 +2244,17 @@ public:
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
         ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
-        if( init_expr && current_body &&
+        if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type)) &&
             (is_runtime_expression || !is_variable_const)) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
                                                         init_expr, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
+            if (current_body) {
+                current_body->push_back(al, ASRUtils::STMT(assign));
+            } else if (ASR::is_a<ASR::List_t>(*type)) {
+                global_init.push_back(al, assign);
+            }
 
             v_variable->m_symbolic_value = nullptr;
             v_variable->m_value = nullptr;
@@ -3945,10 +3954,53 @@ public:
             mod->m_dependencies = current_module_dependencies.p;
             mod->n_dependencies = current_module_dependencies.size();
         }
-        // These global statements are added to the translation unit for now,
-        // but they should be adding to a module initialization function
+
+        if (global_init.n > 0 && main_module_sym) {
+            // unit->m_items is used and set to nullptr in the
+            // `pass_wrap_global_stmts_into_function` pass
+            unit->m_items = global_init.p;
+            unit->n_items = global_init.size();
+            std::string func_name = "global_initializer";
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_initilaizer` function into the `__main__`
+                // module and later call this function to initialize the
+                // global variables like list, ...
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+        }
+
         unit->m_items = items.p;
         unit->n_items = items.size();
+        if (items.n > 0 && main_module_sym) {
+            std::string func_name = "global_statements";
+            // Wrap all the global statements into a Function
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_statements` function into the `__main__`
+                // module and later call this function to execute the
+                // global_statements
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+        }
 
         tmp = asr;
     }
@@ -4009,8 +4061,81 @@ public:
         }
     }
 
-    void visit_Import(const AST::Import_t &/*x*/) {
-        // visited in symbol visitor
+    void visit_Import(const AST::Import_t &x) {
+        // All the modules are imported in the SymbolTable visitor
+        // Here, we call the global_initializer & global_statements to
+        // initialize and execute the global symbols
+        for (size_t i = 0; i < x.n_names; i++) {
+            std::string mod_name = x.m_names[i].m_name;
+            ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
+            if (mod_sym) {
+                ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
+
+                std::string g_func_name = mod_name + "@global_initializer";
+                ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+                if (g_func && !current_scope->get_symbol(g_func_name)) {
+                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                        current_scope, s2c(al, g_func_name), g_func,
+                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+                        ASR::accessType::Public));
+                    current_scope->add_symbol(g_func_name, es);
+                    tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                        es, g_func, nullptr, 0, nullptr));
+                }
+
+                g_func_name = mod_name + "@global_statements";
+                g_func = mod->m_symtab->get_symbol("global_statements");
+                if (g_func && !current_scope->get_symbol(g_func_name)) {
+                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                        current_scope, s2c(al, g_func_name), g_func,
+                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+                        ASR::accessType::Public));
+                    current_scope->add_symbol(g_func_name, es);
+                    tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                        es, g_func, nullptr, 0, nullptr));
+                }
+            }
+        }
+    }
+
+    void visit_ImportFrom(const AST::ImportFrom_t &x) {
+        // Handled by SymbolTableVisitor already
+        // Here, we call the global_initializer & global_statements to
+        // initialize and execute the global symbols
+        std::string mod_name = x.m_module;
+        ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
+        if (mod_sym) {
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
+
+            std::string g_func_name = mod_name + "@global_initializer";
+            ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+            if (g_func && !current_scope->get_symbol(g_func_name)) {
+                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                    current_scope, s2c(al, g_func_name), g_func,
+                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+                    ASR::accessType::Public));
+                current_scope->add_symbol(g_func_name, es);
+                tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                    es, g_func, nullptr, 0, nullptr));
+            }
+
+            g_func_name = mod_name + "@global_statements";
+            g_func = mod->m_symtab->get_symbol("global_statements");
+            if (g_func && !current_scope->get_symbol(g_func_name)) {
+                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                    current_scope, s2c(al, g_func_name), g_func,
+                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+                    ASR::accessType::Public));
+                current_scope->add_symbol(g_func_name, es);
+                tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                    es, g_func, nullptr, 0, nullptr));
+            }
+        }
+        tmp = nullptr;
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
@@ -5749,15 +5874,15 @@ public:
             fn_args.push_back(al, suffix);
         } else if (attr_name == "partition") {
 
-            /*  
+            /*
                 str.partition(seperator)        ---->
 
-                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
-                before the separator, the separator itself, and the part after the separator. 
-                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
                 by two empty strings.
             */
-            
+
             if(args.size() != 1) {
                 throw SemanticError("str.partition() takes one argument",
                         loc);
@@ -5830,7 +5955,7 @@ public:
         return res;
     }
 
-    ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator, 
+    ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator,
         const Location &loc, ASR::ttype_t *arg_seperator_type) {
         /*
             Invoked when Seperator argument is provided as a constant string
@@ -5841,8 +5966,8 @@ public:
             throw SemanticError("empty separator", arg_seperator->base.loc);
         }
         /*
-            using KMP algorithm to find seperator inside string 
-            res_tuple: stores the resulting 3-tuple expression ---> 
+            using KMP algorithm to find seperator inside string
+            res_tuple: stores the resulting 3-tuple expression --->
             (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
             (if seperator does not exist)  tuple:   (string, "", "")
             res_tuple_type: stores the type of each expression present in resulting 3-tuple
@@ -5850,7 +5975,7 @@ public:
         int seperator_pos = KMP_string_match(s_var, seperator);
         Vec<ASR::expr_t *> res_tuple;
         Vec<ASR::ttype_t *> res_tuple_type;
-        res_tuple.reserve(al, 3); 
+        res_tuple.reserve(al, 3);
         res_tuple_type.reserve(al, 3);
         std :: string first_res, second_res, third_res;
         if(seperator_pos == -1) {
@@ -6104,11 +6229,11 @@ public:
             }
             return;
         } else if (attr_name == "partition") {
-            /*  
+            /*
                 str.partition(seperator)        ---->
-                Split the string at the first occurrence of sep, and return a 3-tuple containing the part 
-                before the separator, the separator itself, and the part after the separator. 
-                If the separator is not found, return a 3-tuple containing the string itself, followed 
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
                 by two empty strings.
             */
             if (args.size() != 1) {
@@ -6436,11 +6561,6 @@ public:
         }
         tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
-    }
-
-    void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
-        // Handled by SymbolTableVisitor already
-        tmp = nullptr;
     }
 
     void visit_Global(const AST::Global_t &/*x*/) {
