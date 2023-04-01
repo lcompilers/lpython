@@ -1,3 +1,5 @@
+from lpython import i32
+
 def Test_if_01():
     z: i32 = 0
     if True:
