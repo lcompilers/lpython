@@ -22,6 +22,9 @@ Here is the list of requirements needed to build LPython:
 
 - Python (3.10+)
 - Conda
+
+For Windows, these are additionally required:
+
 - Miniforge Prompt
 - Visual Studio (with "Desktop Development with C++" workload)
 
@@ -119,7 +122,7 @@ Please follow the below steps for Windows:
   call build1.bat
   ```
 
-- Tests and examples (Optional)
+- Tests and examples
 
   ```bash
   ctest
@@ -164,7 +167,7 @@ Please follow the below steps for Windows:
 
   ```bash
   cd integration_tests
-  python run_tests.py
+  python run_tests.py -u --skip-run-with-dbg
   ```
 
 ## Speed up Integration Tests on MacOS
