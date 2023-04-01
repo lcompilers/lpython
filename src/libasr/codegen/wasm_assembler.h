@@ -5,13 +5,21 @@
 
 namespace LCompilers {
 
-namespace wasm {
+enum WASMType : uint8_t {
+    i32 = 0x7F,
+    i64 = 0x7E,
+    f32 = 0x7D,
+    f64 = 0x7C
+};
 
-enum type { i32 = 0x7F, i64 = 0x7E, f32 = 0x7D, f64 = 0x7C };
+enum WASMMemAlign {
+    b8 = 0,
+    b16 = 1,
+    b32 = 2,
+    b64 = 3
+};
 
-enum mem_align { b8 = 0, b16 = 1, b32 = 2, b64 = 3 };
-
-void emit_leb128_u32(Vec<uint8_t> &code, Allocator &al,
+static void emit_leb128_u32(Vec<uint8_t> &code, Allocator &al,
                      uint32_t n) {  // for u32
     do {
         uint8_t byte = n & 0x7f;
@@ -23,7 +31,7 @@ void emit_leb128_u32(Vec<uint8_t> &code, Allocator &al,
     } while (n != 0);
 }
 
-void emit_leb128_i32(Vec<uint8_t> &code, Allocator &al, int32_t n) {  // for i32
+static static void emit_leb128_i32(Vec<uint8_t> &code, Allocator &al, int32_t n) {  // for i32
     bool more = true;
     do {
         uint8_t byte = n & 0x7f;
@@ -37,7 +45,7 @@ void emit_leb128_i32(Vec<uint8_t> &code, Allocator &al, int32_t n) {  // for i32
     } while (more);
 }
 
-void emit_leb128_i64(Vec<uint8_t> &code, Allocator &al, int64_t n) {  // for i64
+static void emit_leb128_i64(Vec<uint8_t> &code, Allocator &al, int64_t n) {  // for i64
     bool more = true;
     do {
         uint8_t byte = n & 0x7f;
@@ -51,7 +59,7 @@ void emit_leb128_i64(Vec<uint8_t> &code, Allocator &al, int64_t n) {  // for i64
     } while (more);
 }
 
-void emit_ieee754_f32(Vec<uint8_t> &code, Allocator &al, float z) {  // for f32
+static void emit_ieee754_f32(Vec<uint8_t> &code, Allocator &al, float z) {  // for f32
     uint8_t encoded_float[sizeof(z)];
     std::memcpy(&encoded_float, &z, sizeof(z));
     for (auto &byte : encoded_float) {
@@ -59,7 +67,7 @@ void emit_ieee754_f32(Vec<uint8_t> &code, Allocator &al, float z) {  // for f32
     }
 }
 
-void emit_ieee754_f64(Vec<uint8_t> &code, Allocator &al, double z) {  // for f64
+static void emit_ieee754_f64(Vec<uint8_t> &code, Allocator &al, double z) {  // for f64
     uint8_t encoded_float[sizeof(z)];
     std::memcpy(&encoded_float, &z, sizeof(z));
     for (auto &byte : encoded_float) {
@@ -67,1182 +75,1371 @@ void emit_ieee754_f64(Vec<uint8_t> &code, Allocator &al, double z) {  // for f64
     }
 }
 
-// function to emit header of Wasm Binary Format
-void emit_header(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x61);
-    code.push_back(al, 0x73);
-    code.push_back(al, 0x6D);
-    code.push_back(al, 0x01);
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x00);
-}
-
-// function to append a given bytecode to the end of the code
-void emit_b8(Vec<uint8_t> &code, Allocator &al, uint8_t x) {
-    code.push_back(al, x);
-}
-
-// function to emit unsigned 32 bit integer
-void emit_u32(Vec<uint8_t> &code, Allocator &al, uint32_t x) {
-    emit_leb128_u32(code, al, x);
-}
-
-// function to emit signed 32 bit integer
-void emit_i32(Vec<uint8_t> &code, Allocator &al, int32_t x) {
-    emit_leb128_i32(code, al, x);
-}
-
-// function to emit signed 64 bit integer
-void emit_i64(Vec<uint8_t> &code, Allocator &al, int64_t x) {
-    emit_leb128_i64(code, al, x);
-}
-
-// function to emit 32 bit float
-void emit_f32(Vec<uint8_t> &code, Allocator &al, float x) {
-    emit_ieee754_f32(code, al, x);
-}
-
-// function to emit 64 bit float
-void emit_f64(Vec<uint8_t> &code, Allocator &al, double x) {
-    emit_ieee754_f64(code, al, x);
-}
-
-// function to emit string
-void emit_str(Vec<uint8_t> &code, Allocator &al, std::string text) {
-    std::vector<uint8_t> text_bytes(text.size());
-    std::memcpy(text_bytes.data(), text.data(), text.size());
-    emit_u32(code, al, text_bytes.size());
-    for (auto &byte : text_bytes) emit_b8(code, al, byte);
-}
-
-void emit_u32_b32_idx(Vec<uint8_t> &code, Allocator &al, uint32_t idx,
-                      uint32_t section_size) {
-    /*
-    Encodes the integer `i` using LEB128 and adds trailing zeros to always
-    occupy 4 bytes. Stores the int `i` at the index `idx` in `code`.
-    */
-    Vec<uint8_t> num;
-    num.reserve(al, 4);
-    emit_leb128_u32(num, al, section_size);
-    std::vector<uint8_t> num_4b = {0x80, 0x80, 0x80, 0x00};
-    assert(num.size() <= 4);
-    for (uint32_t i = 0; i < num.size(); i++) {
-        num_4b[i] |= num[i];
-    }
-    for (uint32_t i = 0; i < 4u; i++) {
-        code.p[idx + i] = num_4b[i];
-    }
-}
-
-// function to fixup length at the given length index
-void fixup_len(Vec<uint8_t> &code, Allocator &al, uint32_t len_idx) {
-    uint32_t section_len = code.size() - len_idx - 4u;
-    emit_u32_b32_idx(code, al, len_idx, section_len);
-}
-
-// function to emit length placeholder
-uint32_t emit_len_placeholder(Vec<uint8_t> &code, Allocator &al) {
-    uint32_t len_idx = code.size();
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x00);
-    code.push_back(al, 0x00);
-    return len_idx;
-}
-
-void emit_export_fn(Vec<uint8_t> &code, Allocator &al, const std::string &name,
-                    uint32_t idx) {
-    emit_str(code, al, name);
-    emit_b8(code, al, 0x00);  // for exporting function
-    emit_u32(code, al, idx);
-}
-
-void emit_import_fn(Vec<uint8_t> &code, Allocator &al,
-                    const std::string &mod_name, const std::string &fn_name,
-                    uint32_t type_idx) {
-    emit_str(code, al, mod_name);
-    emit_str(code, al, fn_name);
-    emit_b8(code, al, 0x00);  // for importing function
-    emit_u32(code, al, type_idx);
-}
-
-void emit_declare_mem(Vec<uint8_t> &code, Allocator &al,
-                     uint32_t min_no_pages, uint32_t max_no_pages = 0) {
-    if (max_no_pages > 0) {
-        emit_b8(code, al,
-                0x01);  // for specifying min and max page limits of memory
-        emit_u32(code, al, min_no_pages);
-        emit_u32(code, al, max_no_pages);
-    } else {
-        emit_b8(code, al,
-                0x00);  // for specifying only min page limit of memory
-        emit_u32(code, al, min_no_pages);
-    }
-}
-
-void emit_import_mem(Vec<uint8_t> &code, Allocator &al,
-                     const std::string &mod_name, const std::string &mem_name,
-                     uint32_t min_no_pages, uint32_t max_no_pages = 0) {
-    emit_str(code, al, mod_name);
-    emit_str(code, al, mem_name);
-    emit_b8(code, al, 0x02);  // for importing memory
-    if (max_no_pages > 0) {
-        emit_b8(code, al,
-                0x01);  // for specifying min and max page limits of memory
-        emit_u32(code, al, min_no_pages);
-        emit_u32(code, al, max_no_pages);
-    } else {
-        emit_b8(code, al,
-                0x00);  // for specifying only min page limit of memory
-        emit_u32(code, al, min_no_pages);
-    }
-}
-
-void emit_export_mem(Vec<uint8_t> &code, Allocator &al, const std::string &name,
-                    uint32_t idx) {
-    emit_str(code, al, name);
-    emit_b8(code, al, 0x02);  // for exporting memory
-    emit_u32(code, al, idx);
-}
-
-void encode_section(Vec<uint8_t> &des, Vec<uint8_t> &section_content,
-                    Allocator &al, uint32_t section_id,
-                    uint32_t no_of_elements) {
-    // every section in WebAssembly is encoded by adding its section id,
-    // followed by the content size and lastly the contents
-    emit_u32(des, al, section_id);
-    emit_u32(des, al, 4U /* size of no_of_elements */ + section_content.size());
-    uint32_t len_idx = emit_len_placeholder(des, al);
-    emit_u32_b32_idx(des, al, len_idx, no_of_elements);
-    for (auto &byte : section_content) {
-        des.push_back(al, byte);
-    }
-}
-
-// function to emit drop instruction (it throws away a single operand on stack)
-void emit_drop(Vec<uint8_t> &code, Allocator &al) { code.push_back(al, 0x1A); }
-
-// function to emit get local variable at given index
-void emit_local_get(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
-    code.push_back(al, 0x20);
-    emit_u32(code, al, idx);
-}
-
-// function to emit set local variable at given index
-void emit_local_set(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
-    code.push_back(al, 0x21);
-    emit_u32(code, al, idx);
-}
-
-// function to emit get global variable at given index
-void emit_global_get(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
-    code.push_back(al, 0x23);
-    emit_u32(code, al, idx);
-}
-
-// function to emit set global variable at given index
-void emit_global_set(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
-    code.push_back(al, 0x24);
-    emit_u32(code, al, idx);
-}
-
-// function to emit call instruction
-void emit_call(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
-    code.push_back(al, 0x10);
-    emit_u32(code, al, idx);
-}
-
-// function to emit end of wasm expression
-void emit_expr_end(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x0B);
-}
-
-/**************************** Integer Operations ****************************/
-
-// function to emit a i32.const instruction
-void emit_i32_const(Vec<uint8_t> &code, Allocator &al, int32_t x) {
-    code.push_back(al, 0x41);
-    emit_i32(code, al, x);
-}
-
-// function to emit i32.clz instruction
-void emit_i32_clz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x67);
-}
-
-// function to emit i32.ctz instruction
-void emit_i32_ctz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x68);
-}
-
-// function to emit i32.popcnt instruction
-void emit_i32_popcnt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x69);
-}
-
-// function to emit i32.add instruction
-void emit_i32_add(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6A);
-}
-
-// function to emit i32.sub instruction
-void emit_i32_sub(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6B);
-}
-
-// function to emit i32.mul instruction
-void emit_i32_mul(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6C);
-}
-
-// function to emit i32.div_s instruction
-void emit_i32_div_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6D);
-}
-
-// function to emit i32.div_u instruction
-void emit_i32_div_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6E);
-}
-
-// function to emit i32.rem_s instruction
-void emit_i32_rem_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x6F);
-}
-
-// function to emit i32.rem_u instruction
-void emit_i32_rem_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x70);
-}
-
-// function to emit i32.and instruction
-void emit_i32_and(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x71);
-}
-
-// function to emit i32.or instruction
-void emit_i32_or(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x72);
-}
-
-// function to emit i32.xor instruction
-void emit_i32_xor(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x73);
-}
-
-// function to emit i32.shl instruction
-void emit_i32_shl(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x74);
-}
-
-// function to emit i32.shr_s instruction
-void emit_i32_shr_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x75);
-}
-
-// function to emit i32.shr_u instruction
-void emit_i32_shr_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x76);
-}
-
-// function to emit i32.rotl instruction
-void emit_i32_rotl(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x77);
-}
-
-// function to emit i32.rotr instruction
-void emit_i32_rotr(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x78);
-}
-
-// function to emit a i64.const instruction
-void emit_i64_const(Vec<uint8_t> &code, Allocator &al, int64_t x) {
-    code.push_back(al, 0x42);
-    emit_i64(code, al, x);
-}
-
-// function to emit i64.clz instruction
-void emit_i64_clz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x79);
-}
-
-// function to emit i64.ctz instruction
-void emit_i64_ctz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7A);
-}
-
-// function to emit i64.popcnt instruction
-void emit_i64_popcnt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7B);
-}
-
-// function to emit i64.add instruction
-void emit_i64_add(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7C);
-}
-
-// function to emit i64.sub instruction
-void emit_i64_sub(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7D);
-}
-
-// function to emit i64.mul instruction
-void emit_i64_mul(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7E);
-}
-
-// function to emit i64.div_s instruction
-void emit_i64_div_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x7F);
-}
-
-// function to emit i64.div_u instruction
-void emit_i64_div_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x80);
-}
-
-// function to emit i64.rem_s instruction
-void emit_i64_rem_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x81);
-}
-
-// function to emit i64.rem_u instruction
-void emit_i64_rem_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x82);
-}
-
-// function to emit i64.and instruction
-void emit_i64_and(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x83);
-}
-
-// function to emit i64.or instruction
-void emit_i64_or(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x84);
-}
-
-// function to emit i64.xor instruction
-void emit_i64_xor(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x85);
-}
-
-// function to emit i64.shl instruction
-void emit_i64_shl(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x86);
-}
-
-// function to emit i64.shr_s instruction
-void emit_i64_shr_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x87);
-}
-
-// function to emit i64.shr_u instruction
-void emit_i64_shr_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x88);
-}
-
-// function to emit i64.rotl instruction
-void emit_i64_rotl(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x89);
-}
-
-// function to emit i64.rotr instruction
-void emit_i64_rotr(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8A);
-}
-
-/******** Integer Relational Operations ********/
-
-// function to emit i32.eqz instruction
-void emit_i32_eqz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x45);
-}
-
-// function to emit i32.eq instruction
-void emit_i32_eq(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x46);
-}
-
-// function to emit i32.ne instruction
-void emit_i32_ne(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x47);
-}
-
-// function to emit i32.lt_s instruction
-void emit_i32_lt_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x48);
-}
-
-// function to emit i32.lt_u instruction
-void emit_i32_lt_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x49);
-}
-
-// function to emit i32.gt_s instruction
-void emit_i32_gt_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4A);
-}
-
-// function to emit i32.gt_u instruction
-void emit_i32_gt_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4B);
-}
-
-// function to emit i32.le_s instruction
-void emit_i32_le_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4C);
-}
-
-// function to emit i32.le_u instruction
-void emit_i32_le_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4D);
-}
-
-// function to emit i32.ge_s instruction
-void emit_i32_ge_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4E);
-}
-
-// function to emit i32.ge_u instruction
-void emit_i32_ge_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x4F);
-}
-
-// function to emit i64.eqz instruction
-void emit_i64_eqz(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x50);
-}
-
-// function to emit i64.eq instruction
-void emit_i64_eq(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x51);
-}
-
-// function to emit i64.ne instruction
-void emit_i64_ne(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x52);
-}
-
-// function to emit i64.lt_s instruction
-void emit_i64_lt_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x53);
-}
-
-// function to emit i64.lt_u instruction
-void emit_i64_lt_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x54);
-}
-
-// function to emit i64.gt_s instruction
-void emit_i64_gt_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x55);
-}
-
-// function to emit i64.gt_u instruction
-void emit_i64_gt_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x56);
-}
-
-// function to emit i64.le_s instruction
-void emit_i64_le_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x57);
-}
-
-// function to emit i64.le_u instruction
-void emit_i64_le_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x58);
-}
-
-// function to emit i64.ge_s instruction
-void emit_i64_ge_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x59);
-}
-
-// function to emit i64.ge_u instruction
-void emit_i64_ge_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5A);
-}
-
-/**************************** Floating Point Operations
- * ****************************/
-
-// function to emit a f32.const instruction
-void emit_f32_const(Vec<uint8_t> &code, Allocator &al, float x) {
-    code.push_back(al, 0x43);
-    emit_f32(code, al, x);
-}
-
-// function to emit f32.abs instruction
-void emit_f32_abs(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8B);
-}
-
-// function to emit f32.neg instruction
-void emit_f32_neg(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8C);
-}
-
-// function to emit f32.ceil instruction
-void emit_f32_ceil(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8D);
-}
-
-// function to emit f32.floor instruction
-void emit_f32_floor(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8E);
-}
-
-// function to emit f32.trunc instruction
-void emit_f32_trunc(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x8F);
-}
-
-// function to emit f32.nearest instruction
-void emit_f32_nearest(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x90);
-}
-
-// function to emit f32.sqrt instruction
-void emit_f32_sqrt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x91);
-}
-
-// function to emit f32.add instruction
-void emit_f32_add(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x92);
-}
-
-// function to emit f32.sub instruction
-void emit_f32_sub(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x93);
-}
-
-// function to emit f32.mul instruction
-void emit_f32_mul(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x94);
-}
-
-// function to emit f32.div instruction
-void emit_f32_div(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x95);
-}
-
-// function to emit f32.min instruction
-void emit_f32_min(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x96);
-}
-
-// function to emit f32.max instruction
-void emit_f32_max(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x97);
-}
-
-// function to emit f32.copysign instruction
-void emit_f32_copysign(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x98);
-}
-
-// function to emit a f64.const instruction
-void emit_f64_const(Vec<uint8_t> &code, Allocator &al, double x) {
-    code.push_back(al, 0x44);
-    emit_f64(code, al, x);
-}
-
-// function to emit f64.abs instruction
-void emit_f64_abs(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x99);
-}
-
-// function to emit f64.neg instruction
-void emit_f64_neg(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9A);
-}
-
-// function to emit f64.ceil instruction
-void emit_f64_ceil(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9B);
-}
-
-// function to emit f64.floor instruction
-void emit_f64_floor(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9C);
-}
-
-// function to emit f64.trunc instruction
-void emit_f64_trunc(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9D);
-}
-
-// function to emit f64.nearest instruction
-void emit_f64_nearest(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9E);
-}
-
-// function to emit f64.sqrt instruction
-void emit_f64_sqrt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x9F);
-}
-
-// function to emit f64.add instruction
-void emit_f64_add(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA0);
-}
-
-// function to emit f64.sub instruction
-void emit_f64_sub(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA1);
-}
-
-// function to emit f64.mul instruction
-void emit_f64_mul(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA2);
-}
-
-// function to emit f64.div instruction
-void emit_f64_div(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA3);
-}
-
-// function to emit f64.min instruction
-void emit_f64_min(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA4);
-}
-
-// function to emit f64.max instruction
-void emit_f64_max(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA5);
-}
-
-// function to emit f64.copysign instruction
-void emit_f64_copysign(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA6);
-}
-
-/******** Float Relational Operations ********/
-
-// function to emit f32.eq instruction
-void emit_f32_eq(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5B);
-}
-
-// function to emit f32.ne instruction
-void emit_f32_ne(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5C);
-}
-
-// function to emit f32.lt instruction
-void emit_f32_lt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5D);
-}
-
-// function to emit f32.gt instruction
-void emit_f32_gt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5E);
-}
-
-// function to emit f32.le instruction
-void emit_f32_le(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x5F);
-}
-
-// function to emit f32.ge instruction
-void emit_f32_ge(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x60);
-}
-
-// function to emit f64.eq instruction
-void emit_f64_eq(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x61);
-}
-
-// function to emit f64.ne instruction
-void emit_f64_ne(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x62);
-}
-
-// function to emit f64.lt instruction
-void emit_f64_lt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x63);
-}
-
-// function to emit f64.gt instruction
-void emit_f64_gt(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x64);
-}
-
-// function to emit f64.le instruction
-void emit_f64_le(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x65);
-}
-
-// function to emit f64.ge instruction
-void emit_f64_ge(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x66);
-}
-
-// function to emit string
-void emit_str_const(Vec<uint8_t> &code, Allocator &al, uint32_t mem_idx,
-                    const std::string &text) {
-    emit_u32(code, al,
-             0U);  // for active mode of memory with default mem_idx of 0
-    emit_i32_const(
-        code, al,
-        (int32_t)mem_idx);    // specifying memory location as instructions
-    emit_expr_end(code, al);  // end instructions
-    emit_str(code, al, text);
-}
-
-void emit_unreachable(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0x00);
-}
-
-void emit_branch(Vec<uint8_t> &code, Allocator &al, uint32_t label_idx) {
-    code.push_back(al, 0x0C);
-    emit_u32(code, al, label_idx);
-}
-
-void emit_branch_if(Vec<uint8_t> &code, Allocator &al, uint32_t label_idx) {
-    code.push_back(al, 0x0D);
-    emit_u32(code, al, label_idx);
-}
-
-void save_js_glue(std::string filename) {
-    std::string js_glue =
-        R"(function define_imports(memory, outputBuffer, exit_code, stdout_print) {
-    const printNum = (num) => outputBuffer.push(num.toString());
-    const printStr = (startIdx, strSize) => outputBuffer.push(
-        new TextDecoder("utf8").decode(new Uint8Array(memory.buffer, startIdx, strSize)));
-    const flushBuffer = () => {
-        stdout_print(outputBuffer.join(" ") + "\n");
-        outputBuffer.length = 0;
-    }
-    const set_exit_code = (exit_code_val) => exit_code.val = exit_code_val;
-    const cpu_time = (time) => (Date.now() / 1000); // Date.now() returns milliseconds, so divide by 1000
-    var imports = {
-        js: {
-            memory: memory,
-            /* functions */
-            print_i32: printNum,
-            print_i64: printNum,
-            print_f32: printNum,
-            print_f64: printNum,
-            print_str: printStr,
-            flush_buf: flushBuffer,
-            set_exit_code: set_exit_code,
-            cpu_time: cpu_time
-        },
-    };
-    return imports;
-}
-
-async function run_wasm(bytes, imports) {
-    try {
-        var res = await WebAssembly.instantiate(bytes, imports);
-        const { _lcompilers_main } = res.instance.exports;
-        _lcompilers_main();
-    } catch(e) { console.log(e); }
-}
-
-async function execute_code(bytes, stdout_print) {
-    var exit_code = {val: 1}; /* non-zero exit code */
-    var outputBuffer = [];
-    var memory = new WebAssembly.Memory({ initial: 100, maximum: 100 }); // fixed 6.4 Mb memory currently
-    var imports = define_imports(memory, outputBuffer, exit_code, stdout_print);
-    await run_wasm(bytes, imports);
-    return exit_code.val;
-}
-
-function main() {
-    const fs = require("fs");
-    const wasmBuffer = fs.readFileSync(")" +
-        filename + R"(");
-    execute_code(wasmBuffer, (text) => process.stdout.write(text))
-        .then((exit_code) => {
-            process.exit(exit_code);
-        })
-        .catch((e) => console.log(e))
-}
-
-main();
-)";
-    filename += ".js";
-    std::ofstream out(filename);
-    out << js_glue;
-    out.close();
-}
-
-void save_js_glue_wasi(std::string filename) {
-    std::string js_glue =
-R"(async function main() {
-    const fs = require("fs");
-    const { WASI } = require("wasi");
-    const wasi = new WASI();
-    const importObject = {
-        wasi_snapshot_preview1: wasi.wasiImport,
-        js: {
-            cpu_time: (time) => (Date.now() / 1000) // Date.now() returns milliseconds, so divide by 1000
+static void emit_u32_b32_idx(Vec<uint8_t> &code, Allocator &al, uint32_t idx,
+                        uint32_t section_size) {
+        /*
+        Encodes the integer `i` using LEB128 and adds trailing zeros to always
+        occupy 4 bytes. Stores the int `i` at the index `idx` in `code`.
+        */
+        Vec<uint8_t> num;
+        num.reserve(al, 4);
+        emit_leb128_u32(num, al, section_size);
+        std::vector<uint8_t> num_4b = {0x80, 0x80, 0x80, 0x00};
+        assert(num.size() <= 4);
+        for (uint32_t i = 0; i < num.size(); i++) {
+            num_4b[i] |= num[i];
         }
-    };
-    const wasm = await WebAssembly.compile(fs.readFileSync(")" + filename + R"("));
-    const instance = await WebAssembly.instantiate(wasm, importObject);
-    wasi.start(instance);
-}
-main();
-)";
-    filename += ".js";
-    std::ofstream out(filename);
-    out << js_glue;
-    out.close();
-}
+        for (uint32_t i = 0; i < 4u; i++) {
+            code.p[idx + i] = num_4b[i];
+        }
+    }
 
-void save_bin(Vec<uint8_t> &code, std::string filename) {
-    std::ofstream out(filename);
-    out.write((const char *)code.p, code.size());
-    out.close();
-    save_js_glue_wasi(filename);
-}
+class WASMAssembler {
+    private:
+    Allocator &m_al;
 
-/**************************** Type Conversion Operations
- * ****************************/
+    // function to emit header of Wasm Binary Format
+    void emit_header(Vec<uint8_t> &code, Allocator &al) {
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x61);
+        code.push_back(al, 0x73);
+        code.push_back(al, 0x6D);
+        code.push_back(al, 0x01);
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x00);
+    }
 
-// function to emit i32.wrap_i64 instruction
-void emit_i32_wrap_i64(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA7);
-}
+    // function to append a given bytecode to the end of the code
+    void emit_b8(Vec<uint8_t> &code, Allocator &al, uint8_t x) {
+        code.push_back(al, x);
+    }
 
-// function to emit i32.trunc_f32_s instruction
-void emit_i32_trunc_f32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA8);
-}
+    // function to emit unsigned 32 bit integer
+    void emit_u32(Vec<uint8_t> &code, Allocator &al, uint32_t x) {
+        emit_leb128_u32(code, al, x);
+    }
 
-// function to emit i32.trunc_f32_u instruction
-void emit_i32_trunc_f32_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xA9);
-}
+    // function to emit signed 32 bit integer
+    void emit_i32(Vec<uint8_t> &code, Allocator &al, int32_t x) {
+        emit_leb128_i32(code, al, x);
+    }
 
-// function to emit i32.trunc_f64_s instruction
-void emit_i32_trunc_f64_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAA);
-}
+    // function to emit signed 64 bit integer
+    void emit_i64(Vec<uint8_t> &code, Allocator &al, int64_t x) {
+        emit_leb128_i64(code, al, x);
+    }
 
-// function to emit i32.trunc_f64_u instruction
-void emit_i32_trunc_f64_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAB);
-}
+    // function to emit 32 bit float
+    void emit_f32(Vec<uint8_t> &code, Allocator &al, float x) {
+        emit_ieee754_f32(code, al, x);
+    }
 
-// function to emit i64.extend_i32_s instruction
-void emit_i64_extend_i32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAC);
-}
+    // function to emit 64 bit float
+    void emit_f64(Vec<uint8_t> &code, Allocator &al, double x) {
+        emit_ieee754_f64(code, al, x);
+    }
 
-// function to emit i64.extend_i32_u instruction
-void emit_i64_extend_i32_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAD);
-}
+    // function to emit string
+    void emit_str(Vec<uint8_t> &code, Allocator &al, std::string text) {
+        std::vector<uint8_t> text_bytes(text.size());
+        std::memcpy(text_bytes.data(), text.data(), text.size());
+        emit_u32(code, al, text_bytes.size());
+        for (auto &byte : text_bytes) emit_b8(code, al, byte);
+    }
 
-// function to emit i64.trunc_f32_s instruction
-void emit_i64_trunc_f32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAE);
-}
+    void encode_section(Vec<uint8_t> &des, Vec<uint8_t> &section_content,
+                        Allocator &al, uint32_t section_id,
+                        uint32_t no_of_elements) {
+        // every section in WebAssembly is encoded by adding its section id,
+        // followed by the content size and lastly the contents
+        emit_u32(des, al, section_id);
+        emit_u32(des, al, 4U /* size of no_of_elements */ + section_content.size());
+        uint32_t len_idx = emit_len_placeholder(des, al);
+        emit_u32_b32_idx(des, al, len_idx, no_of_elements);
+        for (auto &byte : section_content) {
+            des.push_back(al, byte);
+        }
+    }
 
-// function to emit i64.trunc_f32_u instruction
-void emit_i64_trunc_f32_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xAF);
-}
+    public:
+    Vec<uint8_t> m_type_section;
+    Vec<uint8_t> m_import_section;
+    Vec<uint8_t> m_func_section;
+    Vec<uint8_t> m_memory_section;
+    Vec<uint8_t> m_global_section;
+    Vec<uint8_t> m_export_section;
+    Vec<uint8_t> m_code_section;
+    Vec<uint8_t> m_data_section;
 
-// function to emit i64.trunc_f64_s instruction
-void emit_i64_trunc_f64_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB0);
-}
+    // no_of_types indicates total (imported + defined) no of functions
+    uint32_t no_of_types;
+    uint32_t no_of_functions;
+    uint32_t no_of_memories;
+    uint32_t no_of_globals;
+    uint32_t no_of_exports;
+    uint32_t no_of_imports;
+    uint32_t no_of_data_segments;
+    uint32_t avail_mem_loc;
+    uint32_t digits_mem_loc;
 
-// function to emit i64.trunc_f64_u instruction
-void emit_i64_trunc_f64_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB1);
-}
+    uint32_t nesting_level;
+    uint32_t cur_loop_nesting_level;
 
-// function to emit f32.convert_i32_s instruction
-void emit_f32_convert_i32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB2);
-}
+    WASMAssembler(Allocator &al, size_t reserve_mem = (1024 * 128)) {
+        no_of_types = 0;
+        no_of_functions = 0;
+        no_of_memories = 0;
+        no_of_globals = 0;
+        no_of_exports = 0;
+        no_of_imports = 0;
+        no_of_data_segments = 0;
 
-// function to emit f32.convert_i32_u instruction
-void emit_f32_convert_i32_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB3);
-}
+        m_type_section.reserve(m_al, reserve_mem);
+        m_import_section.reserve(m_al, reserve_mem);
+        m_func_section.reserve(m_al, reserve_mem);
+        m_memory_section.reserve(m_al, reserve_mem);
+        m_global_section.reserve(m_al, reserve_mem);
+        m_export_section.reserve(m_al, reserve_mem);
+        m_code_section.reserve(m_al, reserve_mem);
+        m_data_section.reserve(m_al, reserve_mem);
+    }
 
-// function to emit f32.convert_i64_s instruction
-void emit_f32_convert_i64_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB4);
-}
+    Vec<uint8_t> get_wasm() {
+        Vec<uint8_t> code;
+        code.reserve(m_al, 8U /* preamble size */ +
+                            8U /* (section id + section size) */ *
+                                8U /* number of sections */
+                            + m_type_section.size() +
+                            m_import_section.size() + m_func_section.size() +
+                            m_memory_section.size() + m_global_section.size() +
+                            m_export_section.size() + m_code_section.size() +
+                            m_data_section.size());
 
-// function to emit f32.convert_i64_u instruction
-void emit_f32_convert_i64_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB5);
-}
+        emit_header(code, m_al);  // emit header and version
 
-// function to emit f32.demote_f64 instruction
-void emit_f32_demote_f64(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB6);
-}
+        encode_section(code, m_type_section, m_al, 1U, no_of_types);
+        encode_section(code, m_import_section, m_al, 2U, no_of_imports);
+        encode_section(code, m_func_section, m_al, 3U, no_of_functions);
+        encode_section(code, m_memory_section, m_al, 5U, no_of_memories);
+        encode_section(code, m_global_section, m_al, 6U, no_of_globals);
+        encode_section(code, m_export_section, m_al, 7U, no_of_exports);
+        encode_section(code, m_code_section, m_al, 10U, no_of_functions);
+        encode_section(code, m_data_section, m_al, 11U, no_of_data_segments);
 
-// function to emit f64.convert_i32_s instruction
-void emit_f64_convert_i32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB7);
-}
+        return code;
+    }
 
-// function to emit f64.convert_i32_u instruction
-void emit_f64_convert_i32_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB8);
-}
+    void emit_if_else(std::function<void()> test_cond, std::function<void()> if_block, std::function<void()> else_block) {
+        test_cond();
+        m_code_section.push_back(m_al, 0x04); // emit if start
+        m_code_section.push_back(m_al, 0x40); // empty block type
+        nesting_level++;
+        if_block();
+        m_code_section.push_back(m_al, 0x05); // starting of else
+        else_block();
+        nesting_level--;
+        emit_expr_end(m_code_section);  // emit if end
+    }
 
-// function to emit f64.convert_i64_s instruction
-void emit_f64_convert_i64_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xB9);
-}
+    void emit_loop(std::function<void()> test_cond, std::function<void()> loop_block) {
+        uint32_t prev_cur_loop_nesting_level = cur_loop_nesting_level;
+        cur_loop_nesting_level = nesting_level;
 
-// function to emit f64.convert_i64_u instruction
-void emit_f64_convert_i64_u(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBA);
-}
+        m_code_section.push_back(m_al, 0x03); // emit loop start
+        m_code_section.push_back(m_al, 0x40); // empty block type
 
-// function to emit f64.promote_f32 instruction
-void emit_f64_promote_f32(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBB);
-}
+        nesting_level++;
 
-// function to emit i32.reinterpret_f32 instruction
-void emit_i32_reinterpret_f32(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBC);
-}
+        emit_if_else(test_cond, [&](){
+            loop_block();
+            // From WebAssembly Docs:
+            // Unlike with other index spaces, indexing of labels is relative by
+            // nesting depth, that is, label 0 refers to the innermost structured
+            // control instruction enclosing the referring branch instruction, while
+            // increasing indices refer to those farther out.
 
-// function to emit i64.reinterpret_f64 instruction
-void emit_i64_reinterpret_f64(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBD);
-}
+            // emit_branch and label the loop
+            emit_branch(nesting_level - cur_loop_nesting_level - 1);
+        }, [&](){});
 
-// function to emit f32.reinterpret_i32 instruction
-void emit_f32_reinterpret_i32(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBE);
-}
+        nesting_level--;
+        emit_expr_end(m_code_section);  // end loop
+        cur_loop_nesting_level = prev_cur_loop_nesting_level;
+    }
 
-// function to emit f64.reinterpret_i64 instruction
-void emit_f64_reinterpret_i64(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xBF);
-}
+    void emit_func_type(std::vector<WASMType> params, std::vector<WASMType> results, int &func_idx) {
+        emit_b8(m_type_section, m_al, 0x60);
+        emit_u32(m_type_section, m_al, params.size()); // no of params
+        for (auto param:params) {
+            emit_b8(m_type_section, m_al, param);
+        }
+        emit_u32(m_type_section, m_al, results.size()); // no of results
+        for (auto result:results) {
+            emit_b8(m_type_section, m_al, result);
+        }
+        if (func_idx == -1) {
+            func_idx = no_of_types++;
+        }
+    }
 
-// function to emit i32.extend8_s instruction
-void emit_i32_extend8_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xC0);
-}
+    void define_emit_func(
+        std::vector<WASMType> params,
+        std::vector<WASMType> results,
+        std::vector<WASMType> locals,
+        std::string func_name,
+        std::function<void()> func_body,
+        int func_idx = -1) {
 
-// function to emit i32.extend16_s instruction
-void emit_i32_extend16_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xC1);
-}
+        emit_func_type(params, results, func_idx); // type declaration
 
-// function to emit i64.extend8_s instruction
-void emit_i64_extend8_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xC2);
-}
+        /*** Reference Function Prototype ***/
+        emit_u32(m_func_section, m_al, func_idx);
 
-// function to emit i64.extend16_s instruction
-void emit_i64_extend16_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xC3);
-}
+        /*** Function Body Starts Here ***/
+        uint32_t len_idx_code_section_func_size =
+            emit_len_placeholder(m_code_section, m_al);
 
-// function to emit i64.extend32_s instruction
-void emit_i64_extend32_s(Vec<uint8_t> &code, Allocator &al) {
-    code.push_back(al, 0xC4);
-}
+        emit_u32(m_code_section, m_al, locals.size());
+        for (auto local:locals) {
+            emit_u32(m_code_section, m_al, 1u); // count of local vars of this type
+            emit_b8(m_code_section, m_al, local);
+        }
 
-/**************************** Memory Instructions ****************************/
+        func_body();
 
-// function to emit i32.load instruction
-void emit_i32_load(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                   uint32_t mem_offset) {
-    emit_b8(code, al, 0x28);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        emit_b8(m_code_section, m_al, 0x0F);  // emit wasm return instruction
+        emit_expr_end(m_code_section, m_al);
+        fixup_len(m_code_section, m_al, len_idx_code_section_func_size);
 
-// function to emit i64.load instruction
-void emit_i64_load(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                   uint32_t mem_offset) {
-    emit_b8(code, al, 0x29);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        /*** Export the function ***/
+        emit_export_fn(func_name, func_idx);  //  add function to export
+        no_of_functions++;
+    }
 
-// function to emit f32.load instruction
-void emit_f32_load(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                   uint32_t mem_offset) {
-    emit_b8(code, al, 0x2A);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit length placeholder
+    uint32_t emit_len_placeholder(Vec<uint8_t> &code, Allocator &al) {
+        uint32_t len_idx = code.size();
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x00);
+        code.push_back(al, 0x00);
+        return len_idx;
+    }
 
-// function to emit f64.load instruction
-void emit_f64_load(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                   uint32_t mem_offset) {
-    emit_b8(code, al, 0x2B);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void store_int_at_idx(Vec<uint8_t> &code, Allocator &al, uint32_t idx, uint32_t n) {
+        emit_u32_b32_idx(code, al, idx, n);
+    }
 
-// function to emit i32.load8_s instruction
-void emit_i32_load8_s(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x2C);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to fixup length at the given length index
+    void fixup_len(Vec<uint8_t> &code, Allocator &al, uint32_t len_idx) {
+        uint32_t section_len = code.size() - len_idx - 4u;
+        store_int_at_idx(code, al, len_idx, section_len);
+    }
 
-// function to emit i32.load8_u instruction
-void emit_i32_load8_u(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x2D);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
 
-// function to emit i32.load16_s instruction
-void emit_i32_load16_s(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x2E);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void emit_export_fn(const std::string &name, uint32_t idx) {
+        emit_str(m_export_section, m_al, name);
+        emit_b8(m_export_section, m_al, 0x00);  // for exporting function
+        emit_u32(m_export_section, m_al, idx);
+        no_of_exports++;
+    }
 
-// function to emit i32.load16_u instruction
-void emit_i32_load16_u(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x2F);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void emit_import_fn(const std::string &mod_name, const std::string &fn_name, uint32_t type_idx) {
+        emit_str(m_import_section, m_al, mod_name);
+        emit_str(m_import_section, m_al, fn_name);
+        emit_b8(m_import_section, m_al, 0x00);  // for importing function
+        emit_u32(m_import_section, m_al, type_idx);
+        no_of_imports++;
+    }
 
-// function to emit i64.load8_s instruction
-void emit_i64_load8_s(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x30);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void emit_declare_mem(uint32_t min_no_pages, uint32_t max_no_pages = 0) {
+        if (max_no_pages > 0) {
+            emit_b8(m_memory_section, m_al,
+                    0x01);  // for specifying min and max page limits of memory
+            emit_u32(m_memory_section, m_al, min_no_pages);
+            emit_u32(m_memory_section, m_al, max_no_pages);
+        } else {
+            emit_b8(m_memory_section, m_al,
+                    0x00);  // for specifying only min page limit of memory
+            emit_u32(m_memory_section, m_al, min_no_pages);
+        }
+        no_of_memories++;
+    }
 
-// function to emit i64.load8_u instruction
-void emit_i64_load8_u(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x31);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void emit_import_mem(const std::string &mod_name, const std::string &mem_name,
+                        uint32_t min_no_pages, uint32_t max_no_pages = 0) {
+        emit_str(m_import_section, m_al, mod_name);
+        emit_str(m_import_section, m_al, mem_name);
+        emit_b8(m_import_section, m_al, 0x02);  // for importing memory
+        if (max_no_pages > 0) {
+            emit_b8(m_import_section, m_al,
+                    0x01);  // for specifying min and max page limits of memory
+            emit_u32(m_import_section, m_al, min_no_pages);
+            emit_u32(m_import_section, m_al, max_no_pages);
+        } else {
+            emit_b8(m_import_section, m_al,
+                    0x00);  // for specifying only min page limit of memory
+            emit_u32(m_import_section, m_al, min_no_pages);
+        }
+        no_of_imports++;
+    }
 
-// function to emit i64.load16_s instruction
-void emit_i64_load16_s(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x32);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    void emit_export_mem(const std::string &name, uint32_t idx) {
+        emit_str(m_export_section, m_al, name);
+        emit_b8(m_export_section, m_al, 0x02);  // for exporting memory
+        emit_u32(m_export_section, m_al, idx);
+        no_of_exports++;
+    }
 
-// function to emit i64.load16_u instruction
-void emit_i64_load16_u(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x33);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit drop instruction (it throws away a single operand on stack)
+    void emit_drop() {
+        m_code_section.push_back(al, 0x1A);
+    }
 
-// function to emit i64.load32_s instruction
-void emit_i64_load32_s(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x34);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit get local variable at given index
+    void emit_local_get(uint32_t idx) {
+        m_code_section.push_back(m_al, 0x20);
+        emit_u32(m_code_section, m_al, idx);
+    }
 
-// function to emit i64.load32_u instruction
-void emit_i64_load32_u(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                       uint32_t mem_offset) {
-    emit_b8(code, al, 0x35);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit set local variable at given index
+    void emit_local_set(uint32_t idx) {
+        m_code_section.push_back(m_al, 0x21);
+        emit_u32(m_code_section, m_al, idx);
+    }
 
-// function to emit i32.store instruction
-void emit_i32_store(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
+    // function to emit get global variable at given index
+    void emit_global_get(uint32_t idx) {
+        m_code_section.push_back(m_al, 0x23);
+        emit_u32(m_code_section, m_al, idx);
+    }
+
+    // function to emit set global variable at given index
+    void emit_global_set(uint32_t idx) {
+        m_code_section.push_back(m_al, 0x24);
+        emit_u32(m_code_section, m_al, idx);
+    }
+
+    // function to emit call instruction
+    void emit_call(uint32_t idx) {
+        m_code_section.push_back(m_al, 0x10);
+        emit_u32(m_code_section, m_al, idx);
+    }
+
+    // function to emit end of wasm expression
+    void emit_expr_end(Vec<uint8_t> &code) {
+        code.push_back(m_al, 0x0B);
+    }
+
+    /**************************** Integer Operations ****************************/
+
+    // function to emit a i32.const instruction
+    void emit_i32_const(int32_t x) {
+        m_code_section.push_back(m_al, 0x41);
+        emit_i32(m_code_section, m_al, x);
+    }
+
+    // function to emit i32.clz instruction
+    void emit_i32_clz() {
+        m_code_section.push_back(m_al, 0x67);
+    }
+
+    // function to emit i32.ctz instruction
+    void emit_i32_ctz() {
+        m_code_section.push_back(m_al, 0x68);
+    }
+
+    // function to emit i32.popcnt instruction
+    void emit_i32_popcnt() {
+        m_code_section.push_back(m_al, 0x69);
+    }
+
+    // function to emit i32.add instruction
+    void emit_i32_add() {
+        m_code_section.push_back(m_al, 0x6A);
+    }
+
+    // function to emit i32.sub instruction
+    void emit_i32_sub() {
+        m_code_section.push_back(m_al, 0x6B);
+    }
+
+    // function to emit i32.mul instruction
+    void emit_i32_mul() {
+        m_code_section.push_back(m_al, 0x6C);
+    }
+
+    // function to emit i32.div_s instruction
+    void emit_i32_div_s() {
+        m_code_section.push_back(m_al, 0x6D);
+    }
+
+    // function to emit i32.div_u instruction
+    void emit_i32_div_u() {
+        m_code_section.push_back(m_al, 0x6E);
+    }
+
+    // function to emit i32.rem_s instruction
+    void emit_i32_rem_s() {
+        m_code_section.push_back(m_al, 0x6F);
+    }
+
+    // function to emit i32.rem_u instruction
+    void emit_i32_rem_u() {
+        m_code_section.push_back(m_al, 0x70);
+    }
+
+    // function to emit i32.and instruction
+    void emit_i32_and() {
+        m_code_section.push_back(m_al, 0x71);
+    }
+
+    // function to emit i32.or instruction
+    void emit_i32_or() {
+        m_code_section.push_back(m_al, 0x72);
+    }
+
+    // function to emit i32.xor instruction
+    void emit_i32_xor() {
+        m_code_section.push_back(m_al, 0x73);
+    }
+
+    // function to emit i32.shl instruction
+    void emit_i32_shl() {
+        m_code_section.push_back(m_al, 0x74);
+    }
+
+    // function to emit i32.shr_s instruction
+    void emit_i32_shr_s() {
+        m_code_section.push_back(m_al, 0x75);
+    }
+
+    // function to emit i32.shr_u instruction
+    void emit_i32_shr_u() {
+        m_code_section.push_back(m_al, 0x76);
+    }
+
+    // function to emit i32.rotl instruction
+    void emit_i32_rotl() {
+        m_code_section.push_back(m_al, 0x77);
+    }
+
+    // function to emit i32.rotr instruction
+    void emit_i32_rotr() {
+        m_code_section.push_back(m_al, 0x78);
+    }
+
+    // function to emit a i64.const instruction
+    void emit_i64_const(int64_t x) {
+        m_code_section.push_back(m_al, 0x42);
+        emit_i64(m_code_section, m_al, x);
+    }
+
+    // function to emit i64.clz instruction
+    void emit_i64_clz() {
+        m_code_section.push_back(m_al, 0x79);
+    }
+
+    // function to emit i64.ctz instruction
+    void emit_i64_ctz() {
+        m_code_section.push_back(m_al, 0x7A);
+    }
+
+    // function to emit i64.popcnt instruction
+    void emit_i64_popcnt() {
+        m_code_section.push_back(m_al, 0x7B);
+    }
+
+    // function to emit i64.add instruction
+    void emit_i64_add() {
+        m_code_section.push_back(m_al, 0x7C);
+    }
+
+    // function to emit i64.sub instruction
+    void emit_i64_sub() {
+        m_code_section.push_back(m_al, 0x7D);
+    }
+
+    // function to emit i64.mul instruction
+    void emit_i64_mul() {
+        m_code_section.push_back(m_al, 0x7E);
+    }
+
+    // function to emit i64.div_s instruction
+    void emit_i64_div_s() {
+        m_code_section.push_back(m_al, 0x7F);
+    }
+
+    // function to emit i64.div_u instruction
+    void emit_i64_div_u() {
+        m_code_section.push_back(m_al, 0x80);
+    }
+
+    // function to emit i64.rem_s instruction
+    void emit_i64_rem_s() {
+        m_code_section.push_back(m_al, 0x81);
+    }
+
+    // function to emit i64.rem_u instruction
+    void emit_i64_rem_u() {
+        m_code_section.push_back(m_al, 0x82);
+    }
+
+    // function to emit i64.and instruction
+    void emit_i64_and() {
+        m_code_section.push_back(m_al, 0x83);
+    }
+
+    // function to emit i64.or instruction
+    void emit_i64_or() {
+        m_code_section.push_back(m_al, 0x84);
+    }
+
+    // function to emit i64.xor instruction
+    void emit_i64_xor() {
+        m_code_section.push_back(m_al, 0x85);
+    }
+
+    // function to emit i64.shl instruction
+    void emit_i64_shl() {
+        m_code_section.push_back(m_al, 0x86);
+    }
+
+    // function to emit i64.shr_s instruction
+    void emit_i64_shr_s() {
+        m_code_section.push_back(m_al, 0x87);
+    }
+
+    // function to emit i64.shr_u instruction
+    void emit_i64_shr_u() {
+        m_code_section.push_back(m_al, 0x88);
+    }
+
+    // function to emit i64.rotl instruction
+    void emit_i64_rotl() {
+        m_code_section.push_back(m_al, 0x89);
+    }
+
+    // function to emit i64.rotr instruction
+    void emit_i64_rotr() {
+        m_code_section.push_back(m_al, 0x8A);
+    }
+
+    /******** Integer Relational Operations ********/
+
+    // function to emit i32.eqz instruction
+    void emit_i32_eqz() {
+        m_code_section.push_back(m_al, 0x45);
+    }
+
+    // function to emit i32.eq instruction
+    void emit_i32_eq() {
+        m_code_section.push_back(m_al, 0x46);
+    }
+
+    // function to emit i32.ne instruction
+    void emit_i32_ne() {
+        m_code_section.push_back(m_al, 0x47);
+    }
+
+    // function to emit i32.lt_s instruction
+    void emit_i32_lt_s() {
+        m_code_section.push_back(m_al, 0x48);
+    }
+
+    // function to emit i32.lt_u instruction
+    void emit_i32_lt_u() {
+        m_code_section.push_back(m_al, 0x49);
+    }
+
+    // function to emit i32.gt_s instruction
+    void emit_i32_gt_s() {
+        m_code_section.push_back(m_al, 0x4A);
+    }
+
+    // function to emit i32.gt_u instruction
+    void emit_i32_gt_u() {
+        m_code_section.push_back(m_al, 0x4B);
+    }
+
+    // function to emit i32.le_s instruction
+    void emit_i32_le_s() {
+        m_code_section.push_back(m_al, 0x4C);
+    }
+
+    // function to emit i32.le_u instruction
+    void emit_i32_le_u() {
+        m_code_section.push_back(m_al, 0x4D);
+    }
+
+    // function to emit i32.ge_s instruction
+    void emit_i32_ge_s() {
+        m_code_section.push_back(m_al, 0x4E);
+    }
+
+    // function to emit i32.ge_u instruction
+    void emit_i32_ge_u() {
+        m_code_section.push_back(m_al, 0x4F);
+    }
+
+    // function to emit i64.eqz instruction
+    void emit_i64_eqz() {
+        m_code_section.push_back(m_al, 0x50);
+    }
+
+    // function to emit i64.eq instruction
+    void emit_i64_eq() {
+        m_code_section.push_back(m_al, 0x51);
+    }
+
+    // function to emit i64.ne instruction
+    void emit_i64_ne() {
+        m_code_section.push_back(m_al, 0x52);
+    }
+
+    // function to emit i64.lt_s instruction
+    void emit_i64_lt_s() {
+        m_code_section.push_back(m_al, 0x53);
+    }
+
+    // function to emit i64.lt_u instruction
+    void emit_i64_lt_u() {
+        m_code_section.push_back(m_al, 0x54);
+    }
+
+    // function to emit i64.gt_s instruction
+    void emit_i64_gt_s() {
+        m_code_section.push_back(m_al, 0x55);
+    }
+
+    // function to emit i64.gt_u instruction
+    void emit_i64_gt_u() {
+        m_code_section.push_back(m_al, 0x56);
+    }
+
+    // function to emit i64.le_s instruction
+    void emit_i64_le_s() {
+        m_code_section.push_back(m_al, 0x57);
+    }
+
+    // function to emit i64.le_u instruction
+    void emit_i64_le_u() {
+        m_code_section.push_back(m_al, 0x58);
+    }
+
+    // function to emit i64.ge_s instruction
+    void emit_i64_ge_s() {
+        m_code_section.push_back(m_al, 0x59);
+    }
+
+    // function to emit i64.ge_u instruction
+    void emit_i64_ge_u() {
+        m_code_section.push_back(m_al, 0x5A);
+    }
+
+    /**************************** Floating Point Operations
+     * ****************************/
+
+    // function to emit a f32.const instruction
+    void emit_f32_const(float x) {
+        m_code_section.push_back(m_al, 0x43);
+        emit_f32(m_code_section, m_al, x);
+    }
+
+    // function to emit f32.abs instruction
+    void emit_f32_abs() {
+        m_code_section.push_back(m_al, 0x8B);
+    }
+
+    // function to emit f32.neg instruction
+    void emit_f32_neg() {
+        m_code_section.push_back(m_al, 0x8C);
+    }
+
+    // function to emit f32.ceil instruction
+    void emit_f32_ceil() {
+        m_code_section.push_back(m_al, 0x8D);
+    }
+
+    // function to emit f32.floor instruction
+    void emit_f32_floor() {
+        m_code_section.push_back(m_al, 0x8E);
+    }
+
+    // function to emit f32.trunc instruction
+    void emit_f32_trunc() {
+        m_code_section.push_back(m_al, 0x8F);
+    }
+
+    // function to emit f32.nearest instruction
+    void emit_f32_nearest() {
+        m_code_section.push_back(m_al, 0x90);
+    }
+
+    // function to emit f32.sqrt instruction
+    void emit_f32_sqrt() {
+        m_code_section.push_back(m_al, 0x91);
+    }
+
+    // function to emit f32.add instruction
+    void emit_f32_add() {
+        m_code_section.push_back(m_al, 0x92);
+    }
+
+    // function to emit f32.sub instruction
+    void emit_f32_sub() {
+        m_code_section.push_back(m_al, 0x93);
+    }
+
+    // function to emit f32.mul instruction
+    void emit_f32_mul() {
+        m_code_section.push_back(m_al, 0x94);
+    }
+
+    // function to emit f32.div instruction
+    void emit_f32_div() {
+        m_code_section.push_back(m_al, 0x95);
+    }
+
+    // function to emit f32.min instruction
+    void emit_f32_min() {
+        m_code_section.push_back(m_al, 0x96);
+    }
+
+    // function to emit f32.max instruction
+    void emit_f32_max() {
+        m_code_section.push_back(m_al, 0x97);
+    }
+
+    // function to emit f32.copysign instruction
+    void emit_f32_copysign() {
+        m_code_section.push_back(m_al, 0x98);
+    }
+
+    // function to emit a f64.const instruction
+    void emit_f64_const(double x) {
+        m_code_section.push_back(m_al, 0x44);
+        emit_f64(m_code_section, m_al, x);
+    }
+
+    // function to emit f64.abs instruction
+    void emit_f64_abs() {
+        m_code_section.push_back(m_al, 0x99);
+    }
+
+    // function to emit f64.neg instruction
+    void emit_f64_neg() {
+        m_code_section.push_back(m_al, 0x9A);
+    }
+
+    // function to emit f64.ceil instruction
+    void emit_f64_ceil() {
+        m_code_section.push_back(m_al, 0x9B);
+    }
+
+    // function to emit f64.floor instruction
+    void emit_f64_floor() {
+        m_code_section.push_back(m_al, 0x9C);
+    }
+
+    // function to emit f64.trunc instruction
+    void emit_f64_trunc() {
+        m_code_section.push_back(m_al, 0x9D);
+    }
+
+    // function to emit f64.nearest instruction
+    void emit_f64_nearest() {
+        m_code_section.push_back(m_al, 0x9E);
+    }
+
+    // function to emit f64.sqrt instruction
+    void emit_f64_sqrt() {
+        m_code_section.push_back(m_al, 0x9F);
+    }
+
+    // function to emit f64.add instruction
+    void emit_f64_add() {
+        m_code_section.push_back(m_al, 0xA0);
+    }
+
+    // function to emit f64.sub instruction
+    void emit_f64_sub() {
+        m_code_section.push_back(m_al, 0xA1);
+    }
+
+    // function to emit f64.mul instruction
+    void emit_f64_mul() {
+        m_code_section.push_back(m_al, 0xA2);
+    }
+
+    // function to emit f64.div instruction
+    void emit_f64_div() {
+        m_code_section.push_back(m_al, 0xA3);
+    }
+
+    // function to emit f64.min instruction
+    void emit_f64_min() {
+        m_code_section.push_back(m_al, 0xA4);
+    }
+
+    // function to emit f64.max instruction
+    void emit_f64_max() {
+        m_code_section.push_back(m_al, 0xA5);
+    }
+
+    // function to emit f64.copysign instruction
+    void emit_f64_copysign() {
+        m_code_section.push_back(m_al, 0xA6);
+    }
+
+    /******** Float Relational Operations ********/
+
+    // function to emit f32.eq instruction
+    void emit_f32_eq() {
+        m_code_section.push_back(m_al, 0x5B);
+    }
+
+    // function to emit f32.ne instruction
+    void emit_f32_ne() {
+        m_code_section.push_back(m_al, 0x5C);
+    }
+
+    // function to emit f32.lt instruction
+    void emit_f32_lt() {
+        m_code_section.push_back(m_al, 0x5D);
+    }
+
+    // function to emit f32.gt instruction
+    void emit_f32_gt() {
+        m_code_section.push_back(m_al, 0x5E);
+    }
+
+    // function to emit f32.le instruction
+    void emit_f32_le() {
+        m_code_section.push_back(m_al, 0x5F);
+    }
+
+    // function to emit f32.ge instruction
+    void emit_f32_ge() {
+        m_code_section.push_back(m_al, 0x60);
+    }
+
+    // function to emit f64.eq instruction
+    void emit_f64_eq() {
+        m_code_section.push_back(m_al, 0x61);
+    }
+
+    // function to emit f64.ne instruction
+    void emit_f64_ne() {
+        m_code_section.push_back(m_al, 0x62);
+    }
+
+    // function to emit f64.lt instruction
+    void emit_f64_lt() {
+        m_code_section.push_back(m_al, 0x63);
+    }
+
+    // function to emit f64.gt instruction
+    void emit_f64_gt() {
+        m_code_section.push_back(m_al, 0x64);
+    }
+
+    // function to emit f64.le instruction
+    void emit_f64_le() {
+        m_code_section.push_back(m_al, 0x65);
+    }
+
+    // function to emit f64.ge instruction
+    void emit_f64_ge() {
+        m_code_section.push_back(m_al, 0x66);
+    }
+
+    void emit_unreachable() {
+        m_code_section.push_back(m_al, 0x00);
+    }
+
+    void emit_branch(uint32_t label_idx) {
+        m_code_section.push_back(m_al, 0x0C);
+        emit_u32(m_code_section, m_al, label_idx);
+    }
+
+    void emit_branch_if(uint32_t label_idx) {
+        m_code_section.push_back(m_al, 0x0D);
+        emit_u32(m_code_section, m_al, label_idx);
+    }
+
+    // function to emit string
+    void emit_str_const(uint32_t mem_idx,
+                        const std::string &text) {
+        emit_u32(m_data_section, m_al,
+                0U);  // for active mode of memory with default mem_idx of 0
+        emit_i32_const(
+            m_data_section, m_al,
+            (int32_t)mem_idx);    // specifying memory location as instructions
+        emit_expr_end(m_data_section, al);  // end instructions
+        emit_str(m_data_section, m_al, text);
+    }
+
+    void save_js_glue(std::string filename) {
+        std::string js_glue =
+            R"(function define_imports(memory, outputBuffer, exit_code, stdout_print) {
+        const printNum = (num) => outputBuffer.push(num.toString());
+        const printStr = (startIdx, strSize) => outputBuffer.push(
+            new TextDecoder("utf8").decode(new Uint8Array(memory.buffer, startIdx, strSize)));
+        const flushBuffer = () => {
+            stdout_print(outputBuffer.join(" ") + "\n");
+            outputBuffer.length = 0;
+        }
+        const set_exit_code = (exit_code_val) => exit_code.val = exit_code_val;
+        const cpu_time = (time) => (Date.now() / 1000); // Date.now() returns milliseconds, so divide by 1000
+        var imports = {
+            js: {
+                memory: memory,
+                /* functions */
+                print_i32: printNum,
+                print_i64: printNum,
+                print_f32: printNum,
+                print_f64: printNum,
+                print_str: printStr,
+                flush_buf: flushBuffer,
+                set_exit_code: set_exit_code,
+                cpu_time: cpu_time
+            },
+        };
+        return imports;
+    }
+
+    async function run_wasm(bytes, imports) {
+        try {
+            var res = await WebAssembly.instantiate(bytes, imports);
+            const { _lcompilers_main } = res.instance.exports;
+            _lcompilers_main();
+        } catch(e) { console.log(e); }
+    }
+
+    async function execute_code(bytes, stdout_print) {
+        var exit_code = {val: 1}; /* non-zero exit code */
+        var outputBuffer = [];
+        var memory = new WebAssembly.Memory({ initial: 100, maximum: 100 }); // fixed 6.4 Mb memory currently
+        var imports = define_imports(memory, outputBuffer, exit_code, stdout_print);
+        await run_wasm(bytes, imports);
+        return exit_code.val;
+    }
+
+    function main() {
+        const fs = require("fs");
+        const wasmBuffer = fs.readFileSync(")" +
+            filename + R"(");
+        execute_code(wasmBuffer, (text) => process.stdout.write(text))
+            .then((exit_code) => {
+                process.exit(exit_code);
+            })
+            .catch((e) => console.log(e))
+    }
+
+    main();
+    )";
+        filename += ".js";
+        std::ofstream out(filename);
+        out << js_glue;
+        out.close();
+    }
+
+    void save_js_glue_wasi(std::string filename) {
+        std::string js_glue =
+    R"(async function main() {
+        const fs = require("fs");
+        const { WASI } = require("wasi");
+        const wasi = new WASI();
+        const importObject = {
+            wasi_snapshot_preview1: wasi.wasiImport,
+            js: {
+                cpu_time: (time) => (Date.now() / 1000) // Date.now() returns milliseconds, so divide by 1000
+            }
+        };
+        const wasm = await WebAssembly.compile(fs.readFileSync(")" + filename + R"("));
+        const instance = await WebAssembly.instantiate(wasm, importObject);
+        wasi.start(instance);
+    }
+    main();
+    )";
+        filename += ".js";
+        std::ofstream out(filename);
+        out << js_glue;
+        out.close();
+    }
+
+    void save_bin(Vec<uint8_t> &code, std::string filename) {
+        std::ofstream out(filename);
+        out.write((const char *)code.p, code.size());
+        out.close();
+        save_js_glue_wasi(filename);
+    }
+
+    /**************************** Type Conversion Operations
+     * ****************************/
+
+    // function to emit i32.wrap_i64 instruction
+    void emit_i32_wrap_i64() {
+        m_code_section.push_back(m_al, 0xA7);
+    }
+
+    // function to emit i32.trunc_f32_s instruction
+    void emit_i32_trunc_f32_s() {
+        m_code_section.push_back(m_al, 0xA8);
+    }
+
+    // function to emit i32.trunc_f32_u instruction
+    void emit_i32_trunc_f32_u() {
+        m_code_section.push_back(m_al, 0xA9);
+    }
+
+    // function to emit i32.trunc_f64_s instruction
+    void emit_i32_trunc_f64_s() {
+        m_code_section.push_back(m_al, 0xAA);
+    }
+
+    // function to emit i32.trunc_f64_u instruction
+    void emit_i32_trunc_f64_u() {
+        m_code_section.push_back(m_al, 0xAB);
+    }
+
+    // function to emit i64.extend_i32_s instruction
+    void emit_i64_extend_i32_s() {
+        m_code_section.push_back(m_al, 0xAC);
+    }
+
+    // function to emit i64.extend_i32_u instruction
+    void emit_i64_extend_i32_u() {
+        m_code_section.push_back(m_al, 0xAD);
+    }
+
+    // function to emit i64.trunc_f32_s instruction
+    void emit_i64_trunc_f32_s() {
+        m_code_section.push_back(m_al, 0xAE);
+    }
+
+    // function to emit i64.trunc_f32_u instruction
+    void emit_i64_trunc_f32_u() {
+        m_code_section.push_back(m_al, 0xAF);
+    }
+
+    // function to emit i64.trunc_f64_s instruction
+    void emit_i64_trunc_f64_s() {
+        m_code_section.push_back(m_al, 0xB0);
+    }
+
+    // function to emit i64.trunc_f64_u instruction
+    void emit_i64_trunc_f64_u() {
+        m_code_section.push_back(m_al, 0xB1);
+    }
+
+    // function to emit f32.convert_i32_s instruction
+    void emit_f32_convert_i32_s() {
+        m_code_section.push_back(m_al, 0xB2);
+    }
+
+    // function to emit f32.convert_i32_u instruction
+    void emit_f32_convert_i32_u() {
+        m_code_section.push_back(m_al, 0xB3);
+    }
+
+    // function to emit f32.convert_i64_s instruction
+    void emit_f32_convert_i64_s() {
+        m_code_section.push_back(m_al, 0xB4);
+    }
+
+    // function to emit f32.convert_i64_u instruction
+    void emit_f32_convert_i64_u() {
+        m_code_section.push_back(m_al, 0xB5);
+    }
+
+    // function to emit f32.demote_f64 instruction
+    void emit_f32_demote_f64() {
+        m_code_section.push_back(m_al, 0xB6);
+    }
+
+    // function to emit f64.convert_i32_s instruction
+    void emit_f64_convert_i32_s() {
+        m_code_section.push_back(m_al, 0xB7);
+    }
+
+    // function to emit f64.convert_i32_u instruction
+    void emit_f64_convert_i32_u() {
+        m_code_section.push_back(m_al, 0xB8);
+    }
+
+    // function to emit f64.convert_i64_s instruction
+    void emit_f64_convert_i64_s() {
+        m_code_section.push_back(m_al, 0xB9);
+    }
+
+    // function to emit f64.convert_i64_u instruction
+    void emit_f64_convert_i64_u() {
+        m_code_section.push_back(m_al, 0xBA);
+    }
+
+    // function to emit f64.promote_f32 instruction
+    void emit_f64_promote_f32() {
+        m_code_section.push_back(m_al, 0xBB);
+    }
+
+    // function to emit i32.reinterpret_f32 instruction
+    void emit_i32_reinterpret_f32() {
+        m_code_section.push_back(m_al, 0xBC);
+    }
+
+    // function to emit i64.reinterpret_f64 instruction
+    void emit_i64_reinterpret_f64() {
+        m_code_section.push_back(m_al, 0xBD);
+    }
+
+    // function to emit f32.reinterpret_i32 instruction
+    void emit_f32_reinterpret_i32() {
+        m_code_section.push_back(m_al, 0xBE);
+    }
+
+    // function to emit f64.reinterpret_i64 instruction
+    void emit_f64_reinterpret_i64() {
+        m_code_section.push_back(m_al, 0xBF);
+    }
+
+    // function to emit i32.extend8_s instruction
+    void emit_i32_extend8_s() {
+        m_code_section.push_back(m_al, 0xC0);
+    }
+
+    // function to emit i32.extend16_s instruction
+    void emit_i32_extend16_s() {
+        m_code_section.push_back(m_al, 0xC1);
+    }
+
+    // function to emit i64.extend8_s instruction
+    void emit_i64_extend8_s() {
+        m_code_section.push_back(m_al, 0xC2);
+    }
+
+    // function to emit i64.extend16_s instruction
+    void emit_i64_extend16_s() {
+        m_code_section.push_back(m_al, 0xC3);
+    }
+
+    // function to emit i64.extend32_s instruction
+    void emit_i64_extend32_s() {
+        m_code_section.push_back(m_al, 0xC4);
+    }
+
+    /**************************** Memory Instructions ****************************/
+
+    // function to emit i32.load instruction
+    void emit_i32_load(uint32_t mem_align,
                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x36);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        emit_b8(m_code_section, m_al, 0x28);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i64.store instruction
-void emit_i64_store(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
+    // function to emit i64.load instruction
+    void emit_i64_load(uint32_t mem_align,
                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x37);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        emit_b8(m_code_section, m_al, 0x29);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit f32.store instruction
-void emit_f32_store(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
+    // function to emit f32.load instruction
+    void emit_f32_load(uint32_t mem_align,
                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x38);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        emit_b8(m_code_section, m_al, 0x2A);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit f64.store instruction
-void emit_f64_store(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
+    // function to emit f64.load instruction
+    void emit_f64_load(uint32_t mem_align,
                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x39);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+        emit_b8(m_code_section, m_al, 0x2B);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i32.store8 instruction
-void emit_i32_store8(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x3A);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit i32.load8_s instruction
+    void emit_i32_load8_s(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x2C);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i32.store16 instruction
-void emit_i32_store16(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x3B);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit i32.load8_u instruction
+    void emit_i32_load8_u(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x2D);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i64.store8 instruction
-void emit_i64_store8(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                     uint32_t mem_offset) {
-    emit_b8(code, al, 0x3C);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit i32.load16_s instruction
+    void emit_i32_load16_s(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x2E);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i64.store16 instruction
-void emit_i64_store16(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x3D);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit i32.load16_u instruction
+    void emit_i32_load16_u(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x2F);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-// function to emit i64.store32 instruction
-void emit_i64_store32(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
-                      uint32_t mem_offset) {
-    emit_b8(code, al, 0x3E);
-    emit_u32(code, al, mem_align);
-    emit_u32(code, al, mem_offset);
-}
+    // function to emit i64.load8_s instruction
+    void emit_i64_load8_s(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x30);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
 
-}  // namespace wasm
+    // function to emit i64.load8_u instruction
+    void emit_i64_load8_u(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x31);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.load16_s instruction
+    void emit_i64_load16_s(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x32);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.load16_u instruction
+    void emit_i64_load16_u(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x33);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.load32_s instruction
+    void emit_i64_load32_s(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x34);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.load32_u instruction
+    void emit_i64_load32_u(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x35);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i32.store instruction
+    void emit_i32_store(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x36);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.store instruction
+    void emit_i64_store(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x37);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit f32.store instruction
+    void emit_f32_store(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x38);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit f64.store instruction
+    void emit_f64_store(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x39);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i32.store8 instruction
+    void emit_i32_store8(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x3A);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i32.store16 instruction
+    void emit_i32_store16(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x3B);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.store8 instruction
+    void emit_i64_store8(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x3C);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.store16 instruction
+    void emit_i64_store16(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x3D);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit i64.store32 instruction
+    void emit_i64_store32(uint32_t mem_align,
+                        uint32_t mem_offset) {
+        emit_b8(m_code_section, m_al, 0x3E);
+        emit_u32(m_code_section, m_al, mem_align);
+        emit_u32(m_code_section, m_al, mem_offset);
+    }
+
+    // function to emit a i32.const instruction given a section reference
+    void emit_i32_const(Vec<uint8_t> &code, int32_t x) {
+        code.push_back(m_al, 0x41);
+        emit_i32(code, m_al, x);
+    }
+
+    // function to emit a i64.const instruction given a section reference
+    void emit_i64_const(Vec<uint8_t> &code, int32_t x) {
+        code.push_back(m_al, 0x42);
+        emit_i32(code, m_al, x);
+    }
+
+    // function to emit a f32.const instruction given a section reference
+    void emit_f32_const(Vec<uint8_t> &code, int32_t x) {
+        code.push_back(m_al, 0x43);
+        emit_i32(code, m_al, x);
+    }
+
+    // function to emit a f64.const instruction given a section reference
+    void emit_f64_const(Vec<uint8_t> &code, int32_t x) {
+        code.push_back(m_al, 0x44);
+        emit_i32(code, m_al, x);
+    }
+
+}  // class WASMAssembler
 
 }  // namespace LCompilers
