@@ -98,7 +98,7 @@ std::string import_fn_to_str(IMPORT_FUNC fn) {
 class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
    public:
     Allocator &m_al;
-    WASMAssembler m_wa;
+    WASMAssembler &m_wa;
     diag::Diagnostics &diag;
 
     SymbolFuncInfo *cur_sym_info;
@@ -120,8 +120,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     std::vector<int> m_rt_func_used_idx;
 
    public:
-    ASRToWASMVisitor(Allocator &al, diag::Diagnostics &diagnostics)
-        : m_al(al), diag(diagnostics) {
+    ASRToWASMVisitor(WASMAssembler &wa, Allocator &al, diag::Diagnostics &diagnostics)
+        : m_wa(wa), m_al(al), diag(diagnostics) {
         is_prototype_only = false;
         is_local_vars_only = false;
         main_func = nullptr;
@@ -967,37 +967,37 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         /********************* Parameter Types List *********************/
         s->referenced_vars.reserve(m_al, x.n_args);
         uint32_t len_idx_type_section_param_types_list =
-                wasm::emit_len_placeholder(m_type_section, m_al);
+                m_wa.emit_len_placeholder(m_wa.m_type_section, m_al);
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             m_var_idx_map[get_hash((ASR::asr_t *)arg)] = s->no_of_variables;
-            emit_var_type(m_type_section, arg, s->no_of_variables, false);
+            emit_var_type(m_wa.m_type_section, arg, s->no_of_variables, false);
             if (isRefVar(arg)) {
                 s->referenced_vars.push_back(m_al, arg);
             }
         }
-        wasm::fixup_len(m_type_section, m_al,
+        m_wa.fixup_len(m_wa.m_type_section, m_al,
                             len_idx_type_section_param_types_list);
 
         /********************* Result Types List *********************/
-        uint32_t len_idx_type_section_return_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
+        uint32_t len_idx_type_section_return_types_list = m_wa.emit_len_placeholder(m_wa.m_type_section, m_al);
         uint32_t no_of_return_vars = 0;
         if (x.m_return_var) {  // It is a function
             s->return_var = ASRUtils::EXPR2VAR(x.m_return_var);
-            emit_var_type(m_type_section, s->return_var, no_of_return_vars, false);
+            emit_var_type(m_wa.m_type_section, s->return_var, no_of_return_vars, false);
         } else {  // It is a subroutine
             for (size_t i = 0; i < x.n_args; i++) {
                 ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
                 if (isRefVar(arg)) {
-                    emit_var_type(m_type_section, arg, no_of_return_vars, false);
+                    emit_var_type(m_wa.m_type_section, arg, no_of_return_vars, false);
                 }
             }
         }
-        wasm::fixup_len(m_type_section, m_al, len_idx_type_section_return_types_list);
+        wasm::fixup_len(m_wa.m_type_section, m_al, len_idx_type_section_return_types_list);
 
         /********************* Add Type to Map *********************/
-        s->index = no_of_types++;
+        s->index = m_wa.no_of_types++;
         m_func_name_idx_map[get_hash((ASR::asr_t *)&x)] =
             s;  // add function to map
     }
@@ -2995,8 +2995,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
                                               Allocator &al,
                                               diag::Diagnostics &diagnostics) {
-    ASRToWASMVisitor v(al, diagnostics);
-    Vec<uint8_t> wasm_bytes;
+    WASMAssembler wa(al);
+    ASRToWASMVisitor v(wa, al, diagnostics);
 
     LCompilers::PassOptions pass_options;
     pass_array_by_data(al, asr, pass_options);
@@ -3017,8 +3017,7 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
         return Error();
     }
 
-    v.get_wasm(wasm_bytes);
-
+    Vec<uint8_t> wasm_bytes = wa.get_wasm();
     return wasm_bytes;
 }
 

@@ -94,7 +94,7 @@ static void emit_u32_b32_idx(Vec<uint8_t> &code, Allocator &al, uint32_t idx,
         }
     }
 
-class WASMAssembler {
+class zWASMAssembler {
     private:
     Allocator &m_al;
 
@@ -186,7 +186,7 @@ class WASMAssembler {
     uint32_t nesting_level;
     uint32_t cur_loop_nesting_level;
 
-    WASMAssembler(Allocator &al, size_t reserve_mem = (1024 * 128)) {
+    WASMAssembler(Allocator &al, size_t reserve_mem = (1024 * 128)): m_al(al) {
         no_of_types = 0;
         no_of_functions = 0;
         no_of_memories = 0;
