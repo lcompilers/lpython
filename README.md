@@ -166,7 +166,6 @@ Please follow the below steps for Windows:
 - Run integration tests
 
   ```bash
-  cd integration_tests
   python run_tests.py -u --skip-run-with-dbg
   ```
 
