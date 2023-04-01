@@ -2,7 +2,7 @@
     "basename": "asr-vec_01-66ac423",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/vec_01.py",
-    "infile_hash": "ac6691a88207cbc7445095ecc898e9cce9efd9f9e874c473aec70e16",
+    "infile_hash": "b22cabe2248cf58c7ffaad83dd8dc5b2433f244ee23b0703b536547b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-vec_01-66ac423.stdout",

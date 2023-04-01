@@ -6,8 +6,8 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "runtime-test_str_01-50bdf2f.stdout",
-    "stdout_hash": "ae5584858d62f3df08abdd365ea09fed0a7aa75f0f10698a7f7c2508",
+    "stdout_hash": "0cd3309b955bd176469dda40778124928ba170b50ae1a7b8ae2e8f70",
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 1
+    "returncode": 10
 }
