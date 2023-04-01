@@ -5,41 +5,19 @@
     (import "wasi_snapshot_preview1" "proc_exit" (func (;0;) (type 0)))
     (import "wasi_snapshot_preview1" "fd_write" (func (;1;) (type 1)))
     (global $0 (mut i32) (i32.const 0))
-    (global $1 (mut f32) (f32.const 0.000000))
-    (global $2 (mut f64) (f64.const 0.000000))
+    (global $1 (mut i32) (i32.const 0))
+    (global $2 (mut i64) (i64.const 0))
+    (global $3 (mut f32) (f32.const 0.000000))
+    (global $4 (mut f64) (f64.const 0.000000))
     (func $2 (type 2) (param) (result)
-        (local i32 i32 i32)
-        i32.const 1
-        local.set 0
-        i32.const 1
-        local.set 1
+        (local)
         i32.const 0
-        local.set 2
-        local.get 0
-        local.get 1
-        i32.gt_s
-        local.set 0
-        local.get 0
-        local.get 1
-        i32.eq
-        local.set 0
-        local.get 1
-        local.get 2
-        i32.ne
-        local.set 0
-        local.get 1
-        local.get 2
-        i32.ge_s
-        local.set 0
-        local.get 1
-        local.get 2
-        i32.le_s
-        local.set 0
+        call 0
         return
     )
     (memory (;0;) 100 100)
     (export "memory" (memory 0))
-    (export "test_boolean_comparison" (func 2))
+    (export "_start" (func 2))
     (data (;0;) (i32.const 4) "\0c\00\00\00\01\00\00\00")
     (data (;1;) (i32.const 12) "    ")
     (data (;2;) (i32.const 16) "\18\00\00\00\01\00\00\00")

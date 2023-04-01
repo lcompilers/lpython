@@ -23,47 +23,12 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_binop();
-bool __lpython_overloaded_6___lpython_floordiv(bool a, bool b);
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
 namespace {
 }
 
 // Implementations
-void test_binop()
-{
-    bool b1;
-    bool b2;
-    int32_t x;
-    float x2;
-    x = std::pow(2, 3);
-    x2 = std::pow(  2.00000000000000000e+00,   3.50000000000000000e+00);
-    x = 54 - 100;
-    x2 =   3.45400000000000018e+00 -   7.65429999999999950e+02 +   5.34600000000000023e+02;
-    x2 =   5.34656499999999960e+03*  3.45000000000000018e+00;
-    x2 = std::pow(  5.34656499999999960e+03,   3.45000000000000018e+00);
-    x = (int)(true) + (int)(true);
-    x = (int)(true) - (int)(false);
-    x = (int)(true)*(int)(false);
-    x = std::pow((int)(true), (int)(false));
-    b1 = true;
-    b2 = false;
-    x = (int)(__lpython_overloaded_6___lpython_floordiv(b1, b1));
-    x = std::pow((int)(b1), (int)(b2));
-}
-
-bool __lpython_overloaded_6___lpython_floordiv(bool a, bool b)
-{
-    bool _lpython_return_variable;
-    if (b == false) {
-        std::cerr << "ERROR STOP" << std::endl;
-        exit(1);
-    }
-    _lpython_return_variable = a;
-    return _lpython_return_variable;
-}
-
 float _lfortran_caimag(std::complex<float> x);
 
 double _lfortran_zaimag(std::complex<double> x);

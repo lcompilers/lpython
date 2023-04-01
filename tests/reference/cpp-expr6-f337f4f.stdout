@@ -23,21 +23,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_ifexp();
 namespace {
 }
 
 // Implementations
-void test_ifexp()
-{
-    int32_t a;
-    int32_t b;
-    bool c;
-    a = 2;
-    b = (a == 2) ? (6) : (8);
-    c = (b > 5) ? (true) : (false);
-}
-
 namespace {
 
 void main2() {

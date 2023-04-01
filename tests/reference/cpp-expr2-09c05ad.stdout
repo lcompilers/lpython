@@ -23,25 +23,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_boolOp();
 namespace {
 }
 
 // Implementations
-void test_boolOp()
-{
-    bool a;
-    bool b;
-    a = false;
-    b = true;
-    a = a && b;
-    b = a || true;
-    a = a || b;
-    a = a && b == b;
-    a = a && b != b;
-    a = b || b;
-}
-
 namespace {
 
 void main2() {

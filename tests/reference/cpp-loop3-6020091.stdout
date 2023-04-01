@@ -23,19 +23,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_pass();
 namespace {
 }
 
 // Implementations
-void test_pass()
-{
-    int32_t a;
-    a = 1;
-    while (a > 0) {
-    }
-}
-
 namespace {
 
 void main2() {

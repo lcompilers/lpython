@@ -23,19 +23,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void test_assert();
 namespace {
 }
 
 // Implementations
-void test_assert()
-{
-    int32_t a;
-    a = 5;
-    assert (("a is not 5", a == 5));
-    assert (a != 10);
-}
-
 namespace {
 
 void main2() {
