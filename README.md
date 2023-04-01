@@ -1,147 +1,184 @@
 # LPython
 
-LPython is a Python compiler. It is in heavy development, currently in
-pre-alpha stage. Some of the goals of LPython:
+LPython is a Python compiler. It is in heavy development, currently in pre-alpha stage. LPython works on Windows, macOS and Linux. Some of the goals of LPython include:
 
-* The best possible performance for numerical, array-oriented code
-* Run on all platforms
-* Compile a subset of Python yet be fully compatible with Python
-* Explore designs so that LPython eventually can compile all Python code
-* Fast compilation
-* Excellent user-friendly diagnostic messages: error, warnings, hints, notes,
+- The best possible performance for numerical, array-oriented code
+- Run on all platforms
+- Compile a subset of Python yet be fully compatible with Python
+- Explore designs so that LPython eventually can compile all Python code
+- Fast compilation
+- Excellent user-friendly diagnostic messages: error, warnings, hints, notes,
   etc.
-* Ahead-of-Time compilation to binaries, plus interactive usage (Jupyter
-  notebook)
-* Transforming Python code to C++, Fortran and other languages
+- Ahead-of-Time compilation to binaries, plus interactive usage (Jupyter notebook)
+- Transforming Python code to C++, Fortran and other languages
 
 And more.
 
 # Installation
 
-LPython works on Windows, macOS and Linux.
+## Step 0: Prerequisites
 
-## Install Conda
+Here is the list of requirements needed to build LPython:
+
+- Python (3.10+)
+- Conda
+- Miniforge Prompt
+- Visual Studio (with "Desktop Development with C++" workload)
+
+Please follow the steps for your desired platform.
+
+## Step 1: Install Conda
+
+This step involves installing Conda using a conda-forge distribution called Miniforge.
 
 Please follow the instructions here to install Conda on your platform:
 
-https://github.com/conda-forge/miniforge/#download
+Miniforge download link (for Linux, MacOS and Windows): https://github.com/conda-forge/miniforge/#download
+
+## Step 2: Setting up
+
+This step involves setting up the required configuration to run the programs in LPython.
 
 ### Linux
+
+Run the below command to install `binutils-dev` package on Linux.
 
 ```bash
 sudo apt install binutils-dev
 ```
 
 ### Windows
-Install Visual Studio (MSVC), for example the version 2022, you can download the
-Community version for free from: https://visualstudio.microsoft.com/downloads/.
 
-Launch the Miniforge prompt from the Desktop.
+Please follow the below steps for Windows:
 
-In the shell, initialize the MSVC compiler using:
+- Install Visual Studio, for example the version 2022.
 
-```bash
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd" -arch=x64
-```
+  - You can download the
+    Community version for free from: https://visualstudio.microsoft.com/downloads/.
+  - After installing Visual Studio and running the Visual Studio Installer, you must install the "Desktop Development with C++" workload which will install Visual C++ Compiler (MSVC).
 
-You can optionally test MSVC via:
+- Launch the Miniforge prompt from the Desktop.
 
-```bash
-cl /?
-link /?
-```
+  - It is recommended to use MiniForge instead of Powershell as the main terminal to build and write code for LPython.
 
-Both commands must print several pages of help text.
+- In the MiniForge Prompt, initialize the MSVC compiler using the below command:
 
-## Build LPython
+  ```bash
+  call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd" -arch=x64
+  ```
 
-Clone LPython
+- You can optionally test MSVC via:
 
-```bash
-git clone https://github.com/lcompilers/lpython.git
-cd lpython
-```
+  ```bash
+  cl /?
+  link /?
+  ```
+
+  Both commands must print several pages of help text.
+
+## Step 3: Build LPython
+
+- Clone LPython using the following commands
+
+  ```bash
+  git clone https://github.com/lcompilers/lpython.git
+  cd lpython
+  ```
+
+  You may also use GitHub Desktop to do the same.
 
 ### Linux and MacOS
 
 - Create a Conda environment using the pre-existing file:
 
-```bash
-conda env create -f environment_unix.yml
-conda activate lp
-```
+  ```bash
+  conda env create -f environment_unix.yml
+  conda activate lp
+  ```
 
 - Generate prerequisite files; build in Debug Mode:
 
-```bash
-./build0.sh
-./build1.sh
-```
+  ```bash
+  ./build0.sh
+  ./build1.sh
+  ```
 
 ### Windows
 
 - Create a Conda environment using the pre-existing file:
 
-```bash
-conda env create -f environment_win.yml
-conda activate lp
-```
+  ```bash
+  conda env create -f environment_win.yml
+  conda activate lp
+  ```
 
 - Generate prerequisite files; build in Release Mode:
 
-```bash
-call build0.bat
-call build1.bat
-```
+  ```bash
+  call build0.bat
+  call build1.bat
+  ```
 
-- Tests and examples
+- Tests and examples (Optional)
 
-```bash
-ctest
-inst\bin\lpython examples\expr2.py
-inst\bin\lpython examples\expr2.py -o a.out
-a.out
-```
+  ```bash
+  ctest
+  inst\bin\lpython examples\expr2.py
+  inst\bin\lpython examples\expr2.py -o a.out
+  a.out
+  ```
 
-- After you update a test case file, you also need to update all the reference results associated with that test case:   
+- Whenever you are updating a test case file, you also need to update all the reference results associated with that test case:
 
-```
-python run_tests.py -u --skip-run-with-dbg
-```
+  ```
+  python run_tests.py -u --skip-run-with-dbg
+  ```
 
 - To see all the options associated with LPython test suite, use:
-```
-python run_tests.py --help
-```
 
-## Tests (Linux or MacOs):
+  ```
+  python run_tests.py --help
+  ```
 
-Run tests:
+## Tests:
 
-```bash
-ctest
-./run_tests.py
-```
+### Linux or MacOS
 
-Run integration tests:
+- Run tests:
 
-```bash
-cd integration_tests
-./run_tests.py
-```
+  ```bash
+  ctest
+  ./run_tests.py
+  ```
 
-### Speed up Integration Test on Macs
+- Run integration tests:
+
+  ```bash
+  cd integration_tests
+  ./run_tests.py
+  ```
+
+### Windows
+
+- Run integration tests
+
+  ```bash
+  cd integration_tests
+  python run_tests.py
+  ```
+
+## Speed up Integration Tests on MacOS
 
 Integration tests run slowly because Apple checks the hash of each
-executable online before running. You can turn off that feature
-in the Privacy tab of the Security and Privacy item of System
-Preferences, Developer Tools, Terminal.app, "allow the apps below
+executable online before running.
+
+You can turn off that feature in the Privacy tab of the Security and Privacy item of System Preferences > Developer Tools > Terminal.app > "allow the apps below
 to run software locally that does not meet the system's security
 policy."
 
-## Examples (Linux or MacOs)
+## Examples (Linux or MacOS)
 
-You can run the following examples by hand in a terminal:
+You can run the following examples manually in a terminal:
 
 ```bash
 ./src/bin/lpython examples/expr2.py
