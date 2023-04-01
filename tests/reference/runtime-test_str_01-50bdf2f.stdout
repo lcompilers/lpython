@@ -1,1 +1,1 @@
-The command 'link /NOLOGO /OUT:test_str_01.out test_str_01.out.tmp.o $DIR\src\bin/../runtime\lpython_runtime_static.lib > NUL' failed.
+String index: -4 is out of Bounds
