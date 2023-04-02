@@ -2304,6 +2304,14 @@ public:
                 llvm::ConstantStruct::get(list_type,
                 llvm::Constant::getNullValue(list_type)));
             llvm_symtab[h] = ptr;
+        } else if(x.m_type->type == ASR::ttypeType::Dict) {
+            llvm::StructType* dict_type = static_cast<llvm::StructType*>(
+                get_type_from_ttype_t_util(x.m_type));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, dict_type);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantStruct::get(dict_type,
+                llvm::Constant::getNullValue(dict_type)));
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
         } else {
