@@ -7,8 +7,7 @@
 namespace LCompilers {
 
     void pass_wrap_global_syms_into_module(Allocator &al,
-        ASR::TranslationUnit_t &unit,
-        const LCompilers::PassOptions& pass_options);
+        ASR::TranslationUnit_t &unit);
 
 } // namespace LCompilers
 

@@ -29,7 +29,7 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     prog_dep.reserve(al, 1);
     if (unit.n_items > 0) {
         pass_wrap_global_stmts_into_function(al, unit, pass_options);
-        pass_wrap_global_syms_into_module(al, unit, pass_options);
+        pass_wrap_global_syms_into_module(al, unit);
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(
             unit.m_global_scope->get_symbol("_global_symbols"));
         // Call `_lpython_main_program` function
