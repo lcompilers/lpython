@@ -63,10 +63,22 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
         ASR::ttype_t *arg_type, Vec<ASR::call_arg_t>& new_args,
         ASR::expr_t *value) {
     std::string c_func_name;
-    if (ASRUtils::extract_kind_from_ttype_t(arg_type) == 4) {
-        c_func_name = "_lfortran_s" + new_name;
-    } else {
-        c_func_name = "_lfortran_d" + new_name;
+    switch (arg_type->type) {
+        case ASR::ttypeType::Complex : {
+            if (ASRUtils::extract_kind_from_ttype_t(arg_type) == 4) {
+                c_func_name = "_lfortran_c" + new_name;
+            } else {
+                c_func_name = "_lfortran_z" + new_name;
+            }
+            break;
+        }
+        default : {
+            if (ASRUtils::extract_kind_from_ttype_t(arg_type) == 4) {
+                c_func_name = "_lfortran_s" + new_name;
+            } else {
+                c_func_name = "_lfortran_d" + new_name;
+            }
+        }
     }
     new_name = "_lcompilers_" + new_name;
     // Check if Function is already defined.
