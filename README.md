@@ -166,6 +166,12 @@ Please follow the below steps for Windows:
 - Run integration tests
 
   ```bash
+  python run_tests.py --skip-run-with-dbg
+  ```
+
+- Update reference tests
+
+  ```bash
   python run_tests.py -u --skip-run-with-dbg
   ```
 
