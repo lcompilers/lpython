@@ -1,5 +1,4 @@
 from lpython import c64, ccall, f64, overload, c32, f32
-from lpython_builtin import abs
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
@@ -278,10 +277,13 @@ def polar(x: c32) -> tuple[f32, f32]:
 def polar(x: c64) -> tuple[f64, f64]:
     return (abs(x), phase(x))
 
+@ccall
+def _lfortran_dcos(x: f64) -> f64:
+    pass
 
 @ccall
-def _lfortran_rect(r: f64, phi: f64) -> c64:
+def _lfortran_dsin(x: f64) -> f64:
     pass
 
 def rect(r: f64, phi: f64) -> c64:
-    return _lfortran_rect(r, phi)
+    return c64(complex(r*_lfortran_dcos(phi), r*_lfortran_dsin(phi)))

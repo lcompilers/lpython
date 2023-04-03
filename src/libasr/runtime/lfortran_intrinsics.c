@@ -665,16 +665,6 @@ LFORTRAN_API double _lfortran_zphase(double_complex_t x)
     return atan2(cimag(x), creal(x));
 }
 
-// rect --------------------------------------------------------------------
-
-LFORTRAN_API double_complex_t _lfortran_rect(double r, double phi)
-{
-    double re = r*cos(phi);
-    double im = r*sin(phi);
-    double complex c = CMPLX(re, im);
-    return c;
-}
-
 // strcat  --------------------------------------------------------------------
 
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
