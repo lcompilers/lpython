@@ -1,7 +1,6 @@
 #include <cassert>
 
-#include <libasr/alloc.h>
-#include <libasr/containers.h>
+#include <libasr/codegen/wasm_utils.h>
 
 namespace LCompilers {
 
@@ -10,62 +9,6 @@ namespace wasm {
 enum type { i32 = 0x7F, i64 = 0x7E, f32 = 0x7D, f64 = 0x7C };
 
 enum mem_align { b8 = 0, b16 = 1, b32 = 2, b64 = 3 };
-
-void emit_leb128_u32(Vec<uint8_t> &code, Allocator &al,
-                     uint32_t n) {  // for u32
-    do {
-        uint8_t byte = n & 0x7f;
-        n >>= 7;
-        if (n != 0) {
-            byte |= 0x80;
-        }
-        code.push_back(al, byte);
-    } while (n != 0);
-}
-
-void emit_leb128_i32(Vec<uint8_t> &code, Allocator &al, int32_t n) {  // for i32
-    bool more = true;
-    do {
-        uint8_t byte = n & 0x7f;
-        n >>= 7;
-        more = !((((n == 0) && ((byte & 0x40) == 0)) ||
-                  ((n == -1) && ((byte & 0x40) != 0))));
-        if (more) {
-            byte |= 0x80;
-        }
-        code.push_back(al, byte);
-    } while (more);
-}
-
-void emit_leb128_i64(Vec<uint8_t> &code, Allocator &al, int64_t n) {  // for i64
-    bool more = true;
-    do {
-        uint8_t byte = n & 0x7f;
-        n >>= 7;
-        more = !((((n == 0) && ((byte & 0x40) == 0)) ||
-                  ((n == -1) && ((byte & 0x40) != 0))));
-        if (more) {
-            byte |= 0x80;
-        }
-        code.push_back(al, byte);
-    } while (more);
-}
-
-void emit_ieee754_f32(Vec<uint8_t> &code, Allocator &al, float z) {  // for f32
-    uint8_t encoded_float[sizeof(z)];
-    std::memcpy(&encoded_float, &z, sizeof(z));
-    for (auto &byte : encoded_float) {
-        code.push_back(al, byte);
-    }
-}
-
-void emit_ieee754_f64(Vec<uint8_t> &code, Allocator &al, double z) {  // for f64
-    uint8_t encoded_float[sizeof(z)];
-    std::memcpy(&encoded_float, &z, sizeof(z));
-    for (auto &byte : encoded_float) {
-        code.push_back(al, byte);
-    }
-}
 
 // function to emit header of Wasm Binary Format
 void emit_header(Vec<uint8_t> &code, Allocator &al) {
@@ -77,36 +20,6 @@ void emit_header(Vec<uint8_t> &code, Allocator &al) {
     code.push_back(al, 0x00);
     code.push_back(al, 0x00);
     code.push_back(al, 0x00);
-}
-
-// function to append a given bytecode to the end of the code
-void emit_b8(Vec<uint8_t> &code, Allocator &al, uint8_t x) {
-    code.push_back(al, x);
-}
-
-// function to emit unsigned 32 bit integer
-void emit_u32(Vec<uint8_t> &code, Allocator &al, uint32_t x) {
-    emit_leb128_u32(code, al, x);
-}
-
-// function to emit signed 32 bit integer
-void emit_i32(Vec<uint8_t> &code, Allocator &al, int32_t x) {
-    emit_leb128_i32(code, al, x);
-}
-
-// function to emit signed 64 bit integer
-void emit_i64(Vec<uint8_t> &code, Allocator &al, int64_t x) {
-    emit_leb128_i64(code, al, x);
-}
-
-// function to emit 32 bit float
-void emit_f32(Vec<uint8_t> &code, Allocator &al, float x) {
-    emit_ieee754_f32(code, al, x);
-}
-
-// function to emit 64 bit float
-void emit_f64(Vec<uint8_t> &code, Allocator &al, double x) {
-    emit_ieee754_f64(code, al, x);
 }
 
 // function to emit string
@@ -125,7 +38,7 @@ void emit_u32_b32_idx(Vec<uint8_t> &code, Allocator &al, uint32_t idx,
     */
     Vec<uint8_t> num;
     num.reserve(al, 4);
-    emit_leb128_u32(num, al, section_size);
+    encode_leb128_u32(num, al, section_size);
     std::vector<uint8_t> num_4b = {0x80, 0x80, 0x80, 0x00};
     assert(num.size() <= 4);
     for (uint32_t i = 0; i < num.size(); i++) {
