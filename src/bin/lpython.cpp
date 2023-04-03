@@ -296,7 +296,7 @@ int emit_c(const std::string &infile,
 
     // Apply ASR passes
     LCompilers::PassOptions pass_options;
-    pass_manager.use_default_passes();
+    pass_manager.use_default_passes(true);
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
@@ -347,7 +347,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
 
      // Apply ASR passes
     LCompilers::PassOptions pass_options;
-    pass_manager.use_default_passes();
+    pass_manager.use_default_passes(true);
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
