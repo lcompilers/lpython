@@ -15,11 +15,12 @@ namespace LCompilers {
 using ASR::down_cast;
 using ASR::is_a;
 
-class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunctionFromSubroutine> {
+class CreateSubroutineFromFunction: public PassUtils::PassVisitor<CreateSubroutineFromFunction> {
 
     public:
+        std::map<std::string, ASR::symbol_t*> replaced_vec;
 
-        CreateFunctionFromSubroutine(Allocator &al_) :
+        CreateSubroutineFromFunction(Allocator &al_) :
         PassVisitor(al_, nullptr)
         {
             pass_result.reserve(al, 1);
@@ -87,6 +88,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             // to the newly created subroutine.
             for( auto& item: replace_vec ) {
                 xx.m_global_scope->overwrite_symbol(item.first, item.second);
+                replaced_vec[item.first] = item.second;
             }
 
             // Now visit everything else
@@ -124,6 +126,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             // to the newly created subroutine.
             for( auto& item: replace_vec ) {
                 current_scope->overwrite_symbol(item.first, item.second);
+                replaced_vec[item.first] = item.second;
             }
 
             // Now visit everything else
@@ -162,6 +165,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             // to the newly created subroutine.
             for( auto& item: replace_vec ) {
                 current_scope->overwrite_symbol(item.first, item.second);
+                replaced_vec[item.first] = item.second;
             }
 
             for (auto &item : x.m_symtab->get_scope()) {
@@ -180,6 +184,22 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
 
         }
 
+};
+
+class UpdateExternalSymbols : public ASR::BaseWalkVisitor<UpdateExternalSymbols>
+{
+private:
+    CreateSubroutineFromFunction &v;
+public:
+    UpdateExternalSymbols(CreateSubroutineFromFunction &v_) : v(v_) { }
+
+    void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
+        ASR::ExternalSymbol_t &xx = const_cast<ASR::ExternalSymbol_t&>(x);
+
+        if (v.replaced_vec.find(xx.m_name) != v.replaced_vec.end()) {
+            xx.m_external = v.replaced_vec[xx.m_name];
+        }
+    }
 };
 
 class ReplaceFunctionCallWithSubroutineCall: public PassUtils::PassVisitor<ReplaceFunctionCallWithSubroutineCall> {
@@ -246,8 +266,10 @@ class ReplaceFunctionCallWithSubroutineCall: public PassUtils::PassVisitor<Repla
 
 void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t &unit,
                                           const LCompilers::PassOptions& /*pass_options*/) {
-    CreateFunctionFromSubroutine v(al);
+    CreateSubroutineFromFunction v(al);
     v.visit_TranslationUnit(unit);
+    UpdateExternalSymbols e(v);
+    e.visit_TranslationUnit(unit);
     ReplaceFunctionCallWithSubroutineCall u(al);
     u.visit_TranslationUnit(unit);
 }
