@@ -104,6 +104,39 @@ class WASMInstructionsVisitor():
         self.emit(    "}", 1)
         self.emit("};\n", 0)
 
+    def visit_WASMInstsAssembler(self, mod):
+        self.emit("class WASMInstsAssembler {", 0)
+        self.emit("private:", 0)
+        self.emit(    "Allocator &m_al;", 1)
+        self.emit(    "Vec<uint8_t> &m_code;\n", 1)
+        self.emit("public:", 0)
+        self.emit(    "WASMInstsAssembler(Allocator &al, Vec<uint8_t> &code): m_al(al), m_code(code) {}\n", 1)
+
+        for inst in filter(lambda i: i["opcode"] not in ["0xFC", "0xFD"], mod["instructions"]):
+            self.emit("void emit_%s(%s) {" % (inst["func_emit"], make_param_list(inst["params"])), 1)
+            self.emit(    "m_code.push_back(m_al, %s);" % (inst["opcode"]), 2)
+            for param in inst["params"]:
+                self.emit("%s(m_code, m_al, %s);" % (param["emit_func"], param["name"]), 2)
+            self.emit("}\n", 1)
+
+        for inst in filter(lambda i: i["opcode"] == "0xFC", mod["instructions"]):
+            self.emit("void emit_%s(%s) {" % (inst["func_emit"], make_param_list(inst["params"])), 1)
+            self.emit(    "m_code.push_back(m_al, %s);" % (inst["opcode"]), 2)
+            self.emit(    "wasm::emit_u32(m_code, m_al, %s);" % (inst["params"][0]["val"]), 2)
+            for param in inst["params"][1:]:
+                self.emit("%s(m_code, m_al, %s);" % (param["emit_func"], param["name"]), 2)
+            self.emit("}\n", 1)
+
+        for inst in filter(lambda i: i["opcode"] == "0xFD", mod["instructions"]):
+            self.emit("void emit_%s(%s) {" % (inst["func_emit"], make_param_list(inst["params"])), 1)
+            self.emit(    "m_code.push_back(m_al, %s);" % (inst["opcode"]), 2)
+            self.emit(    "wasm::emit_u32(m_code, m_al, %s);" % (inst["params"][0]["val"]), 2)
+            for param in inst["params"][1:]:
+                self.emit("%s(m_code, m_al, %s);" % (param["emit_func"], param["name"]), 2)
+            self.emit("}\n", 1)
+
+        self.emit("};\n", 0)
+
     def emit(self, line, level=0):
         indent = "    "*level
         self.stream.write(indent + line + "\n")
@@ -212,6 +245,7 @@ def main(argv):
         fp.write(HEAD % subs)
         wasm_instructions_visitor = WASMInstructionsVisitor(fp, None)
         wasm_instructions_visitor.visit_BaseWASMVisitor({"instructions": instructions_info})
+        wasm_instructions_visitor.visit_WASMInstsAssembler({"instructions": instructions_info})
         fp.write(FOOT % subs)
     finally:
         fp.close()
