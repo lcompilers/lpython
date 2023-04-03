@@ -4084,6 +4084,27 @@ public:
                     return_type = list_api->get_list_type(el_llvm_type, el_type_code, type_size);
                     break;
                 }
+                case (ASR::ttypeType::Dict) : {
+                    ASR::Dict_t* asr_dict = ASR::down_cast<ASR::Dict_t>(return_var_type0);
+                    std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
+                    std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
+                    
+                    bool is_local_array_type = false, is_local_malloc_array_type = false;
+                    bool is_local_list = false;
+                    ASR::dimension_t* local_m_dims = nullptr;
+                    ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
+                    int local_n_dims = 0, local_a_kind = -1;
+
+                    llvm::Type* key_llvm_type = get_type_from_ttype_t(asr_dict->m_key_type, local_m_storage,is_local_array_type, is_local_malloc_array_type,is_local_list, local_m_dims, local_n_dims,local_a_kind);
+                    llvm::Type* value_llvm_type = get_type_from_ttype_t(asr_dict->m_value_type, local_m_storage,is_local_array_type, is_local_malloc_array_type,is_local_list, local_m_dims, local_n_dims,local_a_kind);
+                    int32_t key_type_size = get_type_size(asr_dict->m_key_type, key_llvm_type, local_a_kind);
+                    int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, local_a_kind);
+
+                    set_dict_api(asr_dict);
+
+                    return_type = llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,value_type_size, key_llvm_type, value_llvm_type);
+                    break;
+                }
                 default :
                     throw CodeGenError("Type not implemented " + std::to_string(return_var_type));
             }
