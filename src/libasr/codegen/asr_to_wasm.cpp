@@ -653,17 +653,33 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void declare_global_var(wasm::type var_type, GLOBAL_VAR name, T initial_value, bool isMutable) {
         m_global_section.push_back(m_al, var_type);
         m_global_section.push_back(m_al, isMutable);
-        switch (var_type)
-        {
-            case wasm::type::i32: wasm::emit_i32_const(m_global_section, m_al, initial_value); break;
-            case wasm::type::i64: wasm::emit_i64_const(m_global_section, m_al, initial_value); break;
-            case wasm::type::f32: wasm::emit_f32_const(m_global_section, m_al, initial_value); break;
-            case wasm::type::f64: wasm::emit_f64_const(m_global_section, m_al, initial_value); break;
-            default: throw CodeGenError("declare_global_var: Unsupport var_type"); break;
-        }
-        wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+        emit_const(m_global_section, var_type, initial_value);
+        wasm::emit_expr_end(m_global_section, m_al);
         m_compiler_globals[name] = no_of_globals;
         no_of_globals++;
+    }
+
+    template <typename T>
+    void emit_const(Vec<uint8_t> &m_code, wasm::type typ, T init_val) {
+        using namespace wasm;
+        wasm::emit_b8(m_code, m_al, typ);
+        switch (typ)
+        {
+            case i32:
+                wasm::emit_i32(m_code, m_al, init_val);
+                break;
+            case i64:
+                wasm::emit_i64(m_code, m_al, init_val);
+                break;
+            case f32:
+                wasm::emit_f32(m_code, m_al, init_val);
+                break;
+            case f64:
+                wasm::emit_f64(m_code, m_al, init_val);
+                break;
+            default:
+                throw CodeGenError("emit_global_const: Unsupported type");
+        }
     }
 
     void declare_global_var(ASR::Variable_t* v) {
@@ -671,6 +687,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             // Ignore type variables
             return;
         }
+        using namespace wasm;
+
         m_global_var_idx_map[get_hash((ASR::asr_t *)v)] = no_of_globals;
         emit_var_type(m_global_section, v, no_of_globals, false);
         m_global_section.push_back(m_al, true); // mutable
@@ -682,15 +700,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     init_val = ASR::down_cast<ASR::IntegerConstant_t>(v->m_value)->m_n;
                 }
                 switch (kind) {
-                    case 4:
-                        wasm::emit_i32_const(m_global_section, m_al, init_val);
-                        break;
-                    case 8:
-                        wasm::emit_i64_const(m_global_section, m_al, init_val);
-                        break;
-                    default:
-                        throw CodeGenError(
-                            "Declare Global: Unsupported Integer kind");
+                    case 4: emit_const(m_global_section, i32, init_val); break;
+                    case 8: emit_const(m_global_section, i64, init_val); break;
+                    default: throw CodeGenError("Declare Global: Unsupported Integer kind");
                 }
                 break;
             }
@@ -700,15 +712,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     init_val = ASR::down_cast<ASR::RealConstant_t>(v->m_value)->m_r;
                 }
                 switch (kind) {
-                    case 4:
-                        wasm::emit_f32_const(m_global_section, m_al, init_val);
-                        break;
-                    case 8:
-                        wasm::emit_f64_const(m_global_section, m_al, init_val);
-                        break;
-                    default:
-                        throw CodeGenError(
-                            "Declare Global: Unsupported Real kind");
+                    case 4: emit_const(m_global_section, f32, init_val); break;
+                    case 8: emit_const(m_global_section, f64, init_val); break;
+                    default: throw CodeGenError("Declare Global: Unsupported Real kind");
                 }
                 break;
             }
@@ -718,12 +724,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     init_val = ASR::down_cast<ASR::LogicalConstant_t>(v->m_value)->m_value;
                 }
                 switch (kind) {
-                    case 4:
-                        wasm::emit_i32_const(m_global_section, m_al, init_val);
-                        break;
-                    default:
-                        throw CodeGenError(
-                            "Declare Global: Unsupported Logical kind");
+                    case 4: emit_const(m_global_section, i32, init_val); break;
+                    default: throw CodeGenError("Declare Global: Unsupported Logical kind");
                 }
                 break;
             }
@@ -735,21 +737,19 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 emit_string(init_val);
                 switch (kind) {
                     case 1:
-                        wasm::emit_i32_const(m_global_section, m_al, m_string_to_iov_loc_map[init_val]);
+                        emit_const(m_global_section, i32, m_string_to_iov_loc_map[init_val]);
                         break;
-                    default:
-                        throw CodeGenError(
-                            "Declare Global: Unsupported Character kind");
+                    default: throw CodeGenError("Declare Global: Unsupported Character kind");
                 }
                 break;
             }
             default: {
                 diag.codegen_warning_label("Declare Global: Type "
                  + ASRUtils::type_to_str(v->m_type) + " not yet supported", {v->base.base.loc}, "");
-                wasm::emit_i32_const(m_global_section, m_al, 0);
+                emit_const(m_global_section, i32, 0);
             }
         }
-        wasm::emit_expr_end(m_global_section, m_al);  // end instructions
+        wasm::emit_expr_end(m_global_section, m_al);
     }
 
     void declare_symbols(const ASR::TranslationUnit_t &x) {
