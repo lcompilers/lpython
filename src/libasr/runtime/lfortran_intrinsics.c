@@ -653,6 +653,27 @@ LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x)
     return catanh(x);
 }
 
+// phase --------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_cphase(float_complex_t x)
+{
+    return atan2f(cimagf(x), crealf(x));
+}
+
+LFORTRAN_API double _lfortran_zphase(double_complex_t x)
+{
+    return atan2(cimag(x), creal(x));
+}
+
+// rect --------------------------------------------------------------------
+
+LFORTRAN_API double_complex_t _lfortran_rect(double r, double phi)
+{
+    double re = r*cos(phi);
+    double im = r*sin(phi);
+    double complex c = CMPLX(re, im);
+    return c;
+}
 
 // strcat  --------------------------------------------------------------------
 

@@ -1,4 +1,5 @@
-from lpython import c64, ccall, f64, overload, c32
+from lpython import c64, ccall, f64, overload, c32, f32
+from lpython_builtin import abs
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
@@ -250,3 +251,37 @@ def tanh(x: c64) -> c64:
 @overload
 def tanh(x: c32) -> c32:
     return _lfortran_ctanh(x)
+
+
+@ccall
+def _lfortran_zphase(x: c64) -> f64:
+    pass
+
+@ccall
+def _lfortran_cphase(x: c32) -> f32:
+    pass
+
+@overload
+def phase(x: c64) -> f64:
+    return _lfortran_zphase(x)
+
+@overload
+def phase(x: c32) -> f32:
+    return _lfortran_cphase(x)
+
+
+@overload
+def polar(x: c32) -> tuple[f32, f32]:
+    return (abs(x), phase(x))
+
+@overload
+def polar(x: c64) -> tuple[f64, f64]:
+    return (abs(x), phase(x))
+
+
+@ccall
+def _lfortran_rect(r: f64, phi: f64) -> c64:
+    pass
+
+def rect(r: f64, phi: f64) -> c64:
+    return _lfortran_rect(r, phi)
