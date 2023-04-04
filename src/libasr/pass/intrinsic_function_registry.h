@@ -43,27 +43,6 @@ enum class IntrinsicFunctions : int64_t {
     // ...
 };
 
-static inline bool is_function_created(SymbolTable *scope,
-        ASR::ttype_t *arg_type, ASR::ttype_t *&return_type,
-        std::string &func_name) {
-    // Check if Function is already defined.
-    std::string new_func_name = func_name;
-    int i = 1;
-    while (scope->get_symbol(new_func_name) != nullptr) {
-        ASR::symbol_t *s = scope->get_symbol(new_func_name);
-        ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-        if (types_equal(expr_type(f->m_args[0]), arg_type)) {
-            func_name = new_func_name;
-            return_type = expr_type(f->m_return_var);
-            return true;
-        } else {
-            new_func_name = func_name + std::to_string(i);
-            i++;
-        }
-    }
-    return false;
-}
-
 namespace UnaryIntrinsicFunction {
 
 #define create_variable(var_sym, name, intent, abi, value_attr, symtab, type)   \
@@ -103,15 +82,14 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             }
         }
     }
-    new_name = "_lcompilers_" + new_name;
-    {
-        std::string func_name = new_name;
-        ASR::ttype_t *return_type;
-        if (is_function_created(global_scope, arg_type, return_type, func_name)) {
-            ASR::symbol_t *s = global_scope->get_symbol(func_name);
-            return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
-                new_args.p, new_args.size(), return_type, value, nullptr));
-        }
+    new_name = "_lcompilers_" + new_name + "_" + type_to_str_python(arg_type);
+
+    if (global_scope->get_symbol(new_name)) {
+        ASR::symbol_t *s = global_scope->get_symbol(new_name);
+        ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
+            new_args.p, new_args.size(), expr_type(f->m_return_var),
+            value, nullptr));
     }
     new_name = global_scope->get_unique_name(new_name);
     SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
@@ -338,16 +316,14 @@ namespace Abs {
     static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
-        std::string func_name = "_lcompilers_abs";
+        std::string func_name = "_lcompilers_abs_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
-        {
-            std::string func_name_ = func_name;
-            if (is_function_created(scope, arg_types[0], return_type, func_name_)) {
-                ASR::symbol_t *s = scope->get_symbol(func_name_);
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
-                    new_args.p, new_args.size(), return_type, compile_time_value,
-                    nullptr));
-            }
+        if (scope->get_symbol(func_name)) {
+            ASR::symbol_t *s = scope->get_symbol(func_name);
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
+                new_args.p, new_args.size(), expr_type(f->m_return_var),
+                compile_time_value, nullptr));
         }
 
         func_name = scope->get_unique_name(func_name);
