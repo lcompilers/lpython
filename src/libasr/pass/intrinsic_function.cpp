@@ -26,15 +26,15 @@ in the backend.
 
 class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFunction> {
 
-private:
+    private:
 
     Allocator& al;
+    SymbolTable* global_scope;
 
-public:
+    public:
 
-    SymbolTable* current_scope;
-
-    ReplaceIntrinsicFunction(Allocator& al_) : al(al_) {}
+    ReplaceIntrinsicFunction(Allocator& al_, SymbolTable* global_scope_) :
+        al(al_), global_scope(global_scope_) {}
 
 
     void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
@@ -68,7 +68,7 @@ public:
             arg_types.push_back(al, ASRUtils::expr_type(x->m_args[i]));
         }
         *current_expr = instantiate_function(al, x->base.base.loc,
-            current_scope, arg_types, new_args, x->m_value);
+            global_scope, arg_types, new_args, x->m_value);
     }
 
 };
@@ -86,11 +86,11 @@ class ReplaceIntrinsicFunctionVisitor : public ASR::CallReplacerOnExpressionsVis
 
     public:
 
-        ReplaceIntrinsicFunctionVisitor(Allocator& al_) : replacer(al_) {}
+        ReplaceIntrinsicFunctionVisitor(Allocator& al_, SymbolTable* global_scope_) :
+            replacer(al_, global_scope_) {}
 
         void call_replacer() {
             replacer.current_expr = current_expr;
-            replacer.current_scope = current_scope;
             replacer.replace_expr(*current_expr);
         }
 
@@ -98,7 +98,7 @@ class ReplaceIntrinsicFunctionVisitor : public ASR::CallReplacerOnExpressionsVis
 
 void pass_replace_intrinsic_function(Allocator &al, ASR::TranslationUnit_t &unit,
                              const LCompilers::PassOptions& /*pass_options*/) {
-    ReplaceIntrinsicFunctionVisitor v(al);
+    ReplaceIntrinsicFunctionVisitor v(al, unit.m_global_scope);
     v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor w(al);
     w.visit_TranslationUnit(unit);
