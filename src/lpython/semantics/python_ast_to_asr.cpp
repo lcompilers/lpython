@@ -572,22 +572,6 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
-    void load_builtin_module(const Location &loc) {
-        std::string module_name = "lpython_builtin";
-
-        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
-        std::string rl_path = get_runtime_library_dir();
-        std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes, enum_py, copy;
-        load_module(al, tu_symtab, module_name,
-                loc, diag, lm, true, paths,
-                ltypes, enum_py, copy,
-                [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); },
-                allow_implicit_casting);
-        LCOMPILERS_ASSERT(!ltypes && !enum_py)
-    }
-
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
         LCOMPILERS_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
         std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
@@ -6123,14 +6107,12 @@ public:
         }
 
         if (!s) {
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)) {
+            std::set<std::string> not_cpython_builtin = {"sin", "cos", "gamma"};
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
+             && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
                 ASRUtils::create_intrinsic_function create_func =
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
-                // We add the builtin module to the TranslationUnit and later
-                // be used by the IntrinsicFunction pass.
-                load_builtin_module(x.base.base.loc);
-                Vec<ASR::expr_t*> args_;
-                args_.reserve(al, x.n_args);
+                Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
                 tmp = create_func(al, x.base.base.loc, args_,
                     [&](const std::string &msg, const Location &loc) {
