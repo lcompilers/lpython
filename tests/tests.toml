@@ -353,7 +353,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_pow.py"
 asr = true
-# cpp = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_int.py"
