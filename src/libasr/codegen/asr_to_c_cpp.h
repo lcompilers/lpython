@@ -1927,9 +1927,8 @@ R"(#include <stdio.h>
         gotoid2name[x.m_target_id] = std::string(x.m_name);
     }
 
-    void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
-        // Ignore for now
-        src = "";
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        src = std::string(x.m_name) + ":\n";
     }
 
     void visit_Stop(const ASR::Stop_t &x) {

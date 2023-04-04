@@ -196,11 +196,13 @@ namespace LCompilers {
                 "inline_function_calls"
             };
 
-            // These are well re-write passes which are already handled
+            // These are re-write passes which are already handled
             // appropriately in C backend.
             _c_skip_passes = {
                 "pass_list_expr",
-                "print_list_tuple"
+                "print_list_tuple",
+                "do_loops",
+                "inline_function_calls"
             };
             _user_defined_passes.clear();
         }
