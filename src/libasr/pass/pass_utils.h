@@ -43,7 +43,8 @@ namespace LCompilers {
 
         void create_vars(Vec<ASR::expr_t*>& vars, int n_vars, const Location& loc,
                          Allocator& al, SymbolTable*& current_scope, std::string suffix="_k",
-                         ASR::intentType intent=ASR::intentType::Local);
+                         ASR::intentType intent=ASR::intentType::Local,
+                         ASR::presenceType presence=ASR::presenceType::Required);
 
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc,
                              Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");

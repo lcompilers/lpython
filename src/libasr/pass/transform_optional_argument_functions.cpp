@@ -203,6 +203,34 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
 
         }
 
+        void visit_Function(const ASR::Function_t &x) {
+            // FIXME: this is a hack, we need to pass in a non-const `x`,
+            // which requires to generate a TransformVisitor.
+            ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+            current_scope = xx.m_symtab;
+
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (is_a<ASR::Function_t>(*item.second)) {
+                    ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
+                    if (is_optional_argument_present(s)) {
+                        transform_functions_with_optional_arguments(s);
+                    }
+                }
+            }
+
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (is_a<ASR::AssociateBlock_t>(*item.second)) {
+                    ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
+                    visit_AssociateBlock(*s);
+                }
+                if (is_a<ASR::Function_t>(*item.second)) {
+                    ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                    visit_Function(*s);
+                }
+            }
+
+        }
+
 };
 
 template <typename T>
