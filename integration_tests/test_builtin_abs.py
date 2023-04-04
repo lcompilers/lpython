@@ -30,10 +30,10 @@ def test_abs():
     i4 = -i16(8)
     assert abs(i4) == i16(8)
 
-    # b: bool
-    # b = True
-    # assert abs(b) == 1
-    # b = False
-    # assert abs(b) == 0
+    b: bool
+    b = True
+    assert abs(i32(b)) == 1
+    b = False
+    assert abs(i32(b)) == 0
 
 test_abs()
