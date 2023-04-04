@@ -1,6 +1,7 @@
 from cmath import (exp, log, sqrt, acos, asin, atan, cos, sin, tan,
-                   acosh, asinh, atanh, cosh, sinh, tanh)
-from lpython import c64, c32
+                   acosh, asinh, atanh, cosh, sinh, tanh,
+                   phase, polar, rect)
+from lpython import c64, c32, f64
 
 def test_power_logarithmic():
     x: c64
@@ -59,6 +60,17 @@ def test_hyperbolic():
     b = tanh(a)
 
 
+def test_polar():
+    x: c64
+    eps: f64
+    eps = 1e-12
+    x = complex(1, -2)
+    assert f64(abs(f64(phase(x)) - (-1.1071487177940904))) < eps
+    assert f64(abs(f64(polar(x)[0]) - (2.23606797749979))) < eps
+    assert abs(abs(rect(2.23606797749979, -1.1071487177940904))-abs(x)) < eps
+
+
 test_power_logarithmic()
 test_trigonometric()
 test_hyperbolic()
+test_polar()

@@ -19,6 +19,7 @@
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
+#include <libasr/pass/global_stmts.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/modfile.h>
 
@@ -521,6 +522,9 @@ public:
     */
     std::vector<ASR::asr_t *> tmp_vec;
 
+    // Used to store the initializer for the global variables like list, ...
+    Vec<ASR::asr_t *> global_init;
+
     Allocator &al;
     LocationManager &lm;
     SymbolTable *current_scope;
@@ -555,9 +559,10 @@ public:
             std::string import_path, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
-            current_body{nullptr}, ann_assign_target_type{nullptr}, assign_ast_target{nullptr},
-            is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
+            current_body{nullptr}, ann_assign_target_type{nullptr},
+            assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
+        global_init.reserve(al, 1);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
@@ -1377,6 +1382,20 @@ public:
         return t;
     }
 
+    bool contains_local_variable(ASR::expr_t* value) {
+        if( ASR::is_a<ASR::Var_t>(*value) ) {
+            ASR::Var_t* var_value = ASR::down_cast<ASR::Var_t>(value);
+            ASR::symbol_t* var_value_sym = var_value->m_v;
+            ASR::Variable_t* var_value_variable = ASR::down_cast<ASR::Variable_t>(
+                ASRUtils::symbol_get_past_external(var_value_sym));
+            return var_value_variable->m_intent == ASR::intentType::Local;
+        }
+
+        // TODO: Let any other expression pass through
+        // Will be handled later
+        return false;
+    }
+
     void fill_dims_for_asr_type(Vec<ASR::dimension_t>& dims,
                                 ASR::expr_t* value, const Location& loc) {
         ASR::dimension_t dim;
@@ -1389,8 +1408,13 @@ public:
             ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
             ASR::expr_t* comptime_val = nullptr;
             int64_t value_int = -1;
-            ASRUtils::extract_value(ASRUtils::expr_value(value), value_int);
-            if( value_int != -1 ) {
+            if( !ASRUtils::extract_value(ASRUtils::expr_value(value), value_int) &&
+                contains_local_variable(value) ) {
+                throw SemanticError("Only those local variables which can be reduced to compile "
+                                    "time constant should be used in dimensions of an array.",
+                                    value->base.loc);
+            }
+            if (value_int != -1) {
                 comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
             }
             dim.m_start = zero;
@@ -2185,12 +2209,20 @@ public:
     }
 
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
-        ASR::expr_t* value, ASR::ttype_t* type,
-        const Location& loc, ASR::abiType abi) {
-        if( ASR::is_a<ASR::Const_t>(*type) && !init_expr ) {
+        ASR::ttype_t* type, const Location& loc, ASR::abiType abi) {
+
+        ASR::expr_t* value = nullptr;
+        if( init_expr ) {
+            value = ASRUtils::expr_value(init_expr);
+        }
+        bool is_runtime_expression = !ASRUtils::is_value_constant(value);
+        bool is_variable_const = ASR::is_a<ASR::Const_t>(*type);
+
+        if( is_variable_const && !init_expr ) {
             throw SemanticError("Constant variable " + var_name +
                 " is not initialised at declaration.", loc);
         }
+
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
@@ -2211,24 +2243,34 @@ public:
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
-        if( init_expr && current_body) {
+        if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type)) &&
+            (is_runtime_expression || !is_variable_const)) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
                                                         init_expr, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
-            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            if( !ASR::is_a<ASR::Const_t>(*type) &&
-                ASRUtils::is_aggregate_type(type) ) {
-                v_variable->m_symbolic_value = nullptr;
-                v_variable->m_value = nullptr;
-                Vec<char*> variable_dependencies_vec;
-                variable_dependencies_vec.reserve(al, 1);
-                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
-                v_variable->m_dependencies = variable_dependencies_vec.p;
-                v_variable->n_dependencies = variable_dependencies_vec.size();
+            if (current_body) {
+                current_body->push_back(al, ASRUtils::STMT(assign));
+            } else if (ASR::is_a<ASR::List_t>(*type)) {
+                global_init.push_back(al, assign);
             }
+
+            v_variable->m_symbolic_value = nullptr;
+            v_variable->m_value = nullptr;
+            Vec<char*> variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+            v_variable->m_dependencies = variable_dependencies_vec.p;
+            v_variable->n_dependencies = variable_dependencies_vec.size();
+        }
+
+        // Restrict this check only to symbols which have a body.
+        if( !((v_variable->m_symbolic_value == nullptr && v_variable->m_value == nullptr) ||
+              (v_variable->m_symbolic_value != nullptr && v_variable->m_value != nullptr)) &&
+              current_body ) {
+            throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
         current_scope->add_symbol(var_name, v_sym);
     }
@@ -2276,7 +2318,7 @@ public:
                 this->visit_expr(*x.m_value);
             }
             if( is_c_p_pointer_call ) {
-                create_add_variable_to_scope(var_name, nullptr, nullptr, type,
+                create_add_variable_to_scope(var_name, nullptr, type,
                     x.base.base.loc, abi);
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
@@ -2306,17 +2348,13 @@ public:
                     throw SemanticAbort();
                 }
                 init_expr = value;
-                value = nullptr;
-                if( ASR::is_a<ASR::Const_t>(*type) ) {
-                    value = ASRUtils::expr_value(init_expr);
-                }
             }
         } else {
             cast_helper(type, init_expr, init_expr->base.loc);
         }
 
         if( !is_c_p_pointer_call ) {
-            create_add_variable_to_scope(var_name, init_expr, value, type,
+            create_add_variable_to_scope(var_name, init_expr, type,
                 x.base.base.loc, abi);
         }
 
@@ -3457,8 +3495,9 @@ public:
                 std::string return_var_name = "_lpython_return_variable";
                 ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
                 ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                ASR::ttype_t* return_type_ = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
-                    storage_type = ASR::storage_typeType::Parameter;
+                    return_type_ = ASR::down_cast<ASR::Const_t>(type)->m_type;
                 }
                 Vec<char*> variable_dependencies_vec;
                 variable_dependencies_vec.reserve(al, 1);
@@ -3471,6 +3510,7 @@ public:
                 LCOMPILERS_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
                         ASR::down_cast<ASR::symbol_t>(return_var));
+                ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
                 Vec<char*> func_deps;
@@ -3491,6 +3531,7 @@ public:
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
                     tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
+                    return_variable->m_type = return_type_;
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -3914,10 +3955,53 @@ public:
             mod->m_dependencies = current_module_dependencies.p;
             mod->n_dependencies = current_module_dependencies.size();
         }
-        // These global statements are added to the translation unit for now,
-        // but they should be adding to a module initialization function
+
+        if (global_init.n > 0 && main_module_sym) {
+            // unit->m_items is used and set to nullptr in the
+            // `pass_wrap_global_stmts_into_function` pass
+            unit->m_items = global_init.p;
+            unit->n_items = global_init.size();
+            std::string func_name = "global_initializer";
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_initilaizer` function into the `__main__`
+                // module and later call this function to initialize the
+                // global variables like list, ...
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+        }
+
         unit->m_items = items.p;
         unit->n_items = items.size();
+        if (items.n > 0 && main_module_sym) {
+            std::string func_name = "global_statements";
+            // Wrap all the global statements into a Function
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_statements` function into the `__main__`
+                // module and later call this function to execute the
+                // global_statements
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+        }
 
         tmp = asr;
     }
@@ -3978,8 +4062,81 @@ public:
         }
     }
 
-    void visit_Import(const AST::Import_t &/*x*/) {
-        // visited in symbol visitor
+    void visit_Import(const AST::Import_t &x) {
+        // All the modules are imported in the SymbolTable visitor
+        // Here, we call the global_initializer & global_statements to
+        // initialize and execute the global symbols
+        for (size_t i = 0; i < x.n_names; i++) {
+            std::string mod_name = x.m_names[i].m_name;
+            ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
+            if (mod_sym) {
+                ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
+
+                std::string g_func_name = mod_name + "@global_initializer";
+                ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+                if (g_func && !current_scope->get_symbol(g_func_name)) {
+                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                        current_scope, s2c(al, g_func_name), g_func,
+                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+                        ASR::accessType::Public));
+                    current_scope->add_symbol(g_func_name, es);
+                    tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                        es, g_func, nullptr, 0, nullptr));
+                }
+
+                g_func_name = mod_name + "@global_statements";
+                g_func = mod->m_symtab->get_symbol("global_statements");
+                if (g_func && !current_scope->get_symbol(g_func_name)) {
+                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                        current_scope, s2c(al, g_func_name), g_func,
+                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+                        ASR::accessType::Public));
+                    current_scope->add_symbol(g_func_name, es);
+                    tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                        es, g_func, nullptr, 0, nullptr));
+                }
+            }
+        }
+    }
+
+    void visit_ImportFrom(const AST::ImportFrom_t &x) {
+        // Handled by SymbolTableVisitor already
+        // Here, we call the global_initializer & global_statements to
+        // initialize and execute the global symbols
+        std::string mod_name = x.m_module;
+        ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
+        if (mod_sym) {
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
+
+            std::string g_func_name = mod_name + "@global_initializer";
+            ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+            if (g_func && !current_scope->get_symbol(g_func_name)) {
+                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                    current_scope, s2c(al, g_func_name), g_func,
+                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+                    ASR::accessType::Public));
+                current_scope->add_symbol(g_func_name, es);
+                tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                    es, g_func, nullptr, 0, nullptr));
+            }
+
+            g_func_name = mod_name + "@global_statements";
+            g_func = mod->m_symtab->get_symbol("global_statements");
+            if (g_func && !current_scope->get_symbol(g_func_name)) {
+                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+                    current_scope, s2c(al, g_func_name), g_func,
+                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+                    ASR::accessType::Public));
+                current_scope->add_symbol(g_func_name, es);
+                tmp_vec.push_back(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                    es, g_func, nullptr, 0, nullptr));
+            }
+        }
+        tmp = nullptr;
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
@@ -5348,16 +5505,16 @@ public:
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
-        if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
-            ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
-            return_variable->m_symbolic_value = value;
-            Vec<char*> variable_dependencies_vec;
-            variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
-                                                          return_variable->n_dependencies);
-            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
-            return_variable->m_dependencies = variable_dependencies_vec.p;
-            return_variable->n_dependencies = variable_dependencies_vec.size();
-        }
+        // if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
+        //     ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
+        //     return_variable->m_symbolic_value = value;
+        //     Vec<char*> variable_dependencies_vec;
+        //     variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
+        //                                                   return_variable->n_dependencies);
+        //     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
+        //     return_variable->m_dependencies = variable_dependencies_vec.p;
+        //     return_variable->n_dependencies = variable_dependencies_vec.size();
+        // }
 
         // We can only return one statement in `tmp`, so we insert the current
         // `tmp` into the body of the function directly
@@ -5716,6 +5873,41 @@ public:
             // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
             fn_args.push_back(al, str);
             fn_args.push_back(al, suffix);
+        } else if (attr_name == "partition") {
+
+            /*
+                str.partition(seperator)        ---->
+
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
+                by two empty strings.
+            */
+
+            if(args.size() != 1) {
+                throw SemanticError("str.partition() takes one argument",
+                        loc);
+            }
+
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one argument of type: str",
+                        loc);
+            }
+
+            fn_call_name = "_lpython_str_partition";
+
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t seperator;
+            seperator.loc = loc;
+            seperator.m_value = args[0].m_value;
+
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, seperator);
+
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -5764,12 +5956,86 @@ public:
         return res;
     }
 
+    ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator,
+        const Location &loc, ASR::ttype_t *arg_seperator_type) {
+        /*
+            Invoked when Seperator argument is provided as a constant string
+        */
+        ASR::StringConstant_t* seperator_constant = ASR::down_cast<ASR::StringConstant_t>(arg_seperator);
+        std::string seperator = seperator_constant->m_s;
+        if(seperator.size() == 0) {
+            throw SemanticError("empty separator", arg_seperator->base.loc);
+        }
+        /*
+            using KMP algorithm to find seperator inside string
+            res_tuple: stores the resulting 3-tuple expression --->
+            (if seperator exist)           tuple:   (left of seperator, seperator, right of seperator)
+            (if seperator does not exist)  tuple:   (string, "", "")
+            res_tuple_type: stores the type of each expression present in resulting 3-tuple
+        */
+        int seperator_pos = KMP_string_match(s_var, seperator);
+        Vec<ASR::expr_t *> res_tuple;
+        Vec<ASR::ttype_t *> res_tuple_type;
+        res_tuple.reserve(al, 3);
+        res_tuple_type.reserve(al, 3);
+        std :: string first_res, second_res, third_res;
+        if(seperator_pos == -1) {
+            /* seperator does not exist */
+            first_res = s_var;
+            second_res = "";
+            third_res = "";
+        } else {
+            first_res = s_var.substr(0, seperator_pos);
+            second_res = seperator;
+            third_res = s_var.substr(seperator_pos + seperator.size());
+        }
+
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, first_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, second_res), arg_seperator_type)));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, third_res), arg_seperator_type)));
+        res_tuple_type.push_back(al, arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+        res_tuple_type.push_back(al,arg_seperator_type);
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc, res_tuple_type.p, res_tuple_type.n));
+        ASR::expr_t* value = ASRUtils::EXPR(ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.size(), tuple_type));
+        return value;
+    }
+
+    void create_partition(const Location &loc, std::string &s_var, ASR::expr_t *arg_seperator,
+        ASR::ttype_t *arg_seperator_type) {
+
+        ASR::expr_t *value = nullptr;
+        if(ASRUtils::expr_value(arg_seperator)) {
+            value = eval_partition(s_var, arg_seperator, loc, arg_seperator_type);
+        }
+        ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_partition");
+        Vec<ASR::call_arg_t> args;
+        args.reserve(al, 1);
+        ASR::call_arg_t str_arg;
+        str_arg.loc = loc;
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, s_var.size(), nullptr, nullptr, 0));
+        str_arg.m_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+        ASR::call_arg_t sub_arg;
+        sub_arg.loc = loc;
+        sub_arg.m_value = arg_seperator;
+        args.push_back(al, str_arg);
+        args.push_back(al, sub_arg);
+        tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_partition", loc);
+        ASR::down_cast2<ASR::FunctionCall_t>(tmp)->m_value = value;
+        return;
+    }
+
     void handle_constant_string_attributes(std::string &s_var,
                 Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
         if (attr_name == "capitalize") {
             if (args.size() != 0) {
                 throw SemanticError("str.capitalize() takes no arguments",
                     loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
             }
             if (s_var.length() > 0) {
                 s_var[0] = toupper(s_var[0]);
@@ -5962,6 +6228,29 @@ public:
 
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
             }
+            return;
+        } else if (attr_name == "partition") {
+            /*
+                str.partition(seperator)        ---->
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
+                by two empty strings.
+            */
+            if (args.size() != 1) {
+                throw SemanticError("str.partition() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg_seperator = args[0].m_value;
+            ASR::ttype_t *arg_seperator_type = ASRUtils::expr_type(arg_seperator);
+            if (!ASRUtils::is_character(*arg_seperator_type)) {
+                throw SemanticError("str.partition() takes one arguments of type: str",
+                    arg_seperator->base.loc);
+            }
+            if(s_var.size() == 0) {
+                throw SemanticError("string to undergo partition cannot be empty",loc);
+            }
+            create_partition(loc, s_var, arg_seperator, arg_seperator_type);
             return;
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
@@ -6286,8 +6575,7 @@ public:
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
 
-    void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
-        // Handled by SymbolTableVisitor already
+    void visit_Global(const AST::Global_t &/*x*/) {
         tmp = nullptr;
     }
 };

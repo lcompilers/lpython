@@ -516,6 +516,24 @@ public:
             "Variable::m_parent_symtab must be present in the ASR ("
                 + std::string(x.m_name) + ")");
 
+        ASR::asr_t* asr_owner = symtab->asr_owner;
+        bool is_module = false;
+        if( ASR::is_a<ASR::symbol_t>(*asr_owner) &&
+            ASR::is_a<ASR::Module_t>(
+                *ASR::down_cast<ASR::symbol_t>(asr_owner)) ) {
+            is_module = true;
+        }
+        if( symtab->parent != nullptr &&
+            !is_module) {
+            // For now restrict this check only to variables which are present
+            // inside symbols which have a body.
+            require( (x.m_symbolic_value == nullptr && x.m_value == nullptr) ||
+                     (x.m_symbolic_value != nullptr && x.m_value != nullptr) ||
+                     (x.m_symbolic_value != nullptr && ASRUtils::is_value_constant(x.m_symbolic_value)),
+                    "Initialisation of " + std::string(x.m_name) +
+                    " must reduce to a compile time constant.");
+        }
+
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
         visit_ttype(*x.m_type);
@@ -607,20 +625,8 @@ public:
                 || is_a<Function_t>(*x.m_v) || is_a<ASR::EnumType_t>(*x.m_v),
             "Var_t::m_v " + x_mv_name + " does not point to a Variable_t, ExternalSymbol_t, " \
             "Function_t, Subroutine_t or EnumType_t");
-        bool var_present_in_enum = false;
-        {
-            int i = 1;
-            std::string enum_name = "_nameless_enum";
-            while (!var_present_in_enum && current_symtab->resolve_symbol(
-                    std::to_string(i) + enum_name) != nullptr) {
-                ASR::symbol_t *enum_s = current_symtab->resolve_symbol(
-                    std::to_string(i) + enum_name);
-                var_present_in_enum = symtab_in_scope(ASR::down_cast<
-                    ASR::EnumType_t>(enum_s)->m_symtab, x.m_v);
-                i ++;
-            }
-        }
-        require(symtab_in_scope(current_symtab, x.m_v) || var_present_in_enum,
+
+        require(symtab_in_scope(current_symtab, x.m_v),
             "Var::m_v `" + x_mv_name + "` cannot point outside of its symbol table");
         variable_dependencies.push_back(x_mv_name);
     }

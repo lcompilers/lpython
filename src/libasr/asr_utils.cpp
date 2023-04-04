@@ -963,8 +963,8 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
                         double_value, 0, a_type));
         } else if (a_kind == ASR::cast_kindType::IntegerToReal) {
             // TODO: Clashes with the pow functions
-            // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-            // value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)v, a_type));
+            int64_t int_value = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(a_arg))->m_n;
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, a_loc, (double)int_value, a_type));
         } else if (a_kind == ASR::cast_kindType::IntegerToComplex) {
             int64_t int_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                 ASRUtils::expr_value(a_arg))->m_n;

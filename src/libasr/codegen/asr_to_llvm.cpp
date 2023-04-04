@@ -609,7 +609,7 @@ public:
                     type_ptr = llvm::Type::getInt64Ty(context);
                     break;
                 default:
-                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported.");
+                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported, found " + std::to_string(a_kind));
             }
         }
         return type_ptr;
@@ -2154,7 +2154,7 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
-        if (x.m_value) {
+        if (x.m_value && x.m_storage == ASR::storage_typeType::Parameter) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
@@ -2303,6 +2303,14 @@ public:
             module->getNamedGlobal(x.m_name)->setInitializer(
                 llvm::ConstantStruct::get(list_type,
                 llvm::Constant::getNullValue(list_type)));
+            llvm_symtab[h] = ptr;
+        } else if(x.m_type->type == ASR::ttypeType::Dict) {
+            llvm::StructType* dict_type = static_cast<llvm::StructType*>(
+                get_type_from_ttype_t_util(x.m_type));
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name, dict_type);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantStruct::get(dict_type,
+                llvm::Constant::getNullValue(dict_type)));
             llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
@@ -5534,7 +5542,8 @@ public:
     }
 
     inline void fetch_var(ASR::Variable_t* x) {
-        if (x->m_value) {
+        // Only do for constant variables
+        if (x->m_value && x->m_storage == ASR::storage_typeType::Parameter) {
             this->visit_expr_wrapper(x->m_value, true);
             return;
         }

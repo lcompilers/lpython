@@ -1,4 +1,5 @@
 from modules_01b import f #, g
+from lpython import i32
 
 def main0():
     x: i32

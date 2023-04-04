@@ -13,6 +13,7 @@
 #include <libasr/pass/class_constructor.h>
 #include <libasr/pass/array_op.h>
 #include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/intrinsic_function.h>
 
 #include <map>
 #include <utility>
@@ -399,12 +400,13 @@ public:
             } else if (ASRUtils::is_character(*v_m_type)) {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v_m_type);
                 bool is_fixed_size = true;
-                std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
-                if( v.m_intent == ASRUtils::intent_local &&
+                if(v.m_intent == ASRUtils::intent_local &&
                     !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
                       ASR::is_a<ASR::StructType_t>(
-                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) &&
+                    !(dims.size() == 0 && v.m_symbolic_value)) {
                     sub += " = NULL";
                     return sub;
                 }
@@ -1300,6 +1302,7 @@ Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
     pass_replace_array_op(al, asr, pass_options);
     pass_unused_functions(al, asr, pass_options);
     pass_replace_class_constructor(al, asr, pass_options);
+    pass_replace_intrinsic_function(al, asr, pass_options);
     ASRToCVisitor v(diagnostics, co, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);

@@ -668,12 +668,20 @@ def pow(x: i64, y: i64, z: i64) -> i64:
 def _lpython_str_capitalize(x: str) -> str:
     if len(x) == 0:
         return x
+    i:str
+    res:str = ""
+    for i in x:
+        if ord(i) >= 65 and ord(i) <= 90:  # Check if uppercase
+            res += chr(ord(i) + 32)  # Convert to lowercase using ASCII values
+        else:
+            res += i
+
     val: i32
-    val = ord(x[0])
-    if val >= ord('a') and val <= ord('x'):
+    val = ord(res[0])
+    if val >= ord('a') and val <= ord('z'):
         val -= 32
-    x = chr(val) + x[1:]
-    return x
+    res = chr(val) + res[1:]
+    return res
 
 @overload
 def _lpython_str_lower(x: str) -> str:
@@ -797,6 +805,24 @@ def _lpython_str_endswith(s: str, suffix: str) -> bool:
         i += 1
         
     return True
+
+@overload
+def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
+    """
+    Returns a 3-tuple splitted around seperator
+    """
+    if len(s) == 0:
+        raise ValueError('empty string cannot be partitioned')
+    if len(sep) == 0:
+        raise ValueError('empty seperator')
+    res : tuple[str, str, str]
+    ind : i32
+    ind = _lpython_str_find(s, sep)
+    if ind == -1:
+        res = (s, "", "")
+    else: 
+        res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
+    return res
 
 
 def list(s: str) -> list[str]:

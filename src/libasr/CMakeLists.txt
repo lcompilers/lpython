@@ -34,6 +34,7 @@ set(SRC
     pass/global_stmts_program.cpp
     pass/global_symbols.cpp
     pass/select_case.cpp
+    pass/init_expr.cpp
     pass/implied_do_loops.cpp
     pass/array_op.cpp
     pass/subroutine_from_function.cpp

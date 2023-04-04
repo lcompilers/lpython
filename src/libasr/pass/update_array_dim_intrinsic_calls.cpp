@@ -66,7 +66,7 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
         ASR::ttype_t* array_type = ASRUtils::expr_type(x->m_v);
         ASR::dimension_t* dims = nullptr;
         int n = ASRUtils::extract_dimensions_from_ttype(array_type, dims);
-        bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
+        bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out || v->m_intent == ASRUtils::intent_inout;
         if( !(n > 0 && is_argument &&
               !ASRUtils::is_dimension_empty(dims, n)) ) {
             return ;

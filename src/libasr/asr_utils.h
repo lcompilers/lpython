@@ -613,6 +613,35 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         // OK
     } else if (ASR::is_a<ASR::StringConstant_t>(*a_value)) {
         // OK
+    } else if(ASR::is_a<ASR::ArrayConstant_t>(*a_value)) {
+        // OK
+        // TODO: Check for each value of array constant
+        // and make sure each one is a constant.
+    } else if(ASR::is_a<ASR::ImpliedDoLoop_t>(*a_value)) {
+        // OK
+    } else if(ASR::is_a<ASR::Cast_t>(*a_value)) {
+        ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(a_value);
+        return is_value_constant(cast_t->m_arg);
+    } else if(ASR::is_a<ASR::PointerNullConstant_t>(*a_value)) {
+        // OK
+    } else if(ASR::is_a<ASR::ArrayReshape_t>(*a_value)) {
+        ASR::ArrayReshape_t* array_reshape = ASR::down_cast<ASR::ArrayReshape_t>(a_value);
+        return is_value_constant(array_reshape->m_array) && is_value_constant(array_reshape->m_shape);
+    } else if( ASR::is_a<ASR::StructTypeConstructor_t>(*a_value) ) {
+        ASR::StructTypeConstructor_t* struct_type_constructor =
+            ASR::down_cast<ASR::StructTypeConstructor_t>(a_value);
+        bool is_constant = true;
+        for( size_t i = 0; i < struct_type_constructor->n_args; i++ ) {
+            if( struct_type_constructor->m_args[i].m_value ) {
+                is_constant = is_constant &&
+                              (is_value_constant(
+                                struct_type_constructor->m_args[i].m_value) ||
+                              is_value_constant(
+                                ASRUtils::expr_value(
+                                    struct_type_constructor->m_args[i].m_value)));
+            }
+        }
+        return is_constant;
     } else {
         return false;
     }
@@ -1833,8 +1862,9 @@ inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
                     kind_variable->m_parent_symtab->asr_owner);
                 is_parent_enum = ASR::is_a<ASR::EnumType_t>(*s);
             }
-            if( kind_variable->m_storage == ASR::storage_typeType::Parameter
-                    || is_parent_enum) {
+            if( is_parent_enum ) {
+                a_kind = ASRUtils::extract_kind_from_ttype_t(kind_variable->m_type);
+            } else if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                 if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                     LCOMPILERS_ASSERT( kind_variable->m_value != nullptr );
                     a_kind = ASR::down_cast<ASR::IntegerConstant_t>(kind_variable->m_value)->m_n;

@@ -24,6 +24,10 @@ char *s2c(Allocator &al, const std::string &s);
 std::string replace(const std::string &s,
     const std::string &regex, const std::string &replace);
 
+// Escapes special characters from the given string.
+// It is used during AST/R to Json conversion.
+std::string get_escaped_str(const std::string &s);
+
 std::string read_file(const std::string &filename);
 
 // Returns the parent path to the given path
