@@ -663,20 +663,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     template <typename T>
     void emit_const(Vec<uint8_t> &m_code, wasm::type typ, T init_val) {
         using namespace wasm;
-        wasm::emit_b8(m_code, m_al, typ);
         switch (typ)
         {
             case i32:
-                wasm::emit_i32(m_code, m_al, init_val);
+                wasm::emit_b8(m_code, m_al, 0x41); // emit instruction
+                wasm::emit_i32(m_code, m_al, init_val); // emit val
                 break;
             case i64:
-                wasm::emit_i64(m_code, m_al, init_val);
+                wasm::emit_b8(m_code, m_al, 0x42); // emit instruction
+                wasm::emit_i64(m_code, m_al, init_val); // emit val
                 break;
             case f32:
-                wasm::emit_f32(m_code, m_al, init_val);
+                wasm::emit_b8(m_code, m_al, 0x43); // emit instruction
+                wasm::emit_f32(m_code, m_al, init_val); // emit val
                 break;
             case f64:
-                wasm::emit_f64(m_code, m_al, init_val);
+                wasm::emit_b8(m_code, m_al, 0x44); // emit instruction
+                wasm::emit_f64(m_code, m_al, init_val); // emit val
                 break;
             default:
                 throw CodeGenError("emit_global_const: Unsupported type");
