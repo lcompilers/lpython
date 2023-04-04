@@ -35,6 +35,17 @@ struct dimension_descriptor
 };
 
 // Implementations
+double _lcompilers_abs_f64(double x)
+{
+    double _lcompilers_abs_f64;
+    if (x >=   0.00000000000000000e+00) {
+        _lcompilers_abs_f64 = x;
+    } else {
+        _lcompilers_abs_f64 = -x;
+    }
+    return _lcompilers_abs_f64;
+}
+
 double f()
 {
     double _lpython_return_variable;
@@ -53,17 +64,6 @@ void _xx_lcompilers_changed_main_xx()
 void _lpython_main_program()
 {
     _xx_lcompilers_changed_main_xx();
-}
-
-double _lcompilers_abs_f64(double x)
-{
-    double _lcompilers_abs_f64;
-    if (x >=   0.00000000000000000e+00) {
-        _lcompilers_abs_f64 = x;
-    } else {
-        _lcompilers_abs_f64 = -x;
-    }
-    return _lcompilers_abs_f64;
 }
 
 int main(int argc, char* argv[])

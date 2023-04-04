@@ -681,6 +681,18 @@ R"(
             }
         }
 
+        // Process global functions
+        size_t i;
+        for (i = 0; i < global_func_order.size(); i++) {
+            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            // Ignore external symbols because they are already defined by the loop above.
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue ;
+            }
+            visit_symbol(*sym);
+            unit_src += src;
+        }
+
         // Process modules in the right order
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
@@ -692,18 +704,6 @@ R"(
                 visit_symbol(*mod);
                 unit_src += src;
             }
-        }
-
-        // Process global functions
-        size_t i;
-        for (i = 0; i < global_func_order.size(); i++) {
-            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
-            // Ignore external symbols because they are already defined by the loop above.
-            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
-                continue ;
-            }
-            visit_symbol(*sym);
-            unit_src += src;
         }
 
         // Then the main program:
