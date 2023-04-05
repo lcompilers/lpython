@@ -16,7 +16,7 @@ namespace LCompilers {
 
 void pass_wrap_global_syms_into_module(Allocator &al,
         ASR::TranslationUnit_t &unit,
-        const LCompilers::PassOptions& pass_options) {
+        const LCompilers::PassOptions &/*pass_options*/) {
     Location loc = unit.base.base.loc;
     char *module_name = s2c(al, "_global_symbols");
     SymbolTable *module_scope = al.make_new<SymbolTable>(unit.m_global_scope);

@@ -20,6 +20,7 @@
 #include <libasr/pass/global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
 #include <libasr/pass/global_stmts.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>
@@ -742,7 +743,7 @@ public:
     }
 
     void visit_expr_list(AST::expr_t** exprs, size_t n,
-                         Vec<ASR::expr_t*> exprs_vec) {
+                         Vec<ASR::expr_t*>& exprs_vec) {
         LCOMPILERS_ASSERT(exprs_vec.reserve_called);
         for( size_t i = 0; i < n; i++ ) {
             this->visit_expr(*exprs[i]);
@@ -6395,7 +6396,18 @@ public:
         }
 
         if (!s) {
-            if (intrinsic_procedures.is_intrinsic(call_name)) {
+            std::set<std::string> not_cpython_builtin = {"sin", "cos", "gamma"};
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
+             && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
+                ASRUtils::create_intrinsic_function create_func =
+                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
+                Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
+                visit_expr_list(x.m_args, x.n_args, args_);
+                tmp = create_func(al, x.base.base.loc, args_,
+                    [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
+                return ;
+            } else if (intrinsic_procedures.is_intrinsic(call_name)) {
                 s = resolve_intrinsic_function(x.base.base.loc, call_name);
                 if (call_name == "pow") {
                     diag.add(diag::Diagnostic(

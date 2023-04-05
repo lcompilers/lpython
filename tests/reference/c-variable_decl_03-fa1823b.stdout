@@ -1,4 +1,3 @@
-#include <complex.h>
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -36,22 +35,16 @@ struct dimension_descriptor
 };
 
 // Implementations
-double __lpython_overloaded_0__abs(double x)
+double _lcompilers_abs_f64(double x)
 {
-    double _lpython_return_variable;
-    double result;
+    double _lcompilers_abs_f64;
     if (x >=   0.00000000000000000e+00) {
-        result = x;
+        _lcompilers_abs_f64 = x;
     } else {
-        result = -x;
+        _lcompilers_abs_f64 = -x;
     }
-    _lpython_return_variable = result;
-    return _lpython_return_variable;
+    return _lcompilers_abs_f64;
 }
-
-float _lfortran_caimag(float complex x);
-
-double _lfortran_zaimag(double complex x);
 
 double f()
 {
@@ -65,7 +58,7 @@ void _xx_lcompilers_changed_main_xx()
     double t1;
     t1 = f()*  1.00000000000000000e+06;
     printf("%lf\n", t1);
-    ASSERT(__lpython_overloaded_0__abs(t1 -   5.50000000000000000e+00*  1.00000000000000000e+06) <=   9.99999999999999955e-07);
+    ASSERT(_lcompilers_abs_f64(t1 -   5.50000000000000000e+00*  1.00000000000000000e+06) <=   9.99999999999999955e-07);
 }
 
 void _lpython_main_program()

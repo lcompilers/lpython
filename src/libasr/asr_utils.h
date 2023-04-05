@@ -11,6 +11,8 @@
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
 
+#include <complex>
+
 namespace LCompilers  {
 
     namespace ASRUtils  {
@@ -801,7 +803,21 @@ static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
     return true;
 }
 
-template <typename T>
+static inline bool extract_value(ASR::expr_t* value_expr,
+    std::complex<double>& value) {
+    if( !ASR::is_a<ASR::ComplexConstant_t>(*value_expr) ) {
+        return false;
+    }
+
+    ASR::ComplexConstant_t* value_const = ASR::down_cast<ASR::ComplexConstant_t>(value_expr);
+    value = std::complex(value_const->m_re, value_const->m_im);
+    return true;
+}
+
+template <typename T,
+    typename = typename std::enable_if<
+        std::is_same<T, std::complex<double>>::value == false &&
+        std::is_same<T, std::complex<float>>::value == false>::type>
 static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
     if( !is_value_constant(value_expr) ) {
         return false;

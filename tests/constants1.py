@@ -24,8 +24,8 @@ def test_abs():
     a: i32
     a = abs(5)
     a = abs(-500)
-    a = abs(False)
-    a = abs(True)
+    a = abs(i32(False))
+    a = abs(i32(True))
     b: f32
     b = f32(abs(3.45))
     b = f32(abs(-5346.34))
