@@ -95,7 +95,8 @@ namespace LCompilers {
             return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
                    ASR::is_a<ASR::List_t>(*asr_type) ||
                    ASR::is_a<ASR::Struct_t>(*asr_type) ||
-                   ASR::is_a<ASR::Class_t>(*asr_type);
+                   ASR::is_a<ASR::Class_t>(*asr_type)|| 
+                   ASR::is_a<ASR::Dict_t>(*asr_type);
         }
     }
 

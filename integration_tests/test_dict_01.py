@@ -1,14 +1,18 @@
-from lpython import i32, f64
+from lpython import f64, i32
 
-def test_dict():
+def fill_rollnumber2cpi(i : i32, size: i32) -> dict[i32, f64]:
     rollnumber2cpi: dict[i32, f64] = {}
-    i: i32
-    size: i32 = 1000
-
+    
     rollnumber2cpi[0] = 1.1
-
     for i in range(1000, 1000 + size):
         rollnumber2cpi[i] = float(i/100.0 + 5.0)
+
+    return rollnumber2cpi
+
+def test_dict():
+    i: i32
+    size: i32 = 1000
+    rollnumber2cpi: dict[i32, f64] = fill_rollnumber2cpi(i, size)
 
     for i in range(1000 + size - 1, 1001, -1):
         assert abs(rollnumber2cpi[i] - i/100.0 - 5.0) <= 1e-12
