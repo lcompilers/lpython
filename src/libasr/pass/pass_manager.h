@@ -59,7 +59,7 @@ namespace LCompilers {
         std::vector<std::string> _passes;
         std::vector<std::string> _with_optimization_passes;
         std::vector<std::string> _user_defined_passes;
-        std::vector<std::string> _skip_passes;
+        std::vector<std::string> _skip_passes, _c_skip_passes;
         std::map<std::string, pass_function> _passes_db = {
             {"do_loops", &pass_replace_do_loops},
             {"global_stmts", &pass_wrap_global_stmts_into_function},
@@ -90,6 +90,7 @@ namespace LCompilers {
 
         bool is_fast;
         bool apply_default_passes;
+        bool c_skip_pass; // This will contain the passes that are to be skipped in C
 
         void _apply_passes(Allocator& al, ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions &pass_options,
@@ -102,6 +103,9 @@ namespace LCompilers {
                 // it
                 if (rtlib && passes[i] == "unused_functions") continue;
                 if( std::find(_skip_passes.begin(), _skip_passes.end(), passes[i]) != _skip_passes.end())
+                    continue;
+                if (c_skip_pass && std::find(_c_skip_passes.begin(),
+                        _c_skip_passes.end(), passes[i]) != _c_skip_passes.end())
                     continue;
                 _passes_db[passes[i]](al, *asr, pass_options);
             #if defined(WITH_LFORTRAN_ASSERT)
@@ -142,7 +146,8 @@ namespace LCompilers {
             }
         }
 
-        PassManager(): is_fast{false}, apply_default_passes{false} {
+        PassManager(): is_fast{false}, apply_default_passes{false},
+            c_skip_pass{false} {
             _passes = {
                 "global_stmts",
                 "init_expr",
@@ -191,6 +196,14 @@ namespace LCompilers {
                 "inline_function_calls"
             };
 
+            // These are re-write passes which are already handled
+            // appropriately in C backend.
+            _c_skip_passes = {
+                "pass_list_expr",
+                "print_list_tuple",
+                "do_loops",
+                "inline_function_calls"
+            };
             _user_defined_passes.clear();
         }
 
@@ -227,8 +240,9 @@ namespace LCompilers {
             is_fast = false;
         }
 
-        void use_default_passes() {
+        void use_default_passes(bool _c_skip_pass=false) {
             apply_default_passes = true;
+            c_skip_pass = _c_skip_pass;
         }
 
         void do_not_use_default_passes() {
