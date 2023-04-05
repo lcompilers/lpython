@@ -1,6 +1,7 @@
 from lpython import f64, i32
 
 def fill_rollnumber2cpi(size: i32) -> dict[i32, f64]:
+    i : i32
     rollnumber2cpi: dict[i32, f64] = {}
     
     rollnumber2cpi[0] = 1.1
