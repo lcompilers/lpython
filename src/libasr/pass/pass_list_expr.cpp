@@ -152,7 +152,7 @@ public:
         */
 
         SymbolTable* list_section_symtab = al.make_new<SymbolTable>(global_scope);
-        std::string list_type_name = ASRUtils::type_to_str_python(list_type);
+        std::string list_type_name = ASRUtils::get_type_code(list_type, true);
         std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
@@ -409,7 +409,7 @@ public:
         call_arg.m_value = is_end_present;
         args.push_back(al, call_arg);
 
-        std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
+        std::string list_type_name = ASRUtils::get_type_code(x->m_type, true);
         if (list_section_func_map.find(list_type_name) == list_section_func_map.end()) {
             create_list_section_func(unit.base.base.loc,
                 unit.m_global_scope, x->m_type);
@@ -437,7 +437,7 @@ public:
                 return result_list
         */
         SymbolTable* list_concat_symtab = al.make_new<SymbolTable>(global_scope);
-        std::string list_type_name = ASRUtils::type_to_str_python(list_type);
+        std::string list_type_name = ASRUtils::get_type_code(list_type, true);
         std::string fn_name = global_scope->get_unique_name("_lcompilers_list_concat_" + list_type_name);
 
         Vec<ASR::expr_t*> arg_exprs;
@@ -535,7 +535,7 @@ public:
         right_list.loc = x->m_right->base.loc;
         right_list.m_value = x->m_right;
         args.push_back(al, right_list);
-        std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
+        std::string list_type_name =  ASRUtils::get_type_code(x->m_type, true);
         if (list_concat_func_map.find(list_type_name) == list_concat_func_map.end()) {
             create_concat_function(unit.base.base.loc,
                 unit.m_global_scope, x->m_type);

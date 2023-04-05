@@ -102,6 +102,7 @@ public:
     const ASR::Function_t *current_function = nullptr;
     std::map<uint64_t, SymbolInfo> sym_info;
     std::map<uint64_t, std::string> const_var_names;
+    std::map<int32_t, std::string> gotoid2name;
 
     // Output configuration:
     // Use std::string or char*
@@ -331,6 +332,15 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string open_paranthesis = indent + "{\n";
         std::string close_paranthesis = indent + "}\n";
+        if (x.m_label != -1) {
+            std::string b_name;
+            if (gotoid2name.find(x.m_label) != gotoid2name.end()) {
+                b_name = gotoid2name[x.m_label];
+            } else {
+                b_name = "__" +std::to_string(x.m_label);
+            }
+            open_paranthesis = indent + b_name + ": {\n";
+        }
         indent += std::string(indentation_spaces, ' ');
         indentation_level += 1;
         SymbolTable* current_scope_copy = current_scope;
@@ -1911,9 +1921,14 @@ R"(#include <stdio.h>
         }
     }
 
-    void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
-        // Ignore for now
-        src = "";
+    void visit_GoTo(const ASR::GoTo_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src =  indent + "goto " + std::string(x.m_name) + ";\n";
+        gotoid2name[x.m_target_id] = std::string(x.m_name);
+    }
+
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        src = std::string(x.m_name) + ":\n";
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
