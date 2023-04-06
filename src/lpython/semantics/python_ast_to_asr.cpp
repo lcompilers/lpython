@@ -5928,46 +5928,6 @@ public:
         tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
     }
 
-    int KMP_string_match(std::string &s_var, std::string &sub) {
-        int str_len = s_var.size();
-        int sub_len = sub.size();
-        bool flag = 0;
-        int res = -1;
-        std::vector<int> lps(sub_len, 0);
-        if (str_len == 0 || sub_len == 0) {
-            res = (!sub_len || (sub_len == str_len))? 0: -1;
-        } else {
-            for(int i = 1, len = 0; i < sub_len;) {
-                if (sub[i] == sub[len]) {
-                    lps[i++] = ++len;
-                } else {
-                    if (len != 0) {
-                        len = lps[len - 1];
-                    } else {
-                        lps[i++] = 0;
-                    }
-                }
-            }
-            for (int i = 0, j = 0; (str_len - i) >= (sub_len - j) && !flag;) {
-                if (sub[j] == s_var[i]) {
-                    j++, i++;
-                }
-                if (j == sub_len) {
-                    res = i - j;
-                    flag = 1;
-                    j = lps[j - 1];
-                } else if (i < str_len && sub[j] != s_var[i]) {
-                    if (j != 0) {
-                        j = lps[j - 1];
-                    } else {
-                        i = i + 1;
-                    }
-                }
-            }
-        }
-        return res;
-    }
-
     ASR::expr_t* eval_partition(std::string &s_var, ASR::expr_t* arg_seperator,
         const Location &loc, ASR::ttype_t *arg_seperator_type) {
         /*
@@ -5985,7 +5945,7 @@ public:
             (if seperator does not exist)  tuple:   (string, "", "")
             res_tuple_type: stores the type of each expression present in resulting 3-tuple
         */
-        int seperator_pos = KMP_string_match(s_var, seperator);
+        int seperator_pos = ASRUtils::KMP_string_match(s_var, seperator);
         Vec<ASR::expr_t *> res_tuple;
         Vec<ASR::ttype_t *> res_tuple_type;
         res_tuple.reserve(al, 3);
@@ -6076,7 +6036,7 @@ public:
             if (ASRUtils::expr_value(arg) != nullptr) {
                 ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
                 std::string sub = sub_str_con->m_s;
-                int res = KMP_string_match(s_var, sub);
+                int res = ASRUtils::KMP_string_match(s_var, sub);
                 tmp = ASR::make_IntegerConstant_t(al, loc, res,
                     ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4, nullptr, 0)));
             } else {

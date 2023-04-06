@@ -3275,6 +3275,46 @@ static inline void collect_variable_dependencies(Allocator& al, SetChar& deps_ve
     }
 }
 
+static inline int KMP_string_match(std::string &s_var, std::string &sub) {
+    int str_len = s_var.size();
+    int sub_len = sub.size();
+    bool flag = 0;
+    int res = -1;
+    std::vector<int> lps(sub_len, 0);
+    if (str_len == 0 || sub_len == 0) {
+        res = (!sub_len || (sub_len == str_len))? 0: -1;
+    } else {
+        for(int i = 1, len = 0; i < sub_len;) {
+            if (sub[i] == sub[len]) {
+                lps[i++] = ++len;
+            } else {
+                if (len != 0) {
+                    len = lps[len - 1];
+                } else {
+                    lps[i++] = 0;
+                }
+            }
+        }
+        for (int i = 0, j = 0; (str_len - i) >= (sub_len - j) && !flag;) {
+            if (sub[j] == s_var[i]) {
+                j++, i++;
+            }
+            if (j == sub_len) {
+                res = i - j;
+                flag = 1;
+                j = lps[j - 1];
+            } else if (i < str_len && sub[j] != s_var[i]) {
+                if (j != 0) {
+                    j = lps[j - 1];
+                } else {
+                    i = i + 1;
+                }
+            }
+        }
+    }
+    return res;
+}
+
 } // namespace ASRUtils
 
 } // namespace LCompilers
