@@ -49,6 +49,7 @@ enum class IntrinsicFunctions : int64_t {
     Abs,
 
     ListIndex,
+    Partition,
     // ...
 };
 
@@ -277,7 +278,7 @@ create_trig(Atan, atan, atan)
 
 namespace Abs {
 
-    static ASR::expr_t *eval_Abs(Allocator &al, const Location &loc,
+    static inline ASR::expr_t *eval_Abs(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args) {
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
         ASR::expr_t* arg = args[0];
@@ -511,6 +512,106 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
 
 } // namespace ListIndex
 
+namespace Partition {
+
+    static inline ASR::expr_t* eval_Partition(Allocator &al, const Location &loc,
+            std::string &s_var, std::string &sep) {
+        /*
+            using KMP algorithm to find separator inside string
+            res_tuple: stores the resulting 3-tuple expression --->
+            (if separator exist)           tuple:   (left of separator, separator, right of separator)
+            (if separator does not exist)  tuple:   (string, "", "")
+            res_tuple_type: stores the type of each expression present in resulting 3-tuple
+        */
+        int sep_pos = ASRUtils::KMP_string_match(s_var, sep);
+        std::string first_res, second_res, third_res;
+        if(sep_pos == -1) {
+            /* seperator does not exist */
+            first_res = s_var;
+            second_res = "";
+            third_res = "";
+        } else {
+            first_res = s_var.substr(0, sep_pos);
+            second_res = sep;
+            third_res = s_var.substr(sep_pos + sep.size());
+        }
+
+        Vec<ASR::expr_t *> res_tuple; res_tuple.reserve(al, 3);
+        Vec<ASR::ttype_t *> res_tuple_type; res_tuple_type.reserve(al, 3);
+        ASR::ttype_t *first_res_type, *second_res_type, *third_res_type;
+
+        first_res_type = TYPE(ASR::make_Character_t(al, loc, 1,
+            first_res.size(), nullptr, nullptr, 0));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(
+            al, loc, s2c(al, first_res), first_res_type)));
+        second_res_type = TYPE(ASR::make_Character_t(al, loc, 1,
+            second_res.size(), nullptr, nullptr, 0));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(
+            al, loc, s2c(al, second_res), second_res_type)));
+        third_res_type = TYPE(ASR::make_Character_t(al, loc, 1,
+            third_res.size(), nullptr, nullptr, 0));
+        res_tuple.push_back(al, ASRUtils::EXPR(ASR::make_StringConstant_t(
+            al, loc, s2c(al, third_res), third_res_type)));
+        res_tuple_type.push_back(al, first_res_type);
+        res_tuple_type.push_back(al, second_res_type);
+        res_tuple_type.push_back(al, third_res_type);
+
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
+            res_tuple_type.p, res_tuple_type.n));
+        return EXPR(ASR::make_TupleConstant_t(al, loc, res_tuple.p, res_tuple.n,
+            tuple_type));
+    }
+
+    static inline ASR::asr_t*  create_partition(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, ASR::expr_t *s_var,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("str.partition() takes exactly one argument", loc);
+        }
+        ASR::expr_t *arg = args[0];
+        if (!ASRUtils::is_character(*expr_type(arg))) {
+            err("str.partition() takes one arguments of type: str", arg->base.loc);
+        }
+
+        Vec<ASR::expr_t *> e_args; e_args.reserve(al, 1);
+        e_args.push_back(al, s_var);
+        e_args.push_back(al, arg);
+
+        Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 3);
+        {
+            ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1,
+                -2, nullptr, nullptr, 0));
+            tuple_type.push_back(al, char_type);
+            tuple_type.push_back(al, char_type);
+            tuple_type.push_back(al, char_type);
+        }
+        ASR::ttype_t *return_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
+            tuple_type.p, tuple_type.n));
+        ASR::expr_t *value = nullptr;
+        if (ASR::is_a<ASR::StringConstant_t>(*s_var)
+         && ASR::is_a<ASR::StringConstant_t>(*arg)) {
+            ASR::StringConstant_t* sep = ASR::down_cast<ASR::StringConstant_t>(arg);
+            std::string s_sep = sep->m_s;
+            ASR::StringConstant_t* str = ASR::down_cast<ASR::StringConstant_t>(s_var);
+            std::string s_str = str->m_s;
+            if (s_sep.size() == 0) {
+                err("Separator cannot be an empty string", sep->base.base.loc);
+            }
+            value = eval_Partition(al, loc, s_str, s_sep);
+        }
+
+        return ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
+            e_args.p, e_args.n, 0, return_type, value);
+    }
+
+    static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+            Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
+        // TODO
+        return nullptr;
+    }
+} // namespace Partition
 
 namespace IntrinsicFunctionRegistry {
 
@@ -616,6 +717,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
         INTRINSIC_NAME_CASE(ListIndex)
+        INTRINSIC_NAME_CASE(Partition)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
