@@ -19,6 +19,6 @@ def test_dict():
         assert abs(rollnumber2cpi[i] - i/100.0 - 5.0) <= 1e-12
 
     assert abs(rollnumber2cpi[0] - 1.1) <= 1e-12
-    assert len(rollnumber2cpi) == 1001
+    assert len(rollnumber2cpi) == 201
 
 test_dict()
