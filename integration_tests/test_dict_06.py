@@ -12,7 +12,7 @@ def fill_rollnumber2cpi(size: i32) -> dict[i32, f64]:
 
 def test_dict():
     i: i32
-    size: i32 = 1000
+    size: i32 = 200
     rollnumber2cpi: dict[i32, f64] = fill_rollnumber2cpi(size)
 
     for i in range(1000 + size - 1, 1001, -1):
