@@ -196,7 +196,7 @@ class PrintListTupleVisitor
         }
 
         ASR::stmt_t *loop = ASRUtils::STMT(ASR::make_DoLoop_t(
-            al, loc, loop_head, loop_body.p, loop_body.size()));
+            al, loc, nullptr, loop_head, loop_body.p, loop_body.size()));
 
         {
             print_pass_result_tmp.push_back(al, print_open_bracket);

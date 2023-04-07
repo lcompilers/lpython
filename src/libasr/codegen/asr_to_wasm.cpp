@@ -19,6 +19,11 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 
+#define INCLUDE_RUNTIME_FUNC(fn)                 \
+    if (m_rt_func_used_idx[fn] == -1) {          \
+        m_rt_func_used_idx[fn] = no_of_types++;  \
+    }                                            \
+
 // #define SHOW_ASR
 
 #ifdef SHOW_ASR
@@ -1712,42 +1717,30 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         switch (x.m_op) {
             case ASR::binopType::Add: {
                 if (a_kind == 4) {
-                    if (m_rt_func_used_idx[add_c32] == -1) {
-                        m_rt_func_used_idx[add_c32] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(add_c32);
                     wia.emit_call(m_rt_func_used_idx[add_c32]);
                 } else {
-                    if (m_rt_func_used_idx[add_c64] == -1) {
-                        m_rt_func_used_idx[add_c64] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(add_c64);
                     wia.emit_call(m_rt_func_used_idx[add_c64]);
                 }
                 break;
             };
             case ASR::binopType::Sub: {
                 if (a_kind == 4) {
-                    if (m_rt_func_used_idx[sub_c32] == -1) {
-                        m_rt_func_used_idx[sub_c32] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(sub_c32);
                     wia.emit_call(m_rt_func_used_idx[sub_c32]);
                 } else {
-                    if (m_rt_func_used_idx[sub_c64] == -1) {
-                        m_rt_func_used_idx[sub_c64] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(sub_c64);
                     wia.emit_call(m_rt_func_used_idx[sub_c64]);
                 }
                 break;
             };
             case ASR::binopType::Mul: {
                 if (a_kind == 4) {
-                    if (m_rt_func_used_idx[mul_c32] == -1) {
-                        m_rt_func_used_idx[mul_c32] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(mul_c32);
                     wia.emit_call(m_rt_func_used_idx[mul_c32]);
                 } else {
-                    if (m_rt_func_used_idx[mul_c64] == -1) {
-                        m_rt_func_used_idx[mul_c64] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(mul_c64);
                     wia.emit_call(m_rt_func_used_idx[mul_c64]);
                 }
                 break;
@@ -2685,16 +2678,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 if (arg_kind == 4) {
-                    if (m_rt_func_used_idx[abs_c32] == -1) {
-                        m_rt_func_used_idx[abs_c32] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(abs_c32);
                     wia.emit_call(m_rt_func_used_idx[abs_c32]);
                     wia.emit_f32_const(0.0);
                     wia.emit_f32_gt();
                 } else if (arg_kind == 8) {
-                    if (m_rt_func_used_idx[abs_c64] == -1) {
-                        m_rt_func_used_idx[abs_c64] = no_of_types++;
-                    }
+                    INCLUDE_RUNTIME_FUNC(abs_c64);
                     wia.emit_call(m_rt_func_used_idx[abs_c64]);
                     wia.emit_f64_const(0.0);
                     wia.emit_f64_gt();
@@ -2874,9 +2863,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
 
             if (ASRUtils::is_integer(*t) || ASRUtils::is_logical(*t)) {
-                if (m_rt_func_used_idx[print_i64] == -1) {
-                    m_rt_func_used_idx[print_i64] = no_of_types++;
-                }
+                INCLUDE_RUNTIME_FUNC(print_i64);
                 this->visit_expr(*x.m_values[i]);
                 switch (a_kind) {
                     case 4: {
@@ -2895,12 +2882,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                 }
             } else if (ASRUtils::is_real(*t)) {
-                if (m_rt_func_used_idx[print_i64] == -1) {
-                    m_rt_func_used_idx[print_i64] = no_of_types++;
-                }
-                if (m_rt_func_used_idx[print_f64] == -1) {
-                    m_rt_func_used_idx[print_f64] = no_of_types++;
-                }
+                INCLUDE_RUNTIME_FUNC(print_i64);
+                INCLUDE_RUNTIME_FUNC(print_f64);
                 this->visit_expr(*x.m_values[i]);
                 switch (a_kind) {
                     case 4: {
@@ -2928,12 +2911,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 wia.emit_call(m_import_func_idx_map[fd_write]);
                 wia.emit_drop();
             } else if (t->type == ASR::ttypeType::Complex) {
-                if (m_rt_func_used_idx[print_i64] == -1) {
-                    m_rt_func_used_idx[print_i64] = no_of_types++;
-                }
-                if (m_rt_func_used_idx[print_f64] == -1) {
-                    m_rt_func_used_idx[print_f64] = no_of_types++;
-                }
+                INCLUDE_RUNTIME_FUNC(print_i64);
+                INCLUDE_RUNTIME_FUNC(print_f64);
                 emit_call_fd_write(1, "(", 1, 0);
                 this->visit_expr(*x.m_values[i]);
                 if (a_kind == 4) {

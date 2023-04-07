@@ -154,7 +154,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
                                         const_1, int_type, nullptr));
             ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x->base.base.loc, idx_vars_target[i], inc_expr, nullptr));
             doloop_body.push_back(al, assign_stmt);
-            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, x->base.base.loc, head, doloop_body.p, doloop_body.size()));
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, x->base.base.loc, nullptr, head, doloop_body.p, doloop_body.size()));
         }
         int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(idx_vars_target[0]));
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind, nullptr, 0));

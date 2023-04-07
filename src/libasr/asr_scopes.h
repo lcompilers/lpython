@@ -71,7 +71,21 @@ struct SymbolTable {
         scope.erase(name);
     }
 
+    // Add a new symbol that did not exist before
     void add_symbol(const std::string &name, ASR::symbol_t* symbol) {
+        LCOMPILERS_ASSERT(scope.find(name) == scope.end())
+        scope[name] = symbol;
+    }
+
+    // Overwrite an existing symbol
+    void overwrite_symbol(const std::string &name, ASR::symbol_t* symbol) {
+        LCOMPILERS_ASSERT(scope.find(name) != scope.end())
+        scope[name] = symbol;
+    }
+
+    // Use as the last resort, prefer to always either add a new symbol
+    // or overwrite an existing one, not both
+    void add_or_overwrite_symbol(const std::string &name, ASR::symbol_t* symbol) {
         scope[name] = symbol;
     }
 

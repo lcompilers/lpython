@@ -94,7 +94,7 @@ public:
         loop_body.push_back(al, loop_stmt);
 
         loop_stmt = ASRUtils::STMT(ASR::make_WhileLoop_t(
-            al, loc, loop_test, loop_body.p, loop_body.n));
+            al, loc, nullptr, loop_test, loop_body.p, loop_body.n));
         body.push_back(al, loop_stmt);
     }
 

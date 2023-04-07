@@ -110,6 +110,16 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     return ASR::expr_type0(f);
 }
 
+static inline ASR::ttype_t* subs_expr_type(std::map<std::string, ASR::ttype_t*> subs,
+        const ASR::expr_t *expr) {
+    ASR::ttype_t *ttype = ASRUtils::expr_type(expr);
+    if (ASR::is_a<ASR::TypeParameter_t>(*ttype)) {
+        ASR::TypeParameter_t *tparam = ASR::down_cast<ASR::TypeParameter_t>(ttype);
+        ttype = subs[tparam->m_param];
+    }
+    return ttype;
+}
+
 static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
 {
     switch( f->type ) {
@@ -279,6 +289,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Struct: {
             return ASRUtils::symbol_name(ASR::down_cast<ASR::Struct_t>(t)->m_derived_type);
+        }
+        case ASR::ttypeType::Class: {
+            return ASRUtils::symbol_name(ASR::down_cast<ASR::Class_t>(t)->m_class_type);
         }
         case ASR::ttypeType::Union: {
             return "union";
@@ -2614,7 +2627,7 @@ inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
     return ASR::make_Function_t(
         al, loc, m_symtab, m_name, func_type, m_dependencies, n_dependencies,
         a_args, n_args, m_body, n_body, m_return_var, m_access, m_deterministic,
-         m_side_effect_free);
+        m_side_effect_free);
 }
 
 class ExprStmtDuplicator: public ASR::BaseExprStmtDuplicator<ExprStmtDuplicator>
@@ -2672,6 +2685,12 @@ class SymbolDuplicator {
                 ASR::Function_t* function = ASR::down_cast<ASR::Function_t>(symbol);
                 new_symbol = duplicate_Function(function, destination_symtab);
                 new_symbol_name = function->m_name;
+                break;
+            }
+            case ASR::symbolType::Block: {
+                ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(symbol);
+                new_symbol = duplicate_Block(block, destination_symtab);
+                new_symbol_name = block->m_name;
                 break;
             }
             default: {
@@ -2768,6 +2787,14 @@ class SymbolDuplicator {
         for( size_t i = 0; i < function->n_args; i++ ) {
             node_duplicator.success = true;
             ASR::expr_t* new_arg = node_duplicator.duplicate_expr(function->m_args[i]);
+            if (ASR::is_a<ASR::Var_t>(*new_arg)) {
+                ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(new_arg);
+                if (ASR::is_a<ASR::Variable_t>(*(var->m_v))) {
+                    ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(var->m_v);
+                    ASR::symbol_t* arg_symbol = function_symtab->get_symbol(variable->m_name);
+                    new_arg = ASRUtils::EXPR(make_Var_t(al, var->base.base.loc, arg_symbol));
+                }
+            }
             if( !node_duplicator.success ) {
                 return nullptr;
             }
@@ -2776,6 +2803,14 @@ class SymbolDuplicator {
 
         node_duplicator.success = true;
         ASR::expr_t* new_return_var = node_duplicator.duplicate_expr(function->m_return_var);
+        if (ASR::is_a<ASR::Var_t>(*new_return_var)) {
+            ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(new_return_var);
+            if (ASR::is_a<ASR::Variable_t>(*(var->m_v))) {
+                ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(var->m_v);
+                ASR::symbol_t* arg_symbol = function_symtab->get_symbol(variable->m_name);
+                new_return_var = ASRUtils::EXPR(make_Var_t(al, var->base.base.loc, arg_symbol));
+            }
+        }
         if( !node_duplicator.success ) {
             return nullptr;
         }
@@ -2814,6 +2849,30 @@ class SymbolDuplicator {
             new_ttypes.p, new_ttypes.size(), new_restrictions.p, new_restrictions.size(),
             function_type->m_is_restriction, function->m_deterministic,
             function->m_side_effect_free));
+    }
+
+    ASR::symbol_t* duplicate_Block(ASR::Block_t* block_t,
+        SymbolTable* destination_symtab) {
+        SymbolTable* block_symtab = al.make_new<SymbolTable>(destination_symtab);
+        duplicate_SymbolTable(block_t->m_symtab, block_symtab);
+
+        Vec<ASR::stmt_t*> new_body;
+        new_body.reserve(al, block_t->n_body);
+        ASRUtils::ExprStmtDuplicator node_duplicator(al);
+        node_duplicator.allow_procedure_calls = true;
+        node_duplicator.allow_reshape = false;
+        for( size_t i = 0; i < block_t->n_body; i++ ) {
+            node_duplicator.success = true;
+            ASR::stmt_t* new_stmt = node_duplicator.duplicate_stmt(block_t->m_body[i]);
+            if( !node_duplicator.success ) {
+                return nullptr;
+            }
+            new_body.push_back(al, new_stmt);
+        }
+
+        return ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al,
+                block_t->base.base.loc, block_symtab, block_t->m_name,
+                new_body.p, new_body.size()));
     }
 
 };
@@ -3047,10 +3106,15 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
         }
         int n_dims = ASRUtils::extract_dimensions_from_ttype(typei, dims);
         ASR::Variable_t* argi = ASRUtils::EXPR2VAR(x->m_args[i]);
+        if( ASR::is_a<ASR::Pointer_t>(*argi->m_type) ) {
+            return false;
+        }
         if( ASRUtils::is_dimension_empty(dims, n_dims) &&
             (argi->m_intent == ASRUtils::intent_in ||
-             argi->m_intent == ASRUtils::intent_out) &&
-            argi->m_storage != ASR::storage_typeType::Allocatable) {
+             argi->m_intent == ASRUtils::intent_out ||
+             argi->m_intent == ASRUtils::intent_inout) &&
+            argi->m_storage != ASR::storage_typeType::Allocatable &&
+            !ASR::is_a<ASR::Struct_t>(*argi->m_type)) {
             v.push_back(i);
         }
     }
@@ -3107,6 +3171,16 @@ static inline ASR::EnumType_t* get_EnumType_from_symbol(ASR::symbol_t* s) {
     ASR::symbol_t* enum_type_cand = ASR::down_cast<ASR::symbol_t>(s_var->m_parent_symtab->asr_owner);
     LCOMPILERS_ASSERT(ASR::is_a<ASR::EnumType_t>(*enum_type_cand));
     return ASR::down_cast<ASR::EnumType_t>(enum_type_cand);
+}
+
+static inline bool is_abstract_class_type(ASR::ttype_t* type) {
+    if( !ASR::is_a<ASR::Class_t>(*type) ) {
+        return false;
+    }
+    ASR::Class_t* class_t = ASR::down_cast<ASR::Class_t>(type);
+    return std::string( ASRUtils::symbol_name(
+                ASRUtils::symbol_get_past_external(class_t->m_class_type))
+                ) == "~abstract_type";
 }
 
 static inline void set_enum_value_type(ASR::enumtypeType &enum_value_type,
