@@ -52,6 +52,8 @@ struct CompilerOptions {
     std::string arg_o = "";
     bool emit_debug_info = false;
     bool emit_debug_line_column = false;
+    bool verbose = false;
+    bool pass_cumulative = false;
     std::string import_path = "";
     Platform platform;
 
@@ -78,6 +80,8 @@ namespace LCompilers {
         bool inline_external_symbol_calls = true; // for inline_function_calls pass
         int64_t unroll_factor = 32; // for loop_unroll pass
         bool fast = false; // is fast flag enabled.
+        bool verbose = false; // For developer debugging
+        bool pass_cumulative = false; // Apply passes cumulatively
     };
 
 }

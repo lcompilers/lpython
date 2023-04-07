@@ -16,6 +16,7 @@
 
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
+#include <libasr/pass/init_expr.h>
 #include <libasr/pass/implied_do_loops.h>
 #include <libasr/pass/array_op.h>
 #include <libasr/pass/select_case.h>
@@ -97,18 +98,47 @@ namespace LCompilers {
         void _apply_passes(Allocator& al, ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions &pass_options,
                            diag::Diagnostics &diagnostics) {
+            if (pass_options.pass_cumulative) {
+                int _pass_max_idx = -1, _opt_max_idx = -1;
+                for (std::string &current_pass: passes) {
+                    auto it1 = std::find(_passes.begin(), _passes.end(), current_pass);
+                    if (it1 != _passes.end()) {
+                        _pass_max_idx = std::max(_pass_max_idx,
+                                            (int)(it1 - _passes.begin()));
+                    }
+                    auto it2 = std::find(_with_optimization_passes.begin(),
+                                    _with_optimization_passes.end(), current_pass);
+                    if (it2 != _with_optimization_passes.end()) {
+                        _opt_max_idx = std::max(_opt_max_idx,
+                                            (int)(it2 - _with_optimization_passes.begin()));
+                    }
+                }
+                passes.clear();
+                if (_pass_max_idx != -1) {
+                    for (int i=0; i<=_pass_max_idx; i++)
+                        passes.push_back(_passes[i]);
+                }
+                if (_opt_max_idx != -1) {
+                    for (int i=0; i<=_opt_max_idx; i++)
+                        passes.push_back(_with_optimization_passes[i]);
+                }
+            }
             for (size_t i = 0; i < passes.size(); i++) {
                 // TODO: rework the whole pass manager: construct the passes
                 // ahead of time (not at the last minute), and remove this much
                 // earlier
                 // Note: this is not enough for rtlib, we also need to include
                 // it
+
                 if (rtlib && passes[i] == "unused_functions") continue;
                 if( std::find(_skip_passes.begin(), _skip_passes.end(), passes[i]) != _skip_passes.end())
                     continue;
                 if (c_skip_pass && std::find(_c_skip_passes.begin(),
                         _c_skip_passes.end(), passes[i]) != _c_skip_passes.end())
                     continue;
+                if (pass_options.verbose) {
+                    std::cerr << "ASR Pass starts: '" << passes[i] << "'\n";
+                }
                 _passes_db[passes[i]](al, *asr, pass_options);
             #if defined(WITH_LFORTRAN_ASSERT)
                 if (!asr_verify(*asr, true, diagnostics)) {
@@ -116,6 +146,9 @@ namespace LCompilers {
                     throw LCompilersException("Verify failed");
                 };
             #endif
+                if (pass_options.verbose) {
+                    std::cerr << "ASR Pass ends: '" << passes[i] << "'\n";
+                }
             }
         }
 

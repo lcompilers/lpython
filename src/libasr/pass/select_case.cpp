@@ -55,14 +55,17 @@ inline ASR::expr_t* gen_test_expr_CaseStmt(Allocator& al, const Location& loc, A
     } else if( Case_Stmt->n_test == 2 ) {
         ASR::expr_t* left = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_test[0], ASR::cmpopType::Eq);
         ASR::expr_t* right = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_test[1], ASR::cmpopType::Eq);
-        test_expr = PassUtils::create_binop_helper(al, loc, left, right, ASR::binopType::Add);
+        test_expr = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc, left,
+            ASR::logicalbinopType::Or, right, ASRUtils::expr_type(left), nullptr));
     } else {
         ASR::expr_t* left = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_test[0], ASR::cmpopType::Eq);
         ASR::expr_t* right = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_test[1], ASR::cmpopType::Eq);
-        test_expr = PassUtils::create_binop_helper(al, loc, left, right, ASR::binopType::Add);
+        test_expr = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc, left,
+            ASR::logicalbinopType::Or, right, ASRUtils::expr_type(left), nullptr));
         for( std::uint32_t j = 2; j < Case_Stmt->n_test; j++ ) {
             ASR::expr_t* newExpr = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_test[j], ASR::cmpopType::Eq);
-            test_expr = PassUtils::create_binop_helper(al, loc, test_expr, newExpr, ASR::binopType::Add);
+            test_expr = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc, test_expr,
+                ASR::logicalbinopType::Or, newExpr, ASRUtils::expr_type(test_expr), nullptr));
         }
     }
     return test_expr;
@@ -77,7 +80,8 @@ inline ASR::expr_t* gen_test_expr_CaseStmt_Range(Allocator& al, const Location& 
     } else if( Case_Stmt->m_start != nullptr && Case_Stmt->m_end != nullptr ) {
         ASR::expr_t* left = PassUtils::create_compare_helper(al, loc, Case_Stmt->m_start, a_test, ASR::cmpopType::LtE);
         ASR::expr_t* right = PassUtils::create_compare_helper(al, loc, a_test, Case_Stmt->m_end, ASR::cmpopType::LtE);
-        test_expr = PassUtils::create_binop_helper(al, loc, left, right, ASR::binopType::Mul);
+        test_expr = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc, left,
+            ASR::logicalbinopType::And, right, ASRUtils::expr_type(left), nullptr));
     }
     return test_expr;
 }

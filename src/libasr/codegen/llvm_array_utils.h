@@ -143,6 +143,11 @@ namespace LCompilers {
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) = 0;
 
+                virtual
+                void fill_array_details(
+                    llvm::Value* source, llvm::Value* destination,
+                    ASR::ttype_t* asr_shape_type, bool ignore_data) = 0;
+
                 /*
                 * Fills the elements of the input array descriptor
                 * for allocatable arrays.
@@ -245,7 +250,8 @@ namespace LCompilers {
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args,
                     bool data_only=false, bool is_fixed_size=false,
-                    llvm::Value** llvm_diminfo=nullptr) = 0;
+                    llvm::Value** llvm_diminfo=nullptr,
+                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr) = 0;
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array) = 0;
@@ -337,6 +343,11 @@ namespace LCompilers {
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual
+                void fill_array_details(
+                    llvm::Value* source, llvm::Value* destination,
+                    ASR::ttype_t* asr_shape_type, bool ignore_data);
+
+                virtual
                 void fill_malloc_array_details(
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
@@ -385,7 +396,8 @@ namespace LCompilers {
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args,
                     bool data_only=false, bool is_fixed_size=false,
-                    llvm::Value** llvm_diminfo=nullptr);
+                    llvm::Value** llvm_diminfo=nullptr,
+                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr);
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array);

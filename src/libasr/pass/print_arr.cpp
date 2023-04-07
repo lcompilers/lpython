@@ -85,7 +85,7 @@ public:
                 doloop_body.push_back(al, doloop);
                 doloop_body.push_back(al, empty_print_endl);
             }
-            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, head, doloop_body.p, doloop_body.size()));
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
         }
         return doloop;
     }
@@ -166,6 +166,86 @@ public:
                 x.m_separator, x.m_end));
             pass_result.push_back(al, print_stmt);
             print_body.clear();
+        }
+    }
+
+    ASR::stmt_t* write_array_using_doloop(ASR::expr_t *arr_expr, const Location &loc) {
+        int n_dims = PassUtils::get_rank(arr_expr);
+        Vec<ASR::expr_t*> idx_vars;
+        PassUtils::create_idx_vars(idx_vars, n_dims, loc, al, current_scope);
+        ASR::stmt_t* doloop = nullptr;
+        ASR::stmt_t* empty_file_write_endl = ASRUtils::STMT(ASR::make_FileWrite_t(al, loc,
+                                            0, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr, 0, nullptr, nullptr));
+        for( int i = n_dims - 1; i >= 0; i-- ) {
+            ASR::do_loop_head_t head;
+            head.m_v = idx_vars[i];
+            head.m_start = PassUtils::get_bound(arr_expr, i + 1, "lbound", al);
+            head.m_end = PassUtils::get_bound(arr_expr, i + 1, "ubound", al);
+            head.m_increment = nullptr;
+            head.loc = head.m_v->base.loc;
+            Vec<ASR::stmt_t*> doloop_body;
+            doloop_body.reserve(al, 1);
+            if( doloop == nullptr ) {
+                ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
+                Vec<ASR::expr_t*> print_args;
+                print_args.reserve(al, 1);
+                print_args.push_back(al, ref);
+                ASR::stmt_t* write_stmt = ASRUtils::STMT(ASR::make_FileWrite_t(
+                        al, loc, i, nullptr, nullptr, nullptr, nullptr, nullptr, print_args.p, print_args.size(), nullptr, nullptr));
+                doloop_body.push_back(al, write_stmt);
+            } else {
+                doloop_body.push_back(al, doloop);
+                doloop_body.push_back(al, empty_file_write_endl);
+            }
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+        }
+        return doloop;
+    }
+
+    void visit_FileWrite(const ASR::FileWrite_t& x) {
+        std::vector<ASR::expr_t*> write_body;
+        ASR::stmt_t* empty_file_write_endl = ASRUtils::STMT(ASR::make_FileWrite_t(al, x.base.base.loc,
+                                            x.m_label, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, 0, nullptr, nullptr));
+        ASR::stmt_t* write_stmt;
+        for (size_t i=0; i<x.n_values; i++) {
+            // TODO: This will disallow printing array pointer in Fortran
+            // Pointers are treated the same as normal variables in Fortran
+            // However, LPython prints the address of pointers when you do
+            // print(some_pointer). Same goes for C/C++ (if we add their frontends in future).
+            // So we need to figure out a way to de-couple printing support from libasr
+            // or add nodes according to the frontends because each frontend will have a different
+            // way of handling printing of pointers and non-pointers
+            if (!ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_values[i])) &&
+                PassUtils::is_array(x.m_values[i])) {
+                if (write_body.size() > 0) {
+                    Vec<ASR::expr_t*> body;
+                    body.reserve(al, write_body.size());
+                    for (size_t j=0; j<write_body.size(); j++) {
+                        body.push_back(al, write_body[j]);
+                    }
+                    write_stmt = ASRUtils::STMT(ASR::make_FileWrite_t(
+                        al, x.base.base.loc, x.m_label, nullptr, nullptr, nullptr, nullptr, nullptr, body.p, body.size(), nullptr, nullptr));
+                    pass_result.push_back(al, write_stmt);
+                    pass_result.push_back(al, empty_file_write_endl);
+                    write_body.clear();
+                }
+                write_stmt = write_array_using_doloop(x.m_values[i], x.base.base.loc);
+                pass_result.push_back(al, write_stmt);
+                pass_result.push_back(al, empty_file_write_endl);
+            } else {
+                write_body.push_back(x.m_values[i]);
+            }
+        }
+        if (write_body.size() > 0) {
+            Vec<ASR::expr_t*> body;
+            body.reserve(al, write_body.size());
+            for (size_t j=0; j<write_body.size(); j++) {
+                body.push_back(al, write_body[j]);
+            }
+            write_stmt = ASRUtils::STMT(ASR::make_FileWrite_t(
+                al, x.base.base.loc, x.m_label, nullptr, nullptr, nullptr, nullptr, nullptr, body.p, body.size(), nullptr, nullptr));
+            pass_result.push_back(al, write_stmt);
+            write_body.clear();
         }
     }
 

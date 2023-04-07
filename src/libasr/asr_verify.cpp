@@ -610,7 +610,8 @@ public:
                 + "') + scope_names not found in a module '"
                 + asr_owner_name + "'");
             require(s == x.m_external,
-                "ExternalSymbol::m_name + scope_names found but not equal to m_external");
+                std::string("ExternalSymbol::m_name + scope_names found but not equal to m_external, ") +
+                "original_name " + std::string(x.m_original_name) + ".");
         }
     }
 
@@ -629,6 +630,11 @@ public:
         require(symtab_in_scope(current_symtab, x.m_v),
             "Var::m_v `" + x_mv_name + "` cannot point outside of its symbol table");
         variable_dependencies.push_back(x_mv_name);
+    }
+
+    void visit_ImplicitDeallocate(const ImplicitDeallocate_t &x) {
+        // TODO: check that every allocated variable is deallocated.
+        BaseWalkVisitor::visit_ImplicitDeallocate(x);
     }
 
     void check_var_external(const ASR::expr_t &x) {

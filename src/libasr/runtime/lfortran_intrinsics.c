@@ -876,6 +876,29 @@ LFORTRAN_API char* _lfortran_str_item(char* s, int32_t idx) {
     return res;
 }
 
+// idx1 and idx2 both start from 1
+LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
+
+    int s_len = strlen(s);
+    if(idx1 > s_len || idx1 <= (-1*s_len)){
+        printf("String index out of Bounds\n");
+        exit(1);
+    }
+    if(idx1 <= 0) {
+        idx1 = s_len + idx1;
+    }
+    if(idx2 <= 0) {
+        idx2 = s_len + idx2;
+    }
+    char* dest_char = (char*)malloc(idx2-idx1+2);
+    for (int i=idx1; i <= idx2; i++)
+    {
+        dest_char[i-idx1] = s[i-1];
+    }
+    dest_char[idx2-idx1+1] = '\0';
+    return dest_char;
+}
+
 LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int32_t step,
                         bool idx1_present, bool idx2_present) {
     int s_len = strlen(s);
@@ -923,7 +946,47 @@ LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int3
     return dest_char;
 }
 
-LFORTRAN_API int _lfortran_str_len(char** s)
+LFORTRAN_API char* _lfortran_str_slice_assign(char* s, char *r, int32_t idx1, int32_t idx2, int32_t step,
+                        bool idx1_present, bool idx2_present) {
+    int s_len = strlen(s);
+    int r_len = strlen(r);
+    if (step == 0) {
+        printf("slice step cannot be zero\n");
+        exit(1);
+    }
+    s_len = (s_len < r_len) ? r_len : s_len;
+    idx1 = idx1 < 0 ? idx1 + s_len : idx1;
+    idx2 = idx2 < 0 ? idx2 + s_len : idx2;
+    if (!idx1_present) {
+        if (step > 0) {
+            idx1 = 0;
+        } else {
+            idx1 = s_len - 1;
+        }
+    }
+    if (!idx2_present) {
+        if (step > 0) {
+            idx2 = s_len;
+        } else {
+            idx2 = -1;
+        }
+    }
+    if (idx1 == idx2 ||
+        (step > 0 && (idx1 > idx2 || idx1 >= s_len)) ||
+        (step < 0 && (idx1 < idx2 || idx2 >= s_len-1)))
+        return "";
+    char* dest_char = (char*)malloc(s_len);
+    strcpy(dest_char, s);
+    int s_i = idx1, d_i = 0;
+    while((step > 0 && s_i >= idx1 && s_i < idx2) ||
+        (step < 0 && s_i <= idx1 && s_i > idx2)) {
+        dest_char[s_i] = r[d_i++];
+        s_i += step;
+    }
+    return dest_char;
+}
+
+LFORTRAN_API int32_t _lfortran_str_len(char** s)
 {
     return strlen(*s);
 }
@@ -970,6 +1033,10 @@ LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size) {
 
 LFORTRAN_API void _lfortran_free(char* ptr) {
     free((void*)ptr);
+}
+
+LFORTRAN_API void _lfortran_string_alloc(char** ptr, int32_t len) {
+    *ptr = (char *) malloc(sizeof(char)*len);
 }
 
 // size_plus_one is the size of the string including the null character
@@ -1210,6 +1277,49 @@ LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
     return (int64_t)fd;
 }
 
+FILE* unit_to_file[100];
+bool is_unit_to_file_init = false;
+
+LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status)
+{
+    if (!is_unit_to_file_init) {
+        for (int32_t i=0; i<100; i++) unit_to_file[i] = NULL;
+        is_unit_to_file_init = true;
+    }
+    if (f_name == NULL) {
+        f_name = "_lfortran_generated_file.txt";
+    }
+
+    // Presently we just consider write append mode.
+    status = "r+";
+    FILE *fd;
+    fd = fopen(f_name, status);
+    if (!fd)
+    {
+        printf("Error in opening the file!\n");
+        perror(f_name);
+        exit(1);
+    }
+    unit_to_file[unit_num] = fd;
+    return (int64_t)fd;
+}
+
+LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
+{
+    if (unit_num == -1) {
+        // Read from stdin
+        FILE *fp = fdopen(0, "r+");
+        fread(p, sizeof(int32_t), 1, fp);
+        fclose(fp);
+        return;
+    }
+    if (!unit_to_file[unit_num]) {
+        printf("No file found with given unit\n");
+        exit(1);
+    }
+    fread(p, sizeof(int32_t), 1, unit_to_file[unit_num]);
+}
+
 LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
 {
     char *c = (char *) calloc(n, sizeof(char));
@@ -1226,6 +1336,19 @@ LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
 LFORTRAN_API void _lpython_close(int64_t fd)
 {
     if (fclose((FILE*)fd) != 0)
+    {
+        printf("Error in closing the file!\n");
+        exit(1);
+    }
+}
+
+LFORTRAN_API void _lfortran_close(int32_t unit_num)
+{
+    if (!unit_to_file[unit_num]) {
+        printf("No file found with given unit\n");
+        exit(1);
+    }
+    if (fclose(unit_to_file[unit_num]) != 0)
     {
         printf("Error in closing the file!\n");
         exit(1);
@@ -1569,3 +1692,11 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
 }
 
 // << Runtime Stacktrace << ----------------------------------------------------
+
+LFORTRAN_API char *_lfortran_get_env_variable(char *name) {
+    return getenv(name);
+}
+
+LFORTRAN_API int _lfortran_exec_command(char *cmd) {
+    return system(cmd);
+}

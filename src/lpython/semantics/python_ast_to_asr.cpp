@@ -606,18 +606,22 @@ public:
                 loc);
         }
         char *fn_name = ASRUtils::symbol_name(t);
-        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, t->base.loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ fn_name,
-            t,
-            m->m_name, nullptr, 0, fn_name,
-            ASR::accessType::Private
-            );
         std::string sym = fn_name;
-
-        current_scope->add_symbol(sym, ASR::down_cast<ASR::symbol_t>(fn));
-        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *v = nullptr;
+        if( current_scope->get_symbol(sym) == nullptr ) {
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                al, t->base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ fn_name,
+                t,
+                m->m_name, nullptr, 0, fn_name,
+                ASR::accessType::Private
+                );
+            current_scope->add_symbol(sym, ASR::down_cast<ASR::symbol_t>(fn));
+            v = ASR::down_cast<ASR::symbol_t>(fn);
+        } else {
+            v = current_scope->get_symbol(sym);
+        }
 
         // Now we need to add the module `m` with the intrinsic function
         // into the current module dependencies
@@ -2272,7 +2276,8 @@ public:
               current_body ) {
             throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
-        current_scope->add_symbol(var_name, v_sym);
+
+        current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
 
     ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
@@ -2586,7 +2591,7 @@ public:
                                         struct_dependencies.p, struct_dependencies.size(),
                                         member_names.p, member_names.size(),
                                         class_abi, ASR::accessType::Public,
-                                        is_packed, algined_expr,
+                                        is_packed, false, algined_expr,
                                         nullptr));
         current_scope = parent_scope;
         current_scope->add_symbol(std::string(x.m_name), class_type);
@@ -4687,7 +4692,7 @@ public:
             tmp = ASR::make_DoConcurrentLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
         } else {
-            tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
+            tmp = ASR::make_DoLoop_t(al, x.base.base.loc, nullptr, head,
                 body.p, body.size());
         }
 
@@ -5204,7 +5209,7 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         transform_stmts(body, x.n_body, x.m_body);
-        tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
+        tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, nullptr, test, body.p,
                 body.size());
     }
 
@@ -5525,11 +5530,11 @@ public:
     }
 
     void visit_Continue(const AST::Continue_t &x) {
-        tmp = ASR::make_Cycle_t(al, x.base.base.loc);
+        tmp = ASR::make_Cycle_t(al, x.base.base.loc, nullptr);
     }
 
     void visit_Break(const AST::Break_t &x) {
-        tmp = ASR::make_Exit_t(al, x.base.base.loc);
+        tmp = ASR::make_Exit_t(al, x.base.base.loc, nullptr);
     }
 
     void visit_Raise(const AST::Raise_t &x) {

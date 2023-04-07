@@ -64,6 +64,24 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             }
         }
 
+        void visit_BlockCall(const ASR::BlockCall_t& x) {
+            if( !is_editing_procedure ) {
+                return ;
+            }
+            ASR::BlockCall_t& xx = const_cast<ASR::BlockCall_t&>(x);
+            ASR::symbol_t* x_sym = xx.m_m;
+            SymbolTable* x_sym_symtab = ASRUtils::symbol_parent_symtab(x_sym);
+            if( x_sym_symtab->get_counter() != current_proc_scope->get_counter() &&
+                !ASRUtils::is_parent(x_sym_symtab, current_proc_scope) ) {
+                // xx.m_v points to the function/procedure present inside
+                // original function's symtab. Make it point to the symbol in
+                // new function's symtab.
+                std::string x_sym_name = std::string(ASRUtils::symbol_name(x_sym));
+                xx.m_m = current_proc_scope->resolve_symbol(x_sym_name);
+                LCOMPILERS_ASSERT(xx.m_m != nullptr);
+            }
+        }
+
         void visit_Call(ASR::symbol_t*& m_name) {
             if( !is_editing_procedure ) {
                 return ;
@@ -119,8 +137,16 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             ASR::expr_t* return_var = nullptr;
             for( size_t i = 0; i < x->n_args + 1; i++ ) {
                 ASR::Variable_t* arg = nullptr;
+                ASR::Function_t* arg_func = nullptr;
                 if( i < x->n_args ) {
-                    arg = ASRUtils::EXPR2VAR(x->m_args[i]);
+                    if (ASR::is_a<ASR::Var_t>(*(x->m_args[i]))) {
+                        ASR::Var_t* x_arg = ASR::down_cast<ASR::Var_t>(x->m_args[i]);
+                        if (ASR::is_a<ASR::Function_t>(*(x_arg->m_v))) {
+                            arg_func = ASR::down_cast<ASR::Function_t>(x_arg->m_v);
+                        } else {
+                            arg = ASRUtils::EXPR2VAR(x->m_args[i]);
+                        }
+                    }
                 } else if( x->m_return_var ) {
                     arg = ASRUtils::EXPR2VAR(x->m_return_var);
                 } else {
@@ -128,11 +154,22 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                 }
                 if( std::find(indices.begin(), indices.end(), i) !=
                     indices.end() ) {
-                    suffix += "_" + std::string(arg->m_name);
+                    if( arg_func ) {
+                        suffix += "_" + std::string(arg_func->m_name);
+                    } else {
+                        suffix += "_" + std::string(arg->m_name);
+                    }
                 }
-                ASR::expr_t* new_arg = ASRUtils::EXPR(ASR::make_Var_t(al,
+                ASR::expr_t* new_arg;
+                if (arg_func) {
+                    new_arg = ASRUtils::EXPR(ASR::make_Var_t(al,
+                                        arg_func->base.base.loc, new_symtab->get_symbol(
+                                                        std::string(arg_func->m_name))));
+                } else {
+                    new_arg = ASRUtils::EXPR(ASR::make_Var_t(al,
                                         arg->base.base.loc, new_symtab->get_symbol(
                                                         std::string(arg->m_name))));
+                }
                 if( i < x->n_args ) {
                     new_args.push_back(al, new_arg);
                 } else {
@@ -159,6 +196,18 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             current_scope->add_symbol(new_name, new_symbol);
             proc2newproc[(ASR::symbol_t*) x] = std::make_pair(new_symbol, indices);
             return new_symbol;
+        }
+
+        void visit_Block(const ASR::Block_t& x) {
+            SymbolTable* current_proc_scope_copy = current_proc_scope;
+            current_proc_scope = x.m_symtab;
+            for( auto itr: x.m_symtab->get_scope() ) {
+                visit_symbol(*itr.second);
+            }
+            for( size_t i = 0; i < x.n_body; i++ ) {
+                visit_stmt(*x.m_body[i]);
+            }
+            current_proc_scope = current_proc_scope_copy;
         }
 
         void edit_new_procedure(ASR::Function_t* x, std::vector<size_t>& indices) {
@@ -201,7 +250,8 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             for( auto& itr: x->m_symtab->get_scope() ) {
                 if( ASR::is_a<ASR::Variable_t>(*itr.second) ) {
                     PassVisitor::visit_ttype(*ASR::down_cast<ASR::Variable_t>(itr.second)->m_type);
-                } else if( ASR::is_a<ASR::AssociateBlock_t>(*itr.second) ) {
+                } else if( ASR::is_a<ASR::AssociateBlock_t>(*itr.second) ||
+                           ASR::is_a<ASR::Block_t>(*itr.second) ) {
                     SymbolTable* current_proc_scope_copy = current_proc_scope;
                     current_proc_scope = ASRUtils::symbol_symtab(itr.second);
                     visit_symbol(*itr.second);
