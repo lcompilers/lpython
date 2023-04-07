@@ -4493,6 +4493,10 @@ public:
         int64_t inc_int = 1;
         bool is_value_present = ASRUtils::extract_value(inc_value, inc_int);
         if (is_value_present) {
+            if (inc_int == 0) {
+                throw SemanticError("For loop increment should not be zero.", loc);
+            }
+
             // Loop end depends upon the sign of m_increment.
             // if inc > 0 then: loop_end -=1 else loop_end += 1
             ASR::binopType offset_op;
