@@ -84,6 +84,8 @@ void save_bin(Vec<uint8_t> &code, std::string filename) {
     save_js_glue_wasi(filename);
 }
 
+}  // namespace wasm
+
 class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler> {
   private:
     Allocator &m_al;
@@ -226,57 +228,57 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
 
     void emit_import_fn(const std::string &mod_name, const std::string &fn_name,
                     uint32_t type_idx) {
-        emit_str(m_import_section, m_al, mod_name);
-        emit_str(m_import_section, m_al, fn_name);
-        emit_b8(m_import_section, m_al, 0x00);  // for importing function
-        emit_u32(m_import_section, m_al, type_idx);
+        wasm::emit_str(m_import_section, m_al, mod_name);
+        wasm::emit_str(m_import_section, m_al, fn_name);
+        wasm::emit_b8(m_import_section, m_al, 0x00);  // for importing function
+        wasm::emit_u32(m_import_section, m_al, type_idx);
         no_of_imports++;
     }
 
     void emit_export_fn(const std::string &name, uint32_t idx) {
-        emit_str(m_export_section, m_al, name);
-        emit_b8(m_export_section, m_al, 0x00);  // for exporting function
-        emit_u32(m_export_section, m_al, idx);
+        wasm::emit_str(m_export_section, m_al, name);
+        wasm::emit_b8(m_export_section, m_al, 0x00);  // for exporting function
+        wasm::emit_u32(m_export_section, m_al, idx);
         no_of_exports++;
     }
 
     void emit_declare_mem(uint32_t min_no_pages, uint32_t max_no_pages = 0) {
         if (max_no_pages > 0) {
-            emit_b8(m_memory_section, m_al,
+            wasm::emit_b8(m_memory_section, m_al,
                     0x01);  // for specifying min and max page limits of memory
-            emit_u32(m_memory_section, m_al, min_no_pages);
-            emit_u32(m_memory_section, m_al, max_no_pages);
+            wasm::emit_u32(m_memory_section, m_al, min_no_pages);
+            wasm::emit_u32(m_memory_section, m_al, max_no_pages);
         } else {
-            emit_b8(m_memory_section, m_al,
+            wasm::emit_b8(m_memory_section, m_al,
                     0x00);  // for specifying only min page limit of memory
-            emit_u32(m_memory_section, m_al, min_no_pages);
+            wasm::emit_u32(m_memory_section, m_al, min_no_pages);
         }
         no_of_memories++;
     }
 
     void emit_import_mem(const std::string &mod_name, const std::string &mem_name,
                         uint32_t min_no_pages, uint32_t max_no_pages = 0) {
-        emit_str(m_import_section, m_al, mod_name);
-        emit_str(m_import_section, m_al, mem_name);
-        emit_b8(m_import_section, m_al, 0x02);  // for importing memory
+        wasm::emit_str(m_import_section, m_al, mod_name);
+        wasm::emit_str(m_import_section, m_al, mem_name);
+        wasm::emit_b8(m_import_section, m_al, 0x02);  // for importing memory
         if (max_no_pages > 0) {
-            emit_b8(m_import_section, m_al,
+            wasm::emit_b8(m_import_section, m_al,
                     0x01);  // for specifying min and max page limits of memory
-            emit_u32(m_import_section, m_al, min_no_pages);
-            emit_u32(m_import_section, m_al, max_no_pages);
+            wasm::emit_u32(m_import_section, m_al, min_no_pages);
+            wasm::emit_u32(m_import_section, m_al, max_no_pages);
         } else {
-            emit_b8(m_import_section, m_al,
+            wasm::emit_b8(m_import_section, m_al,
                     0x00);  // for specifying only min page limit of memory
-            emit_u32(m_import_section, m_al, min_no_pages);
+            wasm::emit_u32(m_import_section, m_al, min_no_pages);
         }
         no_of_imports++;
     }
 
     void emit_export_mem(const std::string &name,
                         uint32_t idx) {
-        emit_str(m_export_section, m_al, name);
-        emit_b8(m_export_section, m_al, 0x02);  // for exporting memory
-        emit_u32(m_export_section, m_al, idx);
+        wasm::emit_str(m_export_section, m_al, name);
+        wasm::emit_b8(m_export_section, m_al, 0x02);  // for exporting memory
+        wasm::emit_u32(m_export_section, m_al, idx);
         no_of_exports++;
     }
 
@@ -285,10 +287,10 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
                         uint32_t no_of_elements) {
         // every section in WebAssembly is encoded by adding its section id,
         // followed by the content size and lastly the contents
-        emit_u32(des, m_al, section_id);
-        emit_u32(des, m_al, 4U /* size of no_of_elements */ + section_content.size());
-        uint32_t len_idx = emit_len_placeholder(des, m_al);
-        emit_u32_b32_idx(des, m_al, len_idx, no_of_elements);
+        wasm::emit_u32(des, m_al, section_id);
+        wasm::emit_u32(des, m_al, 4U /* size of no_of_elements */ + section_content.size());
+        uint32_t len_idx = wasm::emit_len_placeholder(des, m_al);
+        wasm::emit_u32_b32_idx(des, m_al, len_idx, no_of_elements);
         for (auto &byte : section_content) {
             des.push_back(m_al, byte);
         }
@@ -338,19 +340,19 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
         m_global_section.push_back(m_al, true /* mutable */);
         switch (var_type)
         {
-            case i32:
+            case wasm::i32:
                 wasm::emit_b8(m_global_section, m_al, 0x41); // emit instruction
                 wasm::emit_i32(m_global_section, m_al, init_val); // emit val
                 break;
-            case i64:
+            case wasm::i64:
                 wasm::emit_b8(m_global_section, m_al, 0x42); // emit instruction
                 wasm::emit_i64(m_global_section, m_al, init_val); // emit val
                 break;
-            case f32:
+            case wasm::f32:
                 wasm::emit_b8(m_global_section, m_al, 0x43); // emit instruction
                 wasm::emit_f32(m_global_section, m_al, init_val); // emit val
                 break;
-            case f64:
+            case wasm::f64:
                 wasm::emit_b8(m_global_section, m_al, 0x44); // emit instruction
                 wasm::emit_f64(m_global_section, m_al, init_val); // emit val
                 break;
@@ -365,23 +367,21 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
     uint32_t emit_local_vars(std::vector<wasm::var_type> locals) {
         uint32_t no_of_locals = 0;
         for (auto v:locals) {
-            emit_u32(m_code_section, m_al, 1);
-            emit_b8(m_code_section, m_al, v);
+            wasm::emit_u32(m_code_section, m_al, 1);
+            wasm::emit_b8(m_code_section, m_al, v);
             no_of_locals++;
         }
         return no_of_locals;
     }
 
     void emit_data_str(uint32_t mem_idx, const std::string &text) {
-        emit_u32(m_data_section, m_al, 0U);  // for active mode of memory with default mem_idx of 0
-        emit_b8(m_data_section, m_al, 0x41); // i32.const
-        emit_i32(m_data_section, m_al, (int32_t)mem_idx); // specifying memory location
-        emit_expr_end(m_data_section, m_al); // end instructions
-        emit_str(m_data_section, m_al, text);
+        wasm::emit_u32(m_data_section, m_al, 0U);  // for active mode of memory with default mem_idx of 0
+        wasm::emit_b8(m_data_section, m_al, 0x41); // i32.const
+        wasm::emit_i32(m_data_section, m_al, (int32_t)mem_idx); // specifying memory location
+        wasm::emit_expr_end(m_data_section, m_al); // end instructions
+        wasm::emit_str(m_data_section, m_al, text);
         no_of_data_segs++;
     }
 };
-
-}  // namespace wasm
 
 }  // namespace LCompilers

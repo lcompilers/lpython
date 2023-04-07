@@ -112,7 +112,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     bool is_prototype_only;
     bool is_local_vars_only;
     ASR::Function_t* main_func;
-    wasm::WASMAssembler wa;
+    WASMAssembler wa;
     std::vector<wasm::var_type> local_vars;
 
     uint32_t avail_mem_loc;
