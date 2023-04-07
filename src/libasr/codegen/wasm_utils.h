@@ -11,6 +11,56 @@ namespace LCompilers {
 
 namespace wasm {
 
+enum var_type: uint8_t {
+    i32 = 0x7F,
+    i64 = 0x7E,
+    f32 = 0x7D,
+    f64 = 0x7C
+};
+
+enum mem_align : uint8_t {
+    b8 = 0,
+    b16 = 1,
+    b32 = 2,
+    b64 = 3
+};
+
+enum wasm_kind: uint8_t {
+    func = 0x00,
+    table = 0x01,
+    memory = 0x02,
+    global = 0x03
+};
+
+template <typename T>
+std::string vt2s(T vt) {
+    switch(vt) {
+        case var_type::i32: return "i32";
+        case var_type::i64: return "i64";
+        case var_type::f32: return "f32";
+        case var_type::f64: return "f64";
+        default:
+            std::cerr << "Unsupported wasm var_type" << std::endl;
+            LCOMPILERS_ASSERT(false);
+            return "";
+
+    }
+}
+
+template <typename T>
+std::string k2s(T k) {
+    switch(k) {
+        case wasm_kind::func: return "func";
+        case wasm_kind::table: return "table";
+        case wasm_kind::memory: return "memory";
+        case wasm_kind::global: return "global";
+        default:
+            std::cerr << "Unsupported wasm kind" << std::endl;
+            LCOMPILERS_ASSERT(false);
+            return "";
+    }
+}
+
 struct FuncType {
     Vec<uint8_t> param_types;
     Vec<uint8_t> result_types;

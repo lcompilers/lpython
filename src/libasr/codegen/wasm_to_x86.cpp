@@ -209,7 +209,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
         int no_of_params = (int)cur_func_param_type.param_types.size();
         if ((int)localidx < no_of_params) {
-            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            std::string var_type = vt2s(cur_func_param_type.param_types[localidx]);
             if (var_type == "i32") {
                 m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 4 * (2 + no_of_params - (int)localidx - 1));
                 m_a.asm_push_r32(X86Reg::eax);
@@ -227,7 +227,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         } else {
             localidx -= no_of_params;
-            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            std::string var_type = vt2s(codes[cur_func_idx].locals[localidx].type);
             if (var_type == "i32") {
                 m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4 * (1 + localidx));
                 m_a.asm_push_r32(X86Reg::eax);
@@ -249,7 +249,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
         int no_of_params = (int)cur_func_param_type.param_types.size();
         if ((int)localidx < no_of_params) {
-            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            std::string var_type = vt2s(cur_func_param_type.param_types[localidx]);
             if (var_type == "i32") {
                 m_a.asm_pop_r32(X86Reg::eax);
                 m_a.asm_mov_m32_r32(&base, nullptr, 1, 4 * (2 + no_of_params - (int)localidx - 1), X86Reg::eax);
@@ -267,7 +267,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         } else {
             localidx -= no_of_params;
-            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            std::string var_type = vt2s(codes[cur_func_idx].locals[localidx].type);
             if (var_type == "i32") {
                 m_a.asm_pop_r32(X86Reg::eax);
                 m_a.asm_mov_m32_r32(&base, nullptr, 1, -4 * (1 + (int)localidx), X86Reg::eax);

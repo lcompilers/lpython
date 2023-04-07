@@ -113,7 +113,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     bool is_local_vars_only;
     ASR::Function_t* main_func;
     wasm::WASMAssembler wa;
-    std::vector<wasm::type> local_vars;
+    std::vector<wasm::var_type> local_vars;
 
     uint32_t avail_mem_loc;
     uint32_t digits_mem_loc;
@@ -149,8 +149,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void import_function(IMPORT_FUNC fn,
-            std::vector<wasm::type> param_types,
-            std::vector<wasm::type> result_types) {
+            std::vector<wasm::var_type> param_types,
+            std::vector<wasm::var_type> result_types) {
         int func_idx = wa.emit_func_type(param_types, result_types);
         m_import_func_idx_map[fn] = func_idx;
         wa.emit_import_fn( "wasi_snapshot_preview1", import_fn_to_str(fn), func_idx);
@@ -621,11 +621,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wa.emit_declare_mem(min_no_pages, max_no_pages);
         wa.emit_export_mem("memory", 0 /* mem_idx */);
 
-        m_compiler_globals[cur_mem_loc] = wa.declare_global_var(wasm::type::i32, 0);
-        m_compiler_globals[tmp_reg_i32] = wa.declare_global_var(wasm::type::i32, 0);
-        m_compiler_globals[tmp_reg_i64] = wa.declare_global_var(wasm::type::i64, 0);
-        m_compiler_globals[tmp_reg_f32] = wa.declare_global_var(wasm::type::f32, 0);
-        m_compiler_globals[tmp_reg_f64] = wa.declare_global_var(wasm::type::f64, 0);
+        m_compiler_globals[cur_mem_loc] = wa.declare_global_var(wasm::var_type::i32, 0);
+        m_compiler_globals[tmp_reg_i32] = wa.declare_global_var(wasm::var_type::i32, 0);
+        m_compiler_globals[tmp_reg_i64] = wa.declare_global_var(wasm::var_type::i64, 0);
+        m_compiler_globals[tmp_reg_f32] = wa.declare_global_var(wasm::var_type::f32, 0);
+        m_compiler_globals[tmp_reg_f64] = wa.declare_global_var(wasm::var_type::f64, 0);
 
         emit_string(" ");
         emit_string("\n");
@@ -722,7 +722,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         this->visit_Function(*main_func);
     }
 
-    void get_var_type(ASR::Variable_t *v, std::vector<wasm::type> &type_vec) {
+    void get_var_type(ASR::Variable_t *v, std::vector<wasm::var_type> &type_vec) {
         using namespace wasm;
 
         bool is_array = ASRUtils::is_array(v->m_type);
@@ -939,7 +939,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void emit_function_prototype(const ASR::Function_t &x) {
         SymbolFuncInfo *s = new SymbolFuncInfo;
 
-        std::vector<wasm::type> params, results;
+        std::vector<wasm::var_type> params, results;
 
         s->referenced_vars.reserve(m_al, x.n_args);
         for (size_t i = 0; i < x.n_args; i++) {
@@ -966,7 +966,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         }
 
-        s->index = wa.emit_func_type(params, results);;
+        s->index = wa.emit_func_type(params, results);
         m_func_name_idx_map[get_hash((ASR::asr_t *)&x)] = s;
     }
 

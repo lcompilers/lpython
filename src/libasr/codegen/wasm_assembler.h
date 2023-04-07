@@ -6,10 +6,6 @@ namespace LCompilers {
 
 namespace wasm {
 
-enum type { i32 = 0x7F, i64 = 0x7E, f32 = 0x7D, f64 = 0x7C};
-
-enum mem_align { b8 = 0, b16 = 1, b32 = 2, b64 = 3 };
-
 void emit_expr_end(Vec<uint8_t> &code, Allocator &al) {
     code.push_back(al, 0x0B);
 }
@@ -212,7 +208,7 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
         cur_loop_nest_lvl = prev_cur_loop_nest_lvl;
     }
 
-    uint32_t emit_func_type(std::vector<wasm::type> &params, std::vector<wasm::type> &results) {
+    uint32_t emit_func_type(std::vector<wasm::var_type> &params, std::vector<wasm::var_type> &results) {
         wasm::emit_b8(m_type_section, m_al, 0x60);
 
         wasm::emit_u32(m_type_section, m_al, params.size());
@@ -298,7 +294,7 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
         }
     }
 
-    void emit_func_body(uint32_t func_idx, std::string func_name, std::vector<wasm::type> &locals, std::function<void()> func_body) {
+    void emit_func_body(uint32_t func_idx, std::string func_name, std::vector<wasm::var_type> &locals, std::function<void()> func_body) {
         /*** Reference Function Prototype ***/
         wasm::emit_u32(m_func_section, m_al, func_idx);
 
@@ -326,9 +322,9 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
     }
 
     void define_func(
-        std::vector<wasm::type> params,
-        std::vector<wasm::type> results,
-        std::vector<wasm::type> locals,
+        std::vector<wasm::var_type> params,
+        std::vector<wasm::var_type> results,
+        std::vector<wasm::var_type> locals,
         std::string func_name,
         std::function<void()> func_body) {
 
@@ -337,7 +333,7 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
     }
 
     template <typename T>
-    uint32_t declare_global_var(wasm::type var_type, T init_val) {
+    uint32_t declare_global_var(wasm::var_type var_type, T init_val) {
         m_global_section.push_back(m_al, var_type);
         m_global_section.push_back(m_al, true /* mutable */);
         switch (var_type)
@@ -366,7 +362,7 @@ class WASMAssembler: public WASM_INSTS_VISITOR::WASMInstsAssembler<WASMAssembler
         return no_of_globals++;
     }
 
-    uint32_t emit_local_vars(std::vector<type> locals) {
+    uint32_t emit_local_vars(std::vector<wasm::var_type> locals) {
         uint32_t no_of_locals = 0;
         for (auto v:locals) {
             emit_u32(m_code_section, m_al, 1);

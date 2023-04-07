@@ -4,8 +4,6 @@
 #include <fstream>
 
 #include <libasr/assert.h>
-#include <libasr/alloc.h>
-#include <libasr/containers.h>
 #include <libasr/codegen/wasm_utils.h>
 
 // #define WAT_DEBUG
@@ -48,9 +46,6 @@ class WASMDecoder {
     Struct &self() { return static_cast<Struct &>(*this); }
 
    public:
-    std::unordered_map<uint8_t, std::string> var_type_to_string;
-    std::unordered_map<uint8_t, std::string> kind_to_string;
-
     Allocator &al;
     diag::Diagnostics &diag;
     Vec<uint8_t> wasm_bytes;
@@ -67,10 +62,6 @@ class WASMDecoder {
 
     WASMDecoder(Allocator &al, diag::Diagnostics &diagonostics)
         : al(al), diag(diagonostics) {
-        var_type_to_string = {
-            {0x7F, "i32"}, {0x7E, "i64"}, {0x7D, "f32"}, {0x7C, "f64"}};
-        kind_to_string = {
-            {0x00, "func"}, {0x01, "table"}, {0x02, "memory"}, {0x03, "global"}};
 
         PREAMBLE_SIZE = 8 /* BYTES */;
         // wasm_bytes.reserve(al, 1024 * 128);

@@ -313,13 +313,12 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
             result +=
                 indent + "(type (;" + std::to_string(i) + ";) (func (param";
             for (uint32_t j = 0; j < func_types[i].param_types.size(); j++) {
-                result +=
-                    " " + var_type_to_string[func_types[i].param_types.p[j]];
+                result += " " + vt2s(func_types[i].param_types.p[j]);
             }
             result += ") (result";
             for (uint32_t j = 0; j < func_types[i].result_types.size(); j++) {
                 result +=
-                    " " + var_type_to_string[func_types[i].result_types.p[j]];
+                    " " + vt2s(func_types[i].result_types.p[j]);
             }
             result += ")))";
         }
@@ -350,8 +349,8 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                 decode_instructions();
                 global_initialization_insts = this->src;
             }
-            std::string global_type = ((globals[i].mut == 0x00) ? var_type_to_string[globals[i].type]:
-            "(mut " + var_type_to_string[globals[i].type] + ")" );
+            std::string global_type = ((globals[i].mut == 0x00) ? vt2s(globals[i].type):
+            "(mut " + vt2s(globals[i].type) + ")" );
             result += indent + "(global $" + std::to_string(i);
             result += " " + global_type;
             result += " (" + global_initialization_insts + "))";
@@ -365,20 +364,20 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                  j++) {
                 result +=
                     " " +
-                    var_type_to_string[func_types[func_index].param_types.p[j]];
+                    vt2s(func_types[func_index].param_types.p[j]);
             }
             result += ") (result";
             for (uint32_t j = 0; j < func_types[func_index].result_types.size();
                  j++) {
-                result += " " + var_type_to_string[func_types[func_index]
-                                                       .result_types.p[j]];
+                result += " " + vt2s(func_types[func_index]
+                                                       .result_types.p[j]);
             }
             result += ")";
             result += indent + "    (local";
             for (uint32_t j = 0; j < codes.p[i].locals.size(); j++) {
                 for (uint32_t k = 0; k < codes.p[i].locals.p[j].count; k++) {
                     result +=
-                        " " + var_type_to_string[codes.p[i].locals.p[j].type];
+                        " " + vt2s(codes.p[i].locals.p[j].type);
                 }
             }
             result += ")";
@@ -403,7 +402,7 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
 
         for (uint32_t i = 0; i < exports.size(); i++) {
             result += indent + "(export \"" + exports.p[i].name + "\" (" +
-                      kind_to_string[exports.p[i].kind] + " " +
+                      k2s(exports.p[i].kind) + " " +
                       std::to_string(exports.p[i].index) + "))";
         }
 
