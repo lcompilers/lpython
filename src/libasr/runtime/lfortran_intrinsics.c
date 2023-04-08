@@ -9,7 +9,6 @@
 #include <float.h>
 #include <limits.h>
 #include <ctype.h>
-#include <sys/time.h>
 
 #include <libasr/runtime/lfortran_intrinsics.h>
 #include <libasr/config.h>
@@ -1190,12 +1189,9 @@ LFORTRAN_API void _lfortran_i64sys_clock(
 
 LFORTRAN_API double _lfortran_time()
 {
-    struct timeval tv;
-    if (gettimeofday(&tv, NULL) != 0) {
-        /* Error occurred, return -1 */
-        return -1.0;
-    }
-    return (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return (double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0;
 }
 
 LFORTRAN_API void _lfortran_sp_rand_num(float *x) {
