@@ -10,6 +10,10 @@
 #include <limits.h>
 #include <ctype.h>
 
+#if defined(_MSC_VER)
+#  include <winsock2.h>
+#endif
+
 #include <libasr/runtime/lfortran_intrinsics.h>
 #include <libasr/config.h>
 
@@ -1251,6 +1255,22 @@ LFORTRAN_API void _lfortran_i64sys_clock(
         *rate = 0;
         *max = 0;
     }
+#endif
+}
+
+LFORTRAN_API double _lfortran_time()
+{
+#if defined(_MSC_VER)
+    FILETIME ft;
+    ULARGE_INTEGER uli;
+    GetSystemTimeAsFileTime(&ft);
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+    return (double)uli.QuadPart / 10000000.0 - 11644473600.0;
+#else
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return (double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0;
 #endif
 }
 
