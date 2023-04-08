@@ -442,6 +442,9 @@ R"(#include <stdio.h>
             } else if (ASR::is_a<ASR::TypeParameter_t>(*return_var->m_type)) {
                 has_typevar = true;
                 return "";
+            } else if (ASR::is_a<ASR::Dict_t>(*return_var->m_type)) {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(return_var->m_type);
+                sub = c_ds_api->get_dict_type(dict_type) + " ";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
                     std::string(x.m_name) +
@@ -661,6 +664,16 @@ R"(#include <stdio.h>
                                 const_name + " = " + src + ";\n");
             src = const_name;
             return;
+        } else if( ASR::is_a<ASR::Dict_t>(*x.m_type) ) {
+            ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(x.m_type);
+            const_name += std::to_string(const_vars_count);
+            const_vars_count += 1;
+            const_name = current_scope->get_unique_name(const_name);
+            std::string indent(indentation_level*indentation_spaces, ' ');
+            tmp_buffer_src.push_back(check_tmp_buffer() + indent + c_ds_api->get_dict_type(dict_type) + 
+                                " " + const_name + " = " + src + ";\n");
+            src = const_name;
+            return;
         }
         src = check_tmp_buffer() + src;
     }
@@ -797,6 +810,9 @@ R"(#include <stdio.h>
             }
             src = check_tmp_buffer() + src_tmp;
             return;
+        } else if (ASR::is_a<ASR::DictItem_t>(*x.m_target)) {
+            self().visit_DictItem(*ASR::down_cast<ASR::DictItem_t>(x.m_target));
+            target = src;
         } else {
             LCOMPILERS_ASSERT(false)
         }
