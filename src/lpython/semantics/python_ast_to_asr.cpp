@@ -2249,15 +2249,15 @@ public:
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
         ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
-        if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type)) &&
-            (is_runtime_expression || !is_variable_const)) {
+        if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type) ||
+                is_runtime_expression) && !is_variable_const) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
                                                         init_expr, nullptr);
             if (current_body) {
                 current_body->push_back(al, ASRUtils::STMT(assign));
-            } else if (ASR::is_a<ASR::List_t>(*type)) {
+            } else if (ASR::is_a<ASR::List_t>(*type) || is_runtime_expression) {
                 global_init.push_back(al, assign);
             }
 
@@ -3983,10 +3983,23 @@ public:
                 // Erase the function in TranslationUnit
                 unit->m_global_scope->erase_symbol(func_name);
             }
+            global_init.p = nullptr;
+            global_init.n = 0;
         }
 
-        unit->m_items = items.p;
-        unit->n_items = items.size();
+        if (global_init.n > 0) {
+            // copy all the item's from `items` (global_statements)
+            // into `global_init`
+            for (auto &i: items) {
+                global_init.push_back(al, i);
+            }
+            unit->m_items = global_init.p;
+            unit->n_items = global_init.size();
+        } else {
+            unit->m_items = items.p;
+            unit->n_items = items.size();
+        }
+
         if (items.n > 0 && main_module_sym) {
             std::string func_name = "global_statements";
             // Wrap all the global statements into a Function
