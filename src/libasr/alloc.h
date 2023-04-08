@@ -52,15 +52,25 @@ public:
         // force new_chunk() not to get inlined, but there is no standard way of
         // doing it. This try/catch approach effectively achieves the same using
         // standard C++.
+#ifdef LCOMPILERS_FAST_ALLOC
         try {
+#endif
             LCOMPILERS_ASSERT(start != nullptr);
             size_t addr = current_pos;
             current_pos += align(s);
-            if (size_current() > size_total()) throw std::bad_alloc();
+            if (size_current() > size_total()) {
+#ifdef LCOMPILERS_FAST_ALLOC
+                throw std::bad_alloc();
+#else
+                return new_chunk(s);
+#endif
+            }
             return (void*)addr;
+#ifdef LCOMPILERS_FAST_ALLOC
         } catch (const std::bad_alloc &e) {
             return new_chunk(s);
         }
+#endif
     }
 
     void *new_chunk(size_t s) {
