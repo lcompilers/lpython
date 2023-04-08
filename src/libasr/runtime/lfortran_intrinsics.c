@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <ctype.h>
 
-#if defined(MSC_VER) || defined(MACH_)
+#if defined(_MSC_VER)
 #  include <winsock2.h>
 #endif
 
@@ -1193,7 +1193,7 @@ LFORTRAN_API void _lfortran_i64sys_clock(
 
 LFORTRAN_API double _lfortran_time()
 {
-#if defined(MSC_VER) || defined(MACH_)
+#if defined(_MSC_VER)
     FILETIME ft;
     ULARGE_INTEGER uli;
     GetSystemTimeAsFileTime(&ft);
