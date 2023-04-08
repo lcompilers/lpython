@@ -2498,6 +2498,83 @@ namespace LCompilers {
         return LLVM::CreateLoad(*builder, i);
     }
 
+    llvm::Value* LLVMList::count(llvm::Value* list, llvm::Value* item,
+                                ASR::ttype_t* item_type, llvm::Module& module) {
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);
+        llvm::AllocaInst *cnt = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), cnt);
+        llvm::Value* tmp = nullptr;
+
+        /* Equivalent in C++:
+         * int i = 0;
+         * int cnt = 0;
+         * while(end_point > i) {
+         *     if(list[i] == item) {
+         *         tmp = cnt+1;
+         *         cnt = tmp;
+         *     }
+         *     tmp = i+1;
+         *     i = tmp;
+         * }
+         */
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(current_end_point,
+                                         LLVM::CreateLoad(*builder, i));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            // if occurrence found, increment cnt
+            llvm::Function *fn = builder->GetInsertBlock()->getParent();
+            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
+                false, module, LLVM::is_llvm_struct(item_type));
+            llvm::Value* cond = llvm_utils->is_equal_by_value(left_arg, item, module, item_type);
+            builder->CreateCondBr(cond, thenBB, elseBB);
+            builder->SetInsertPoint(thenBB);
+            {
+                tmp = builder->CreateAdd(
+                            LLVM::CreateLoad(*builder, cnt),
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, cnt);
+            }
+            builder->CreateBr(mergeBB);
+
+            llvm_utils->start_new_block(elseBB);
+            llvm_utils->start_new_block(mergeBB);
+
+            // increment i
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        return LLVM::CreateLoad(*builder, cnt);
+    }
+
     void LLVMList::remove(llvm::Value* list, llvm::Value* item,
                           ASR::ttype_t* item_type, llvm::Module& module) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
