@@ -7,7 +7,7 @@
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
-    "stderr": "asr-kwargs_02_error-7c91f8f.stderr",
-    "stderr_hash": "120e6e6838e464af15ff96aa99dcdda21923a3bb5f0c3d6d7cc8348b",
-    "returncode": 2
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 3221225477
 }

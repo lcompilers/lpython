@@ -5,9 +5,9 @@
     "infile_hash": "7c44fe2915b3871b3b85edf3ab129d87a75fa4b9acbb597ae801daf9",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-test_bool_binop-f856ef0.stdout",
-    "stdout_hash": "677acb2dfcc131c298b6e0961191f225eb030e2e5270b05248edf753",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 0
+    "returncode": 3221225477
 }

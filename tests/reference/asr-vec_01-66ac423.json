@@ -5,9 +5,9 @@
     "infile_hash": "b22cabe2248cf58c7ffaad83dd8dc5b2433f244ee23b0703b536547b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-vec_01-66ac423.stdout",
-    "stdout_hash": "7d787d16892be7842eddb242d3e5e68f3371d41f194010dadb8bf7dd",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 0
+    "returncode": 3221225477
 }

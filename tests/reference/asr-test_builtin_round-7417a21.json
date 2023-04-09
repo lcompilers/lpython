@@ -5,9 +5,9 @@
     "infile_hash": "a4ff4032a45ce084eb524069046afb6ec44f1b24a667c84c7605f2c7",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-test_builtin_round-7417a21.stdout",
-    "stdout_hash": "5294347103ed508a5f8580c332a7d12ffc89833eb54e906b87dd7a6b",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 0
+    "returncode": 3221225477
 }

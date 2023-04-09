@@ -5,9 +5,9 @@
     "infile_hash": "1aba932852adf8cc5dbff4a6ff83aa5de030dba5a5721eeace90a5d4",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-test_max_min-3c2fc51.stdout",
-    "stdout_hash": "ec27917710a6f0c81fd6d347e88d8a0c640c82acf46015e601a05fea",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 0
+    "returncode": 3221225477
 }

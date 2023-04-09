@@ -7,7 +7,7 @@
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
-    "stderr": "asr-generics_error_02-d614928.stderr",
-    "stderr_hash": "2b82c797067dc1c722d416f8f13d837cfec47a0d4adb11c64f5b7e02",
-    "returncode": 2
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 3221225477
 }
