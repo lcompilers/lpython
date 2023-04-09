@@ -193,7 +193,15 @@ namespace LCompilers {
                     ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
                     SymbolTable* current_scope_copy = this->current_scope;
                     this->current_scope = xx.m_symtab;
+                    self().visit_ttype(*x.m_function_signature);
+                    for (size_t i=0; i<x.n_args; i++) {
+                        self().visit_expr(*x.m_args[i]);
+                    }
                     transform_stmts(xx.m_body, xx.n_body);
+
+                    if (x.m_return_var) {
+                        self().visit_expr(*x.m_return_var);
+                    }
 
                     for (auto &item : x.m_symtab->get_scope()) {
                         if (ASR::is_a<ASR::Function_t>(*item.second)) {
