@@ -1,5 +1,0 @@
-semantic error: Type mismatch in binary operator; the types must be compatible
-  --> tests/../integration_tests/test_c_interop_01.py:27:31
-   |
-27 |     assert abs(_lfortran_dsin(pi/2) - 1.0) < 1e-12
-   |                               ^^ ^ type mismatch (f64 and i32)
