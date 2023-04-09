@@ -356,6 +356,11 @@ namespace LCompilers {
                 }
                 break ;
             }
+            case ASR::ttypeType::Dict: {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(asr_type);
+                dict_api->dict_deepcopy(src, dest, dict_type, module, name2memidx);
+                break ;
+            }
             default: {
                 throw LCompilersException("LLVMUtils::deepcopy isn't implemented for " +
                                           ASRUtils::type_to_str_python(asr_type));
