@@ -2801,18 +2801,13 @@ class SymbolDuplicator {
             new_args.push_back(al, new_arg);
         }
 
-        node_duplicator.success = true;
-        ASR::expr_t* new_return_var = node_duplicator.duplicate_expr(function->m_return_var);
-        if (ASR::is_a<ASR::Var_t>(*new_return_var)) {
-            ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(new_return_var);
-            if (ASR::is_a<ASR::Variable_t>(*(var->m_v))) {
-                ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(var->m_v);
-                ASR::symbol_t* arg_symbol = function_symtab->get_symbol(variable->m_name);
-                new_return_var = ASRUtils::EXPR(make_Var_t(al, var->base.base.loc, arg_symbol));
+        ASR::expr_t* new_return_var = function->m_return_var;
+        if( new_return_var ) {
+            node_duplicator.success = true;
+            new_return_var = node_duplicator.duplicate_expr(function->m_return_var);
+            if( !node_duplicator.success ) {
+                return nullptr;
             }
-        }
-        if( !node_duplicator.success ) {
-            return nullptr;
         }
 
         ASR::FunctionType_t* function_type = ASRUtils::get_FunctionType(function);
@@ -3084,6 +3079,9 @@ static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::exp
 }
 
 static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vector<size_t>& v) {
+    // BindC interfaces already pass array by data pointer so we don't need to track
+    // them and use extra variables for their dimensional information. Only those functions
+    // need to be tracked which by default pass arrays by using descriptors.
     if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
         ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
         return false;
@@ -3109,6 +3107,10 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
         if( ASR::is_a<ASR::Pointer_t>(*argi->m_type) ) {
             return false;
         }
+
+        // The following if check determines whether the i-th argument
+        // can be called by just passing the data pointer and
+        // dimensional information spearately via extra arguments.
         if( ASRUtils::is_dimension_empty(dims, n_dims) &&
             (argi->m_intent == ASRUtils::intent_in ||
              argi->m_intent == ASRUtils::intent_out ||
