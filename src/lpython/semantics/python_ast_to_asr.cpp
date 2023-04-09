@@ -1745,9 +1745,7 @@ public:
                 );
                 throw SemanticAbort();
             }
-            if((ASRUtils::extract_kind_from_ttype_t(left_type) != ASRUtils::extract_kind_from_ttype_t(right_type)) || 
-                ((ASRUtils::is_logical(*left_type) && !ASRUtils::is_logical(*right_type))) ||
-                ((!ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)))){
+            if(!ASRUtils::check_equal_type(left_type, right_type)){
                 std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
                 std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
                 diag.add(diag::Diagnostic(

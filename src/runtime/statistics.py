@@ -216,7 +216,7 @@ def harmonic_mean(x: list[f64]) -> f64:
             return 0.0
         if x[i] < 0.0:
             raise Exception("Harmonic mean does not support negative values")
-        sum += i64(1) / x[i]
+        sum += 1.0 / x[i]
 
     return f64(k) / sum
 
