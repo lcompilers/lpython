@@ -233,6 +233,9 @@ namespace LCompilers {
                 llvm::Value* item, ASR::ttype_t* item_type,
                 llvm::Module& module);
 
+            llvm::Value* count(llvm::Value* list, llvm::Value* item,
+                                ASR::ttype_t* item_type, llvm::Module& module);
+
             void free_data(llvm::Value* list, llvm::Module& module);
 
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
