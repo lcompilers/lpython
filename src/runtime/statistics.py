@@ -15,7 +15,7 @@ def mean(x: list[i32]) -> f64:
 
     for i in range(k):
         sum += float(x[i])
-    return sum/k
+    return sum/f64(k)
 
 
 @overload
@@ -33,7 +33,7 @@ def mean(x: list[i64]) -> f64:
     for i in range(k):
         sum += float(x[i])
 
-    return sum/k
+    return sum/f64(k)
 
 
 @overload
@@ -50,7 +50,7 @@ def mean(x: list[f32]) -> f64:
 
     for i in range(k):
         sum += float(x[i])
-    return sum/k
+    return sum/f64(k)
 
 
 @overload
@@ -67,7 +67,7 @@ def mean(x: list[f64]) -> f64:
 
     for i in range(k):
         sum += x[i]
-    return sum/k
+    return sum/f64(k)
 
 
 @overload
@@ -177,7 +177,7 @@ def harmonic_mean(x: list[i32]) -> f64:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
 
-    return float(k/sum)
+    return f64(k)/sum
 
 @overload
 def harmonic_mean(x: list[i64]) -> f64:
@@ -196,8 +196,8 @@ def harmonic_mean(x: list[i64]) -> f64:
             return 0.0
         if x[i] < i64(0):
             raise Exception("Harmonic mean does not support negative values")
-        sum += 1 / x[i]
-    return k/sum
+        sum += i64(1) / x[i]
+    return f64(k)/sum
 
 @overload
 def harmonic_mean(x: list[f64]) -> f64:
@@ -216,9 +216,9 @@ def harmonic_mean(x: list[f64]) -> f64:
             return 0.0
         if x[i] < 0.0:
             raise Exception("Harmonic mean does not support negative values")
-        sum += 1 / x[i]
+        sum += i64(1) / x[i]
 
-    return k / sum
+    return f64(k) / sum
 
 
 # TODO: Use generics to support other types.
@@ -283,7 +283,7 @@ def variance(x: list[f64]) -> f64:
     i: i32
     for i in range(n):
         num += (x[i] - xmean)**2.0
-    return num / (n-1)
+    return num / f64(n-1)
 
 @overload
 def variance(x: list[i32]) -> f64:
@@ -301,7 +301,7 @@ def variance(x: list[i32]) -> f64:
     i: i32
     for i in range(n):
         num += (f64(x[i]) - xmean)**2.0
-    return num / (n-1)
+    return num / f64(n-1)
 
 
 @overload
@@ -335,7 +335,7 @@ def pvariance(x: list[f64]) -> f64:
     i: i32
     for i in range(n):
         num += (x[i] - xmean)**2.0
-    return num / n
+    return num / f64(n)
 
 @overload
 def pvariance(x: list[i32]) -> f64:
@@ -353,7 +353,7 @@ def pvariance(x: list[i32]) -> f64:
     i: i32
     for i in range(n):
         num += (f64(x[i]) - xmean)**2.0
-    return num / n
+    return num / f64(n)
 
 
 @overload
@@ -450,7 +450,7 @@ def covariance(x: list[i32], y: list[i32]) -> f64:
     i: i32
     for i in range(n):
         num += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
-    return num / (n-1)
+    return num / f64(n-1)
 
 @overload
 def covariance(x: list[f64], y: list[f64]) -> f64:
@@ -468,7 +468,7 @@ def covariance(x: list[f64], y: list[f64]) -> f64:
     i: i32
     for i in range(n):
         num += (x[i] - xmean) * (y[i] - ymean)
-    return num / (n-1)
+    return num / f64(n-1)
 
 @overload
 def linear_regression(x: list[i32], y: list[i32]) -> tuple[f64, f64]:

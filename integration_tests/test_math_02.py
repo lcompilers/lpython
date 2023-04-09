@@ -6,15 +6,15 @@ from lpython import f64
 def test_trig():
     eps: f64 = 1e-12
     assert abs(sin(0.0) - 0.0) < eps
-    assert abs(sin(pi/2) - 1.0) < eps
+    assert abs(sin(pi/2.0) - 1.0) < eps
     assert abs(cos(0.0) - 1.0) < eps
-    assert abs(cos(pi/2) - 0.0) < eps
+    assert abs(cos(pi/2.0) - 0.0) < eps
     assert abs(tan(0.0) - 0.0) < eps
-    assert abs(tan(pi/4) - 1.0) < eps
-    assert abs(asin(1.0) - pi/2) < eps
+    assert abs(tan(pi/4.0) - 1.0) < eps
+    assert abs(asin(1.0) - pi/2.0) < eps
     assert abs(acos(1.0) - 0.0) < eps
-    assert abs(atan(1.0) - pi/4) < eps
-    assert abs(atan2(1.0, 1.0) - pi/4) < eps
+    assert abs(atan(1.0) - pi/4.0) < eps
+    assert abs(atan2(1.0, 1.0) - pi/4.0) < eps
 
 def test_sqrt():
     eps: f64 = 1e-12

@@ -30,7 +30,7 @@ def add_float(x: f64, y: f64) -> f64:
     return x + y
 
 def div_float(x: f64, k: i32) -> f64:
-    return x / k
+    return x / f64(k)
 
 def empty_string(x: str) -> str:
     return ""

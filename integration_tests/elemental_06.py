@@ -110,7 +110,7 @@ def elemental_arctan():
 
     for i in range(201):
         array1d[i] =  f32(i + 1)
-        array1d_rec[i] = f32(1.0/(i+1))
+        array1d_rec[i] = f32(1.0/f64(i+1))
     arctan1d = arctan(array1d) + arctan(array1d_rec)
     for i in range(201):
         assert abs(arctan1d[i] - f32(f64(pi) / 2.0)) <= eps

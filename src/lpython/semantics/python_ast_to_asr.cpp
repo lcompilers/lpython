@@ -1745,6 +1745,20 @@ public:
                 );
                 throw SemanticAbort();
             }
+            if((ASRUtils::extract_kind_from_ttype_t(left_type) != ASRUtils::extract_kind_from_ttype_t(right_type)) || 
+                ((ASRUtils::is_logical(*left_type) && !ASRUtils::is_logical(*right_type))) ||
+                ((!ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)))){
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in binary operator; the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
             // Floor div operation in python using (`//`)
             if (floordiv) {
                 bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));
@@ -1818,19 +1832,6 @@ public:
                     int right_kind = ASRUtils::extract_kind_from_ttype_t(right_type);
                     bool is_left_f32 = ASR::is_a<ASR::Real_t>(*left_type) && left_kind == 4;
                     bool is_right_f32 = ASR::is_a<ASR::Real_t>(*right_type) && right_kind == 4;
-                    if((left_kind != right_kind) || 
-                        ((ASRUtils::is_logical(*left_type) && !ASRUtils::is_logical(*right_type)))){
-                        std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
-                        std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
-                        diag.add(diag::Diagnostic(
-                            "Type mismatch in binary operator; the types must be compatible",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                                        {left->base.loc, right->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
-                    }
                     if( (left_type_priority >= right_type_priority && is_left_f32) ||
                         (right_type_priority >= left_type_priority && is_right_f32) ) {
                         dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));

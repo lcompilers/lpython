@@ -41,7 +41,7 @@ def elemental_tanh():
         for j in range(8):
             for k in range(4):
                 for l in range(2):
-                    arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/size
+                    arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/float(size)
 
     tanhnd = (tanh(sin(arraynd)) + 2.0)/2.0
 
