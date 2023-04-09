@@ -24,6 +24,11 @@ def test_list_insert_02(x: list[i32], n: i32) -> list[i32]:
 
     return x
 
+def test_list_insert_03():
+    l1:list[str] = ["a","b","c","d"]
+    l1.insert(6,"e")
+    assert l1 == ['a', 'b', 'c', 'd', 'e']
+
 def test_list_02(n: i32) -> i32:
     x: list[i32] = [50, 1]
     acc: i32 = 0
@@ -60,5 +65,6 @@ def verify():
     assert test_list_01(11) == 55
     assert test_list_02(50) == 3628
     test_list_02_string()
+    test_list_insert_03()
 
 verify()
