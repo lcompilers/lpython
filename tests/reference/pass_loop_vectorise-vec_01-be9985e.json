@@ -5,9 +5,9 @@
     "infile_hash": "b22cabe2248cf58c7ffaad83dd8dc5b2433f244ee23b0703b536547b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "pass_loop_vectorise-vec_01-be9985e.stdout",
-    "stdout_hash": "4a150f946c886254484181d91bc6b18c96693d6d228cbbba7fdc789c",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": null,
     "stderr_hash": null,
-    "returncode": 0
+    "returncode": 3221225477
 }

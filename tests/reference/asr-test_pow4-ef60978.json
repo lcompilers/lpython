@@ -7,7 +7,7 @@
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
-    "stderr": "asr-test_pow4-ef60978.stderr",
-    "stderr_hash": "ddc8a81609479bf82d256c9cb8d4d54526bd6656632a0d1e2f1ada2c",
-    "returncode": 2
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 3221225477
 }

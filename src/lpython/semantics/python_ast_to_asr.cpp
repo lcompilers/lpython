@@ -1875,6 +1875,20 @@ public:
             if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
                 dest_type = ASRUtils::get_contained_type(dest_type);
             }
+        } else if((ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)) ||
+                    (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type))) {
+            if (op == ASR::binopType::Mul || op == ASR::binopType::Sub) {
+                std::string ltype = ASRUtils::type_to_str_python(left_type);
+                std::string rtype = ASRUtils::type_to_str_python(right_type);
+                diag.add(diag::Diagnostic(
+                    "Unsupported operand type",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("for ('" + ltype + "' and '" + rtype + "')",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
