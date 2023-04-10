@@ -25,6 +25,36 @@ void X86Assembler::save_binary(const std::string &filename) {
 #endif
 }
 
+// ELF header structure for 32-bit
+struct Elf32_Ehdr {
+    uint8_t ident[16];
+    uint16_t type;
+    uint16_t machine;
+    uint32_t version;
+    uint32_t entry;
+    uint32_t phoff;
+    uint32_t shoff;
+    uint32_t flags;
+    uint16_t ehsize;
+    uint16_t phentsize;
+    uint16_t phnum;
+    uint16_t shentsize;
+    uint16_t shnum;
+    uint16_t shstrndx;
+};
+
+// Program header structure for 32-bit
+struct Elf32_Phdr {
+    uint32_t type;
+    uint32_t offset;
+    uint32_t vaddr;
+    uint32_t paddr;
+    uint32_t filesz;
+    uint32_t memsz;
+    uint32_t flags;
+    uint32_t align;
+};
+
 void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     /* Elf32_Ehdr */
     a.add_label("ehdr");
@@ -282,6 +312,37 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
 }
 
 /************************* 64-bit functions **************************/
+
+// ELF header structure for 64-bit
+struct Elf64_Ehdr {
+    uint8_t ident[16];
+    uint16_t type;
+    uint16_t machine;
+    uint32_t version;
+    uint64_t entry;
+    uint64_t phoff;
+    uint64_t shoff;
+    uint32_t flags;
+    uint16_t ehsize;
+    uint16_t phentsize;
+    uint16_t phnum;
+    uint16_t shentsize;
+    uint16_t shnum;
+    uint16_t shstrndx;
+};
+
+// Program header structure for 64-bit
+struct Elf64_Phdr {
+    uint32_t type;
+    uint32_t flags;
+    uint64_t offset;
+    uint64_t vaddr;
+    uint64_t paddr;
+    uint64_t filesz;
+    uint64_t memsz;
+    uint64_t align;
+};
+
 
 void emit_elf64_header(X86Assembler &a) {
     /* Elf64_Ehdr */
