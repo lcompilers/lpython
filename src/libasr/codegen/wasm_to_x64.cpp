@@ -70,7 +70,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         switch (func_idx) {
             case 0: {  // proc_exit
             /*
-                TODO: This way increases the number of intructions.
+                TODO: This way increases the number of instructions.
                 There is a possibility that we can wrap these statements
                 with some add label and then just jump/call to that label
             */
@@ -81,7 +81,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             }
             case 1: {  // fd_write
             /*
-                TODO: This way increases the number of intructions.
+                TODO: This way increases the number of instructions.
                 There is a possibility that we can wrap these statements
                 with some add label and then just jump/call to that label
             */

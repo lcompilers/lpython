@@ -74,7 +74,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             }
             case 1: {  // fd_write
             /*
-                TODO: This way increases the number of intructions.
+                TODO: This way increases the number of instructions.
                 There is a possibility that we can wrap these statements
                 with some add label and then just jump/call to that label
             */
