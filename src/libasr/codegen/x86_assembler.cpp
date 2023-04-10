@@ -11,10 +11,11 @@
 namespace LCompilers {
 
 void X86Assembler::save_binary(const std::string &filename) {
+    Vec<uint8_t> bin = create_elf64_x86_binary(m_al, *this);
     {
         std::ofstream out;
         out.open(filename);
-        out.write((const char*) m_code.p, m_code.size());
+        out.write((const char*) bin.p, bin.size());
     }
 #ifdef LFORTRAN_LINUX
     std::string mode = "0755";
@@ -342,6 +343,144 @@ struct Elf64_Phdr {
     uint64_t memsz;
     uint64_t align;
 };
+
+Elf64_Ehdr get_elf_header(uint64_t asm_entry) {
+    Elf64_Ehdr e;
+    e.ident[0] = 0x7f; // magic number
+    e.ident[1] = 'E';
+    e.ident[2] = 'L';
+    e.ident[3] = 'F';
+    e.ident[4] = 2; // file class (64-bit)
+    e.ident[5] = 1; // data encoding (little endian)
+    e.ident[6] = 1; // ELF version
+    e.ident[7] = 0; // padding
+    e.ident[8] = 0;
+    e.ident[9] = 0;
+    e.ident[10] = 0;
+    e.ident[11] = 0;
+    e.ident[12] = 0;
+    e.ident[13] = 0;
+    e.ident[14] = 0;
+    e.ident[15] = 0;
+    e.type = 2;
+    e.machine = 0x3e;
+    e.version = 1;
+    e.entry = asm_entry;
+    e.phoff = sizeof(Elf64_Ehdr);
+    e.shoff = 0;
+    e.flags = 0;
+    e.ehsize = sizeof(Elf64_Ehdr);
+    e.phentsize = sizeof(Elf64_Phdr);
+    e.phnum = 3;
+    e.shentsize = 0;
+    e.shnum = 0;
+    e.shstrndx = 0;
+    return e;
+}
+
+Elf64_Phdr get_program_header(uint64_t addr_origin, uint64_t seg_size) {
+    Elf64_Phdr p;
+    p.type = 1;
+    p.flags = 4;
+    p.offset = 0;
+    p.vaddr = addr_origin;
+    p.paddr = p.vaddr;
+    p.filesz = seg_size;
+    p.memsz = p.filesz;
+    p.align = 0x1000;
+    return p;
+}
+
+Elf64_Phdr get_text_segment(uint64_t addr_origin, uint64_t prev_seg_offset, uint64_t prev_seg_size, uint64_t seg_size) {
+    Elf64_Phdr p;
+    p.type = 1;
+    p.flags = 5;
+    p.offset = prev_seg_offset + prev_seg_size;
+    p.vaddr = addr_origin + p.offset;
+    p.paddr = p.vaddr;
+    p.filesz = seg_size;
+    p.memsz = p.filesz;
+    p.align = 0x1000;
+    return p;
+}
+
+Elf64_Phdr get_data_segment(uint64_t addr_origin, uint64_t prev_seg_offset, uint64_t prev_seg_size, uint64_t seg_size) {
+    Elf64_Phdr p;
+    p.type = 1;
+    p.flags = 6;
+    p.offset = prev_seg_offset + prev_seg_size;
+    p.vaddr = addr_origin + p.offset;
+    p.paddr = p.vaddr;
+    p.filesz = seg_size;
+    p.memsz = p.filesz;
+    p.align = 0x1000;
+    return p;
+}
+
+template <typename T>
+void append_header_bytes(Allocator &al, T src, Vec<uint8_t> &des) {
+    char *byteArray = (char *)&src;
+    for (size_t i = 0; i < sizeof(src); i++) {
+        des.push_back(al, byteArray[i]);
+    }
+ }
+
+
+void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment) {
+    uint64_t code_size = code.size() ;
+    uint64_t padding_size = (alignment * ceil(code_size / (double)alignment)) - code_size;
+    for (size_t i = 0; i < padding_size; i++) {
+        code.push_back(al, 0);
+    }
+ }
+
+Vec<uint8_t> create_elf64_x86_binary(Allocator &al, X86Assembler &a) {
+
+    /*
+        The header segment is a segment which holds the elf and program headers.
+        Its size currently is
+            sizeof(Elf64_Ehdr) + 3 * sizeof(Elf64_Phdr)
+            that is, 64 + 3 * 56 = 232
+        Since, it is a segment, it needs to be aligned by boundary 0x1000
+        (we add temporary zero bytes as padding to accomplish this alignment)
+
+        Thus, the header segment size for us currently is 0x1000.
+
+        For now, we are hardcoding this size here.
+
+        TODO: Later compute this header segment size dynamically depending
+        on the different segments present
+    */
+    const int HEADER_SEGMENT_SIZE = 0x1000;
+
+    // adjust/offset the origin address as per the extra bytes of HEADER_SEGMENT_SIZE
+    uint64_t origin_addr = a.origin() - HEADER_SEGMENT_SIZE;
+
+    Elf64_Ehdr e = get_elf_header(a.get_defined_symbol("_start").value);
+    Elf64_Phdr p_program = get_program_header(origin_addr, HEADER_SEGMENT_SIZE);
+    Elf64_Phdr p_text_seg = get_text_segment(origin_addr, p_program.offset, p_program.filesz,
+        a.get_defined_symbol("text_segment_end").value - a.get_defined_symbol("text_segment_start").value);
+    Elf64_Phdr p_data_seg = get_data_segment(origin_addr, p_text_seg.offset, p_text_seg.filesz,
+        a.get_defined_symbol("data_segment_end").value - a.get_defined_symbol("data_segment_start").value);
+
+    Vec<uint8_t> bin;
+    bin.reserve(al, HEADER_SEGMENT_SIZE);
+
+    {
+        append_header_bytes(al, e, bin);
+        append_header_bytes(al, p_program, bin);
+        append_header_bytes(al, p_text_seg, bin);
+        append_header_bytes(al, p_data_seg, bin);
+
+        LCompilers::align_by_byte(al, bin, 0x1000);
+    }
+
+    for (auto b:a.get_machine_code()) {
+        bin.push_back(al, b);
+    }
+
+    return bin;
+}
 
 
 void emit_elf64_header(X86Assembler &a) {

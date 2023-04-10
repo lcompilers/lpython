@@ -1539,6 +1539,11 @@ void emit_print(X86Assembler &a, const std::string &msg_label,
 void emit_print_int(X86Assembler &a, const std::string &name);
 void emit_print_float(X86Assembler &a, const std::string &name);
 
+template <typename T>
+void append_header_bytes(Allocator &al, T src, Vec<uint8_t> &des);
+void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment);
+Vec<uint8_t> create_elf64_x86_binary(Allocator &al, X86Assembler &a);
+
 // Generate an ELF 64 bit header and footer
 // With these two functions, one only must generate a `_start` assembly
 // function to have a working binary on Linux.
