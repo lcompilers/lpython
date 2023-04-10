@@ -1948,6 +1948,20 @@ public:
         list_api->remove(plist, item, asr_el_type, *module);
     }
 
+    void visit_ListCount(const ASR::ListCount_t& x) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        this->visit_expr_wrapper(x.m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *item = tmp;
+        tmp = list_api->count(plist, item, asr_el_type, *module);
+    }
+
     void visit_ListClear(const ASR::ListClear_t& x) {
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -3640,6 +3654,32 @@ public:
                     type = llvm::Type::getInt32PtrTy(context);
                 }
                 break ;
+            }
+            case (ASR::ttypeType::Dict): {
+                ASR::Dict_t* asr_dict = ASR::down_cast<ASR::Dict_t>(asr_type);
+                std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
+                std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
+
+                bool is_array_type = false, is_malloc_array_type = false;
+                bool is_list = false;
+                ASR::dimension_t* m_dims = nullptr;
+                llvm::Type* key_llvm_type = get_type_from_ttype_t(asr_dict->m_key_type, m_storage,
+                                                                  is_array_type, 
+                                                                  is_malloc_array_type,
+                                                                  is_list, m_dims, n_dims,
+                                                                  a_kind, m_abi);
+                llvm::Type* value_llvm_type = get_type_from_ttype_t(asr_dict->m_value_type, m_storage,
+                                                                    is_array_type, 
+                                                                    is_malloc_array_type,
+                                                                    is_list, m_dims, n_dims,
+                                                                    a_kind, m_abi);
+                int32_t key_type_size = get_type_size(asr_dict->m_key_type, key_llvm_type, a_kind);
+                int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, a_kind);
+                set_dict_api(asr_dict);
+                type = llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, 
+                                                                  key_type_size, value_type_size, 
+                                                                  key_llvm_type, value_llvm_type)->getPointerTo();
+                break;
             }
             default :
                 LCOMPILERS_ASSERT(false);

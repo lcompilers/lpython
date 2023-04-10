@@ -254,6 +254,7 @@ expr
     | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
     | ListCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | ListCount(expr arg, expr ele, ttype type, expr? value)
 
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
