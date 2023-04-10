@@ -64,10 +64,6 @@ cpp = true
 wat = true
 
 [[test]]
-filename = "errors/type_mismatch.py"
-asr = true
-
-[[test]]
 filename = "expr4.py"
 ast = true
 asr = true
@@ -926,6 +922,14 @@ asr = true
 
 [[test]]
 filename = "errors/test_import_02.py"
+asr = true
+
+[[test]]
+filename = "errors/type_mismatch.py"
+asr = true
+
+[[test]]
+filename = "errors/test_type_mismatch_01.py"
 asr = true
 
 # tests/tokens/errors
