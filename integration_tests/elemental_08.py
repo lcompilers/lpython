@@ -18,7 +18,7 @@ def verifynd(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2:
     result1d: f64[1024] = reshape(result, shape)
 
     for i in range(size):
-        assert abs(( exp(array1d[i]) + exp(array1d[i] / 3) ) / 2 - result1d[i]) <= eps
+        assert abs(( exp(array1d[i]) + exp(array1d[i] / 3.0) ) / float(2) - result1d[i]) <= eps
 
 def elemental_exp():
     i: i32; j: i32; k: i32; l: i32; size: i32;
@@ -40,7 +40,7 @@ def elemental_exp():
         for j in range(8):
             for k in range(4):
                 for l in range(2):
-                    arraynd[i, j, k, l] = float( f64(i) / 8.0 + f64(j) / 4.0 + f64(k) / 2.0 + f64(l) ) / size
+                    arraynd[i, j, k, l] = float( f64(i) / 8.0 + f64(j) / 4.0 + f64(k) / 2.0 + f64(l) ) / float(size)
 
     expnd = (exp(arraynd) + exp(arraynd / 3.0)) / 2.0
 

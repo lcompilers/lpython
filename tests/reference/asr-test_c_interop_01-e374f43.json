@@ -2,11 +2,11 @@
     "basename": "asr-test_c_interop_01-e374f43",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_c_interop_01.py",
-    "infile_hash": "8dd5d5b22dd518496006bdf56651d6892012102d8a0f354e05fc94d7",
+    "infile_hash": "f5363d49163fefe382a94462e7c305a7938ddcc44c4595f8a0c5bc3f",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_c_interop_01-e374f43.stdout",
-    "stdout_hash": "f0f14cea7739e56630b1c9a041e549f8e8e18d05e69dc36fceb5e74b",
+    "stdout_hash": "9d34b037680950ab931fd76b05db390f3c09fe38e14996dd9b79218b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

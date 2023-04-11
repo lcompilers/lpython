@@ -1745,6 +1745,18 @@ public:
                 );
                 throw SemanticAbort();
             }
+            if(!ASRUtils::check_equal_type(left_type, right_type)){
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in binary operator; the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
             // Floor div operation in python using (`//`)
             if (floordiv) {
                 bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));

@@ -18,7 +18,7 @@ def verifynd(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2:
     result1d: f64[12800] = reshape(result, shape)
 
     for i in range(size):
-        assert abs((sinh(array1d[i]) + 2.0)/2 - result1d[i]) <= eps
+        assert abs((sinh(array1d[i]) + 2.0)/2.0 - result1d[i]) <= eps
 
 
 def elemental_sinh():
@@ -41,7 +41,7 @@ def elemental_sinh():
         for j in range(10):
             for k in range(16):
                 for l in range(2):
-                    arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/size
+                    arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/float(size)
 
     sinhnd = (sinh(arraynd) + 2.0)/2.0
 
@@ -63,7 +63,7 @@ def elemental_cosh():
 
     for i in range(20):
         for j in range(10):
-                array2d[i, j] = (i + 2*j)/200.0
+                array2d[i, j] = float(i + 2*j)/200.0  
 
     cosh2d = cosh(5.0 + (array2d))**2.0
     verify2d(array2d, cosh2d, 20, 10)
@@ -77,7 +77,7 @@ def elemental_cosh_():
 
     for i in range(20):
         for j in range(10):
-                array2d[i, j] = (i + 2*j)/200.0
+                array2d[i, j] = float(i + 2*j)/200.0
 
     cosh2d = cosh(5.0 + (array2d))**2.0
     verify2d(array2d, cosh2d, 20, 10)
