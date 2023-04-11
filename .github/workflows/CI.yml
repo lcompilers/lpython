@@ -155,7 +155,7 @@ jobs:
             # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
             ./emsdk activate latest
 
-      - name: Show Emscripten Info
+      - name: Show Emscripten and Node Info
         shell: bash -l {0}
         run: |
             set -ex
@@ -163,6 +163,8 @@ jobs:
             source $HOME/ext/emsdk/emsdk_env.sh
             emcc -v
             em++ -v
+            which node
+            node -v
 
       - name: Build to WASM
         shell: bash -l {0}
@@ -177,4 +179,6 @@ jobs:
         run: |
             set -ex
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
+            which node
+            node -v
             node src/lpython/tests/test_lpython.js
