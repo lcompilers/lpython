@@ -133,6 +133,13 @@ jobs:
           variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
+      - name : Remove existing node
+        shell: bash -l {0}
+        run : |
+            which node
+            node -v
+            sudo rm -rf /usr/local/bin/node /usr/local/bin/npm
+
       - name: Install Emscripten from Git
         shell: bash -l {0}
         run: |
