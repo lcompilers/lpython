@@ -133,6 +133,13 @@ jobs:
           variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
+      - name : Remove existing node
+        shell: bash -l {0}
+        run : |
+            which node
+            node -v
+            sudo rm -rf /usr/local/bin/node /usr/local/bin/npm
+
       - name: Install Emscripten from Git
         shell: bash -l {0}
         run: |
@@ -142,13 +149,11 @@ jobs:
             git clone https://github.com/emscripten-core/emsdk.git
             cd emsdk
 
-            # Download and install the latest SDK tools.
-            ./emsdk install latest
+            ./emsdk install 3.1.35
 
-            # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
-            ./emsdk activate latest
+            ./emsdk activate 3.1.35
 
-      - name: Show Emscripten Info
+      - name: Show Emscripten and Node Info
         shell: bash -l {0}
         run: |
             set -ex
@@ -156,6 +161,8 @@ jobs:
             source $HOME/ext/emsdk/emsdk_env.sh
             emcc -v
             em++ -v
+            which node
+            node -v
 
       - name: Build to WASM
         shell: bash -l {0}
@@ -170,4 +177,6 @@ jobs:
         run: |
             set -ex
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
+            which node
+            node -v
             node src/lpython/tests/test_lpython.js
