@@ -1339,8 +1339,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::binopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
-                    std::set<std::string>& current_function_dependencies,
-                    Vec<char*>& current_module_dependencies,
+                    SetChar& current_function_dependencies,
+                    SetChar& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err);
 
 bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
@@ -1350,8 +1350,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::cmpopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
-                    std::set<std::string>& current_function_dependencies,
-                    Vec<char*>& current_module_dependencies,
+                    SetChar& current_function_dependencies,
+                    SetChar& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err);
 
 bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
@@ -1360,8 +1360,8 @@ bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
 bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                                SymbolTable* curr_scope, ASR::asr_t*& asr,
                                Allocator &al, const Location& loc,
-                               std::set<std::string>& current_function_dependencies,
-                               Vec<char*>& /*current_module_dependencies*/,
+                               SetChar& current_function_dependencies,
+                               SetChar& /*current_module_dependencies*/,
                                const std::function<void (const std::string &, const Location &)> err);
 
 void set_intrinsic(ASR::symbol_t* sym);
@@ -2351,7 +2351,7 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
 }
 
 static inline void insert_module_dependency(ASR::symbol_t* a,
-    Allocator& al, Vec<char*>& module_dependencies) {
+    Allocator& al, SetChar& module_dependencies) {
     if( ASR::is_a<ASR::ExternalSymbol_t>(*a) ) {
         ASR::ExternalSymbol_t* a_ext = ASR::down_cast<ASR::ExternalSymbol_t>(a);
         ASR::symbol_t* a_sym_module = ASRUtils::get_asr_owner(a_ext->m_external);
@@ -2359,8 +2359,7 @@ static inline void insert_module_dependency(ASR::symbol_t* a,
             while( a_sym_module && !ASR::is_a<ASR::Module_t>(*a_sym_module) ) {
                 a_sym_module = ASRUtils::get_asr_owner(a_sym_module);
             }
-            if( a_sym_module && !LCompilers::present(module_dependencies,
-                ASRUtils::symbol_name(a_sym_module)) ) {
+            if( a_sym_module ) {
                 module_dependencies.push_back(al, ASRUtils::symbol_name(a_sym_module));
             }
         }
@@ -2494,13 +2493,13 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     Vec<ASR::call_arg_t>& orig_args;
 
-    std::set<std::string>& current_function_dependencies;
+    SetChar& current_function_dependencies;
 
     public:
 
     ReplaceArgVisitor(Allocator& al_, SymbolTable* current_scope_,
                       ASR::Function_t* orig_func_, Vec<ASR::call_arg_t>& orig_args_,
-                      std::set<std::string>& current_function_dependencies_) :
+                      SetChar& current_function_dependencies_) :
         al(al_), current_scope(current_scope_), orig_func(orig_func_),
         orig_args(orig_args_), current_function_dependencies(current_function_dependencies_)
     {}
@@ -2572,7 +2571,7 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
             default:
                 break;
         }
-        current_function_dependencies.insert(std::string(ASRUtils::symbol_name(new_es)));
+        current_function_dependencies.push_back(al, ASRUtils::symbol_name(new_es));
         x->m_name = new_es;
     }
 
@@ -3236,11 +3235,11 @@ class CollectIdentifiersFromASRExpression: public ASR::BaseWalkVisitor<CollectId
     private:
 
         Allocator& al;
-        Vec<char*>& identifiers;
+        SetChar& identifiers;
 
     public:
 
-        CollectIdentifiersFromASRExpression(Allocator& al_, Vec<char*>& identifiers_) :
+        CollectIdentifiersFromASRExpression(Allocator& al_, SetChar& identifiers_) :
         al(al_), identifiers(identifiers_)
         {}
 
@@ -3249,7 +3248,7 @@ class CollectIdentifiersFromASRExpression: public ASR::BaseWalkVisitor<CollectId
         }
 };
 
-static inline void collect_variable_dependencies(Allocator& al, Vec<char*>& deps_vec,
+static inline void collect_variable_dependencies(Allocator& al, SetChar& deps_vec,
     ASR::ttype_t* type=nullptr, ASR::expr_t* init_expr=nullptr,
     ASR::expr_t* value=nullptr) {
     ASRUtils::CollectIdentifiersFromASRExpression collector(al, deps_vec);

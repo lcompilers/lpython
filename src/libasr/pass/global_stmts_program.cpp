@@ -25,7 +25,7 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     std::string prog_name = "main_program";
     Vec<ASR::stmt_t*> prog_body;
     prog_body.reserve(al, 1);
-    Vec<char *> prog_dep;
+    SetChar prog_dep;
     prog_dep.reserve(al, 1);
     if (unit.n_items > 0) {
         pass_wrap_global_stmts_into_function(al, unit, pass_options);
