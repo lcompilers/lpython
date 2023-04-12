@@ -22,6 +22,7 @@ struct AttributeHandler {
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
             {"list@count", &eval_list_count},
+            {"list@index", &eval_list_index},
             {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
             {"list@pop", &eval_list_pop},
@@ -147,6 +148,32 @@ struct AttributeHandler {
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                 4, nullptr, 0));
         return make_ListCount_t(al, loc, s, args[0], to_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_list_index(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (args.size() != 1) {
+            throw SemanticError("index() takes exactly one argument",
+                loc);
+        }
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
+        ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+            std::string fnd = ASRUtils::type_to_str_python(ele_type);
+            std::string org = ASRUtils::type_to_str_python(list_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in 'index', the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                4, nullptr, 0));
+        return make_ListIndex_t(al, loc, s, args[0], to_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,

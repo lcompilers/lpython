@@ -233,6 +233,9 @@ namespace LCompilers {
                 llvm::Value* item, ASR::ttype_t* item_type,
                 llvm::Module& module);
 
+            llvm::Value* index(llvm::Value* list, llvm::Value* item,
+                                ASR::ttype_t* item_type, llvm::Module& module);
+
             llvm::Value* count(llvm::Value* list, llvm::Value* item,
                                 ASR::ttype_t* item_type, llvm::Module& module);
 
