@@ -3,6 +3,7 @@
 #include <chrono>
 #include <iomanip>
 #include <fstream>
+#include <climits>
 
 #include <libasr/asr.h>
 #include <libasr/exception.h>
@@ -526,7 +527,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         using namespace wasm;
         int kind = ASRUtils::extract_kind_from_ttype_t(v->m_type);
-        uint32_t global_var_idx = -1;
+        uint32_t global_var_idx = UINT_MAX;
         switch (v->m_type->type){
             case ASR::ttypeType::Integer: {
                 uint64_t init_val = 0;
@@ -583,7 +584,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 global_var_idx = m_wa.declare_global_var(i32, 0);
             }
         }
-        LCOMPILERS_ASSERT(global_var_idx >= 0);
+        LCOMPILERS_ASSERT(global_var_idx < UINT_MAX);
         m_global_var_idx_map[get_hash((ASR::asr_t *)v)] = global_var_idx;
     }
 
