@@ -202,6 +202,8 @@ int emit_asr(const std::string &infile,
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = "f";
     pass_options.always_run = true;
+    pass_options.verbose = compiler_options.verbose;
+
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     if (compiler_options.tree) {
@@ -299,6 +301,8 @@ int emit_c(const std::string &infile,
     pass_manager.use_default_passes(true);
     pass_options.run_fun = "f";
     pass_options.always_run = true;
+    pass_options.verbose = compiler_options.verbose;
+
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     diagnostics.diagnostics.clear();
@@ -350,6 +354,8 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     pass_manager.use_default_passes(true);
     pass_options.run_fun = "f";
     pass_options.always_run = true;
+    pass_options.verbose = compiler_options.verbose;
+
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     diagnostics.diagnostics.clear();
@@ -1498,6 +1504,7 @@ int main(int argc, char *argv[])
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
+        app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
