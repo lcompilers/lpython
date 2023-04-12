@@ -430,8 +430,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::binopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
-                    std::set<std::string>& current_function_dependencies,
-                    Vec<char*>& current_module_dependencies,
+                    SetChar& current_function_dependencies,
+                    SetChar& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = ASRUtils::expr_type(right);
@@ -478,7 +478,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             } else {
                                 return_type = ASRUtils::expr_type(func->m_return_var);
                             }
-                            current_function_dependencies.insert(matched_func_name);
+                            current_function_dependencies.push_back(al, s2c(al, matched_func_name));
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,
@@ -544,8 +544,8 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
 
 void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* target, ASR::expr_t* value,
     ASR::ttype_t* target_type, ASR::ttype_t* value_type, bool& found, Allocator& al, const Location& target_loc,
-    const Location& value_loc, SymbolTable* curr_scope, std::set<std::string>& current_function_dependencies,
-    Vec<char*>& current_module_dependencies, ASR::asr_t*& asr, ASR::symbol_t* sym, const Location& loc, ASR::expr_t* expr_dt,
+    const Location& value_loc, SymbolTable* curr_scope, SetChar& current_function_dependencies,
+    SetChar& current_module_dependencies, ASR::asr_t*& asr, ASR::symbol_t* sym, const Location& loc, ASR::expr_t* expr_dt,
     const std::function<void (const std::string &, const Location &)> err, char* pass_arg=nullptr) {
     ASR::Function_t* subrout = ASR::down_cast<ASR::Function_t>(proc);
     std::string matched_subrout_name = "";
@@ -592,7 +592,7 @@ void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* ta
             if( a_name == nullptr ) {
                 err("Unable to resolve matched subroutine for assignment overloading, " + matched_subrout_name, loc);
             }
-            current_function_dependencies.insert(matched_subrout_name);
+            current_function_dependencies.push_back(al, s2c(al, matched_subrout_name));
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             asr = ASR::make_SubroutineCall_t(al, loc, a_name, sym,
                                             a_args.p, 2, nullptr);
@@ -603,8 +603,8 @@ void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* ta
 bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                                SymbolTable* curr_scope, ASR::asr_t*& asr,
                                Allocator &al, const Location& loc,
-                               std::set<std::string>& current_function_dependencies,
-                               Vec<char*>& current_module_dependencies,
+                               SetChar& current_function_dependencies,
+                               SetChar& current_module_dependencies,
                                const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *target_type = ASRUtils::expr_type(target);
     ASR::ttype_t *value_type = ASRUtils::expr_type(value);
@@ -659,8 +659,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::cmpopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
-                    std::set<std::string>& current_function_dependencies,
-                    Vec<char*>& current_module_dependencies,
+                    SetChar& current_function_dependencies,
+                    SetChar& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = ASRUtils::expr_type(right);
@@ -731,7 +731,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             } else {
                                 return_type = ASRUtils::expr_type(func->m_return_var);
                             }
-                            current_function_dependencies.insert(matched_func_name);
+                            current_function_dependencies.push_back(al, s2c(al, matched_func_name));
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,

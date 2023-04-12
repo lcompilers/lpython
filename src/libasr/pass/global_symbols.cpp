@@ -21,7 +21,7 @@ void pass_wrap_global_syms_into_module(Allocator &al,
     char *module_name = s2c(al, "_global_symbols");
     SymbolTable *module_scope = al.make_new<SymbolTable>(unit.m_global_scope);
     Vec<char *> moved_symbols;
-    Vec<char *> mod_dependencies;
+    SetChar mod_dependencies;
 
     // Move all the symbols from global into the module scope
     unit.m_global_scope->move_symbols_from_global_scope(al, module_scope,

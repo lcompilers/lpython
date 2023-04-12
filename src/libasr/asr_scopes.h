@@ -99,7 +99,7 @@ struct SymbolTable {
 
     void move_symbols_from_global_scope(Allocator &al,
         SymbolTable *module_scope, Vec<char *> &syms,
-        Vec<char *> &mod_dependencies);
+        SetChar &mod_dependencies);
 };
 
 } // namespace LCompilers

@@ -137,7 +137,7 @@ std::string SymbolTable::get_unique_name(const std::string &name) {
 
 void SymbolTable::move_symbols_from_global_scope(Allocator &al,
         SymbolTable *module_scope, Vec<char *> &syms,
-        Vec<char *> &mod_dependencies) {
+        SetChar &mod_dependencies) {
     // TODO: This isn't scalable. We have write a visitor in asdl_cpp.py
     syms.reserve(al, 4);
     mod_dependencies.reserve(al, 4);
@@ -180,9 +180,7 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
                     if (s != nullptr && ASR::is_a<ASR::ExternalSymbol_t>(*s)) {
                         char *es_name = ASR::down_cast<
                             ASR::ExternalSymbol_t>(s)->m_module_name;
-                        if (!present(mod_dependencies, es_name)) {
-                            mod_dependencies.push_back(al, es_name);
-                        }
+                        mod_dependencies.push_back(al, es_name);
                     }
                 }
                 fn->m_symtab->parent = module_scope;
@@ -197,9 +195,7 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
                 break;
             } case (ASR::symbolType::ExternalSymbol) : {
                 ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(a.second);
-                if (!present(mod_dependencies, es->m_module_name)) {
-                    mod_dependencies.push_back(al, es->m_module_name);
-                }
+                mod_dependencies.push_back(al, es->m_module_name);
                 es->m_parent_symtab = module_scope;
                 ASR::symbol_t *s = ASRUtils::symbol_get_past_external(a.second);
                 LCOMPILERS_ASSERT(s);

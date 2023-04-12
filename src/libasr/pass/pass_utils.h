@@ -243,9 +243,9 @@ namespace LCompilers {
 
             private:
 
-                Vec<char*> function_dependencies;
-                Vec<char*> module_dependencies;
-                Vec<char*> variable_dependencies;
+                SetChar function_dependencies;
+                SetChar module_dependencies;
+                SetChar variable_dependencies;
                 Allocator& al;
                 bool fill_function_dependencies;
                 bool fill_module_dependencies;
@@ -265,7 +265,7 @@ namespace LCompilers {
 
                 void visit_Function(const ASR::Function_t& x) {
                     ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
-                    Vec<char*> function_dependencies_copy;
+                    SetChar function_dependencies_copy;
                     function_dependencies_copy.from_pointer_n_copy(al, function_dependencies.p, function_dependencies.size());
                     function_dependencies.n = 0;
                     function_dependencies.reserve(al, 1);
@@ -289,9 +289,7 @@ namespace LCompilers {
                     fill_module_dependencies = true;
                     BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Module(x);
                     for( size_t i = 0; i < xx.n_dependencies; i++ ) {
-                        if( !present(module_dependencies, xx.m_dependencies[i]) ) {
-                            module_dependencies.push_back(al, xx.m_dependencies[i]);
-                        }
+                        module_dependencies.push_back(al, xx.m_dependencies[i]);
                     }
                     xx.n_dependencies = module_dependencies.size();
                     xx.m_dependencies = module_dependencies.p;
@@ -312,9 +310,7 @@ namespace LCompilers {
 
                 void visit_Var(const ASR::Var_t& x) {
                     if( fill_variable_dependencies ) {
-                        if( !present(variable_dependencies, ASRUtils::symbol_name(x.m_v)) ) {
-                            variable_dependencies.push_back(al, ASRUtils::symbol_name(x.m_v));
-                        }
+                        variable_dependencies.push_back(al, ASRUtils::symbol_name(x.m_v));
                     }
                 }
 

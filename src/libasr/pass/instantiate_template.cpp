@@ -16,7 +16,7 @@ public:
     std::map<std::string, ASR::symbol_t*> rt_subs;
     std::string new_func_name;
     std::vector<ASR::Function_t*> rts;
-    std::set<std::string> dependencies;
+    SetChar dependencies;
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
             std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *func_scope,
@@ -29,7 +29,7 @@ public:
         {}
 
     ASR::asr_t* instantiate_Function(ASR::Function_t *x) {
-        dependencies.clear();
+        dependencies.clear(al);
         current_scope = al.make_new<SymbolTable>(func_scope);
 
         Vec<ASR::expr_t*> args;
@@ -52,7 +52,7 @@ public:
             bool value_attr = param_var->m_value_attr;
 
             // TODO: Copying variable can be abstracted into a function
-            Vec<char*> variable_dependencies_vec;
+            SetChar variable_dependencies_vec;
             variable_dependencies_vec.reserve(al, 1);
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type);
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
@@ -73,7 +73,7 @@ public:
             std::string return_var_name = return_var->m_name;
             ASR::ttype_t *return_param_type = ASRUtils::expr_type(x->m_return_var);
             ASR::ttype_t *return_type = substitute_type(return_param_type);
-            Vec<char*> variable_dependencies_vec;
+            SetChar variable_dependencies_vec;
             variable_dependencies_vec.reserve(al, 1);
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, return_type);
             ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
@@ -97,7 +97,7 @@ public:
                     ASR::ttype_t *new_sym_type = substitute_type(ASRUtils::symbol_type(sym));
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(sym);
                     std::string var_sym_name = var_sym->m_name;
-                    Vec<char*> variable_dependencies_vec;
+                    SetChar variable_dependencies_vec;
                     variable_dependencies_vec.reserve(al, 1);
                     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, new_sym_type);
                     ASR::asr_t *new_var = ASR::make_Variable_t(al, var_sym->base.base.loc,
@@ -133,10 +133,11 @@ public:
         bool func_pure = ASRUtils::get_FunctionType(x)->m_pure;
         bool func_module = ASRUtils::get_FunctionType(x)->m_module;
 
-        Vec<char*> deps_vec;
+        SetChar deps_vec;
         deps_vec.reserve(al, dependencies.size());
-        for( auto& dep: dependencies ) {
-            deps_vec.push_back(al, s2c(al, dep));
+        for( size_t i = 0; i < dependencies.size(); i++ ) {
+            char* dep = dependencies[i];
+            deps_vec.push_back(al, dep);
         }
 
         ASR::asr_t *result = ASRUtils::make_Function_t_util(
@@ -253,7 +254,7 @@ public:
             ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
-        dependencies.insert(std::string(ASRUtils::symbol_name(name)));
+        dependencies.push_back(al, ASRUtils::symbol_name(name));
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
@@ -280,7 +281,7 @@ public:
             ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
-        dependencies.insert(std::string(ASRUtils::symbol_name(name)));
+        dependencies.push_back(al, ASRUtils::symbol_name(name));
         return ASR::make_SubroutineCall_t(al, x->base.base.loc, name /* change this */,
             x->m_original_name, args.p, args.size(), dt);
     }

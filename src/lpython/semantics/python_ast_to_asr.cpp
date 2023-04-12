@@ -285,17 +285,18 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     return r2.result;
 }
 
-void fill_module_dependencies(SymbolTable* symtab, std::set<std::string>& mod_deps) {
+void fill_module_dependencies(SymbolTable* symtab, SetChar& mod_deps,
+    Allocator& al) {
     if( symtab == nullptr ) {
         return ;
     }
     for( auto& itr: symtab->get_scope() ) {
         if( ASR::is_a<ASR::ExternalSymbol_t>(*itr.second) ) {
             ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(itr.second);
-            mod_deps.insert(std::string(ext_sym->m_module_name));
+            mod_deps.push_back(al, ext_sym->m_module_name);
         } else {
             SymbolTable* sym_symtab = ASRUtils::symbol_symtab(itr.second);
-            fill_module_dependencies(sym_symtab, mod_deps);
+            fill_module_dependencies(sym_symtab, mod_deps, al);
         }
     }
 }
@@ -531,7 +532,7 @@ public:
     // The current_module contains the current module that is being visited;
     // this is used to append to the module dependencies if needed
     ASR::Module_t *current_module = nullptr;
-    Vec<char *> current_module_dependencies;
+    SetChar current_module_dependencies;
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
@@ -550,7 +551,7 @@ public:
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
     std::vector<ASR::symbol_t*> rt_vec;
-    std::set<std::string> dependencies;
+    SetChar dependencies;
     bool allow_implicit_casting;
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
@@ -629,21 +630,17 @@ public:
             // We are in body visitor, the module is already constructed
             // and available as current_module.
             // Add the module `m` to current module dependencies
-            Vec<char*> vec;
+            SetChar vec;
             vec.from_pointer_n_copy(al, current_module->m_dependencies,
                         current_module->n_dependencies);
-            if (!present(vec, m->m_name)) {
-                vec.push_back(al, m->m_name);
-                current_module->m_dependencies = vec.p;
-                current_module->n_dependencies = vec.size();
-            }
+            vec.push_back(al, m->m_name);
+            current_module->m_dependencies = vec.p;
+            current_module->n_dependencies = vec.size();
         } else {
             // We are in the symtab visitor or body visitor and we are
             // constructing a module, so current_module is not available yet
             // (the current_module_dependencies is not used in body visitor)
-            if (!present(current_module_dependencies, m->m_name)) {
-                current_module_dependencies.push_back(al, m->m_name);
-            }
+            current_module_dependencies.push_back(al, m->m_name);
         }
         return v;
     }
@@ -1117,13 +1114,13 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
                     !ASRUtils::is_intrinsic_function2(func));
-                dependencies.insert(std::string(ASRUtils::symbol_name(stemp)));
+                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
                 ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
                     std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
-                    Vec<char*> variable_dependencies_vec;
+                    SetChar variable_dependencies_vec;
                     variable_dependencies_vec.reserve(al, 1);
                     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, a_type);
                     ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
@@ -1143,7 +1140,7 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-                dependencies.insert(std::string(ASRUtils::symbol_name(stemp)));
+                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr);
             }
@@ -1381,8 +1378,8 @@ public:
         generic_func_subs[new_func_name] = subs;
         t = pass_instantiate_generic_function(al, subs, rt_subs,
             ASRUtils::symbol_parent_symtab(func), new_func_name, func);
-        dependencies.erase(func_name);
-        dependencies.insert(new_func_name);
+        dependencies.erase(s2c(al, func_name));
+        dependencies.push_back(al, s2c(al, new_func_name));
         return t;
     }
 
@@ -2249,7 +2246,7 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
-        Vec<char*> variable_dependencies_vec;
+        SetChar variable_dependencies_vec;
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
@@ -2275,7 +2272,7 @@ public:
 
             v_variable->m_symbolic_value = nullptr;
             v_variable->m_value = nullptr;
-            Vec<char*> variable_dependencies_vec;
+            SetChar variable_dependencies_vec;
             variable_dependencies_vec.reserve(al, 1);
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
             v_variable->m_dependencies = variable_dependencies_vec.p;
@@ -2383,7 +2380,7 @@ public:
     }
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
-        Vec<char*>& member_names, Vec<char*>& struct_dependencies,
+        Vec<char*>& member_names, SetChar& struct_dependencies,
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
@@ -2479,7 +2476,7 @@ public:
             member_names.reserve(al, x.n_body);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
-            Vec<char*> struct_dependencies;
+            SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
             visit_ClassMembers(x, member_names, struct_dependencies, true, enum_abi);
             current_body = current_body_copy;
@@ -2561,7 +2558,7 @@ public:
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
             member_names.reserve(al, x.n_body);
-            Vec<char*> struct_dependencies;
+            SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
             visit_ClassMembers(x, member_names, struct_dependencies);
             ASR::symbol_t* union_type = ASR::down_cast<ASR::symbol_t>(ASR::make_UnionType_t(al,
@@ -2591,7 +2588,7 @@ public:
         current_scope = al.make_new<SymbolTable>(parent_scope);
         Vec<char*> member_names;
         member_names.reserve(al, x.n_body);
-        Vec<char*> struct_dependencies;
+        SetChar struct_dependencies;
         struct_dependencies.reserve(al, 1);
         ASR::abiType class_abi = ASR::abiType::Source;
         if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
@@ -2635,7 +2632,7 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
-        Vec<char*> variable_dependencies_vec;
+        SetChar variable_dependencies_vec;
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
@@ -2666,7 +2663,7 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
-        Vec<char*> variable_dependencies_vec;
+        SetChar variable_dependencies_vec;
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
@@ -2954,7 +2951,7 @@ public:
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
                         ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
-                        dependencies.erase(std::string(ASRUtils::symbol_name(operand_func_call->m_name)));
+                        dependencies.erase(ASRUtils::symbol_name(operand_func_call->m_name));
                     }
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
@@ -3003,7 +3000,7 @@ public:
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
                         ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
-                        dependencies.erase(std::string(ASRUtils::symbol_name(operand_func_call->m_name)));
+                        dependencies.erase(ASRUtils::symbol_name(operand_func_call->m_name));
                     }
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
@@ -3369,7 +3366,7 @@ public:
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
-        dependencies.clear();
+        dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         Vec<ASR::expr_t*> args;
@@ -3485,7 +3482,7 @@ public:
             if (current_procedure_abi_type == ASR::abiType::BindC) {
                 value_attr = true;
             }
-            Vec<char*> variable_dependencies_vec;
+            SetChar variable_dependencies_vec;
             variable_dependencies_vec.reserve(al, 1);
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type, init_expr, value);
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
@@ -3516,7 +3513,7 @@ public:
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
                     return_type_ = ASR::down_cast<ASR::Const_t>(type)->m_type;
                 }
-                Vec<char*> variable_dependencies_vec;
+                SetChar variable_dependencies_vec;
                 variable_dependencies_vec.reserve(al, 1);
                 ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.m_returns->base.loc,
@@ -3530,16 +3527,11 @@ public:
                 ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
-                Vec<char*> func_deps;
-                func_deps.reserve(al, dependencies.size());
-                for( auto& dep: dependencies ) {
-                    func_deps.push_back(al, s2c(al, dep));
-                }
                 tmp = ASRUtils::make_Function_t_util(
                     al, x.base.base.loc,
                     /* a_symtab */ current_scope,
                     /* a_name */ s2c(al, sym_name),
-                    func_deps.p, func_deps.size(),
+                    dependencies.p, dependencies.size(),
                     /* a_args */ args.p,
                     /* n_args */ args.size(),
                     /* a_body */ nullptr,
@@ -3555,16 +3547,11 @@ public:
             }
         } else {
             bool is_pure = false, is_module = false;
-            Vec<char*> func_deps;
-            func_deps.reserve(al, dependencies.size());
-            for( auto& dep: dependencies ) {
-                func_deps.push_back(al, s2c(al, dep));
-            }
             tmp = ASRUtils::make_Function_t_util(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
                 /* a_name */ s2c(al, sym_name),
-                func_deps.p, func_deps.size(),
+                dependencies.p, dependencies.size(),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
                 /* a_body */ nullptr,
@@ -3708,9 +3695,7 @@ public:
             }
             if( msym == "__init__" ) {
                 for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
-                    if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) &&
-                        !present(current_module_dependencies,
-                        ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name) ) {
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
                         current_module_dependencies.push_back(al,
                             ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name);
                     }
@@ -3827,7 +3812,7 @@ public:
                         ASR::presenceType s_presence = ASR::presenceType::Required;
                         bool value_attr = false;
 
-                        Vec<char*> variable_dependencies_vec;
+                        SetChar variable_dependencies_vec;
                         variable_dependencies_vec.reserve(al, 1);
                         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
                         // Build the variable and add it to the scope
@@ -3965,9 +3950,7 @@ public:
         }
         if( mod ) {
             for( size_t i = 0; i < mod->n_dependencies; i++ ) {
-                if( !present(current_module_dependencies, mod->m_dependencies[i]) ) {
-                    current_module_dependencies.push_back(al, mod->m_dependencies[i]);
-                }
+                current_module_dependencies.push_back(al, mod->m_dependencies[i]);
             }
             mod->m_dependencies = current_module_dependencies.p;
             mod->n_dependencies = current_module_dependencies.size();
@@ -4042,7 +4025,7 @@ public:
         body.reserve(al, x.n_body);
         Vec<ASR::symbol_t*> rts;
         rts.reserve(al, 4);
-        dependencies.clear();
+        dependencies.clear(al);
         transform_stmts(body, x.n_body, x.m_body);
         for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
         v.m_body = body.p;
@@ -4050,13 +4033,8 @@ public:
         ASR::FunctionType_t* v_func_type = ASR::down_cast<ASR::FunctionType_t>(v.m_function_signature);
         v_func_type->m_restrictions = rts.p;
         v_func_type->n_restrictions = rts.size();
-        Vec<char*> func_deps;
-        func_deps.reserve(al, dependencies.size());
-        for( auto& dep: dependencies ) {
-            func_deps.push_back(al, s2c(al, dep));
-        }
-        v.m_dependencies = func_deps.p;
-        v.n_dependencies = func_deps.size();
+        v.m_dependencies = dependencies.p;
+        v.n_dependencies = dependencies.size();
         rt_vec.clear();
     }
 
@@ -4432,7 +4410,7 @@ public:
         if( ASR::is_a<ASR::Const_t>(*int_type) ) {
             storage_type = ASR::storage_typeType::Parameter;
         }
-        Vec<char*> variable_dependencies_vec;
+        SetChar variable_dependencies_vec;
         variable_dependencies_vec.reserve(al, 1);
         ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, int_type);
         auto explicit_iter_variable = ASR::make_Variable_t(al, loc,
@@ -4621,7 +4599,7 @@ public:
 
                 // Create a temporary variable that will contain the evaluated value of Subscript
                 std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
-                Vec<char*> variable_dependencies_vec;
+                SetChar variable_dependencies_vec;
                 variable_dependencies_vec.reserve(al, 1);
                 ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, loop_src_var_ttype);
                 ASR::asr_t* tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
@@ -5542,7 +5520,7 @@ public:
         // if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
         //     ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
         //     return_variable->m_symbolic_value = value;
-        //     Vec<char*> variable_dependencies_vec;
+        //     SetChar variable_dependencies_vec;
         //     variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
         //                                                   return_variable->n_dependencies);
         //     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
