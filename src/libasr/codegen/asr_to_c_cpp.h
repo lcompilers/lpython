@@ -1491,6 +1491,19 @@ R"(#include <stdio.h>
         }
     }
 
+    void visit_IntegerBitCount(const ASR::IntegerBitCount_t& x) {
+        self().visit_expr(*x.m_a);
+        int arg_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        switch (arg_kind) {
+            case 1: src = "_lpython_bit_count1(" + src + ")"; break;
+            case 2: src = "_lpython_bit_count2(" + src + ")"; break;
+            case 4: src = "_lpython_bit_count4(" + src + ")"; break;
+            case 8: src = "_lpython_bit_count8(" + src + ")"; break;
+            default: throw CodeGenError("Unsupported Integer Kind: " + \
+                            std::to_string(arg_kind));
+        }
+    }
+
     void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
         handle_Compare(x);
     }

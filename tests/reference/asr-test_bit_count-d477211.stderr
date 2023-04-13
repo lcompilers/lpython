@@ -1,0 +1,5 @@
+semantic error: int.bit_count() takes no arguments
+ --> tests/errors/test_bit_count.py:4:11
+  |
+4 |     print(x.bit_count(23))
+  |           ^^^^^^^^^^^^^^^ 

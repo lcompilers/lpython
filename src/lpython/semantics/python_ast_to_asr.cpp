@@ -6383,7 +6383,25 @@ public:
                         4, nullptr, 0));
                     tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, int_type);
                     return;
-                } else {
+                }
+                else if (std::string(at->m_attr) == std::string("bit_count")){
+                    //bit_count() attribute:
+                    if(args.size() != 0) {
+                        throw SemanticError("int.bit_count() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
+                    int64_t int_val = std::abs(n->m_value);
+                    int32_t res = 0;
+                    for (; int_val; int_val >>= 1) {
+                        res += int_val & 1;
+                    }
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        4, nullptr, 0));
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, int_type);
+                    return;
+                }
+                else {
                     throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
                 }

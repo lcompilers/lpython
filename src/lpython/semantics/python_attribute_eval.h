@@ -19,6 +19,7 @@ struct AttributeHandler {
     AttributeHandler() {
         attribute_map = {
             {"int@bit_length", &eval_int_bit_length},
+            {"int@bit_count", &eval_int_bit_count},
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
             {"list@count", &eval_list_count},
@@ -73,6 +74,17 @@ struct AttributeHandler {
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         int_kind, nullptr, 0));
         return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_int_bit_count(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (args.size() != 0) {
+            throw SemanticError("int.bit_count() takes no arguments", loc);
+        }
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        int_kind, nullptr, 0));
+        return ASR::make_IntegerBitCount_t(al, loc, s, int_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,

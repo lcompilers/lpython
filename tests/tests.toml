@@ -611,6 +611,10 @@ filename = "errors/test_bit_length.py"
 asr = true
 
 [[test]]
+filename = "errors/test_bit_count.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_01.py"
 asr = true
 
