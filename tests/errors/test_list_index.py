@@ -5,3 +5,5 @@ def test_list_index_error():
     a = [1, 2, 3]
     # a.index(1.0)  # type mismatch
     print(a.index(0)) # no error?
+
+test_list_index_error()

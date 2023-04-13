@@ -678,7 +678,7 @@ asr = true
 
 [[test]]
 filename = "errors/test_list_index.py"
-asr = true
+run = true
 
 [[test]]
 filename = "errors/test_list1.py"

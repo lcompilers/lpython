@@ -6,6 +6,7 @@
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 namespace LCompilers::LPython {
 
@@ -151,29 +152,17 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_list_index(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (args.size() != 1) {
-            throw SemanticError("index() takes exactly one argument",
-                loc);
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
         }
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
-        ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-            std::string fnd = ASRUtils::type_to_str_python(ele_type);
-            std::string org = ASRUtils::type_to_str_python(list_type);
-            diag.add(diag::Diagnostic(
-                "Type mismatch in 'index', the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
-                            {args[0]->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
-        return make_ListIndex_t(al, loc, s, args[0], to_type, nullptr);
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.index");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
     }
 
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
