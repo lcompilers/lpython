@@ -378,38 +378,13 @@ Elf64_Ehdr get_elf_header(uint64_t asm_entry) {
     return e;
 }
 
-Elf64_Phdr get_program_header(uint64_t addr_origin, uint64_t seg_size) {
+Elf64_Phdr get_seg_header(uint32_t flags, uint64_t origin_addr,
+    uint64_t seg_size, uint64_t prev_seg_offset, uint64_t prev_seg_size) {
     Elf64_Phdr p;
     p.type = 1;
-    p.flags = 4;
-    p.offset = 0;
-    p.vaddr = addr_origin;
-    p.paddr = p.vaddr;
-    p.filesz = seg_size;
-    p.memsz = p.filesz;
-    p.align = 0x1000;
-    return p;
-}
-
-Elf64_Phdr get_text_segment(uint64_t addr_origin, uint64_t prev_seg_offset, uint64_t prev_seg_size, uint64_t seg_size) {
-    Elf64_Phdr p;
-    p.type = 1;
-    p.flags = 5;
+    p.flags = flags;
     p.offset = prev_seg_offset + prev_seg_size;
-    p.vaddr = addr_origin + p.offset;
-    p.paddr = p.vaddr;
-    p.filesz = seg_size;
-    p.memsz = p.filesz;
-    p.align = 0x1000;
-    return p;
-}
-
-Elf64_Phdr get_data_segment(uint64_t addr_origin, uint64_t prev_seg_offset, uint64_t prev_seg_size, uint64_t seg_size) {
-    Elf64_Phdr p;
-    p.type = 1;
-    p.flags = 6;
-    p.offset = prev_seg_offset + prev_seg_size;
-    p.vaddr = addr_origin + p.offset;
+    p.vaddr = origin_addr + p.offset;
     p.paddr = p.vaddr;
     p.filesz = seg_size;
     p.memsz = p.filesz;
@@ -457,11 +432,13 @@ Vec<uint8_t> create_elf64_x86_binary(Allocator &al, X86Assembler &a) {
     uint64_t origin_addr = a.origin() - HEADER_SEGMENT_SIZE;
 
     Elf64_Ehdr e = get_elf_header(a.get_defined_symbol("_start").value);
-    Elf64_Phdr p_program = get_program_header(origin_addr, HEADER_SEGMENT_SIZE);
-    Elf64_Phdr p_text_seg = get_text_segment(origin_addr, p_program.offset, p_program.filesz,
-        a.get_defined_symbol("text_segment_end").value - a.get_defined_symbol("text_segment_start").value);
-    Elf64_Phdr p_data_seg = get_data_segment(origin_addr, p_text_seg.offset, p_text_seg.filesz,
-        a.get_defined_symbol("data_segment_end").value - a.get_defined_symbol("data_segment_start").value);
+    Elf64_Phdr p_program = get_seg_header(4, origin_addr, HEADER_SEGMENT_SIZE, 0, 0);
+
+    const uint64_t text_seg_size = a.get_defined_symbol("text_segment_end").value - a.get_defined_symbol("text_segment_start").value;
+    Elf64_Phdr p_text_seg = get_seg_header(5, origin_addr, text_seg_size, p_program.offset, p_program.filesz);
+
+    const uint64_t data_seg_size = a.get_defined_symbol("data_segment_end").value - a.get_defined_symbol("data_segment_start").value;
+    Elf64_Phdr p_data_seg = get_seg_header(6, origin_addr, data_seg_size, p_text_seg.offset, p_text_seg.filesz);
 
     Vec<uint8_t> bin;
     bin.reserve(al, HEADER_SEGMENT_SIZE);
