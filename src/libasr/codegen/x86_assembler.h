@@ -436,8 +436,7 @@ public:
         m_origin = 0x08048000;
 #ifdef LFORTRAN_ASM_PRINT
         if (bits64) {
-            m_asm_code = "BITS 64\n";
-            emit("    ", "org " + i2s((uint64_t)m_origin) + "\n"); // specify origin info
+            m_asm_code = "";
         } else {
             m_asm_code = "BITS 32\n";
             emit("    ", "org " + i2s(m_origin) + "\n"); // specify origin info
@@ -447,7 +446,86 @@ public:
 
 #ifdef LFORTRAN_ASM_PRINT
     std::string get_asm() {
-        return m_asm_code;
+
+        std::string header =
+R"(BITS 64
+    org )" + i2s((uint64_t) m_origin) + R"(
+
+ehdr:
+    db 0x7f
+    db 0x45
+    db 0x4c
+    db 0x46
+    db 0x02
+    db 0x01
+    db 0x01
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    dw 0x0002
+    dw 0x003e
+    dd 0x00000001
+    dq _start
+    dq e_phoff
+    dq 0x0000000000000000
+    dd 0x00000000
+    dw ehdrsize
+    dw phdrsize
+    dw 0x0003
+    dw 0x0000
+    dw 0x0000
+    dw 0x0000
+phdr:
+    dd 0x00000001
+    dd 0x00000004
+    dq header_segment_offset
+    dq header_segment_start
+    dq header_segment_start
+    dq header_segment_size
+    dq header_segment_size
+    dq 0x0000000000001000
+text_phdr:
+    dd 0x00000001
+    dd 0x00000005
+    dq text_segment_offset
+    dq text_segment_start
+    dq text_segment_start
+    dq text_segment_size
+    dq text_segment_size
+    dq 0x0000000000001000
+data_phdr:
+    dd 0x00000001
+    dd 0x00000006
+    dq data_segment_offset
+    dq data_segment_start
+    dq data_segment_start
+    dq data_segment_size
+    dq data_segment_size
+    dq 0x0000000000001000
+
+	align 4096, db 0
+
+)";
+
+        std::string footer = R"(
+    ehdrsize equ phdr - ehdr
+    phdrsize equ text_phdr - phdr
+    e_phoff equ phdr - ehdr
+    header_segment_offset equ ehdr - ehdr
+    header_segment_start equ ehdr
+    header_segment_size equ text_segment_start - ehdr
+    text_segment_offset equ text_segment_start - ehdr
+    text_segment_size equ text_segment_end - text_segment_start
+    data_segment_offset equ data_segment_start - ehdr
+    data_segment_size equ data_segment_end - data_segment_start
+)";
+        return header + m_asm_code + footer;
     }
 
     // Saves the generated assembly into a file
