@@ -153,12 +153,6 @@ public:
                 ASR::ExternalSymbol_t* called_sym_ext = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
                 ASR::symbol_t* f_sym = ASRUtils::symbol_get_past_external(called_sym_ext->m_external);
                 ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
-
-                // Never inline intrinsic functions
-                if( ASRUtils::is_intrinsic_function2(f) ) {
-                    return ;
-                }
-
                 ASR::symbol_t* called_sym = x.m_name;
 
                 // TODO: Handle later
@@ -217,6 +211,12 @@ public:
             return ;
         }
 
+        // Never inline intrinsic functions
+        if( ASRUtils::is_intrinsic_function2(func) ||
+            startswith(func->m_name,"_lfortran_") ) {
+            return ;
+        }
+        
         if( !is_fast && !ASRUtils::get_FunctionType(func)->m_inline ) {
             return ;
         }
