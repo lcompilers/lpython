@@ -1,3 +1,6 @@
+#ifndef LFORTRAN_PASS_INTRINSIC_FUNCTION_REGISTRY_H
+#define LFORTRAN_PASS_INTRINSIC_FUNCTION_REGISTRY_H
+
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/asr_utils.h>
@@ -513,3 +516,5 @@ inline std::string get_intrinsic_name(int x) {
 } // namespace ASRUtils
 
 } // namespace LCompilers
+
+#endif // LFORTRAN_PASS_INTRINSIC_FUNCTION_REGISTRY_H
