@@ -499,7 +499,10 @@ public:
                 ASR::List_t* t = ASR::down_cast<ASR::List_t>(v_m_type);
                 std::string list_type_c = c_ds_api->get_list_type(t);
                 sub = format_type_c("", list_type_c, v.m_name,
-                                    false, false);
+                                    false, false) + ";\n";
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string list_init_func = c_ds_api->get_list_init_func(t);
+                sub += indent + list_init_func + "(&" + v.m_name + ", 0)";
             } else if (ASR::is_a<ASR::Tuple_t>(*v_m_type)) {
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v_m_type);
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
