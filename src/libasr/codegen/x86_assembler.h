@@ -446,7 +446,10 @@ public:
 
 #ifdef LFORTRAN_ASM_PRINT
     std::string get_asm() {
+        return m_asm_code;
+    }
 
+    std::string get_asm64() {
         std::string header =
 R"(BITS 64
     org )" + i2s((uint64_t) m_origin) + R"(
@@ -666,6 +669,7 @@ data_phdr:
 
     // Saves the generated machine code into a binary file
     void save_binary(const std::string &filename);
+    void save_binary64(const std::string &filename);
 
     void asm_pop_r64(X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);

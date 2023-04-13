@@ -695,7 +695,7 @@ Result<int> wasm_to_x64(Vec<uint8_t> &wasm_bytes, Allocator &al,
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        m_a.save_binary(filename);
+        m_a.save_binary64(filename);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_save =
             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
@@ -703,7 +703,7 @@ Result<int> wasm_to_x64(Vec<uint8_t> &wasm_bytes, Allocator &al,
     }
 
     //! Helpful for debugging
-    // std::cout << x64_visitor.m_a.get_asm() << std::endl;
+    // std::cout << x64_visitor.m_a.get_asm64() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;

@@ -10,12 +10,27 @@
 
 namespace LCompilers {
 
-void X86Assembler::save_binary(const std::string &filename) {
+void X86Assembler::save_binary64(const std::string &filename) {
     Vec<uint8_t> bin = create_elf64_x86_binary(m_al, *this);
     {
         std::ofstream out;
         out.open(filename);
         out.write((const char*) bin.p, bin.size());
+    }
+#ifdef LFORTRAN_LINUX
+    std::string mode = "0755";
+    int mod = strtol(mode.c_str(), 0, 8);
+    if (chmod(filename.c_str(),mod) < 0) {
+        throw AssemblerError("chmod failed");
+    }
+#endif
+}
+
+void X86Assembler::save_binary(const std::string &filename) {
+    {
+        std::ofstream out;
+        out.open(filename);
+        out.write((const char*) m_code.p, m_code.size());
     }
 #ifdef LFORTRAN_LINUX
     std::string mode = "0755";
