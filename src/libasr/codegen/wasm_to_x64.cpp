@@ -613,9 +613,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             emit_double_const(m_a, d.first, d.second);
         }
 
+        m_a.align_by_byte(0x1000);
         m_a.add_label("text_segment_end");
 
-        m_a.align_by_byte(0x1000);
         m_a.add_label("data_segment_start");
         for (auto &s : label_to_str) {
             emit_data_string(m_a, s.first, s.second);
