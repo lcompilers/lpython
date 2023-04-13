@@ -1195,10 +1195,14 @@ int link_executable(const std::vector<std::string> &infiles,
     } else if (backend == Backend::c) {
         std::string CXX = "gcc";
         std::string cmd = CXX + " -o " + outfile + " ";
+        std::string base_path = "\"" + runtime_library_dir + "\"";
+        std::string runtime_lib = "lpython_runtime";
         for (auto &s : infiles) {
             cmd += s + " ";
         }
         cmd += " -I " + rtlib_header_dir;
+        cmd += " -L" + base_path
+            + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -1776,7 +1780,6 @@ int main(int argc, char *argv[])
                 if (err != 0) return err;
                 err = link_executable({tmp_o}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options, rtlib_header_dir);
-                if (err != 0) return err;
 
 #ifdef HAVE_RUNTIME_STACKTRACE
                 if (compiler_options.emit_debug_info) {
@@ -1809,7 +1812,7 @@ int main(int argc, char *argv[])
             } else {
                 throw LCompilers::LCompilersException("Unsupported backend.");
             }
-
+            if (err != 0) return err;
             if (compiler_options.arg_o == "") {
                 if (backend == Backend::wasm) {
                     err = system(("node --experimental-wasi-unstable-preview1 " + outfile +".js").c_str());
