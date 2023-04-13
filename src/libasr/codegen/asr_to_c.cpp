@@ -828,6 +828,7 @@ R"(
         }
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
+                + indent1 + "_lpython_set_argv(argc, argv);\n"
                 + decl + body
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
