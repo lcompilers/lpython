@@ -482,8 +482,8 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
     ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
     if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-        std::string fnd = ASRUtils::type_to_str_python(ele_type);
-        std::string org = ASRUtils::type_to_str_python(list_type);
+        std::string fnd = ASRUtils::get_type_code(ele_type);
+        std::string org = ASRUtils::get_type_code(list_type);
         err(
             "Type mismatch in 'index', the types must be compatible "
             "(found: '" + fnd + "', expected: '" + org + "')", loc);
