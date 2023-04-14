@@ -1070,3 +1070,7 @@ run = true
 [[test]]
 filename = "for_else/break_in_if.py"
 run = true
+
+[[test]]
+filename = "for_else/nested_loop.py"
+run = true

@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-nested_loop-6a5a431",
+    "cmd": "lpython {infile}",
+    "infile": "tests/for_else/nested_loop.py",
+    "infile_hash": "41866cefd6bbcd693f2f7a3e2fb229fa5500e0fcb41ae864a5902709",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-nested_loop-6a5a431.stdout",
+    "stdout_hash": "8bfba961db77bc0c4a2f4cc1332a96d27325a39768c79454eabd871e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
