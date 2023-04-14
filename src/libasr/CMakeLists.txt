@@ -27,6 +27,7 @@ set(SRC
     codegen/wasm_to_x64.cpp
     codegen/wasm_utils.cpp
 
+    pass/nested_vars.cpp
     pass/param_to_const.cpp
     pass/do_loops.cpp
     pass/for_all.cpp
@@ -76,7 +77,6 @@ if (WITH_LLVM)
         codegen/asr_to_llvm.cpp
         codegen/llvm_array_utils.cpp
         codegen/llvm_utils.cpp
-        pass/nested_vars.cpp
     )
     # We use deprecated API in LLVM, so we disable the warning until we upgrade
     if (NOT MSVC)
