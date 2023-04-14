@@ -11,11 +11,12 @@
 namespace LCompilers {
 
 void X86Assembler::save_binary64(const std::string &filename) {
-    Vec<uint8_t> bin = create_elf64_x86_binary(m_al, *this);
+    Vec<uint8_t> header = create_elf64_x86_header(m_al, *this);
     {
         std::ofstream out;
         out.open(filename);
-        out.write((const char*) bin.p, bin.size());
+        out.write((const char*) header.p, header.size());
+        out.write((const char*) m_code.p, m_code.size());
     }
 #ifdef LFORTRAN_LINUX
     std::string mode = "0755";
@@ -424,7 +425,7 @@ void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment) {
     }
  }
 
-Vec<uint8_t> create_elf64_x86_binary(Allocator &al, X86Assembler &a) {
+Vec<uint8_t> create_elf64_x86_header(Allocator &al, X86Assembler &a) {
 
     /*
         The header segment is a segment which holds the elf and program headers.
@@ -455,23 +456,19 @@ Vec<uint8_t> create_elf64_x86_binary(Allocator &al, X86Assembler &a) {
     const uint64_t data_seg_size = a.get_defined_symbol("data_segment_end").value - a.get_defined_symbol("data_segment_start").value;
     Elf64_Phdr p_data_seg = get_seg_header(6, origin_addr, data_seg_size, p_text_seg.offset, p_text_seg.filesz);
 
-    Vec<uint8_t> bin;
-    bin.reserve(al, HEADER_SEGMENT_SIZE);
+    Vec<uint8_t> header;
+    header.reserve(al, HEADER_SEGMENT_SIZE);
 
     {
-        append_header_bytes(al, e, bin);
-        append_header_bytes(al, p_program, bin);
-        append_header_bytes(al, p_text_seg, bin);
-        append_header_bytes(al, p_data_seg, bin);
+        append_header_bytes(al, e, header);
+        append_header_bytes(al, p_program, header);
+        append_header_bytes(al, p_text_seg, header);
+        append_header_bytes(al, p_data_seg, header);
 
-        LCompilers::align_by_byte(al, bin, 0x1000);
+        LCompilers::align_by_byte(al, header, 0x1000);
     }
 
-    for (auto b:a.get_machine_code()) {
-        bin.push_back(al, b);
-    }
-
-    return bin;
+    return header;
 }
 
 void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size)
