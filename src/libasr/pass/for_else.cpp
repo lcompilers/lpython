@@ -53,7 +53,7 @@ public:
         ASR::expr_t* false_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false, bool_type));
         ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, flag_expr, false_expr, nullptr));
         result.push_back(al, assign_stmt);
-        result.push_back(al, ASRUtils::STMT(ASR::make_Exit_t(al, loc)));
+        result.push_back(al, ASRUtils::STMT(ASR::make_Exit_t(al, loc, nullptr)));
 
         pass_result = result;
     }
@@ -102,7 +102,7 @@ public:
 
         // convert head and body to DoLoop
         ASR::stmt_t *doLoopStmt = ASRUtils::STMT(
-            ASR::make_DoLoop_t(al, loc, x.m_head, x.m_body, x.n_body)
+            ASR::make_DoLoop_t(al, loc, nullptr, x.m_head, x.m_body, x.n_body)
         );
         result.push_back(al, doLoopStmt);
 
