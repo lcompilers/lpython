@@ -158,7 +158,7 @@ public:
         Vec<ASR::stmt_t*> result;
         result.reserve(al, 1);
 
-        // create a boolean flag and set it to false
+        // create a boolean flag and set it to true
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
         ASR::expr_t* true_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, bool_type));
         ASR::expr_t* false_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false, bool_type));
@@ -189,6 +189,7 @@ public:
         );
         result.push_back(al, doLoopStmt);
 
+        // this DoLoop corresponds to the current flag
         doLoopFlagMap[doLoopStmt] = flag_symbol;
         // std::cerr << doLoopStmt << " -> " << flag_expr << std::endl;
 
