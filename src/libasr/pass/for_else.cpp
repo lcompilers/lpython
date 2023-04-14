@@ -17,13 +17,13 @@ using ASR::is_a;
 using ASR::down_cast;
 using ASR::stmtType;
 
-std::map<ASR::stmt_t*, ASR::symbol_t*> doLoopFlagMap;
-
 class ExitVisitor : public ASR::StatementWalkVisitor<ExitVisitor> {
 public:
     std::stack<ASR::stmt_t*> doLoopStack;
+    std::map<ASR::stmt_t*, ASR::symbol_t*> &doLoopFlagMap;
 
-    ExitVisitor(Allocator &al) : StatementWalkVisitor(al) {
+    ExitVisitor(Allocator &al, std::map<ASR::stmt_t*, ASR::symbol_t*> &doLoopFlagMap)
+        : StatementWalkVisitor(al), doLoopFlagMap(doLoopFlagMap) {
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
@@ -150,6 +150,8 @@ public:
         counter = 0;
     }
 
+    std::map<ASR::stmt_t*, ASR::symbol_t*> doLoopFlagMap;
+
     int counter;
 
     void visit_ForElse(const ASR::ForElse_t &x) {
@@ -205,7 +207,7 @@ void pass_replace_forelse(Allocator &al, ASR::TranslationUnit_t &unit,
                           const LCompilers::PassOptions& /*pass_options*/) {
     ForElseVisitor v(al);
     v.visit_TranslationUnit(unit);
-    ExitVisitor v2(al);
+    ExitVisitor v2(al, v.doLoopFlagMap);
     v2.visit_TranslationUnit(unit);
 }
 
