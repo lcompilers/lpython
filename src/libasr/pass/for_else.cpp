@@ -161,7 +161,6 @@ public:
         // create a boolean flag and set it to true
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
         ASR::expr_t* true_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, bool_type));
-        ASR::expr_t* false_expr = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, false, bool_type));
 
         auto target_scope = current_scope; // al.make_new<SymbolTable>(current_scope);
 
