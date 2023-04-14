@@ -26,15 +26,20 @@ def test_list_insert_02(x: list[i32], n: i32) -> list[i32]:
 
 def test_list_insert_03():
     l1:list[str] = ["a", "b", "c", "d"]
-    l1.insert(6,"e")
+    l2:list[str] = []
+    l1.insert(5,"e")
     s:str = "a"
     i:i32 = 0
     for i in range(len(l1)):
         assert l1[i] == chr(ord(s)+i)
 
-    l1.insert(18,"f")
-    for i in range(len(l1)):
-        assert l1[i] == chr(ord(s)+i)
+def test_list_insert_04():
+    l:list[i32] = [1, 2, 3, 4, 5]
+    i:i32
+    l.insert(6,6)
+    l.insert(100,7)
+    for i in range(1,8):
+        assert l[i-1] == i
 
 def test_list_02(n: i32) -> i32:
     x: list[i32] = [50, 1]
@@ -73,5 +78,6 @@ def verify():
     assert test_list_02(50) == 3628
     test_list_02_string()
     test_list_insert_03()
+    test_list_insert_04()
 
 verify()
