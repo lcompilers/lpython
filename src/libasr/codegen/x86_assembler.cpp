@@ -22,8 +22,7 @@ void X86Assembler::save_binary64(const std::string &filename) {
         out.write((const char*) m_code.p, m_code.size());
     }
 #ifdef LFORTRAN_LINUX
-    std::string mode = "0755";
-    int mod = strtol(mode.c_str(), 0, 8);
+    int mod = 0755;
     if (chmod(filename.c_str(),mod) < 0) {
         throw AssemblerError("chmod failed");
     }
