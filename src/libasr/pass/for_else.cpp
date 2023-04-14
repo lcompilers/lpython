@@ -11,18 +11,6 @@
 
 #include <stack>
 
-// the current code passes break_in_if.py
-
-/* FIXME:
-
-for ...
-    for ...
-        break # does not affect the orelse flag in outer loop
-else
-    ...
-
- */
-
 namespace LCompilers {
 
 using ASR::is_a;
@@ -42,19 +30,18 @@ public:
         ASR::stmt_t *doLoopStmt = (ASR::stmt_t*)(&x);
         // std::cerr << doLoopStmt << " -- " << doLoopFlagMap[doLoopStmt] << std::endl;
 
+        doLoopStack.push(doLoopStmt);
+
         ASR::DoLoop_t& xx = const_cast<ASR::DoLoop_t&>(x);
-
-        if (doLoopFlagMap.find(doLoopStmt) != doLoopFlagMap.end())
-            doLoopStack.push(doLoopStmt);
-
         this->transform_stmts(xx.m_body, xx.n_body);
 
-        if (doLoopFlagMap.find(doLoopStmt) != doLoopFlagMap.end())
-            doLoopStack.pop();
+        doLoopStack.pop();
     }
 
     void visit_Exit(const ASR::Exit_t &x) {
-        if (doLoopStack.empty())
+        if (doLoopStack.empty() ||
+            // the current loop is not originally a ForElse loop
+            doLoopFlagMap.find(doLoopStack.top()) == doLoopFlagMap.end())
             return;
 
         // std::cerr << "Break! inside " << doLoopStack.top() << std::endl;
