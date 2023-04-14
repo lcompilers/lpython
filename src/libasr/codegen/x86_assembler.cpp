@@ -11,7 +11,10 @@
 namespace LCompilers {
 
 void X86Assembler::save_binary64(const std::string &filename) {
-    Vec<uint8_t> header = create_elf64_x86_header(m_al, *this);
+    Vec<uint8_t> header = create_elf64_x86_header(
+        m_al, origin(), get_defined_symbol("_start").value,
+        compute_seg_size("text_segment_start", "text_segment_end"),
+        compute_seg_size("data_segment_start", "data_segment_end"));
     {
         std::ofstream out;
         out.open(filename);
@@ -425,7 +428,8 @@ void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment) {
     }
  }
 
-Vec<uint8_t> create_elf64_x86_header(Allocator &al, X86Assembler &a) {
+Vec<uint8_t> create_elf64_x86_header(Allocator &al, uint64_t origin, uint64_t entry,
+    uint64_t text_seg_size, uint64_t data_seg_size) {
 
     /*
         The header segment is a segment which holds the elf and program headers.
@@ -445,15 +449,11 @@ Vec<uint8_t> create_elf64_x86_header(Allocator &al, X86Assembler &a) {
     const int HEADER_SEGMENT_SIZE = 0x1000;
 
     // adjust/offset the origin address as per the extra bytes of HEADER_SEGMENT_SIZE
-    uint64_t origin_addr = a.origin() - HEADER_SEGMENT_SIZE;
+    uint64_t origin_addr = origin - HEADER_SEGMENT_SIZE;
 
-    Elf64_Ehdr e = get_elf_header(a.get_defined_symbol("_start").value);
+    Elf64_Ehdr e = get_elf_header(entry);
     Elf64_Phdr p_program = get_seg_header(4, origin_addr, HEADER_SEGMENT_SIZE, 0, 0);
-
-    const uint64_t text_seg_size = a.get_defined_symbol("text_segment_end").value - a.get_defined_symbol("text_segment_start").value;
     Elf64_Phdr p_text_seg = get_seg_header(5, origin_addr, text_seg_size, p_program.offset, p_program.filesz);
-
-    const uint64_t data_seg_size = a.get_defined_symbol("data_segment_end").value - a.get_defined_symbol("data_segment_start").value;
     Elf64_Phdr p_data_seg = get_seg_header(6, origin_addr, data_seg_size, p_text_seg.offset, p_text_seg.filesz);
 
     Vec<uint8_t> header;

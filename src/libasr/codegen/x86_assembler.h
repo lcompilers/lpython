@@ -554,6 +554,10 @@ data_phdr:
         EMIT("\n\talign " + std::to_string(alignment) + ", db 0");
     }
 
+    uint64_t compute_seg_size(std::string start_flag, std::string end_flag) {
+        return get_defined_symbol(end_flag).value - get_defined_symbol(start_flag).value;
+    }
+
     void define_symbol(const std::string &name, uint32_t value) {
         if (m_symbols.find(name) == m_symbols.end()) {
             Symbol s;
@@ -1627,7 +1631,8 @@ void emit_print_float(X86Assembler &a, const std::string &name);
 template <typename T>
 void append_header_bytes(Allocator &al, T src, Vec<uint8_t> &des);
 void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment);
-Vec<uint8_t> create_elf64_x86_header(Allocator &al, X86Assembler &a);
+Vec<uint8_t> create_elf64_x86_header(Allocator &al, uint64_t origin, uint64_t entry,
+    uint64_t text_seg_size, uint64_t data_seg_size);
 
 void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size);
 void emit_print_int_64(X86Assembler &a, const std::string &name);
