@@ -48,6 +48,8 @@
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
 
+#include <libasr/pass/intrinsic_function_registry.h>
+
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
 #else
@@ -1927,6 +1929,45 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *item = tmp;
         tmp = list_api->count(plist, item, asr_el_type, *module);
+    }
+
+    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *item = tmp;
+        tmp = list_api->index(plist, item, asr_el_type, *module);
+    }
+
+    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
+        switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
+            case ASRUtils::IntrinsicFunctions::ListIndex: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        ASR::expr_t* m_ele = x.m_args[1];
+                        generate_ListIndex(m_arg, m_ele);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("list.index only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            default: {
+                throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::
+                        get_intrinsic_function_name(x.m_intrinsic_id) +
+                        " is not implemented by LLVM backend.", x.base.base.loc);
+            }
+        }
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {

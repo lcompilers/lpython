@@ -43,6 +43,8 @@ enum class IntrinsicFunctions : int64_t {
     Gamma,
     LogGamma,
     Abs,
+
+    ListIndex,
     // ...
 };
 
@@ -453,6 +455,54 @@ namespace Abs {
 
 } // namespace Abs
 
+namespace ListIndex {
+
+static inline ASR::expr_t *eval_list_index(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 2) {
+        // Support start and end arguments by overloading ListIndex
+        // intrinsic. We need 3 overload IDs,
+        // 0 - only list and element
+        // 1 - list, element and start
+        // 2 - list, element, start and end
+        // list, element and end case is not possible as list.index
+        // doesn't accept keyword arguments
+        err("For now index() takes exactly one argument", loc);
+    }
+
+    ASR::expr_t* list_expr = args[0];
+    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+    ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
+    if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+        std::string fnd = ASRUtils::get_type_code(ele_type);
+        std::string org = ASRUtils::get_type_code(list_type);
+        err(
+            "Type mismatch in 'index', the types must be compatible "
+            "(found: '" + fnd + "', expected: '" + org + "')", loc);
+    }
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_index(al, loc, arg_values);
+    ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                            4, nullptr, 0));
+    return ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
+            args.p, args.size(), 0, to_type, compile_time_value);
+}
+
+} // namespace ListIndex
+
 
 namespace IntrinsicFunctionRegistry {
 
@@ -468,6 +518,20 @@ namespace IntrinsicFunctionRegistry {
             &Abs::instantiate_Abs}
     };
 
+    static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
+            "log_gamma"},
+
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sin),
+            "sin"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
+            "cos"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
+            "abs"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
+            "list.index"}
+    };
+
     static const std::map<std::string,
         std::pair<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
@@ -475,6 +539,7 @@ namespace IntrinsicFunctionRegistry {
                 {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
+                {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -490,7 +555,18 @@ namespace IntrinsicFunctionRegistry {
     }
 
     static inline impl_function get_instantiate_function(int64_t id) {
+        if( intrinsic_function_by_id_db.find(id) == intrinsic_function_by_id_db.end() ) {
+            return nullptr;
+        }
         return intrinsic_function_by_id_db.at(id);
+    }
+
+    static inline std::string get_intrinsic_function_name(int64_t id) {
+        if( intrinsic_function_id_to_name.find(id) == intrinsic_function_id_to_name.end() ) {
+            throw LCompilersException("IntrinsicFunction with ID " + std::to_string(id) +
+                                      " has no name registered for it");
+        }
+        return intrinsic_function_id_to_name.at(id);
     }
 
 } // namespace IntrinsicFunctionRegistry

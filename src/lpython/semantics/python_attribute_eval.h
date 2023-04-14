@@ -6,6 +6,7 @@
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 namespace LCompilers::LPython {
 
@@ -22,6 +23,7 @@ struct AttributeHandler {
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
             {"list@count", &eval_list_count},
+            {"list@index", &eval_list_index},
             {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
             {"list@pop", &eval_list_pop},
@@ -147,6 +149,20 @@ struct AttributeHandler {
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                 4, nullptr, 0));
         return make_ListCount_t(al, loc, s, args[0], to_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_list_index(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.index");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
     }
 
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
