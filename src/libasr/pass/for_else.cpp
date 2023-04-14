@@ -28,7 +28,6 @@ public:
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         ASR::stmt_t *doLoopStmt = (ASR::stmt_t*)(&x);
-        // std::cerr << doLoopStmt << " -- " << doLoopFlagMap[doLoopStmt] << std::endl;
 
         doLoopStack.push(doLoopStmt);
 
@@ -44,8 +43,6 @@ public:
             doLoopFlagMap.find(doLoopStack.top()) == doLoopFlagMap.end())
             return;
 
-        // std::cerr << "Break! inside " << doLoopStack.top() << std::endl;
-
         Vec<ASR::stmt_t*> result;
         result.reserve(al, 1);
 
@@ -59,87 +56,6 @@ public:
         result.push_back(al, ASRUtils::STMT(ASR::make_Exit_t(al, loc)));
 
         pass_result = result;
-
-        return;
-
-        auto current = current_scope;
-        while (current != nullptr) {
-            std::cerr << "Scope " << current << std::endl;
-            auto scope = current->get_scope();
-            for (auto it = scope.begin(); it != scope.end(); it++) {
-                if (is_a<ASR::Variable_t>(*it->second)) {
-                    std::cerr << "  Variable: " << it->first << std::endl;
-                } else if (is_a<ASR::Program_t>(*it->second)) {
-                    std::cerr << "  Program: " << it->first << std::endl;
-                } else if (is_a<ASR::Block_t>(*it->second)) {
-                    std::cerr << "  Block: " << it->first << std::endl;
-                    ASR::Block_t *block = down_cast<ASR::Block_t>(it->second);
-                    std::cerr << "    body " << block->n_body << std::endl;
-                    for (size_t i = 0; i < block->n_body; i++) {
-                        std::cerr << "      " << getStmtType(block->m_body[i]->type) << std::endl;
-                    }
-                } else if (is_a<ASR::Function_t>(*it->second)) {
-                    std::cerr << "  Function: " << it->first << std::endl;
-                    ASR::Function_t *block = down_cast<ASR::Function_t>(it->second);
-                    for (size_t i = 0; i < block->n_body; i++) {
-                        std::cerr << "      " << getStmtType(block->m_body[i]->type) << std::endl;
-                    }
-                } else {
-                    std::cerr << "  First: " << it->first << ", second: " << it->second->type << std::endl;
-                }
-            }
-            current = current->parent;
-        }
-    }
-
-    std::string getStmtType(stmtType t) {
-        switch (t) {
-        case stmtType::Allocate: return "Allocate";
-        case stmtType::Assign: return "Assign";
-        case stmtType::Assignment: return "Assignment";
-        case stmtType::Associate: return "Associate";
-        case stmtType::Cycle: return "Cycle";
-        case stmtType::ExplicitDeallocate: return "ExplicitDeallocate";
-        case stmtType::ImplicitDeallocate: return "ImplicitDeallocate";
-        case stmtType::DoConcurrentLoop: return "DoConcurrentLoop";
-        case stmtType::DoLoop: return "DoLoop";
-        case stmtType::ForElse: return "ForElse";
-        case stmtType::ErrorStop: return "ErrorStop";
-        case stmtType::Exit: return "Exit";
-        case stmtType::ForAllSingle: return "ForAllSingle";
-        case stmtType::GoTo: return "GoTo";
-        case stmtType::GoToTarget: return "GoToTarget";
-        case stmtType::If: return "If";
-        case stmtType::IfArithmetic: return "IfArithmetic";
-        case stmtType::Print: return "Print";
-        case stmtType::FileOpen: return "FileOpen";
-        case stmtType::FileClose: return "FileClose";
-        case stmtType::FileRead: return "FileRead";
-        case stmtType::FileBackspace: return "FileBackspace";
-        case stmtType::FileRewind: return "FileRewind";
-        case stmtType::FileInquire: return "FileInquire";
-        case stmtType::FileWrite: return "FileWrite";
-        case stmtType::Return: return "Return";
-        case stmtType::Select: return "Select";
-        case stmtType::Stop: return "Stop";
-        case stmtType::Assert: return "Assert";
-        case stmtType::SubroutineCall: return "SubroutineCall";
-        case stmtType::Where: return "Where";
-        case stmtType::WhileLoop: return "WhileLoop";
-        case stmtType::Nullify: return "Nullify";
-        case stmtType::Flush: return "Flush";
-        case stmtType::ListAppend: return "ListAppend";
-        case stmtType::AssociateBlockCall: return "AssociateBlockCall";
-        case stmtType::SelectType: return "SelectType";
-        case stmtType::CPtrToPointer: return "CPtrToPointer";
-        case stmtType::BlockCall: return "BlockCall";
-        case stmtType::SetInsert: return "SetInsert";
-        case stmtType::SetRemove: return "SetRemove";
-        case stmtType::ListInsert: return "ListInsert";
-        case stmtType::ListRemove: return "ListRemove";
-        case stmtType::ListClear: return "ListClear";
-        case stmtType::DictInsert: return "DictInsert";
-        }
     }
 };
 
