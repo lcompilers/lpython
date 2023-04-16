@@ -70,6 +70,7 @@ LFORTRAN_API float _lfortran_caimag(float_complex_t x);
 LFORTRAN_API double _lfortran_zaimag(double_complex_t x);
 LFORTRAN_API float _lfortran_sexp(float x);
 LFORTRAN_API double _lfortran_dexp(double x);
+LFORTRAN_API double _lfortran_dexp2(double x)
 LFORTRAN_API float_complex_t _lfortran_cexp(float_complex_t x);
 LFORTRAN_API double_complex_t _lfortran_zexp(double_complex_t x);
 LFORTRAN_API float _lfortran_slog(float x);
