@@ -463,13 +463,21 @@ def exp(x: f64) -> f64:
     """
     Return `e` raised to the power `x`.
     """
-    return e**x
+    return _lfortran_dexp(x)
+
+@ccall
+def _lfortran_dexp(x: f64) -> f64:
+    pass
 
 def exp2(x: f64) -> f64:
     """
     Return `2` raised to the power `x`.
     """
-    return f64((2.0)**x)
+    return _lfortran_dexp2(x)
+
+@ccall
+def _lfortran_dexp2(x: f64) -> f64:
+    pass
 
 
 def mod(a: i32, b: i32) -> i32:
