@@ -13,7 +13,6 @@
 #include <libasr/pass/class_constructor.h>
 #include <libasr/pass/array_op.h>
 #include <libasr/pass/subroutine_from_function.h>
-#include <libasr/pass/intrinsic_function.h>
 
 #include <map>
 #include <utility>
