@@ -47,7 +47,7 @@ private:
     bool fixed_duplicated_expr_stmt;
     bool is_fast;
 
-    // Stores the local variables or/and block symbol corresponding to the ones
+    // Stores the local variables or/and Block symbol corresponding to the ones
     // present in function symbol table.
     std::map<std::string, ASR::symbol_t*> arg2value;
 
@@ -106,23 +106,21 @@ public:
             fixed_duplicated_expr_stmt = false;                                 \
             return ;                                                            \
         }                                                                       \
-        LCOMPILERS_ASSERT(ASR::is_a<symbol_t>(*sym))                            \
         if( arg2value.find(sym_name) != arg2value.end() ) {                     \
+            LCOMPILERS_ASSERT(ASR::is_a<symbol_t>(*sym))                        \
             symbol_t *x_var = ASR::down_cast<symbol_t>(arg2value[sym_name]);    \
             if( current_scope->get_symbol(std::string(x_var->m_name))) {        \
                 m_v = arg2value[sym_name];                                      \
             }                                                                   \
-        } else {                                                                \
-            fixed_duplicated_expr_stmt = false;                                 \
         }
 
     void visit_Var(const ASR::Var_t& x) {
         ASR::Var_t& xx = const_cast<ASR::Var_t&>(x);
         ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(x.m_v);
-        if (ASR::is_a<ASR::EnumType_t>(*sym)) {
-            replace_symbol(sym, ASR::EnumType_t, xx.m_v);
-        } else {
+        if (ASR::is_a<ASR::Variable_t>(*sym)) {
             replace_symbol(sym, ASR::Variable_t, xx.m_v);
+        } else {
+            fixed_duplicated_expr_stmt = false;
         }
     }
 
