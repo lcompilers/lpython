@@ -696,6 +696,19 @@ def _lpython_str_lower(x: str) -> str:
     return res
 
 @overload
+def _lpython_str_upper(x: str) -> str:
+    res: str
+    res = ""
+    i:str
+    for i in x:
+        if ord('a') <= ord(i) and ord('z') >= ord(i):
+            res += chr(ord(i) -32)
+        else:
+            res += i
+    return res
+
+
+@overload
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
     res: i32; i: i32;
