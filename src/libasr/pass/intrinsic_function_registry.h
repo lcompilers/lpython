@@ -40,6 +40,10 @@ typedef ASR::asr_t* (*create_intrinsic_function)(
 enum class IntrinsicFunctions : int64_t {
     Sin,
     Cos,
+    Tan,
+    Asin,
+    Acos,
+    Atan,
     Gamma,
     LogGamma,
     Abs,
@@ -266,6 +270,10 @@ namespace X {                                                                   
 
 create_trig(Sin, sin, sin)
 create_trig(Cos, cos, cos)
+create_trig(Tan, tan, tan)
+create_trig(Asin, asin, asin)
+create_trig(Acos, acos, acos)
+create_trig(Atan, atan, atan)
 
 namespace Abs {
 
@@ -514,6 +522,14 @@ namespace IntrinsicFunctionRegistry {
             &Sin::instantiate_Sin},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
             &Cos::instantiate_Cos},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+            &Tan::instantiate_Tan},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+            &Asin::instantiate_Asin},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+            &Acos::instantiate_Acos},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+            &Atan::instantiate_Atan},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             &Abs::instantiate_Abs}
     };
@@ -526,6 +542,14 @@ namespace IntrinsicFunctionRegistry {
             "sin"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
             "cos"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+            "tan"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+            "asin"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+            "acos"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+            "atan"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
@@ -538,6 +562,10 @@ namespace IntrinsicFunctionRegistry {
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
+                {"tan", {&Tan::create_Tan, &Tan::eval_Tan}},
+                {"asin", {&Asin::create_Asin, &Asin::eval_Asin}},
+                {"acos", {&Acos::create_Acos, &Acos::eval_Acos}},
+                {"atan", {&Atan::create_Atan, &Atan::eval_Atan}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
@@ -580,9 +608,14 @@ inline std::string get_intrinsic_name(int x) {
     switch (x) {
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
+        INTRINSIC_NAME_CASE(Tan)
+        INTRINSIC_NAME_CASE(Asin)
+        INTRINSIC_NAME_CASE(Acos)
+        INTRINSIC_NAME_CASE(Atan)
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
+        INTRINSIC_NAME_CASE(ListIndex)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
