@@ -47,7 +47,7 @@ private:
     bool fixed_duplicated_expr_stmt;
     bool is_fast;
 
-    // Stores the local variables corresponding to the ones
+    // Stores the local variables or/and Block symbol corresponding to the ones
     // present in function symbol table.
     std::map<std::string, ASR::symbol_t*> arg2value;
 
@@ -95,31 +95,38 @@ public:
         current_routine.clear();
     }
 
+    // If anything is not local to a function being inlined
+    // then do not inline the function by setting
+    // fixed_duplicated_expr_stmt to false.
+    // To be supported later.
+    #define replace_symbol(sym, symbol_t, m_v)                                  \
+        std::string sym_name = ASRUtils::symbol_name(sym);                      \
+        if( current_routine_scope &&                                            \
+            current_routine_scope->get_symbol(sym_name) == nullptr ) {          \
+            fixed_duplicated_expr_stmt = false;                                 \
+            return ;                                                            \
+        }                                                                       \
+        if( arg2value.find(sym_name) != arg2value.end() ) {                     \
+            LCOMPILERS_ASSERT(ASR::is_a<symbol_t>(*sym))                        \
+            symbol_t *x_var = ASR::down_cast<symbol_t>(arg2value[sym_name]);    \
+            if( current_scope->get_symbol(std::string(x_var->m_name))) {        \
+                m_v = arg2value[sym_name];                                      \
+            }                                                                   \
+        }
+
     void visit_Var(const ASR::Var_t& x) {
         ASR::Var_t& xx = const_cast<ASR::Var_t&>(x);
-        std::string x_var_name = std::string(ASRUtils::symbol_name(x.m_v));
-
-        // If anything is not local to a function being inlined
-        // then do not inline the function by setting
-        // fixed_duplicated_expr_stmt to false.
-        // To be supported later.
-        if( current_routine_scope &&
-            current_routine_scope->get_symbol(x_var_name) == nullptr ) {
-            fixed_duplicated_expr_stmt = false;
-            return ;
-        }
-        if( x.m_v->type == ASR::symbolType::Variable ) {
-            ASR::Variable_t* x_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
-            if( arg2value.find(x_var_name) != arg2value.end() ) {
-                x_var = ASR::down_cast<ASR::Variable_t>(arg2value[x_var_name]);
-                if( current_scope->get_symbol(std::string(x_var->m_name)) != nullptr ) {
-                    xx.m_v = arg2value[x_var_name];
-                }
-                x_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
-            }
+        ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(x.m_v);
+        if (ASR::is_a<ASR::Variable_t>(*sym)) {
+            replace_symbol(sym, ASR::Variable_t, xx.m_v);
         } else {
             fixed_duplicated_expr_stmt = false;
         }
+    }
+
+    void visit_BlockCall(const ASR::BlockCall_t &x) {
+        ASR::BlockCall_t& xx = const_cast<ASR::BlockCall_t&>(x);
+        replace_symbol(x.m_m, ASR::Block_t, xx.m_m);
     }
 
     void set_empty_block(SymbolTable* scope, const Location& loc) {
@@ -133,6 +140,7 @@ public:
                                 s2c(al, empty_block_name), nullptr, 0));
             scope->add_symbol(empty_block_name, empty_block);
         }
+        arg2value[empty_block_name] = empty_block;
     }
 
     void remove_empty_block(SymbolTable* scope) {
