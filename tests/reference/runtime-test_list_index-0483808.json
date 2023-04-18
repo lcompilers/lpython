@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_list_index-0483808",
+    "cmd": "lpython {infile}",
+    "infile": "tests/errors/test_list_index.py",
+    "infile_hash": "991dc5eddf2579b7c6b3bc31bb07656cec73bdf91c3196a761985682",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "runtime-test_list_index-0483808.stderr",
+    "stderr_hash": "dd3d49b5f2f97ed8f1d27cd73ebca7a8740483660dd4ae702e2048b2",
+    "returncode": 1
+}

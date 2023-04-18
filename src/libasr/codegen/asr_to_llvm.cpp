@@ -42,12 +42,13 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_llvm.h>
-#include <libasr/pass/nested_vars.h>
 #include <libasr/pass/pass_manager.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
+
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
@@ -187,38 +188,6 @@ public:
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
     std::map<uint64_t, llvm::BasicBlock*> llvm_goto_targets;
 
-    // Data members for handling nested functions
-    std::map<uint64_t, std::vector<uint64_t>> nesting_map; /* For saving the
-        relationship between enclosing and nested functions */
-    std::vector<uint64_t> nested_globals; /* For saving the hash of variables
-        from a parent scope needed in a nested function */
-    std::map<uint64_t, llvm::Value*> nested_globals_value; /* For saving the
-        value of a variable from a parent scope needed in a nested function */
-    std::map<uint64_t, std::vector<llvm::Type*>> nested_func_types; /* For
-        saving the hash of a parent function needing to give access to
-        variables in a nested function, as well as the variable types */
-    llvm::StructType* nested_global_struct; /*The struct type that will hold
-        variables needed in a nested function; will contain types as given in
-        the runtime descriptor member */
-    std::string nested_desc_name; // For setting the name of the global struct
-    std::vector<uint64_t> nested_call_out; /* Hash of functions containing
-        nested functions that can call functions besides the nested functions
-        - in such cases we need a means to save the local context */
-    llvm::StructType* nested_global_struct_vals; /*Equivalent struct type to
-        nested_global_struct, but holding types that nested_global_struct points
-        to. Needed in cases where we need to store values and preserve a local
-        context */
-    llvm::ArrayType* nested_global_stack; /* An array type for holding numerous
-        nested_global_struct_vals, serving as a stack to reload values when
-        we may are leaving or re-entering states with a need to preserve
-        context*/
-    std::string nested_stack_name; // The name of the nested_global_stack
-    std::string nested_sp_name; /* The stack pointer name for the
-        nested_global_stack */
-    uint64_t parent_function_hash;
-    uint64_t calling_function_hash; /* These hashes are compared to resulted
-        from the nested_vars analysis pass to determine if we need to save or
-        reload a local scope (and increment or decrement the stack pointer) */
     const ASR::Function_t *parent_function = nullptr;
 
     std::vector<llvm::BasicBlock*> loop_head; /* For saving the head of a loop,
@@ -1962,6 +1931,45 @@ public:
         tmp = list_api->count(plist, item, asr_el_type, *module);
     }
 
+    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *item = tmp;
+        tmp = list_api->index(plist, item, asr_el_type, *module);
+    }
+
+    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
+        switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
+            case ASRUtils::IntrinsicFunctions::ListIndex: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        ASR::expr_t* m_ele = x.m_args[1];
+                        generate_ListIndex(m_arg, m_ele);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("list.index only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            default: {
+                throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::
+                        get_intrinsic_function_name(x.m_intrinsic_id) +
+                        " is not implemented by LLVM backend.", x.base.base.loc);
+            }
+        }
+    }
+
     void visit_ListClear(const ASR::ListClear_t& x) {
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -2014,30 +2022,16 @@ public:
         bool is_argument = false;
         llvm::Value* array = nullptr;
         bool is_data_only = false;
+        ASR::Variable_t *v = nullptr;
         if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
-            ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
+            v = ASRUtils::EXPR2VAR(x.m_v);
             if( ASR::is_a<ASR::Struct_t>(*ASRUtils::get_contained_type(v->m_type)) ) {
                 ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(
                     ASRUtils::get_contained_type(v->m_type));
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             uint32_t v_h = get_hash((ASR::asr_t*)v);
-            if (llvm_symtab.find(v_h) == llvm_symtab.end()) {
-                LCOMPILERS_ASSERT(std::find(nested_globals.begin(),
-                        nested_globals.end(), v_h) != nested_globals.end());
-                auto finder = std::find(nested_globals.begin(),
-                        nested_globals.end(), v_h);
-                llvm::Constant *ptr = module->getOrInsertGlobal(nested_desc_name,
-                    nested_global_struct);
-                int idx = std::distance(nested_globals.begin(), finder);
-                std::vector<llvm::Value*> idx_vec = {
-                llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-                llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-                array = CreateLoad(CreateGEP(ptr, idx_vec));
-                is_data_only = true;
-            } else {
-                array = llvm_symtab[v_h];
-            }
+            array = llvm_symtab[v_h];
             is_argument = (v->m_intent == ASRUtils::intent_in)
                   || (v->m_intent == ASRUtils::intent_out)
                   || (v->m_intent == ASRUtils::intent_inout)
@@ -2114,7 +2108,9 @@ public:
             bool is_polymorphic = current_select_type_block_type != nullptr;
             tmp = arr_descr->get_single_element(array, indices, x.n_args,
                                                 is_data_only,
-                                                ASRUtils::is_fixed_size_array(m_dims, n_dims) && is_bindc_array,
+                                                ASRUtils::is_fixed_size_array(m_dims, n_dims)
+                                                && (is_bindc_array ||
+                                                (v && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(&(v->base))) ) ),
                                                 llvm_diminfo.p, is_polymorphic, current_select_type_block_type);
         }
     }
@@ -2336,7 +2332,7 @@ public:
         // (global variable declared/initialized in this translation unit), or
         // external (global variable not declared/initialized in this
         // translation unit, just referenced).
-        LCOMPILERS_ASSERT(x.m_intent == intent_local
+        LCOMPILERS_ASSERT(x.m_intent == intent_local || x.m_intent == ASRUtils::intent_unspecified
             || x.m_abi == ASR::abiType::Interactive);
         bool external = (x.m_abi != ASR::abiType::Source);
         llvm::Constant* init_value = nullptr;
@@ -2648,7 +2644,6 @@ public:
                         item.second);
                 if (ASRUtils::get_FunctionType(v)->n_type_params == 0) {
                     instantiate_function(*v);
-                    declare_needed_global_types(*v);
                 }
             } else if (is_a<ASR::EnumType_t>(*item.second)) {
                 ASR::EnumType_t *et = down_cast<ASR::EnumType_t>(item.second);
@@ -2660,20 +2655,6 @@ public:
         visit_procedures(x);
         mangle_prefix = "";
         current_scope = current_scope_copy;
-    }
-
-    void store_nested_globals_value() {
-        for (auto it: nested_globals_value) {
-            auto finder = std::find(nested_globals.begin(),
-                    nested_globals.end(), it.first);
-            if (finder != nested_globals.end() && nested_globals_value.find(it.first) != nested_globals_value.end()) {
-                llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                        nested_global_struct);
-                int idx = std::distance(nested_globals.begin(), finder);
-                builder->CreateStore(it.second, llvm_utils->create_gep(ptr, idx));
-            }
-        }
-        nested_globals_value.clear();
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -2691,11 +2672,9 @@ public:
                         item.second);
                 if (ASRUtils::get_FunctionType(v)->n_type_params == 0) {
                     instantiate_function(*v);
-                    declare_needed_global_types(*v);
                 }
             }
         }
-        declare_needed_global_types(x);
         visit_procedures(x);
 
         // Generate code for the main program
@@ -2739,13 +2718,8 @@ public:
 
         declare_vars(x);
         for (size_t i=0; i<x.n_body; i++) {
-            ASR::stmt_t* stmt = x.m_body[i];
-            if (stmt->type == ASR::stmtType::SubroutineCall) {
-                store_nested_globals_value();
-            }
-            this->visit_stmt(*stmt);
+            this->visit_stmt(*x.m_body[i]);
         }
-        store_nested_globals_value();
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(32, 0));
         builder->CreateRet(ret_val2);
@@ -3335,10 +3309,6 @@ public:
                     }
 
                     llvm_symtab[h] = ptr;
-                    auto finder = std::find(nested_globals.begin(), nested_globals.end(), h);
-                    if (finder != nested_globals.end() && !is_array_type && !is_malloc_array_type && !is_list) {
-                        nested_globals_value[h] = ptr;
-                    }
                     fill_array_details_(ptr, m_dims, n_dims,
                         is_malloc_array_type,
                         is_array_type, is_list, v->m_type);
@@ -3368,19 +3338,6 @@ public:
                             target_var = arr_descr->get_pointer_to_data(target_var);
                         }
                         builder->CreateStore(init_value, target_var);
-                        auto finder = std::find(nested_globals.begin(),
-                                nested_globals.end(), h);
-                        if (finder != nested_globals.end()) {
-                            llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                                    nested_global_struct);
-                            int idx = std::distance(nested_globals.begin(),
-                                    finder);
-                            if( is_array_type || is_malloc_array_type ) {
-                                target_var = CreateLoad(target_var);
-                            }
-                            builder->CreateStore(target_var, llvm_utils->create_gep(ptr,
-                                        idx));
-                        }
                     } else {
                         if (is_a<ASR::Character_t>(*v->m_type) && !is_array_type && !is_list) {
                             ASR::Character_t *t = down_cast<ASR::Character_t>(v->m_type);
@@ -3664,20 +3621,20 @@ public:
                 bool is_list = false;
                 ASR::dimension_t* m_dims = nullptr;
                 llvm::Type* key_llvm_type = get_type_from_ttype_t(asr_dict->m_key_type, m_storage,
-                                                                  is_array_type, 
+                                                                  is_array_type,
                                                                   is_malloc_array_type,
                                                                   is_list, m_dims, n_dims,
                                                                   a_kind, m_abi);
                 llvm::Type* value_llvm_type = get_type_from_ttype_t(asr_dict->m_value_type, m_storage,
-                                                                    is_array_type, 
+                                                                    is_array_type,
                                                                     is_malloc_array_type,
                                                                     is_list, m_dims, n_dims,
                                                                     a_kind, m_abi);
                 int32_t key_type_size = get_type_size(asr_dict->m_key_type, key_llvm_type, a_kind);
                 int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, a_kind);
                 set_dict_api(asr_dict);
-                type = llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, 
-                                                                  key_type_size, value_type_size, 
+                type = llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code,
+                                                                  key_type_size, value_type_size,
                                                                   key_llvm_type, value_llvm_type)->getPointerTo();
                 break;
             }
@@ -3748,115 +3705,6 @@ public:
         return args;
     }
 
-
-    template <typename T>
-    void push_nested_stack(const T &x) {
-        bool finder = std::find(nested_call_out.begin(), nested_call_out.end(),
-             parent_function_hash) != nested_call_out.end();
-        bool is_nested_call = std::find(
-            nesting_map[parent_function_hash].begin(),
-            nesting_map[parent_function_hash].end(), calling_function_hash)
-            != nesting_map[parent_function_hash].end();
-        if (nested_func_types[parent_function_hash].size() > 0
-            && parent_function_hash != calling_function_hash && finder
-            && !is_nested_call){
-            llvm::Value *sp_loc = module->getOrInsertGlobal(
-                nested_sp_name, llvm::Type::getInt32Ty(context));
-            llvm::Value *sp_val = CreateLoad(sp_loc);
-            for (auto &item : x->m_symtab->get_scope()) {
-                if (is_a<ASR::Variable_t>(*item.second)) {
-                    ASR::Variable_t *v = down_cast<ASR::Variable_t>(
-                        item.second);
-                    uint32_t h = get_hash((ASR::asr_t*)v);
-                    auto finder = std::find(nested_globals.begin(),
-                            nested_globals.end(), h);
-                    if (finder != nested_globals.end()) {
-                        int idx = std::distance(nested_globals.begin(),
-                            finder);
-                        llvm::Value* glob_struct = module->getOrInsertGlobal(
-                            nested_desc_name, nested_global_struct);
-                        llvm::Value* target = CreateLoad(llvm_utils->create_gep(
-                            glob_struct, idx));
-                        llvm::Value* glob_stack = module->getOrInsertGlobal(
-                            nested_stack_name, nested_global_stack);
-                        llvm::Value *glob_stack_gep = llvm_utils->create_gep(glob_stack,
-                            sp_val);
-                        llvm::Value *glob_stack_elem = llvm_utils->create_gep(
-                            glob_stack_gep, idx);
-                        builder->CreateStore(CreateLoad(target),
-                            glob_stack_elem);
-                        llvm::Value *glob_stack_val = CreateLoad(
-                            glob_stack_gep);
-                        llvm::Value *glob_stack_sp = llvm_utils->create_gep(glob_stack,
-                            sp_val);
-                        builder->CreateStore(glob_stack_val, glob_stack_sp);
-                    }
-                }
-            }
-            builder->CreateStore(builder->CreateAdd(builder->getInt32(1),
-                sp_val), sp_loc);
-        }
-    }
-
-
-    template <typename T>
-    void pop_nested_stack(const T &x) {
-        llvm::Function *lfn = builder->GetInsertBlock()->getParent();
-        bool finder = std::find(nested_call_out.begin(), nested_call_out.end(),
-             calling_function_hash) != nested_call_out.end();
-        bool is_nested_call = std::find(
-            nesting_map[parent_function_hash].begin(),
-            nesting_map[parent_function_hash].end(), calling_function_hash)
-            != nesting_map[parent_function_hash].end();
-        if (nested_func_types[calling_function_hash].size() > 0
-            && calling_function_hash != parent_function_hash && finder
-            && !is_nested_call){
-            llvm::Value *sp_loc = module->getOrInsertGlobal(nested_sp_name,
-                llvm::Type::getInt32Ty(context));
-            llvm::Value *sp_val = CreateLoad(sp_loc);
-            llvm::BasicBlock *dec_sp = llvm::BasicBlock::Create(context,
-                "decrement_sp", lfn);
-            llvm::BasicBlock *norm_cont = llvm::BasicBlock::Create(context,
-                "normal_continue", lfn);
-            llvm::Value *cond = builder->CreateICmpSGT(sp_val,
-                builder->getInt32(0));
-            builder->CreateCondBr(cond, dec_sp, norm_cont);
-            builder->SetInsertPoint(dec_sp);
-            builder->CreateStore(builder->CreateAdd(builder->getInt32(-1),
-                sp_val), sp_loc);
-            for (auto &item : x->m_symtab->get_scope()) {
-                if (is_a<ASR::Variable_t>(*item.second)) {
-                    ASR::Variable_t *v = down_cast<ASR::Variable_t>(
-                        item.second);
-                    uint32_t h = get_hash((ASR::asr_t*)v);
-                    auto finder = std::find(nested_globals.begin(),
-                            nested_globals.end(), h);
-                    if (finder != nested_globals.end()) {
-                        int idx = std::distance(nested_globals.begin(),
-                        finder);
-                        llvm::Value* glob_stack = module->getOrInsertGlobal(
-                            nested_stack_name, nested_global_stack);
-                        llvm::Value *sp_loc = module->getOrInsertGlobal(
-                            nested_sp_name, llvm::Type::getInt32Ty(context));
-                        llvm::Value *sp_val = CreateLoad(sp_loc);
-                        llvm::Value *glob_stack_elem = CreateLoad(
-                            llvm_utils->create_gep(llvm_utils->create_gep(glob_stack, sp_val), idx));
-                        llvm::Value *glob_struct_loc = module->
-                            getOrInsertGlobal(nested_desc_name,
-                            nested_global_struct);
-                        llvm::Value* target = CreateLoad(
-                            llvm_utils->create_gep(glob_struct_loc, idx));
-                        builder->CreateStore(glob_stack_elem, target);
-                        builder->CreateStore(target, llvm_utils->create_gep(
-                            glob_struct_loc, idx));
-                    }
-                }
-            }
-            builder->CreateBr(norm_cont);
-            builder->SetInsertPoint(norm_cont);
-        }
-    }
-
     template<typename T>
     void declare_args(const T &x, llvm::Function &F) {
         size_t i = 0;
@@ -3866,16 +3714,6 @@ public:
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[i]);
                 LCOMPILERS_ASSERT(is_arg_dummy(arg->m_intent));
                 uint32_t h = get_hash((ASR::asr_t*)arg);
-                auto finder = std::find(nested_globals.begin(),
-                    nested_globals.end(), h);
-                if (finder != nested_globals.end()) {
-                    llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                            nested_global_struct);
-                    int idx = std::distance(nested_globals.begin(),
-                            finder);
-                    builder->CreateStore(&llvm_arg, llvm_utils->create_gep(ptr,
-                                idx));
-                }
                 std::string arg_s = arg->m_name;
                 llvm_arg.setName(arg_s);
                 llvm_symtab[h] = &llvm_arg;
@@ -4128,7 +3966,7 @@ public:
                     ASR::Dict_t* asr_dict = ASR::down_cast<ASR::Dict_t>(return_var_type0);
                     std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
                     std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
-                    
+
                     bool is_local_array_type = false, is_local_malloc_array_type = false;
                     bool is_local_list = false;
                     ASR::dimension_t* local_m_dims = nullptr;
@@ -4157,59 +3995,9 @@ public:
         return function_type;
     }
 
-    template<typename T>
-    void declare_needed_global_types(T &x){
-        // Check if the procedure has a nested function that needs access to
-        // some variables in its local scope
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        std::vector<llvm::Type*> nested_type;
-        if (nested_func_types[h].size() > 0) {
-            nested_type = nested_func_types[h];
-            nested_global_struct = llvm::StructType::create(context,
-                nested_type, std::string(x.m_name) + "_nstd_types");
-            std::vector<llvm::Type*> nested_stack;
-            for (size_t i = 0; i < nested_type.size(); i++){
-                nested_stack.push_back(nested_type[i]->getContainedType(0));
-            }
-            nested_desc_name = std::string(x.m_name) + "_nstd_strct";
-            module->getOrInsertGlobal(nested_desc_name, nested_global_struct);
-            llvm::ConstantAggregateZero *initializer;
-            initializer = llvm::ConstantAggregateZero::get(
-                nested_global_struct);
-            module->getNamedGlobal(nested_desc_name)->setInitializer(
-                initializer);
-            if (std::find(nested_call_out.begin(), nested_call_out.end(), h) !=
-                nested_call_out.end()){
-                /* Only declare the stack types if needed (if the function
-                enclosing a nested function can call out, potentially leading to
-                recursion, etc */
-                nested_global_struct_vals =
-                    llvm::StructType::create(context, nested_stack,
-                    std::string(x.m_name) + "_vals");
-                nested_global_stack = llvm::ArrayType::get(
-                    nested_global_struct_vals, 1000);
-                nested_stack_name = nested_desc_name + "_stack";
-                nested_sp_name = "sp_" + std::string(x.m_name);
-                llvm::IntegerType *sp = llvm::Type::getInt32Ty(context);
-                module->getOrInsertGlobal(nested_stack_name,
-                    nested_global_stack);
-                module->getOrInsertGlobal(nested_sp_name, sp);
-                initializer = llvm::ConstantAggregateZero::get(
-                    nested_global_stack);
-                module->getNamedGlobal(nested_stack_name)->setInitializer(
-                    initializer);
-                llvm::ConstantInt *sp_init = llvm::ConstantInt::get(
-                    module->getContext(), llvm::APInt(32,0));
-                module->getNamedGlobal(nested_sp_name)->setInitializer(
-                    sp_init);
-            }
-        }
-    }
-
     inline void define_function_entry(const ASR::Function_t& x) {
         uint32_t h = get_hash((ASR::asr_t*)&x);
         parent_function = &x;
-        parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
         if (compiler_options.emit_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
@@ -4836,24 +4624,11 @@ public:
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
-            if (llvm_symtab.find(h) != llvm_symtab.end()) {
-                target = llvm_symtab[h];
-                if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type) &&
-                    !ASR::is_a<ASR::CPtr_t>(
-                        *ASR::down_cast<ASR::Pointer_t>(asr_target->m_type)->m_type)) {
-                    target = CreateLoad(target);
-                }
-            } else {
-                /* Target for assignment not in the symbol table - must be
-                assigning to an outer scope from a nested function - see
-                nested_05.f90 */
-                auto finder = std::find(nested_globals.begin(),
-                        nested_globals.end(), h);
-                LCOMPILERS_ASSERT(finder != nested_globals.end());
-                llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                    nested_global_struct);
-                int idx = std::distance(nested_globals.begin(), finder);
-                target = CreateLoad(llvm_utils->create_gep(ptr, idx));
+            target = llvm_symtab[h];
+            if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type) &&
+                !ASR::is_a<ASR::CPtr_t>(
+                    *ASR::down_cast<ASR::Pointer_t>(asr_target->m_type)->m_type)) {
+                target = CreateLoad(target);
             }
             if( arr_descr->is_array(ASRUtils::get_contained_type(asr_target_type)) ) {
                 if( asr_target->m_type->type ==
@@ -4950,63 +4725,6 @@ public:
             }
         } else {
             builder->CreateStore(value, target);
-        }
-        auto finder = std::find(nested_globals.begin(),
-                nested_globals.end(), h);
-        if (finder != nested_globals.end()) {
-            /* Target for assignment could be in the symbol table - and we are
-            assigning to a variable needed in a nested function - see
-            nested_04.f90 */
-            llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                    nested_global_struct);
-            int idx = std::distance(nested_globals.begin(), finder);
-            builder->CreateStore(target, llvm_utils->create_gep(ptr, idx));
-            // remove from nested_globals_value
-            nested_globals_value.erase(h);
-        }
-        if (is_a<ASR::ArrayItem_t>(*x.m_target)) {
-            ASR::ArrayItem_t *asr_target0 = ASR::down_cast<ASR::ArrayItem_t>(x.m_target);
-            if (is_a<ASR::Var_t>(*asr_target0->m_v)) {
-                ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(asr_target0->m_v);
-                h = get_hash((ASR::asr_t*)asr_target);
-                auto finder = std::find(nested_globals.begin(),
-                        nested_globals.end(), h);
-                if (finder != nested_globals.end()) {
-                    // This is used since array pass use array item visit
-                    llvm::Constant *ptr = module->getOrInsertGlobal(nested_desc_name,
-                    nested_global_struct);
-                    int idx = std::distance(nested_globals.begin(), finder);
-                    std::vector<llvm::Value*> idx_vec = {
-                    llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-                    llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-                    llvm::Value* array = CreateGEP(ptr, idx_vec);
-                    std::vector<llvm::Value*> indices;
-                    for( size_t r = 0; r < asr_target0->n_args; r++ ) {
-                        ASR::array_index_t curr_idx = asr_target0->m_args[r];
-                        uint64_t ptr_loads_copy = ptr_loads;
-                        ptr_loads = 2;
-                        this->visit_expr_wrapper(curr_idx.m_right, true);
-                        ptr_loads = ptr_loads_copy;
-                        indices.push_back(tmp);
-                    }
-                    ASR::dimension_t* m_dims;
-                    ASRUtils::extract_dimensions_from_ttype(
-                                    ASRUtils::expr_type(asr_target0->m_v), m_dims);
-                    Vec<llvm::Value*> llvm_diminfo;
-                    llvm_diminfo.reserve(al, 2 * asr_target0->n_args + 1);
-                    for( size_t idim = 0; idim < asr_target0->n_args; idim++ ) {
-                        this->visit_expr_wrapper(m_dims[idim].m_start, true);
-                        llvm::Value* dim_start = tmp;
-                        this->visit_expr_wrapper(m_dims[idim].m_length, true);
-                        llvm::Value* dim_size = tmp;
-                        llvm_diminfo.push_back(al, dim_start);
-                        llvm_diminfo.push_back(al, dim_size);
-                    }
-                    tmp = arr_descr->get_single_element(array, indices, asr_target0->n_args,
-                                                        true, false, llvm_diminfo.p);
-                    builder->CreateStore(target, tmp);
-                }
-            }
         }
     }
 
@@ -6258,28 +5976,12 @@ public:
     inline void fetch_val(ASR::Variable_t* x) {
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         llvm::Value* x_v;
-        // Check if x is a needed global here, if so, it should exist as an
-        // element in the runtime descriptor, get element pointer and create
-        // load
-        if (llvm_symtab.find(x_h) == llvm_symtab.end()) {
-            LCOMPILERS_ASSERT(std::find(nested_globals.begin(),
-                    nested_globals.end(), x_h) != nested_globals.end());
-            auto finder = std::find(nested_globals.begin(),
-                    nested_globals.end(), x_h);
-            llvm::Constant *ptr = module->getOrInsertGlobal(nested_desc_name,
-                nested_global_struct);
-            int idx = std::distance(nested_globals.begin(), finder);
-            std::vector<llvm::Value*> idx_vec = {
-            llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
-            llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-            x_v = CreateLoad(CreateGEP(ptr, idx_vec));
-        } else {
-            x_v = llvm_symtab[x_h];
-            if (x->m_value_attr) {
-                // Already a value, such as value argument to bind(c)
-                tmp = x_v;
-                return;
-            }
+        LCOMPILERS_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
+        x_v = llvm_symtab[x_h];
+        if (x->m_value_attr) {
+            // Already a value, such as value argument to bind(c)
+            tmp = x_v;
+            return;
         }
         if( arr_descr->is_array(ASRUtils::get_contained_type(x->m_type)) ) {
             tmp = x_v;
@@ -7143,6 +6845,13 @@ public:
                     if (llvm_symtab.find(h) != llvm_symtab.end()) {
                         tmp = llvm_symtab[h];
                         bool is_data_only_array = false;
+                        bool is_pointer_to_non_pointer = false;
+                        if( orig_arg &&
+                            !ASR::is_a<ASR::Pointer_t>(*orig_arg->m_type) &&
+                             ASR::is_a<ASR::Pointer_t>(*arg->m_type) ) {
+                            tmp = LLVM::CreateLoad(*builder, tmp);
+                            is_pointer_to_non_pointer = true;
+                        }
                         ASR::dimension_t* dims_arg = nullptr;
                         size_t n_arg = ASRUtils::extract_dimensions_from_ttype(arg->m_type, dims_arg);
                         if( ASRUtils::is_arg_dummy(arg->m_intent) &&
@@ -7260,30 +6969,30 @@ public:
                                     tmp = target;
                                 }
                             }
+                        } else if( ASRUtils::get_asr_owner(&(arg->base)) &&
+                                   ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(&(arg->base))) &&
+                                   ASRUtils::is_array(arg->m_type) ) {
+                            if( is_pointer_to_non_pointer && orig_arg &&
+                                ASRUtils::is_data_only_array(orig_arg->m_type, orig_arg->m_abi) ) {
+                                tmp = arr_descr->get_pointer_to_data(tmp);
+                                tmp = LLVM::CreateLoad(*builder, tmp);
+                            }
                         }
                     } else {
-                        auto finder = std::find(nested_globals.begin(),
-                                nested_globals.end(), h);
-                        if (finder == nested_globals.end()) {
-                            if (arg->m_value == nullptr) {
-                                throw CodeGenError(std::string(arg->m_name) + " isn't defined in any scope.");
-                            }
-                            this->visit_expr_wrapper(arg->m_value, true);
-                            if( x_abi != ASR::abiType::BindC ) {
-                                llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
-                                llvm::IRBuilder<> builder0(context);
-                                builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
-                                llvm::AllocaInst *target = builder0.CreateAlloca(
-                                    get_type_from_ttype_t_util(arg->m_type), nullptr, "call_arg_value");
-                                builder->CreateStore(tmp, target);
-                                tmp = target;
-                            }
-                        } else {
-                            llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                                nested_global_struct);
-                            int idx = std::distance(nested_globals.begin(), finder);
-                            tmp = CreateLoad(llvm_utils->create_gep(ptr, idx));
+                        if (arg->m_value == nullptr) {
+                            throw CodeGenError(std::string(arg->m_name) + " isn't defined in any scope.");
                         }
+                        this->visit_expr_wrapper(arg->m_value, true);
+                        if( x_abi != ASR::abiType::BindC ) {
+                            llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                            llvm::IRBuilder<> builder0(context);
+                            builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                            llvm::AllocaInst *target = builder0.CreateAlloca(
+                                get_type_from_ttype_t_util(arg->m_type), nullptr, "call_arg_value");
+                            builder->CreateStore(tmp, target);
+                            tmp = target;
+                        }
+
                     }
                 } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                     ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v))) {
@@ -7621,9 +7330,7 @@ public:
             dt = convert_to_polymorphic_arg(dt, s_m_args0_type, dt_type);
             args.push_back(dt);
         }
-        if (parent_function){
-            push_nested_stack(parent_function);
-        }
+
         std::string sub_name = s->m_name;
         uint32_t h;
         ASR::FunctionType_t* s_func_type = ASR::down_cast<ASR::FunctionType_t>(s->m_function_signature);
@@ -7705,8 +7412,6 @@ public:
             args.insert(args.end(), args2.begin(), args2.end());
             builder->CreateCall(fn, args);
         }
-        calling_function_hash = h;
-        pop_nested_stack(s);
     }
 
     void handle_bitwise_args(const ASR::FunctionCall_t& x, llvm::Value*& arg1,
@@ -7924,9 +7629,7 @@ public:
                 return ;
             }
         }
-        if (parent_function) {
-            push_nested_stack(parent_function);
-        }
+
         bool intrinsic_function = ASRUtils::is_intrinsic_function2(s);
         uint32_t h;
         ASR::FunctionType_t* s_func_type = ASR::down_cast<ASR::FunctionType_t>(s->m_function_signature);
@@ -8048,8 +7751,6 @@ public:
                 }
             }
         }
-        calling_function_hash = h;
-        pop_nested_stack(s);
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
@@ -8141,8 +7842,6 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     // Uncomment for debugging the ASR after the transformation
     // std::cout << LPython::pickle(asr, true, true, true) << std::endl;
 
-    v.nested_func_types = pass_find_nested_vars(asr, context,
-        v.nested_globals, v.nested_call_out, v.nesting_map);
     try {
         v.visit_asr((ASR::asr_t&)asr);
     } catch (const CodeGenError &e) {

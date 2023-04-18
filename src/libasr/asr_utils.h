@@ -1589,6 +1589,12 @@ static inline bool is_fixed_size_array(ASR::dimension_t* m_dims, size_t n_dims) 
     return true;
 }
 
+static inline bool is_fixed_size_array(ASR::ttype_t* type) {
+    ASR::dimension_t* m_dims = nullptr;
+    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);
+    return ASRUtils::is_fixed_size_array(m_dims, n_dims);
+}
+
 static inline int64_t get_fixed_size_of_array(ASR::dimension_t* m_dims, size_t n_dims) {
     if( n_dims == 0 ) {
         return 0;
@@ -2348,6 +2354,12 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
         }
     }
     return false;
+}
+
+static inline bool is_data_only_array(ASR::ttype_t* type, ASR::abiType abi) {
+    ASR::dimension_t* m_dims = nullptr;
+    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);
+    return (abi == ASR::abiType::BindC || !ASRUtils::is_dimension_empty(m_dims, n_dims));
 }
 
 static inline void insert_module_dependency(ASR::symbol_t* a,

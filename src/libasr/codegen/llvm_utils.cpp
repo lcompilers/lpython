@@ -2498,6 +2498,11 @@ namespace LCompilers {
         return LLVM::CreateLoad(*builder, i);
     }
 
+    llvm::Value* LLVMList::index(llvm::Value* list, llvm::Value* item,
+                                ASR::ttype_t* item_type, llvm::Module& module) {
+        return LLVMList::find_item_position(list, item, item_type, module);
+    }
+
     llvm::Value* LLVMList::count(llvm::Value* list, llvm::Value* item,
                                 ASR::ttype_t* item_type, llvm::Module& module) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);

@@ -677,6 +677,10 @@ filename = "errors/test_list_count.py"
 asr = true
 
 [[test]]
+filename = "errors/test_list_index.py"
+run = true
+
+[[test]]
 filename = "errors/test_list1.py"
 asr = true
 

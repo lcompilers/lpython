@@ -354,6 +354,11 @@ public:
             }
         }
 
+        // Never Inline BindC Function
+        if(ASRUtils::get_FunctionType(func)->m_abi == ASR::abiType::BindC){
+            return;
+        }
+
         if( success ) {
             // Set inlining_function to true so that we inline
             // only one function at a time.

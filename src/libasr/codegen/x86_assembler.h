@@ -436,8 +436,7 @@ public:
         m_origin = 0x08048000;
 #ifdef LFORTRAN_ASM_PRINT
         if (bits64) {
-            m_asm_code = "BITS 64\n";
-            emit("    ", "org " + i2s((uint64_t)m_origin) + "\n"); // specify origin info
+            m_asm_code = "";
         } else {
             m_asm_code = "BITS 32\n";
             emit("    ", "org " + i2s(m_origin) + "\n"); // specify origin info
@@ -448,6 +447,88 @@ public:
 #ifdef LFORTRAN_ASM_PRINT
     std::string get_asm() {
         return m_asm_code;
+    }
+
+    std::string get_asm64() {
+        std::string header =
+R"(BITS 64
+    org )" + i2s((uint64_t) m_origin) + R"(
+
+ehdr:
+    db 0x7f
+    db 0x45
+    db 0x4c
+    db 0x46
+    db 0x02
+    db 0x01
+    db 0x01
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    db 0x00
+    dw 0x0002
+    dw 0x003e
+    dd 0x00000001
+    dq _start
+    dq e_phoff
+    dq 0x0000000000000000
+    dd 0x00000000
+    dw ehdrsize
+    dw phdrsize
+    dw 0x0003
+    dw 0x0000
+    dw 0x0000
+    dw 0x0000
+phdr:
+    dd 0x00000001
+    dd 0x00000004
+    dq header_segment_offset
+    dq header_segment_start
+    dq header_segment_start
+    dq header_segment_size
+    dq header_segment_size
+    dq 0x0000000000001000
+text_phdr:
+    dd 0x00000001
+    dd 0x00000005
+    dq text_segment_offset
+    dq text_segment_start
+    dq text_segment_start
+    dq text_segment_size
+    dq text_segment_size
+    dq 0x0000000000001000
+data_phdr:
+    dd 0x00000001
+    dd 0x00000006
+    dq data_segment_offset
+    dq data_segment_start
+    dq data_segment_start
+    dq data_segment_size
+    dq data_segment_size
+    dq 0x0000000000001000
+
+	align 4096, db 0
+
+)";
+
+        std::string footer = R"(
+    ehdrsize equ phdr - ehdr
+    phdrsize equ text_phdr - phdr
+    e_phoff equ phdr - ehdr
+    header_segment_offset equ ehdr - ehdr
+    header_segment_start equ ehdr
+    header_segment_size equ text_segment_start - ehdr
+    text_segment_offset equ text_segment_start - ehdr
+    text_segment_size equ text_segment_end - text_segment_start
+    data_segment_offset equ data_segment_start - ehdr
+    data_segment_size equ data_segment_end - data_segment_start
+)";
+        return header + m_asm_code + footer;
     }
 
     // Saves the generated assembly into a file
@@ -471,6 +552,10 @@ public:
             m_code.push_back(m_al, 0);
         }
         EMIT("\n\talign " + std::to_string(alignment) + ", db 0");
+    }
+
+    uint64_t compute_seg_size(std::string start_flag, std::string end_flag) {
+        return get_defined_symbol(end_flag).value - get_defined_symbol(start_flag).value;
     }
 
     void define_symbol(const std::string &name, uint32_t value) {
@@ -588,6 +673,7 @@ public:
 
     // Saves the generated machine code into a binary file
     void save_binary(const std::string &filename);
+    void save_binary64(const std::string &filename);
 
     void asm_pop_r64(X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
@@ -1540,12 +1626,13 @@ void emit_print_int(X86Assembler &a, const std::string &name);
 void emit_print_float(X86Assembler &a, const std::string &name);
 
 // Generate an ELF 64 bit header and footer
-// With these two functions, one only must generate a `_start` assembly
+// With these three functions, one only must generate a `_start` assembly
 // function to have a working binary on Linux.
-void emit_elf64_header(X86Assembler &a);
-void emit_elf64_footer(X86Assembler &a);
-
-void emit_exit_64(X86Assembler &a, std::string label, int exit_code);
+template <typename T>
+void append_header_bytes(Allocator &al, T src, Vec<uint8_t> &des);
+void align_by_byte(Allocator &al, Vec<uint8_t> &code, uint64_t alignment);
+Vec<uint8_t> create_elf64_x86_header(Allocator &al, uint64_t origin, uint64_t entry,
+    uint64_t text_seg_size, uint64_t data_seg_size);
 
 void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size);
 void emit_print_int_64(X86Assembler &a, const std::string &name);
