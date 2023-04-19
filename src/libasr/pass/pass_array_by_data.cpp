@@ -359,44 +359,46 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
         al(al_), v(v_) {}
 
         template <typename T>
+        void check_and_update_args_for_pass_arr_by_data_passed_as_callback(const T& x) {
+            bool args_updated = false;
+            Vec<ASR::call_arg_t> new_args;
+            new_args.reserve(al, x.n_args);
+            for ( size_t i = 0; i < x.n_args; i++ ) {
+                ASR::call_arg_t arg = x.m_args[i];
+                ASR::expr_t* expr = arg.m_value;
+                if (expr) {
+                    if (ASR::is_a<ASR::Var_t>(*expr)) {
+                        ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(expr);
+                        ASR::symbol_t* sym = var->m_v;
+                        if ( v.proc2newproc.find(sym) != v.proc2newproc.end() ) {
+                            ASR::symbol_t* new_var_sym = v.proc2newproc[sym].first;
+                            ASR::expr_t* new_var = ASRUtils::EXPR(ASR::make_Var_t(al, var->base.base.loc, new_var_sym));
+                            {
+                                // update exisiting arg
+                                arg.m_value = new_var;
+                                arg.loc = arg.loc;
+                            }
+                            args_updated = true;
+                        }
+                    }
+                }
+                new_args.push_back(al, arg);
+            }
+            if (args_updated) {
+                T&xx = const_cast<T&>(x);
+                xx.m_args = new_args.p;
+                xx.n_args = new_args.size();
+            }
+        }
+
+        template <typename T>
         void visit_Call(const T& x) {
             ASR::symbol_t* subrout_sym = x.m_name;
             bool is_external = ASR::is_a<ASR::ExternalSymbol_t>(*subrout_sym);
             subrout_sym = ASRUtils::symbol_get_past_external(subrout_sym);
             if( v.proc2newproc.find(subrout_sym) == v.proc2newproc.end() ) {
-                bool args_updated = false;
-                Vec<ASR::call_arg_t> new_args;
-                new_args.reserve(al, x.n_args);
-                for ( size_t i = 0; i < x.n_args; i++ ) {
-                    ASR::call_arg_t arg = x.m_args[i];
-                    ASR::expr_t* expr = arg.m_value;
-                    bool use_original_arg = true;
-                    if (expr) {
-                        if (ASR::is_a<ASR::Var_t>(*expr)) {
-                            ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(expr);
-                            ASR::symbol_t* sym = var->m_v;
-                            if ( v.proc2newproc.find(sym) != v.proc2newproc.end() ) {
-                                ASR::symbol_t* new_var_sym = v.proc2newproc[sym].first;
-                                ASR::expr_t* new_var = ASRUtils::EXPR(ASR::make_Var_t(al, var->base.base.loc, new_var_sym));
-                                ASR::call_arg_t new_arg;
-                                new_arg.m_value = new_var;
-                                new_arg.loc = arg.loc;
-                                new_args.push_back(al, new_arg);
-                                args_updated = true;
-                                use_original_arg = false;
-                            }
-                        }
-                    }
-                    if( use_original_arg ) {
-                        new_args.push_back(al, arg);
-                    }
-                }
-                if (args_updated) {
-                    T&xx = const_cast<T&>(x);
-                    xx.m_args = new_args.p;
-                    xx.n_args = new_args.size();
-                }
-                return ;
+                check_and_update_args_for_pass_arr_by_data_passed_as_callback(x);
+                return;
             }
 
             ASR::symbol_t* new_func_sym = v.proc2newproc[subrout_sym].first;
