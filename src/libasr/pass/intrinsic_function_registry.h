@@ -198,7 +198,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1, -2,
         nullptr, nullptr, 0));
     {
-        args.reserve(al, 1);
+        args.reserve(al, 2);
         create_var_expr(arg_1, "target_string", ASR::intentType::In,
             ASR::abiType::Source, false, fn_symtab, char_type);
         args.push_back(al, arg_1);
@@ -908,11 +908,109 @@ namespace Partition {
     static inline ASR::expr_t* instantiate_Partition(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& /*arg_types*/,
             Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
-        ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
-            al, loc, scope);
-        ASR::ttype_t *int_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        return EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
-            new_args.p, new_args.n, int_type, nullptr, compile_time_value));
+
+        std::string fn_name = scope->get_unique_name("_lpython_str_partition");
+        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+
+        Vec<ASR::expr_t*> args;
+        ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1, -2,
+            nullptr, nullptr, 0));
+        {
+            args.reserve(al, 2);
+            create_var_expr(arg_1, "target_string", ASR::intentType::In,
+                ASR::abiType::Source, false, fn_symtab, char_type);
+            args.push_back(al, arg_1);
+            create_var_expr(arg_2, "pattern", ASR::intentType::In,
+                ASR::abiType::Source, false, fn_symtab, char_type);
+            args.push_back(al, arg_2);
+        }
+        Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 1);
+        tuple_type.push_back(al, char_type);
+        tuple_type.push_back(al, char_type);
+        tuple_type.push_back(al, char_type);
+        ASR::ttype_t *return_type = TYPE(ASR::make_Tuple_t(al, loc,
+            tuple_type.p, tuple_type.n));
+        create_variable(return_var, "result", ASRUtils::intent_return_var,
+            ASR::abiType::Source, false, fn_symtab, return_type);
+        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, return_var));
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, 1);
+
+        SetChar dep;
+        dep.reserve(al, 1);
+        {
+            ASR::ttype_t *int_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+            create_var_expr(index, "index", ASR::intentType::Local,
+                ASR::abiType::Source, false, fn_symtab, int_type);
+            ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
+                al, loc, scope);
+            Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
+            {
+                ASR::call_arg_t arg;
+                arg.loc = loc;
+                arg.m_value = args[0];
+                args_.push_back(al, arg);
+                arg.m_value = args[1];
+                args_.push_back(al, arg);
+            }
+            body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, index,
+                EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
+                args_.p, args_.n, int_type, nullptr, nullptr)), nullptr)));
+
+            ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
+                ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
+                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)), int_type,
+                EXPR(ASR::make_IntegerConstant_t(al, loc, -1, int_type)))),
+                logical_type, nullptr));
+            Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
+            Vec<ASR::expr_t *> tuple_ele; tuple_ele.reserve(al, 3);
+            {
+                ASR::ttype_t *char_type_0 = TYPE(ASR::make_Character_t(al, loc,
+                    1, 0, nullptr, nullptr, 0));
+                tuple_ele.push_back(al, args[0]);
+                tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
+                    s2c(al, ""), char_type_0)));
+                tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
+                    s2c(al, ""), char_type_0)));
+                Vec<ASR::ttype_t *> tuple_type_; tuple_type_.reserve(al, 1);
+                tuple_type_.push_back(al, char_type);
+                tuple_type_.push_back(al, char_type_0);
+                tuple_type_.push_back(al, char_type_0);
+                if_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    result, EXPR(ASR::make_TupleConstant_t(al, loc,
+                    tuple_ele.p, tuple_ele.n, TYPE(ASR::make_Tuple_t(al, loc,
+                    tuple_type_.p, tuple_type_.n)))), nullptr)));
+            }
+            Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
+            tuple_ele.p = nullptr; tuple_ele.n = 0;
+            tuple_ele.reserve(al, 3);
+            {
+                tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
+                    args[0], EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type)),
+                    index, nullptr, char_type, nullptr)));
+                tuple_ele.push_back(al, args[1]);
+                tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
+                    args[0], EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
+                        ASR::binopType::Add,
+                        EXPR(ASR::make_StringLen_t(al, loc, args[1], int_type, nullptr)),
+                        int_type, nullptr)),
+                    EXPR(ASR::make_StringLen_t(al, loc, args[0], int_type, nullptr)),
+                    nullptr, char_type, nullptr)));
+                else_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    result, EXPR(ASR::make_TupleConstant_t(al, loc,
+                    tuple_ele.p, tuple_ele.n, return_type)), nullptr)));
+            }
+            body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, else_body.p, else_body.n)));
+            body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+        }
+        ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
+            body, return_var, Source, Implementation, nullptr);
+        scope->add_symbol(fn_name, fn_sym);
+        return EXPR(ASR::make_FunctionCall_t(al, loc, fn_sym, fn_sym,
+            new_args.p, new_args.n, return_type, compile_time_value, nullptr));
     }
 } // namespace Partition
 
