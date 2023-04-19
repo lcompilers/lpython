@@ -80,7 +80,8 @@ struct PythonIntrinsicProcedures {
             {"_lpython_str_swapcase", {m_builtin, &not_implemented}},
             {"_lpython_str_startswith", {m_builtin, &not_implemented}},
             {"_lpython_str_endswith", {m_builtin, &not_implemented}},
-            {"_lpython_str_partition", {m_builtin, &not_implemented}}
+            {"_lpython_str_partition", {m_builtin, &not_implemented}},
+            {"sorted", {m_builtin, &eval_sorted}}
         };
     }
 
@@ -699,6 +700,11 @@ struct PythonIntrinsicProcedures {
         }
         throw SemanticError(msg, loc);
 
+    }
+
+    static ASR::expr_t *eval_sorted(Allocator &/*al*/, const Location &/*loc*/,
+                Vec<ASR::expr_t *> &/*args*/) {
+        return nullptr;
     }
 
 }; // ComptimeEval

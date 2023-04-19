@@ -22,6 +22,28 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
+
+struct list_r64 {
+    int32_t capacity;
+    int32_t current_end_point;
+    double* data;
+};
+
+inline bool compare_list_r64_(struct list_r64 a, struct list_r64 b);
+inline bool compare_r64(double a, double b);
+inline void print_list_r64_(struct list_r64 a);
+inline void print_r64(double a);
+inline void list_init_r64(struct list_r64* x, int32_t capacity);
+inline void list_deepcopy_r64(struct list_r64* src, struct list_r64* dest);
+inline void resize_if_needed_r64(struct list_r64* x);
+inline void list_append_r64(struct list_r64* x, double element);
+inline void list_insert_r64(struct list_r64* x, int pos, double element);
+inline int list_find_item_r64(struct list_r64* x, double element);
+inline void list_remove_r64(struct list_r64* x, double element);
+inline void list_clear_r64(struct list_r64* x);
+inline struct list_r64* list_concat_r64(struct list_r64* left, struct list_r64* right);
+inline struct list_r64* list_section_r64(struct list_r64* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present);
+
 // Forward declarations
 void _lpython_main_program();
 void main0();
@@ -30,6 +52,8 @@ int32_t test_pow_1(int32_t a, int32_t b);
 double __lpython_overloaded_0__pow(int32_t x, int32_t y);
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
+int32_t _partition(struct list_r64 nums, int32_t left_lim, int32_t right_lim);
+void quick_sort(struct list_r64 nums, int32_t left_lim, int32_t right_lim);
 namespace {
 }
 
@@ -44,6 +68,40 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
 float _lfortran_caimag(std::complex<float> x);
 
 double _lfortran_zaimag(std::complex<double> x);
+
+int32_t _partition(struct list_r64 nums, int32_t left_lim, int32_t right_lim)
+{
+    int32_t _lpython_return_variable;
+    int32_t i;
+    double pivot;
+    int32_t ptr;
+    double tmp;
+    pivot = nums.data[right_lim];
+    ptr = left_lim;
+    for (i=left_lim; i<=right_lim - 1; i++) {
+        if (nums.data[i] <= pivot) {
+            tmp = nums.data[ptr];
+            nums.data[ptr] = nums.data[i];
+            nums.data[i] = tmp;
+            ptr = ptr + 1;
+        }
+    }
+    tmp = nums.data[ptr];
+    nums.data[ptr] = nums.data[right_lim];
+    nums.data[right_lim] = tmp;
+    _lpython_return_variable = ptr;
+    return _lpython_return_variable;
+}
+
+void quick_sort(struct list_r64 nums, int32_t left_lim, int32_t right_lim)
+{
+    int32_t pi;
+    if (left_lim < right_lim) {
+        pi = _partition(nums, left_lim, right_lim);
+        quick_sort(nums, left_lim, pi - 1);
+        quick_sort(nums, pi + 1, right_lim);
+    }
+}
 
 void test_pow()
 {
@@ -86,3 +144,133 @@ int main(int argc, char* argv[])
     Kokkos::finalize();
     return 0;
 }
+
+bool compare_r64(double a, double b) {
+    return a == b;
+}
+
+bool compare_list_r64_(struct list_r64 a, struct list_r64 b) {
+    if (a.current_end_point != b.current_end_point)
+        return false;
+    for (int i=0; i<a.current_end_point; i++) {
+        if (!compare_r64(a.data[i], b.data[i]))
+            return false;
+    }
+    return true;
+}
+
+void print_r64(double a) {
+    printf("%lf", a);
+}
+
+void print_list_r64_(struct list_r64 a) {
+    printf("[");
+    for (int i=0; i<a.current_end_point; i++) {
+        print_r64(a.data[i]);
+        if (i+1!=a.current_end_point)
+            printf(", ");
+    }
+    printf("]");
+}
+
+void list_init_r64(struct list_r64* x, int32_t capacity) {
+    x->capacity = capacity;
+    x->current_end_point = 0;
+    x->data = (double*) malloc(capacity * sizeof(double));
+}
+
+void list_deepcopy_r64(struct list_r64* src, struct list_r64* dest) {
+    dest->capacity = src->capacity;
+    dest->current_end_point = src->current_end_point;
+    dest->data = (double*) malloc(src->capacity * sizeof(double));
+    memcpy(dest->data, src->data, src->capacity * sizeof(double));
+}
+
+void resize_if_needed_r64(struct list_r64* x) {
+    if (x->capacity == x->current_end_point) {
+        x->capacity = 2 * x->capacity + 1;
+        x->data = (double*) realloc(x->data, x->capacity * sizeof(double));
+    }
+}
+
+void list_append_r64(struct list_r64* x, double element) {
+    resize_if_needed_r64(x);
+    x->data[x->current_end_point] = element;
+    x->current_end_point += 1;
+}
+
+void list_insert_r64(struct list_r64* x, int pos, double element) {
+    resize_if_needed_r64(x);
+    int pos_ptr = pos;
+    double tmp_ptr = x->data[pos];
+    double tmp;
+    while (x->current_end_point > pos_ptr) {
+        tmp = x->data[pos_ptr + 1];
+        x->data[pos_ptr + 1] = tmp_ptr;
+        tmp_ptr = tmp;
+        pos_ptr++;
+    }
+
+    x->data[pos] = element;
+    x->current_end_point += 1;
+}
+
+int list_find_item_r64(struct list_r64* x, double element) {
+    int el_pos = 0;
+    while (x->current_end_point > el_pos) {
+        if (compare_r64(x->data[el_pos], element)) return el_pos;
+        el_pos++;
+    }
+    return -1;
+}
+
+void list_remove_r64(struct list_r64* x, double element) {
+    int el_pos = list_find_item_r64(x, element);
+    while (x->current_end_point > el_pos) {
+        int tmp = el_pos + 1;
+        x->data[el_pos] = x->data[tmp];
+        el_pos = tmp;
+    }
+    x->current_end_point -= 1;
+}
+
+void list_clear_r64(struct list_r64* x) {
+    free(x->data);
+    x->capacity = 4;
+    x->current_end_point = 0;
+    x->data = (double*) malloc(x->capacity * sizeof(double));
+}
+
+struct list_r64* list_concat_r64(struct list_r64* left, struct list_r64* right) {
+    struct list_r64 *result = (struct list_r64*)malloc(sizeof(struct list_r64));
+    list_init_r64(result, left->current_end_point + right->current_end_point);
+    memcpy(result->data, left->data, left->current_end_point * sizeof(double));
+    memcpy(result->data + left->current_end_point, right->data, right->current_end_point * sizeof(double));
+    result->current_end_point = left->current_end_point + right->current_end_point;
+    return result;
+}
+
+struct list_r64* list_section_r64(struct list_r64* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present) {
+    int s_len = x->current_end_point;
+    if (step == 0) {
+        printf("slice step cannot be zero");
+        exit(1);
+    }
+    idx1 = idx1 < 0 ? idx1 + s_len : idx1;
+    idx2 = idx2 < 0 ? idx2 + s_len : idx2;
+    idx1 = i1_present ? idx1 : (step > 0 ? 0 : s_len-1);
+    idx2 = i2_present ? idx2 : (step > 0 ? s_len : -1);
+    idx2 = step > 0 ? (idx2 > s_len ? s_len : idx2) : idx2;
+    idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;
+    struct list_r64 *__tmp = (struct list_r64*) malloc(sizeof(struct list_r64));
+    list_init_r64(__tmp, 4);
+    int s_i = idx1;
+    while((step > 0 && s_i >= idx1 && s_i < idx2) ||
+        (step < 0 && s_i <= idx1 && s_i > idx2)) {
+    list_append_r64(__tmp, x->data[s_i]);
+    s_i+=step;
+    }
+    return __tmp;
+}
+
+

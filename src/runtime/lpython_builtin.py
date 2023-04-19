@@ -805,18 +805,18 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
     return res
 
 @overload
-def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+def _lpython_str_endswith(s: str, suffix: str) -> bool:
 
     if(len(suffix) > len(s)):
         return False
-    
+
     i : i32
     i = 0
     while(i < len(suffix)):
         if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
             return False
         i += 1
-        
+
     return True
 
 @overload
@@ -833,8 +833,8 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
     ind = _lpython_str_find(s, sep)
     if ind == -1:
         res = (s, "", "")
-    else: 
-        res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
+    else:
+        res = (s[0:ind], sep, s[ind+len(sep): len(s)])
     return res
 
 
@@ -846,3 +846,35 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+
+
+def _partition(nums: list[f64], left_lim: i32, right_lim: i32) -> i32:
+    # Last element will be the pivot and the first element the pointer
+    pivot: f64; ptr: i32; i:i32; tmp: f64
+    pivot = nums[right_lim]
+    ptr = left_lim
+    for i in range(left_lim, right_lim):
+        if nums[i] <= pivot:
+            # Swapping values smaller than the pivot to the front
+            tmp = nums[ptr]
+            nums[ptr] = nums[i]
+            nums[i] = tmp
+            ptr += 1
+    # Finally swapping the last element with the pointer indexed number
+    tmp = nums[ptr]
+    nums[ptr] = nums[right_lim]
+    nums[right_lim] = tmp
+    return ptr
+
+def quick_sort(nums: list[f64], left_lim:i32, right_lim: i32):
+    if left_lim < right_lim:
+        pi : i32 = _partition(nums, left_lim, right_lim)
+        quick_sort(nums, left_lim, pi-1)  # Recursively sorting the left values
+        quick_sort(nums, pi+1, right_lim)  # Recursively sorting the right values
+
+
+def sorted(array: list[f64]) -> list[f64]:
+    right_lim: i32
+    right_lim = len(array)
+    quick_sort(array, 0, right_lim-1)
+    return array

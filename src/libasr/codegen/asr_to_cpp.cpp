@@ -77,12 +77,15 @@ public:
     std::map<std::string, std::map<std::string,
              std::map<size_t, std::string>>> eltypedims2arraytype;
 
+    std::unique_ptr<CUtils::CUtilFunctions> c_utils_functions;
+
     ASRToCPPVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                     int64_t default_lower_bound)
         : BaseCCPPVisitor(diag, co.platform, co, true, true, false,
                           default_lower_bound),
           array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                        "{\n    int32_t lower_bound, length;\n};\n")) {}
+                                        "{\n    int32_t lower_bound, length;\n};\n")),
+         c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()} {}
 
     std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims, size_t& size)
     {
@@ -354,6 +357,11 @@ public:
                 } else {
                     sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
                 }
+            } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
+                ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
+                std::string list_type_c = c_ds_api->get_list_type(t);
+                sub = format_type_c("", list_type_c, v.m_name,
+                                    false, false);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -381,6 +389,12 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+
+        c_ds_api->set_indentation(indentation_level, indentation_spaces);
+        c_ds_api->set_global_scope(global_scope);
+        c_utils_functions->set_indentation(indentation_level, indentation_spaces);
+        c_utils_functions->set_global_scope(global_scope);
+        c_ds_api->set_c_utils_functions(c_utils_functions.get());
 
         std::string headers =
 R"(#include <iostream>
@@ -468,7 +482,23 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
-        src = headers + array_types_decls + unit_src;
+        if( c_ds_api->get_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_ds_api->get_func_decls() + "\n";
+        }
+        if( c_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
+        }
+        std::string ds_funcs_defined = "";
+        if( c_ds_api->get_generated_code().size() > 0 ) {
+            ds_funcs_defined =  "\n" + c_ds_api->get_generated_code() + "\n";
+        }
+        std::string util_funcs_defined = "";
+        if( c_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + c_utils_functions->get_generated_code() + "\n";
+        }
+
+        src = headers + array_types_decls + unit_src + \
+              ds_funcs_defined + util_funcs_defined;
     }
 
     void visit_Program(const ASR::Program_t &x) {
