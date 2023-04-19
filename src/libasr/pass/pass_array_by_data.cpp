@@ -391,6 +391,29 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             }
         }
 
+        Vec<ASR::call_arg_t> construct_new_args(size_t n_args, ASR::call_arg_t* orig_args, std::vector<size_t>& indices) {
+            Vec<ASR::call_arg_t> new_args;
+            new_args.reserve(al, n_args);
+            for( size_t i = 0; i < n_args; i++ ) {
+                new_args.push_back(al, orig_args[i]);
+                if (orig_args[i].m_value == nullptr ||
+                    std::find(indices.begin(), indices.end(), i) == indices.end()) {
+                    continue;
+                }
+
+                Vec<ASR::expr_t*> dim_vars;
+                dim_vars.reserve(al, 2);
+                ASRUtils::get_dimensions(orig_args[i].m_value, dim_vars, al);
+                for( size_t j = 0; j < dim_vars.size(); j++ ) {
+                    ASR::call_arg_t dim_var;
+                    dim_var.loc = dim_vars[j]->base.loc;
+                    dim_var.m_value = dim_vars[j];
+                    new_args.push_back(al, dim_var);
+                }
+            }
+            return new_args;
+        }
+
         template <typename T>
         void visit_Call(const T& x) {
             ASR::symbol_t* subrout_sym = x.m_name;
@@ -404,25 +427,7 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             ASR::symbol_t* new_func_sym = v.proc2newproc[subrout_sym].first;
             std::vector<size_t>& indices = v.proc2newproc[subrout_sym].second;
 
-            Vec<ASR::call_arg_t> new_args;
-            new_args.reserve(al, x.n_args);
-            for( size_t i = 0; i < x.n_args; i++ ) {
-                new_args.push_back(al, x.m_args[i]);
-                if (x.m_args[i].m_value == nullptr ||
-                    std::find(indices.begin(), indices.end(), i) == indices.end()) {
-                    continue;
-                }
-
-                Vec<ASR::expr_t*> dim_vars;
-                dim_vars.reserve(al, 2);
-                ASRUtils::get_dimensions(x.m_args[i].m_value, dim_vars, al);
-                for( size_t j = 0; j < dim_vars.size(); j++ ) {
-                    ASR::call_arg_t dim_var;
-                    dim_var.loc = dim_vars[j]->base.loc;
-                    dim_var.m_value = dim_vars[j];
-                    new_args.push_back(al, dim_var);
-                }
-            }
+            Vec<ASR::call_arg_t> new_args = construct_new_args(x.n_args, x.m_args, indices);
 
             {
                 ASR::Function_t* new_func_ = ASR::down_cast<ASR::Function_t>(new_func_sym);
