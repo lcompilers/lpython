@@ -689,11 +689,24 @@ def _lpython_str_lower(x: str) -> str:
     res = ""
     i:str
     for i in x:
-        if ord('A') <= ord(i) and ord('Z') >= ord(i):
+        if ord('A') <= ord(i) and ord(i) <= ord('Z'):
             res += chr(ord(i) +32)
         else:
             res += i
     return res
+
+@overload
+def _lpython_str_upper(x: str) -> str:
+    res: str
+    res = ""
+    i:str
+    for i in x:
+        if ord('a') <= ord(i) and ord(i) <= ord('z'):
+            res += chr(ord(i) -32)
+        else:
+            res += i
+    return res
+
 
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:
