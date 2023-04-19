@@ -1,3 +1,5 @@
+from lpython import f64, i32
+
 def f():
     x: list[f64] = [35.9, 24.9, 23.1, 4223.5, 64.34, 3095.34]
     x = sorted(x)
