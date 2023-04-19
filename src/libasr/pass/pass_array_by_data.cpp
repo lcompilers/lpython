@@ -408,9 +408,9 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             new_args.reserve(al, x.n_args);
             for( size_t i = 0; i < x.n_args; i++ ) {
                 new_args.push_back(al, x.m_args[i]);
-                if( std::find(indices.begin(), indices.end(), i) == indices.end() ||
-                    x.m_args[i].m_value == nullptr ) {
-                    continue ;
+                if (x.m_args[i].m_value == nullptr ||
+                    std::find(indices.begin(), indices.end(), i) == indices.end()) {
+                    continue;
                 }
 
                 Vec<ASR::expr_t*> dim_vars;
