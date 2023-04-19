@@ -29,13 +29,20 @@ def get_inp_vec_with_bias(a: list[i32]) -> list[i32]:
     b.append(1)
     return b
 
+def init_weights(size: i32) -> list[f64]:
+    weights: list[f64]
+    i: i32
+    for i in range(size):
+        weights.append(0.0)
+    weights.append(0.0) # append bias
+    return weights
+
 def init_perceptron(p: Perceptron, n: i32, rate: f64, iterations_limit: i32, des_accuracy: f64):
     if (n < 1 or n > 1000):
         print("no_of_inputs must be between [1, 1000]")
         exit(1)
     p.no_of_inputs = n
-    i: i32
-    for i in range(n + 1): p.weights.append(0.0) # last element is bias
+    p.weights = init_weights(n)
     p.learn_rate = rate
     p.iterations_limit = iterations_limit
     p.des_accuracy = des_accuracy
