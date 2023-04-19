@@ -6428,7 +6428,9 @@ public:
         }
 
         if (!s) {
-            std::set<std::string> not_cpython_builtin = {"sin", "cos", "gamma"};
+            std::set<std::string> not_cpython_builtin = {
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan"
+            };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
              && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
                 ASRUtils::create_intrinsic_function create_func =

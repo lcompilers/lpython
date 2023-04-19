@@ -23,6 +23,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #include <map>
 #include <tuple>
@@ -670,7 +671,7 @@ R"(#include <stdio.h>
             const_vars_count += 1;
             const_name = current_scope->get_unique_name(const_name);
             std::string indent(indentation_level*indentation_spaces, ' ');
-            tmp_buffer_src.push_back(check_tmp_buffer() + indent + c_ds_api->get_dict_type(dict_type) + 
+            tmp_buffer_src.push_back(check_tmp_buffer() + indent + c_ds_api->get_dict_type(dict_type) +
                                 " " + const_name + " = " + src + ";\n");
             src = const_name;
             return;
@@ -2147,6 +2148,32 @@ R"(#include <stdio.h>
         src = out;
     }
 
+    #define SET_INTRINSIC_NAME(X, func_name)                             \
+        case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X)) : { \
+            out += func_name; break;                                     \
+        }
+
+    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t &x) {
+        LCOMPILERS_ASSERT(x.n_args == 1)
+        std::string out;
+        switch (x.m_intrinsic_id) {
+            SET_INTRINSIC_NAME(Sin, "sin");
+            SET_INTRINSIC_NAME(Cos, "cos");
+            SET_INTRINSIC_NAME(Tan, "tan");
+            SET_INTRINSIC_NAME(Asin, "asin");
+            SET_INTRINSIC_NAME(Acos, "acos");
+            SET_INTRINSIC_NAME(Atan, "atan");
+            SET_INTRINSIC_NAME(Abs, "abs");
+            default : {
+                throw LCompilersException("IntrinsicFunction: `"
+                    + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
+                    + "` is not implemented");
+            }
+        }
+        this->visit_expr(*x.m_args[0]);
+        out += "(" + src + ")";
+        src = out;
+    }
 };
 
 } // namespace LCompilers
