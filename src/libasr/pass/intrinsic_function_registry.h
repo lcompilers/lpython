@@ -55,6 +55,11 @@ enum class IntrinsicFunctions : int64_t {
 
 namespace UnaryIntrinsicFunction {
 
+#define create_var_expr(var_expr, name, intent, abi, value_attr, symtab, type)\
+    ASR::expr_t *var_expr;                                                      \
+    { create_variable(sym, name, intent, abi, value_attr, symtab, type)         \
+    var_expr = EXPR(ASR::make_Var_t(al, loc, sym)); }
+
 #define create_variable(var_sym, name, intent, abi, value_attr, symtab, type)   \
     ASR::symbol_t *var_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(\
         al, loc, symtab, s2c(al, name), nullptr, 0, intent, nullptr, nullptr,   \
@@ -174,6 +179,301 @@ static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& lo
 
     return ASR::make_IntrinsicFunction_t(al, loc, intrinsic_id,
         args.p, args.n, overload_id, type, value);
+}
+
+static inline ASR::symbol_t *create_KMP_function(Allocator &al,
+        const Location &loc, SymbolTable *global_scope)
+{
+    /*
+     * Knuth-Morris-Pratt (KMP) string-matching
+     * This function takes two parameters:
+     *     the sub-string or pattern string and the target string,
+     * then returns the position of the first occurrence of the
+     * string in the pattern.
+     */
+    std::string fn_name = global_scope->get_unique_name("KMP_string_matching");
+    SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
+
+    Vec<ASR::expr_t*> args;
+    ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1, -2,
+        nullptr, nullptr, 0));
+    {
+        args.reserve(al, 1);
+        create_var_expr(arg_1, "target_string", ASR::intentType::In,
+            ASR::abiType::Source, false, fn_symtab, char_type);
+        args.push_back(al, arg_1);
+        create_var_expr(arg_2, "pattern", ASR::intentType::In,
+            ASR::abiType::Source, false, fn_symtab, char_type);
+        args.push_back(al, arg_2);
+    }
+    ASR::ttype_t *int_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+    create_variable(return_var, "result", ASRUtils::intent_return_var,
+        ASR::abiType::Source, false, fn_symtab, int_type);
+
+    Vec<ASR::stmt_t*> body;
+    body.reserve(al, 1);
+
+    SetChar dep;
+    dep.reserve(al, 1);
+    {
+        create_var_expr(pi_len, "pi_len", ASR::intentType::Local,
+            ASR::abiType::Source, false, fn_symtab, int_type);
+        create_var_expr(i, "i", ASR::intentType::Local, ASR::abiType::Source,
+            false, fn_symtab, int_type);
+        create_var_expr(j, "j", ASR::intentType::Local, ASR::abiType::Source,
+            false, fn_symtab, int_type);
+        create_var_expr(s_len, "s_len", ASR::intentType::Local,
+            ASR::abiType::Source, false, fn_symtab, int_type);
+        create_var_expr(pat_len, "pattern_len", ASR::intentType::Local,
+            ASR::abiType::Source, false, fn_symtab, int_type);
+        ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4,
+            nullptr, 0));
+        create_var_expr(flag, "flag", ASR::intentType::Local,
+            ASR::abiType::Source, false, fn_symtab, logical_type);
+        create_var_expr(lps, "lps", ASR::intentType::Local, ASR::abiType::Source,
+            false, fn_symtab, TYPE(ASR::make_List_t(al, loc, int_type)));
+        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, return_var));
+
+
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, s_len, EXPR(
+            ASR::make_StringLen_t(al, loc, args[0], int_type, nullptr)), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pat_len, EXPR(
+            ASR::make_StringLen_t(al, loc, args[1], int_type, nullptr)), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, result,
+            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
+            EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)), int_type,
+            EXPR(ASR::make_IntegerConstant_t(al, loc, -1, int_type)))), nullptr)));
+
+        {
+            Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
+            Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
+            ASR::expr_t *a_test_1 = EXPR(ASR::make_IntegerCompare_t(al, loc,
+                pat_len, ASR::cmpopType::Eq, EXPR(ASR::make_IntegerConstant_t(
+                al, loc, 0, int_type)), logical_type, nullptr));
+            if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, result,
+                EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type)), nullptr)));
+            if_body_1.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+            ASR::expr_t *a_test_2 = EXPR(ASR::make_IntegerCompare_t(al, loc,
+                s_len, ASR::cmpopType::Eq, EXPR(ASR::make_IntegerConstant_t(
+                al, loc, 0, int_type)), logical_type, nullptr));
+            Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
+            if_body_2.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+            else_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test_2,
+                if_body_2.p, if_body_2.n, nullptr, 0)));
+            body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, else_body.p, else_body.n)));
+        }
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, lps,
+            EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
+            TYPE(ASR::make_List_t(al, loc, int_type)))), nullptr)));
+        {
+            ASR::do_loop_head_t head;
+            head.loc = loc;
+            head.m_v = i;
+            head.m_start = EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type));
+            head.m_end = EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
+                ASR::binopType::Sub, EXPR(ASR::make_IntegerConstant_t(al, loc, 1,
+                int_type)), int_type, nullptr));
+            head.m_increment = EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type));
+            Vec<ASR::stmt_t*> doloop_body; doloop_body.reserve(al, 1);
+            doloop_body.push_back(al, STMT(ASR::make_ListAppend_t(al, loc, lps,
+                EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type)))));
+            body.push_back(al, STMT(ASR::make_DoLoop_t(al, loc, nullptr, head,
+                doloop_body.p, doloop_body.n)));
+        }
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, flag,
+            EXPR(ASR::make_LogicalConstant_t(al, loc, false,
+            TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)))), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, i, EXPR(
+            ASR::make_IntegerConstant_t(al, loc, 1, int_type)), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pi_len, EXPR(
+            ASR::make_IntegerConstant_t(al, loc, 0, int_type)), nullptr)));
+        {
+            ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, i,
+                ASR::cmpopType::Lt, pat_len, logical_type, nullptr));
+            Vec<ASR::stmt_t *>loop_body; loop_body.reserve(al, 1);
+            {
+                ASR::expr_t *a_test = EXPR(ASR::make_StringCompare_t(al, loc,
+                    EXPR(ASR::make_StringItem_t(al, loc, args[1],
+                        EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                            ASR::binopType::Add,
+                            EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                            int_type, nullptr)),
+                        char_type, nullptr)),
+                        ASR::cmpopType::Eq,
+                        EXPR(ASR::make_StringItem_t(al, loc, args[1],
+                            EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
+                                ASR::binopType::Add,
+                                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                            int_type, nullptr)),
+                        char_type, nullptr)),
+                    logical_type, nullptr));
+                Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    pi_len, EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
+                    ASR::binopType::Add, EXPR(ASR::make_IntegerConstant_t(al,
+                    loc, 1, int_type)), int_type, nullptr)), nullptr)));
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    EXPR(ASR::make_ListItem_t(al, loc, lps, i, int_type, nullptr)),
+                    pi_len, nullptr)));
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, i,
+                    EXPR(ASR::make_IntegerBinOp_t(al, loc, i, ASR::binopType::Add,
+                    EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                    int_type, nullptr)), nullptr)));
+                Vec<ASR::stmt_t *> else_body_1; else_body_1.reserve(al, 1);
+                {
+                    Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
+                    Vec<ASR::stmt_t *> else_body_2; else_body_2.reserve(al, 1);
+                    ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc,
+                        pi_len, ASR::cmpopType::NotEq,
+                        EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type)),
+                        logical_type, nullptr));
+                    if_body_2.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                        pi_len, EXPR(ASR::make_ListItem_t(al, loc, lps,
+                            EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
+                                ASR::binopType::Sub,
+                                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                                int_type, nullptr)),
+                            int_type, nullptr)), nullptr)));
+                    else_body_2.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                        i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                            ASR::binopType::Add,
+                            EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                            int_type, nullptr)), nullptr)));
+                    else_body_1.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                        if_body_2.p, if_body_2.n, else_body_2.p, else_body_2.n)));
+                }
+                loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                    if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n)));
+            }
+
+            body.push_back(al, STMT(ASR::make_WhileLoop_t(al, loc, nullptr, a_test,
+                loop_body.p, loop_body.n)));
+        }
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j, EXPR(
+            ASR::make_IntegerConstant_t(al, loc, 0, int_type)), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, i, EXPR(
+            ASR::make_IntegerConstant_t(al, loc, 0, int_type)), nullptr)));
+        {
+            ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
+                EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    EXPR(ASR::make_IntegerBinOp_t(al, loc, s_len,
+                        ASR::binopType::Sub, i, int_type, nullptr)),
+                    ASR::cmpopType::GtE,
+                    EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
+                        ASR::binopType::Sub, j, int_type, nullptr)),
+                    logical_type, nullptr)),
+                ASR::logicalbinopType::And,
+                EXPR(ASR::make_LogicalNot_t(al, loc, flag, logical_type, nullptr)),
+                logical_type, nullptr));
+            Vec<ASR::stmt_t *>loop_body; loop_body.reserve(al, 1);
+            {
+                ASR::expr_t *a_test = EXPR(ASR::make_StringCompare_t(al, loc,
+                    EXPR(ASR::make_StringItem_t(al, loc, args[1],
+                        EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
+                            ASR::binopType::Add,
+                            EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                            int_type, nullptr)),
+                        char_type, nullptr)),
+                        ASR::cmpopType::Eq,
+                        EXPR(ASR::make_StringItem_t(al, loc, args[0],
+                            EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                                ASR::binopType::Add,
+                                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                            int_type, nullptr)),
+                        char_type, nullptr)),
+                    logical_type, nullptr));
+                Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                    ASR::binopType::Add, EXPR(ASR::make_IntegerConstant_t(al,
+                    loc, 1, int_type)), int_type, nullptr)), nullptr)));
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j,
+                    EXPR(ASR::make_IntegerBinOp_t(al, loc, j, ASR::binopType::Add,
+                    EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                    int_type, nullptr)), nullptr)));
+                loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                    if_body_1.p, if_body_1.n, nullptr, 0)));
+
+                a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, j,
+                    ASR::cmpopType::Eq, pat_len, logical_type, nullptr));
+                if_body_1.p = nullptr; if_body_1.n = 0;
+                if_body_1.reserve(al, 1);
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    result, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                    ASR::binopType::Sub, j, int_type, nullptr)), nullptr)));
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
+                    flag, EXPR(ASR::make_LogicalConstant_t(al, loc, true,
+                    logical_type)), nullptr)));
+                if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j,
+                    EXPR(ASR::make_ListItem_t(al, loc, lps,
+                        EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
+                            ASR::binopType::Sub,
+                            EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                        int_type, nullptr)),
+                    int_type, nullptr)), nullptr)));
+                Vec<ASR::stmt_t *> else_body_1; else_body_1.reserve(al, 1);
+                {
+                    Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
+                    ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
+                        EXPR(ASR::make_IntegerCompare_t(al, loc, i,
+                            ASR::cmpopType::Lt, s_len, logical_type, nullptr)),
+                        ASR::logicalbinopType::And,
+                        EXPR(ASR::make_StringCompare_t(al, loc,
+                            EXPR(ASR::make_StringItem_t(al, loc, args[1],
+                                EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
+                                ASR::binopType::Add,
+                                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                                int_type, nullptr)),
+                            char_type, nullptr)),
+                            ASR::cmpopType::NotEq,
+                            EXPR(ASR::make_StringItem_t(al, loc, args[0],
+                                EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                                    ASR::binopType::Add,
+                                    EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                                    int_type, nullptr)),
+                                char_type, nullptr)),
+                            logical_type, nullptr)),
+                        logical_type, nullptr));
+                    {
+                        Vec<ASR::stmt_t *> if_body_3; if_body_3.reserve(al, 1);
+                        Vec<ASR::stmt_t *> else_body_3; else_body_3.reserve(al, 1);
+                        ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al,
+                            loc, j, ASR::cmpopType::NotEq,
+                            EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type)),
+                            logical_type, nullptr));
+                        if_body_3.push_back(al, STMT(ASR::make_Assignment_t(al,
+                            loc, j, EXPR(ASR::make_ListItem_t(al, loc, lps,
+                                EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
+                                    ASR::binopType::Sub,
+                                    EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                                    int_type, nullptr)),
+                                int_type, nullptr)), nullptr)));
+                        else_body_3.push_back(al, STMT(ASR::make_Assignment_t(al,
+                            loc, i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
+                                ASR::binopType::Add,
+                                EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int_type)),
+                                int_type, nullptr)), nullptr)));
+                        if_body_2.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                            if_body_3.p, if_body_3.n, else_body_3.p, else_body_3.n)));
+                    }
+                    else_body_1.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                        if_body_2.p, if_body_2.n, nullptr, 0)));
+                }
+                loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
+                    if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n)));
+            }
+
+            body.push_back(al, STMT(ASR::make_WhileLoop_t(al, loc, nullptr, a_test,
+                loop_body.p, loop_body.n)));
+        }
+        body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+
+    }
+    ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
+        body, return_var, Source, Implementation, nullptr);
+    global_scope->add_symbol(fn_name, fn_sym);
+    return fn_sym;
 }
 
 } // namespace UnaryIntrinsicFunction
@@ -605,11 +905,14 @@ namespace Partition {
             e_args.p, e_args.n, 0, return_type, value);
     }
 
-    static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
-            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+    static inline ASR::expr_t* instantiate_Partition(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& /*arg_types*/,
             Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
-        // TODO
-        return nullptr;
+        ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
+            al, loc, scope);
+        ASR::ttype_t *int_type = TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        return EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
+            new_args.p, new_args.n, int_type, nullptr, compile_time_value));
     }
 } // namespace Partition
 
@@ -632,7 +935,10 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
             &Atan::instantiate_Atan},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
-            &Abs::instantiate_Abs}
+            &Abs::instantiate_Abs},
+
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
+            &Partition::instantiate_Partition}
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
