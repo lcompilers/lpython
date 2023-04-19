@@ -1,0 +1,13 @@
+{
+    "basename": "asr-bindc_01-edd8cc4",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bindc_01.py",
+    "infile_hash": "f628ce81b32f2730f936232bb235f39d4372912bc332f3c97e983ad7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-bindc_01-edd8cc4.stdout",
+    "stdout_hash": "3a359df0424702ee2efab2b7fecd2e897cbc97f29575e228506e867f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

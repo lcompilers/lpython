@@ -1,0 +1,13 @@
+{
+    "basename": "asr-structs_02-a0958ac",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/structs_02.py",
+    "infile_hash": "f101938e4f5608477de4e57be8f04196e51b97aab3ade62833cecf91",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-structs_02-a0958ac.stdout",
+    "stdout_hash": "74cda701fe076a818f03ce03f342961d731ef7479164a2e113f46de6",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

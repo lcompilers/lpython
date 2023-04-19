@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr_01-eafd41c",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/expr_01.py",
+    "infile_hash": "230a65e2cddb76f58d56747325caf24b8a1f6277810186581948c514",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr_01-eafd41c.stdout",
+    "stdout_hash": "383d6b684023f5e14568d8941657bae8fc72455c7fb33289d90f9bf7",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

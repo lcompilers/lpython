@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_c_interop_01-8bee4ec",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_c_interop_01.py",
+    "infile_hash": "f5363d49163fefe382a94462e7c305a7938ddcc44c4595f8a0c5bc3f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_c_interop_01-8bee4ec.stdout",
+    "stdout_hash": "4937afbc63b4af69a2e5e84882adfc4c4ca48a460602eaf21cb38f25",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

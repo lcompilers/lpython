@@ -1,0 +1,13 @@
+{
+    "basename": "asr-vec_01-9b22f33",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/vec_01.py",
+    "infile_hash": "b22cabe2248cf58c7ffaad83dd8dc5b2433f244ee23b0703b536547b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-vec_01-9b22f33.stdout",
+    "stdout_hash": "2cdfa9693b1ed21bf06022c19df5e887df01f9b7b05c1b27c684f5ec",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

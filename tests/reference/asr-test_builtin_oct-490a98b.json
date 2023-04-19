@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin_oct-490a98b",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin_oct.py",
+    "infile_hash": "c20249affa4787edf4ef56c881ebbcabdced311b5b908d9da6aceaeb",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_builtin_oct-490a98b.stdout",
+    "stdout_hash": "4312c79554068aea3108bec5a24de58422bf2645802fc31d35d4ed8e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_complex_01-c199562",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_complex_01.py",
+    "infile_hash": "e580480b37e5bbfcd01d5eb412375a8a3c1ef374b5fedfb661485763",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_complex_01-c199562.stdout",
+    "stdout_hash": "da2e1bfc12325cd6e2651b35310bad1f16e12a1acc19d6140423b757",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
