@@ -1,8 +1,5 @@
-from lpython import dataclass, i32, f64, TypeVar
-from numpy import empty, float64
+from lpython import dataclass, i32, f64
 from sys import exit
-
-# from utils import init_zeros, dot_product
 
 @dataclass
 class Perceptron:
@@ -14,19 +11,43 @@ class Perceptron:
     cur_accuracy: f64
     epochs_cnt: i32
 
-def dot_product(a: list[f64], b: list[i32]) -> f64:
-    result: f64 = 0.0
-    i: i32 = 0
-    for i in range(len(a)):
-        result = result + a[i] * f64(b[i])
-    return result
+def normalize(value: f64, leftMin: f64, leftMax: f64, rightMin: f64, rightMax: f64) -> f64:
+    # Figure out how 'wide' each range is
+    leftSpan: f64 = leftMax - leftMin
+    rightSpan: f64 = rightMax - rightMin
 
-def get_inp_vec_with_bias(a: list[i32]) -> list[i32]:
-    b: list[i32]
+    # Convert the left range into a 0-1 range (float)
+    valueScaled: f64 = (value - leftMin) / leftSpan
+
+    # Convert the 0-1 range into a value in the right range.
+    return rightMin + (valueScaled * rightSpan)
+
+def normalize_input_vectors(input_vectors: list[list[f64]]):
+    rows: i32 = len(input_vectors)
+    cols: i32 = len(input_vectors[0])
+
+    j: i32
+    for j in range(cols):
+        colMinVal: f64 = input_vectors[0][j]
+        colMaxVal: f64 = input_vectors[0][j]
+        i: i32
+        for i in range(rows):
+            if input_vectors[i][j] > colMaxVal:
+                colMaxVal = input_vectors[i][j]
+            if input_vectors[i][j] < colMinVal:
+                colMinVal = input_vectors[i][j]
+
+        for i in range(rows):
+            input_vectors[i][j] = normalize(input_vectors[i][j], colMinVal, colMaxVal, -1.0, 1.0)
+
+
+
+def get_inp_vec_with_bias(a: list[f64]) -> list[f64]:
+    b: list[f64]
     i: i32
     for i in range(len(a)):
         b.append(a[i])
-    b.append(1)
+    b.append(1.0)
     return b
 
 def init_weights(size: i32) -> list[f64]:
@@ -49,15 +70,18 @@ def init_perceptron(p: Perceptron, n: i32, rate: f64, iterations_limit: i32, des
     p.cur_accuracy = 0.0
     p.epochs_cnt = 0
 
-def train_perceptron(p: Perceptron, input_vector: list[i32], actual_output: i32):
+def train_perceptron(p: Perceptron, input_vector: list[f64], actual_output: i32):
     predicted_output: i32 = predict_perceptron(p, input_vector)
     error: i32 = actual_output - predicted_output
     i: i32
     for i in range(len(input_vector)):
         p.weights[i] += p.learn_rate * f64(error) * f64(input_vector[i])
 
-def predict_perceptron(p: Perceptron, input_vector: list[i32]) -> i32:
-    weighted_sum: f64 = dot_product(p.weights, input_vector)
+def predict_perceptron(p: Perceptron, input_vector: list[f64]) -> i32:
+    weighted_sum: f64 = 0.0
+    i: i32 = 0
+    for i in range(len(input_vector)):
+        weighted_sum = weighted_sum + p.weights[i] * f64(input_vector[i])
     return activation_function(weighted_sum)
 
 def activation_function(value: f64) -> i32:
@@ -65,14 +89,14 @@ def activation_function(value: f64) -> i32:
         return 1
     return -1
 
-def train_epoch(p: Perceptron, input_vectors: list[list[i32]], outputs: list[i32]):
+def train_epoch(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]):
     i: i32
     for i in range(len(input_vectors)):
-        input_vector: list[i32] = get_inp_vec_with_bias(input_vectors[i])
+        input_vector: list[f64] = get_inp_vec_with_bias(input_vectors[i])
         if predict_perceptron(p, input_vector) != outputs[i]:
             train_perceptron(p, input_vector, outputs[i])
 
-def train_dataset(p: Perceptron, input_vectors: list[list[i32]], outputs: list[i32]):
+def train_dataset(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]):
     p.cur_accuracy = 0.0
     p.epochs_cnt = 0
     while p.cur_accuracy < p.des_accuracy and p.epochs_cnt < p.iterations_limit:
@@ -80,11 +104,11 @@ def train_dataset(p: Perceptron, input_vectors: list[list[i32]], outputs: list[i
         train_epoch(p, input_vectors, outputs)
         p.cur_accuracy = test_perceptron(p, input_vectors, outputs)
 
-def test_perceptron(p: Perceptron, input_vectors: list[list[i32]], outputs: list[i32]) -> f64:
+def test_perceptron(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]) -> f64:
     correctly_classified_cnt: i32 = 0
     i: i32
     for i in range(len(input_vectors)):
-        input_vector: list[i32] = get_inp_vec_with_bias(input_vectors[i])
+        input_vector: list[f64] = get_inp_vec_with_bias(input_vectors[i])
         if predict_perceptron(p, input_vector) == outputs[i]:
             correctly_classified_cnt += 1
     return (correctly_classified_cnt / len(input_vectors)) * 100.0
