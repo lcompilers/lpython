@@ -1,0 +1,13 @@
+{
+    "basename": "asr-dictionary1-789a50b",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/dictionary1.py",
+    "infile_hash": "2d9f15b746aa8185afb3f2dc6415c20a7edccc8e711df1b323178d94",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-dictionary1-789a50b.stdout",
+    "stdout_hash": "b333afe5a08ea5f5ee15acad2dcb0a819c2807f4476c3722057be2f1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

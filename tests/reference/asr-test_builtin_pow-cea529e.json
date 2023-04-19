@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin_pow-cea529e",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin_pow.py",
+    "infile_hash": "b7d1d5e1592f5078961eb228c756e424d394f5f0383a1577f1cced1b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_builtin_pow-cea529e.stdout",
+    "stdout_hash": "f074264a011de8828f2a077467d4914d08da7bd3debf12fe6b9cf490",
+    "stderr": "asr-test_builtin_pow-cea529e.stderr",
+    "stderr_hash": "859ce76c74748f2d32c7eab92cfbba789a78d4cbf5818646b99806ea",
+    "returncode": 0
+}

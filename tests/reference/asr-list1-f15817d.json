@@ -1,0 +1,13 @@
+{
+    "basename": "asr-list1-f15817d",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/list1.py",
+    "infile_hash": "9d6b3f1a83a585d5a7a5e50ff5e1ddd15705fce268208d0cc2749514",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-list1-f15817d.stdout",
+    "stdout_hash": "5f495046def92b0abed1cb401feed923d97c5ed5544efd3738159677",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

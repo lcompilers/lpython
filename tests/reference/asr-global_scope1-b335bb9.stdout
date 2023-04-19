@@ -1,0 +1,93 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            _global_symbols:
+                (Module
+                    (SymbolTable
+                        4
+                        {
+                            _lpython_main_program:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            
+                                        })
+                                    _lpython_main_program
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 i)
+                                        (IntegerConstant 5 (Integer 4 []))
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                ),
+                            i:
+                                (Variable
+                                    4
+                                    i
+                                    []
+                                    Local
+                                    ()
+                                    ()
+                                    Default
+                                    (Integer 4 [])
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                )
+                        })
+                    _global_symbols
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        2
+                        {
+                            _lpython_main_program:
+                                (ExternalSymbol
+                                    2
+                                    _lpython_main_program
+                                    4 _lpython_main_program
+                                    _global_symbols
+                                    []
+                                    _lpython_main_program
+                                    Public
+                                )
+                        })
+                    main_program
+                    [_global_symbols]
+                    [(SubroutineCall
+                        2 _lpython_main_program
+                        ()
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

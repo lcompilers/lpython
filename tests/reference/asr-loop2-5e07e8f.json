@@ -1,0 +1,13 @@
+{
+    "basename": "asr-loop2-5e07e8f",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/loop2.py",
+    "infile_hash": "7946c522ceb16f99810780d4aba7fa2593695a4b49fb35ea1f131f53",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-loop2-5e07e8f.stdout",
+    "stdout_hash": "3c67e649e67a352f75f8e129b560006fb6d053755bbf01fdfb6d5a0e",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
