@@ -689,7 +689,7 @@ def _lpython_str_lower(x: str) -> str:
     res = ""
     i:str
     for i in x:
-        if ord('A') <= ord(i) and ord('Z') >= ord(i):
+        if ord('A') <= ord(i) and ord(i) <= ord('Z'):
             res += chr(ord(i) +32)
         else:
             res += i
@@ -701,7 +701,7 @@ def _lpython_str_upper(x: str) -> str:
     res = ""
     i:str
     for i in x:
-        if ord('a') <= ord(i) and ord('z') >= ord(i):
+        if ord('a') <= ord(i) and ord(i) <= ord('z'):
             res += chr(ord(i) -32)
         else:
             res += i
