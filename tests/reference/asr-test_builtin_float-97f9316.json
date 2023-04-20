@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin_float-97f9316",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin_float.py",
+    "infile_hash": "de536c0af182f8e43780193627c24f1085522e86d37316e13d337196",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_builtin_float-97f9316.stdout",
+    "stdout_hash": "fbaad0a3b455e5e18a367ad4e6da559ff0f1467ac387e1472d627a31",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -5773,6 +5773,16 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
+        } else if (attr_name == "upper") {
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_upper";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else if (attr_name == "find") {
             if (args.size() != 1) {
                 throw SemanticError("str.find() takes one argument",
@@ -6060,6 +6070,16 @@ public:
             for (auto &i : s_var) {
                 if (i >= 'A' && i<= 'Z') {
                     i = tolower(i);
+                }
+            }
+        } else if (attr_name == "upper") {
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                        loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'a' && i<= 'z') {
+                    i = toupper(i);
                 }
             }
         } else if (attr_name == "find") {
@@ -6408,7 +6428,9 @@ public:
         }
 
         if (!s) {
-            std::set<std::string> not_cpython_builtin = {"sin", "cos", "gamma"};
+            std::set<std::string> not_cpython_builtin = {
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan"
+            };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
              && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
                 ASRUtils::create_intrinsic_function create_func =

@@ -5,6 +5,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/pass/array_op.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #include <vector>
 #include <utility>
@@ -207,6 +208,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res, ref, nullptr));
             doloop_body.push_back(al, assign);
         });
+        *current_expr = nullptr;
         result_var = nullptr;
         use_custom_loop_params = false;
     }
@@ -281,6 +283,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         });
         result_var = nullptr;
         use_custom_loop_params = false;
+        *current_expr = nullptr;
     }
 
     void replace_IntegerConstant(ASR::IntegerConstant_t* x) {
@@ -347,6 +350,24 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         }
     }
 
+    ASR::ttype_t* get_result_type(ASR::expr_t* arr_expr, ASR::exprType class_type) {
+        switch( class_type ) {
+            case ASR::exprType::RealCompare:
+            case ASR::exprType::ComplexCompare:
+            case ASR::exprType::LogicalCompare:
+            case ASR::exprType::IntegerCompare: {
+                ASR::ttype_t* arr_expr_type = ASRUtils::expr_type(arr_expr);
+                ASR::dimension_t* m_dims;
+                size_t n_dims = ASRUtils::extract_dimensions_from_ttype(arr_expr_type, m_dims);
+                return ASRUtils::TYPE(ASR::make_Logical_t(al, arr_expr->base.loc,
+                            4, m_dims, n_dims));
+            }
+            default: {
+                return PassUtils::get_matching_type(arr_expr, al);
+            }
+        }
+    }
+
     template <typename T>
     void replace_ArrayOpCommon(T* x, std::string res_prefix) {
         const Location& loc = x->base.base.loc;
@@ -387,8 +408,9 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             }
 
             if( result_var == nullptr ) {
+                ASR::ttype_t* result_var_type = get_result_type(left, x->class_type);
                 result_var = PassUtils::create_var(result_counter, res_prefix, loc,
-                                                   left, al, current_scope);
+                                                   result_var_type, al, current_scope);
                 result_counter += 1;
             }
             *current_expr = result_var;
@@ -422,8 +444,9 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 n_dims = rank_right;
             }
             if( result_var == nullptr ) {
+                ASR::ttype_t* result_var_type = get_result_type(arr_expr, x->class_type);
                 result_var = PassUtils::create_var(result_counter, res_prefix, loc,
-                                                    arr_expr, al, current_scope);
+                                                   result_var_type, al, current_scope);
                 result_counter += 1;
             }
             *current_expr = result_var;
@@ -547,6 +570,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                     });
                     result_var = nullptr;
                     use_custom_loop_params = false;
+                    *current_expr = nullptr;
                 }
             }
             return ;
@@ -590,6 +614,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                                         op_el_wise, nullptr));
                 doloop_body.push_back(al, assign);
             });
+            result_var = nullptr;
             use_custom_loop_params = false;
         }
     }
@@ -647,6 +672,9 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
     }
 
     void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
+        if( !ASRUtils::IntrinsicFunctionRegistry::is_elemental(x->m_intrinsic_id) ) {
+            return ;
+        }
         LCOMPILERS_ASSERT(current_scope != nullptr);
         const Location& loc = x->base.base.loc;
         std::vector<bool> array_mask(x->n_args, false);
@@ -924,6 +952,8 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
                 pass_result.n = 0;
                 pass_result.reserve(al, 1);
                 remove_original_statement = false;
+                replacer.result_var = nullptr;
+                replacer.result_type = nullptr;
                 Vec<ASR::stmt_t*>* parent_body_copy = parent_body;
                 parent_body = &body;
                 visit_stmt(*m_body[i]);
@@ -1147,10 +1177,19 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
 
         inline void visit_AssignmentUtil(const ASR::Assignment_t& x) {
             ASR::expr_t** current_expr_copy_9 = current_expr;
+            ASR::expr_t* original_value = x.m_value;
             current_expr = const_cast<ASR::expr_t**>(&(x.m_value));
             this->call_replacer();
             current_expr = current_expr_copy_9;
-            this->visit_expr(*x.m_value);
+            if( x.m_value == original_value ) {
+                ASR::expr_t* result_var_copy = replacer.result_var;
+                replacer.result_var = nullptr;
+                this->visit_expr(*x.m_value);
+                replacer.result_var = result_var_copy;
+                remove_original_statement = false;
+            } else if( x.m_value ) {
+                this->visit_expr(*x.m_value);
+            }
             if (x.m_overloaded) {
                 this->visit_stmt(*x.m_overloaded);
             }

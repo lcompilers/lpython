@@ -72,6 +72,7 @@ struct PythonIntrinsicProcedures {
             // for evaluation.
             {"_lpython_str_capitalize", {m_builtin, &not_implemented}},
             {"_lpython_str_lower", {m_builtin, &not_implemented}},
+            {"_lpython_str_upper", {m_builtin, &not_implemented}},
             {"_lpython_str_find", {m_builtin, &not_implemented}},
             {"_lpython_str_rstrip", {m_builtin, &not_implemented}},
             {"_lpython_str_lstrip", {m_builtin, &not_implemented}},

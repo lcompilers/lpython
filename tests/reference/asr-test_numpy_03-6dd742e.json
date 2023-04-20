@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_numpy_03-6dd742e",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_numpy_03.py",
+    "infile_hash": "7adaceaf3fd681036b880955e851507a36d42b61fae4e8b0b5527ac9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_numpy_03-6dd742e.stdout",
+    "stdout_hash": "672b0274ed72929816cf777040abb41656532a2033cc4f9b598b31ec",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

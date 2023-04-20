@@ -4,6 +4,7 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/asr_utils.h>
+#include <libasr/pass/pass_utils.h>
 
 #include <cmath>
 #include <string>
@@ -26,7 +27,7 @@ the code size.
 typedef ASR::expr_t* (*impl_function)(
     Allocator&, const Location &,
     SymbolTable*, Vec<ASR::ttype_t*>&,
-    Vec<ASR::call_arg_t>&, ASR::expr_t*);
+    Vec<ASR::call_arg_t>&, int64_t, ASR::expr_t*);
 
 typedef ASR::expr_t* (*eval_intrinsic_function)(
     Allocator&, const Location &,
@@ -40,34 +41,111 @@ typedef ASR::asr_t* (*create_intrinsic_function)(
 enum class IntrinsicFunctions : int64_t {
     Sin,
     Cos,
+    Tan,
+    Asin,
+    Acos,
+    Atan,
     Gamma,
     LogGamma,
     Abs,
-
+    Any,
     ListIndex,
     // ...
 };
 
+namespace ControlFlowConstructorAPI {
+    template <typename LOOP_BODY>
+    ASR::stmt_t* create_do_loop(
+        Allocator& al, const Location& loc,
+        int rank, ASR::expr_t* array,
+        SymbolTable* scope, Vec<ASR::expr_t*>& idx_vars,
+        Vec<ASR::stmt_t*>& doloop_body, LOOP_BODY loop_body) {
+        PassUtils::create_idx_vars(idx_vars, rank, loc, al, scope, "_i");
+
+        ASR::stmt_t* doloop = nullptr;
+        for( int i = (int) idx_vars.size() - 1; i >= 0; i-- ) {
+            ASR::do_loop_head_t head;
+            head.m_v = idx_vars[i];
+            head.m_start = PassUtils::get_bound(array, i + 1, "lbound", al);
+            head.m_end = PassUtils::get_bound(array, i + 1, "ubound", al);
+            head.m_increment = nullptr;
+
+            head.loc = head.m_v->base.loc;
+            doloop_body.reserve(al, 1);
+            if( doloop == nullptr ) {
+                loop_body();
+            } else {
+                doloop_body.push_back(al, doloop);
+            }
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr,
+                        head, doloop_body.p, doloop_body.size()));
+        }
+        return doloop;
+    }
+
+    template <typename LOOP_BODY>
+    ASR::stmt_t* create_do_loop(
+        Allocator& al, const Location& loc,
+        ASR::expr_t* array, ASR::expr_t* result,
+        Vec<ASR::expr_t*>& loop_vars, std::vector<int>& loop_dims,
+        Vec<ASR::stmt_t*>& doloop_body, LOOP_BODY loop_body) {
+
+        if( result ) {
+
+        }
+
+        ASR::stmt_t* doloop = nullptr;
+        for( int i = (int) loop_vars.size() - 1; i >= 0; i-- ) {
+            ASR::do_loop_head_t head;
+            head.m_v = loop_vars[i];
+            head.m_start = PassUtils::get_bound(array, loop_dims[i], "lbound", al);
+            head.m_end = PassUtils::get_bound(array, loop_dims[i], "ubound", al);
+            head.m_increment = nullptr;
+
+            head.loc = head.m_v->base.loc;
+            doloop_body.reserve(al, 1);
+            if( doloop == nullptr ) {
+                loop_body();
+            } else {
+                doloop_body.push_back(al, doloop);
+            }
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr,
+                        head, doloop_body.p, doloop_body.size()));
+        }
+        return doloop;
+    }
+}
+
 namespace UnaryIntrinsicFunction {
 
-#define create_variable(var_sym, name, intent, abi, value_attr, symtab, type)   \
-    ASR::symbol_t *var_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(\
-        al, loc, symtab, s2c(al, name), nullptr, 0, intent, nullptr, nullptr,   \
-        ASR::storage_typeType::Default, type, abi, ASR::Public,                 \
-        ASR::presenceType::Required, value_attr));                              \
-    symtab->add_symbol(s2c(al, name), var_sym);
+#define create_variable(var, name, intent, abi, value_attr, symtab, type)       \
+    ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(                   \
+        ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,        \
+        intent, nullptr, nullptr, ASR::storage_typeType::Default, type, abi,    \
+        ASR::Public, ASR::presenceType::Required, value_attr));                 \
+    symtab->add_symbol(s2c(al, name), sym_##var);                               \
+    ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
+
 
 #define make_Function_t(name, symtab, dep, args, body, return_var, abi, deftype,\
         bindc_name)                                                             \
     ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
     symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
-    ASRUtils::EXPR(ASR::make_Var_t(al, loc, return_var)), ASR::abiType::abi,    \
-    ASR::accessType::Public, ASR::deftypeType::deftype, bindc_name, false,      \
-    false, false, false, false, nullptr, 0, nullptr, 0, false, false, false));
+    return_var, ASR::abiType::abi, ASR::accessType::Public,                     \
+    ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
+    nullptr, 0, nullptr, 0, false, false, false));
+
+#define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body, abi,   \
+        deftype, bindc_name)                                                    \
+    ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
+    symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
+    nullptr, ASR::abiType::abi, ASR::accessType::Public,                        \
+    ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
+    nullptr, 0, nullptr, 0, false, false, false));
 
 static inline ASR::expr_t* instantiate_functions(Allocator &al,
         const Location &loc, SymbolTable *global_scope, std::string new_name,
-        ASR::ttype_t *arg_type, Vec<ASR::call_arg_t>& new_args,
+        ASR::ttype_t *arg_type, Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
         ASR::expr_t *value) {
     std::string c_func_name;
     switch (arg_type->type) {
@@ -104,7 +182,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
         args.reserve(al, 1);
         create_variable(arg, "x", ASR::intentType::In, ASR::abiType::Source,
             false, fn_symtab, arg_type);
-        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)));
+        args.push_back(al, arg);
     }
 
     create_variable(return_var, new_name, ASRUtils::intent_return_var,
@@ -123,7 +201,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             args_1.reserve(al, 1);
             create_variable(arg, "x", ASR::intentType::In, ASR::abiType::BindC,
                 true, fn_symtab_1, arg_type);
-            args_1.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)));
+            args_1.push_back(al, arg);
         }
 
         create_variable(return_var_1, c_func_name, ASRUtils::intent_return_var,
@@ -143,8 +221,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             call_args.push_back(al, arg);
         }
         body.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
-            ASRUtils::EXPR(ASR::make_Var_t(al, loc, return_var)),
-            ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
+            return_var, ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
             call_args.p, call_args.n, arg_type, nullptr, nullptr)), nullptr)));
     }
 
@@ -175,13 +252,13 @@ static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& lo
 
 #define instantiate_UnaryFunctionArgs Allocator &al, const Location &loc,    \
     SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,    \
-    Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value    \
+    Vec<ASR::call_arg_t>& new_args, int64_t overload_id, ASR::expr_t* compile_time_value    \
 
 #define instantiate_UnaryFunctionBody(Y)    \
     LCOMPILERS_ASSERT(arg_types.size() == 1);    \
     ASR::ttype_t* arg_type = arg_types[0];    \
     return UnaryIntrinsicFunction::instantiate_functions(    \
-        al, loc, scope, #Y, arg_type, new_args,    \
+        al, loc, scope, #Y, arg_type, new_args, overload_id,    \
         compile_time_value);    \
 
 namespace LogGamma {
@@ -255,17 +332,22 @@ namespace X {                                                                   
     static inline ASR::expr_t* instantiate_##X (Allocator &al,                  \
         const Location &loc, SymbolTable *scope,                                \
         Vec<ASR::ttype_t*>& arg_types, Vec<ASR::call_arg_t>& new_args,          \
-        ASR::expr_t* compile_time_value)                                        \
+         int64_t overload_id, ASR::expr_t* compile_time_value)                  \
     {                                                                           \
         LCOMPILERS_ASSERT(arg_types.size() == 1);                               \
         ASR::ttype_t* arg_type = arg_types[0];                                  \
         return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,    \
-            #lcompilers_name, arg_type, new_args, compile_time_value);          \
+            #lcompilers_name, arg_type, new_args, overload_id,                  \
+            compile_time_value);                                                \
     }                                                                           \
 } // namespace X
 
 create_trig(Sin, sin, sin)
 create_trig(Cos, cos, cos)
+create_trig(Tan, tan, tan)
+create_trig(Asin, asin, asin)
+create_trig(Acos, acos, acos)
+create_trig(Atan, atan, atan)
 
 namespace Abs {
 
@@ -320,7 +402,7 @@ namespace Abs {
 
     static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
-            Vec<ASR::call_arg_t>& new_args, ASR::expr_t* compile_time_value) {
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
         std::string func_name = "_lcompilers_abs_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
         if (scope->get_symbol(func_name)) {
@@ -339,7 +421,7 @@ namespace Abs {
             args.reserve(al, 1);
             create_variable(arg, "x", ASR::intentType::In, ASR::abiType::Source,
                 false, fn_symtab, arg_types[0]);
-            args.push_back(al, EXPR(ASR::make_Var_t(al, loc, arg)));
+            args.push_back(al, arg);
         }
 
         create_variable(return_var, func_name, ASRUtils::intent_return_var,
@@ -376,17 +458,17 @@ namespace Abs {
 
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
             if_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
-                EXPR(ASR::make_Var_t(al, loc, return_var)), args[0], nullptr)));
+                return_var, args[0], nullptr)));
             Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
             else_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
-                EXPR(ASR::make_Var_t(al, loc, return_var)), negative_x, nullptr)));
+                return_var, negative_x, nullptr)));
             body.push_back(al, STMT(ASR::make_If_t(al, loc, test,
                 if_body.p, if_body.n, else_body.p, else_body.n)));
         } else {
             // * Complex type: `r = (real(x)**2 + aimag(x)**2)**0.5`
             ASR::ttype_t *real_type = TYPE(ASR::make_Real_t(al, loc,
                 extract_kind_from_ttype_t(arg_types[0]), nullptr, 0));
-            ASR::Variable_t *r_var = ASR::down_cast<ASR::Variable_t>(return_var);
+            ASR::Variable_t *r_var = ASR::down_cast<ASR::Variable_t>(sym_return_var);
             r_var->m_type = return_type = real_type;
             ASR::expr_t *aimag_of_x;
             {
@@ -402,7 +484,7 @@ namespace Abs {
                     args_1.reserve(al, 1);
                     create_variable(arg, "x", ASR::intentType::In, ASR::abiType::BindC,
                         true, fn_symtab_1, arg_types[0]);
-                    args_1.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)));
+                    args_1.push_back(al, arg);
                 }
 
                 create_variable(return_var_1, c_func_name, ASRUtils::intent_return_var,
@@ -440,9 +522,8 @@ namespace Abs {
                 ASR::binopType::Add, bin_op_2, real_type, nullptr));
 
             body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
-                EXPR(ASR::make_Var_t(al, loc, return_var)),
-                EXPR(ASR::make_RealBinOp_t(al, loc, bin_op_1, ASR::binopType::Pow,
-                    constant_point_five, real_type, nullptr)),
+                return_var, EXPR(ASR::make_RealBinOp_t(al, loc, bin_op_1,
+                    ASR::binopType::Pow, constant_point_five, real_type, nullptr)),
                 nullptr)));
         }
 
@@ -503,6 +584,281 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
 
 } // namespace ListIndex
 
+namespace Any {
+
+static inline ASR::expr_t *eval_Any(Allocator & /*al*/,
+    const Location & /*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_Any(
+    Allocator& al, const Location& loc, Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    int64_t overload_id = 0;
+    if(args.size() != 1 && args.size() != 2) {
+        err("any intrinsic accepts a maximum of two arguments, found "
+                    + std::to_string(args.size()), loc);
+    }
+
+    ASR::expr_t* array = args[0];
+    if( ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array)) == 0 ) {
+        err("mask argument to any must be an array and must not be a scalar",
+            args[0]->base.loc);
+    }
+
+    // TODO: Add a check for range of values axis can take
+    // if axis is available at compile time
+
+    ASR::expr_t *value = nullptr;
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, 2);
+    ASR::expr_t *array_value = ASRUtils::expr_value(array);
+    arg_values.push_back(al, array_value);
+    if( args.size() == 2 ) {
+        ASR::expr_t* axis = args[1];
+        ASR::expr_t *axis_value = ASRUtils::expr_value(axis);
+        arg_values.push_back(al, axis_value);
+    }
+    value = eval_Any(al, loc, arg_values);
+
+    ASR::ttype_t* logical_return_type = nullptr;
+    if( args.size() == 1 ) {
+        overload_id = 0;
+        logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
+                                al, loc, 4, nullptr, 0));
+    } else if( args.size() == 2 ) {
+        overload_id = 1;
+        Vec<ASR::dimension_t> dims;
+        size_t n_dims = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+        dims.reserve(al, (int) n_dims - 1);
+        for( int i = 0; i < (int) n_dims - 1; i++ ) {
+            ASR::dimension_t dim;
+            dim.loc = array->base.loc;
+            dim.m_length = nullptr;
+            dim.m_start = nullptr;
+            dims.push_back(al, dim);
+        }
+        logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
+    }
+
+    return ASR::make_IntrinsicFunction_t(al, loc,
+        static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
+        args.p, args.n, overload_id, logical_return_type, value);
+}
+
+static inline void generate_body_for_scalar_output(Allocator& al, const Location& loc,
+    ASR::expr_t* array, ASR::expr_t* return_var, SymbolTable* fn_scope,
+    Vec<ASR::stmt_t*>& fn_body) {
+    ASR::expr_t* logical_false = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
+                                    al, loc, false, ASRUtils::expr_type(array)));
+    ASR::stmt_t* return_var_init = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
+                                        return_var, logical_false, nullptr));
+    fn_body.push_back(al, return_var_init);
+    int rank = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+    Vec<ASR::expr_t*> idx_vars;
+    idx_vars.reserve(al, 1);
+    Vec<ASR::stmt_t*> doloop_body;
+    doloop_body.reserve(al, 1);
+    ASR::stmt_t* doloop = ControlFlowConstructorAPI::create_do_loop(al, loc,
+        rank, array, fn_scope, idx_vars, doloop_body,
+    [=, &al, &idx_vars, &doloop_body] () {
+        ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
+        ASR::expr_t* logical_or = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
+            return_var, ASR::Or, array_ref, ASRUtils::expr_type(return_var), nullptr));
+        ASR::stmt_t* loop_invariant = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
+                                        return_var, logical_or, nullptr));
+        doloop_body.push_back(al, loop_invariant);
+    });
+    fn_body.push_back(al, doloop);
+}
+
+static inline void generate_body_for_array_output(Allocator& al, const Location& loc,
+    ASR::expr_t* array, ASR::expr_t* dim, ASR::expr_t* result,
+    SymbolTable* fn_scope, Vec<ASR::stmt_t*>& fn_body) {
+    ASR::expr_t* logical_false = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
+                                    al, loc, false, ASRUtils::TYPE(ASR::make_Logical_t(
+                                        al, loc, 4, nullptr, 0))));
+    ASR::stmt_t* result_init = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
+                                        result, logical_false, nullptr));
+    fn_body.push_back(al, result_init);
+
+    int n_dims = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+    ASR::stmt_t** else_ = nullptr;
+    size_t else_n = 0;
+    Vec<ASR::expr_t*> idx_vars;
+    idx_vars.reserve(al, n_dims);
+    PassUtils::create_idx_vars(idx_vars, n_dims, loc, al, fn_scope, "_j");
+    for( int i = 1; i <= n_dims; i++ ) {
+        ASR::expr_t* current_dim = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                                    al, loc, i, ASRUtils::expr_type(dim)));
+        ASR::expr_t* test_expr = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+                                    al, loc, dim, ASR::cmpopType::Eq,
+                                    current_dim, ASRUtils::TYPE(ASR::make_Logical_t(
+                                        al, loc, 4, nullptr, 0)), nullptr));
+
+        Vec<ASR::expr_t*> target_idx_vars, loop_vars;
+        std::vector<int> loop_dims;
+        loop_dims.reserve(n_dims);
+        loop_vars.reserve(al, n_dims);
+        target_idx_vars.reserve(al, n_dims - 1);
+        for( int j = 1; j <= n_dims; j++ ) {
+            if( j == i ) {
+                continue ;
+            }
+            target_idx_vars.push_back(al, idx_vars[j - 1]);
+            loop_dims.push_back(j);
+            loop_vars.push_back(al, idx_vars[j - 1]);
+        }
+        loop_dims.push_back(i);
+        loop_vars.push_back(al, idx_vars[i - 1]);
+
+        Vec<ASR::stmt_t*> doloop_body;
+        ASR::stmt_t* doloop = ControlFlowConstructorAPI::create_do_loop(al, loc,
+        array, result, loop_vars, loop_dims, doloop_body,
+        [=, &al, &idx_vars, &target_idx_vars, &doloop_body] () {
+                ASR::expr_t* result_ref = PassUtils::create_array_ref(result, target_idx_vars, al);
+                ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
+                ASR::expr_t* logical_or = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
+                                            result_ref, ASR::Or, array_ref,
+                                            ASRUtils::TYPE(ASR::make_Logical_t( al, loc, 4,
+                                                nullptr, 0)), nullptr));
+                ASR::stmt_t* loop_invariant = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
+                                                result_ref, logical_or, nullptr));
+                doloop_body.push_back(al, loop_invariant);
+        });
+        Vec<ASR::stmt_t*> if_body;
+        if_body.reserve(al, 1);
+        if_body.push_back(al, doloop);
+        ASR::stmt_t* if_ = ASRUtils::STMT(ASR::make_If_t(al, loc, test_expr,
+                            if_body.p, if_body.size(), else_, else_n));
+        Vec<ASR::stmt_t*> if_else_if;
+        if_else_if.reserve(al, 1);
+        if_else_if.push_back(al, if_);
+        else_ = if_else_if.p;
+        else_n = if_else_if.size();
+    }
+    fn_body.push_back(al, else_[0]);
+}
+
+static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
+    SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+    Vec<ASR::call_arg_t>& new_args, int64_t overload_id,
+    ASR::expr_t* compile_time_value) {
+
+    ASR::ttype_t* arg_type = arg_types[0];
+    int kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+    int rank = ASRUtils::extract_n_dims_from_ttype(arg_type);
+    std::string new_name = "any_" + std::to_string(kind) +
+                            "_" + std::to_string(rank) +
+                            "_" + std::to_string(overload_id);
+    // Check if Function is already defined.
+    {
+        std::string new_func_name = new_name;
+        int i = 1;
+        while (scope->get_symbol(new_func_name) != nullptr) {
+            ASR::symbol_t *s = scope->get_symbol(new_func_name);
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            int orig_array_rank = ASRUtils::extract_n_dims_from_ttype(
+                                    ASRUtils::expr_type(f->m_args[0]));
+            if (ASRUtils::types_equal(ASRUtils::expr_type(f->m_args[0]),
+                    arg_type) && orig_array_rank == rank) {
+                ASR::ttype_t* return_type = nullptr;
+                if( f->m_return_var ) {
+                    return_type = ASRUtils::expr_type(f->m_return_var);
+                } else {
+                    return_type = ASRUtils::expr_type(f->m_args[(int) f->n_args - 1]);
+                }
+                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s,
+                    s, new_args.p, new_args.size(), return_type, compile_time_value,
+                    nullptr));
+            } else {
+                new_func_name += std::to_string(i);
+                i++;
+            }
+        }
+    }
+
+    new_name = scope->get_unique_name(new_name);
+    SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+
+    ASR::ttype_t* logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
+                                            al, loc, 4, nullptr, 0));
+    Vec<ASR::expr_t*> args;
+    int result_dims = 0;
+    {
+        args.reserve(al, 1);
+        ASR::ttype_t* mask_type = ASRUtils::duplicate_type_with_empty_dims(al, arg_type);
+        create_variable(mask_arg, "mask", ASR::intentType::In, ASR::abiType::Source,
+            false, fn_symtab, mask_type);
+        args.push_back(al, mask_arg);
+        if( overload_id == 1 ) {
+            ASR::ttype_t* dim_type = ASRUtils::expr_type(new_args[1].m_value);
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Integer_t>(*dim_type));
+            int kind = ASRUtils::extract_kind_from_ttype_t(dim_type);
+            LCOMPILERS_ASSERT(kind == 4);
+            create_variable(dim_arg, "dim", ASR::intentType::In, ASR::abiType::Source,
+                false, fn_symtab, dim_type);
+            args.push_back(al, dim_arg);
+
+            Vec<ASR::dimension_t> dims;
+            size_t n_dims = ASRUtils::extract_n_dims_from_ttype(arg_type);
+            dims.reserve(al, (int) n_dims - 1);
+            for( int i = 0; i < (int) n_dims - 1; i++ ) {
+                ASR::dimension_t dim;
+                dim.loc = new_args[0].m_value->base.loc;
+                dim.m_length = nullptr;
+                dim.m_start = nullptr;
+                dims.push_back(al, dim);
+            }
+            result_dims = dims.size();
+            logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
+                                    al, loc, 4, dims.p, dims.size()));
+            if( result_dims > 0 ) {
+                create_variable(result_arg, "result", ASR::intentType::Out, ASR::abiType::Source,
+                    false, fn_symtab, logical_return_type);
+                args.push_back(al, result_arg);
+            }
+        }
+    }
+
+    ASR::expr_t* return_var = nullptr;
+    if( result_dims == 0 ) {
+        create_variable(return_var_, new_name, ASRUtils::intent_return_var,
+            ASR::abiType::Source, false, fn_symtab, logical_return_type);
+        return_var = return_var_;
+    }
+
+    Vec<ASR::stmt_t*> body;
+    body.reserve(al, 1);
+    if( overload_id == 0 || return_var ) {
+        generate_body_for_scalar_output(al, loc, args[0], return_var, fn_symtab, body);
+    } else if( overload_id == 1 ) {
+        generate_body_for_array_output(al, loc, args[0], args[1], args[2], fn_symtab, body);
+    } else {
+        LCOMPILERS_ASSERT(false);
+    }
+
+    Vec<char *> dep;
+    dep.reserve(al, 1);
+    // TODO: fill dependencies
+
+    ASR::symbol_t *new_symbol = nullptr;
+    if( return_var ) {
+        new_symbol = make_Function_t(new_name, fn_symtab, dep, args,
+            body, return_var, Source, Implementation, nullptr);
+    } else {
+        new_symbol = make_Function_Without_ReturnVar_t(
+            new_name, fn_symtab, dep, args,
+            body, Source, Implementation, nullptr);
+    }
+    scope->add_symbol(new_name, new_symbol);
+    return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
+            new_symbol, new_args.p, new_args.size(), logical_return_type,
+            compile_time_value, nullptr));
+}
+
+} // namespace Any
+
 
 namespace IntrinsicFunctionRegistry {
 
@@ -514,8 +870,18 @@ namespace IntrinsicFunctionRegistry {
             &Sin::instantiate_Sin},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
             &Cos::instantiate_Cos},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+            &Tan::instantiate_Tan},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+            &Asin::instantiate_Asin},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+            &Acos::instantiate_Acos},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+            &Atan::instantiate_Atan},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
-            &Abs::instantiate_Abs}
+            &Abs::instantiate_Abs},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
+            &Any::instantiate_Any}
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -526,6 +892,14 @@ namespace IntrinsicFunctionRegistry {
             "sin"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
             "cos"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+            "tan"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+            "asin"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+            "acos"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+            "atan"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
@@ -538,7 +912,12 @@ namespace IntrinsicFunctionRegistry {
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
+                {"tan", {&Tan::create_Tan, &Tan::eval_Tan}},
+                {"asin", {&Asin::create_Asin, &Asin::eval_Asin}},
+                {"acos", {&Acos::create_Acos, &Acos::eval_Acos}},
+                {"atan", {&Atan::create_Atan, &Atan::eval_Atan}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
+                {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
 
@@ -548,6 +927,33 @@ namespace IntrinsicFunctionRegistry {
 
     static inline bool is_intrinsic_function(int64_t id) {
         return intrinsic_function_by_id_db.find(id) != intrinsic_function_by_id_db.end();
+    }
+
+    static inline bool is_elemental(int64_t id) {
+        ASRUtils::IntrinsicFunctions id_ = static_cast<ASRUtils::IntrinsicFunctions>(id);
+        return ( id_ == ASRUtils::IntrinsicFunctions::Abs ||
+                 id_ == ASRUtils::IntrinsicFunctions::Cos ||
+                 id_ == ASRUtils::IntrinsicFunctions::Gamma ||
+                 id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
+                 id_ == ASRUtils::IntrinsicFunctions::Sin );
+    }
+
+    /*
+        The function gives the index of the dim a.k.a axis argument
+        for the intrinsic with the given id. Most of the time
+        dim is specified via second argument (i.e., index 1) but
+        still its better to encapsulate it in the following
+        function and then call it to get the index of the dim
+        argument whenever needed. This helps in limiting
+        the API changes of the intrinsic to this function only.
+    */
+    static inline int get_dim_index(ASRUtils::IntrinsicFunctions id) {
+        if( id == ASRUtils::IntrinsicFunctions::Any ) {
+            return 1;
+        } else {
+            LCOMPILERS_ASSERT(false);
+        }
+        return -1;
     }
 
     static inline create_intrinsic_function get_create_function(const std::string& name) {
@@ -580,9 +986,15 @@ inline std::string get_intrinsic_name(int x) {
     switch (x) {
         INTRINSIC_NAME_CASE(Sin)
         INTRINSIC_NAME_CASE(Cos)
+        INTRINSIC_NAME_CASE(Tan)
+        INTRINSIC_NAME_CASE(Asin)
+        INTRINSIC_NAME_CASE(Acos)
+        INTRINSIC_NAME_CASE(Atan)
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
+        INTRINSIC_NAME_CASE(Any)
+        INTRINSIC_NAME_CASE(ListIndex)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }

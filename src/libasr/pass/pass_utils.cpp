@@ -233,16 +233,17 @@ namespace LCompilers {
     }
 
     ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                            ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope) {
+                            ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope,
+                            ASR::storage_typeType storage_) {
         ASR::expr_t* idx_var = nullptr;
-        std::string str_name = "__libasr__created__var__" + std::to_string(counter) + suffix;
+        std::string str_name = "__libasr__created__var__" + std::to_string(counter) + "_" + suffix;
         char* idx_var_name = s2c(al, str_name);
 
         if( current_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
             ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, nullptr, 0,
-                                                    ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required,
-                                                    false);
+                                                    ASR::intentType::Local, nullptr, nullptr, storage_,
+                                                    var_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                    ASR::presenceType::Required, false);
             current_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
             idx_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
         } else {
@@ -254,9 +255,11 @@ namespace LCompilers {
     }
 
     ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                            ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope) {
-        ASR::ttype_t* var_type = get_matching_type(sibling, al);
-        return create_var(counter, suffix, loc, var_type, al, current_scope);
+                            ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope,
+                            ASR::storage_typeType storage_) {
+        ASR::ttype_t* var_type = nullptr;
+        var_type = get_matching_type(sibling, al);
+        return create_var(counter, suffix, loc, var_type, al, current_scope, storage_);
     }
 
     void fix_dimension(ASR::Cast_t* x, ASR::expr_t* arg_expr) {
