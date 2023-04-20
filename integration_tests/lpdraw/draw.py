@@ -6,7 +6,7 @@ W = TypeVar("W")
 
 def Pixel(H: i32, W: i32, Screen: i32[H, W], x: i32, y: i32) -> None:
     if x >= 0 and y >= 0 and x < W and y < H:
-        Screen[H - 1 - y, x] = 255
+        Screen[i32(int(H - 1 - y)), i32(int(x))] = 255
 
 def Clear(H: i32, W: i32, Screen: i32[H, W]):
     i: i32

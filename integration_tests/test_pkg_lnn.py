@@ -50,7 +50,7 @@ def plot_graph(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]
     Display(Height, Width, Screen)
 
 def main0():
-    p: Perceptron
+    p: Perceptron = Perceptron(0, [0.0], 0.0, 0, 0.0, 0.0, 0)
     init_perceptron(p, 2, 0.05, 10000, 90.0)
     print_perceptron(p)
     print("=================================")

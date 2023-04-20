@@ -43,7 +43,7 @@ def normalize_input_vectors(input_vectors: list[list[f64]]):
 
 
 def get_inp_vec_with_bias(a: list[f64]) -> list[f64]:
-    b: list[f64]
+    b: list[f64] = []
     i: i32
     for i in range(len(a)):
         b.append(a[i])
@@ -51,7 +51,7 @@ def get_inp_vec_with_bias(a: list[f64]) -> list[f64]:
     return b
 
 def init_weights(size: i32) -> list[f64]:
-    weights: list[f64]
+    weights: list[f64] = []
     i: i32
     for i in range(size):
         weights.append(0.0)
