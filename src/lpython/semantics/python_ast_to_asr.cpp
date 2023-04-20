@@ -958,11 +958,11 @@ public:
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if( der_sym ) {
                         if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, s, dims.p, dims.size()));
                         }
                     }
                 }
