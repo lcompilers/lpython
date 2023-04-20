@@ -359,7 +359,7 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
         al(al_), v(v_) {}
 
         template <typename T>
-        void check_and_update_args_for_pass_arr_by_data_passed_as_callback(const T& x) {
+        void update_args_for_pass_arr_by_data_funcs_passed_as_callback(const T& x) {
             bool args_updated = false;
             Vec<ASR::call_arg_t> new_args;
             new_args.reserve(al, x.n_args);
@@ -420,7 +420,7 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             bool is_external = ASR::is_a<ASR::ExternalSymbol_t>(*subrout_sym);
             subrout_sym = ASRUtils::symbol_get_past_external(subrout_sym);
             if( v.proc2newproc.find(subrout_sym) == v.proc2newproc.end() ) {
-                check_and_update_args_for_pass_arr_by_data_passed_as_callback(x);
+                update_args_for_pass_arr_by_data_funcs_passed_as_callback(x);
                 return;
             }
 
