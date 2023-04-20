@@ -718,7 +718,7 @@ public:
         }
 
         if( func ) {
-            for (size_t i=0; i<x.n_args; i++) {
+            for (size_t i = 0; i < x.n_args; i++) {
                 ASR::symbol_t* arg_sym = ASR::down_cast<ASR::Var_t>(func->m_args[i])->m_v;
                 if (x.m_args[i].m_value == nullptr &&
                     (ASR::is_a<ASR::Variable_t>(*arg_sym) &&
@@ -857,8 +857,8 @@ public:
         // Check both `name` and `orig_name` that `orig_name` points
         // to GenericProcedure (if applicable), both external and non
         // external
+        const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
         if (check_external) {
-            const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
             require(ASR::is_a<ASR::Function_t>(*fn) ||
                     (ASR::is_a<ASR::Variable_t>(*fn) &&
                     ASR::is_a<ASR::FunctionType_t>(*ASRUtils::symbol_type(fn))) ||
@@ -866,6 +866,11 @@ public:
                 "FunctionCall::m_name must be a Function or Variable with FunctionType");
         }
 
+        if( fn && ASR::is_a<ASR::Function_t>(*fn) ) {
+            ASR::Function_t* fn_ = ASR::down_cast<ASR::Function_t>(fn);
+            require(fn_->m_return_var != nullptr,
+                    "FunctionCall::m_name must be returning a non-void value.");
+        }
         verify_args(x);
         visit_ttype(*x.m_type);
     }

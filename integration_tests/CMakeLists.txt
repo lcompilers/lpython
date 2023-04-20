@@ -294,7 +294,7 @@ RUN(NAME test_dict_06        LABELS cpython llvm c)
 RUN(NAME test_dict_07        LABELS cpython llvm)
 RUN(NAME test_dict_08        LABELS cpython llvm c)
 RUN(NAME test_dict_09        LABELS cpython llvm c)
-RUN(NAME test_dict_10        LABELS cpython llvm) # TODO: Add support of dict with string in C backend 
+RUN(NAME test_dict_10        LABELS cpython llvm) # TODO: Add support of dict with string in C backend
 RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME modules_02          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
@@ -452,3 +452,6 @@ RUN(NAME global_syms_03_c  LABELS cpython llvm c)
 RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME global_syms_05    LABELS cpython llvm c)
 RUN(NAME global_syms_06    LABELS cpython llvm c)
+
+# Intrinsic Functions
+RUN(NAME intrinsics_01     LABELS cpython llvm) # any
