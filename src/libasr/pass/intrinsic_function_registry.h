@@ -286,7 +286,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             ASR::abiType::Source, false, fn_symtab, str);
         args.push_back(al, arg_2);
     }
-    create_variable(return_var, "result", ASRUtils::intent_return_var,
+    create_variable(result, "result", ASRUtils::intent_return_var,
         ASR::abiType::Source, false, fn_symtab, int32);
 
     Vec<ASR::stmt_t*> body;
@@ -302,8 +302,6 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         Variable(pat_len, int32)
         Variable(flag, logical)
         Variable(lps, TYPE(ASR::make_List_t(al, loc, int32)))
-
-        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
 
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, s_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)), nullptr)));
@@ -531,7 +529,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
 
     }
     ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
-        body, return_var, Source, Implementation, nullptr);
+        body, result, Source, Implementation, nullptr);
     global_scope->add_symbol(fn_name, fn_sym);
     return fn_sym;
 }
@@ -1223,12 +1221,12 @@ namespace Partition {
          && ASR::is_a<ASR::StringConstant_t>(*arg)) {
             ASR::StringConstant_t* sep = ASR::down_cast<ASR::StringConstant_t>(arg);
             std::string s_sep = sep->m_s;
-            ASR::StringConstant_t* str = ASR::down_cast<ASR::StringConstant_t>(s_var);
-            std::string s_str = str->m_s;
+            ASR::StringConstant_t* s_str = ASR::down_cast<ASR::StringConstant_t>(s_var);
+            std::string s_val = s_str->m_s;
             if (s_sep.size() == 0) {
                 err("Separator cannot be an empty string", sep->base.base.loc);
             }
-            value = eval_Partition(al, loc, s_str, s_sep);
+            value = eval_Partition(al, loc, s_val, s_sep);
         }
 
         return ASR::make_IntrinsicFunction_t(al, loc,
@@ -1260,9 +1258,8 @@ namespace Partition {
         tuple_type.push_back(al, str);
         ASR::ttype_t *return_type = TYPE(ASR::make_Tuple_t(al, loc,
             tuple_type.p, tuple_type.n));
-        create_variable(return_var, "result", ASRUtils::intent_return_var,
+        create_variable(result, "result", ASRUtils::intent_return_var,
             ASR::abiType::Source, false, fn_symtab, return_type);
-        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 1);
@@ -1332,7 +1329,7 @@ namespace Partition {
             body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
         }
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
-            body, return_var, Source, Implementation, nullptr);
+            body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, fn_sym);
         return EXPR(ASR::make_FunctionCall_t(al, loc, fn_sym, fn_sym,
             new_args.p, new_args.n, return_type, compile_time_value, nullptr));
