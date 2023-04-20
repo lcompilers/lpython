@@ -55,7 +55,7 @@ enum class IntrinsicFunctions : int64_t {
 };
 
 // macro definitions
-
+// Symbols
 #define create_variable(var, name, intent, abi, value_attr, symtab, type)       \
     ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(                   \
         ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,        \
@@ -80,9 +80,12 @@ enum class IntrinsicFunctions : int64_t {
     ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
     nullptr, 0, nullptr, 0, false, false, false));
 
+// Types
 #define i_32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
-#define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, i_32))
+#define str    TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
 
+// Expressions
+#define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, i_32))
 // macro definitions
 
 namespace ControlFlowConstructorAPI {
@@ -269,15 +272,13 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
 
     Vec<ASR::expr_t*> args;
-    ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1, -2,
-        nullptr, nullptr, 0));
     {
         args.reserve(al, 2);
         create_variable(arg_1, "target_string", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, char_type);
+            ASR::abiType::Source, false, fn_symtab, str);
         args.push_back(al, arg_1);
         create_variable(arg_2, "pattern", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, char_type);
+            ASR::abiType::Source, false, fn_symtab, str);
         args.push_back(al, arg_2);
     }
     create_variable(return_var, "result", ASRUtils::intent_return_var,
@@ -366,14 +367,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                             ASR::binopType::Add,
                             i32(1),
                             i_32, nullptr)),
-                        char_type, nullptr)),
+                        str, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[1],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
                                 ASR::binopType::Add,
                                 i32(1),
                             i_32, nullptr)),
-                        char_type, nullptr)),
+                        str, nullptr)),
                     logical_type, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -438,14 +439,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                             ASR::binopType::Add,
                             i32(1),
                             i_32, nullptr)),
-                        char_type, nullptr)),
+                        str, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[0],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                 ASR::binopType::Add,
                                 i32(1),
                             i_32, nullptr)),
-                        char_type, nullptr)),
+                        str, nullptr)),
                     logical_type, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -488,14 +489,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 ASR::binopType::Add,
                                 i32(1),
                                 i_32, nullptr)),
-                            char_type, nullptr)),
+                            str, nullptr)),
                             ASR::cmpopType::NotEq,
                             EXPR(ASR::make_StringItem_t(al, loc, args[0],
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                     ASR::binopType::Add,
                                     i32(1),
                                     i_32, nullptr)),
-                                char_type, nullptr)),
+                                str, nullptr)),
                             logical_type, nullptr)),
                         logical_type, nullptr));
                     {
@@ -1216,13 +1217,9 @@ namespace Partition {
         e_args.push_back(al, arg);
 
         Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 3);
-        {
-            ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1,
-                -2, nullptr, nullptr, 0));
-            tuple_type.push_back(al, char_type);
-            tuple_type.push_back(al, char_type);
-            tuple_type.push_back(al, char_type);
-        }
+        tuple_type.push_back(al, str);
+        tuple_type.push_back(al, str);
+        tuple_type.push_back(al, str);
         ASR::ttype_t *return_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
             tuple_type.p, tuple_type.n));
         ASR::expr_t *value = nullptr;
@@ -1252,21 +1249,19 @@ namespace Partition {
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
 
         Vec<ASR::expr_t*> args;
-        ASR::ttype_t *char_type = TYPE(ASR::make_Character_t(al, loc, 1, -2,
-            nullptr, nullptr, 0));
         {
             args.reserve(al, 2);
             create_variable(arg_1, "target_string", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, char_type);
+                ASR::abiType::Source, false, fn_symtab, str);
             args.push_back(al, arg_1);
             create_variable(arg_2, "pattern", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, char_type);
+                ASR::abiType::Source, false, fn_symtab, str);
             args.push_back(al, arg_2);
         }
         Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 1);
-        tuple_type.push_back(al, char_type);
-        tuple_type.push_back(al, char_type);
-        tuple_type.push_back(al, char_type);
+        tuple_type.push_back(al, str);
+        tuple_type.push_back(al, str);
+        tuple_type.push_back(al, str);
         ASR::ttype_t *return_type = TYPE(ASR::make_Tuple_t(al, loc,
             tuple_type.p, tuple_type.n));
         create_variable(return_var, "result", ASRUtils::intent_return_var,
@@ -1311,7 +1306,7 @@ namespace Partition {
                 tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
                     s2c(al, ""), char_type_0)));
                 Vec<ASR::ttype_t *> tuple_type_; tuple_type_.reserve(al, 1);
-                tuple_type_.push_back(al, char_type);
+                tuple_type_.push_back(al, str);
                 tuple_type_.push_back(al, char_type_0);
                 tuple_type_.push_back(al, char_type_0);
                 if_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -1325,7 +1320,7 @@ namespace Partition {
             {
                 tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
                     args[0], i32(0),
-                    index, nullptr, char_type, nullptr)));
+                    index, nullptr, str, nullptr)));
                 tuple_ele.push_back(al, args[1]);
                 tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
                     args[0], EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
@@ -1333,7 +1328,7 @@ namespace Partition {
                         EXPR(ASR::make_StringLen_t(al, loc, args[1], i_32, nullptr)),
                         i_32, nullptr)),
                     EXPR(ASR::make_StringLen_t(al, loc, args[0], i_32, nullptr)),
-                    nullptr, char_type, nullptr)));
+                    nullptr, str, nullptr)));
                 else_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     result, EXPR(ASR::make_TupleConstant_t(al, loc,
                     tuple_ele.p, tuple_ele.n, return_type)), nullptr)));
