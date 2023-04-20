@@ -21,6 +21,12 @@ def lower():
     assert "DDd12Vv" .lower() == "ddd12vv"
     assert "".lower() == ""
 
+def upper():
+    s: str
+    s = "AaaaAABBbbbbBB!@12223BN"
+    assert s.upper() == "AAAAAABBBBBBBB!@12223BN"
+    assert "DDd12Vv".upper() == "DDD12VV"
+    assert "".upper() == ""
 
 def strip():
     s: str
@@ -179,6 +185,7 @@ def partition():
 def check():
     capitalize()
     lower()
+    upper()
     strip()
     swapcase()
     find()

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-tuple1-ce358d9",
+    "cmd": "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+    "infile": "tests/tuple1.py",
+    "infile_hash": "0ad9c210f19f9e560890c7a67ed06f4a710bbc8535c0097c35736028",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-tuple1-ce358d9.stdout",
+    "stdout_hash": "2ba7b997ec4f778e5929ce11442ec0baf88b58020d2c68f79685ed0d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
