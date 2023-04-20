@@ -1551,6 +1551,11 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = nullptr;
             break;
         }
+        case ASR::ttypeType::FunctionType: {
+            n_dims = 0;
+            m_dims = nullptr;
+            break;
+        }
         case ASR::ttypeType::Dict: {
             n_dims = 0;
             m_dims = nullptr;
