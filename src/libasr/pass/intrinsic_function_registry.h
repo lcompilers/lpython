@@ -85,11 +85,12 @@ enum class IntrinsicFunctions : int64_t {
     nullptr, 0, nullptr, 0, false, false, false));
 
 // Types
-#define i_32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
-#define str    TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
+#define int32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
+// #define logical TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
+#define str     TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
 
 // Expressions
-#define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, i_32))
+#define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
 // macro definitions
 
 namespace ControlFlowConstructorAPI {
@@ -286,7 +287,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         args.push_back(al, arg_2);
     }
     create_variable(return_var, "result", ASRUtils::intent_return_var,
-        ASR::abiType::Source, false, fn_symtab, i_32);
+        ASR::abiType::Source, false, fn_symtab, int32);
 
     Vec<ASR::stmt_t*> body;
     body.reserve(al, 1);
@@ -294,24 +295,24 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     SetChar dep;
     dep.reserve(al, 1);
     {
-        Variable(pi_len, i_32)
-        Variable(i, i_32)
-        Variable(j, i_32)
-        Variable(s_len, i_32)
-        Variable(pat_len, i_32)
+        Variable(pi_len, int32)
+        Variable(i, int32)
+        Variable(j, int32)
+        Variable(s_len, int32)
+        Variable(pat_len, int32)
         ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4,
             nullptr, 0));
         Variable(flag, logical_type)
-        Variable(lps, TYPE(ASR::make_List_t(al, loc, i_32)))
+        Variable(lps, TYPE(ASR::make_List_t(al, loc, int32)))
 
         ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
 
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, s_len, EXPR(
-            ASR::make_StringLen_t(al, loc, args[0], i_32, nullptr)), nullptr)));
+            ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pat_len, EXPR(
-            ASR::make_StringLen_t(al, loc, args[1], i_32, nullptr)), nullptr)));
+            ASR::make_StringLen_t(al, loc, args[1], int32, nullptr)), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, result,
-            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(-1), i_32,
+            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(-1), int32,
             nullptr)), nullptr)));
 
         {
@@ -333,14 +334,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         }
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, lps,
             EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
-            TYPE(ASR::make_List_t(al, loc, i_32)))), nullptr)));
+            TYPE(ASR::make_List_t(al, loc, int32)))), nullptr)));
         {
             ASR::do_loop_head_t head;
             head.loc = loc;
             head.m_v = i;
             head.m_start = i32(0);
             head.m_end = EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
-                ASR::binopType::Sub, i32(1), i_32, nullptr));
+                ASR::binopType::Sub, i32(1), int32, nullptr));
             head.m_increment = i32(1);
             Vec<ASR::stmt_t*> doloop_body; doloop_body.reserve(al, 1);
             doloop_body.push_back(al, STMT(ASR::make_ListAppend_t(al, loc, lps,
@@ -363,27 +364,27 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                         EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                             ASR::binopType::Add,
                             i32(1),
-                            i_32, nullptr)),
+                            int32, nullptr)),
                         str, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[1],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
                                 ASR::binopType::Add,
                                 i32(1),
-                            i_32, nullptr)),
+                            int32, nullptr)),
                         str, nullptr)),
                     logical_type, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     pi_len, EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
-                    ASR::binopType::Add, i32(1), i_32, nullptr)), nullptr)));
+                    ASR::binopType::Add, i32(1), int32, nullptr)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
-                    EXPR(ASR::make_ListItem_t(al, loc, lps, i, i_32, nullptr)),
+                    EXPR(ASR::make_ListItem_t(al, loc, lps, i, int32, nullptr)),
                     pi_len, nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, i,
                     EXPR(ASR::make_IntegerBinOp_t(al, loc, i, ASR::binopType::Add,
                     i32(1),
-                    i_32, nullptr)), nullptr)));
+                    int32, nullptr)), nullptr)));
                 Vec<ASR::stmt_t *> else_body_1; else_body_1.reserve(al, 1);
                 {
                     Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
@@ -397,13 +398,13 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
                                 ASR::binopType::Sub,
                                 i32(1),
-                                i_32, nullptr)),
-                            i_32, nullptr)), nullptr)));
+                                int32, nullptr)),
+                            int32, nullptr)), nullptr)));
                     else_body_2.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                         i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                             ASR::binopType::Add,
                             i32(1),
-                            i_32, nullptr)), nullptr)));
+                            int32, nullptr)), nullptr)));
                     else_body_1.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
                         if_body_2.p, if_body_2.n, else_body_2.p, else_body_2.n)));
                 }
@@ -420,10 +421,10 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
                 EXPR(ASR::make_IntegerCompare_t(al, loc,
                     EXPR(ASR::make_IntegerBinOp_t(al, loc, s_len,
-                        ASR::binopType::Sub, i, i_32, nullptr)),
+                        ASR::binopType::Sub, i, int32, nullptr)),
                     ASR::cmpopType::GtE,
                     EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
-                        ASR::binopType::Sub, j, i_32, nullptr)),
+                        ASR::binopType::Sub, j, int32, nullptr)),
                     logical_type, nullptr)),
                 ASR::logicalbinopType::And,
                 EXPR(ASR::make_LogicalNot_t(al, loc, flag, logical_type, nullptr)),
@@ -435,24 +436,24 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                         EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
                             ASR::binopType::Add,
                             i32(1),
-                            i_32, nullptr)),
+                            int32, nullptr)),
                         str, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[0],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                 ASR::binopType::Add,
                                 i32(1),
-                            i_32, nullptr)),
+                            int32, nullptr)),
                         str, nullptr)),
                     logical_type, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                    ASR::binopType::Add, i32(1), i_32, nullptr)), nullptr)));
+                    ASR::binopType::Add, i32(1), int32, nullptr)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j,
                     EXPR(ASR::make_IntegerBinOp_t(al, loc, j, ASR::binopType::Add,
                     i32(1),
-                    i_32, nullptr)), nullptr)));
+                    int32, nullptr)), nullptr)));
                 loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
                     if_body_1.p, if_body_1.n, nullptr, 0)));
 
@@ -462,7 +463,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                 if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     result, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                    ASR::binopType::Sub, j, i_32, nullptr)), nullptr)));
+                    ASR::binopType::Sub, j, int32, nullptr)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     flag, EXPR(ASR::make_LogicalConstant_t(al, loc, true,
                     logical_type)), nullptr)));
@@ -471,8 +472,8 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                         EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
                             ASR::binopType::Sub,
                             i32(1),
-                        i_32, nullptr)),
-                    i_32, nullptr)), nullptr)));
+                        int32, nullptr)),
+                    int32, nullptr)), nullptr)));
                 Vec<ASR::stmt_t *> else_body_1; else_body_1.reserve(al, 1);
                 {
                     Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
@@ -485,14 +486,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
                                 ASR::binopType::Add,
                                 i32(1),
-                                i_32, nullptr)),
+                                int32, nullptr)),
                             str, nullptr)),
                             ASR::cmpopType::NotEq,
                             EXPR(ASR::make_StringItem_t(al, loc, args[0],
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                     ASR::binopType::Add,
                                     i32(1),
-                                    i_32, nullptr)),
+                                    int32, nullptr)),
                                 str, nullptr)),
                             logical_type, nullptr)),
                         logical_type, nullptr));
@@ -508,13 +509,13 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
                                     ASR::binopType::Sub,
                                     i32(1),
-                                    i_32, nullptr)),
-                                i_32, nullptr)), nullptr)));
+                                    int32, nullptr)),
+                                int32, nullptr)), nullptr)));
                         else_body_3.push_back(al, STMT(ASR::make_Assignment_t(al,
                             loc, i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                 ASR::binopType::Add,
                                 i32(1),
-                                i_32, nullptr)), nullptr)));
+                                int32, nullptr)), nullptr)));
                         if_body_2.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
                             if_body_3.p, if_body_3.n, else_body_3.p, else_body_3.n)));
                     }
@@ -1272,7 +1273,7 @@ namespace Partition {
         dep.reserve(al, 1);
         {
             ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
-            Variable(index, i_32)
+            Variable(index, int32)
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
                 al, loc, scope);
             Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
@@ -1286,11 +1287,11 @@ namespace Partition {
             }
             body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, index,
                 EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
-                args_.p, args_.n, i_32, nullptr, nullptr)), nullptr)));
+                args_.p, args_.n, int32, nullptr, nullptr)), nullptr)));
 
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
-                i32(-1), i_32, nullptr)), logical_type, nullptr));
+                i32(-1), int32, nullptr)), logical_type, nullptr));
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
             Vec<ASR::expr_t *> tuple_ele; tuple_ele.reserve(al, 3);
             {
@@ -1321,9 +1322,9 @@ namespace Partition {
                 tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
                     args[0], EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
                         ASR::binopType::Add,
-                        EXPR(ASR::make_StringLen_t(al, loc, args[1], i_32, nullptr)),
-                        i_32, nullptr)),
-                    EXPR(ASR::make_StringLen_t(al, loc, args[0], i_32, nullptr)),
+                        EXPR(ASR::make_StringLen_t(al, loc, args[1], int32, nullptr)),
+                        int32, nullptr)),
+                    EXPR(ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)),
                     nullptr, str, nullptr)));
                 else_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     result, EXPR(ASR::make_TupleConstant_t(al, loc,
