@@ -86,7 +86,7 @@ enum class IntrinsicFunctions : int64_t {
 
 // Types
 #define int32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
-// #define logical TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
+#define logical TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
 #define str     TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
 
 // Expressions
@@ -300,9 +300,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         Variable(j, int32)
         Variable(s_len, int32)
         Variable(pat_len, int32)
-        ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4,
-            nullptr, 0));
-        Variable(flag, logical_type)
+        Variable(flag, logical)
         Variable(lps, TYPE(ASR::make_List_t(al, loc, int32)))
 
         ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
@@ -319,12 +317,12 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
             Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
             ASR::expr_t *a_test_1 = EXPR(ASR::make_IntegerCompare_t(al, loc,
-                pat_len, ASR::cmpopType::Eq, i32(0), logical_type, nullptr));
+                pat_len, ASR::cmpopType::Eq, i32(0), logical, nullptr));
             if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, result,
                 i32(0), nullptr)));
             if_body_1.push_back(al, STMT(ASR::make_Return_t(al, loc)));
             ASR::expr_t *a_test_2 = EXPR(ASR::make_IntegerCompare_t(al, loc,
-                s_len, ASR::cmpopType::Eq, i32(0), logical_type, nullptr));
+                s_len, ASR::cmpopType::Eq, i32(0), logical, nullptr));
             Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
             if_body_2.push_back(al, STMT(ASR::make_Return_t(al, loc)));
             else_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test_2,
@@ -356,7 +354,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pi_len, i32(0), nullptr)));
         {
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, i,
-                ASR::cmpopType::Lt, pat_len, logical_type, nullptr));
+                ASR::cmpopType::Lt, pat_len, logical, nullptr));
             Vec<ASR::stmt_t *>loop_body; loop_body.reserve(al, 1);
             {
                 ASR::expr_t *a_test = EXPR(ASR::make_StringCompare_t(al, loc,
@@ -373,7 +371,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 i32(1),
                             int32, nullptr)),
                         str, nullptr)),
-                    logical_type, nullptr));
+                    logical, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     pi_len, EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
@@ -392,7 +390,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc,
                         pi_len, ASR::cmpopType::NotEq,
                         i32(0),
-                        logical_type, nullptr));
+                        logical, nullptr));
                     if_body_2.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                         pi_len, EXPR(ASR::make_ListItem_t(al, loc, lps,
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
@@ -425,10 +423,10 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     ASR::cmpopType::GtE,
                     EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
                         ASR::binopType::Sub, j, int32, nullptr)),
-                    logical_type, nullptr)),
+                    logical, nullptr)),
                 ASR::logicalbinopType::And,
-                EXPR(ASR::make_LogicalNot_t(al, loc, flag, logical_type, nullptr)),
-                logical_type, nullptr));
+                EXPR(ASR::make_LogicalNot_t(al, loc, flag, logical, nullptr)),
+                logical, nullptr));
             Vec<ASR::stmt_t *>loop_body; loop_body.reserve(al, 1);
             {
                 ASR::expr_t *a_test = EXPR(ASR::make_StringCompare_t(al, loc,
@@ -445,7 +443,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 i32(1),
                             int32, nullptr)),
                         str, nullptr)),
-                    logical_type, nullptr));
+                    logical, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
@@ -458,7 +456,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     if_body_1.p, if_body_1.n, nullptr, 0)));
 
                 a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, j,
-                    ASR::cmpopType::Eq, pat_len, logical_type, nullptr));
+                    ASR::cmpopType::Eq, pat_len, logical, nullptr));
                 if_body_1.p = nullptr; if_body_1.n = 0;
                 if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -466,7 +464,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     ASR::binopType::Sub, j, int32, nullptr)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     flag, EXPR(ASR::make_LogicalConstant_t(al, loc, true,
-                    logical_type)), nullptr)));
+                    logical)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j,
                     EXPR(ASR::make_ListItem_t(al, loc, lps,
                         EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
@@ -479,7 +477,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
                     ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
                         EXPR(ASR::make_IntegerCompare_t(al, loc, i,
-                            ASR::cmpopType::Lt, s_len, logical_type, nullptr)),
+                            ASR::cmpopType::Lt, s_len, logical, nullptr)),
                         ASR::logicalbinopType::And,
                         EXPR(ASR::make_StringCompare_t(al, loc,
                             EXPR(ASR::make_StringItem_t(al, loc, args[1],
@@ -495,15 +493,15 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                     i32(1),
                                     int32, nullptr)),
                                 str, nullptr)),
-                            logical_type, nullptr)),
-                        logical_type, nullptr));
+                            logical, nullptr)),
+                        logical, nullptr));
                     {
                         Vec<ASR::stmt_t *> if_body_3; if_body_3.reserve(al, 1);
                         Vec<ASR::stmt_t *> else_body_3; else_body_3.reserve(al, 1);
                         ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al,
                             loc, j, ASR::cmpopType::NotEq,
                             i32(0),
-                            logical_type, nullptr));
+                            logical, nullptr));
                         if_body_3.push_back(al, STMT(ASR::make_Assignment_t(al,
                             loc, j, EXPR(ASR::make_ListItem_t(al, loc, lps,
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
@@ -1272,7 +1270,6 @@ namespace Partition {
         SetChar dep;
         dep.reserve(al, 1);
         {
-            ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
             Variable(index, int32)
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
                 al, loc, scope);
@@ -1291,7 +1288,7 @@ namespace Partition {
 
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
-                i32(-1), int32, nullptr)), logical_type, nullptr));
+                i32(-1), int32, nullptr)), logical, nullptr));
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
             Vec<ASR::expr_t *> tuple_ele; tuple_ele.reserve(al, 3);
             {
