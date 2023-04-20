@@ -1636,8 +1636,24 @@ namespace LCompilers {
         }
         llvm_utils->start_new_block(mergeBB);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        // Check if the actual key is present or not
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, pos, false, module,
+                    LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+
+        llvm_utils->create_if_else(is_key_matching, [&]() {
+        }, [&]() {
+            std::string message = "The dict does not contain the specified key";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        });
         llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
-                                                        false, module, true);
+                                                        false, module, true);;
         return item;
     }
 

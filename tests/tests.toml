@@ -814,6 +814,10 @@ filename = "errors/test_dict13.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict14.py"
+run = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 
