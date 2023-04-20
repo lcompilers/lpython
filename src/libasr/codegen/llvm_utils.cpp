@@ -1548,26 +1548,16 @@ namespace LCompilers {
     void LLVMDict::_check_key_present_or_default(llvm::Module& module, llvm::Value *key, llvm::Value *key_list,
         ASR::ttype_t* key_asr_type, llvm::Value *value_list, llvm::Value *pos,
         llvm::Value *def_value, llvm::Value* &result) {
-        llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-        llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
         llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
             llvm_utils->list_api->read_item(key_list, pos, false, module,
                 LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
-        builder->CreateCondBr(is_key_matching, thenBB_single_match, elseBB_single_match);
-        builder->SetInsertPoint(thenBB_single_match);
-        {
+        llvm_utils->create_if_else(is_key_matching, [&]() {
             llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
                                                 false, module, false);
             LLVM::CreateStore(*builder, item, result);
-        }
-        builder->CreateBr(mergeBB_single_match);
-        llvm_utils->start_new_block(elseBB_single_match);
-        {
+        }, [=]() {
             LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), result);
-        }
-        llvm_utils->start_new_block(mergeBB_single_match);
+        });
     }
 
     llvm::Value* LLVMDict::resolve_collision_for_read_with_default(
@@ -1621,19 +1611,13 @@ namespace LCompilers {
             // In the above case we will end up returning value for a key
             // which is not present in the dict. Instead we should return an error
             // which is done in the below code.
-            llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-            llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
                 llvm_utils->list_api->read_item(key_list, key_hash, false, module,
                     LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
-            builder->CreateCondBr(is_key_matching, thenBB_single_match, elseBB_single_match);
-            builder->SetInsertPoint(thenBB_single_match);
-            LLVM::CreateStore(*builder, key_hash, pos_ptr);
-            builder->CreateBr(mergeBB_single_match);
-            llvm_utils->start_new_block(elseBB_single_match);
-            {
+
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [&]() {
                 std::string message = "The dict does not contain the specified key";
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
                 llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -1642,8 +1626,7 @@ namespace LCompilers {
                 llvm::Value *exit_code = llvm::ConstantInt::get(context,
                         llvm::APInt(32, exit_code_int));
                 exit(context, module, *builder, exit_code);
-            }
-            llvm_utils->start_new_block(mergeBB_single_match);
+            });
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
@@ -1687,22 +1670,14 @@ namespace LCompilers {
         builder->CreateCondBr(is_prob_not_neeeded, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-            llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
                 llvm_utils->list_api->read_item(key_list, key_hash, false, module,
                     LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
-            builder->CreateCondBr(is_key_matching, thenBB_single_match, elseBB_single_match);
-            builder->SetInsertPoint(thenBB_single_match);
-            LLVM::CreateStore(*builder, key_hash, pos_ptr);
-            builder->CreateBr(mergeBB_single_match);
-            llvm_utils->start_new_block(elseBB_single_match);
-            {
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [=]() {
                 LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), result);
-            }
-            llvm_utils->start_new_block(mergeBB_single_match);
+            });
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
@@ -1740,10 +1715,6 @@ namespace LCompilers {
         } else {
             tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
         }
-        llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-        llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
@@ -1752,18 +1723,13 @@ namespace LCompilers {
             builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
         );
-        builder->CreateCondBr(does_kv_exists, thenBB_single_match, elseBB_single_match);
-        builder->SetInsertPoint(thenBB_single_match);
-        {
+
+        llvm_utils->create_if_else(does_kv_exists, [=]() {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
             llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
             LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
-
-        }
-        builder->CreateBr(mergeBB_single_match);
-        llvm_utils->start_new_block(elseBB_single_match);
-        {
+        }, [&]() {
             std::string message = "The dict does not contain the specified key";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -1772,8 +1738,7 @@ namespace LCompilers {
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, module, *builder, exit_code);
-        }
-        llvm_utils->start_new_block(mergeBB_single_match);
+        });
         return tmp_value_ptr;
     }
 
@@ -1800,10 +1765,6 @@ namespace LCompilers {
         } else {
             tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
         }
-        llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-        llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
@@ -1812,21 +1773,15 @@ namespace LCompilers {
             builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
         );
-        builder->CreateCondBr(does_kv_exists, thenBB_single_match, elseBB_single_match);
-        builder->SetInsertPoint(thenBB_single_match);
-        {
+
+        llvm_utils->create_if_else(does_kv_exists, [=]() {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
             llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
             LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
-
-        }
-        builder->CreateBr(mergeBB_single_match);
-        llvm_utils->start_new_block(elseBB_single_match);
-        {
+        }, [&]() {
             LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), tmp_value_ptr_local);
-        }
-        llvm_utils->start_new_block(mergeBB_single_match);
+        });
         return tmp_value_ptr;
     }
 
