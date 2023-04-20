@@ -87,7 +87,8 @@ enum class IntrinsicFunctions : int64_t {
 // Types
 #define int32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
 #define logical TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
-#define _str     TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
+#define _str    TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
+#define List(x) TYPE(ASR::make_List_t(al, loc, x))
 
 // Expressions
 #define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
@@ -301,15 +302,15 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         Variable(s_len, int32)
         Variable(pat_len, int32)
         Variable(flag, logical)
-        Variable(lps, TYPE(ASR::make_List_t(al, loc, int32)))
+        Variable(lps, List(int32))
 
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, s_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pat_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[1], int32, nullptr)), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, result,
-            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(-1), int32,
-            nullptr)), nullptr)));
+            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(1), int32,
+            i32(-1))), nullptr)));
 
         {
             Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
@@ -330,7 +331,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         }
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, lps,
             EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
-            TYPE(ASR::make_List_t(al, loc, int32)))), nullptr)));
+            List(int32))), nullptr)));
         {
             ASR::do_loop_head_t head;
             head.loc = loc;
@@ -1278,7 +1279,7 @@ namespace Partition {
 
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
-                i32(-1), int32, nullptr)), logical, nullptr));
+                i32(1), int32, i32(-1))), logical, nullptr));
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
             Vec<ASR::expr_t *> tuple_ele; tuple_ele.reserve(al, 3);
             {
