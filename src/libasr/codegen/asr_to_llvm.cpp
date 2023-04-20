@@ -3102,14 +3102,16 @@ public:
             ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
             int idx = name2memidx[struct_type_name][item.first];
             llvm::Value* ptr_member = llvm_utils->create_gep(ptr, idx);
+            ASR::Variable_t* v = nullptr;
             if( ASR::is_a<ASR::Variable_t>(*item.second) ) {
-                ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(item.second);
+                v = ASR::down_cast<ASR::Variable_t>(item.second);
                 if( v->m_symbolic_value ) {
                     visit_expr(*v->m_symbolic_value);
                     LLVM::CreateStore(*builder, tmp, ptr_member);
                 }
             }
-            if( ASRUtils::is_array(symbol_type) ) {
+            if( ASRUtils::is_array(symbol_type) &&
+                (v && v->m_storage != ASR::storage_typeType::Allocatable) ) {
                 // Assume that struct member array is not allocatable
                 ASR::dimension_t* m_dims = nullptr;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(symbol_type, m_dims);
@@ -6983,7 +6985,8 @@ public:
                             throw CodeGenError(std::string(arg->m_name) + " isn't defined in any scope.");
                         }
                         this->visit_expr_wrapper(arg->m_value, true);
-                        if( x_abi != ASR::abiType::BindC ) {
+                        if( x_abi != ASR::abiType::BindC &&
+                            !ASR::is_a<ASR::ArrayConstant_t>(*arg->m_value) ) {
                             llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
                             llvm::IRBuilder<> builder0(context);
                             builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());

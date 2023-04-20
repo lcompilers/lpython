@@ -35,11 +35,15 @@ namespace LCompilers {
 
         void fix_dimension(ASR::Cast_t* x, ASR::expr_t* arg_expr);
 
-        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                                ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope);
+        ASR::ttype_t* get_matching_type(ASR::expr_t* sibling, Allocator& al);
 
         ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                                ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope);
+                                ASR::ttype_t* var_type, Allocator& al, SymbolTable*& current_scope,
+                                ASR::storage_typeType storage_=ASR::storage_typeType::Default);
+
+        ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                                ASR::expr_t* sibling, Allocator& al, SymbolTable*& current_scope,
+                                ASR::storage_typeType storage_=ASR::storage_typeType::Default);
 
         void create_vars(Vec<ASR::expr_t*>& vars, int n_vars, const Location& loc,
                          Allocator& al, SymbolTable*& current_scope, std::string suffix="_k",

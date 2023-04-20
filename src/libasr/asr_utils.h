@@ -1772,6 +1772,20 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
+static inline ASR::ttype_t* duplicate_type_with_empty_dims(Allocator& al, ASR::ttype_t* t) {
+    size_t n_dims = ASRUtils::extract_n_dims_from_ttype(t);
+    Vec<ASR::dimension_t> empty_dims;
+    empty_dims.reserve(al, n_dims);
+    for( size_t i = 0; i < n_dims; i++ ) {
+        ASR::dimension_t empty_dim;
+        empty_dim.loc = t->base.loc;
+        empty_dim.m_start = nullptr;
+        empty_dim.m_length = nullptr;
+        empty_dims.push_back(al, empty_dim);
+    }
+    return duplicate_type(al, t, &empty_dims);
+}
+
 static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t, const Location& loc) {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
