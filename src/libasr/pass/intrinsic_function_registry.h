@@ -1195,7 +1195,7 @@ namespace Partition {
             tuple_type));
     }
 
-    static inline ASR::asr_t*  create_partition(Allocator &al, const Location &loc,
+    static inline ASR::asr_t *create_partition(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, ASR::expr_t *s_var,
             const std::function<void (const std::string &, const Location &)> err) {
         if (args.size() != 1) {
@@ -1234,10 +1234,10 @@ namespace Partition {
             e_args.p, e_args.n, 0, return_type, value);
     }
 
-    static inline ASR::expr_t* instantiate_Partition(Allocator &al, const Location &loc,
-            SymbolTable *scope, Vec<ASR::ttype_t*>& /*arg_types*/,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-            ASR::expr_t* compile_time_value)
+    static inline ASR::expr_t *instantiate_Partition(Allocator &al,
+        const Location &loc, SymbolTable *scope,
+        Vec<ASR::ttype_t*>& /*arg_types*/, Vec<ASR::call_arg_t>& new_args,
+        int64_t /*overload_id*/, ASR::expr_t* compile_time_value)
     {
         std::string fn_name = scope->get_unique_name("_lpython_str_partition");
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
@@ -1271,14 +1271,7 @@ namespace Partition {
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
                 al, loc, scope);
             Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
-            {
-                ASR::call_arg_t arg;
-                arg.loc = loc;
-                arg.m_value = args[0];
-                args_.push_back(al, arg);
-                arg.m_value = args[1];
-                args_.push_back(al, arg);
-            }
+            visit_expr_list(al, args, args_);
             body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, index,
                 EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
                 args_.p, args_.n, int32, nullptr, nullptr)), nullptr)));

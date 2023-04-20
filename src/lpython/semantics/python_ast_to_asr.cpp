@@ -851,14 +851,6 @@ public:
         return true;
     }
 
-    void visit_expr_list(Vec<ASR::call_arg_t>& exprs, size_t n,
-                         Vec<ASR::expr_t*>& exprs_vec) {
-        LCOMPILERS_ASSERT(exprs_vec.reserve_called);
-        for( size_t i = 0; i < n; i++ ) {
-            exprs_vec.push_back(al, exprs[i].m_value);
-        }
-    }
-
     void visit_expr_list_with_cast(ASR::expr_t** m_args, size_t n_args,
                                    Vec<ASR::call_arg_t>& call_args_vec,
                                    Vec<ASR::call_arg_t>& args,
@@ -1173,7 +1165,7 @@ public:
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
-            visit_expr_list(args, args.size(), args_new);
+            ASRUtils::visit_expr_list(al, args, args_new);
             ASR::EnumType_t* enumtype = ASR::down_cast<ASR::EnumType_t>(s);
             for( size_t i = 0; i < std::min(args.size(), enumtype->n_members); i++ ) {
                 std::string member_name = enumtype->m_members[i];
@@ -5905,7 +5897,7 @@ public:
                 by two empty strings.
             */
             Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
-            visit_expr_list(args, args.n, args_);
+            ASRUtils::visit_expr_list(al, args, args_);
             tmp = ASRUtils::Partition::create_partition(al, loc, args_, s_var,
                 [&](const std::string &msg, const Location &loc) {
                 throw SemanticError(msg, loc); });
@@ -6141,7 +6133,7 @@ public:
                 by two empty strings.
             */
             Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
-            visit_expr_list(args, args.n, args_);
+            ASRUtils::visit_expr_list(al, args, args_);
             if(s_var.size() == 0) {
                 throw SemanticError("String to undergo partition cannot be empty",
                     loc);

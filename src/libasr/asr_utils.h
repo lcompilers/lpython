@@ -3329,6 +3329,25 @@ static inline int KMP_string_match(std::string &s_var, std::string &sub) {
     return res;
 }
 
+static inline void visit_expr_list(Allocator &al, Vec<ASR::call_arg_t>& exprs,
+        Vec<ASR::expr_t*>& exprs_vec) {
+    LCOMPILERS_ASSERT(exprs_vec.reserve_called);
+    for( size_t i = 0; i < exprs.n; i++ ) {
+        exprs_vec.push_back(al, exprs[i].m_value);
+    }
+}
+
+static inline void visit_expr_list(Allocator &al, Vec<ASR::expr_t *> exprs,
+        Vec<ASR::call_arg_t>& exprs_vec) {
+    LCOMPILERS_ASSERT(exprs_vec.reserve_called);
+    for( size_t i = 0; i < exprs.n; i++ ) {
+        ASR::call_arg_t arg;
+        arg.loc = exprs[i]->base.loc;
+        arg.m_value = exprs[i];
+        exprs_vec.push_back(al, arg);
+    }
+}
+
 } // namespace ASRUtils
 
 } // namespace LCompilers
