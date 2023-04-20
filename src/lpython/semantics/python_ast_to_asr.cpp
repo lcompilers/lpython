@@ -454,6 +454,22 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(fn);
+    } else if (ASR::is_a<ASR::StructType_t>(*t)) {
+        ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
+        // `st` is the StructType in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, st->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)st,
+            m->m_name, nullptr, 0, st->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
     } else if (ASR::is_a<ASR::Variable_t>(*t)) {
         ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
         // `mv` is the Variable in a module. Now we construct
@@ -501,7 +517,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         return import_from_module(al, mt, current_scope, std::string(mt->m_name),
                                   cur_sym_name, new_sym_name, loc);
     } else {
-        throw SemanticError("Only Subroutines, Functions, Variables and "
+        throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
             "ExternalSymbol are currently supported in 'import'", loc);
     }
     LCOMPILERS_ASSERT(false);
@@ -942,11 +958,11 @@ public:
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if( der_sym ) {
                         if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, s, dims.p, dims.size()));
                         }
                     }
                 }
