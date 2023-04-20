@@ -48,6 +48,8 @@ enum class IntrinsicFunctions : int64_t {
     Gamma,
     LogGamma,
     Abs,
+    Exp,
+    Exp2,
     Any,
     ListIndex,
     // ...
@@ -536,6 +538,73 @@ namespace Abs {
 
 } // namespace Abs
 
+namespace Exp {
+
+    static ASR::expr_t* eval_Exp(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* arg = args[0];
+        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
+        if (ASRUtils::is_real(*t)) {
+            double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
+                al, loc, val, t));
+        } else {
+            return nullptr;
+        }
+        
+    }
+
+    static inline ASR::asr_t* create_Exp(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic exp function accepts exactly 1 argument", loc);
+        }
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::is_real(*type)) {
+            err("Argument of the exp function must be Real",
+                args[0]->base.loc);
+        }
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Exp,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp), 0, type);
+    }
+
+} // namespace Exp
+
+namespace Exp2 {
+
+    static ASR::expr_t* eval_Exp2(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* arg = args[0];
+        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
+        if (ASRUtils::is_real(*t)) {
+            double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
+                al, loc, val, t));
+        } else {
+            return nullptr;
+        }
+    }
+
+    static inline ASR::asr_t* create_Exp2(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic exp2 function accepts exactly 1 argument", loc);
+        }
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::is_real(*type)) {
+            err("Argument of the exp2 function must be Real",
+                args[0]->base.loc);
+        }
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Exp2,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2), 0, type);
+    }
+
+} // namespace Exp2
+
 namespace ListIndex {
 
 static inline ASR::expr_t *eval_list_index(Allocator &/*al*/,
@@ -902,6 +971,10 @@ namespace IntrinsicFunctionRegistry {
             "atan"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
+            "exp"},
+            {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
+            "exp2"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"}
     };
@@ -917,6 +990,8 @@ namespace IntrinsicFunctionRegistry {
                 {"acos", {&Acos::create_Acos, &Acos::eval_Acos}},
                 {"atan", {&Atan::create_Atan, &Atan::eval_Atan}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
+                {"exp", {&Exp::create_Exp, &Exp::eval_Exp}},
+                {"exp2", {&Exp2::create_Exp2, &Exp2::eval_Exp2}},
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
@@ -993,6 +1068,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
+        INTRINSIC_NAME_CASE(Exp)
+        INTRINSIC_NAME_CASE(Exp2)
         INTRINSIC_NAME_CASE(Any)
         INTRINSIC_NAME_CASE(ListIndex)
         default : {

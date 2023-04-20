@@ -281,11 +281,6 @@ LFORTRAN_API double _lfortran_dexp(double x)
     return exp(x);
 }
 
-LFORTRAN_API double _lfortran_dexp2(double x)
-{
-    return exp2(x);
-}
-
 LFORTRAN_API float_complex_t _lfortran_cexp(float_complex_t x)
 {
     return cexpf(x);
