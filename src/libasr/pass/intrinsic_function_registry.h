@@ -64,6 +64,10 @@ enum class IntrinsicFunctions : int64_t {
     symtab->add_symbol(s2c(al, name), sym_##var);                               \
     ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
 
+#define Variable(var_name, type)                                                \
+    create_variable(var_name, #var_name, ASR::intentType::Local,                \
+        ASR::abiType::Source, false, fn_symtab, type)                           \
+
 #define make_Function_t(name, symtab, dep, args, body, return_var, abi, deftype,\
         bindc_name)                                                             \
     ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
@@ -290,24 +294,17 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     SetChar dep;
     dep.reserve(al, 1);
     {
-        create_variable(pi_len, "pi_len", ASR::intentType::Local,
-            ASR::abiType::Source, false, fn_symtab, i_32);
-        create_variable(i, "i", ASR::intentType::Local, ASR::abiType::Source,
-            false, fn_symtab, i_32);
-        create_variable(j, "j", ASR::intentType::Local, ASR::abiType::Source,
-            false, fn_symtab, i_32);
-        create_variable(s_len, "s_len", ASR::intentType::Local,
-            ASR::abiType::Source, false, fn_symtab, i_32);
-        create_variable(pat_len, "pattern_len", ASR::intentType::Local,
-            ASR::abiType::Source, false, fn_symtab, i_32);
+        Variable(pi_len, i_32)
+        Variable(i, i_32)
+        Variable(j, i_32)
+        Variable(s_len, i_32)
+        Variable(pat_len, i_32)
         ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4,
             nullptr, 0));
-        create_variable(flag, "flag", ASR::intentType::Local,
-            ASR::abiType::Source, false, fn_symtab, logical_type);
-        create_variable(lps, "lps", ASR::intentType::Local, ASR::abiType::Source,
-            false, fn_symtab, TYPE(ASR::make_List_t(al, loc, i_32)));
-        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
+        Variable(flag, logical_type)
+        Variable(lps, TYPE(ASR::make_List_t(al, loc, i_32)))
 
+        ASR::expr_t *result = EXPR(ASR::make_Var_t(al, loc, sym_return_var));
 
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, s_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[0], i_32, nullptr)), nullptr)));
@@ -1275,8 +1272,7 @@ namespace Partition {
         dep.reserve(al, 1);
         {
             ASR::ttype_t *logical_type = TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
-            create_variable(index, "index", ASR::intentType::Local,
-                ASR::abiType::Source, false, fn_symtab, i_32);
+            Variable(index, i_32)
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
                 al, loc, scope);
             Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
