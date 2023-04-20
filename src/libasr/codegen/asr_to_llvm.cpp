@@ -1793,10 +1793,21 @@ public:
         this->visit_expr_wrapper(x.m_key, true);
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
-
-        set_dict_api(dict_type);
-        tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
+        if (x.m_default) {
+            llvm::Type *val_type = get_type_from_ttype_t_util(dict_type->m_value_type);
+            llvm::Value *def_value_ptr = builder->CreateAlloca(val_type, nullptr);
+            ptr_loads = !LLVM::is_llvm_struct(dict_type->m_value_type);
+            this->visit_expr_wrapper(x.m_default, true);
+            ptr_loads = ptr_loads_copy;
+            builder->CreateStore(tmp, def_value_ptr);
+            set_dict_api(dict_type);
+            tmp = llvm_utils->dict_api->get_item(pdict, key, *module, dict_type, def_value_ptr,
                                   LLVM::is_llvm_struct(dict_type->m_value_type));
+        } else {
+            set_dict_api(dict_type);
+            tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
+                                    LLVM::is_llvm_struct(dict_type->m_value_type));
+        }
     }
 
     void visit_DictPop(const ASR::DictPop_t& x) {
