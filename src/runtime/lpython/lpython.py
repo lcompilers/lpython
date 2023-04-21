@@ -215,6 +215,8 @@ def convert_type_to_ctype(arg):
         return c_float_complex
     elif arg == c64:
         return c_double_complex
+    elif arg == bool:
+        return ctypes.c_bool
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
@@ -236,6 +238,9 @@ def convert_numpy_dtype_to_ctype(arg):
     elif arg == np.int32:
         return ctypes.c_int32
     elif arg == np.int16:
+        return ctypes.c_int16
+    elif arg == np.uint16:
+        # TODO: once LPython supports unsigned, change this to unsigned:
         return ctypes.c_int16
     elif arg == np.int8:
         return ctypes.c_int8
