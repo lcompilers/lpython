@@ -272,9 +272,12 @@ class CTypes:
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        crtlib = get_crtlib_path()
-        self.library = ctypes.CDLL(crtlib)
-        self.cf = self.library[self.name]
+        if "LPYTHON_PY_MOD_NAME" in os.environ:
+            crtlib = get_crtlib_path()
+            self.library = ctypes.CDLL(crtlib)
+            self.cf = self.library[self.name]
+        else:
+            self.cf = CTypes.emulations[self.name]
         argtypes = []
         for arg in self.args:
             arg_type = self.annotations[arg]
