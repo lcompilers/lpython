@@ -9,7 +9,7 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed", "Const", "sizeof", "ccallable"]
+        "packed", "Const", "sizeof", "ccallable", "ccallback"]
 
 # data-types
 
@@ -482,4 +482,7 @@ def sizeof(arg):
 def ccallable(f):
     if py_is_dataclass(f):
         return convert_to_ctypes_Structure(f)
+    return f
+
+def ccallback(f):
     return f

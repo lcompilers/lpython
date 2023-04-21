@@ -203,6 +203,72 @@ macro(RUN)
     endif()
 endmacro(RUN)
 
+# only compiles till object file
+# to make sure that the generated code is syntactically correct
+# but we cannot generate an executable due to --disable-main option enabled.
+macro(COMPILE)
+    set(options FAIL)
+    set(oneValueArgs NAME IMPORT_PATH)
+    set(multiValueArgs LABELS EXTRAFILES)
+    cmake_parse_arguments(COMPILE "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
+    set(name ${COMPILE_NAME})
+    set(import_path ${COMPILE_IMPORT_PATH})
+    if (NOT name)
+        message(FATAL_ERROR "Must specify the NAME argument")
+    endif()
+
+    if (${KIND} IN_LIST COMPILE_LABELS)
+        if (KIND STREQUAL "llvm")
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.o
+                    COMMAND lpython --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.o
+                    COMMAND lpython --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
+            add_library(${name} OBJECT ${name}.o)
+        elseif(KIND STREQUAL "c")
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
+            add_library(${name} OBJECT ${name}.c)
+            target_link_libraries(${name} lpython_rtlib)
+        elseif(KIND STREQUAL "cpython")
+            # CPython test
+            set(PY_MOD "")
+
+            add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
+            set_tests_properties(${name} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        endif()
+    endif()
+endmacro(COMPILE)
+
 
 # Test zero and non-zero exit code and assert statements
 RUN(NAME array_01_decl            LABELS cpython llvm c)
@@ -456,3 +522,5 @@ RUN(NAME global_syms_06    LABELS cpython llvm c)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm) # any
+
+COMPILE(NAME import_order_01     LABELS cpython llvm c) # any

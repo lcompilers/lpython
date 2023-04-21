@@ -6705,6 +6705,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
     if (main_module) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
+        LCompilers::PassOptions pass_options;
         if (compiler_options.disable_main) {
             if (tu->n_items > 0) {
                 diagnostics.add(diag::Diagnostic(
@@ -6719,18 +6720,17 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
                 // LCOMPILERS_ASSERT(asr_verify(*tu));
             }
         } else {
-            LCompilers::PassOptions pass_options;
             pass_options.run_fun = "_lpython_main_program";
             pass_options.runtime_library_dir = get_runtime_library_dir();
-            pass_wrap_global_stmts_into_program(al, *tu, pass_options);
-#if defined(WITH_LFORTRAN_ASSERT)
-            diag::Diagnostics diagnostics;
-            if (!asr_verify(*tu, true, diagnostics)) {
-                std::cerr << diagnostics.render2();
-                throw LCompilersException("Verify failed");
-            };
-#endif
         }
+        pass_wrap_global_stmts_into_program(al, *tu, pass_options);
+        #if defined(WITH_LFORTRAN_ASSERT)
+                    diag::Diagnostics diagnostics;
+                    if (!asr_verify(*tu, true, diagnostics)) {
+                        std::cerr << diagnostics.render2();
+                        throw LCompilersException("Verify failed");
+                    };
+        #endif
     }
 
     return tu;
