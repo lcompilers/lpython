@@ -6731,6 +6731,16 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
                         throw LCompilersException("Verify failed");
                     };
         #endif
+        if (compiler_options.disable_main) {
+            // TODO: the main program should have not been created, but sometimes
+            // it is, so we explicitly remove it here.
+            for (auto &item : tu->m_global_scope->get_scope()) {
+                if (ASR::is_a<ASR::Program_t>(*item.second)) {
+                    tu->m_global_scope->erase_symbol(item.first);
+                    break;
+                }
+            }
+        }
     }
 
     return tu;
