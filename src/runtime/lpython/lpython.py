@@ -128,6 +128,9 @@ class OverloadedFunction:
 
 def overload(f):
     overloaded_f = OverloadedFunction(f)
+    overloaded_f.__name__ = f.__name__
+    overloaded_f.__code__ = f.__code__
+    overloaded_f.__annotations__ = f.__annotations__
     return overloaded_f
 
 # To be handled in ASR
@@ -212,6 +215,8 @@ def convert_type_to_ctype(arg):
         return c_float_complex
     elif arg == c64:
         return c_double_complex
+    elif arg == bool:
+        return ctypes.c_bool
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
@@ -233,6 +238,9 @@ def convert_numpy_dtype_to_ctype(arg):
     elif arg == np.int32:
         return ctypes.c_int32
     elif arg == np.int16:
+        return ctypes.c_int16
+    elif arg == np.uint16:
+        # TODO: once LPython supports unsigned, change this to unsigned:
         return ctypes.c_int16
     elif arg == np.int8:
         return ctypes.c_int8
@@ -272,9 +280,12 @@ class CTypes:
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        crtlib = get_crtlib_path()
-        self.library = ctypes.CDLL(crtlib)
-        self.cf = self.library[self.name]
+        if "LPYTHON_PY_MOD_NAME" in os.environ:
+            crtlib = get_crtlib_path()
+            self.library = ctypes.CDLL(crtlib)
+            self.cf = self.library[self.name]
+        else:
+            self.cf = CTypes.emulations[self.name]
         argtypes = []
         for arg in self.args:
             arg_type = self.annotations[arg]
