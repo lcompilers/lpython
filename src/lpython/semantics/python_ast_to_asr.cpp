@@ -6728,6 +6728,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
         LCompilers::PassOptions pass_options;
+        pass_options.disable_main = compiler_options.disable_main;
         if (compiler_options.disable_main) {
             if (tu->n_items > 0) {
                 diagnostics.add(diag::Diagnostic(

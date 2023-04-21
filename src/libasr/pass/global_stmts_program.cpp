@@ -30,7 +30,7 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     bool call_main_program = unit.n_items > 0;
     pass_wrap_global_stmts_into_function(al, unit, pass_options);
     pass_wrap_global_syms_into_module(al, unit, pass_options);
-    if( call_main_program ) {
+    if( call_main_program && !pass_options.disable_main ) {
         // Call `_lpython_main_program` function
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(
             unit.m_global_scope->get_symbol("_global_symbols"));
@@ -55,15 +55,17 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
         prog_dep.push_back(al, s2c(al, "_global_symbols"));
     }
 
-    ASR::asr_t *prog = ASR::make_Program_t(
-        al, unit.base.base.loc,
-        /* a_symtab */ current_scope,
-        /* a_name */ s2c(al, prog_name),
-        prog_dep.p,
-        prog_dep.n,
-        /* a_body */ prog_body.p,
-        /* n_body */ prog_body.n);
-    unit.m_global_scope->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
+    if( !pass_options.disable_main ) {
+        ASR::asr_t *prog = ASR::make_Program_t(
+            al, unit.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ s2c(al, prog_name),
+            prog_dep.p,
+            prog_dep.n,
+            /* a_body */ prog_body.p,
+            /* n_body */ prog_body.n);
+        unit.m_global_scope->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
+    }
 }
 
 } // namespace LCompilers
