@@ -1,7 +1,7 @@
 from lpython import f64
 
 def f() -> f64:
-    return 5.5
+    return abs(-5.5)
 
 def main():
     t1: f64 = f() * 1e6
