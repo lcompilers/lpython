@@ -128,6 +128,9 @@ class OverloadedFunction:
 
 def overload(f):
     overloaded_f = OverloadedFunction(f)
+    overloaded_f.__name__ = f.__name__
+    overloaded_f.__code__ = f.__code__
+    overloaded_f.__annotations__ = f.__annotations__
     return overloaded_f
 
 # To be handled in ASR
