@@ -905,7 +905,8 @@ public:
 
     ASR::ttype_t* get_type_from_var_annotation(std::string var_annotation,
         const Location& loc, Vec<ASR::dimension_t>& dims,
-        AST::expr_t** m_args=nullptr, size_t n_args=0) {
+        AST::expr_t** m_args=nullptr, size_t n_args=0,
+        bool raise_error=true) {
         ASR::ttype_t* type = nullptr;
         if (var_annotation == "i8") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
@@ -967,7 +968,9 @@ public:
                     }
                 }
             }
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            if( raise_error ) {
+                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            }
         }
         return type;
     }
@@ -1486,7 +1489,8 @@ public:
     // Examples:
     // i32, i64, f32, f64
     // f64[256], i32[:]
-    ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation) {
+    ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation,
+        bool raise_error=true) {
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 4);
         AST::expr_t** m_args = nullptr; size_t n_args = 0;
@@ -1630,7 +1634,7 @@ public:
                 loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args);
+        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
@@ -6323,12 +6327,13 @@ public:
             return ;
         }
         // Keyword arguments handled in make_call_helper
-        if( x.n_keywords == 0 ) {
-            args.reserve(al, x.n_args);
-            visit_expr_list(x.m_args, x.n_args, args);
-        }
+        #define parse_args() if( x.n_keywords == 0 ) { \
+            args.reserve(al, x.n_args); \
+            visit_expr_list(x.m_args, x.n_args, args); \
+        } \
 
         if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+            parse_args()
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
@@ -6511,6 +6516,7 @@ public:
                 tmp = nullptr;
                 return;
             } else if (call_name == "callable") {
+                parse_args()
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
                         std::to_string(args.size()) + " given)", x.base.base.loc);
@@ -6526,11 +6532,13 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
             } else if( call_name == "pointer" ) {
+                parse_args()
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
                                             ASRUtils::expr_type(args[0].m_value)));
                 tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
                 return ;
             } else if( call_name == "array" ) {
+                parse_args()
                 if( args.size() != 1 ) {
                     throw SemanticError("array accepts only 1 argument for now, got " +
                                         std::to_string(args.size()) + " arguments instead.",
@@ -6550,6 +6558,7 @@ public:
                 }
                 return;
             } else if( call_name == "deepcopy" ) {
+                parse_args()
                 if( args.size() != 1 ) {
                     throw SemanticError("deepcopy only accepts one argument, found " +
                                         std::to_string(args.size()) + " instead.",
@@ -6558,33 +6567,36 @@ public:
                 tmp = (ASR::asr_t*) args[0].m_value;
                 return ;
             } else if( call_name == "sizeof" ) {
-                if( args.size() != 1 ) {
+
+                if( x.n_args + x.n_keywords != 1 ) {
                     throw SemanticError("sizeof only accepts one argument, found " +
-                                        std::to_string(args.size()) + " instead.",
+                                        std::to_string(x.n_args + x.n_keywords) + " instead.",
                                         x.base.base.loc);
                 }
 
-                ASR::ttype_t* arg_type = nullptr;
-                if( ASR::is_a<ASR::Var_t>(*args[0].m_value) ) {
-                    ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(args[0].m_value);
-                    ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
-                    if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
-                        // TODO: Import the underlying struct if arg_type is of Struct type
-                        // Ideally if a variable of struct type is being imported then its underlying type
-                        // should also be imported automatically. However, the naming of the
-                        // underlying struct type might lead to collisions, so importing the type
-                        // here seems like a better choice. Should be done later when the case arises.
-                        arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
-                    } else if( ASR::is_a<ASR::StructType_t>(*arg_Var_m_v) ) {
-                        arg_type = ASRUtils::TYPE(ASR::make_Struct_t(al, x.base.base.loc,
-                                        arg_Var->m_v, nullptr, 0));
-                    } else {
-                        throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
-                                            " is not yet supported in sizeof.",
-                                            x.base.base.loc);
+                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0], false);
+                ASR::expr_t* arg = nullptr;
+                if( !arg_type ) {
+                    visit_expr(*x.m_args[0]);
+                    arg = ASRUtils::EXPR(tmp);
+                }
+                if( arg ) {
+                    if( ASR::is_a<ASR::Var_t>(*arg) ) {
+                        ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(arg);
+                        ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
+                        if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
+                            // TODO: Import the underlying struct if arg_type is of Struct type
+                            // Ideally if a variable of struct type is being imported then its underlying type
+                            // should also be imported automatically. However, the naming of the
+                            // underlying struct type might lead to collisions, so importing the type
+                            // here seems like a better choice. Should be done later when the case arises.
+                            arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
+                        } else {
+                            throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
+                                                " is not yet supported in sizeof.",
+                                                x.base.base.loc);
+                        }
                     }
-                } else {
-                    arg_type = ASRUtils::expr_type(args[0].m_value);
                 }
                 ASR::ttype_t* size_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                             x.base.base.loc, 8, nullptr, 0));
@@ -6594,6 +6606,7 @@ public:
             } else if( call_name == "f64" || call_name == "f32" ||
                 call_name == "i64" || call_name == "i32" || call_name == "c32" ||
                 call_name == "c64" || call_name == "i8" || call_name == "i16" ) {
+                parse_args()
                 ASR::ttype_t* target_type = nullptr;
                 if( call_name == "i8" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 1, nullptr, 0));
@@ -6617,6 +6630,7 @@ public:
                 tmp = (ASR::asr_t*) arg;
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
+                parse_args()
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
@@ -6627,6 +6641,8 @@ public:
             }
             } // end of "comment"
         }
+
+        parse_args()
         tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
