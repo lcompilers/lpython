@@ -82,6 +82,7 @@ namespace LCompilers {
         bool fast = false; // is fast flag enabled.
         bool verbose = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
+        bool disable_main = false;
     };
 
 }

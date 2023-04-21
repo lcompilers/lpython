@@ -1,0 +1,52 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+
+// Implementations
+int32_t f()
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = 42;
+    return _lpython_return_variable;
+}
+
+void main1()
+{
+    int32_t a;
+    a = f();
+    printf("%d\n", a);
+}
+
