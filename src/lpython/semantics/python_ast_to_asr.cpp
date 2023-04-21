@@ -6567,13 +6567,19 @@ public:
                 ASR::ttype_t* arg_type = nullptr;
                 if( ASR::is_a<ASR::Var_t>(*args[0].m_value) ) {
                     ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(args[0].m_value);
-                    if( ASR::is_a<ASR::Variable_t>(*arg_Var->m_v) ) {
-                        arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var->m_v)->m_type;
-                    } else if( ASR::is_a<ASR::StructType_t>(*arg_Var->m_v) ) {
+                    ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
+                    if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
+                        // TODO: Import the underlying struct if arg_type is of Struct type
+                        // Ideally if a variable of struct type is being imported then its underlying type
+                        // should also be imported automatically. However, the naming of the
+                        // underlying struct type might lead to collisions, so importing the type
+                        // here seems like a better choice. Should be done later when the case arises.
+                        arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
+                    } else if( ASR::is_a<ASR::StructType_t>(*arg_Var_m_v) ) {
                         arg_type = ASRUtils::TYPE(ASR::make_Struct_t(al, x.base.base.loc,
                                         arg_Var->m_v, nullptr, 0));
                     } else {
-                        throw SemanticError("Symbol " + std::to_string(arg_Var->m_v->type) +
+                        throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
                                             " is not yet supported in sizeof.",
                                             x.base.base.loc);
                     }
