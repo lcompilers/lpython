@@ -6429,7 +6429,7 @@ public:
 
         if (!s) {
             std::set<std::string> module_math = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp"
             };
             std::set<std::string> module_numpy = {
                 "exp2"
@@ -6438,7 +6438,6 @@ public:
                 (current_scope->resolve_symbol("math") == nullptr)) ||
                 ( module_numpy.find(call_name)!= module_numpy.end() &&
                 (current_scope->resolve_symbol("numpy") == nullptr))) {
-                    std::cout<<"START2"<<std::endl;
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                         x.base.base.loc);
             }
