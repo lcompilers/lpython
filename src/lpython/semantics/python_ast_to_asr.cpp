@@ -3644,19 +3644,16 @@ public:
             Search all the paths in order and stop
             when the desired module is found.
         */
-        bool module_found = false;
+        std::string path_found = "";
         for( auto& path: paths ) {
             if(is_directory(path + "/" + directory + mod_sym)) {
-                module_found = true;
                 // Directory i.e., x/y/__init__.py
-                path += '/' + directory + mod_sym;
+                path_found = path + '/' + directory + mod_sym;
                 mod_sym = "__init__";
+                break;
             } else if(path_exists(path + "/" + directory + mod_sym + ".py")) {
-                module_found = true;
                 // File i.e., x/y.py
-                path += '/' + directory;
-            }
-            if( module_found ) {
+                path_found = path + '/' + directory;
                 break;
             }
         }
@@ -3666,14 +3663,24 @@ public:
             specified and if its a directory
             then prioritise the directory itself.
         */
-        if( !module_found ) {
+        if( path_found.empty() ) {
             if (is_directory(directory + mod_sym)) {
                 // Directory i.e., x/__init__.py
-                paths.insert(paths.begin(), directory + mod_sym);
                 mod_sym = "__init__";
+                path_found = directory + mod_sym;
             } else if (path_exists(directory + mod_sym + ".py")) {
-                paths.insert(paths.begin(), directory);
+                path_found = directory;
             }
+        }
+
+        // Update paths to contain only the found path (if found)
+        // so that later load_module() should only use this path
+        // to read the package/module file
+        // load_module() need not search through all paths again
+        if (path_found.empty()) {
+            paths = {};
+        } else {
+            paths = {path_found};
         }
     }
 
