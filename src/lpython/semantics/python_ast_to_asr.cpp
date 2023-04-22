@@ -3673,7 +3673,9 @@ public:
         // to read the package/module file
         // load_module() need not search through all paths again
         if (path_found.empty()) {
-            paths = {};
+            // include the runtime library dir so that later
+            // runtime library modules could be imported
+            paths = {get_runtime_library_dir()};
         } else {
             paths = {path_found};
         }
