@@ -6432,12 +6432,16 @@ public:
                 "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp"
             };
             std::set<std::string> module_numpy = {
-                "exp2"
+                "exp", "exp2"
             };
-            if (( module_math.find(call_name)!= module_math.end() &&
-                (current_scope->resolve_symbol("math") == nullptr)) ||
-                ( module_numpy.find(call_name)!= module_numpy.end() &&
-                (current_scope->resolve_symbol("numpy") == nullptr))) {
+            // Complex conditions because of functions which are in both modules
+            bool is_math_imported = (current_scope->resolve_symbol("math") != nullptr) ? true : false;
+            bool is_numpy_imported = (current_scope->resolve_symbol("numpy") != nullptr) ? true : false;
+            bool is_math_module = (module_math.find(call_name)!= module_math.end()) ? true : false;
+            bool is_numpy_module = (module_numpy.find(call_name)!= module_numpy.end()) ? true : false;
+            if (( is_math_module && !is_numpy_module && !is_math_imported ) ||
+                ( is_numpy_module && !is_math_module && !is_numpy_imported ) ||
+                ( is_math_module && is_numpy_module && !is_math_imported && !is_numpy_imported )) {
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                         x.base.base.loc);
             }
@@ -6446,6 +6450,19 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
+                // Need to handle vectorization
+                bool is_vector_arg = (ASRUtils::is_array(ASRUtils::expr_type(args_[0]))) ? true : false;
+                // Need to handle array items
+                bool is_array_item = (args_[0]->type == ASR::exprType::ArrayItem) ? true : false;
+                if (( is_numpy_module && is_numpy_imported && !is_vector_arg ) &&
+                    ( is_math_module && !is_math_imported )) {
+                        throw SemanticError("Function '" + call_name + "' does not accept scalar values",
+                            x.base.base.loc);
+                } else if (( is_math_module && is_math_imported && is_vector_arg ) &&
+                    ( is_numpy_module && !is_numpy_imported ))  {
+                        throw SemanticError("Function '" + call_name + "' does not accept vector values",
+                            x.base.base.loc);
+                }
                 tmp = create_func(al, x.base.base.loc, args_,
                     [&](const std::string &msg, const Location &loc) {
                     throw SemanticError(msg, loc); });
