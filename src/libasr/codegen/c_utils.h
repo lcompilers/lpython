@@ -1126,8 +1126,11 @@ class CCPPDSUtils {
             return typecodeToDSfuncs[dict_type_code]["dict_insert"];
         }
 
-        std::string get_dict_get_func(ASR::Dict_t* d_type) {
+        std::string get_dict_get_func(ASR::Dict_t* d_type, bool with_fallback=false) {
             std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)d_type, true);
+            if (with_fallback) {
+                return typecodeToDSfuncs[dict_type_code]["dict_get_fb"];
+            }
             return typecodeToDSfuncs[dict_type_code]["dict_get"];
         }
 
@@ -1177,6 +1180,7 @@ class CCPPDSUtils {
             dict_resize(dict_type, dict_struct_type, dict_type_code);
             dict_insert(dict_type, dict_struct_type, dict_type_code);
             dict_get_item(dict_type, dict_struct_type, dict_type_code);
+            dict_get_item_with_fallback(dict_type, dict_struct_type, dict_type_code);
             dict_len(dict_type, dict_struct_type, dict_type_code);
             dict_pop(dict_type, dict_struct_type, dict_type_code);
             dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
@@ -1294,8 +1298,28 @@ class CCPPDSUtils {
             generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
             generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
-            generated_code += indent + tab + "printf(\"Key not found\");\n";
+            generated_code += indent + tab + "printf(\"Key not found\\n\");\n";
             generated_code += indent + tab + "exit(1);\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_get_item_with_fallback(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_get_func = global_scope->get_unique_name("dict_get_item_fb_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_get_fb"] = dict_get_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = val + " " + dict_get_func + "(" + dict_struct_type + "* x, " +\
+                                        key + " k, " + val + " dv)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
+            generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
+            generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
+            generated_code += indent + tab + "return dv;\n";
             generated_code += indent + "}\n\n";
         }
 
