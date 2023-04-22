@@ -459,18 +459,6 @@ def ldexp(x: f64, i: i32) -> f64:
     return result
 
 
-def exp(x: f64) -> f64:
-    """
-    Return `e` raised to the power `x`.
-    """
-    return e**x
-
-def exp2(x: f64) -> f64:
-    """
-    Return `2` raised to the power `x`.
-    """
-    return f64((2.0)**x)
-
 
 def mod(a: i32, b: i32) -> i32:
     """
@@ -695,7 +683,7 @@ def atanh(x: f64) -> f64:
 
 
 def expm1(x: f64) -> f64:
-    return exp(x) - 1.0
+    return e**x - 1.0
 
 
 def log1p(x: f64) -> f64:

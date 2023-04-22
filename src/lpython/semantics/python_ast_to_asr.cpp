@@ -6428,11 +6428,21 @@ public:
         }
 
         if (!s) {
-            std::set<std::string> not_cpython_builtin = {
+            std::set<std::string> module_math = {
                 "sin", "cos", "gamma", "tan", "asin", "acos", "atan"
             };
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
-             && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
+            std::set<std::string> module_numpy = {
+                "exp2"
+            };
+            if (( module_math.find(call_name)!= module_math.end() &&
+                (current_scope->resolve_symbol("math") == nullptr)) ||
+                ( module_numpy.find(call_name)!= module_numpy.end() &&
+                (current_scope->resolve_symbol("numpy") == nullptr))) {
+                    std::cout<<"START2"<<std::endl;
+                throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
+                        x.base.base.loc);
+            }
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)) {
                 ASRUtils::create_intrinsic_function create_func =
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);

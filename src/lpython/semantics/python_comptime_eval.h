@@ -25,7 +25,10 @@ struct ProceduresDatabase {
                                     "float32", "float64",
                                     "reshape", "array", "int16",
                                     "complex64", "complex128",
-                                    "int8"}},
+                                    "int8", "exp2"}},
+                         {"math", {"sin", "cos", "gamma",
+                                    "tan", "asin", "acos",
+                                    "atan", "exp"}},
                          {"enum", {"Enum"}}
                         };
     }
