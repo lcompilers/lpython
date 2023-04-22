@@ -201,34 +201,29 @@ Result<std::string> get_full_path(const std::string &filename,
     if (status) {
         return file_path;
     } else {
-        status = read_file(file_path, input);
-        if (status) {
-            return file_path;
-        } else {
-            // If this is `lpython`, do a special lookup
-            if (filename == "lpython.py") {
-                file_path = runtime_library_dir + "/lpython/" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    lpython = true;
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "numpy.py")) {
-                file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "enum.py")) {
-                enum_py = true;
-                return Error();
+        // If this is `lpython`, do a special lookup
+        if (filename == "lpython.py") {
+            file_path = runtime_library_dir + "/lpython/" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                lpython = true;
+                return file_path;
             } else {
                 return Error();
             }
+        } else if (startswith(filename, "numpy.py")) {
+            file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                return file_path;
+            } else {
+                return Error();
+            }
+        } else if (startswith(filename, "enum.py")) {
+            enum_py = true;
+            return Error();
+        } else {
+            return Error();
         }
     }
 }
