@@ -1778,6 +1778,7 @@ public:
         } else {
             set_dict_api(dict_type);
             tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
+                                    compiler_options.enable_bounds_checking,
                                     LLVM::is_llvm_struct(dict_type->m_value_type));
         }
     }
