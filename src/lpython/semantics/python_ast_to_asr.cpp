@@ -558,7 +558,7 @@ public:
     IntrinsicNodeHandler intrinsic_node_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
-    std::string import_path;
+    std::vector<std::string> import_paths;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
     AST::expr_t* assign_ast_target;
@@ -573,9 +573,9 @@ public:
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-            std::string import_path, bool allow_implicit_casting_)
+            std::vector<std::string> import_paths, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
+            ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
             current_body{nullptr}, ann_assign_target_type{nullptr},
             assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
@@ -3320,9 +3320,9 @@ public:
     SymbolTableVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
         diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting_)
+        std::vector<std::string> import_paths, bool allow_implicit_casting_)
       : CommonVisitor(al, lm, symbol_table, diagnostics, main_module, ast_overload,
-            parent_dir, import_path, allow_implicit_casting_), is_derived_type{false} {}
+            parent_dir, import_paths, allow_implicit_casting_), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -3636,8 +3636,8 @@ public:
             in the second priority. Top priority path
             is runtime library path.
         */
-        if( import_path != "" ) {
-            paths.insert(paths.begin() + 1, import_path);
+        for( auto& path: import_paths ) {
+            paths.push_back(path);
         }
 
         /*
@@ -3870,10 +3870,10 @@ public:
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting)
+        std::vector<std::string> import_paths, bool allow_implicit_casting)
 {
     SymbolTableVisitor v(al, lm, nullptr, diagnostics, main_module, ast_overload,
-        parent_dir, import_path, allow_implicit_casting);
+        parent_dir, import_paths, allow_implicit_casting);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -3901,7 +3901,7 @@ public:
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
          bool allow_implicit_casting_)
-         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", "", allow_implicit_casting_),
+         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", {}, allow_implicit_casting_),
          asr{unit}, gotoids{0}
          {}
 
@@ -6693,7 +6693,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, lm, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir, compiler_options.import_path, allow_implicit_casting);
+        ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
     if (res.ok) {
         unit = res.result;
     } else {

@@ -54,7 +54,7 @@ struct CompilerOptions {
     bool emit_debug_line_column = false;
     bool verbose = false;
     bool pass_cumulative = false;
-    std::string import_path = "";
+    std::vector<std::string> import_paths;
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};

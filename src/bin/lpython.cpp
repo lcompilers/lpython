@@ -1463,7 +1463,7 @@ int main(int argc, char *argv[])
         // app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
         // app.add_option("-l", arg_l, "Link library option");
         // app.add_option("-L", arg_L, "Library path option");
-        app.add_option("-I", compiler_options.import_path, "Specify the path"
+        app.add_option("-I", compiler_options.import_paths, "Specify the paths"
             "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
         app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
