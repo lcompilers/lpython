@@ -201,34 +201,29 @@ Result<std::string> get_full_path(const std::string &filename,
     if (status) {
         return file_path;
     } else {
-        status = read_file(file_path, input);
-        if (status) {
-            return file_path;
-        } else {
-            // If this is `lpython`, do a special lookup
-            if (filename == "lpython.py") {
-                file_path = runtime_library_dir + "/lpython/" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    lpython = true;
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "numpy.py")) {
-                file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "enum.py")) {
-                enum_py = true;
-                return Error();
+        // If this is `lpython`, do a special lookup
+        if (filename == "lpython.py") {
+            file_path = runtime_library_dir + "/lpython/" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                lpython = true;
+                return file_path;
             } else {
                 return Error();
             }
+        } else if (startswith(filename, "numpy.py")) {
+            file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                return file_path;
+            } else {
+                return Error();
+            }
+        } else if (startswith(filename, "enum.py")) {
+            enum_py = true;
+            return Error();
+        } else {
+            return Error();
         }
     }
 }
@@ -3644,19 +3639,16 @@ public:
             Search all the paths in order and stop
             when the desired module is found.
         */
-        bool module_found = false;
+        std::string path_found = "";
         for( auto& path: paths ) {
             if(is_directory(path + "/" + directory + mod_sym)) {
-                module_found = true;
                 // Directory i.e., x/y/__init__.py
-                path += '/' + directory + mod_sym;
+                path_found = path + '/' + directory + mod_sym;
                 mod_sym = "__init__";
+                break;
             } else if(path_exists(path + "/" + directory + mod_sym + ".py")) {
-                module_found = true;
                 // File i.e., x/y.py
-                path += '/' + directory;
-            }
-            if( module_found ) {
+                path_found = path + '/' + directory;
                 break;
             }
         }
@@ -3666,14 +3658,26 @@ public:
             specified and if its a directory
             then prioritise the directory itself.
         */
-        if( !module_found ) {
+        if( path_found.empty() ) {
             if (is_directory(directory + mod_sym)) {
                 // Directory i.e., x/__init__.py
-                paths.insert(paths.begin(), directory + mod_sym);
                 mod_sym = "__init__";
+                path_found = directory + mod_sym;
             } else if (path_exists(directory + mod_sym + ".py")) {
-                paths.insert(paths.begin(), directory);
+                path_found = directory;
             }
+        }
+
+        // Update paths to contain only the found path (if found)
+        // so that later load_module() should only use this path
+        // to read the package/module file
+        // load_module() need not search through all paths again
+        if (path_found.empty()) {
+            // include the runtime library dir so that later
+            // runtime library modules could be imported
+            paths = {get_runtime_library_dir()};
+        } else {
+            paths = {path_found};
         }
     }
 
