@@ -36,35 +36,25 @@ struct dimension_descriptor
 };
 
 // Implementations
-#define μ   1.45136923488338110e+00
-int32_t add(int32_t x, int32_t y)
+void test_for()
 {
-    int32_t _lpython_return_variable;
-    _lpython_return_variable = x + y;
-    return _lpython_return_variable;
-}
-
-#define e   2.71828182845904509e+00
-int32_t multiply(int32_t x, int32_t y)
-{
-    int32_t _lpython_return_variable;
-    _lpython_return_variable = x*y;
-    return _lpython_return_variable;
-}
-
-void f()
-{
-    printf("%lf\n", e);
-    printf("%lf\n", μ);
-    printf("%d\n", add(10, 20));
-    printf("%d\n", multiply(10, 20));
-    ASSERT(add(10, 20) == 30);
-    ASSERT(multiply(10, 20) == 200);
+    int32_t i;
+    for (i=0; i<=10 - 1; i++) {
+        if (i == 0) {
+            continue;
+        }
+        if (i > 5) {
+            break;
+        }
+        if (i == 3) {
+            exit(0);
+        }
+    }
 }
 
 void _lpython_main_program()
 {
-    f();
+    test_for();
 }
 
 int main(int argc, char* argv[])

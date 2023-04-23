@@ -1,12 +1,22 @@
 from lpython import i32
-from sys import _lpython_argv
+from sys import argv
 
 def test():
-    exe: str = _lpython_argv()[0]
-    i: i32
-    for i in range(len(exe)-1, 0, -1):
-        if exe[i] == '/':
+    exe: str = argv[0]
+    res: str = ""
+
+    if exe[0] == '.':
+        exe = exe[1:len(exe)]
+
+    s: str
+    for s in exe:
+        if s == '.':
             break
-    assert exe[i+1:len(exe)] == 'test_argv_01'
+        if s == '/':
+            res = ""
+        else:
+            res += s
+
+    assert res == 'test_argv_01'
 
 test()

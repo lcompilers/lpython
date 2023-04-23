@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-loop4-cdb2174",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/loop4.py",
+    "infile_hash": "660eb1a895c81609d791240171fc34b6f0fea02c43de8f86420b06b7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-loop4-cdb2174.stdout",
+    "stdout_hash": "bdd6709204180ce7ed9269eb4709779933add57b7306f6cad5dec52a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
