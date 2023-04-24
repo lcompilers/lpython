@@ -632,6 +632,58 @@ namespace LCompilers {
         }
     }
 
+    static inline void handle_fn_return_var(Allocator &al, ASR::Function_t *x,
+            bool (*is_array_or_struct)(ASR::expr_t*)) {
+        if (x->m_return_var) {
+            /*
+            * The `return_var` of the function, which is either an array or
+            * struct, is set to `null`, and the destination variable will be
+            * passed as the last argument to the existing function. This helps
+            * in avoiding deep copies and the destination memory directly gets
+            * filled inside the function.
+            */
+            if( is_array_or_struct(x->m_return_var)) {
+                for( auto& s_item: x->m_symtab->get_scope() ) {
+                    ASR::symbol_t* curr_sym = s_item.second;
+                    if( curr_sym->type == ASR::symbolType::Variable ) {
+                        ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(curr_sym);
+                        if( var->m_intent == ASR::intentType::Unspecified ) {
+                            var->m_intent = ASR::intentType::In;
+                        } else if( var->m_intent == ASR::intentType::ReturnVar ) {
+                            var->m_intent = ASR::intentType::Out;
+                        }
+                    }
+                }
+                Vec<ASR::expr_t*> a_args;
+                a_args.reserve(al, x->n_args + 1);
+                for( size_t i = 0; i < x->n_args; i++ ) {
+                    a_args.push_back(al, x->m_args[i]);
+                }
+                LCOMPILERS_ASSERT(x->m_return_var)
+                a_args.push_back(al, x->m_return_var);
+                x->m_args = a_args.p;
+                x->n_args = a_args.n;
+                x->m_return_var = nullptr;
+                ASR::FunctionType_t* s_func_type = ASR::down_cast<ASR::FunctionType_t>(
+                    x->m_function_signature);
+                Vec<ASR::ttype_t*> arg_types;
+                arg_types.reserve(al, a_args.n);
+                for(auto &e: a_args) {
+                    arg_types.push_back(al, ASRUtils::expr_type(e));
+                }
+                s_func_type->m_arg_types = arg_types.p;
+                s_func_type->n_arg_types = arg_types.n;
+                s_func_type->m_return_var_type = nullptr;
+            }
+        }
+        for (auto &item : x->m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                handle_fn_return_var(al, ASR::down_cast<ASR::Function_t>(
+                    item.second), is_array_or_struct);
+            }
+        }
+    }
+
     } // namespace PassUtils
 
 } // namespace LCompilers
