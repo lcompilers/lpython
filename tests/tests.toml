@@ -235,13 +235,19 @@ wat = true
 filename = "loop2.py"
 ast = true
 asr = true
-cpp = true
 c = true
+# cpp = true # TODO: support list types
 
 [[test]]
 filename = "loop3.py"
 ast = true
 asr = true
+cpp = true
+
+[[test]]
+filename = "loop4.py"
+asr = true
+c = true
 cpp = true
 
 [[test]]

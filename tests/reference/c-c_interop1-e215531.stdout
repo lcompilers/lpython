@@ -54,5 +54,6 @@ void l(double a, float b, int64_t c, int32_t d)
 
 int main(int argc, char* argv[])
 {
+    _lpython_set_argv(argc, argv);
     return 0;
 }

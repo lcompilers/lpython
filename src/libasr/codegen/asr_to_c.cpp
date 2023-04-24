@@ -828,6 +828,7 @@ R"(
         }
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
+                + indent1 + "_lpython_set_argv(argc, argv);\n"
                 + decl + body
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
@@ -1056,12 +1057,18 @@ R"(
             for( int i = 0; i < n_dims; i++ ) {
                 if( m_dims[i].m_start ) {
                     visit_expr(*m_dims[i].m_start);
-                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].lower_bound = " + src + ";\n";
+                } else {
+                    src = "0";
                 }
+                dim_set_code += indent + dest_src + "->dims[" +
+                    std::to_string(i) + "].lower_bound = " + src + ";\n";
                 if( m_dims[i].m_length ) {
                     visit_expr(*m_dims[i].m_length);
-                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
+                } else {
+                    src = "0";
                 }
+                dim_set_code += indent + dest_src + "->dims[" +
+                    std::to_string(i) + "].length = " + src + ";\n";
             }
             src.clear();
             src += dim_set_code;
