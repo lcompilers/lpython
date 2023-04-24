@@ -1010,7 +1010,9 @@ namespace IntrinsicFunctionRegistry {
                  id_ == ASRUtils::IntrinsicFunctions::Cos ||
                  id_ == ASRUtils::IntrinsicFunctions::Gamma ||
                  id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
-                 id_ == ASRUtils::IntrinsicFunctions::Sin );
+                 id_ == ASRUtils::IntrinsicFunctions::Sin ||
+                 id_ == ASRUtils::IntrinsicFunctions::Exp ||
+                 id_ == ASRUtils::IntrinsicFunctions::Exp2 );
     }
 
     /*
