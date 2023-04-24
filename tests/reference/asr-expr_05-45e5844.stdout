@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        114
+                        122
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        113
+                                        121
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        114 main0
+                                        122 main0
                                         ()
                                         []
                                         ()
@@ -245,7 +245,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                114 test_multiply
+                                                122 test_multiply
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -318,7 +318,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                114 test_mod
+                                                122 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -336,7 +336,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                114 test_mod
+                                                122 test_mod
                                                 ()
                                                 [((IntegerConstant 23 (Integer 4 [])))
                                                 ((IntegerConstant 3 (Integer 4 [])))]
@@ -364,7 +364,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                114 test_mod
+                                                122 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -436,7 +436,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                114 test_mod
+                                                122 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -1429,13 +1429,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        112
+                        120
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    112
+                                    120
                                     _lpython_main_program
-                                    114 _lpython_main_program
+                                    122 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1445,7 +1445,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        112 _lpython_main_program
+                        120 _lpython_main_program
                         ()
                         []
                         ()

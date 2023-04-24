@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        116
+                        124
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        115
+                                        123
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        116 check
+                                        124 check
                                         ()
                                         []
                                         ()
@@ -72,25 +72,25 @@
                                     test_min_float]
                                     []
                                     [(SubroutineCall
-                                        116 test_max_int
+                                        124 test_max_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_max_float
+                                        124 test_max_float
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_min_int
+                                        124 test_min_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_min_float
+                                        124 test_min_float
                                         ()
                                         []
                                         ()
@@ -843,13 +843,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        114
+                        122
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    114
+                                    122
                                     _lpython_main_program
-                                    116 _lpython_main_program
+                                    124 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -859,7 +859,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        114 _lpython_main_program
+                        122 _lpython_main_program
                         ()
                         []
                         ()

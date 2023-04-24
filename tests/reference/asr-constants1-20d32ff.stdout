@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             test_abs:
                                 (Function
@@ -1766,7 +1766,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        119
+                        127
                         {
                             
                         })
