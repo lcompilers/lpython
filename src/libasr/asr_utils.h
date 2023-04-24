@@ -2345,6 +2345,27 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
         std::string left_param = left_tp->m_param;
         std::string right_param = right_tp->m_param;
         return left_param.compare(right_param) == 0;
+    } else if (ASR::is_a<ASR::FunctionType_t>(*x) && ASR::is_a<ASR::FunctionType_t>(*y)) {
+        ASR::FunctionType_t* left_ft = ASR::down_cast<ASR::FunctionType_t>(x);
+        ASR::FunctionType_t* right_ft = ASR::down_cast<ASR::FunctionType_t>(y);
+        if (left_ft->n_arg_types != right_ft->n_arg_types) {
+            return false;
+        }
+        bool result;
+        for (size_t i=0; i<left_ft->n_arg_types; i++) {
+            result = check_equal_type(left_ft->m_arg_types[i],
+                        right_ft->m_arg_types[i]);
+            if (!result) return false;
+        }
+        if (left_ft->m_return_var_type == nullptr &&
+                right_ft->m_return_var_type == nullptr) {
+                return true;
+        } else if (left_ft->m_return_var_type != nullptr &&
+                right_ft->m_return_var_type != nullptr) {
+                return check_equal_type(left_ft->m_return_var_type,
+                        right_ft->m_return_var_type);
+        }
+        return false;
     }
 
     return types_equal(x, y);

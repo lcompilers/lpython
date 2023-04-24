@@ -882,10 +882,6 @@ public:
             cast_helper(m_args[i], c_arg.m_value, true);
             ASR::ttype_t* left_type = ASRUtils::expr_type(m_args[i]);
             ASR::ttype_t* right_type = ASRUtils::expr_type(c_arg.m_value);
-            if (ASR::is_a<ASR::FunctionType_t>(*left_type) ) {
-                // TODO: add FunctionType in check_equal_type
-                continue;
-            }
             if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type) ) {
                 std::string ltype = ASRUtils::type_to_str_python(left_type);
                 std::string rtype = ASRUtils::type_to_str_python(right_type);
