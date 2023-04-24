@@ -1,4 +1,5 @@
-from math import (cbrt, exp2)
+from math import cbrt
+from numpy import exp2
 from lpython import f64
 
 eps: f64

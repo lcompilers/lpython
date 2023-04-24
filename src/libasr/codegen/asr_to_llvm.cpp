@@ -1946,13 +1946,13 @@ public:
     }
 
     void generate_Exp(ASR::expr_t* m_arg) {
-        this->visit_expr(*m_arg);
+        this->visit_expr_wrapper(m_arg, true);
         llvm::Value *item = tmp;
         tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
     }
 
     void generate_Exp2(ASR::expr_t* m_arg) {
-        this->visit_expr(*m_arg);
+        this->visit_expr_wrapper(m_arg, true);
         llvm::Value *item = tmp;
         tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp2, item);
     }
