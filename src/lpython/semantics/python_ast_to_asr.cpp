@@ -6551,17 +6551,11 @@ public:
         }
 
         if (!s) {
-            std::set<std::string> module_math = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp"
+            std::set<std::string> not_cpython_builtin = {
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp", "exp2"
             };
-            std::set<std::string> module_numpy = {
-                "exp", "exp2"
-            };
-            bool is_numpy_imported = current_scope->resolve_symbol("numpy") != nullptr;
-            bool is_math_module = module_math.find(call_name)!= module_math.end();
-            bool is_numpy_module = module_numpy.find(call_name)!= module_numpy.end();
-            bool is_function_imported = imported_functions.find(call_name) != imported_functions.end();
-            if ((is_math_module || is_numpy_module) && !is_function_imported ) {
+            if (not_cpython_builtin.find(call_name) != not_cpython_builtin.end() &&
+                imported_functions.find(call_name) == imported_functions.end() ) {
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                         x.base.base.loc);
             }
@@ -6570,8 +6564,8 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                bool is_vector_arg = ASRUtils::is_array(ASRUtils::expr_type(args_[0]));
-                if ( is_math_module && !is_numpy_imported && is_vector_arg) {
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) && 
+                    current_scope->resolve_symbol("numpy") == nullptr ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
                 }
