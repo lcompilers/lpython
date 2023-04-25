@@ -64,6 +64,14 @@ class ASRBuilder {
 
     ASRBuilder(Allocator& al_): al(al_) {}
 
+    #define declare_function_variables(name)                                    \
+        std::string fn_name = scope->get_unique_name(name);                     \
+        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);               \
+        ASRBuilder b(al);                                                       \
+        Vec<ASR::expr_t*> args; args.reserve(al, 1);                            \
+        Vec<ASR::stmt_t*> body; body.reserve(al, 1);                            \
+        SetChar dep; dep.reserve(al, 1);
+
     // Symbols -----------------------------------------------------------------
     #define create_variable(var, name, intent, abi, value_attr, symtab, type)   \
         ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(               \
@@ -306,7 +314,7 @@ class ASRBuilder {
 namespace UnaryIntrinsicFunction {
 
 static inline ASR::expr_t* instantiate_functions(Allocator &al,
-        const Location &loc, SymbolTable *global_scope, std::string new_name,
+        const Location &loc, SymbolTable *scope, std::string new_name,
         ASR::ttype_t *arg_type, Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
         ASR::expr_t *value) {
     std::string c_func_name;
@@ -329,30 +337,19 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     }
     new_name = "_lcompilers_" + new_name + "_" + type_to_str_python(arg_type);
 
-    if (global_scope->get_symbol(new_name)) {
-        ASR::symbol_t *s = global_scope->get_symbol(new_name);
+    if (scope->get_symbol(new_name)) {
+        ASR::symbol_t *s = scope->get_symbol(new_name);
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
             new_args.p, new_args.size(), expr_type(f->m_return_var),
             value, nullptr));
     }
-    new_name = global_scope->get_unique_name(new_name);
-    SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
-
-    Vec<ASR::expr_t*> args;
+    declare_function_variables(new_name);
     {
-        args.reserve(al, 1);
         Variable(x, arg_type, In);
         args.push_back(al, x);
     }
-
     Variable(result, arg_type, ReturnVar);
-
-    Vec<ASR::stmt_t*> body;
-    body.reserve(al, 1);
-
-    SetChar dep;
-    dep.reserve(al, 1);
 
     {
         SymbolTable *fn_symtab_1 = al.make_new<SymbolTable>(fn_symtab);
@@ -385,9 +382,9 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             call_args.p, call_args.n, arg_type, nullptr, nullptr))));
     }
 
-    ASR::symbol_t *new_symbol = make_Function_t(new_name, fn_symtab, dep, args,
+    ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
-    global_scope->add_symbol(new_name, new_symbol);
+    scope->add_symbol(fn_name, new_symbol);
     return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
         new_symbol, new_args.p, new_args.size(), arg_type, value, nullptr));
 }
@@ -409,7 +406,7 @@ static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& lo
 }
 
 static inline ASR::symbol_t *create_KMP_function(Allocator &al,
-        const Location &loc, SymbolTable *global_scope)
+        const Location &loc, SymbolTable *scope)
 {
     /*
      * Knuth-Morris-Pratt (KMP) string-matching
@@ -418,13 +415,8 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
      * then returns the position of the first occurrence of the
      * string in the pattern.
      */
-    ASRBuilder b(al);
-    std::string fn_name = global_scope->get_unique_name("KMP_string_matching");
-    SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
-
-    Vec<ASR::expr_t*> args;
+    declare_function_variables("KMP_string_matching");
     {
-        args.reserve(al, 2);
         Variable(target_string, character(-2), In);
         args.push_back(al, target_string);
         Variable(pattern, character(-2), In);
@@ -432,11 +424,6 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     }
     Variable(result, int32, ReturnVar);
 
-    Vec<ASR::stmt_t*> body;
-    body.reserve(al, 1);
-
-    SetChar dep;
-    dep.reserve(al, 1);
     {
         Variable(pi_len, int32, Local)
         Variable(i, int32, Local)
@@ -664,7 +651,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     }
     ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
-    global_scope->add_symbol(fn_name, fn_sym);
+    scope->add_symbol(fn_name, fn_sym);
     return fn_sym;
 }
 
@@ -832,23 +819,13 @@ namespace Abs {
                 new_args.p, new_args.size(), expr_type(f->m_return_var),
                 compile_time_value, nullptr));
         }
-
-        func_name = scope->get_unique_name(func_name);
-        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
-
-        Vec<ASR::expr_t*> args;
+        declare_function_variables(func_name);
         {
-            args.reserve(al, 1);
             Variable(x, arg_types[0], In)
             args.push_back(al, x);
         }
 
         Variable(result, return_type, ReturnVar);
-
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, 1);
-        SetChar dep;
-        dep.reserve(al, 1);
 
         if (is_integer(*arg_types[0]) || is_real(*arg_types[0])) {
             /*
@@ -942,9 +919,9 @@ namespace Abs {
                 real_type, nullptr))));
         }
 
-        ASR::symbol_t *f_sym = make_Function_t(func_name, fn_symtab, dep, args,
+        ASR::symbol_t *f_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
-        scope->add_symbol(func_name, f_sym);
+        scope->add_symbol(fn_name, f_sym);
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, f_sym, f_sym,
             new_args.p, new_args.size(), return_type, compile_time_value, nullptr));
     }
@@ -1143,16 +1120,11 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
             }
         }
     }
-
-    new_name = scope->get_unique_name(new_name);
-    SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
-
+    declare_function_variables(new_name)
     ASR::ttype_t* logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
                                             al, loc, 4, nullptr, 0));
-    Vec<ASR::expr_t*> args;
     int result_dims = 0;
     {
-        args.reserve(al, 1);
         ASR::ttype_t* mask_type = ASRUtils::duplicate_type_with_empty_dims(al, arg_type);
         Variable(mask, mask_type, In);
         args.push_back(al, mask);
@@ -1190,8 +1162,6 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
         return_var = result;
     }
 
-    Vec<ASR::stmt_t*> body;
-    body.reserve(al, 1);
     if( overload_id == 0 || return_var ) {
         generate_body_for_scalar_output(al, loc, args[0], return_var, fn_symtab, body);
     } else if( overload_id == 1 ) {
@@ -1199,21 +1169,18 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     } else {
         LCOMPILERS_ASSERT(false);
     }
-
-    Vec<char *> dep;
-    dep.reserve(al, 1);
     // TODO: fill dependencies
 
     ASR::symbol_t *new_symbol = nullptr;
     if( return_var ) {
-        new_symbol = make_Function_t(new_name, fn_symtab, dep, args,
+        new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
             body, return_var, Source, Implementation, nullptr);
     } else {
         new_symbol = make_Function_Without_ReturnVar_t(
-            new_name, fn_symtab, dep, args,
+            fn_name, fn_symtab, dep, args,
             body, Source, Implementation, nullptr);
     }
-    scope->add_symbol(new_name, new_symbol);
+    scope->add_symbol(fn_name, new_symbol);
     return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
             new_symbol, new_args.p, new_args.size(), logical_return_type,
             compile_time_value, nullptr));
@@ -1303,11 +1270,7 @@ namespace Partition {
         Vec<ASR::ttype_t*>& /*arg_types*/, Vec<ASR::call_arg_t>& new_args,
         int64_t /*overload_id*/, ASR::expr_t* compile_time_value)
     {
-        std::string fn_name = scope->get_unique_name("_lpython_str_partition");
-        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
-        ASRBuilder b(al);
-
-        Vec<ASR::expr_t*> args;
+        declare_function_variables("_lpython_str_partition");
         {
             args.reserve(al, 2);
             Variable(target_string, character(-2), In);
@@ -1318,11 +1281,6 @@ namespace Partition {
         ASR::ttype_t *return_type = b.Tuple(loc, {character(-2), character(-2), character(-2)});
         Variable(result, return_type, ReturnVar)
 
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, 1);
-
-        SetChar dep;
-        dep.reserve(al, 1);
         {
             Variable(index, int32, Local)
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
