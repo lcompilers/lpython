@@ -54,7 +54,7 @@ struct CompilerOptions {
     bool emit_debug_line_column = false;
     bool verbose = false;
     bool pass_cumulative = false;
-    std::string import_path = "";
+    std::vector<std::string> import_paths;
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};
@@ -82,6 +82,7 @@ namespace LCompilers {
         bool fast = false; // is fast flag enabled.
         bool verbose = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
+        bool disable_main = false;
     };
 
 }

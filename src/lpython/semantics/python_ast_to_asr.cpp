@@ -201,34 +201,29 @@ Result<std::string> get_full_path(const std::string &filename,
     if (status) {
         return file_path;
     } else {
-        status = read_file(file_path, input);
-        if (status) {
-            return file_path;
-        } else {
-            // If this is `lpython`, do a special lookup
-            if (filename == "lpython.py") {
-                file_path = runtime_library_dir + "/lpython/" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    lpython = true;
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "numpy.py")) {
-                file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
-                status = read_file(file_path, input);
-                if (status) {
-                    return file_path;
-                } else {
-                    return Error();
-                }
-            } else if (startswith(filename, "enum.py")) {
-                enum_py = true;
-                return Error();
+        // If this is `lpython`, do a special lookup
+        if (filename == "lpython.py") {
+            file_path = runtime_library_dir + "/lpython/" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                lpython = true;
+                return file_path;
             } else {
                 return Error();
             }
+        } else if (startswith(filename, "numpy.py")) {
+            file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
+            status = read_file(file_path, input);
+            if (status) {
+                return file_path;
+            } else {
+                return Error();
+            }
+        } else if (startswith(filename, "enum.py")) {
+            enum_py = true;
+            return Error();
+        } else {
+            return Error();
         }
     }
 }
@@ -454,6 +449,22 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(fn);
+    } else if (ASR::is_a<ASR::StructType_t>(*t)) {
+        ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
+        // `st` is the StructType in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, st->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)st,
+            m->m_name, nullptr, 0, st->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
     } else if (ASR::is_a<ASR::Variable_t>(*t)) {
         ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
         // `mv` is the Variable in a module. Now we construct
@@ -501,7 +512,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         return import_from_module(al, mt, current_scope, std::string(mt->m_name),
                                   cur_sym_name, new_sym_name, loc);
     } else {
-        throw SemanticError("Only Subroutines, Functions, Variables and "
+        throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
             "ExternalSymbol are currently supported in 'import'", loc);
     }
     LCOMPILERS_ASSERT(false);
@@ -542,7 +553,7 @@ public:
     IntrinsicNodeHandler intrinsic_node_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
-    std::string import_path;
+    std::vector<std::string> import_paths;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
     AST::expr_t* assign_ast_target;
@@ -557,9 +568,9 @@ public:
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-            std::string import_path, bool allow_implicit_casting_)
+            std::vector<std::string> import_paths, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
+            ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
             current_body{nullptr}, ann_assign_target_type{nullptr},
             assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
@@ -889,7 +900,8 @@ public:
 
     ASR::ttype_t* get_type_from_var_annotation(std::string var_annotation,
         const Location& loc, Vec<ASR::dimension_t>& dims,
-        AST::expr_t** m_args=nullptr, size_t n_args=0) {
+        AST::expr_t** m_args=nullptr, size_t n_args=0,
+        bool raise_error=true) {
         ASR::ttype_t* type = nullptr;
         if (var_annotation == "i8") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
@@ -942,16 +954,18 @@ public:
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if( der_sym ) {
                         if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, der_sym, dims.p, dims.size()));
+                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, s, dims.p, dims.size()));
                         }
                     }
                 }
             }
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            if( raise_error ) {
+                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+            }
         }
         return type;
     }
@@ -1470,7 +1484,8 @@ public:
     // Examples:
     // i32, i64, f32, f64
     // f64[256], i32[:]
-    ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation) {
+    ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation,
+        bool raise_error=true) {
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 4);
         AST::expr_t** m_args = nullptr; size_t n_args = 0;
@@ -1505,6 +1520,31 @@ public:
                 }
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
                     types.p, types.size()));
+                return type;
+            } else if (var_annotation == "Callable") {
+                LCOMPILERS_ASSERT(AST::is_a<AST::Tuple_t>(*s->m_slice));
+                AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
+                LCOMPILERS_ASSERT(t->n_elts <= 2 && t->n_elts >= 1);
+                Vec<ASR::ttype_t*> arg_types;
+                LCOMPILERS_ASSERT(AST::is_a<AST::List_t>(*t->m_elts[0]));
+
+                AST::List_t *arg_list = AST::down_cast<AST::List_t>(t->m_elts[0]);
+                if (arg_list->n_elts > 0) {
+                    arg_types.reserve(al, arg_list->n_elts);
+                    for (size_t i=0; i<arg_list->n_elts; i++) {
+                        arg_types.push_back(al, ast_expr_to_asr_type(loc, *arg_list->m_elts[i]));
+                    }
+                } else {
+                    arg_types.reserve(al, 1);
+                }
+                ASR::ttype_t* ret_type = nullptr;
+                if (t->n_elts == 2) {
+                    ret_type = ast_expr_to_asr_type(loc, *t->m_elts[1]);
+                }
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_FunctionType_t(al, loc, arg_types.p,
+                        arg_types.size(), ret_type, ASR::abiType::Source,
+                        ASR::deftypeType::Interface, nullptr, false, false,
+                        false, false, false, nullptr, 0, nullptr, 0, false));
                 return type;
             } else if (var_annotation == "set") {
                 if (AST::is_a<AST::Name_t>(*s->m_slice)) {
@@ -1614,7 +1654,7 @@ public:
                 loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args);
+        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
@@ -3300,9 +3340,9 @@ public:
     SymbolTableVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
         diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting_)
+        std::vector<std::string> import_paths, bool allow_implicit_casting_)
       : CommonVisitor(al, lm, symbol_table, diagnostics, main_module, ast_overload,
-            parent_dir, import_path, allow_implicit_casting_), is_derived_type{false} {}
+            parent_dir, import_paths, allow_implicit_casting_), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -3363,6 +3403,69 @@ public:
         }
         global_scope = nullptr;
         tmp = tmp0;
+    }
+
+    ASR::symbol_t* create_implicit_interface_function(Location &loc, ASR::FunctionType_t *func, std::string func_name) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, func->n_arg_types);
+        std::string sym_name = to_lower(func_name);
+        for (size_t i=0; i<func->n_arg_types; i++) {
+            std::string arg_name = sym_name + "_arg_" + std::to_string(i);
+            arg_name = to_lower(arg_name);
+            ASR::symbol_t *v;
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec,
+                    func->m_arg_types[i]);
+            v = ASR::down_cast<ASR::symbol_t>(
+                ASR::make_Variable_t(al, loc,
+                current_scope, s2c(al, arg_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(), ASRUtils::intent_unspecified,
+                nullptr, nullptr, ASR::storage_typeType::Default, func->m_arg_types[i],
+                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
+                false));
+            current_scope->add_symbol(arg_name, v);
+            LCOMPILERS_ASSERT(v != nullptr)
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc,
+                v)));
+        }
+
+        ASR::expr_t *to_return = nullptr;
+        if (func->m_return_var_type) {
+            std::string return_var_name = sym_name + "_return_var_name";
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec,
+                    func->m_return_var_type);
+            ASR::asr_t *return_var = ASR::make_Variable_t(al, loc,
+                current_scope, s2c(al, return_var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(), ASRUtils::intent_return_var,
+                nullptr, nullptr, ASR::storage_typeType::Default, func->m_return_var_type,
+                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
+                false);
+            current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(return_var));
+            to_return = ASRUtils::EXPR(ASR::make_Var_t(al, loc,
+                ASR::down_cast<ASR::symbol_t>(return_var)));
+        }
+
+        tmp = ASRUtils::make_Function_t_util(
+            al, loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ s2c(al, sym_name),
+            nullptr, 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
+            /* a_body */ nullptr,
+            /* n_body */ 0,
+            /* a_return_var */ to_return,
+            ASR::abiType::BindC, ASR::accessType::Public, ASR::deftypeType::Interface,
+            nullptr, false, false, false, false, false, /* a_type_parameters */ nullptr,
+            /* n_type_parameters */ 0, nullptr, 0, false, false, false);
+        current_scope = parent_scope;
+        return ASR::down_cast<ASR::symbol_t>(tmp);
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
@@ -3482,20 +3585,26 @@ public:
             if (current_procedure_abi_type == ASR::abiType::BindC) {
                 value_attr = true;
             }
-            SetChar variable_dependencies_vec;
-            variable_dependencies_vec.reserve(al, 1);
-            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type, init_expr, value);
-            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                    s2c(al, arg_s), variable_dependencies_vec.p,
-                    variable_dependencies_vec.size(),
-                    s_intent, init_expr, value, storage_type, arg_type,
-                    current_procedure_abi_type, s_access, s_presence,
-                    value_attr);
-            current_scope->add_symbol(arg_s, ASR::down_cast<ASR::symbol_t>(v));
+            ASR::symbol_t *v;
+            if (ASR::is_a<ASR::FunctionType_t>(*arg_type)) {
+                ASR::FunctionType_t *func = ASR::down_cast<ASR::FunctionType_t>(arg_type);
+                v = create_implicit_interface_function(loc, func, arg_s);
+            } else {
+                SetChar variable_dependencies_vec;
+                variable_dependencies_vec.reserve(al, 1);
+                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type, init_expr, value);
+                ASR::asr_t *_tmp = ASR::make_Variable_t(al, loc, current_scope,
+                        s2c(al, arg_s), variable_dependencies_vec.p,
+                        variable_dependencies_vec.size(),
+                        s_intent, init_expr, value, storage_type, arg_type,
+                        current_procedure_abi_type, s_access, s_presence,
+                        value_attr);
+                v = ASR::down_cast<ASR::symbol_t>(_tmp);
 
-            ASR::symbol_t *var = current_scope->get_symbol(arg_s);
+            }
+            current_scope->add_symbol(arg_s, v);
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                var)));
+                v)));
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
@@ -3616,27 +3725,24 @@ public:
             in the second priority. Top priority path
             is runtime library path.
         */
-        if( import_path != "" ) {
-            paths.insert(paths.begin() + 1, import_path);
+        for( auto& path: import_paths ) {
+            paths.push_back(path);
         }
 
         /*
             Search all the paths in order and stop
             when the desired module is found.
         */
-        bool module_found = false;
+        std::string path_found = "";
         for( auto& path: paths ) {
             if(is_directory(path + "/" + directory + mod_sym)) {
-                module_found = true;
                 // Directory i.e., x/y/__init__.py
-                path += '/' + directory + mod_sym;
+                path_found = path + '/' + directory + mod_sym;
                 mod_sym = "__init__";
+                break;
             } else if(path_exists(path + "/" + directory + mod_sym + ".py")) {
-                module_found = true;
                 // File i.e., x/y.py
-                path += '/' + directory;
-            }
-            if( module_found ) {
+                path_found = path + '/' + directory;
                 break;
             }
         }
@@ -3646,14 +3752,26 @@ public:
             specified and if its a directory
             then prioritise the directory itself.
         */
-        if( !module_found ) {
+        if( path_found.empty() ) {
             if (is_directory(directory + mod_sym)) {
                 // Directory i.e., x/__init__.py
-                paths.insert(paths.begin(), directory + mod_sym);
                 mod_sym = "__init__";
+                path_found = directory + mod_sym;
             } else if (path_exists(directory + mod_sym + ".py")) {
-                paths.insert(paths.begin(), directory);
+                path_found = directory;
             }
+        }
+
+        // Update paths to contain only the found path (if found)
+        // so that later load_module() should only use this path
+        // to read the package/module file
+        // load_module() need not search through all paths again
+        if (path_found.empty()) {
+            // include the runtime library dir so that later
+            // runtime library modules could be imported
+            paths = {get_runtime_library_dir()};
+        } else {
+            paths = {path_found};
         }
     }
 
@@ -3850,10 +3968,10 @@ public:
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting)
+        std::vector<std::string> import_paths, bool allow_implicit_casting)
 {
     SymbolTableVisitor v(al, lm, nullptr, diagnostics, main_module, ast_overload,
-        parent_dir, import_path, allow_implicit_casting);
+        parent_dir, import_paths, allow_implicit_casting);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -3882,7 +4000,7 @@ public:
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
          bool allow_implicit_casting_)
-         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", "", allow_implicit_casting_),
+         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", {}, allow_implicit_casting_),
          asr{unit}, gotoids{0}
          {}
 
@@ -6311,12 +6429,13 @@ public:
             return ;
         }
         // Keyword arguments handled in make_call_helper
-        if( x.n_keywords == 0 ) {
-            args.reserve(al, x.n_args);
-            visit_expr_list(x.m_args, x.n_args, args);
-        }
+        #define parse_args() if( x.n_keywords == 0 ) { \
+            args.reserve(al, x.n_args); \
+            visit_expr_list(x.m_args, x.n_args, args); \
+        } \
 
         if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+            parse_args()
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
@@ -6514,6 +6633,7 @@ public:
                 tmp = nullptr;
                 return;
             } else if (call_name == "callable") {
+                parse_args()
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
                         std::to_string(args.size()) + " given)", x.base.base.loc);
@@ -6529,11 +6649,13 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
             } else if( call_name == "pointer" ) {
+                parse_args()
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
                                             ASRUtils::expr_type(args[0].m_value)));
                 tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
                 return ;
             } else if( call_name == "array" ) {
+                parse_args()
                 if( args.size() != 1 ) {
                     throw SemanticError("array accepts only 1 argument for now, got " +
                                         std::to_string(args.size()) + " arguments instead.",
@@ -6553,6 +6675,7 @@ public:
                 }
                 return;
             } else if( call_name == "deepcopy" ) {
+                parse_args()
                 if( args.size() != 1 ) {
                     throw SemanticError("deepcopy only accepts one argument, found " +
                                         std::to_string(args.size()) + " instead.",
@@ -6561,27 +6684,36 @@ public:
                 tmp = (ASR::asr_t*) args[0].m_value;
                 return ;
             } else if( call_name == "sizeof" ) {
-                if( args.size() != 1 ) {
+
+                if( x.n_args + x.n_keywords != 1 ) {
                     throw SemanticError("sizeof only accepts one argument, found " +
-                                        std::to_string(args.size()) + " instead.",
+                                        std::to_string(x.n_args + x.n_keywords) + " instead.",
                                         x.base.base.loc);
                 }
 
-                ASR::ttype_t* arg_type = nullptr;
-                if( ASR::is_a<ASR::Var_t>(*args[0].m_value) ) {
-                    ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(args[0].m_value);
-                    if( ASR::is_a<ASR::Variable_t>(*arg_Var->m_v) ) {
-                        arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var->m_v)->m_type;
-                    } else if( ASR::is_a<ASR::StructType_t>(*arg_Var->m_v) ) {
-                        arg_type = ASRUtils::TYPE(ASR::make_Struct_t(al, x.base.base.loc,
-                                        arg_Var->m_v, nullptr, 0));
-                    } else {
-                        throw SemanticError("Symbol " + std::to_string(arg_Var->m_v->type) +
-                                            " is not yet supported in sizeof.",
-                                            x.base.base.loc);
+                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0], false);
+                ASR::expr_t* arg = nullptr;
+                if( !arg_type ) {
+                    visit_expr(*x.m_args[0]);
+                    arg = ASRUtils::EXPR(tmp);
+                }
+                if( arg ) {
+                    if( ASR::is_a<ASR::Var_t>(*arg) ) {
+                        ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(arg);
+                        ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
+                        if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
+                            // TODO: Import the underlying struct if arg_type is of Struct type
+                            // Ideally if a variable of struct type is being imported then its underlying type
+                            // should also be imported automatically. However, the naming of the
+                            // underlying struct type might lead to collisions, so importing the type
+                            // here seems like a better choice. Should be done later when the case arises.
+                            arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
+                        } else {
+                            throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
+                                                " is not yet supported in sizeof.",
+                                                x.base.base.loc);
+                        }
                     }
-                } else {
-                    arg_type = ASRUtils::expr_type(args[0].m_value);
                 }
                 ASR::ttype_t* size_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                             x.base.base.loc, 8, nullptr, 0));
@@ -6591,6 +6723,7 @@ public:
             } else if( call_name == "f64" || call_name == "f32" ||
                 call_name == "i64" || call_name == "i32" || call_name == "c32" ||
                 call_name == "c64" || call_name == "i8" || call_name == "i16" ) {
+                parse_args()
                 ASR::ttype_t* target_type = nullptr;
                 if( call_name == "i8" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 1, nullptr, 0));
@@ -6614,6 +6747,7 @@ public:
                 tmp = (ASR::asr_t*) arg;
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
+                parse_args()
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
@@ -6624,6 +6758,8 @@ public:
             }
             } // end of "comment"
         }
+
+        parse_args()
         tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
@@ -6674,7 +6810,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, lm, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir, compiler_options.import_path, allow_implicit_casting);
+        ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -6708,6 +6844,8 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
     if (main_module) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
+        LCompilers::PassOptions pass_options;
+        pass_options.disable_main = compiler_options.disable_main;
         if (compiler_options.disable_main) {
             if (tu->n_items > 0) {
                 diagnostics.add(diag::Diagnostic(
@@ -6722,18 +6860,17 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
                 // LCOMPILERS_ASSERT(asr_verify(*tu));
             }
         } else {
-            LCompilers::PassOptions pass_options;
             pass_options.run_fun = "_lpython_main_program";
             pass_options.runtime_library_dir = get_runtime_library_dir();
-            pass_wrap_global_stmts_into_program(al, *tu, pass_options);
-#if defined(WITH_LFORTRAN_ASSERT)
-            diag::Diagnostics diagnostics;
-            if (!asr_verify(*tu, true, diagnostics)) {
-                std::cerr << diagnostics.render2();
-                throw LCompilersException("Verify failed");
-            };
-#endif
         }
+        pass_wrap_global_stmts_into_program(al, *tu, pass_options);
+        #if defined(WITH_LFORTRAN_ASSERT)
+                    diag::Diagnostics diagnostics;
+                    if (!asr_verify(*tu, true, diagnostics)) {
+                        std::cerr << diagnostics.render2();
+                        throw LCompilersException("Verify failed");
+                    };
+        #endif
     }
 
     return tu;

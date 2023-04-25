@@ -203,6 +203,72 @@ macro(RUN)
     endif()
 endmacro(RUN)
 
+# only compiles till object file
+# to make sure that the generated code is syntactically correct
+# but we cannot generate an executable due to --disable-main option enabled.
+macro(COMPILE)
+    set(options FAIL)
+    set(oneValueArgs NAME IMPORT_PATH)
+    set(multiValueArgs LABELS EXTRAFILES)
+    cmake_parse_arguments(COMPILE "${options}" "${oneValueArgs}"
+                          "${multiValueArgs}" ${ARGN} )
+    set(name ${COMPILE_NAME})
+    set(import_path ${COMPILE_IMPORT_PATH})
+    if (NOT name)
+        message(FATAL_ERROR "Must specify the NAME argument")
+    endif()
+
+    if (${KIND} IN_LIST COMPILE_LABELS)
+        if (KIND STREQUAL "llvm")
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.o
+                    COMMAND lpython --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.o
+                    COMMAND lpython --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
+            add_library(${name} OBJECT ${name}.o)
+        elseif(KIND STREQUAL "c")
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
+            add_library(${name} OBJECT ${name}.c)
+            target_link_libraries(${name} lpython_rtlib)
+        elseif(KIND STREQUAL "cpython")
+            # CPython test
+            set(PY_MOD "")
+
+            add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
+            set_tests_properties(${name} PROPERTIES
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        endif()
+    endif()
+endmacro(COMPILE)
+
 
 # Test zero and non-zero exit code and assert statements
 RUN(NAME array_01_decl            LABELS cpython llvm c)
@@ -219,8 +285,10 @@ RUN(NAME bindc_01            LABELS cpython llvm c)
 RUN(NAME bindc_02            LABELS cpython llvm c)
 RUN(NAME bindc_04            LABELS llvm c)
 RUN(NAME bindc_07            LABELS cpython llvm c)
-RUN(NAME exit_01             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
-RUN(NAME exit_02     FAIL    LABELS cpython llvm c wasm wasm_x86 wasm_x64)
+RUN(NAME exit_01             LABELS cpython llvm c)
+RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
+RUN(NAME exit_03             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
+RUN(NAME exit_04     FAIL    LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_01b            LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
@@ -295,6 +363,7 @@ RUN(NAME test_dict_07        LABELS cpython llvm)
 RUN(NAME test_dict_08        LABELS cpython llvm c)
 RUN(NAME test_dict_09        LABELS cpython llvm c)
 RUN(NAME test_dict_10        LABELS cpython llvm) # TODO: Add support of dict with string in C backend
+RUN(NAME test_dict_11        LABELS cpython llvm c)
 RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME modules_02          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
@@ -303,6 +372,7 @@ RUN(NAME test_import_02      LABELS cpython llvm c)
 RUN(NAME test_import_03      LABELS cpython llvm c)
 RUN(NAME test_import_04      IMPORT_PATH ..
         LABELS cpython llvm c)
+RUN(NAME test_import_05      LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
@@ -397,6 +467,7 @@ RUN(NAME structs_20          LABELS cpython llvm c
 RUN(NAME structs_21          LABELS cpython llvm c)
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
+RUN(NAME sizeof_02           LABELS cpython llvm c)
 RUN(NAME enum_01             LABELS cpython llvm c)
 RUN(NAME enum_02             LABELS cpython llvm)
 RUN(NAME enum_03             LABELS cpython llvm c)
@@ -419,6 +490,7 @@ RUN(NAME str_to_list_cast    LABELS cpython llvm c)
 
 RUN(NAME test_package_01     LABELS cpython llvm)
 RUN(NAME test_pkg_lpdraw     LABELS cpython llvm wasm)
+RUN(NAME test_pkg_lnn        LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
 RUN(NAME generics_02         LABELS cpython llvm c)
@@ -444,7 +516,7 @@ RUN(NAME comp_01 LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME bit_operations_i32 LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME bit_operations_i64 LABELS cpython llvm c wasm)
 
-RUN(NAME test_argv_01      LABELS llvm) # TODO: Test using CPython
+RUN(NAME test_argv_01      LABELS cpython llvm)
 RUN(NAME global_syms_01    LABELS cpython llvm c)
 RUN(NAME global_syms_02    LABELS cpython llvm c)
 RUN(NAME global_syms_03_b  LABELS cpython llvm c)
@@ -453,5 +525,9 @@ RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME global_syms_05    LABELS cpython llvm c)
 RUN(NAME global_syms_06    LABELS cpython llvm c)
 
+RUN(NAME callback_01       LABELS cpython llvm)
+
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm) # any
+
+COMPILE(NAME import_order_01     LABELS cpython llvm c) # any

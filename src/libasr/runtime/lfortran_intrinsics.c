@@ -1393,23 +1393,23 @@ LFORTRAN_API int32_t _lfortran_all(bool *mask, int32_t n) {
 }
 
 // Command line arguments
-int32_t argc;
-char **argv;
+int32_t _argc;
+char **_argv;
 
 LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]) {
-    argv = malloc(argc_1 * sizeof(char *));
+    _argv = malloc(argc_1 * sizeof(char *));
     for (size_t i = 0; i < argc_1; i++) {
-        argv[i] = strdup(argv_1[i]);
+        _argv[i] = strdup(argv_1[i]);
     }
-    argc = argc_1;
+    _argc = argc_1;
 }
 
 LFORTRAN_API int32_t _lpython_get_argc() {
-    return argc;
+    return _argc;
 }
 
 LFORTRAN_API char *_lpython_get_argv(int32_t index) {
-    return argv[index];
+    return _argv[index];
 }
 
 // << Command line arguments << ------------------------------------------------

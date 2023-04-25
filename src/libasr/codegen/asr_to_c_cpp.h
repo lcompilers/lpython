@@ -1065,15 +1065,22 @@ R"(#include <stdio.h>
     void visit_DictItem(const ASR::DictItem_t& x) {
         ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
                                     ASRUtils::expr_type(x.m_a));
-        std::string dict_get_fun = c_ds_api->get_dict_get_func(dict_type);
-
         this->visit_expr(*x.m_a);
         std::string d_var = std::move(src);
 
         this->visit_expr(*x.m_key);
         std::string k = std::move(src);
 
-        src = dict_get_fun + "(&" + d_var + ", " + k + ")";
+        if (x.m_default) {
+            this->visit_expr(*x.m_default);
+            std::string def_value = std::move(src);
+            std::string dict_get_fun = c_ds_api->get_dict_get_func(dict_type,
+                                                                    true);
+            src = dict_get_fun + "(&" + d_var + ", " + k + ", " + def_value + ")";
+        } else {
+            std::string dict_get_fun = c_ds_api->get_dict_get_func(dict_type);
+            src = dict_get_fun + "(&" + d_var + ", " + k + ")";
+        }
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {

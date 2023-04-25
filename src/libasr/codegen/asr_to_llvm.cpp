@@ -281,34 +281,6 @@ public:
         builder->SetInsertPoint(bb);
     }
 
-    // Note: `create_if_else` and `create_loop` are optional APIs
-    // that do not have to be used. Many times, for more complicated
-    // things, it might be more readable to just use the LLVM API
-    // without any extra layer on top. In some other cases, it might
-    // be more readable to use this abstraction.
-    // The `if_block` and `else_block` must generate one or more blocks. In
-    // addition, the `if_block` must not be terminated, we terminate it
-    // ourselves. The `else_block` can be either terminated or not.
-    template <typename IF, typename ELSE>
-    void create_if_else(llvm::Value * cond, IF if_block, ELSE else_block) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB); {
-            if_block();
-        }
-        builder->CreateBr(mergeBB);
-
-        start_new_block(elseBB); {
-            else_block();
-        }
-        start_new_block(mergeBB);
-    }
-
     template <typename Cond, typename Body>
     void create_loop(char *name, Cond condition, Body loop_body) {
         dict_api_lp->set_iterators();
@@ -1487,7 +1459,7 @@ public:
                 }
             }
             llvm::Value *cond = arr_descr->get_is_allocated_flag(tmp);
-            create_if_else(cond, [=]() {
+            llvm_utils->create_if_else(cond, [=]() {
                 call_lfortran_free(free_fn);
             }, [](){});
         }
@@ -1793,10 +1765,22 @@ public:
         this->visit_expr_wrapper(x.m_key, true);
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
-
-        set_dict_api(dict_type);
-        tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
+        if (x.m_default) {
+            llvm::Type *val_type = get_type_from_ttype_t_util(dict_type->m_value_type);
+            llvm::Value *def_value_ptr = builder->CreateAlloca(val_type, nullptr);
+            ptr_loads = !LLVM::is_llvm_struct(dict_type->m_value_type);
+            this->visit_expr_wrapper(x.m_default, true);
+            ptr_loads = ptr_loads_copy;
+            builder->CreateStore(tmp, def_value_ptr);
+            set_dict_api(dict_type);
+            tmp = llvm_utils->dict_api->get_item(pdict, key, *module, dict_type, def_value_ptr,
                                   LLVM::is_llvm_struct(dict_type->m_value_type));
+        } else {
+            set_dict_api(dict_type);
+            tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
+                                    compiler_options.enable_bounds_checking,
+                                    LLVM::is_llvm_struct(dict_type->m_value_type));
+        }
     }
 
     void visit_DictPop(const ASR::DictPop_t& x) {
@@ -5181,7 +5165,7 @@ public:
 
     void visit_If(const ASR::If_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
-        create_if_else(tmp, [=]() {
+        llvm_utils->create_if_else(tmp, [=]() {
             for (size_t i=0; i<x.n_body; i++) {
                 this->visit_stmt(*x.m_body[i]);
             }
@@ -5198,7 +5182,7 @@ public:
         llvm::Value *cond = tmp;
         llvm::Value *then_val = nullptr;
         llvm::Value *else_val = nullptr;
-        create_if_else(cond, [=, &then_val]() {
+        llvm_utils->create_if_else(cond, [=, &then_val]() {
             this->visit_expr_wrapper(x.m_body, true);
             then_val = tmp;
         }, [=, &else_val]() {
@@ -5354,7 +5338,7 @@ public:
         }
         switch (x.m_op) {
             case ASR::logicalbinopType::And: {
-                create_if_else(cond, [&, result, left_val]() {
+                llvm_utils->create_if_else(cond, [&, result, left_val]() {
                     LLVM::CreateStore(*builder, left_val, result);
                 }, [&, result, right_val]() {
                     LLVM::CreateStore(*builder, right_val, result);
@@ -5363,7 +5347,7 @@ public:
                 break;
             };
             case ASR::logicalbinopType::Or: {
-                create_if_else(cond, [&, result, right_val]() {
+                llvm_utils->create_if_else(cond, [&, result, right_val]() {
                     LLVM::CreateStore(*builder, right_val, result);
 
                 }, [&, result, left_val]() {
@@ -5895,7 +5879,7 @@ public:
     void visit_Assert(const ASR::Assert_t &x) {
         if (compiler_options.emit_debug_info) debug_emit_loc(x);
         this->visit_expr_wrapper(x.m_test, true);
-        create_if_else(tmp, []() {}, [=]() {
+        llvm_utils->create_if_else(tmp, []() {}, [=]() {
             if (compiler_options.emit_debug_info) {
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
                 llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
