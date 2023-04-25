@@ -5762,6 +5762,16 @@ public:
                                         ASR::make_Var_t(al, x.base.base.loc, t));
                     handle_attribute(te, at->m_attr, x.base.base.loc, elements);
                     return;
+                } else if (AST::is_a<AST::Attribute_t>(*at->m_value)) {
+                    AST::Attribute_t *at2 = AST::down_cast<AST::Attribute_t>(at->m_value);
+                    if (AST::is_a<AST::Name_t>(*at->m_value)) {
+                        std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
+                        ASR::symbol_t *t = current_scope->resolve_symbol(value);
+                        if (!t) {
+                            throw SemanticError("'" + value + "' is not defined in the scope",
+                                x.base.base.loc);
+                        }
+                    }
                 }
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",
