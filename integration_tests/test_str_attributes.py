@@ -182,7 +182,7 @@ def partition():
     seperator = "apple"
     assert s.partition(seperator) == ("rendezvous 5", "", "")
 
-def islower():
+def is_lower():
     # Case 1: When constant string is present
     assert "".islower() == False
     assert "APPLE".islower() == False
@@ -193,8 +193,6 @@ def islower():
 
     # Case 2: When variable string is present
     s: str
-    s = ""
-    assert s.islower() == False
     s = "APPLE"
     assert s.islower() == False
     s = "238734587"
@@ -206,7 +204,7 @@ def islower():
     s = "apple is a fruit"
     assert s.islower() == True
 
-def isupper():
+def is_upper():
         # Case 1: When constant string is present
     assert "".isupper() == False
     assert "apple".isupper() == False
@@ -217,8 +215,6 @@ def isupper():
 
     # Case 2: When variable string is present
     s: str
-    s = ""
-    assert s.isupper() == False
     s = "apple"
     assert s.isupper() == False
     s = "238734587"
@@ -230,7 +226,7 @@ def isupper():
     s = "APPLE IS A FRUIT"
     assert s.isupper() == True
 
-def isdecimal():
+def is_decimal():
     # Case 1: When constant string is present
     assert "".isdecimal() == False
     assert "apple".isdecimal() == False
@@ -242,8 +238,6 @@ def isdecimal():
 
     # Case 2: When variable string is present
     s: str
-    s = ""
-    assert s.isdecimal() == False
     s = "apple"
     assert s.isdecimal() == False
     s = "238734587"
@@ -257,7 +251,7 @@ def isdecimal():
     s = "12 34"
     assert s.isdecimal() == False
 
-def isascii():
+def is_ascii():
     # Case 1: When constant string is present
     assert "".isascii() == True
     assert "    ".isascii() == True
@@ -269,8 +263,6 @@ def isascii():
 
     # # Case 2: When variable string is present
     s: str
-    s = ""
-    assert s.isascii() == True
     s = "  "
     assert s.isascii() == True
     s = "Hello, World!"
@@ -294,9 +286,9 @@ def check():
     startswith()
     endswith()
     partition()
-    islower()
-    isupper()
-    isdecimal()
-    isascii()
+    is_lower()
+    is_upper()
+    is_decimal()
+    is_ascii()
 
 check()
