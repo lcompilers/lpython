@@ -74,15 +74,15 @@ class ASRBuilder {
         ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
 
     #define Variable(var_name, type, intent)                                    \
-        create_variable(var_name, #var_name, ASR::intentType::Local,            \
-            ASR::abiType::Source, false, fn_symtab, type)                       \
+        create_variable(var_name, #var_name, ASR::intentType::intent,           \
+            ASR::abiType::Source, false, fn_symtab, type)
 
     #define make_Function_t(name, symtab, dep, args, body, return_var, abi,     \
             deftype, bindc_name)                                                \
         ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,  \
         symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,    \
         return_var, ASR::abiType::abi, ASR::accessType::Public,                 \
-        ASR::deftypeType::deftype, bindc_name, false, false, false, false,
+        ASR::deftypeType::deftype, bindc_name, false, false, false, false,      \
         false, nullptr, 0, nullptr, 0, false, false, false));
 
     #define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body,    \
@@ -342,13 +342,11 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     Vec<ASR::expr_t*> args;
     {
         args.reserve(al, 1);
-        create_variable(arg, "x", ASR::intentType::In, ASR::abiType::Source,
-            false, fn_symtab, arg_type);
-        args.push_back(al, arg);
+        Variable(x, arg_type, In);
+        args.push_back(al, x);
     }
 
-    create_variable(return_var, new_name, ASRUtils::intent_return_var,
-        ASR::abiType::Source, false, fn_symtab, arg_type);
+    Variable(result, arg_type, ReturnVar);
 
     Vec<ASR::stmt_t*> body;
     body.reserve(al, 1);
@@ -382,13 +380,13 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             arg.m_value = args[0];
             call_args.push_back(al, arg);
         }
-        body.push_back(al, Assign(return_var,
+        body.push_back(al, Assign(result,
             ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
             call_args.p, call_args.n, arg_type, nullptr, nullptr))));
     }
 
     ASR::symbol_t *new_symbol = make_Function_t(new_name, fn_symtab, dep, args,
-        body, return_var, Source, Implementation, nullptr);
+        body, result, Source, Implementation, nullptr);
     global_scope->add_symbol(new_name, new_symbol);
     return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
         new_symbol, new_args.p, new_args.size(), arg_type, value, nullptr));
@@ -427,15 +425,12 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     Vec<ASR::expr_t*> args;
     {
         args.reserve(al, 2);
-        create_variable(arg_1, "target_string", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, character(-2));
-        args.push_back(al, arg_1);
-        create_variable(arg_2, "pattern", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, character(-2));
-        args.push_back(al, arg_2);
+        Variable(target_string, character(-2), In);
+        args.push_back(al, target_string);
+        Variable(pattern, character(-2), In);
+        args.push_back(al, pattern);
     }
-    create_variable(result, "result", ASRUtils::intent_return_var,
-        ASR::abiType::Source, false, fn_symtab, int32);
+    Variable(result, int32, ReturnVar);
 
     Vec<ASR::stmt_t*> body;
     body.reserve(al, 1);
@@ -443,13 +438,13 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     SetChar dep;
     dep.reserve(al, 1);
     {
-        Variable(pi_len, int32)
-        Variable(i, int32)
-        Variable(j, int32)
-        Variable(s_len, int32)
-        Variable(pat_len, int32)
-        Variable(flag, logical)
-        Variable(lps, List(int32))
+        Variable(pi_len, int32, Local)
+        Variable(i, int32, Local)
+        Variable(j, int32, Local)
+        Variable(s_len, int32, Local)
+        Variable(pat_len, int32, Local)
+        Variable(flag, logical, Local)
+        Variable(lps, List(int32), Local)
 
         body.push_back(al, Assign(s_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[0], int32, nullptr))));
@@ -844,13 +839,11 @@ namespace Abs {
         Vec<ASR::expr_t*> args;
         {
             args.reserve(al, 1);
-            create_variable(arg, "x", ASR::intentType::In, ASR::abiType::Source,
-                false, fn_symtab, arg_types[0]);
-            args.push_back(al, arg);
+            Variable(x, arg_types[0], In)
+            args.push_back(al, x);
         }
 
-        create_variable(return_var, func_name, ASRUtils::intent_return_var,
-            ASR::abiType::Source, false, fn_symtab, return_type);
+        Variable(result, return_type, ReturnVar);
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 1);
@@ -882,16 +875,16 @@ namespace Abs {
             }
 
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
-            if_body.push_back(al, Assign(return_var, args[0]));
+            if_body.push_back(al, Assign(result, args[0]));
             Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
-            else_body.push_back(al, Assign(return_var, negative_x));
+            else_body.push_back(al, Assign(result, negative_x));
             body.push_back(al, STMT(ASR::make_If_t(al, loc, test,
                 if_body.p, if_body.n, else_body.p, else_body.n)));
         } else {
             // * Complex type: `r = (real(x)**2 + aimag(x)**2)**0.5`
             ASR::ttype_t *real_type = TYPE(ASR::make_Real_t(al, loc,
                 extract_kind_from_ttype_t(arg_types[0]), nullptr, 0));
-            ASR::Variable_t *r_var = ASR::down_cast<ASR::Variable_t>(sym_return_var);
+            ASR::Variable_t *r_var = ASR::down_cast<ASR::Variable_t>(sym_result);
             r_var->m_type = return_type = real_type;
             ASR::expr_t *aimag_of_x;
             {
@@ -944,13 +937,13 @@ namespace Abs {
             bin_op_1 = EXPR(ASR::make_RealBinOp_t(al, loc, bin_op_1,
                 ASR::binopType::Add, bin_op_2, real_type, nullptr));
 
-            body.push_back(al, Assign(return_var, EXPR(ASR::make_RealBinOp_t(al,
+            body.push_back(al, Assign(result, EXPR(ASR::make_RealBinOp_t(al,
                 loc, bin_op_1, ASR::binopType::Pow, constant_point_five,
                 real_type, nullptr))));
         }
 
         ASR::symbol_t *f_sym = make_Function_t(func_name, fn_symtab, dep, args,
-            body, return_var, Source, Implementation, nullptr);
+            body, result, Source, Implementation, nullptr);
         scope->add_symbol(func_name, f_sym);
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, f_sym, f_sym,
             new_args.p, new_args.size(), return_type, compile_time_value, nullptr));
@@ -1161,17 +1154,15 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     {
         args.reserve(al, 1);
         ASR::ttype_t* mask_type = ASRUtils::duplicate_type_with_empty_dims(al, arg_type);
-        create_variable(mask_arg, "mask", ASR::intentType::In, ASR::abiType::Source,
-            false, fn_symtab, mask_type);
-        args.push_back(al, mask_arg);
+        Variable(mask, mask_type, In);
+        args.push_back(al, mask);
         if( overload_id == 1 ) {
             ASR::ttype_t* dim_type = ASRUtils::expr_type(new_args[1].m_value);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Integer_t>(*dim_type));
             int kind = ASRUtils::extract_kind_from_ttype_t(dim_type);
             LCOMPILERS_ASSERT(kind == 4);
-            create_variable(dim_arg, "dim", ASR::intentType::In, ASR::abiType::Source,
-                false, fn_symtab, dim_type);
-            args.push_back(al, dim_arg);
+            Variable(dim, dim_type, In);
+            args.push_back(al, dim);
 
             Vec<ASR::dimension_t> dims;
             size_t n_dims = ASRUtils::extract_n_dims_from_ttype(arg_type);
@@ -1187,18 +1178,16 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
             logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
                                     al, loc, 4, dims.p, dims.size()));
             if( result_dims > 0 ) {
-                create_variable(result_arg, "result", ASR::intentType::Out, ASR::abiType::Source,
-                    false, fn_symtab, logical_return_type);
-                args.push_back(al, result_arg);
+                Variable(result, logical_return_type, Out);
+                args.push_back(al, result);
             }
         }
     }
 
     ASR::expr_t* return_var = nullptr;
     if( result_dims == 0 ) {
-        create_variable(return_var_, new_name, ASRUtils::intent_return_var,
-            ASR::abiType::Source, false, fn_symtab, logical_return_type);
-        return_var = return_var_;
+        Variable(result, logical_return_type, ReturnVar);
+        return_var = result;
     }
 
     Vec<ASR::stmt_t*> body;
@@ -1321,16 +1310,13 @@ namespace Partition {
         Vec<ASR::expr_t*> args;
         {
             args.reserve(al, 2);
-            create_variable(arg_1, "target_string", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, character(-2));
-            args.push_back(al, arg_1);
-            create_variable(arg_2, "pattern", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, character(-2));
-            args.push_back(al, arg_2);
+            Variable(target_string, character(-2), In);
+            args.push_back(al, target_string);
+            Variable(pattern, character(-2), In);
+            args.push_back(al, pattern);
         }
         ASR::ttype_t *return_type = b.Tuple(loc, {character(-2), character(-2), character(-2)});
-        create_variable(result, "result", ASRUtils::intent_return_var,
-            ASR::abiType::Source, false, fn_symtab, return_type);
+        Variable(result, return_type, ReturnVar)
 
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 1);
@@ -1338,7 +1324,7 @@ namespace Partition {
         SetChar dep;
         dep.reserve(al, 1);
         {
-            Variable(index, int32)
+            Variable(index, int32, Local)
             ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
                 al, loc, scope);
             Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
