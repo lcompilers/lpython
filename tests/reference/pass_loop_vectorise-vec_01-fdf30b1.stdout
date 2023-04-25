@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        191
+                        199
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        190
+                                        198
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [loop_vec]
                                     []
                                     [(SubroutineCall
-                                        191 loop_vec
+                                        199 loop_vec
                                         ()
                                         []
                                         ()
@@ -46,11 +46,11 @@
                             loop_vec:
                                 (Function
                                     (SymbolTable
-                                        185
+                                        193
                                         {
                                             a:
                                                 (Variable
-                                                    185
+                                                    193
                                                     a
                                                     []
                                                     Local
@@ -66,7 +66,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    185
+                                                    193
                                                     b
                                                     []
                                                     Local
@@ -82,7 +82,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    185
+                                                    193
                                                     i
                                                     []
                                                     Local
@@ -98,11 +98,11 @@
                                             vector_copy_f64f64i32@IntrinsicOptimization:
                                                 (Function
                                                     (SymbolTable
-                                                        192
+                                                        200
                                                         {
                                                             __1_k:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     __1_k
                                                                     []
                                                                     Local
@@ -117,7 +117,7 @@
                                                                 ),
                                                             arg0:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg0
                                                                     []
                                                                     In
@@ -133,7 +133,7 @@
                                                                 ),
                                                             arg1:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg1
                                                                     []
                                                                     In
@@ -149,7 +149,7 @@
                                                                 ),
                                                             arg2:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg2
                                                                     []
                                                                     In
@@ -164,7 +164,7 @@
                                                                 ),
                                                             arg3:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg3
                                                                     []
                                                                     In
@@ -179,7 +179,7 @@
                                                                 ),
                                                             arg4:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg4
                                                                     []
                                                                     In
@@ -194,7 +194,7 @@
                                                                 ),
                                                             arg5:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg5
                                                                     []
                                                                     In
@@ -232,18 +232,18 @@
                                                         .false.
                                                     )
                                                     []
-                                                    [(Var 192 arg0)
-                                                    (Var 192 arg1)
-                                                    (Var 192 arg2)
-                                                    (Var 192 arg3)
-                                                    (Var 192 arg4)
-                                                    (Var 192 arg5)]
+                                                    [(Var 200 arg0)
+                                                    (Var 200 arg1)
+                                                    (Var 200 arg2)
+                                                    (Var 200 arg3)
+                                                    (Var 200 arg4)
+                                                    (Var 200 arg5)]
                                                     [(=
-                                                        (Var 192 __1_k)
+                                                        (Var 200 __1_k)
                                                         (IntegerBinOp
-                                                            (Var 192 arg2)
+                                                            (Var 200 arg2)
                                                             Sub
-                                                            (Var 192 arg4)
+                                                            (Var 200 arg4)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -253,23 +253,23 @@
                                                         ()
                                                         (IntegerCompare
                                                             (IntegerBinOp
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 Add
-                                                                (Var 192 arg4)
+                                                                (Var 200 arg4)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
                                                             Lt
-                                                            (Var 192 arg3)
+                                                            (Var 200 arg3)
                                                             (Logical 4 [])
                                                             ()
                                                         )
                                                         [(=
-                                                            (Var 192 __1_k)
+                                                            (Var 200 __1_k)
                                                             (IntegerBinOp
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 Add
-                                                                (Var 192 arg4)
+                                                                (Var 200 arg4)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -277,18 +277,18 @@
                                                         )
                                                         (=
                                                             (ArrayItem
-                                                                (Var 192 arg0)
+                                                                (Var 200 arg0)
                                                                 [(()
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 ())]
                                                                 (Real 8 [])
                                                                 RowMajor
                                                                 ()
                                                             )
                                                             (ArrayItem
-                                                                (Var 192 arg1)
+                                                                (Var 200 arg1)
                                                                 [(()
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 ())]
                                                                 (Real 8 [])
                                                                 RowMajor
@@ -323,7 +323,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4 []))
@@ -335,9 +335,9 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 185 b)
+                                                (Var 193 b)
                                                 [(()
-                                                (Var 185 i)
+                                                (Var 193 i)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
@@ -352,17 +352,17 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerConstant 1151 (Integer 4 []))
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(SubroutineCall
-                                            185 vector_copy_f64f64i32@IntrinsicOptimization
+                                            193 vector_copy_f64f64i32@IntrinsicOptimization
                                             ()
-                                            [((Var 185 a))
-                                            ((Var 185 b))
+                                            [((Var 193 a))
+                                            ((Var 193 b))
                                             ((IntegerBinOp
-                                                (Var 185 i)
+                                                (Var 193 i)
                                                 Mul
                                                 (IntegerConstant 8 (Integer 4 []))
                                                 (Integer 4 [])
@@ -370,7 +370,7 @@
                                             ))
                                             ((IntegerBinOp
                                                 (IntegerBinOp
-                                                    (Var 185 i)
+                                                    (Var 193 i)
                                                     Add
                                                     (IntegerConstant 1 (Integer 4 []))
                                                     (Integer 4 [])
@@ -388,7 +388,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4 []))
@@ -401,9 +401,9 @@
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem
-                                                    (Var 185 a)
+                                                    (Var 193 a)
                                                     [(()
-                                                    (Var 185 i)
+                                                    (Var 193 i)
                                                     ())]
                                                     (Real 8 [])
                                                     RowMajor
@@ -436,13 +436,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        189
+                        197
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    189
+                                    197
                                     _lpython_main_program
-                                    191 _lpython_main_program
+                                    199 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -452,7 +452,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        189 _lpython_main_program
+                        197 _lpython_main_program
                         ()
                         []
                         ()

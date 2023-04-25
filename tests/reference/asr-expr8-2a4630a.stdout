@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        111
+                        119
                         {
                             test_binop:
                                 (Function
@@ -436,7 +436,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        110
+                        118
                         {
                             
                         })

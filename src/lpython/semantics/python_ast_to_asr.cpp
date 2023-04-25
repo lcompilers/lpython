@@ -6048,6 +6048,24 @@ public:
             fn_args.push_back(al, str);
             fn_args.push_back(al, seperator);
 
+        } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                String Validation Methods i.e all "is" based functions are handled here 
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+            fn_call_name = "_lpython_str_" + attr_name;
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -6402,6 +6420,99 @@ public:
             }
             create_partition(loc, s_var, arg_seperator, arg_seperator_type);
             return;
+        } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                * Specification - 
+
+                Return True if all cased characters [lowercase, uppercase, titlecase] in the string 
+                are lowercase and there is at least one cased character, False otherwise.
+
+                * islower() method is limited to English Alphabets currently
+                * TODO: We can support other characters from Unicode Library
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+
+            if(attr_name == "islower") {
+                /*
+                    * Specification: 
+                    Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'a' && i <= 'z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isupper") {
+                /*
+                    * Specification: 
+                    Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'A' && i <= 'Z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isdecimal") {
+                /*
+                    * Specification: 
+                    Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
+                */
+                bool is_decimal = (s_var.size() != 0);
+                for(auto &i: s_var) {
+                    if(i < '0' || i > '9') {
+                        is_decimal = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_decimal,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isascii") {
+                /*
+                    * Specification - 
+                    Return True if the string is empty or all characters in the string are ASCII, False otherwise. 
+                    ASCII characters have code points in the range U+0000-U+007F.
+                */
+                bool is_ascii = true;
+                for(char i: s_var) {
+                    if (static_cast<unsigned int>(i) > 127) {
+                        is_ascii = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_ascii,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else {
+                throw SemanticError("'str' object has no attribute '" + attr_name + "'", loc);
+            }
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
                     loc);

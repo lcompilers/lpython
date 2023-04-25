@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        188
+                        196
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        187
+                                        195
                                         {
                                             
                                         })
@@ -33,19 +33,19 @@
                                     [f]
                                     []
                                     [(CPtrToPointer
-                                        (Var 188 queries)
-                                        (Var 188 x)
+                                        (Var 196 queries)
+                                        (Var 196 x)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 188 queries)
-                                        (Var 188 x)]
+                                        [(Var 196 queries)
+                                        (Var 196 x)]
                                         ()
                                         ()
                                     )
                                     (SubroutineCall
-                                        188 f
+                                        196 f
                                         ()
                                         []
                                         ()
@@ -58,11 +58,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        185
+                                        193
                                         {
                                             y:
                                                 (Variable
-                                                    185
+                                                    193
                                                     y
                                                     []
                                                     Local
@@ -78,7 +78,7 @@
                                                 ),
                                             yptr1:
                                                 (Variable
-                                                    185
+                                                    193
                                                     yptr1
                                                     []
                                                     Local
@@ -96,7 +96,7 @@
                                                 ),
                                             yq:
                                                 (Variable
-                                                    185
+                                                    193
                                                     yq
                                                     []
                                                     Local
@@ -130,7 +130,7 @@
                                     []
                                     [(=
                                         (ArrayItem
-                                            (Var 185 y)
+                                            (Var 193 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())]
@@ -148,7 +148,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 185 y)
+                                            (Var 193 y)
                                             [(()
                                             (IntegerConstant 1 (Integer 4 []))
                                             ())]
@@ -165,9 +165,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 185 yptr1)
+                                        (Var 193 yptr1)
                                         (GetPointer
-                                            (Var 185 y)
+                                            (Var 193 y)
                                             (Pointer
                                                 (Integer 2 [((IntegerConstant 0 (Integer 4 []))
                                                 (IntegerConstant 2 (Integer 4 [])))])
@@ -179,21 +179,21 @@
                                     (Print
                                         ()
                                         [(GetPointer
-                                            (Var 185 y)
+                                            (Var 193 y)
                                             (Pointer
                                                 (Integer 2 [((IntegerConstant 0 (Integer 4 []))
                                                 (IntegerConstant 2 (Integer 4 [])))])
                                             )
                                             ()
                                         )
-                                        (Var 185 yptr1)]
+                                        (Var 193 yptr1)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
                                         [(ArrayItem
-                                            (Var 185 yptr1)
+                                            (Var 193 yptr1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())]
@@ -202,7 +202,7 @@
                                             ()
                                         )
                                         (ArrayItem
-                                            (Var 185 yptr1)
+                                            (Var 193 yptr1)
                                             [(()
                                             (IntegerConstant 1 (Integer 4 []))
                                             ())]
@@ -216,7 +216,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 185 yptr1)
+                                                (Var 193 yptr1)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 ())]
@@ -239,7 +239,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 185 yptr1)
+                                                (Var 193 yptr1)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4 []))
                                                 ())]
@@ -260,14 +260,14 @@
                                         ()
                                     )
                                     (CPtrToPointer
-                                        (Var 185 yq)
-                                        (Var 185 yptr1)
+                                        (Var 193 yq)
+                                        (Var 193 yptr1)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 185 yq)
-                                        (Var 185 yptr1)]
+                                        [(Var 193 yq)
+                                        (Var 193 yptr1)]
                                         ()
                                         ()
                                     )]
@@ -278,7 +278,7 @@
                                 ),
                             queries:
                                 (Variable
-                                    188
+                                    196
                                     queries
                                     []
                                     Local
@@ -293,7 +293,7 @@
                                 ),
                             x:
                                 (Variable
-                                    188
+                                    196
                                     x
                                     []
                                     Local
@@ -320,13 +320,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        186
+                        194
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    186
+                                    194
                                     _lpython_main_program
-                                    188 _lpython_main_program
+                                    196 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -336,7 +336,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        186 _lpython_main_program
+                        194 _lpython_main_program
                         ()
                         []
                         ()
