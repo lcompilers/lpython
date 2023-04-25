@@ -54,51 +54,131 @@ enum class IntrinsicFunctions : int64_t {
     // ...
 };
 
-// macro definitions
-// Symbols
-#define create_variable(var, name, intent, abi, value_attr, symtab, type)       \
-    ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(                   \
-        ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,        \
-        intent, nullptr, nullptr, ASR::storage_typeType::Default, type, abi,    \
-        ASR::Public, ASR::presenceType::Required, value_attr));                 \
-    symtab->add_symbol(s2c(al, name), sym_##var);                               \
-    ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
 
-#define Variable(var_name, type)                                                \
-    create_variable(var_name, #var_name, ASR::intentType::Local,                \
-        ASR::abiType::Source, false, fn_symtab, type)                           \
+class ASRBuilder {
+    private:
 
-#define make_Function_t(name, symtab, dep, args, body, return_var, abi, deftype,\
-        bindc_name)                                                             \
-    ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
-    symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
-    return_var, ASR::abiType::abi, ASR::accessType::Public,                     \
-    ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
-    nullptr, 0, nullptr, 0, false, false, false));
+    Allocator& al;
 
-#define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body, abi,   \
-        deftype, bindc_name)                                                    \
-    ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
-    symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
-    nullptr, ASR::abiType::abi, ASR::accessType::Public,                        \
-    ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
-    nullptr, 0, nullptr, 0, false, false, false));
+    public:
 
-// Types
-#define int32   TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
-#define logical TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
-#define _str    TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
-#define List(x) TYPE(ASR::make_List_t(al, loc, x))
+    ASRBuilder(Allocator& al_): al(al_) {}
 
-// Expressions
-#define i32(x) EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
-// macro definitions
+    // Symbols -----------------------------------------------------------------
+    #define create_variable(var, name, intent, abi, value_attr, symtab, type)       \
+        ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(                   \
+            ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,        \
+            intent, nullptr, nullptr, ASR::storage_typeType::Default, type, abi,    \
+            ASR::Public, ASR::presenceType::Required, value_attr));                 \
+        symtab->add_symbol(s2c(al, name), sym_##var);                               \
+        ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
 
-namespace ControlFlowConstructorAPI {
+    #define Variable(var_name, type)                                                \
+        create_variable(var_name, #var_name, ASR::intentType::Local,                \
+            ASR::abiType::Source, false, fn_symtab, type)                           \
+
+    #define make_Function_t(name, symtab, dep, args, body, return_var, abi, deftype,\
+            bindc_name)                                                             \
+        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
+        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
+        return_var, ASR::abiType::abi, ASR::accessType::Public,                     \
+        ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
+        nullptr, 0, nullptr, 0, false, false, false));
+
+    #define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body, abi,   \
+            deftype, bindc_name)                                                    \
+        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
+        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
+        nullptr, ASR::abiType::abi, ASR::accessType::Public,                        \
+        ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
+        nullptr, 0, nullptr, 0, false, false, false));
+
+    // Types -------------------------------------------------------------------
+    #define int32     TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
+    #define logical   TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
+    #define character TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, nullptr, 0))
+    #define List(x)   TYPE(ASR::make_List_t(al, loc, x))
+
+    // Expressions -------------------------------------------------------------
+    #define i32(x)  EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
+    #define bool(x) EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
+
+    #define make_Compare(Constructor, left, op, right, loc) ASRUtils::EXPR(ASR::Constructor( \
+        al, loc, left, op, right, \
+        ASRUtils::TYPE(ASR::make_Logical_t( \
+            al, loc, 4, nullptr, 0)), nullptr)); \
+
+    #define create_ElementalBinOp(OpType, BinOpName, OpName) case ASR::ttypeType::OpType: { \
+        return ASRUtils::EXPR(ASR::BinOpName(al, loc, \
+                left, ASR::binopType::OpName, right, \
+                ASRUtils::expr_type(left), nullptr)); \
+    } \
+
+    ASR::expr_t* ElementalAdd(ASR::expr_t* left, ASR::expr_t* right,
+        const Location& loc) {
+        switch (ASRUtils::expr_type(left)->type) {
+            create_ElementalBinOp(Real, make_RealBinOp_t, Add)
+            create_ElementalBinOp(Integer, make_IntegerBinOp_t, Add)
+            create_ElementalBinOp(Complex, make_ComplexBinOp_t, Add)
+            default: {
+                throw LCompilersException("Expression type, " +
+                                          std::to_string(left->type) +
+                                          " not yet supported");
+            }
+        }
+    }
+
+    ASR::expr_t* ElementalPow(ASR::expr_t* left, ASR::expr_t* right,
+        const Location& loc) {
+        switch (ASRUtils::expr_type(left)->type) {
+            create_ElementalBinOp(Real, make_RealBinOp_t, Pow)
+            create_ElementalBinOp(Integer, make_IntegerBinOp_t, Pow)
+            create_ElementalBinOp(Complex, make_ComplexBinOp_t, Pow)
+            default: {
+                throw LCompilersException("Expression type, " +
+                                          std::to_string(left->type) +
+                                          " not yet supported");
+            }
+        }
+    }
+
+    ASR::expr_t* ElementalOr(ASR::expr_t* left, ASR::expr_t* right,
+        const Location& loc) {
+        return ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
+            left, ASR::Or, right,
+            ASRUtils::TYPE(ASR::make_Logical_t( al, loc, 4,
+                nullptr, 0)), nullptr));
+    }
+
+    ASR::expr_t* Or(ASR::expr_t* left, ASR::expr_t* right,
+        const Location& loc) {
+        return ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
+            left, ASR::Or, right, ASRUtils::expr_type(left),
+            nullptr));
+    }
+
+    ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::call_arg_t>& args,
+                      ASR::ttype_t* return_type,
+                      const Location& loc) {
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                s, s, args.p, args.size(), return_type, nullptr, nullptr));
+    }
+
+    ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::call_arg_t>& args,
+                      ASR::ttype_t* return_type, ASR::expr_t* value,
+                      const Location& loc) {
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                s, s, args.p, args.size(), return_type, value, nullptr));
+    }
+
+    // Statements --------------------------------------------------------------
+    ASR::stmt_t* Assign(ASR::expr_t* lhs, ASR::expr_t* rhs, const Location& loc) {
+        return ASRUtils::STMT(ASR::make_Assignment_t(al, loc, lhs, rhs, nullptr));
+    }
+
     template <typename LOOP_BODY>
     ASR::stmt_t* create_do_loop(
-        Allocator& al, const Location& loc,
-        int rank, ASR::expr_t* array,
+        const Location& loc, int rank, ASR::expr_t* array,
         SymbolTable* scope, Vec<ASR::expr_t*>& idx_vars,
         Vec<ASR::stmt_t*>& doloop_body, LOOP_BODY loop_body) {
         PassUtils::create_idx_vars(idx_vars, rank, loc, al, scope, "_i");
@@ -126,14 +206,9 @@ namespace ControlFlowConstructorAPI {
 
     template <typename LOOP_BODY>
     ASR::stmt_t* create_do_loop(
-        Allocator& al, const Location& loc,
-        ASR::expr_t* array, ASR::expr_t* result,
+        const Location& loc, ASR::expr_t* array,
         Vec<ASR::expr_t*>& loop_vars, std::vector<int>& loop_dims,
         Vec<ASR::stmt_t*>& doloop_body, LOOP_BODY loop_body) {
-
-        if( result ) {
-
-        }
 
         ASR::stmt_t* doloop = nullptr;
         for( int i = (int) loop_vars.size() - 1; i >= 0; i-- ) {
@@ -155,7 +230,71 @@ namespace ControlFlowConstructorAPI {
         }
         return doloop;
     }
-}
+
+    template <typename INIT, typename LOOP_BODY>
+    void generate_reduction_intrinsic_stmts_for_scalar_output(const Location& loc,
+    ASR::expr_t* array, SymbolTable* fn_scope,
+    Vec<ASR::stmt_t*>& fn_body, Vec<ASR::expr_t*>& idx_vars,
+    Vec<ASR::stmt_t*>& doloop_body, INIT init_stmts, LOOP_BODY loop_body) {
+        init_stmts();
+        int rank = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+        ASR::stmt_t* doloop = create_do_loop(loc,
+            rank, array, fn_scope, idx_vars, doloop_body,
+            loop_body);
+        fn_body.push_back(al, doloop);
+    }
+
+    template <typename INIT, typename LOOP_BODY>
+    void generate_reduction_intrinsic_stmts_for_array_output(const Location& loc,
+        ASR::expr_t* array, ASR::expr_t* dim, SymbolTable* fn_scope,
+        Vec<ASR::stmt_t*>& fn_body, Vec<ASR::expr_t*>& idx_vars,
+        Vec<ASR::expr_t*>& target_idx_vars, Vec<ASR::stmt_t*>& doloop_body,
+        INIT init_stmts, LOOP_BODY loop_body) {
+        init_stmts();
+        int n_dims = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+        ASR::stmt_t** else_ = nullptr;
+        size_t else_n = 0;
+        idx_vars.reserve(al, n_dims);
+        PassUtils::create_idx_vars(idx_vars, n_dims, loc, al, fn_scope, "_j");
+        for( int i = 1; i <= n_dims; i++ ) {
+            ASR::expr_t* current_dim = i32(i);
+            ASR::expr_t* test_expr = make_Compare(make_IntegerCompare_t, dim,
+                                        ASR::cmpopType::Eq, current_dim, loc);
+
+            Vec<ASR::expr_t*> loop_vars;
+            std::vector<int> loop_dims;
+            loop_dims.reserve(n_dims);
+            loop_vars.reserve(al, n_dims);
+            target_idx_vars.reserve(al, n_dims - 1);
+            for( int j = 1; j <= n_dims; j++ ) {
+                if( j == i ) {
+                    continue ;
+                }
+                target_idx_vars.push_back(al, idx_vars[j - 1]);
+                loop_dims.push_back(j);
+                loop_vars.push_back(al, idx_vars[j - 1]);
+            }
+            loop_dims.push_back(i);
+            loop_vars.push_back(al, idx_vars[i - 1]);
+
+            ASR::stmt_t* doloop = create_do_loop(loc,
+            array, loop_vars, loop_dims, doloop_body,
+            loop_body);
+            Vec<ASR::stmt_t*> if_body;
+            if_body.reserve(al, 1);
+            if_body.push_back(al, doloop);
+            ASR::stmt_t* if_ = ASRUtils::STMT(ASR::make_If_t(al, loc, test_expr,
+                                if_body.p, if_body.size(), else_, else_n));
+            Vec<ASR::stmt_t*> if_else_if;
+            if_else_if.reserve(al, 1);
+            if_else_if.push_back(al, if_);
+            else_ = if_else_if.p;
+            else_n = if_else_if.size();
+        }
+        fn_body.push_back(al, else_[0]);
+    }
+
+};
 
 namespace UnaryIntrinsicFunction {
 
@@ -274,6 +413,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
      * then returns the position of the first occurrence of the
      * string in the pattern.
      */
+    ASRBuilder b(al);
     std::string fn_name = global_scope->get_unique_name("KMP_string_matching");
     SymbolTable *fn_symtab = al.make_new<SymbolTable>(global_scope);
 
@@ -281,10 +421,10 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     {
         args.reserve(al, 2);
         create_variable(arg_1, "target_string", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, _str);
+            ASR::abiType::Source, false, fn_symtab, character);
         args.push_back(al, arg_1);
         create_variable(arg_2, "pattern", ASR::intentType::In,
-            ASR::abiType::Source, false, fn_symtab, _str);
+            ASR::abiType::Source, false, fn_symtab, character);
         args.push_back(al, arg_2);
     }
     create_variable(result, "result", ASRUtils::intent_return_var,
@@ -346,9 +486,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             body.push_back(al, STMT(ASR::make_DoLoop_t(al, loc, nullptr, head,
                 doloop_body.p, doloop_body.n)));
         }
-        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, flag,
-            EXPR(ASR::make_LogicalConstant_t(al, loc, false,
-            TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)))), nullptr)));
+        body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, flag, bool(false), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, i, i32(1), nullptr)));
         body.push_back(al, STMT(ASR::make_Assignment_t(al, loc, pi_len, i32(0), nullptr)));
         {
@@ -362,14 +500,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                             ASR::binopType::Add,
                             i32(1),
                             int32, nullptr)),
-                        _str, nullptr)),
+                        character, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[1],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, pi_len,
                                 ASR::binopType::Add,
                                 i32(1),
                             int32, nullptr)),
-                        _str, nullptr)),
+                        character, nullptr)),
                     logical, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -434,14 +572,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                             ASR::binopType::Add,
                             i32(1),
                             int32, nullptr)),
-                        _str, nullptr)),
+                        character, nullptr)),
                         ASR::cmpopType::Eq,
                         EXPR(ASR::make_StringItem_t(al, loc, args[0],
                             EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                 ASR::binopType::Add,
                                 i32(1),
                             int32, nullptr)),
-                        _str, nullptr)),
+                        character, nullptr)),
                     logical, nullptr));
                 Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -462,8 +600,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                     result, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                     ASR::binopType::Sub, j, int32, nullptr)), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
-                    flag, EXPR(ASR::make_LogicalConstant_t(al, loc, true,
-                    logical)), nullptr)));
+                    flag, bool(true), nullptr)));
                 if_body_1.push_back(al, STMT(ASR::make_Assignment_t(al, loc, j,
                     EXPR(ASR::make_ListItem_t(al, loc, lps,
                         EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
@@ -484,14 +621,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                                 ASR::binopType::Add,
                                 i32(1),
                                 int32, nullptr)),
-                            _str, nullptr)),
+                            character, nullptr)),
                             ASR::cmpopType::NotEq,
                             EXPR(ASR::make_StringItem_t(al, loc, args[0],
                                 EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
                                     ASR::binopType::Add,
                                     i32(1),
                                     int32, nullptr)),
-                                _str, nullptr)),
+                                character, nullptr)),
                             logical, nullptr)),
                         logical, nullptr));
                     {
@@ -936,95 +1073,46 @@ static inline ASR::asr_t* create_Any(
 static inline void generate_body_for_scalar_output(Allocator& al, const Location& loc,
     ASR::expr_t* array, ASR::expr_t* return_var, SymbolTable* fn_scope,
     Vec<ASR::stmt_t*>& fn_body) {
-    ASR::expr_t* logical_false = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
-                                    al, loc, false, ASRUtils::expr_type(array)));
-    ASR::stmt_t* return_var_init = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
-                                        return_var, logical_false, nullptr));
-    fn_body.push_back(al, return_var_init);
-    int rank = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
+    ASRBuilder builder(al);
     Vec<ASR::expr_t*> idx_vars;
-    idx_vars.reserve(al, 1);
     Vec<ASR::stmt_t*> doloop_body;
-    doloop_body.reserve(al, 1);
-    ASR::stmt_t* doloop = ControlFlowConstructorAPI::create_do_loop(al, loc,
-        rank, array, fn_scope, idx_vars, doloop_body,
-    [=, &al, &idx_vars, &doloop_body] () {
-        ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
-        ASR::expr_t* logical_or = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
-            return_var, ASR::Or, array_ref, ASRUtils::expr_type(return_var), nullptr));
-        ASR::stmt_t* loop_invariant = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
-                                        return_var, logical_or, nullptr));
-        doloop_body.push_back(al, loop_invariant);
-    });
-    fn_body.push_back(al, doloop);
+    builder.generate_reduction_intrinsic_stmts_for_scalar_output(loc,
+        array, fn_scope, fn_body, idx_vars, doloop_body,
+        [=, &al, &fn_body, &builder] () {
+            ASR::expr_t* logical_false = bool(false);
+            ASR::stmt_t* return_var_init = builder.Assign(return_var, logical_false, loc);
+            fn_body.push_back(al, return_var_init);
+        },
+        [=, &al, &idx_vars, &doloop_body, &builder] () {
+            ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
+            ASR::expr_t* logical_or = builder.Or(return_var, array_ref, loc);
+            ASR::stmt_t* loop_invariant = builder.Assign(return_var, logical_or, loc);
+            doloop_body.push_back(al, loop_invariant);
+        }
+    );
 }
 
 static inline void generate_body_for_array_output(Allocator& al, const Location& loc,
     ASR::expr_t* array, ASR::expr_t* dim, ASR::expr_t* result,
     SymbolTable* fn_scope, Vec<ASR::stmt_t*>& fn_body) {
-    ASR::expr_t* logical_false = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
-                                    al, loc, false, ASRUtils::TYPE(ASR::make_Logical_t(
-                                        al, loc, 4, nullptr, 0))));
-    ASR::stmt_t* result_init = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
-                                        result, logical_false, nullptr));
-    fn_body.push_back(al, result_init);
-
-    int n_dims = ASRUtils::extract_n_dims_from_ttype(ASRUtils::expr_type(array));
-    ASR::stmt_t** else_ = nullptr;
-    size_t else_n = 0;
-    Vec<ASR::expr_t*> idx_vars;
-    idx_vars.reserve(al, n_dims);
-    PassUtils::create_idx_vars(idx_vars, n_dims, loc, al, fn_scope, "_j");
-    for( int i = 1; i <= n_dims; i++ ) {
-        ASR::expr_t* current_dim = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
-                                    al, loc, i, ASRUtils::expr_type(dim)));
-        ASR::expr_t* test_expr = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-                                    al, loc, dim, ASR::cmpopType::Eq,
-                                    current_dim, ASRUtils::TYPE(ASR::make_Logical_t(
-                                        al, loc, 4, nullptr, 0)), nullptr));
-
-        Vec<ASR::expr_t*> target_idx_vars, loop_vars;
-        std::vector<int> loop_dims;
-        loop_dims.reserve(n_dims);
-        loop_vars.reserve(al, n_dims);
-        target_idx_vars.reserve(al, n_dims - 1);
-        for( int j = 1; j <= n_dims; j++ ) {
-            if( j == i ) {
-                continue ;
-            }
-            target_idx_vars.push_back(al, idx_vars[j - 1]);
-            loop_dims.push_back(j);
-            loop_vars.push_back(al, idx_vars[j - 1]);
-        }
-        loop_dims.push_back(i);
-        loop_vars.push_back(al, idx_vars[i - 1]);
-
-        Vec<ASR::stmt_t*> doloop_body;
-        ASR::stmt_t* doloop = ControlFlowConstructorAPI::create_do_loop(al, loc,
-        array, result, loop_vars, loop_dims, doloop_body,
-        [=, &al, &idx_vars, &target_idx_vars, &doloop_body] () {
-                ASR::expr_t* result_ref = PassUtils::create_array_ref(result, target_idx_vars, al);
-                ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
-                ASR::expr_t* logical_or = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
-                                            result_ref, ASR::Or, array_ref,
-                                            ASRUtils::TYPE(ASR::make_Logical_t( al, loc, 4,
-                                                nullptr, 0)), nullptr));
-                ASR::stmt_t* loop_invariant = ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
-                                                result_ref, logical_or, nullptr));
-                doloop_body.push_back(al, loop_invariant);
+    ASRBuilder builder(al);
+    Vec<ASR::expr_t*> idx_vars, target_idx_vars;
+    Vec<ASR::stmt_t*> doloop_body;
+    builder.generate_reduction_intrinsic_stmts_for_array_output(
+        loc, array, dim, fn_scope, fn_body,
+        idx_vars, target_idx_vars, doloop_body,
+        [=, &al, &fn_body, &builder] {
+            ASR::expr_t* logical_false = bool(false);
+            ASR::stmt_t* result_init = builder.Assign(result, logical_false, loc);
+            fn_body.push_back(al, result_init);
+        },
+        [=, &al, &idx_vars, &target_idx_vars, &doloop_body, &result, &builder] () {
+            ASR::expr_t* result_ref = PassUtils::create_array_ref(result, target_idx_vars, al);
+            ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
+            ASR::expr_t* logical_or = builder.ElementalOr(result_ref, array_ref, loc);
+            ASR::stmt_t* loop_invariant = builder.Assign(result_ref, logical_or, loc);
+            doloop_body.push_back(al, loop_invariant);
         });
-        Vec<ASR::stmt_t*> if_body;
-        if_body.reserve(al, 1);
-        if_body.push_back(al, doloop);
-        ASR::stmt_t* if_ = ASRUtils::STMT(ASR::make_If_t(al, loc, test_expr,
-                            if_body.p, if_body.size(), else_, else_n));
-        Vec<ASR::stmt_t*> if_else_if;
-        if_else_if.reserve(al, 1);
-        if_else_if.push_back(al, if_);
-        else_ = if_else_if.p;
-        else_n = if_else_if.size();
-    }
-    fn_body.push_back(al, else_[0]);
 }
 
 static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
@@ -1212,9 +1300,9 @@ namespace Partition {
         e_args.push_back(al, arg);
 
         Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 3);
-        tuple_type.push_back(al, _str);
-        tuple_type.push_back(al, _str);
-        tuple_type.push_back(al, _str);
+        tuple_type.push_back(al, character);
+        tuple_type.push_back(al, character);
+        tuple_type.push_back(al, character);
         ASR::ttype_t *return_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
             tuple_type.p, tuple_type.n));
         ASR::expr_t *value = nullptr;
@@ -1242,21 +1330,22 @@ namespace Partition {
     {
         std::string fn_name = scope->get_unique_name("_lpython_str_partition");
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+        // Builder b(al, loc, *fn_symtab);
 
         Vec<ASR::expr_t*> args;
         {
             args.reserve(al, 2);
             create_variable(arg_1, "target_string", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, _str);
+                ASR::abiType::Source, false, fn_symtab, character);
             args.push_back(al, arg_1);
             create_variable(arg_2, "pattern", ASR::intentType::In,
-                ASR::abiType::Source, false, fn_symtab, _str);
+                ASR::abiType::Source, false, fn_symtab, character);
             args.push_back(al, arg_2);
         }
         Vec<ASR::ttype_t *> tuple_type; tuple_type.reserve(al, 1);
-        tuple_type.push_back(al, _str);
-        tuple_type.push_back(al, _str);
-        tuple_type.push_back(al, _str);
+        tuple_type.push_back(al, character);
+        tuple_type.push_back(al, character);
+        tuple_type.push_back(al, character);
         ASR::ttype_t *return_type = TYPE(ASR::make_Tuple_t(al, loc,
             tuple_type.p, tuple_type.n));
         create_variable(result, "result", ASRUtils::intent_return_var,
@@ -1291,7 +1380,7 @@ namespace Partition {
                 tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
                     s2c(al, ""), char_type_0)));
                 Vec<ASR::ttype_t *> tuple_type_; tuple_type_.reserve(al, 1);
-                tuple_type_.push_back(al, _str);
+                tuple_type_.push_back(al, character);
                 tuple_type_.push_back(al, char_type_0);
                 tuple_type_.push_back(al, char_type_0);
                 if_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
@@ -1305,7 +1394,7 @@ namespace Partition {
             {
                 tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
                     args[0], i32(0),
-                    index, nullptr, _str, nullptr)));
+                    index, nullptr, character, nullptr)));
                 tuple_ele.push_back(al, args[1]);
                 tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
                     args[0], EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
@@ -1313,7 +1402,7 @@ namespace Partition {
                         EXPR(ASR::make_StringLen_t(al, loc, args[1], int32, nullptr)),
                         int32, nullptr)),
                     EXPR(ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)),
-                    nullptr, _str, nullptr)));
+                    nullptr, character, nullptr)));
                 else_body.push_back(al, STMT(ASR::make_Assignment_t(al, loc,
                     result, EXPR(ASR::make_TupleConstant_t(al, loc,
                     tuple_ele.p, tuple_ele.n, return_type)), nullptr)));
