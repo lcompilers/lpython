@@ -116,8 +116,10 @@ class ASRBuilder {
     }
 
     // Expressions -------------------------------------------------------------
-    #define i32(x)  EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
-    #define bool(x) EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
+    #define i32(x)   EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
+    #define i32_n(x) EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(abs(x)),   \
+        int32, i32(x)))
+    #define bool(x)  EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
     #define StringSection(s, start, end) EXPR(ASR::make_StringSection_t(al, loc,\
         s, start, end, nullptr, character(-2), nullptr))
     #define StringConstant(s, type) EXPR(ASR::make_StringConstant_t(al, loc,    \
@@ -126,12 +128,26 @@ class ASRBuilder {
     #define iAdd(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
         ASR::binopType::Add, right, int32, nullptr))
 
+    #define iEq(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
+        ASR::cmpopType::Eq, y, logical, nullptr))
+
+    ASR::stmt_t *If(const Location &loc, ASR::expr_t *a_test,
+            std::vector<ASR::stmt_t*> if_body,
+            std::vector<ASR::stmt_t*> else_body) {
+        Vec<ASR::stmt_t*> m_if_body; m_if_body.reserve(al, 1);
+        for (auto &x: if_body) m_if_body.push_back(al, x);
+
+        Vec<ASR::stmt_t*> m_else_body; m_else_body.reserve(al, 1);
+        for (auto &x: else_body) m_else_body.push_back(al, x);
+
+        return STMT(ASR::make_If_t(al, loc, a_test, m_if_body.p, m_if_body.n,
+            m_else_body.p, m_else_body.n));
+    }
+
     ASR::expr_t *TupleConstant(const Location &loc,
             std::vector<ASR::expr_t*> ele, ASR::ttype_t *type) {
         Vec<ASR::expr_t*> m_ele; m_ele.reserve(al, 3);
-        for (auto &x: ele) {
-            m_ele.push_back(al, x);
-        }
+        for (auto &x: ele) m_ele.push_back(al, x);
         return EXPR(ASR::make_TupleConstant_t(al, loc, m_ele.p, m_ele.n, type));
     }
 
@@ -457,9 +473,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             ASR::make_StringLen_t(al, loc, args[0], int32, nullptr))));
         body.push_back(al, Assign(pat_len, EXPR(
             ASR::make_StringLen_t(al, loc, args[1], int32, nullptr))));
-        body.push_back(al, Assign(result,
-            EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(1), int32,
-            i32(-1)))));
+        body.push_back(al, Assign(result, i32_n(-1)));
 
         {
             Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
@@ -1286,31 +1300,21 @@ namespace Partition {
         }
         ASR::ttype_t *return_type = b.Tuple(loc, {character(-2), character(-2), character(-2)});
         Variable(result, return_type, ReturnVar)
-
         {
-            Variable(index, int32, Local)
+            Variable(index, int32, Local);
             body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
                 create_KMP_function(al, loc, scope), args, int32, loc)));
-
-            ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
-                ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
-                i32(1), int32, i32(-1))), logical, nullptr));
-            Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
-            {
-                if_body.push_back(al, Assign(result, b.TupleConstant(loc, {
+            body.push_back(al, b.If(loc, iEq(index, i32_n(-1)), {
+                    Assign(result, b.TupleConstant(loc, {
                         args[0], StringConstant("", character(0)),
                         StringConstant("", character(0)) },
-                    b.Tuple(loc,{character(-2), character(0), character(0)}))));
-            }
-            Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
-            {
-                else_body.push_back(al, Assign(result, b.TupleConstant(loc, {
-                    StringSection(args[0], i32(0), index), args[1],
-                    StringSection(args[0], iAdd(index, StringLen(args[1])),
-                        StringLen(args[0]))}, return_type)));
-            }
-            body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
-                if_body.p, if_body.n, else_body.p, else_body.n)));
+                    b.Tuple(loc,{character(-2), character(0), character(0)})))
+                }, {
+                    Assign(result, b.TupleConstant(loc, {
+                        StringSection(args[0], i32(0), index), args[1],
+                        StringSection(args[0], iAdd(index, StringLen(args[1])),
+                            StringLen(args[0]))}, return_type))
+                }));
             body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
         }
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
