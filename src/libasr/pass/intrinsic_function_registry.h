@@ -118,6 +118,14 @@ class ASRBuilder {
     // Expressions -------------------------------------------------------------
     #define i32(x)  EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
     #define bool(x) EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
+    ASR::expr_t *TupleConstant(const Location &loc,
+            std::vector<ASR::expr_t*> ele, ASR::ttype_t *type) {
+        Vec<ASR::expr_t*> m_ele; m_ele.reserve(al, 3);
+        for (auto &x: ele) {
+            m_ele.push_back(al, x);
+        }
+        return EXPR(ASR::make_TupleConstant_t(al, loc, m_ele.p, m_ele.n, type));
+    }
 
     #define make_Compare(Constructor, left, op, right, loc) ASRUtils::EXPR(ASR::Constructor( \
         al, loc, left, op, right, \
@@ -1287,34 +1295,26 @@ namespace Partition {
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
                 i32(1), int32, i32(-1))), logical, nullptr));
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
-            Vec<ASR::expr_t *> tuple_ele; tuple_ele.reserve(al, 3);
             {
-                tuple_ele.push_back(al, args[0]);
-                tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
-                    s2c(al, ""), character(0))));
-                tuple_ele.push_back(al, EXPR(ASR::make_StringConstant_t(al, loc,
-                    s2c(al, ""), character(0))));
-                if_body.push_back(al, Assign(result, EXPR(ASR::make_TupleConstant_t(
-                    al, loc, tuple_ele.p, tuple_ele.n,
-                    b.Tuple(loc,{character(-2), character(0), character(0)})))));
+                if_body.push_back(al, Assign(result, b.TupleConstant(loc, {
+                    args[0],
+                    EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, ""), character(0))),
+                    EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, ""), character(0))) },
+                    b.Tuple(loc,{character(-2), character(0), character(0)}))));
             }
             Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
-            tuple_ele.p = nullptr; tuple_ele.n = 0;
-            tuple_ele.reserve(al, 3);
             {
-                tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
-                    args[0], i32(0),
-                    index, nullptr, character(-2), nullptr)));
-                tuple_ele.push_back(al, args[1]);
-                tuple_ele.push_back(al, EXPR(ASR::make_StringSection_t(al, loc,
-                    args[0], EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
+                else_body.push_back(al, Assign(result, b.TupleConstant(loc, {
+                    EXPR(ASR::make_StringSection_t(al, loc, args[0], i32(0),
+                        index, nullptr, character(-2), nullptr)),
+                    args[1],
+                    EXPR(ASR::make_StringSection_t(al, loc, args[0],
+                        EXPR(ASR::make_IntegerBinOp_t(al, loc, index,
                         ASR::binopType::Add,
                         EXPR(ASR::make_StringLen_t(al, loc, args[1], int32, nullptr)),
                         int32, nullptr)),
-                    EXPR(ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)),
-                    nullptr, character(-2), nullptr)));
-                else_body.push_back(al, Assign(result, EXPR(ASR::make_TupleConstant_t(al, loc,
-                    tuple_ele.p, tuple_ele.n, return_type))));
+                        EXPR(ASR::make_StringLen_t(al, loc, args[0], int32, nullptr)),
+                        nullptr, character(-2), nullptr))}, return_type)));
             }
             body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
                 if_body.p, if_body.n, else_body.p, else_body.n)));
