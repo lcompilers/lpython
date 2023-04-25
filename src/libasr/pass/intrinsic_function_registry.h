@@ -180,6 +180,15 @@ class ASRBuilder {
                 s, s, args.p, args.size(), return_type, nullptr, nullptr));
     }
 
+    ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::expr_t *>& args,
+                      ASR::ttype_t* return_type,
+                      const Location& loc) {
+        Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
+        visit_expr_list(al, args, args_);
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                s, s, args_.p, args_.size(), return_type, nullptr, nullptr));
+    }
+
     ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::call_arg_t>& args,
                       ASR::ttype_t* return_type, ASR::expr_t* value,
                       const Location& loc) {
@@ -1271,11 +1280,8 @@ namespace Partition {
 
         {
             Variable(index, int32, Local)
-            ASR::symbol_t *kmp_fn = UnaryIntrinsicFunction::create_KMP_function(
-                al, loc, scope);
-            Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
-            visit_expr_list(al, args, args_);
-            body.push_back(al, Assign(index, b.Call(kmp_fn, args_, int32, loc)));
+            body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
+                create_KMP_function(al, loc, scope), args, int32, loc)));
 
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
