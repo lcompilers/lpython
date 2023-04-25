@@ -65,33 +65,33 @@ class ASRBuilder {
     ASRBuilder(Allocator& al_): al(al_) {}
 
     // Symbols -----------------------------------------------------------------
-    #define create_variable(var, name, intent, abi, value_attr, symtab, type)       \
-        ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(                   \
-            ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,        \
-            intent, nullptr, nullptr, ASR::storage_typeType::Default, type, abi,    \
-            ASR::Public, ASR::presenceType::Required, value_attr));                 \
-        symtab->add_symbol(s2c(al, name), sym_##var);                               \
+    #define create_variable(var, name, intent, abi, value_attr, symtab, type)   \
+        ASR::symbol_t* sym_##var = ASR::down_cast<ASR::symbol_t>(               \
+            ASR::make_Variable_t(al, loc, symtab, s2c(al, name), nullptr, 0,    \
+            intent, nullptr, nullptr, ASR::storage_typeType::Default, type, abi,\
+            ASR::Public, ASR::presenceType::Required, value_attr));             \
+        symtab->add_symbol(s2c(al, name), sym_##var);                           \
         ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, sym_##var));
 
-    #define Variable(var_name, type)                                                \
-        create_variable(var_name, #var_name, ASR::intentType::Local,                \
-            ASR::abiType::Source, false, fn_symtab, type)                           \
+    #define Variable(var_name, type, intent)                                    \
+        create_variable(var_name, #var_name, ASR::intentType::Local,            \
+            ASR::abiType::Source, false, fn_symtab, type)                       \
 
-    #define make_Function_t(name, symtab, dep, args, body, return_var, abi, deftype,\
-            bindc_name)                                                             \
-        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
-        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
-        return_var, ASR::abiType::abi, ASR::accessType::Public,                     \
-        ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
-        nullptr, 0, nullptr, 0, false, false, false));
+    #define make_Function_t(name, symtab, dep, args, body, return_var, abi,     \
+            deftype, bindc_name)                                                \
+        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,  \
+        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,    \
+        return_var, ASR::abiType::abi, ASR::accessType::Public,                 \
+        ASR::deftypeType::deftype, bindc_name, false, false, false, false,
+        false, nullptr, 0, nullptr, 0, false, false, false));
 
-    #define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body, abi,   \
-            deftype, bindc_name)                                                    \
-        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,      \
-        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,        \
-        nullptr, ASR::abiType::abi, ASR::accessType::Public,                        \
-        ASR::deftypeType::deftype, bindc_name, false, false, false, false, false,   \
-        nullptr, 0, nullptr, 0, false, false, false));
+    #define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body,    \
+            abi, deftype, bindc_name)                                           \
+        ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,  \
+        symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,    \
+        nullptr, ASR::abiType::abi, ASR::accessType::Public,                    \
+        ASR::deftypeType::deftype, bindc_name, false, false, false, false,      \
+        false, nullptr, 0, nullptr, 0, false, false, false));
 
     // Types -------------------------------------------------------------------
     #define int32        TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
