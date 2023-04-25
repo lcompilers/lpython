@@ -337,14 +337,12 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     }
     new_name = "_lcompilers_" + new_name + "_" + type_to_str_python(arg_type);
 
+    declare_function_variables(new_name);
     if (scope->get_symbol(new_name)) {
         ASR::symbol_t *s = scope->get_symbol(new_name);
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
-            new_args.p, new_args.size(), expr_type(f->m_return_var),
-            value, nullptr));
+        return b.Call(s, new_args, expr_type(f->m_return_var), value, loc);
     }
-    declare_function_variables(new_name);
     {
         Variable(x, arg_type, In);
         args.push_back(al, x);
@@ -377,16 +375,13 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             arg.m_value = args[0];
             call_args.push_back(al, arg);
         }
-        body.push_back(al, Assign(result,
-            ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
-            call_args.p, call_args.n, arg_type, nullptr, nullptr))));
+        body.push_back(al, Assign(result, b.Call(s, call_args, arg_type, loc)));
     }
 
     ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
     scope->add_symbol(fn_name, new_symbol);
-    return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
-        new_symbol, new_args.p, new_args.size(), arg_type, value, nullptr));
+    return b.Call(new_symbol, new_args, arg_type, value, loc);
 }
 
 static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& loc,
@@ -812,14 +807,13 @@ namespace Abs {
             Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
         std::string func_name = "_lcompilers_abs_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
+        declare_function_variables(func_name);
         if (scope->get_symbol(func_name)) {
             ASR::symbol_t *s = scope->get_symbol(func_name);
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-            return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
-                new_args.p, new_args.size(), expr_type(f->m_return_var),
-                compile_time_value, nullptr));
+            return b.Call(s, new_args, expr_type(f->m_return_var),
+                compile_time_value, loc);
         }
-        declare_function_variables(func_name);
         {
             Variable(x, arg_types[0], In)
             args.push_back(al, x);
@@ -896,8 +890,7 @@ namespace Abs {
                     arg.m_value = args[0];
                     call_args.push_back(al, arg);
                 }
-                aimag_of_x = EXPR(ASR::make_FunctionCall_t(al, loc, s,
-                    s, call_args.p, call_args.n, real_type, nullptr, nullptr));
+                aimag_of_x = b.Call(s, call_args, real_type, loc);
             }
             ASR::expr_t *constant_two = EXPR(ASR::make_RealConstant_t(al, loc,
                 2.0, real_type));
@@ -922,8 +915,7 @@ namespace Abs {
         ASR::symbol_t *f_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, f_sym);
-        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, f_sym, f_sym,
-            new_args.p, new_args.size(), return_type, compile_time_value, nullptr));
+        return b.Call(f_sym, new_args, return_type, compile_time_value, loc);
     }
 
 } // namespace Abs
@@ -1094,6 +1086,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     std::string new_name = "any_" + std::to_string(kind) +
                             "_" + std::to_string(rank) +
                             "_" + std::to_string(overload_id);
+    declare_function_variables(new_name);
     // Check if Function is already defined.
     {
         std::string new_func_name = new_name;
@@ -1111,16 +1104,13 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
                 } else {
                     return_type = ASRUtils::expr_type(f->m_args[(int) f->n_args - 1]);
                 }
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s,
-                    s, new_args.p, new_args.size(), return_type, compile_time_value,
-                    nullptr));
+                return b.Call(s, new_args, return_type, compile_time_value, loc);
             } else {
                 new_func_name += std::to_string(i);
                 i++;
             }
         }
     }
-    declare_function_variables(new_name)
     ASR::ttype_t* logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
                                             al, loc, 4, nullptr, 0));
     int result_dims = 0;
@@ -1181,9 +1171,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
             body, Source, Implementation, nullptr);
     }
     scope->add_symbol(fn_name, new_symbol);
-    return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, new_symbol,
-            new_symbol, new_args.p, new_args.size(), logical_return_type,
-            compile_time_value, nullptr));
+    return b.Call(new_symbol, new_args, logical_return_type, compile_time_value, loc);
 }
 
 } // namespace Any
@@ -1287,9 +1275,7 @@ namespace Partition {
                 al, loc, scope);
             Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
             visit_expr_list(al, args, args_);
-            body.push_back(al, Assign(index,
-                EXPR(ASR::make_FunctionCall_t(al, loc, kmp_fn, kmp_fn,
-                args_.p, args_.n, int32, nullptr, nullptr))));
+            body.push_back(al, Assign(index, b.Call(kmp_fn, args_, int32, loc)));
 
             ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, index,
                 ASR::cmpopType::Eq, EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
@@ -1331,8 +1317,7 @@ namespace Partition {
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, fn_sym);
-        return EXPR(ASR::make_FunctionCall_t(al, loc, fn_sym, fn_sym,
-            new_args.p, new_args.n, return_type, compile_time_value, nullptr));
+        return b.Call(fn_sym, new_args, return_type, compile_time_value, loc);
     }
 } // namespace Partition
 
