@@ -3876,6 +3876,7 @@ public:
     std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
     int64_t gotoids;
     std::vector<ASR::symbol_t*> do_loop_variables;
+    std::set<std::string> imported_functions;
 
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -4114,6 +4115,9 @@ public:
         // Here, we call the global_initializer & global_statements to
         // initialize and execute the global symbols
         std::string mod_name = x.m_module;
+        for (size_t i = 0; i < x.n_names; i++) {
+            imported_functions.insert(x.m_names[i].m_name);
+        }
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
@@ -6434,14 +6438,11 @@ public:
             std::set<std::string> module_numpy = {
                 "exp", "exp2"
             };
-            // Complex conditions because of functions which are in both modules
-            bool is_math_imported = current_scope->resolve_symbol("math") != nullptr;
             bool is_numpy_imported = current_scope->resolve_symbol("numpy") != nullptr;
             bool is_math_module = module_math.find(call_name)!= module_math.end();
             bool is_numpy_module = module_numpy.find(call_name)!= module_numpy.end();
-            if (( is_math_module && !is_numpy_module && !is_math_imported ) ||
-                ( is_numpy_module && !is_math_module && !is_numpy_imported ) ||
-                ( is_math_module && is_numpy_module && !is_math_imported && !is_numpy_imported )) {
+            bool is_function_imported = imported_functions.find(call_name) != imported_functions.end();
+            if ((is_math_module || is_numpy_module) && !is_function_imported ) {
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                         x.base.base.loc);
             }
@@ -6450,10 +6451,7 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                // Need to handle vectorization
                 bool is_vector_arg = ASRUtils::is_array(ASRUtils::expr_type(args_[0]));
-                // Need to handle array items
-                bool is_array_item = ASR::is_a<ASR::ArrayItem_t>(*args_[0]);
                 if ( is_math_module && !is_numpy_imported && is_vector_arg) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);

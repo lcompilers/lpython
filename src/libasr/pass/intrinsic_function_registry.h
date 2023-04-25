@@ -547,8 +547,7 @@ namespace Exp {
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
         if (ASRUtils::is_real(*t)) {
             double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
-            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
-                al, loc, val, t));
+            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
         } else {
             return nullptr;
         }
@@ -581,8 +580,7 @@ namespace Exp2 {
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
         if (ASRUtils::is_real(*t)) {
             double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
-            return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
-                al, loc, val, t));
+            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
         } else {
             return nullptr;
         }
@@ -973,7 +971,7 @@ namespace IntrinsicFunctionRegistry {
             "abs"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
             "exp"},
-            {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
             "exp2"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"}
