@@ -346,6 +346,10 @@ filename = "../integration_tests/bindc_02.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/bindc_06.py"
+c = true
+
+[[test]]
 filename = "../integration_tests/test_builtin_abs.py"
 asr = true
 

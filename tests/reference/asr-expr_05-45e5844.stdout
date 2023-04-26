@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -1219,6 +1220,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_mod:
                                 (Function
@@ -1329,6 +1331,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_multiply:
                                 (Function
@@ -1417,6 +1420,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

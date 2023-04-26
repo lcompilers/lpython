@@ -88,6 +88,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_f32_array:
                                 (Function
@@ -187,6 +188,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_f64_array:
                                 (Function
@@ -278,6 +280,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_i16_array:
                                 (Function
@@ -371,6 +374,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_i32_array:
                                 (Function
@@ -459,6 +463,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_i64_array:
                                 (Function
@@ -552,6 +557,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             declare_arrays:
                                 (Function
@@ -762,6 +768,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -872,6 +879,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arccosh:
                                 (Function
@@ -944,6 +952,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsin:
                                 (Function
@@ -1016,6 +1025,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsinh:
                                 (Function
@@ -1088,6 +1098,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctan:
                                 (Function
@@ -1160,6 +1171,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctanh:
                                 (Function
@@ -1232,6 +1244,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__ceil:
                                 (Function
@@ -1384,6 +1397,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cos:
                                 (Function
@@ -1456,6 +1470,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cosh:
                                 (Function
@@ -1528,6 +1543,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__degrees:
                                 (Function
@@ -1608,6 +1624,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__exp:
                                 (Function
@@ -1680,6 +1697,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__floor:
                                 (Function
@@ -1832,6 +1850,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log:
                                 (Function
@@ -1904,6 +1923,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log10:
                                 (Function
@@ -1976,6 +1996,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log2:
                                 (Function
@@ -2064,6 +2085,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__mod:
                                 (Function
@@ -2200,6 +2222,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__radians:
                                 (Function
@@ -2280,6 +2303,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sin:
                                 (Function
@@ -2352,6 +2376,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sinh:
                                 (Function
@@ -2424,6 +2449,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sqrt:
                                 (Function
@@ -2520,6 +2546,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tan:
                                 (Function
@@ -2592,6 +2619,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tanh:
                                 (Function
@@ -2664,6 +2692,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccos:
                                 (Function
@@ -2736,6 +2765,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccosh:
                                 (Function
@@ -2808,6 +2838,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsin:
                                 (Function
@@ -2880,6 +2911,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsinh:
                                 (Function
@@ -2952,6 +2984,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctan:
                                 (Function
@@ -3024,6 +3057,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctanh:
                                 (Function
@@ -3096,6 +3130,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__ceil:
                                 (Function
@@ -3241,6 +3276,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cos:
                                 (Function
@@ -3313,6 +3349,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cosh:
                                 (Function
@@ -3385,6 +3422,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__degrees:
                                 (Function
@@ -3470,6 +3508,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__exp:
                                 (Function
@@ -3542,6 +3581,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__floor:
                                 (Function
@@ -3687,6 +3727,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log:
                                 (Function
@@ -3759,6 +3800,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log10:
                                 (Function
@@ -3831,6 +3873,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log2:
                                 (Function
@@ -3927,6 +3970,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__mod:
                                 (Function
@@ -4053,6 +4097,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__radians:
                                 (Function
@@ -4138,6 +4183,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sin:
                                 (Function
@@ -4210,6 +4256,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sinh:
                                 (Function
@@ -4282,6 +4329,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sqrt:
                                 (Function
@@ -4386,6 +4434,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tan:
                                 (Function
@@ -4458,6 +4507,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tanh:
                                 (Function
@@ -4530,6 +4580,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacos:
                                 (Function
@@ -4590,6 +4641,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacosh:
                                 (Function
@@ -4650,6 +4702,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasin:
                                 (Function
@@ -4710,6 +4763,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasinh:
                                 (Function
@@ -4770,6 +4824,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datan:
                                 (Function
@@ -4830,6 +4885,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datanh:
                                 (Function
@@ -4890,6 +4946,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcos:
                                 (Function
@@ -4950,6 +5007,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcosh:
                                 (Function
@@ -5010,6 +5068,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dexp:
                                 (Function
@@ -5070,6 +5129,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog:
                                 (Function
@@ -5130,6 +5190,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog10:
                                 (Function
@@ -5190,6 +5251,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsin:
                                 (Function
@@ -5250,6 +5312,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsinh:
                                 (Function
@@ -5310,6 +5373,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtan:
                                 (Function
@@ -5370,6 +5434,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtanh:
                                 (Function
@@ -5430,6 +5495,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacos:
                                 (Function
@@ -5490,6 +5556,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacosh:
                                 (Function
@@ -5550,6 +5617,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasin:
                                 (Function
@@ -5610,6 +5678,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasinh:
                                 (Function
@@ -5670,6 +5739,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satan:
                                 (Function
@@ -5730,6 +5800,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satanh:
                                 (Function
@@ -5790,6 +5861,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scos:
                                 (Function
@@ -5850,6 +5922,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scosh:
                                 (Function
@@ -5910,6 +5983,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sexp:
                                 (Function
@@ -5970,6 +6044,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog:
                                 (Function
@@ -6030,6 +6105,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog10:
                                 (Function
@@ -6090,6 +6166,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssin:
                                 (Function
@@ -6150,6 +6227,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssinh:
                                 (Function
@@ -6210,6 +6288,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stan:
                                 (Function
@@ -6270,6 +6349,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stanh:
                                 (Function
@@ -6330,6 +6410,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             arccos:
                                 (GenericProcedure

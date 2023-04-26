@@ -49,6 +49,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             bool_to_str:
                                 (Function
@@ -189,6 +190,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -324,6 +326,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -374,6 +377,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             x:
                                 (Variable

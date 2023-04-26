@@ -63,6 +63,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             str_conv_for_variables:
                                 (Function
@@ -397,6 +398,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_issue_883:
                                 (Function
@@ -624,6 +626,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_str_int_float:
                                 (Function
@@ -918,6 +921,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_str_slice_step:
                                 (Function
@@ -1418,6 +1422,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

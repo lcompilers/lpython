@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -92,6 +93,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_abs:
                                 (Function
@@ -304,6 +306,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_binop_32:
                                 (Function
@@ -496,6 +499,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_binop_64:
                                 (Function
@@ -670,6 +674,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

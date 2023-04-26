@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -263,6 +264,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             triad:
                                 (Function
@@ -452,6 +454,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -146,6 +147,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_return_1:
                                 (Function
@@ -231,6 +233,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_return_2:
                                 (Function
@@ -319,6 +322,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_return_3:
                                 (Function
@@ -389,6 +393,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_return_4:
                                 (Function
@@ -439,6 +444,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -99,6 +100,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_max_float:
                                 (Function
@@ -265,6 +267,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_max_int:
                                 (Function
@@ -465,6 +468,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_min_float:
                                 (Function
@@ -631,6 +635,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_min_int:
                                 (Function
@@ -831,6 +836,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

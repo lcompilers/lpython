@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (ExternalSymbol
@@ -129,6 +130,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -210,6 +212,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (ExternalSymbol
@@ -270,6 +273,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     modules_02c
