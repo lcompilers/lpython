@@ -2660,7 +2660,7 @@ inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
     ASR::deftypeType m_deftype, char* m_bindc_name, bool m_elemental, bool m_pure,
     bool m_module, bool m_inline, bool m_static, ASR::ttype_t** m_type_params,
     size_t n_type_params, ASR::symbol_t** m_restrictions, size_t n_restrictions,
-    bool m_is_restriction, bool m_deterministic, bool m_side_effect_free) {
+    bool m_is_restriction, bool m_deterministic, bool m_side_effect_free, char *m_c_header=nullptr) {
     Vec<ASR::ttype_t*> arg_types;
     arg_types.reserve(al, n_args);
     for( size_t i = 0; i < n_args; i++ ) {
@@ -2678,7 +2678,7 @@ inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
     return ASR::make_Function_t(
         al, loc, m_symtab, m_name, func_type, m_dependencies, n_dependencies,
         a_args, n_args, m_body, n_body, m_return_var, m_access, m_deterministic,
-        m_side_effect_free);
+        m_side_effect_free, m_c_header);
 }
 
 class ExprStmtDuplicator: public ASR::BaseExprStmtDuplicator<ExprStmtDuplicator>
