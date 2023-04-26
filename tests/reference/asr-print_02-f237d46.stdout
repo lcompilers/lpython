@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -99,6 +100,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -386,6 +388,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_nested_lists:
                                 (Function
@@ -808,6 +811,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_nested_lists2:
                                 (Function
@@ -2575,6 +2579,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_print_list_tuple:
                                 (Function
@@ -2904,6 +2909,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

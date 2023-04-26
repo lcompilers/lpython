@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -126,6 +127,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -197,6 +199,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f2:
                                 (Function
@@ -268,6 +271,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f3:
                                 (Function
@@ -354,6 +358,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -449,6 +454,7 @@
                                                     Public
                                                     .false.
                                                     .false.
+                                                    ()
                                                 ),
                                             ret:
                                                 (Variable
@@ -522,6 +528,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add:
                                 (Function
@@ -130,6 +131,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             and_op:
                                 (Function
@@ -218,6 +220,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -372,6 +375,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

@@ -114,6 +114,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __asr_generic_f_1:
                                 (Function
@@ -204,6 +205,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_main_program:
                                 (Function
@@ -289,6 +291,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add:
                                 (Function
@@ -387,6 +390,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add_integer:
                                 (Function
@@ -475,6 +479,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add_string:
                                 (Function
@@ -562,6 +567,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -676,6 +682,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

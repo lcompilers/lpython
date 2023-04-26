@@ -49,6 +49,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             exit:
                                 (ExternalSymbol
@@ -171,6 +172,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -355,6 +357,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_get_argc:
                                 (Function
@@ -400,6 +403,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_get_argv:
                                 (Function
@@ -460,6 +464,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             argv:
                                 (Variable
@@ -524,6 +529,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             global_initializer:
                                 (Function
@@ -568,6 +574,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     sys

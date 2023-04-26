@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -99,6 +100,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex:
                                 (Function
@@ -999,6 +1001,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_not:
                                 (Function
@@ -1176,6 +1179,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_unary_minus:
                                 (Function
@@ -1763,6 +1767,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_real_imag:
                                 (Function
@@ -1956,6 +1961,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

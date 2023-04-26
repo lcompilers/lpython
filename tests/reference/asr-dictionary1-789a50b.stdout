@@ -61,6 +61,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_Dict:
                                 (Function
@@ -222,6 +223,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_dict_get:
                                 (Function
@@ -340,6 +342,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_dict_insert:
                                 (Function
@@ -427,6 +430,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_dict_pop:
                                 (Function
@@ -522,6 +526,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_issue_204:
                                 (Function
@@ -575,6 +580,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
