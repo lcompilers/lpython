@@ -6552,7 +6552,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp", "exp2"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp", "exp2", "expm1"
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||

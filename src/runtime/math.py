@@ -682,10 +682,6 @@ def atanh(x: f64) -> f64:
     return _lfortran_datanh(x)
 
 
-def expm1(x: f64) -> f64:
-    return e**x - 1.0
-
-
 def log1p(x: f64) -> f64:
     return log(1.0 + x)
 

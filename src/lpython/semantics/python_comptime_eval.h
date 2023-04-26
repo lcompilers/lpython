@@ -26,9 +26,9 @@ struct ProceduresDatabase {
                                     "reshape", "array", "int16",
                                     "complex64", "complex128",
                                     "int8", "exp", "exp2"}},
-                         {"math", {"sin", "cos",
-                                    "tan", "asin", "acos",
-                                    "atan", "exp", "exp2"}},
+                         {"math", {"sin", "cos", "tan",
+                                    "asin", "acos", "atan",
+                                    "exp", "exp2", "expm1"}},
                          {"enum", {"Enum"}}
                         };
     }

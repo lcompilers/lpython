@@ -50,6 +50,7 @@ enum class IntrinsicFunctions : int64_t {
     Abs,
     Exp,
     Exp2,
+    Expm1,
     Any,
     ListIndex,
     // ...
@@ -538,68 +539,38 @@ namespace Abs {
 
 } // namespace Abs
 
-namespace Exp {
+#define create_exp_macro(X)                                                               \
+namespace X {                                                                             \
+    static inline ASR::expr_t* eval_##X(Allocator &al, const Location &loc,               \
+            Vec<ASR::expr_t*> &args) {                                                    \
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));                            \
+        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);                                   \
+        if (ASRUtils::is_real(*t)) {                                                      \
+            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;               \
+            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));                       \
+        } else {                                                                          \
+            return nullptr;                                                               \
+        }                                                                                 \
+    }                                                                                     \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,              \
+            Vec<ASR::expr_t*>& args,                                                      \
+            const std::function<void (const std::string &, const Location &)> err) {      \
+        if (args.size() != 1) {                                                           \
+            err("Intrinsic function `"#X"` accepts exactly 1 argument", loc);             \
+        }                                                                                 \
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);                                \
+        if (!ASRUtils::is_real(*type)) {                                                  \
+            err("Argument of the `"#X"` function must be Real",                           \
+                args[0]->base.loc);                                                       \
+        }                                                                                 \
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_##X,      \
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X), 0, type);              \
+    }                                                                                     \
+} // namespace X                                                                          
 
-    static ASR::expr_t* eval_Exp(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
-        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
-        if (ASRUtils::is_real(*t)) {
-            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
-            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
-        } else {
-            return nullptr;
-        }
-        
-    }
-
-    static inline ASR::asr_t* create_Exp(Allocator& al, const Location& loc,
-            Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> err) {
-        if (args.size() != 1) {
-            err("Intrinsic exp function accepts exactly 1 argument", loc);
-        }
-        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::is_real(*type)) {
-            err("Argument of the exp function must be Real",
-                args[0]->base.loc);
-        }
-        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Exp,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp), 0, type);
-    }
-
-} // namespace Exp
-
-namespace Exp2 {
-
-    static ASR::expr_t* eval_Exp2(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
-        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
-        if (ASRUtils::is_real(*t)) {
-            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
-            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
-        } else {
-            return nullptr;
-        }
-    }
-
-    static inline ASR::asr_t* create_Exp2(Allocator& al, const Location& loc,
-            Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> err) {
-        if (args.size() != 1) {
-            err("Intrinsic exp2 function accepts exactly 1 argument", loc);
-        }
-        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::is_real(*type)) {
-            err("Argument of the exp2 function must be Real",
-                args[0]->base.loc);
-        }
-        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Exp2,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2), 0, type);
-    }
-
-} // namespace Exp2
+create_exp_macro(Exp)
+create_exp_macro(Exp2)
+create_exp_macro(Expm1)
 
 namespace ListIndex {
 
@@ -971,6 +942,8 @@ namespace IntrinsicFunctionRegistry {
             "exp"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
             "exp2"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Expm1),
+            "expm1"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"}
     };
@@ -988,6 +961,7 @@ namespace IntrinsicFunctionRegistry {
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
                 {"exp", {&Exp::create_Exp, &Exp::eval_Exp}},
                 {"exp2", {&Exp2::create_Exp2, &Exp2::eval_Exp2}},
+                {"expm1", {&Expm1::create_Expm1, &Expm1::eval_Expm1}},
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
@@ -1008,7 +982,8 @@ namespace IntrinsicFunctionRegistry {
                  id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
                  id_ == ASRUtils::IntrinsicFunctions::Sin ||
                  id_ == ASRUtils::IntrinsicFunctions::Exp ||
-                 id_ == ASRUtils::IntrinsicFunctions::Exp2 );
+                 id_ == ASRUtils::IntrinsicFunctions::Exp2 ||
+                 id_ == ASRUtils::IntrinsicFunctions::Expm1 );
     }
 
     /*
@@ -1068,6 +1043,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Abs)
         INTRINSIC_NAME_CASE(Exp)
         INTRINSIC_NAME_CASE(Exp2)
+        INTRINSIC_NAME_CASE(Expm1)
         INTRINSIC_NAME_CASE(Any)
         INTRINSIC_NAME_CASE(ListIndex)
         default : {
