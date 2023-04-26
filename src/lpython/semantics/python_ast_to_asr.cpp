@@ -3746,17 +3746,8 @@ public:
             in any directory other than src/runtime will also
             be ignored.
         */
-        if (mod_sym == "lpython") {
+        if (mod_sym == "lpython" || mod_sym == "numpy") {
             return ;
-        }
-
-        /*
-            If import_path is not empty then insert it
-            in the second priority. Top priority path
-            is runtime library path.
-        */
-        for( auto& path: import_paths ) {
-            paths.push_back(path);
         }
 
         /*
@@ -3820,7 +3811,13 @@ public:
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
             SymbolTable *st = current_scope;
-            std::vector<std::string> paths = {rl_path, parent_dir};
+            std::vector<std::string> paths;
+            for (auto &path:import_paths) {
+                paths.push_back(path);
+            }
+            paths.push_back(rl_path);
+            paths.push_back(parent_dir);
+
             if (!main_module) {
                 st = st->parent;
             }
@@ -3870,7 +3867,12 @@ public:
     void visit_Import(const AST::Import_t &x) {
         ASR::symbol_t *t = nullptr;
         std::string rl_path = get_runtime_library_dir();
-        std::vector<std::string> paths = {rl_path, parent_dir};
+        std::vector<std::string> paths;
+        for (auto &path:import_paths) {
+            paths.push_back(path);
+        }
+        paths.push_back(rl_path);
+        paths.push_back(parent_dir);
         SymbolTable *st = current_scope;
         std::vector<std::string> mods;
         for (size_t i=0; i<x.n_names; i++) {
