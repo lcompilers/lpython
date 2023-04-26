@@ -28,7 +28,7 @@ struct ProceduresDatabase {
                                     "int8", "exp", "exp2"}},
                          {"math", {"sin", "cos",
                                     "tan", "asin", "acos",
-                                    "atan", "exp"}},
+                                    "atan", "exp", "exp2"}},
                          {"enum", {"Enum"}}
                         };
     }

@@ -543,10 +543,9 @@ namespace Exp {
     static ASR::expr_t* eval_Exp(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args) {
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
         if (ASRUtils::is_real(*t)) {
-            double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
+            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
             return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
         } else {
             return nullptr;
@@ -576,10 +575,9 @@ namespace Exp2 {
     static ASR::expr_t* eval_Exp2(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args) {
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
         if (ASRUtils::is_real(*t)) {
-            double val = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
+            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
             return EXPR(ASR::make_RealConstant_t(al, loc, val, t));
         } else {
             return nullptr;

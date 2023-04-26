@@ -6554,12 +6554,9 @@ public:
             std::set<std::string> not_cpython_builtin = {
                 "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "exp", "exp2"
             };
-            if (not_cpython_builtin.find(call_name) != not_cpython_builtin.end() &&
-                imported_functions.find(call_name) == imported_functions.end() ) {
-                throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
-                        x.base.base.loc);
-            }
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)) {
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
+                (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
+                imported_functions.find(call_name) != imported_functions.end() )) {
                 ASRUtils::create_intrinsic_function create_func =
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
