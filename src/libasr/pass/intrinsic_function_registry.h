@@ -137,6 +137,10 @@ class ASRBuilder {
     #define iSub(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
         ASR::binopType::Sub, right, int32, nullptr))
 
+    #define And(x, y) EXPR(ASR::make_LogicalBinOp_t(al, loc, x,                 \
+        ASR::logicalbinopType::And, y, logical, nullptr))
+    #define Not(x)    EXPR(ASR::make_LogicalNot_t(al, loc, x, logical, nullptr))
+
     #define iEq(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
         ASR::cmpopType::Eq, y, logical, nullptr))
     #define sEq(x, y) EXPR(ASR::make_StringCompare_t(al, loc, x,                \
@@ -145,6 +149,8 @@ class ASRBuilder {
         ASR::cmpopType::NotEq, y, logical, nullptr))
     #define iLt(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
         ASR::cmpopType::Lt, y, logical, nullptr))
+    #define iGtE(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,              \
+        ASR::cmpopType::GtE, y, logical, nullptr))
 
     ASR::stmt_t *If(const Location &loc, ASR::expr_t *a_test,
             std::vector<ASR::stmt_t*> if_body,
@@ -522,7 +528,6 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         body.push_back(al, Assign(flag, bool(false)));
         body.push_back(al, Assign(i, i32(1)));
         body.push_back(al, Assign(pi_len, i32(0)));
-
         body.push_back(al, b.While(loc, iLt(i, pat_len), {
             b.If(loc, sEq(StringItem(args[1], iAdd(i, i32(1))),
                     StringItem(args[1], iAdd(pi_len, i32(1)))), {
@@ -540,114 +545,29 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         }));
         body.push_back(al, Assign(j, i32(0)));
         body.push_back(al, Assign(i, i32(0)));
-        {
-            ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
-                EXPR(ASR::make_IntegerCompare_t(al, loc,
-                    EXPR(ASR::make_IntegerBinOp_t(al, loc, s_len,
-                        ASR::binopType::Sub, i, int32, nullptr)),
-                    ASR::cmpopType::GtE,
-                    EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
-                        ASR::binopType::Sub, j, int32, nullptr)),
-                    logical, nullptr)),
-                ASR::logicalbinopType::And,
-                EXPR(ASR::make_LogicalNot_t(al, loc, flag, logical, nullptr)),
-                logical, nullptr));
-            Vec<ASR::stmt_t *>loop_body; loop_body.reserve(al, 1);
-            {
-                ASR::expr_t *a_test = EXPR(ASR::make_StringCompare_t(al, loc,
-                    EXPR(ASR::make_StringItem_t(al, loc, args[1],
-                        EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
-                            ASR::binopType::Add,
-                            i32(1),
-                            int32, nullptr)),
-                        character(-2), nullptr)),
-                        ASR::cmpopType::Eq,
-                        EXPR(ASR::make_StringItem_t(al, loc, args[0],
-                            EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                                ASR::binopType::Add,
-                                i32(1),
-                            int32, nullptr)),
-                        character(-2), nullptr)),
-                    logical, nullptr));
-                Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
-                if_body_1.push_back(al, Assign(i, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                    ASR::binopType::Add, i32(1), int32, nullptr))));
-                if_body_1.push_back(al, Assign(j,
-                    EXPR(ASR::make_IntegerBinOp_t(al, loc, j, ASR::binopType::Add,
-                    i32(1),
-                    int32, nullptr))));
-                loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
-                    if_body_1.p, if_body_1.n, nullptr, 0)));
-
-                a_test = EXPR(ASR::make_IntegerCompare_t(al, loc, j,
-                    ASR::cmpopType::Eq, pat_len, logical, nullptr));
-                if_body_1.p = nullptr; if_body_1.n = 0;
-                if_body_1.reserve(al, 1);
-                if_body_1.push_back(al, Assign(result, EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                    ASR::binopType::Sub, j, int32, nullptr))));
-                if_body_1.push_back(al, Assign(flag, bool(true)));
-                if_body_1.push_back(al, Assign(j,
-                    EXPR(ASR::make_ListItem_t(al, loc, lps,
-                        EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
-                            ASR::binopType::Sub,
-                            i32(1),
-                        int32, nullptr)),
-                    int32, nullptr))));
-                Vec<ASR::stmt_t *> else_body_1; else_body_1.reserve(al, 1);
-                {
-                    Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
-                    ASR::expr_t *a_test = EXPR(ASR::make_LogicalBinOp_t(al, loc,
-                        EXPR(ASR::make_IntegerCompare_t(al, loc, i,
-                            ASR::cmpopType::Lt, s_len, logical, nullptr)),
-                        ASR::logicalbinopType::And,
-                        EXPR(ASR::make_StringCompare_t(al, loc,
-                            EXPR(ASR::make_StringItem_t(al, loc, args[1],
-                                EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
-                                ASR::binopType::Add,
-                                i32(1),
-                                int32, nullptr)),
-                            character(-2), nullptr)),
-                            ASR::cmpopType::NotEq,
-                            EXPR(ASR::make_StringItem_t(al, loc, args[0],
-                                EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                                    ASR::binopType::Add,
-                                    i32(1),
-                                    int32, nullptr)),
-                                character(-2), nullptr)),
-                            logical, nullptr)),
-                        logical, nullptr));
-                    {
-                        Vec<ASR::stmt_t *> if_body_3; if_body_3.reserve(al, 1);
-                        Vec<ASR::stmt_t *> else_body_3; else_body_3.reserve(al, 1);
-                        ASR::expr_t *a_test = EXPR(ASR::make_IntegerCompare_t(al,
-                            loc, j, ASR::cmpopType::NotEq,
-                            i32(0),
-                            logical, nullptr));
-                        if_body_3.push_back(al, Assign(j,
-                            EXPR(ASR::make_ListItem_t(al, loc, lps,
-                                EXPR(ASR::make_IntegerBinOp_t(al, loc, j,
-                                    ASR::binopType::Sub,
-                                    i32(1),
-                                    int32, nullptr)),
-                                int32, nullptr))));
-                        else_body_3.push_back(al, Assign(i,
-                            EXPR(ASR::make_IntegerBinOp_t(al, loc, i,
-                                ASR::binopType::Add,
-                                i32(1),
-                                int32, nullptr))));
-                        if_body_2.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
-                            if_body_3.p, if_body_3.n, else_body_3.p, else_body_3.n)));
-                    }
-                    else_body_1.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
-                        if_body_2.p, if_body_2.n, nullptr, 0)));
-                }
-                loop_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test,
-                    if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n)));
-            }
-
-            body.push_back(al, STMT(ASR::make_WhileLoop_t(al, loc, nullptr, a_test,
-                loop_body.p, loop_body.n)));
-        }
+        body.push_back(al, b.While(loc, And(iGtE(iSub(s_len, i),
+                iSub(pat_len, j)), Not(flag)), {
+            b.If(loc, sEq(StringItem(args[1], iAdd(j, i32(1))),
+                    StringItem(args[0], iAdd(i, i32(1)))), {
+                Assign(i, iAdd(i, i32(1))),
+                Assign(j, iAdd(j, i32(1)))
+            }, {}),
+            b.If(loc, iEq(j, pat_len), {
+                Assign(result, iSub(i, j)),
+                Assign(flag, bool(true)),
+                Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
+            }, {
+                b.If(loc, And(iLt(i, s_len),
+                    iNotEq(StringItem(args[1], iAdd(j, i32(1))),
+                        StringItem(args[0], iAdd(i, i32(1))))), {
+                    b.If(loc, iNotEq(j, i32(0)), {
+                        Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
+                    }, {
+                        Assign(i, iAdd(i, i32(1)))
+                    })
+                }, {})
+            })
+        }));
         body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
 
     }
