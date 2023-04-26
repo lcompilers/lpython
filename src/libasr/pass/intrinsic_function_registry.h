@@ -229,6 +229,7 @@ class ASRBuilder {
     }
 
     // Statements --------------------------------------------------------------
+    #define Return() STMT(ASR::make_Return_t(al, loc))
     #define Assign(lhs, rhs) ASRUtils::STMT(ASR::make_Assignment_t(al, loc,     \
         lhs, rhs, nullptr))
 
@@ -469,28 +470,14 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         Variable(flag, logical, Local)
         Variable(lps, List(int32), Local)
 
-        body.push_back(al, Assign(s_len, EXPR(
-            ASR::make_StringLen_t(al, loc, args[0], int32, nullptr))));
-        body.push_back(al, Assign(pat_len, EXPR(
-            ASR::make_StringLen_t(al, loc, args[1], int32, nullptr))));
+        body.push_back(al, Assign(s_len, StringLen(args[0])));
+        body.push_back(al, Assign(pat_len, StringLen(args[1])));
         body.push_back(al, Assign(result, i32_n(-1)));
-
-        {
-            Vec<ASR::stmt_t *> if_body_1; if_body_1.reserve(al, 1);
-            Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
-            ASR::expr_t *a_test_1 = EXPR(ASR::make_IntegerCompare_t(al, loc,
-                pat_len, ASR::cmpopType::Eq, i32(0), logical, nullptr));
-            if_body_1.push_back(al, Assign(result, i32(0)));
-            if_body_1.push_back(al, STMT(ASR::make_Return_t(al, loc)));
-            ASR::expr_t *a_test_2 = EXPR(ASR::make_IntegerCompare_t(al, loc,
-                s_len, ASR::cmpopType::Eq, i32(0), logical, nullptr));
-            Vec<ASR::stmt_t *> if_body_2; if_body_2.reserve(al, 1);
-            if_body_2.push_back(al, STMT(ASR::make_Return_t(al, loc)));
-            else_body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test_2,
-                if_body_2.p, if_body_2.n, nullptr, 0)));
-            body.push_back(al, STMT(ASR::make_If_t(al, loc, a_test_1,
-                if_body_1.p, if_body_1.n, else_body.p, else_body.n)));
-        }
+        body.push_back(al, b.If(loc, iEq(pat_len, i32(0)), {
+                Assign(result, i32(0)), Return()
+            }, {
+                b.If(loc, iEq(s_len, i32(0)), { Return() }, {})
+            }));
         body.push_back(al, Assign(lps,
             EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
             List(int32)))));
@@ -1270,14 +1257,12 @@ namespace Partition {
         ASR::expr_t *value = nullptr;
         if (ASR::is_a<ASR::StringConstant_t>(*s_var)
          && ASR::is_a<ASR::StringConstant_t>(*arg)) {
-            ASR::StringConstant_t* sep = ASR::down_cast<ASR::StringConstant_t>(arg);
-            std::string s_sep = sep->m_s;
-            ASR::StringConstant_t* s_str = ASR::down_cast<ASR::StringConstant_t>(s_var);
-            std::string s_val = s_str->m_s;
+            std::string s_sep = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+            std::string s_str = ASR::down_cast<ASR::StringConstant_t>(s_var)->m_s;
             if (s_sep.size() == 0) {
-                err("Separator cannot be an empty string", sep->base.base.loc);
+                err("Separator cannot be an empty string", arg->base.loc);
             }
-            value = eval_Partition(al, loc, s_val, s_sep);
+            value = eval_Partition(al, loc, s_str, s_sep);
         }
 
         return ASR::make_IntrinsicFunction_t(al, loc,
