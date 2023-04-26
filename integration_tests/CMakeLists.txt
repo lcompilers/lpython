@@ -97,6 +97,7 @@ macro(RUN)
             endif()
 
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
+            target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
