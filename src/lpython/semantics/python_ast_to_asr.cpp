@@ -3746,7 +3746,7 @@ public:
             in any directory other than src/runtime will also
             be ignored.
         */
-        if (mod_sym == "lpython") {
+        if (mod_sym == "lpython" || mod_sym == "numpy") {
             return ;
         }
 
