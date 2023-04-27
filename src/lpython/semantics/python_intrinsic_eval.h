@@ -24,7 +24,7 @@ struct IntrinsicNodeHandler {
             {"bool", &handle_intrinsic_bool},
             {"len", &handle_intrinsic_len},
             {"reshape", &handle_reshape},
-            {"ord", &handle_intrinsic_ord},
+            //{"ord", &handle_intrinsic_ord},
             {"chr", &handle_intrinsic_chr},
         };
     }
@@ -409,32 +409,32 @@ struct IntrinsicNodeHandler {
         return ASR::make_ArrayReshape_t(al, loc, array, newshape, empty_type, nullptr);
     }
 
-    static ASR::asr_t* handle_intrinsic_ord(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
-        if (args.size() != 1) {
-            throw SemanticError("ord() takes exactly one argument (" +
-                std::to_string(args.size()) + " given)", loc);
-        }
-        ASR::expr_t *arg = args[0].m_value;
-        ASR::ttype_t *type = ASRUtils::expr_type(arg);
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
-        ASR::expr_t *value = nullptr;
-        if (ASRUtils::is_character(*type)) {
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(arg))->m_s;
-                if (std::string(c).size() != 1) {
-                    throw SemanticError("ord() is only supported for `str` of length 1", arg->base.loc);
-                }
-                value = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, loc, c[0], to_type));
-            }
-            return ASR::make_StringOrd_t(al, loc, arg, to_type, value);
-        } else {
-            throw SemanticError("ord() expected string of length 1, but " + ASRUtils::type_to_str_python(type) + " found",
-                arg->base.loc);
-        }
-    }
+    // static ASR::asr_t* handle_intrinsic_ord(Allocator &al, Vec<ASR::call_arg_t> args,
+    //                                     const Location &loc) {
+    //     if (args.size() != 1) {
+    //         throw SemanticError("ord() takes exactly one argument (" +
+    //             std::to_string(args.size()) + " given)", loc);
+    //     }
+    //     ASR::expr_t *arg = args[0].m_value;
+    //     ASR::ttype_t *type = ASRUtils::expr_type(arg);
+    //     ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+    //                             4, nullptr, 0));
+    //     ASR::expr_t *value = nullptr;
+    //     if (ASRUtils::is_character(*type)) {
+    //         if (ASRUtils::expr_value(arg) != nullptr) {
+    //             char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(arg))->m_s;
+    //             if (std::string(c).size() != 1) {
+    //                 throw SemanticError("ord() is only supported for `str` of length 1", arg->base.loc);
+    //             }
+    //             value = ASR::down_cast<ASR::expr_t>(
+    //                 ASR::make_IntegerConstant_t(al, loc, c[0], to_type));
+    //         }
+    //         return ASR::make_StringOrd_t(al, loc, arg, to_type, value);
+    //     } else {
+    //         throw SemanticError("ord() expected string of length 1, but " + ASRUtils::type_to_str_python(type) + " found",
+    //             arg->base.loc);
+    //     }
+    // }
 
     static ASR::asr_t* handle_intrinsic_chr(Allocator &al, Vec<ASR::call_arg_t> args,
                                         const Location &loc) {
