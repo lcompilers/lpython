@@ -111,7 +111,7 @@ public:
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
     bool is_c;
-    std::set<std::string> headers;
+    std::set<std::string> headers, user_headers;
     std::vector<std::string> tmp_buffer_src;
 
     SymbolTable* global_scope;
@@ -542,9 +542,16 @@ R"(#include <stdio.h>
             src = "";
             return;
         }
-        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
-            && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
-            sub += ";\n";
+        ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
+        if (f_type->m_abi == ASR::abiType::BindC
+            && f_type->m_deftype == ASR::deftypeType::Interface) {
+            if (x.m_c_header) {
+                user_headers.insert(std::string(x.m_c_header));
+                src = "";
+                return;
+            } else {
+                sub += ";\n";
+            }
         } else {
             sub += "\n";
 
@@ -1368,7 +1375,7 @@ R"(#include <stdio.h>
             }
             case (ASR::cast_kindType::IntegerToComplex) : {
                 if (is_c) {
-                    headers.insert("complex");
+                    headers.insert("complex.h");
                     src = "CMPLX(" + src + ", 0)";
                 } else {
                     src = "std::complex<double>(" + src + ")";
@@ -1378,7 +1385,7 @@ R"(#include <stdio.h>
             }
             case (ASR::cast_kindType::ComplexToReal) : {
                 if (is_c) {
-                    headers.insert("complex");
+                    headers.insert("complex.h");
                     src = "creal(" + src + ")";
                 } else {
                     src = "std::real(" + src + ")";
@@ -1388,7 +1395,7 @@ R"(#include <stdio.h>
             }
             case (ASR::cast_kindType::RealToComplex) : {
                 if (is_c) {
-                    headers.insert("complex");
+                    headers.insert("complex.h");
                     src = "CMPLX(" + src + ", 0.0)";
                 } else {
                     src = "std::complex<double>(" + src + ")";
@@ -1593,7 +1600,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ComplexRe(const ASR::ComplexRe_t &x) {
-        headers.insert("complex");
+        headers.insert("complex.h");
         CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         if (is_c) {
@@ -1604,7 +1611,7 @@ R"(#include <stdio.h>
     }
 
     void visit_ComplexIm(const ASR::ComplexIm_t &x) {
-        headers.insert("complex");
+        headers.insert("complex.h");
         CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         if (is_c) {
@@ -1683,7 +1690,7 @@ R"(#include <stdio.h>
             case (ASR::binopType::Pow) : {
                 src = "pow(" + left + ", " + right + ")";
                 if (is_c) {
-                    headers.insert("math");
+                    headers.insert("math.h");
                 } else {
                     src = "std::" + src;
                 }

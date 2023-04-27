@@ -89,6 +89,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             change_struct:
                                 (Function
@@ -189,6 +190,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -261,6 +263,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -497,6 +500,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

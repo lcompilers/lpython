@@ -6,7 +6,7 @@ class CompareOperator:
     op_code: i32
     op_name: str
 
-@ccall
+@ccall(header="bindc_06b.h")
 def compare_array_element(value1: i32, value2: f64, op: i32) -> i32:
     pass
 

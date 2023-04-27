@@ -127,6 +127,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_main_program:
                                 (Function
@@ -164,6 +165,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             swap:
                                 (Function
@@ -285,6 +287,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             test_abs:
                                 (Function
@@ -246,6 +246,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_bool:
                                 (Function
@@ -439,6 +440,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_boz:
                                 (Function
@@ -662,6 +664,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_callable:
                                 (Function
@@ -789,6 +792,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_divmod:
                                 (Function
@@ -965,6 +969,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_float:
                                 (Function
@@ -1087,6 +1092,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_int:
                                 (Function
@@ -1210,6 +1216,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_len:
                                 (Function
@@ -1533,6 +1540,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_ord_chr:
                                 (Function
@@ -1616,6 +1624,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_str:
                                 (Function
@@ -1754,6 +1763,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -1766,7 +1776,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        119
+                        127
                         {
                             
                         })

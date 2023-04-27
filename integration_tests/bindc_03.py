@@ -4,14 +4,14 @@ from lpython import c_p_pointer, CPtr, pointer, i32, Pointer, ccall, p_c_pointer
 class ArrayWrapped:
     array: CPtr
 
-@ccall
+@ccall(header="bindc_03b.h")
 def g(a: CPtr, value: i32, offset_value: bool) -> None:
     pass
 
 def gpy(a: CPtr, value: i32, offset_value: bool) -> None:
     g(a, value, offset_value)
 
-@ccall
+@ccall(header="bindc_03b.h")
 def get_array(size: i32) -> CPtr:
     pass
 

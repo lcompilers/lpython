@@ -89,6 +89,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             f:
                                 (Function
@@ -326,6 +327,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -376,6 +378,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

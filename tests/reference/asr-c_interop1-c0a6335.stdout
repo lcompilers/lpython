@@ -66,6 +66,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -162,6 +163,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             h:
                                 (Function
@@ -236,6 +238,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             l:
                                 (Function
@@ -340,6 +343,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -528,6 +532,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

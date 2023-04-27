@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        192
+                        200
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        191
+                                        199
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [declare_arrays]
                                     []
                                     [(SubroutineCall
-                                        192 declare_arrays
+                                        200 declare_arrays
                                         ()
                                         []
                                         ()
@@ -42,15 +42,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_multidim_f32_array:
                                 (Function
                                     (SymbolTable
-                                        187
+                                        195
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    187
+                                                    195
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -65,7 +66,7 @@
                                                 ),
                                             xf32:
                                                 (Variable
-                                                    187
+                                                    195
                                                     xf32
                                                     []
                                                     InOut
@@ -98,11 +99,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 187 xf32)]
+                                    [(Var 195 xf32)]
                                     [(=
-                                        (Var 187 _lpython_return_variable)
+                                        (Var 195 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 187 xf32)
+                                            (Var 195 xf32)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())]
@@ -113,19 +114,20 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 187 _lpython_return_variable)
+                                    (Var 195 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_multidim_f64_array:
                                 (Function
                                     (SymbolTable
-                                        188
+                                        196
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    188
+                                                    196
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -140,7 +142,7 @@
                                                 ),
                                             xf64:
                                                 (Variable
-                                                    188
+                                                    196
                                                     xf64
                                                     []
                                                     InOut
@@ -177,11 +179,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 188 xf64)]
+                                    [(Var 196 xf64)]
                                     [(=
-                                        (Var 188 _lpython_return_variable)
+                                        (Var 196 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 188 xf64)
+                                            (Var 196 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())
@@ -195,19 +197,20 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 188 _lpython_return_variable)
+                                    (Var 196 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_multidim_i32_array:
                                 (Function
                                     (SymbolTable
-                                        185
+                                        193
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    185
+                                                    193
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -222,7 +225,7 @@
                                                 ),
                                             xi32:
                                                 (Variable
-                                                    185
+                                                    193
                                                     xi32
                                                     []
                                                     InOut
@@ -259,11 +262,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 185 xi32)]
+                                    [(Var 193 xi32)]
                                     [(=
-                                        (Var 185 _lpython_return_variable)
+                                        (Var 193 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 185 xi32)
+                                            (Var 193 xi32)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())
@@ -277,19 +280,20 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 185 _lpython_return_variable)
+                                    (Var 193 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             accept_multidim_i64_array:
                                 (Function
                                     (SymbolTable
-                                        186
+                                        194
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    186
+                                                    194
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -304,7 +308,7 @@
                                                 ),
                                             xi64:
                                                 (Variable
-                                                    186
+                                                    194
                                                     xi64
                                                     []
                                                     InOut
@@ -345,11 +349,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 186 xi64)]
+                                    [(Var 194 xi64)]
                                     [(=
-                                        (Var 186 _lpython_return_variable)
+                                        (Var 194 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 186 xi64)
+                                            (Var 194 xi64)
                                             [(()
                                             (IntegerConstant 9 (Integer 4 []))
                                             ())
@@ -366,19 +370,20 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 186 _lpython_return_variable)
+                                    (Var 194 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             declare_arrays:
                                 (Function
                                     (SymbolTable
-                                        189
+                                        197
                                         {
                                             ac32:
                                                 (Variable
-                                                    189
+                                                    197
                                                     ac32
                                                     []
                                                     Local
@@ -398,7 +403,7 @@
                                                 ),
                                             ac64:
                                                 (Variable
-                                                    189
+                                                    197
                                                     ac64
                                                     []
                                                     Local
@@ -420,7 +425,7 @@
                                                 ),
                                             af32:
                                                 (Variable
-                                                    189
+                                                    197
                                                     af32
                                                     []
                                                     Local
@@ -436,7 +441,7 @@
                                                 ),
                                             af64:
                                                 (Variable
-                                                    189
+                                                    197
                                                     af64
                                                     []
                                                     Local
@@ -454,7 +459,7 @@
                                                 ),
                                             ai32:
                                                 (Variable
-                                                    189
+                                                    197
                                                     ai32
                                                     []
                                                     Local
@@ -472,7 +477,7 @@
                                                 ),
                                             ai64:
                                                 (Variable
-                                                    189
+                                                    197
                                                     ai64
                                                     []
                                                     Local
@@ -515,9 +520,9 @@
                                     [(Print
                                         ()
                                         [(FunctionCall
-                                            192 accept_multidim_i32_array
+                                            200 accept_multidim_i32_array
                                             ()
-                                            [((Var 189 ai32))]
+                                            [((Var 197 ai32))]
                                             (Integer 4 [])
                                             ()
                                             ()
@@ -528,9 +533,9 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            192 accept_multidim_i64_array
+                                            200 accept_multidim_i64_array
                                             ()
-                                            [((Var 189 ai64))]
+                                            [((Var 197 ai64))]
                                             (Integer 8 [])
                                             ()
                                             ()
@@ -541,9 +546,9 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            192 accept_multidim_f32_array
+                                            200 accept_multidim_f32_array
                                             ()
-                                            [((Var 189 af32))]
+                                            [((Var 197 af32))]
                                             (Real 4 [])
                                             ()
                                             ()
@@ -554,9 +559,9 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            192 accept_multidim_f64_array
+                                            200 accept_multidim_f64_array
                                             ()
-                                            [((Var 189 af64))]
+                                            [((Var 197 af64))]
                                             (Real 8 [])
                                             ()
                                             ()
@@ -568,6 +573,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -580,13 +586,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        190
+                        198
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    190
+                                    198
                                     _lpython_main_program
-                                    192 _lpython_main_program
+                                    200 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -596,7 +602,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        190 _lpython_main_program
+                        198 _lpython_main_program
                         ()
                         []
                         ()
@@ -678,6 +684,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arccosh:
                                 (Function
@@ -750,6 +757,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsin:
                                 (Function
@@ -822,6 +830,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsinh:
                                 (Function
@@ -894,6 +903,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctan:
                                 (Function
@@ -966,6 +976,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctanh:
                                 (Function
@@ -1038,6 +1049,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__ceil:
                                 (Function
@@ -1190,6 +1202,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cos:
                                 (Function
@@ -1262,6 +1275,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cosh:
                                 (Function
@@ -1334,6 +1348,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__degrees:
                                 (Function
@@ -1414,6 +1429,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__exp:
                                 (Function
@@ -1486,6 +1502,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__floor:
                                 (Function
@@ -1638,6 +1655,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log:
                                 (Function
@@ -1710,6 +1728,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log10:
                                 (Function
@@ -1782,6 +1801,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log2:
                                 (Function
@@ -1870,6 +1890,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__mod:
                                 (Function
@@ -2006,6 +2027,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__radians:
                                 (Function
@@ -2086,6 +2108,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sin:
                                 (Function
@@ -2158,6 +2181,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sinh:
                                 (Function
@@ -2230,6 +2254,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sqrt:
                                 (Function
@@ -2326,6 +2351,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tan:
                                 (Function
@@ -2398,6 +2424,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tanh:
                                 (Function
@@ -2470,6 +2497,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccos:
                                 (Function
@@ -2542,6 +2570,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccosh:
                                 (Function
@@ -2614,6 +2643,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsin:
                                 (Function
@@ -2686,6 +2716,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsinh:
                                 (Function
@@ -2758,6 +2789,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctan:
                                 (Function
@@ -2830,6 +2862,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctanh:
                                 (Function
@@ -2902,6 +2935,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__ceil:
                                 (Function
@@ -3047,6 +3081,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cos:
                                 (Function
@@ -3119,6 +3154,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cosh:
                                 (Function
@@ -3191,6 +3227,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__degrees:
                                 (Function
@@ -3276,6 +3313,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__exp:
                                 (Function
@@ -3348,6 +3386,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__floor:
                                 (Function
@@ -3493,6 +3532,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log:
                                 (Function
@@ -3565,6 +3605,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log10:
                                 (Function
@@ -3637,6 +3678,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log2:
                                 (Function
@@ -3733,6 +3775,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__mod:
                                 (Function
@@ -3859,6 +3902,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__radians:
                                 (Function
@@ -3944,6 +3988,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sin:
                                 (Function
@@ -4016,6 +4061,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sinh:
                                 (Function
@@ -4088,6 +4134,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sqrt:
                                 (Function
@@ -4192,6 +4239,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tan:
                                 (Function
@@ -4264,6 +4312,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tanh:
                                 (Function
@@ -4336,6 +4385,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacos:
                                 (Function
@@ -4396,6 +4446,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacosh:
                                 (Function
@@ -4456,6 +4507,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasin:
                                 (Function
@@ -4516,6 +4568,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasinh:
                                 (Function
@@ -4576,6 +4629,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datan:
                                 (Function
@@ -4636,6 +4690,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datanh:
                                 (Function
@@ -4696,6 +4751,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcos:
                                 (Function
@@ -4756,6 +4812,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcosh:
                                 (Function
@@ -4816,6 +4873,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dexp:
                                 (Function
@@ -4876,6 +4934,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog:
                                 (Function
@@ -4936,6 +4995,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog10:
                                 (Function
@@ -4996,6 +5056,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsin:
                                 (Function
@@ -5056,6 +5117,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsinh:
                                 (Function
@@ -5116,6 +5178,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtan:
                                 (Function
@@ -5176,6 +5239,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtanh:
                                 (Function
@@ -5236,6 +5300,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacos:
                                 (Function
@@ -5296,6 +5361,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacosh:
                                 (Function
@@ -5356,6 +5422,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasin:
                                 (Function
@@ -5416,6 +5483,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasinh:
                                 (Function
@@ -5476,6 +5544,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satan:
                                 (Function
@@ -5536,6 +5605,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satanh:
                                 (Function
@@ -5596,6 +5666,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scos:
                                 (Function
@@ -5656,6 +5727,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scosh:
                                 (Function
@@ -5716,6 +5788,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sexp:
                                 (Function
@@ -5776,6 +5849,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog:
                                 (Function
@@ -5836,6 +5910,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog10:
                                 (Function
@@ -5896,6 +5971,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssin:
                                 (Function
@@ -5956,6 +6032,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssinh:
                                 (Function
@@ -6016,6 +6093,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stan:
                                 (Function
@@ -6076,6 +6154,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stanh:
                                 (Function
@@ -6136,6 +6215,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             arccos:
                                 (GenericProcedure

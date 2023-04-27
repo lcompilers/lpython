@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        112
+                        120
                         {
                             test:
                                 (Function
@@ -193,6 +193,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex:
                                 (Function
@@ -761,6 +762,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -773,7 +775,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        111
+                        119
                         {
                             
                         })

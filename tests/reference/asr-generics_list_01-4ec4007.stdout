@@ -224,6 +224,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __asr_generic_mean_1:
                                 (Function
@@ -424,6 +425,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __asr_generic_mean_2:
                                 (Function
@@ -624,6 +626,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_main_program:
                                 (Function
@@ -734,6 +737,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add:
                                 (Function
@@ -832,6 +836,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add_float:
                                 (Function
@@ -920,6 +925,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add_integer:
                                 (Function
@@ -1008,6 +1014,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             add_string:
                                 (Function
@@ -1095,6 +1102,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             div:
                                 (Function
@@ -1181,6 +1189,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             div_float:
                                 (Function
@@ -1274,6 +1283,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             div_integer:
                                 (Function
@@ -1372,6 +1382,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             div_string:
                                 (Function
@@ -1457,6 +1468,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             empty_float:
                                 (Function
@@ -1525,6 +1537,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             empty_integer:
                                 (Function
@@ -1590,6 +1603,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             empty_string:
                                 (Function
@@ -1658,6 +1672,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             mean:
                                 (Function
@@ -1884,6 +1899,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             zero:
                                 (Function
@@ -1959,6 +1975,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

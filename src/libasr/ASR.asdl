@@ -86,7 +86,7 @@ symbol
         bool loaded_from_mod, bool intrinsic)
     | Function(symbol_table symtab, identifier name, ttype function_signature,
         identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free)
+        access access, bool deterministic, bool side_effect_free,  string? c_header)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,

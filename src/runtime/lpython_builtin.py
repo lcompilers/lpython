@@ -837,6 +837,49 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
         res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
     return res
 
+@overload
+def _lpython_str_islower(s: str) -> bool:
+    is_cased_present: bool 
+    is_cased_present = False
+    i:str
+    for i in s:
+        if (ord(i) >= 97 and ord(i) <= 122) or (ord(i) >= 65 and ord(i) <= 90): # Implies it is a cased letter
+            is_cased_present = True
+            if not(ord(i) >= 97 and ord(i) <= 122): # Not lowercase
+                return False
+    return is_cased_present
+
+@overload
+def _lpython_str_isupper(s: str) -> bool:
+    is_cased_present: bool 
+    is_cased_present = False
+    i:str
+    for i in s:
+        if (ord(i) >= 97 and ord(i) <= 122) or (ord(i) >= 65 and ord(i) <= 90): # Implies it is a cased letter
+            is_cased_present = True
+            if not(ord(i) >= 65 and ord(i) <= 90): # Not lowercase
+                return False
+    return is_cased_present
+
+@overload
+def _lpython_str_isdecimal(s: str) -> bool:
+    if len(s) == 0:
+        return False
+    i:str
+    for i in s:
+        if (ord(i) < 48 or ord(i) > 57): # Implies it is not a digit
+            return False
+    return True
+
+@overload
+def _lpython_str_isascii(s: str) -> bool:
+    if(len(s) == 0):
+        return True
+    i: str
+    for i in s:
+        if ord(i) < 0 or ord(i) > 127:
+            return False
+    return True
 
 def list(s: str) -> list[str]:
     l: list[str] = []

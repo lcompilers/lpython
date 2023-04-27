@@ -169,6 +169,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -398,6 +399,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             update_1:
                                 (Function
@@ -537,6 +539,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             update_2:
                                 (Function
@@ -744,6 +747,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             verify:
                                 (Function
@@ -1357,6 +1361,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

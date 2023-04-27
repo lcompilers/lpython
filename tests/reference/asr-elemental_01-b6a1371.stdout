@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        220
+                        228
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        219
+                                        227
                                         {
                                             
                                         })
@@ -37,31 +37,31 @@
                                     elemental_mul]
                                     []
                                     [(SubroutineCall
-                                        220 elemental_sin
+                                        228 elemental_sin
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 elemental_cos
+                                        228 elemental_cos
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 elemental_trig_identity
+                                        228 elemental_trig_identity
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 elemental_sum
+                                        228 elemental_sum
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 elemental_mul
+                                        228 elemental_mul
                                         ()
                                         []
                                         ()
@@ -70,10 +70,11 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             cos:
                                 (ExternalSymbol
-                                    220
+                                    228
                                     cos
                                     3 cos
                                     numpy
@@ -84,11 +85,11 @@
                             elemental_cos:
                                 (Function
                                     (SymbolTable
-                                        193
+                                        201
                                         {
                                             array2d:
                                                 (Variable
-                                                    193
+                                                    201
                                                     array2d
                                                     []
                                                     Local
@@ -106,7 +107,7 @@
                                                 ),
                                             cos2d:
                                                 (Variable
-                                                    193
+                                                    201
                                                     cos2d
                                                     []
                                                     Local
@@ -124,7 +125,7 @@
                                                 ),
                                             cos@__lpython_overloaded_0__cos:
                                                 (ExternalSymbol
-                                                    193
+                                                    201
                                                     cos@__lpython_overloaded_0__cos
                                                     3 __lpython_overloaded_0__cos
                                                     numpy
@@ -134,7 +135,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    193
+                                                    201
                                                     i
                                                     []
                                                     Local
@@ -149,7 +150,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    193
+                                                    201
                                                     j
                                                     []
                                                     Local
@@ -184,7 +185,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 193 i)
+                                        ((Var 201 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4 []))
@@ -196,7 +197,7 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(DoLoop
                                             ()
-                                            ((Var 193 j)
+                                            ((Var 201 j)
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (IntegerConstant 64 (Integer 4 []))
@@ -208,12 +209,12 @@
                                             (IntegerConstant 1 (Integer 4 [])))
                                             [(=
                                                 (ArrayItem
-                                                    (Var 193 array2d)
+                                                    (Var 201 array2d)
                                                     [(()
-                                                    (Var 193 i)
+                                                    (Var 201 i)
                                                     ())
                                                     (()
-                                                    (Var 193 j)
+                                                    (Var 201 j)
                                                     ())]
                                                     (Real 8 [])
                                                     RowMajor
@@ -221,9 +222,9 @@
                                                 )
                                                 (Cast
                                                     (IntegerBinOp
-                                                        (Var 193 i)
+                                                        (Var 201 i)
                                                         Add
-                                                        (Var 193 j)
+                                                        (Var 201 j)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -236,12 +237,12 @@
                                         )]
                                     )
                                     (=
-                                        (Var 193 cos2d)
+                                        (Var 201 cos2d)
                                         (RealBinOp
                                             (FunctionCall
-                                                193 cos@__lpython_overloaded_0__cos
-                                                220 cos
-                                                [((Var 193 array2d))]
+                                                201 cos@__lpython_overloaded_0__cos
+                                                228 cos
+                                                [((Var 201 array2d))]
                                                 (Real 8 [((IntegerConstant 0 (Integer 4 []))
                                                 (IntegerConstant 256 (Integer 4 [])))
                                                 ((IntegerConstant 0 (Integer 4 []))
@@ -263,10 +264,10 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 verify2d
+                                        228 verify2d
                                         ()
-                                        [((Var 193 array2d))
-                                        ((Var 193 cos2d))
+                                        [((Var 201 array2d))
+                                        ((Var 201 cos2d))
                                         ((IntegerConstant 256 (Integer 4 [])))
                                         ((IntegerConstant 64 (Integer 4 [])))]
                                         ()
@@ -275,15 +276,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             elemental_mul:
                                 (Function
                                     (SymbolTable
-                                        191
+                                        199
                                         {
                                             array_a:
                                                 (Variable
-                                                    191
+                                                    199
                                                     array_a
                                                     []
                                                     Local
@@ -299,7 +301,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    191
+                                                    199
                                                     array_b
                                                     []
                                                     Local
@@ -315,7 +317,7 @@
                                                 ),
                                             array_c:
                                                 (Variable
-                                                    191
+                                                    199
                                                     array_c
                                                     []
                                                     Local
@@ -331,7 +333,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    191
+                                                    199
                                                     i
                                                     []
                                                     Local
@@ -346,7 +348,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    191
+                                                    199
                                                     j
                                                     []
                                                     Local
@@ -361,7 +363,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    191
+                                                    199
                                                     k
                                                     []
                                                     Local
@@ -395,7 +397,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 191 i)
+                                        ((Var 199 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4 []))
@@ -407,16 +409,16 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 191 array_a)
+                                                (Var 199 array_a)
                                                 [(()
-                                                (Var 191 i)
+                                                (Var 199 i)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 191 i)
+                                                (Var 199 i)
                                                 IntegerToReal
                                                 (Real 8 [])
                                                 ()
@@ -426,7 +428,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 191 j)
+                                        ((Var 199 j)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4 []))
@@ -438,9 +440,9 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 191 array_b)
+                                                (Var 199 array_b)
                                                 [(()
-                                                (Var 191 j)
+                                                (Var 199 j)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
@@ -448,7 +450,7 @@
                                             )
                                             (Cast
                                                 (IntegerBinOp
-                                                    (Var 191 j)
+                                                    (Var 199 j)
                                                     Add
                                                     (IntegerConstant 5 (Integer 4 []))
                                                     (Integer 4 [])
@@ -462,11 +464,11 @@
                                         )]
                                     )
                                     (=
-                                        (Var 191 array_c)
+                                        (Var 199 array_c)
                                         (RealBinOp
                                             (RealBinOp
                                                 (RealBinOp
-                                                    (Var 191 array_a)
+                                                    (Var 199 array_a)
                                                     Pow
                                                     (RealConstant
                                                         2.000000
@@ -487,7 +489,7 @@
                                             )
                                             Mul
                                             (RealBinOp
-                                                (Var 191 array_b)
+                                                (Var 199 array_b)
                                                 Pow
                                                 (RealConstant
                                                     3.000000
@@ -504,11 +506,11 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 verify1d_mul
+                                        228 verify1d_mul
                                         ()
-                                        [((Var 191 array_a))
-                                        ((Var 191 array_b))
-                                        ((Var 191 array_c))
+                                        [((Var 199 array_a))
+                                        ((Var 199 array_b))
+                                        ((Var 199 array_c))
                                         ((IntegerConstant 100 (Integer 4 [])))]
                                         ()
                                     )]
@@ -516,15 +518,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             elemental_sin:
                                 (Function
                                     (SymbolTable
-                                        192
+                                        200
                                         {
                                             array1d:
                                                 (Variable
-                                                    192
+                                                    200
                                                     array1d
                                                     []
                                                     Local
@@ -540,7 +543,7 @@
                                                 ),
                                             arraynd:
                                                 (Variable
-                                                    192
+                                                    200
                                                     arraynd
                                                     []
                                                     Local
@@ -560,7 +563,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    192
+                                                    200
                                                     i
                                                     []
                                                     Local
@@ -575,7 +578,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    192
+                                                    200
                                                     j
                                                     []
                                                     Local
@@ -590,7 +593,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    192
+                                                    200
                                                     k
                                                     []
                                                     Local
@@ -605,7 +608,7 @@
                                                 ),
                                             sin1d:
                                                 (Variable
-                                                    192
+                                                    200
                                                     sin1d
                                                     []
                                                     Local
@@ -621,7 +624,7 @@
                                                 ),
                                             sin@__lpython_overloaded_0__sin:
                                                 (ExternalSymbol
-                                                    192
+                                                    200
                                                     sin@__lpython_overloaded_0__sin
                                                     3 __lpython_overloaded_0__sin
                                                     numpy
@@ -631,7 +634,7 @@
                                                 ),
                                             sin@__lpython_overloaded_1__sin:
                                                 (ExternalSymbol
-                                                    192
+                                                    200
                                                     sin@__lpython_overloaded_1__sin
                                                     3 __lpython_overloaded_1__sin
                                                     numpy
@@ -641,7 +644,7 @@
                                                 ),
                                             sinnd:
                                                 (Variable
-                                                    192
+                                                    200
                                                     sinnd
                                                     []
                                                     Local
@@ -683,7 +686,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 192 i)
+                                        ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4 []))
@@ -695,16 +698,16 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 192 array1d)
+                                                (Var 200 array1d)
                                                 [(()
-                                                (Var 192 i)
+                                                (Var 200 i)
                                                 ())]
                                                 (Real 4 [])
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 192 i)
+                                                (Var 200 i)
                                                 IntegerToReal
                                                 (Real 4 [])
                                                 ()
@@ -713,14 +716,14 @@
                                         )]
                                     )
                                     (=
-                                        (Var 192 sin1d)
+                                        (Var 200 sin1d)
                                         (FunctionCall
-                                            192 sin@__lpython_overloaded_1__sin
-                                            220 sin
+                                            200 sin@__lpython_overloaded_1__sin
+                                            228 sin
                                             [((FunctionCall
-                                                192 sin@__lpython_overloaded_1__sin
-                                                220 sin
-                                                [((Var 192 array1d))]
+                                                200 sin@__lpython_overloaded_1__sin
+                                                228 sin
+                                                [((Var 200 array1d))]
                                                 (Real 4 [((IntegerConstant 0 (Integer 4 []))
                                                 (IntegerConstant 256 (Integer 4 [])))])
                                                 ()
@@ -734,16 +737,16 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 verify1d
+                                        228 verify1d
                                         ()
-                                        [((Var 192 array1d))
-                                        ((Var 192 sin1d))
+                                        [((Var 200 array1d))
+                                        ((Var 200 sin1d))
                                         ((IntegerConstant 256 (Integer 4 [])))]
                                         ()
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 192 i)
+                                        ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4 []))
@@ -755,7 +758,7 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(DoLoop
                                             ()
-                                            ((Var 192 j)
+                                            ((Var 200 j)
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (IntegerConstant 64 (Integer 4 []))
@@ -767,7 +770,7 @@
                                             (IntegerConstant 1 (Integer 4 [])))
                                             [(DoLoop
                                                 ()
-                                                ((Var 192 k)
+                                                ((Var 200 k)
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (IntegerConstant 16 (Integer 4 []))
@@ -779,15 +782,15 @@
                                                 (IntegerConstant 1 (Integer 4 [])))
                                                 [(=
                                                     (ArrayItem
-                                                        (Var 192 arraynd)
+                                                        (Var 200 arraynd)
                                                         [(()
-                                                        (Var 192 i)
+                                                        (Var 200 i)
                                                         ())
                                                         (()
-                                                        (Var 192 j)
+                                                        (Var 200 j)
                                                         ())
                                                         (()
-                                                        (Var 192 k)
+                                                        (Var 200 k)
                                                         ())]
                                                         (Real 8 [])
                                                         RowMajor
@@ -796,14 +799,14 @@
                                                     (Cast
                                                         (IntegerBinOp
                                                             (IntegerBinOp
-                                                                (Var 192 i)
+                                                                (Var 200 i)
                                                                 Add
-                                                                (Var 192 j)
+                                                                (Var 200 j)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
                                                             Add
-                                                            (Var 192 k)
+                                                            (Var 200 k)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -817,12 +820,12 @@
                                         )]
                                     )
                                     (=
-                                        (Var 192 sinnd)
+                                        (Var 200 sinnd)
                                         (RealBinOp
                                             (FunctionCall
-                                                192 sin@__lpython_overloaded_0__sin
-                                                220 sin
-                                                [((Var 192 arraynd))]
+                                                200 sin@__lpython_overloaded_0__sin
+                                                228 sin
+                                                [((Var 200 arraynd))]
                                                 (Real 8 [((IntegerConstant 0 (Integer 4 []))
                                                 (IntegerConstant 256 (Integer 4 [])))
                                                 ((IntegerConstant 0 (Integer 4 []))
@@ -848,10 +851,10 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 verifynd
+                                        228 verifynd
                                         ()
-                                        [((Var 192 arraynd))
-                                        ((Var 192 sinnd))
+                                        [((Var 200 arraynd))
+                                        ((Var 200 sinnd))
                                         ((IntegerConstant 256 (Integer 4 [])))
                                         ((IntegerConstant 64 (Integer 4 [])))
                                         ((IntegerConstant 16 (Integer 4 [])))]
@@ -861,15 +864,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             elemental_sum:
                                 (Function
                                     (SymbolTable
-                                        190
+                                        198
                                         {
                                             array_a:
                                                 (Variable
-                                                    190
+                                                    198
                                                     array_a
                                                     []
                                                     Local
@@ -885,7 +889,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    190
+                                                    198
                                                     array_b
                                                     []
                                                     Local
@@ -901,7 +905,7 @@
                                                 ),
                                             array_c:
                                                 (Variable
-                                                    190
+                                                    198
                                                     array_c
                                                     []
                                                     Local
@@ -917,7 +921,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    190
+                                                    198
                                                     i
                                                     []
                                                     Local
@@ -932,7 +936,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    190
+                                                    198
                                                     j
                                                     []
                                                     Local
@@ -947,7 +951,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    190
+                                                    198
                                                     k
                                                     []
                                                     Local
@@ -981,7 +985,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 190 i)
+                                        ((Var 198 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4 []))
@@ -993,16 +997,16 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 190 array_a)
+                                                (Var 198 array_a)
                                                 [(()
-                                                (Var 190 i)
+                                                (Var 198 i)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
                                                 ()
                                             )
                                             (Cast
-                                                (Var 190 i)
+                                                (Var 198 i)
                                                 IntegerToReal
                                                 (Real 8 [])
                                                 ()
@@ -1012,7 +1016,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 190 j)
+                                        ((Var 198 j)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 100 (Integer 4 []))
@@ -1024,9 +1028,9 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 190 array_b)
+                                                (Var 198 array_b)
                                                 [(()
-                                                (Var 190 j)
+                                                (Var 198 j)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
@@ -1034,7 +1038,7 @@
                                             )
                                             (Cast
                                                 (IntegerBinOp
-                                                    (Var 190 j)
+                                                    (Var 198 j)
                                                     Add
                                                     (IntegerConstant 5 (Integer 4 []))
                                                     (Integer 4 [])
@@ -1048,10 +1052,10 @@
                                         )]
                                     )
                                     (=
-                                        (Var 190 array_c)
+                                        (Var 198 array_c)
                                         (RealBinOp
                                             (RealBinOp
-                                                (Var 190 array_a)
+                                                (Var 198 array_a)
                                                 Pow
                                                 (RealConstant
                                                     2.000000
@@ -1069,7 +1073,7 @@
                                                 )
                                                 Mul
                                                 (RealBinOp
-                                                    (Var 190 array_b)
+                                                    (Var 198 array_b)
                                                     Pow
                                                     (RealConstant
                                                         3.000000
@@ -1090,11 +1094,11 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        220 verify1d_sum
+                                        228 verify1d_sum
                                         ()
-                                        [((Var 190 array_a))
-                                        ((Var 190 array_b))
-                                        ((Var 190 array_c))
+                                        [((Var 198 array_a))
+                                        ((Var 198 array_b))
+                                        ((Var 198 array_c))
                                         ((IntegerConstant 100 (Integer 4 [])))]
                                         ()
                                     )]
@@ -1102,15 +1106,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             elemental_trig_identity:
                                 (Function
                                     (SymbolTable
-                                        194
+                                        202
                                         {
                                             arraynd:
                                                 (Variable
-                                                    194
+                                                    202
                                                     arraynd
                                                     []
                                                     Local
@@ -1132,7 +1137,7 @@
                                                 ),
                                             cos@__lpython_overloaded_1__cos:
                                                 (ExternalSymbol
-                                                    194
+                                                    202
                                                     cos@__lpython_overloaded_1__cos
                                                     3 __lpython_overloaded_1__cos
                                                     numpy
@@ -1142,7 +1147,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    194
+                                                    202
                                                     eps
                                                     []
                                                     Local
@@ -1157,7 +1162,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    194
+                                                    202
                                                     i
                                                     []
                                                     Local
@@ -1172,7 +1177,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    194
+                                                    202
                                                     j
                                                     []
                                                     Local
@@ -1187,7 +1192,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    194
+                                                    202
                                                     k
                                                     []
                                                     Local
@@ -1202,7 +1207,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    194
+                                                    202
                                                     l
                                                     []
                                                     Local
@@ -1217,7 +1222,7 @@
                                                 ),
                                             newshape:
                                                 (Variable
-                                                    194
+                                                    202
                                                     newshape
                                                     []
                                                     Local
@@ -1233,7 +1238,7 @@
                                                 ),
                                             observed:
                                                 (Variable
-                                                    194
+                                                    202
                                                     observed
                                                     []
                                                     Local
@@ -1255,7 +1260,7 @@
                                                 ),
                                             observed1d:
                                                 (Variable
-                                                    194
+                                                    202
                                                     observed1d
                                                     []
                                                     Local
@@ -1271,7 +1276,7 @@
                                                 ),
                                             sin@__lpython_overloaded_1__sin:
                                                 (ExternalSymbol
-                                                    194
+                                                    202
                                                     sin@__lpython_overloaded_1__sin
                                                     3 __lpython_overloaded_1__sin
                                                     numpy
@@ -1300,7 +1305,7 @@
                                     cos@__lpython_overloaded_1__cos]
                                     []
                                     [(=
-                                        (Var 194 eps)
+                                        (Var 202 eps)
                                         (Cast
                                             (RealConstant
                                                 0.000001
@@ -1317,7 +1322,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 194 i)
+                                        ((Var 202 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 64 (Integer 4 []))
@@ -1329,7 +1334,7 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(DoLoop
                                             ()
-                                            ((Var 194 j)
+                                            ((Var 202 j)
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (IntegerConstant 32 (Integer 4 []))
@@ -1341,7 +1346,7 @@
                                             (IntegerConstant 1 (Integer 4 [])))
                                             [(DoLoop
                                                 ()
-                                                ((Var 194 k)
+                                                ((Var 202 k)
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (IntegerConstant 8 (Integer 4 []))
@@ -1353,7 +1358,7 @@
                                                 (IntegerConstant 1 (Integer 4 [])))
                                                 [(DoLoop
                                                     ()
-                                                    ((Var 194 l)
+                                                    ((Var 202 l)
                                                     (IntegerConstant 0 (Integer 4 []))
                                                     (IntegerBinOp
                                                         (IntegerConstant 4 (Integer 4 []))
@@ -1365,18 +1370,18 @@
                                                     (IntegerConstant 1 (Integer 4 [])))
                                                     [(=
                                                         (ArrayItem
-                                                            (Var 194 arraynd)
+                                                            (Var 202 arraynd)
                                                             [(()
-                                                            (Var 194 i)
+                                                            (Var 202 i)
                                                             ())
                                                             (()
-                                                            (Var 194 j)
+                                                            (Var 202 j)
                                                             ())
                                                             (()
-                                                            (Var 194 k)
+                                                            (Var 202 k)
                                                             ())
                                                             (()
-                                                            (Var 194 l)
+                                                            (Var 202 l)
                                                             ())]
                                                             (Real 4 [])
                                                             RowMajor
@@ -1386,19 +1391,19 @@
                                                             (IntegerBinOp
                                                                 (IntegerBinOp
                                                                     (IntegerBinOp
-                                                                        (Var 194 i)
+                                                                        (Var 202 i)
                                                                         Add
-                                                                        (Var 194 j)
+                                                                        (Var 202 j)
                                                                         (Integer 4 [])
                                                                         ()
                                                                     )
                                                                     Add
-                                                                    (Var 194 k)
+                                                                    (Var 202 k)
                                                                     (Integer 4 [])
                                                                     ()
                                                                 )
                                                                 Add
-                                                                (Var 194 l)
+                                                                (Var 202 l)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -1413,13 +1418,13 @@
                                         )]
                                     )
                                     (=
-                                        (Var 194 observed)
+                                        (Var 202 observed)
                                         (RealBinOp
                                             (RealBinOp
                                                 (FunctionCall
-                                                    194 sin@__lpython_overloaded_1__sin
-                                                    220 sin
-                                                    [((Var 194 arraynd))]
+                                                    202 sin@__lpython_overloaded_1__sin
+                                                    228 sin
+                                                    [((Var 202 arraynd))]
                                                     (Real 4 [((IntegerConstant 0 (Integer 4 []))
                                                     (IntegerConstant 64 (Integer 4 [])))
                                                     ((IntegerConstant 0 (Integer 4 []))
@@ -1454,9 +1459,9 @@
                                             Add
                                             (RealBinOp
                                                 (FunctionCall
-                                                    194 cos@__lpython_overloaded_1__cos
-                                                    220 cos
-                                                    [((Var 194 arraynd))]
+                                                    202 cos@__lpython_overloaded_1__cos
+                                                    228 cos
+                                                    [((Var 202 arraynd))]
                                                     (Real 4 [((IntegerConstant 0 (Integer 4 []))
                                                     (IntegerConstant 64 (Integer 4 [])))
                                                     ((IntegerConstant 0 (Integer 4 []))
@@ -1502,7 +1507,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 194 newshape)
+                                            (Var 202 newshape)
                                             [(()
                                             (IntegerConstant 0 (Integer 4 []))
                                             ())]
@@ -1514,10 +1519,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 194 observed1d)
+                                        (Var 202 observed1d)
                                         (ArrayReshape
-                                            (Var 194 observed)
-                                            (Var 194 newshape)
+                                            (Var 202 observed)
+                                            (Var 202 newshape)
                                             (Real 4 [(()
                                             ())])
                                             ()
@@ -1526,7 +1531,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 194 i)
+                                        ((Var 202 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 65536 (Integer 4 []))
@@ -1542,9 +1547,9 @@
                                                     Abs
                                                     [(RealBinOp
                                                         (ArrayItem
-                                                            (Var 194 observed1d)
+                                                            (Var 202 observed1d)
                                                             [(()
-                                                            (Var 194 i)
+                                                            (Var 202 i)
                                                             ())]
                                                             (Real 4 [])
                                                             RowMajor
@@ -1571,7 +1576,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 194 eps)
+                                                (Var 202 eps)
                                                 (Logical 4 [])
                                                 ()
                                             )
@@ -1582,10 +1587,11 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             sin:
                                 (ExternalSymbol
-                                    220
+                                    228
                                     sin
                                     3 sin
                                     numpy
@@ -1596,11 +1602,11 @@
                             verify1d:
                                 (Function
                                     (SymbolTable
-                                        185
+                                        193
                                         {
                                             array:
                                                 (Variable
-                                                    185
+                                                    193
                                                     array
                                                     []
                                                     InOut
@@ -1617,11 +1623,11 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        195
+                                                        203
                                                         {
                                                             sin@__lpython_overloaded_1__sin:
                                                                 (ExternalSymbol
-                                                                    195
+                                                                    203
                                                                     sin@__lpython_overloaded_1__sin
                                                                     3 __lpython_overloaded_1__sin
                                                                     numpy
@@ -1637,15 +1643,15 @@
                                                                 Abs
                                                                 [(RealBinOp
                                                                     (FunctionCall
-                                                                        195 sin@__lpython_overloaded_1__sin
-                                                                        220 sin
+                                                                        203 sin@__lpython_overloaded_1__sin
+                                                                        228 sin
                                                                         [((FunctionCall
-                                                                            195 sin@__lpython_overloaded_1__sin
-                                                                            220 sin
+                                                                            203 sin@__lpython_overloaded_1__sin
+                                                                            228 sin
                                                                             [((ArrayItem
-                                                                                (Var 185 array)
+                                                                                (Var 193 array)
                                                                                 [(()
-                                                                                (Var 185 i)
+                                                                                (Var 193 i)
                                                                                 ())]
                                                                                 (Real 4 [])
                                                                                 RowMajor
@@ -1661,9 +1667,9 @@
                                                                     )
                                                                     Sub
                                                                     (ArrayItem
-                                                                        (Var 185 result)
+                                                                        (Var 193 result)
                                                                         [(()
-                                                                        (Var 185 i)
+                                                                        (Var 193 i)
                                                                         ())]
                                                                         (Real 4 [])
                                                                         RowMajor
@@ -1677,7 +1683,7 @@
                                                                 ()
                                                             )
                                                             LtE
-                                                            (Var 185 eps)
+                                                            (Var 193 eps)
                                                             (Logical 4 [])
                                                             ()
                                                         )
@@ -1686,7 +1692,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    185
+                                                    193
                                                     eps
                                                     []
                                                     Local
@@ -1701,7 +1707,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    185
+                                                    193
                                                     i
                                                     []
                                                     Local
@@ -1716,7 +1722,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    185
+                                                    193
                                                     result
                                                     []
                                                     InOut
@@ -1732,7 +1738,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    185
+                                                    193
                                                     size
                                                     []
                                                     In
@@ -1767,11 +1773,11 @@
                                         .false.
                                     )
                                     [sin@__lpython_overloaded_1__sin]
-                                    [(Var 185 array)
-                                    (Var 185 result)
-                                    (Var 185 size)]
+                                    [(Var 193 array)
+                                    (Var 193 result)
+                                    (Var 193 size)]
                                     [(=
-                                        (Var 185 eps)
+                                        (Var 193 eps)
                                         (Cast
                                             (RealConstant
                                                 0.000001
@@ -1788,10 +1794,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 185 size)
+                                            (Var 193 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -1800,22 +1806,23 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(BlockCall
                                             -1
-                                            185 block
+                                            193 block
                                         )]
                                     )]
                                     ()
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             verify1d_mul:
                                 (Function
                                     (SymbolTable
-                                        189
+                                        197
                                         {
                                             array_a:
                                                 (Variable
-                                                    189
+                                                    197
                                                     array_a
                                                     []
                                                     InOut
@@ -1831,7 +1838,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    189
+                                                    197
                                                     array_b
                                                     []
                                                     InOut
@@ -1847,7 +1854,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    189
+                                                    197
                                                     eps
                                                     []
                                                     Local
@@ -1862,7 +1869,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    189
+                                                    197
                                                     i
                                                     []
                                                     Local
@@ -1877,7 +1884,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    189
+                                                    197
                                                     result
                                                     []
                                                     InOut
@@ -1893,7 +1900,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    189
+                                                    197
                                                     size
                                                     []
                                                     In
@@ -1930,12 +1937,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 189 array_a)
-                                    (Var 189 array_b)
-                                    (Var 189 result)
-                                    (Var 189 size)]
+                                    [(Var 197 array_a)
+                                    (Var 197 array_b)
+                                    (Var 197 result)
+                                    (Var 197 size)]
                                     [(=
-                                        (Var 189 eps)
+                                        (Var 197 eps)
                                         (RealConstant
                                             0.000010
                                             (Real 8 [])
@@ -1944,10 +1951,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 189 i)
+                                        ((Var 197 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 189 size)
+                                            (Var 197 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -1963,9 +1970,9 @@
                                                             (RealBinOp
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 189 array_a)
+                                                                        (Var 197 array_a)
                                                                         [(()
-                                                                        (Var 189 i)
+                                                                        (Var 197 i)
                                                                         ())]
                                                                         (Real 8 [])
                                                                         RowMajor
@@ -1990,9 +1997,9 @@
                                                             Mul
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 189 array_b)
+                                                                    (Var 197 array_b)
                                                                     [(()
-                                                                    (Var 189 i)
+                                                                    (Var 197 i)
                                                                     ())]
                                                                     (Real 8 [])
                                                                     RowMajor
@@ -2011,9 +2018,9 @@
                                                         )
                                                         Sub
                                                         (ArrayItem
-                                                            (Var 189 result)
+                                                            (Var 197 result)
                                                             [(()
-                                                            (Var 189 i)
+                                                            (Var 197 i)
                                                             ())]
                                                             (Real 8 [])
                                                             RowMajor
@@ -2027,7 +2034,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 189 eps)
+                                                (Var 197 eps)
                                                 (Logical 4 [])
                                                 ()
                                             )
@@ -2038,15 +2045,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             verify1d_sum:
                                 (Function
                                     (SymbolTable
-                                        188
+                                        196
                                         {
                                             array_a:
                                                 (Variable
-                                                    188
+                                                    196
                                                     array_a
                                                     []
                                                     InOut
@@ -2062,7 +2070,7 @@
                                                 ),
                                             array_b:
                                                 (Variable
-                                                    188
+                                                    196
                                                     array_b
                                                     []
                                                     InOut
@@ -2078,7 +2086,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    188
+                                                    196
                                                     eps
                                                     []
                                                     Local
@@ -2093,7 +2101,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    188
+                                                    196
                                                     i
                                                     []
                                                     Local
@@ -2108,7 +2116,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    188
+                                                    196
                                                     result
                                                     []
                                                     InOut
@@ -2124,7 +2132,7 @@
                                                 ),
                                             size:
                                                 (Variable
-                                                    188
+                                                    196
                                                     size
                                                     []
                                                     In
@@ -2161,12 +2169,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 188 array_a)
-                                    (Var 188 array_b)
-                                    (Var 188 result)
-                                    (Var 188 size)]
+                                    [(Var 196 array_a)
+                                    (Var 196 array_b)
+                                    (Var 196 result)
+                                    (Var 196 size)]
                                     [(=
-                                        (Var 188 eps)
+                                        (Var 196 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8 [])
@@ -2175,10 +2183,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 188 i)
+                                        ((Var 196 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 188 size)
+                                            (Var 196 size)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -2193,9 +2201,9 @@
                                                         (RealBinOp
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 188 array_a)
+                                                                    (Var 196 array_a)
                                                                     [(()
-                                                                    (Var 188 i)
+                                                                    (Var 196 i)
                                                                     ())]
                                                                     (Real 8 [])
                                                                     RowMajor
@@ -2218,9 +2226,9 @@
                                                                 Mul
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 188 array_b)
+                                                                        (Var 196 array_b)
                                                                         [(()
-                                                                        (Var 188 i)
+                                                                        (Var 196 i)
                                                                         ())]
                                                                         (Real 8 [])
                                                                         RowMajor
@@ -2242,9 +2250,9 @@
                                                         )
                                                         Sub
                                                         (ArrayItem
-                                                            (Var 188 result)
+                                                            (Var 196 result)
                                                             [(()
-                                                            (Var 188 i)
+                                                            (Var 196 i)
                                                             ())]
                                                             (Real 8 [])
                                                             RowMajor
@@ -2258,7 +2266,7 @@
                                                     ()
                                                 )
                                                 LtE
-                                                (Var 188 eps)
+                                                (Var 196 eps)
                                                 (Logical 4 [])
                                                 ()
                                             )
@@ -2269,15 +2277,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             verify2d:
                                 (Function
                                     (SymbolTable
-                                        187
+                                        195
                                         {
                                             array:
                                                 (Variable
-                                                    187
+                                                    195
                                                     array
                                                     []
                                                     InOut
@@ -2296,16 +2305,16 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        199
+                                                        207
                                                         {
                                                             block:
                                                                 (Block
                                                                     (SymbolTable
-                                                                        200
+                                                                        208
                                                                         {
                                                                             cos@__lpython_overloaded_0__cos:
                                                                                 (ExternalSymbol
-                                                                                    200
+                                                                                    208
                                                                                     cos@__lpython_overloaded_0__cos
                                                                                     3 __lpython_overloaded_0__cos
                                                                                     numpy
@@ -2322,15 +2331,15 @@
                                                                                 [(RealBinOp
                                                                                     (RealBinOp
                                                                                         (FunctionCall
-                                                                                            200 cos@__lpython_overloaded_0__cos
-                                                                                            220 cos
+                                                                                            208 cos@__lpython_overloaded_0__cos
+                                                                                            228 cos
                                                                                             [((ArrayItem
-                                                                                                (Var 187 array)
+                                                                                                (Var 195 array)
                                                                                                 [(()
-                                                                                                (Var 187 i)
+                                                                                                (Var 195 i)
                                                                                                 ())
                                                                                                 (()
-                                                                                                (Var 187 j)
+                                                                                                (Var 195 j)
                                                                                                 ())]
                                                                                                 (Real 8 [])
                                                                                                 RowMajor
@@ -2350,12 +2359,12 @@
                                                                                     )
                                                                                     Sub
                                                                                     (ArrayItem
-                                                                                        (Var 187 result)
+                                                                                        (Var 195 result)
                                                                                         [(()
-                                                                                        (Var 187 i)
+                                                                                        (Var 195 i)
                                                                                         ())
                                                                                         (()
-                                                                                        (Var 187 j)
+                                                                                        (Var 195 j)
                                                                                         ())]
                                                                                         (Real 8 [])
                                                                                         RowMajor
@@ -2369,7 +2378,7 @@
                                                                                 ()
                                                                             )
                                                                             LtE
-                                                                            (Var 187 eps)
+                                                                            (Var 195 eps)
                                                                             (Logical 4 [])
                                                                             ()
                                                                         )
@@ -2380,10 +2389,10 @@
                                                     block
                                                     [(DoLoop
                                                         ()
-                                                        ((Var 187 j)
+                                                        ((Var 195 j)
                                                         (IntegerConstant 0 (Integer 4 []))
                                                         (IntegerBinOp
-                                                            (Var 187 size2)
+                                                            (Var 195 size2)
                                                             Sub
                                                             (IntegerConstant 1 (Integer 4 []))
                                                             (Integer 4 [])
@@ -2392,13 +2401,13 @@
                                                         (IntegerConstant 1 (Integer 4 [])))
                                                         [(BlockCall
                                                             -1
-                                                            199 block
+                                                            207 block
                                                         )]
                                                     )]
                                                 ),
                                             eps:
                                                 (Variable
-                                                    187
+                                                    195
                                                     eps
                                                     []
                                                     Local
@@ -2413,7 +2422,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    187
+                                                    195
                                                     i
                                                     []
                                                     Local
@@ -2428,7 +2437,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    187
+                                                    195
                                                     j
                                                     []
                                                     Local
@@ -2443,7 +2452,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    187
+                                                    195
                                                     result
                                                     []
                                                     InOut
@@ -2461,7 +2470,7 @@
                                                 ),
                                             size1:
                                                 (Variable
-                                                    187
+                                                    195
                                                     size1
                                                     []
                                                     In
@@ -2476,7 +2485,7 @@
                                                 ),
                                             size2:
                                                 (Variable
-                                                    187
+                                                    195
                                                     size2
                                                     []
                                                     In
@@ -2516,12 +2525,12 @@
                                         .false.
                                     )
                                     [cos@__lpython_overloaded_0__cos]
-                                    [(Var 187 array)
-                                    (Var 187 result)
-                                    (Var 187 size1)
-                                    (Var 187 size2)]
+                                    [(Var 195 array)
+                                    (Var 195 result)
+                                    (Var 195 size1)
+                                    (Var 195 size2)]
                                     [(=
-                                        (Var 187 eps)
+                                        (Var 195 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8 [])
@@ -2530,10 +2539,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 187 i)
+                                        ((Var 195 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 187 size1)
+                                            (Var 195 size1)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -2542,22 +2551,23 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(BlockCall
                                             -1
-                                            187 block
+                                            195 block
                                         )]
                                     )]
                                     ()
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             verifynd:
                                 (Function
                                     (SymbolTable
-                                        186
+                                        194
                                         {
                                             array:
                                                 (Variable
-                                                    186
+                                                    194
                                                     array
                                                     []
                                                     InOut
@@ -2578,21 +2588,21 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        196
+                                                        204
                                                         {
                                                             block:
                                                                 (Block
                                                                     (SymbolTable
-                                                                        197
+                                                                        205
                                                                         {
                                                                             block:
                                                                                 (Block
                                                                                     (SymbolTable
-                                                                                        198
+                                                                                        206
                                                                                         {
                                                                                             sin@__lpython_overloaded_0__sin:
                                                                                                 (ExternalSymbol
-                                                                                                    198
+                                                                                                    206
                                                                                                     sin@__lpython_overloaded_0__sin
                                                                                                     3 __lpython_overloaded_0__sin
                                                                                                     numpy
@@ -2609,18 +2619,18 @@
                                                                                                 [(RealBinOp
                                                                                                     (RealBinOp
                                                                                                         (FunctionCall
-                                                                                                            198 sin@__lpython_overloaded_0__sin
-                                                                                                            220 sin
+                                                                                                            206 sin@__lpython_overloaded_0__sin
+                                                                                                            228 sin
                                                                                                             [((ArrayItem
-                                                                                                                (Var 186 array)
+                                                                                                                (Var 194 array)
                                                                                                                 [(()
-                                                                                                                (Var 186 i)
+                                                                                                                (Var 194 i)
                                                                                                                 ())
                                                                                                                 (()
-                                                                                                                (Var 186 j)
+                                                                                                                (Var 194 j)
                                                                                                                 ())
                                                                                                                 (()
-                                                                                                                (Var 186 k)
+                                                                                                                (Var 194 k)
                                                                                                                 ())]
                                                                                                                 (Real 8 [])
                                                                                                                 RowMajor
@@ -2640,15 +2650,15 @@
                                                                                                     )
                                                                                                     Sub
                                                                                                     (ArrayItem
-                                                                                                        (Var 186 result)
+                                                                                                        (Var 194 result)
                                                                                                         [(()
-                                                                                                        (Var 186 i)
+                                                                                                        (Var 194 i)
                                                                                                         ())
                                                                                                         (()
-                                                                                                        (Var 186 j)
+                                                                                                        (Var 194 j)
                                                                                                         ())
                                                                                                         (()
-                                                                                                        (Var 186 k)
+                                                                                                        (Var 194 k)
                                                                                                         ())]
                                                                                                         (Real 8 [])
                                                                                                         RowMajor
@@ -2662,7 +2672,7 @@
                                                                                                 ()
                                                                                             )
                                                                                             LtE
-                                                                                            (Var 186 eps)
+                                                                                            (Var 194 eps)
                                                                                             (Logical 4 [])
                                                                                             ()
                                                                                         )
@@ -2673,10 +2683,10 @@
                                                                     block
                                                                     [(DoLoop
                                                                         ()
-                                                                        ((Var 186 k)
+                                                                        ((Var 194 k)
                                                                         (IntegerConstant 0 (Integer 4 []))
                                                                         (IntegerBinOp
-                                                                            (Var 186 size3)
+                                                                            (Var 194 size3)
                                                                             Sub
                                                                             (IntegerConstant 1 (Integer 4 []))
                                                                             (Integer 4 [])
@@ -2685,7 +2695,7 @@
                                                                         (IntegerConstant 1 (Integer 4 [])))
                                                                         [(BlockCall
                                                                             -1
-                                                                            197 block
+                                                                            205 block
                                                                         )]
                                                                     )]
                                                                 )
@@ -2693,10 +2703,10 @@
                                                     block
                                                     [(DoLoop
                                                         ()
-                                                        ((Var 186 j)
+                                                        ((Var 194 j)
                                                         (IntegerConstant 0 (Integer 4 []))
                                                         (IntegerBinOp
-                                                            (Var 186 size2)
+                                                            (Var 194 size2)
                                                             Sub
                                                             (IntegerConstant 1 (Integer 4 []))
                                                             (Integer 4 [])
@@ -2705,13 +2715,13 @@
                                                         (IntegerConstant 1 (Integer 4 [])))
                                                         [(BlockCall
                                                             -1
-                                                            196 block
+                                                            204 block
                                                         )]
                                                     )]
                                                 ),
                                             eps:
                                                 (Variable
-                                                    186
+                                                    194
                                                     eps
                                                     []
                                                     Local
@@ -2726,7 +2736,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    186
+                                                    194
                                                     i
                                                     []
                                                     Local
@@ -2741,7 +2751,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    186
+                                                    194
                                                     j
                                                     []
                                                     Local
@@ -2756,7 +2766,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    186
+                                                    194
                                                     k
                                                     []
                                                     Local
@@ -2771,7 +2781,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    186
+                                                    194
                                                     result
                                                     []
                                                     InOut
@@ -2791,7 +2801,7 @@
                                                 ),
                                             size1:
                                                 (Variable
-                                                    186
+                                                    194
                                                     size1
                                                     []
                                                     In
@@ -2806,7 +2816,7 @@
                                                 ),
                                             size2:
                                                 (Variable
-                                                    186
+                                                    194
                                                     size2
                                                     []
                                                     In
@@ -2821,7 +2831,7 @@
                                                 ),
                                             size3:
                                                 (Variable
-                                                    186
+                                                    194
                                                     size3
                                                     []
                                                     In
@@ -2866,13 +2876,13 @@
                                         .false.
                                     )
                                     [sin@__lpython_overloaded_0__sin]
-                                    [(Var 186 array)
-                                    (Var 186 result)
-                                    (Var 186 size1)
-                                    (Var 186 size2)
-                                    (Var 186 size3)]
+                                    [(Var 194 array)
+                                    (Var 194 result)
+                                    (Var 194 size1)
+                                    (Var 194 size2)
+                                    (Var 194 size3)]
                                     [(=
-                                        (Var 186 eps)
+                                        (Var 194 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8 [])
@@ -2881,10 +2891,10 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 186 i)
+                                        ((Var 194 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 186 size1)
+                                            (Var 194 size1)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -2893,13 +2903,14 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(BlockCall
                                             -1
-                                            186 block
+                                            194 block
                                         )]
                                     )]
                                     ()
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -2912,13 +2923,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        218
+                        226
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    218
+                                    226
                                     _lpython_main_program
-                                    220 _lpython_main_program
+                                    228 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -2928,7 +2939,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        218 _lpython_main_program
+                        226 _lpython_main_program
                         ()
                         []
                         ()
@@ -3010,6 +3021,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arccosh:
                                 (Function
@@ -3082,6 +3094,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsin:
                                 (Function
@@ -3154,6 +3167,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsinh:
                                 (Function
@@ -3226,6 +3240,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctan:
                                 (Function
@@ -3298,6 +3313,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctanh:
                                 (Function
@@ -3370,6 +3386,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__ceil:
                                 (Function
@@ -3522,6 +3539,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cos:
                                 (Function
@@ -3594,6 +3612,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cosh:
                                 (Function
@@ -3666,6 +3685,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__degrees:
                                 (Function
@@ -3746,6 +3766,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__exp:
                                 (Function
@@ -3818,6 +3839,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__floor:
                                 (Function
@@ -3970,6 +3992,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log:
                                 (Function
@@ -4042,6 +4065,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log10:
                                 (Function
@@ -4114,6 +4138,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log2:
                                 (Function
@@ -4202,6 +4227,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__mod:
                                 (Function
@@ -4338,6 +4364,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__radians:
                                 (Function
@@ -4418,6 +4445,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sin:
                                 (Function
@@ -4490,6 +4518,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sinh:
                                 (Function
@@ -4562,6 +4591,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sqrt:
                                 (Function
@@ -4658,6 +4688,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tan:
                                 (Function
@@ -4730,6 +4761,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tanh:
                                 (Function
@@ -4802,6 +4834,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccos:
                                 (Function
@@ -4874,6 +4907,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccosh:
                                 (Function
@@ -4946,6 +4980,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsin:
                                 (Function
@@ -5018,6 +5053,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsinh:
                                 (Function
@@ -5090,6 +5126,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctan:
                                 (Function
@@ -5162,6 +5199,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctanh:
                                 (Function
@@ -5234,6 +5272,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__ceil:
                                 (Function
@@ -5379,6 +5418,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cos:
                                 (Function
@@ -5451,6 +5491,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cosh:
                                 (Function
@@ -5523,6 +5564,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__degrees:
                                 (Function
@@ -5608,6 +5650,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__exp:
                                 (Function
@@ -5680,6 +5723,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__floor:
                                 (Function
@@ -5825,6 +5869,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log:
                                 (Function
@@ -5897,6 +5942,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log10:
                                 (Function
@@ -5969,6 +6015,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log2:
                                 (Function
@@ -6065,6 +6112,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__mod:
                                 (Function
@@ -6191,6 +6239,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__radians:
                                 (Function
@@ -6276,6 +6325,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sin:
                                 (Function
@@ -6348,6 +6398,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sinh:
                                 (Function
@@ -6420,6 +6471,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sqrt:
                                 (Function
@@ -6524,6 +6576,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tan:
                                 (Function
@@ -6596,6 +6649,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tanh:
                                 (Function
@@ -6668,6 +6722,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacos:
                                 (Function
@@ -6728,6 +6783,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacosh:
                                 (Function
@@ -6788,6 +6844,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasin:
                                 (Function
@@ -6848,6 +6905,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasinh:
                                 (Function
@@ -6908,6 +6966,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datan:
                                 (Function
@@ -6968,6 +7027,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datanh:
                                 (Function
@@ -7028,6 +7088,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcos:
                                 (Function
@@ -7088,6 +7149,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcosh:
                                 (Function
@@ -7148,6 +7210,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dexp:
                                 (Function
@@ -7208,6 +7271,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog:
                                 (Function
@@ -7268,6 +7332,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog10:
                                 (Function
@@ -7328,6 +7393,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsin:
                                 (Function
@@ -7388,6 +7454,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsinh:
                                 (Function
@@ -7448,6 +7515,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtan:
                                 (Function
@@ -7508,6 +7576,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtanh:
                                 (Function
@@ -7568,6 +7637,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacos:
                                 (Function
@@ -7628,6 +7698,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacosh:
                                 (Function
@@ -7688,6 +7759,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasin:
                                 (Function
@@ -7748,6 +7820,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasinh:
                                 (Function
@@ -7808,6 +7881,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satan:
                                 (Function
@@ -7868,6 +7942,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satanh:
                                 (Function
@@ -7928,6 +8003,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scos:
                                 (Function
@@ -7988,6 +8064,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scosh:
                                 (Function
@@ -8048,6 +8125,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sexp:
                                 (Function
@@ -8108,6 +8186,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog:
                                 (Function
@@ -8168,6 +8247,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog10:
                                 (Function
@@ -8228,6 +8308,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssin:
                                 (Function
@@ -8288,6 +8369,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssinh:
                                 (Function
@@ -8348,6 +8430,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stan:
                                 (Function
@@ -8408,6 +8491,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stanh:
                                 (Function
@@ -8468,6 +8552,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             arccos:
                                 (GenericProcedure

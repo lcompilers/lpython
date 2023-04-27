@@ -3483,7 +3483,7 @@ public:
         bool is_restriction = false;
         bool is_deterministic = false;
         bool is_side_effect_free = false;
-
+        char *bindc_name=nullptr, *c_header_file=nullptr;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -3511,6 +3511,35 @@ public:
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
+                    }
+                } else if (AST::is_a<AST::Call_t>(*dec)) {
+                    AST::Call_t *call_d = AST::down_cast<AST::Call_t>(dec);
+                    if (AST::is_a<AST::Name_t>(*call_d->m_func)) {
+                        std::string name = AST::down_cast<AST::Name_t>(call_d->m_func)->m_id;
+                        if (name == "ccall") {
+                            current_procedure_abi_type = ASR::abiType::BindC;
+                            current_procedure_interface = true;
+                            if (call_d->n_keywords > 0) {
+                                for (size_t i=0; i < call_d->n_keywords; i++) {
+                                    if (std::string(call_d->m_keywords[i].m_arg) == "header") {
+                                        if (AST::is_a<AST::ConstantStr_t>(*call_d->m_keywords[i].m_value)) {
+                                            std::string header_name = AST::down_cast<AST::ConstantStr_t>(
+                                                        call_d->m_keywords[i].m_value)->m_value;
+                                            c_header_file = s2c(al, header_name);
+                                        } else {
+                                            throw SemanticError("header should be constant string in ccall",
+                                                x.base.base.loc);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            throw SemanticError("Unsupported Decorator type",
+                                    x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Only Name is supported in Call decorators for now",
+                                x.base.base.loc);
                     }
                 } else {
                     throw SemanticError("Unsupported Decorator type",
@@ -3612,7 +3641,6 @@ public:
                 current_procedure_interface) {
             deftype = ASR::deftypeType::Interface;
         }
-        char *bindc_name=nullptr;
         if (x.m_returns && !AST::is_a<AST::ConstantNone_t>(*x.m_returns)) {
             if (AST::is_a<AST::Name_t>(*x.m_returns) || AST::is_a<AST::Subscript_t>(*x.m_returns)) {
                 std::string return_var_name = "_lpython_return_variable";
@@ -3648,7 +3676,8 @@ public:
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
-                    tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
+                    tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                    c_header_file);
                     return_variable->m_type = return_type_;
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
@@ -3669,7 +3698,8 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
                 false, is_pure, is_module, is_inline, is_static,
-                tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
+                tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                c_header_file);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);
@@ -3716,17 +3746,8 @@ public:
             in any directory other than src/runtime will also
             be ignored.
         */
-        if (mod_sym == "lpython") {
+        if (mod_sym == "lpython" || mod_sym == "numpy") {
             return ;
-        }
-
-        /*
-            If import_path is not empty then insert it
-            in the second priority. Top priority path
-            is runtime library path.
-        */
-        for( auto& path: import_paths ) {
-            paths.push_back(path);
         }
 
         /*
@@ -3790,7 +3811,13 @@ public:
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
             SymbolTable *st = current_scope;
-            std::vector<std::string> paths = {rl_path, parent_dir};
+            std::vector<std::string> paths;
+            for (auto &path:import_paths) {
+                paths.push_back(path);
+            }
+            paths.push_back(rl_path);
+            paths.push_back(parent_dir);
+
             if (!main_module) {
                 st = st->parent;
             }
@@ -3840,7 +3867,12 @@ public:
     void visit_Import(const AST::Import_t &x) {
         ASR::symbol_t *t = nullptr;
         std::string rl_path = get_runtime_library_dir();
-        std::vector<std::string> paths = {rl_path, parent_dir};
+        std::vector<std::string> paths;
+        for (auto &path:import_paths) {
+            paths.push_back(path);
+        }
+        paths.push_back(rl_path);
+        paths.push_back(parent_dir);
         SymbolTable *st = current_scope;
         std::vector<std::string> mods;
         for (size_t i=0; i<x.n_names; i++) {
@@ -6053,6 +6085,24 @@ public:
             fn_args.push_back(al, str);
             fn_args.push_back(al, seperator);
 
+        } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                String Validation Methods i.e all "is" based functions are handled here 
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+            fn_call_name = "_lpython_str_" + attr_name;
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else {
             throw SemanticError("String method not implemented: " + attr_name,
                     loc);
@@ -6407,6 +6457,99 @@ public:
             }
             create_partition(loc, s_var, arg_seperator, arg_seperator_type);
             return;
+        } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                * Specification - 
+
+                Return True if all cased characters [lowercase, uppercase, titlecase] in the string 
+                are lowercase and there is at least one cased character, False otherwise.
+
+                * islower() method is limited to English Alphabets currently
+                * TODO: We can support other characters from Unicode Library
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+
+            if(attr_name == "islower") {
+                /*
+                    * Specification: 
+                    Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'a' && i <= 'z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isupper") {
+                /*
+                    * Specification: 
+                    Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'A' && i <= 'Z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isdecimal") {
+                /*
+                    * Specification: 
+                    Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
+                */
+                bool is_decimal = (s_var.size() != 0);
+                for(auto &i: s_var) {
+                    if(i < '0' || i > '9') {
+                        is_decimal = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_decimal,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else if(attr_name == "isascii") {
+                /*
+                    * Specification - 
+                    Return True if the string is empty or all characters in the string are ASCII, False otherwise. 
+                    ASCII characters have code points in the range U+0000-U+007F.
+                */
+                bool is_ascii = true;
+                for(char i: s_var) {
+                    if (static_cast<unsigned int>(i) > 127) {
+                        is_ascii = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_ascii,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+                return;
+            } else {
+                throw SemanticError("'str' object has no attribute '" + attr_name + "'", loc);
+            }
         } else {
             throw SemanticError("'str' object has no attribute '" + attr_name + "'",
                     loc);
