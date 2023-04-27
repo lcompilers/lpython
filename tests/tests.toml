@@ -196,6 +196,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
+asr_json = true
 
 [[test]]
 filename = "../integration_tests/test_import_02.py"
