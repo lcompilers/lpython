@@ -123,6 +123,7 @@ class ASRBuilder {
 
     #define ListItem(x, pos, type) EXPR(ASR::make_ListItem_t(al, loc, x, pos,   \
         type, nullptr))
+    #define ListAppend(x, val) STMT(ASR::make_ListAppend_t(al, loc, x, val))
 
     #define StringSection(s, start, end) EXPR(ASR::make_StringSection_t(al, loc,\
         s, start, end, nullptr, character(-2), nullptr))
@@ -149,6 +150,8 @@ class ASRBuilder {
         ASR::cmpopType::NotEq, y, logical, nullptr))
     #define iLt(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
         ASR::cmpopType::Lt, y, logical, nullptr))
+    #define iLtE(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,              \
+        ASR::cmpopType::LtE, y, logical, nullptr))
     #define iGtE(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,              \
         ASR::cmpopType::GtE, y, logical, nullptr))
 
@@ -511,20 +514,11 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         body.push_back(al, Assign(lps,
             EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
             List(int32)))));
-        {
-            ASR::do_loop_head_t head;
-            head.loc = loc;
-            head.m_v = i;
-            head.m_start = i32(0);
-            head.m_end = EXPR(ASR::make_IntegerBinOp_t(al, loc, pat_len,
-                ASR::binopType::Sub, i32(1), int32, nullptr));
-            head.m_increment = i32(1);
-            Vec<ASR::stmt_t*> doloop_body; doloop_body.reserve(al, 1);
-            doloop_body.push_back(al, STMT(ASR::make_ListAppend_t(al, loc, lps,
-                i32(0))));
-            body.push_back(al, STMT(ASR::make_DoLoop_t(al, loc, nullptr, head,
-                doloop_body.p, doloop_body.n)));
-        }
+        body.push_back(al, Assign(i, i32(0)));
+        body.push_back(al, b.While(loc, iLtE(i, iSub(pat_len, i32(1))), {
+            ListAppend(lps, i32(0)),
+            Assign(i, iAdd(i, i32(1)))
+        }));
         body.push_back(al, Assign(flag, bool(false)));
         body.push_back(al, Assign(i, i32(1)));
         body.push_back(al, Assign(pi_len, i32(0)));
@@ -568,7 +562,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                 }, {})
             })
         }));
-        body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+        body.push_back(al, Return());
 
     }
     ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
@@ -1201,7 +1195,7 @@ namespace Partition {
                         StringSection(args[0], iAdd(index, StringLen(args[1])),
                             StringLen(args[0]))}, return_type))
                 }));
-            body.push_back(al, STMT(ASR::make_Return_t(al, loc)));
+            body.push_back(al, Return());
         }
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
