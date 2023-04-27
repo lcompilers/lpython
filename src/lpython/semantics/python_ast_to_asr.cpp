@@ -5764,14 +5764,16 @@ public:
                     return;
                 } else if (AST::is_a<AST::Attribute_t>(*at->m_value)) {
                     AST::Attribute_t *at2 = AST::down_cast<AST::Attribute_t>(at->m_value);
-                    if (AST::is_a<AST::Name_t>(*at->m_value)) {
-                        std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
-                        ASR::symbol_t *t = current_scope->resolve_symbol(value);
-                        if (!t) {
-                            throw SemanticError("'" + value + "' is not defined in the scope",
-                                x.base.base.loc);
-                        }
+                    visit_Attribute(*at2);
+                    ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(tmp);
+                    Vec<ASR::expr_t*> elements;
+                    elements.reserve(al, c->n_args);
+                    for (size_t i = 0; i < c->n_args; ++i) {
+                        visit_expr(*c->m_args[i]);
+                        elements.push_back(al, ASRUtils::EXPR(tmp));
                     }
+                    handle_attribute(te, at->m_attr, x.base.base.loc, elements);
+                    return;
                 }
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",
@@ -6092,7 +6094,7 @@ public:
 
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
-                String Validation Methods i.e all "is" based functions are handled here 
+                String Validation Methods i.e all "is" based functions are handled here
             */
             std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
@@ -6464,9 +6466,9 @@ public:
             return;
         } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
-                * Specification - 
+                * Specification -
 
-                Return True if all cased characters [lowercase, uppercase, titlecase] in the string 
+                Return True if all cased characters [lowercase, uppercase, titlecase] in the string
                 are lowercase and there is at least one cased character, False otherwise.
 
                 * islower() method is limited to English Alphabets currently
@@ -6483,7 +6485,7 @@ public:
 
             if(attr_name == "islower") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
@@ -6503,7 +6505,7 @@ public:
                 return;
             } else if(attr_name == "isupper") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
@@ -6523,7 +6525,7 @@ public:
                 return;
             } else if(attr_name == "isdecimal") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
                 */
                 bool is_decimal = (s_var.size() != 0);
@@ -6538,8 +6540,8 @@ public:
                 return;
             } else if(attr_name == "isascii") {
                 /*
-                    * Specification - 
-                    Return True if the string is empty or all characters in the string are ASCII, False otherwise. 
+                    * Specification -
+                    Return True if the string is empty or all characters in the string are ASCII, False otherwise.
                     ASCII characters have code points in the range U+0000-U+007F.
                 */
                 bool is_ascii = true;
