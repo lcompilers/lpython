@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             g:
                                 (Function
@@ -92,6 +93,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             gsubrout:
                                 (Function
@@ -142,6 +144,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_fn1:
                                 (Function
@@ -259,6 +262,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

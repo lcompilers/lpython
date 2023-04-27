@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        191
+                        199
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        190
+                                        198
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [loop_vec]
                                     []
                                     [(SubroutineCall
-                                        191 loop_vec
+                                        199 loop_vec
                                         ()
                                         []
                                         ()
@@ -42,15 +42,16 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             loop_vec:
                                 (Function
                                     (SymbolTable
-                                        185
+                                        193
                                         {
                                             a:
                                                 (Variable
-                                                    185
+                                                    193
                                                     a
                                                     []
                                                     Local
@@ -66,7 +67,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    185
+                                                    193
                                                     b
                                                     []
                                                     Local
@@ -82,7 +83,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    185
+                                                    193
                                                     i
                                                     []
                                                     Local
@@ -98,11 +99,11 @@
                                             vector_copy_f64f64i32@IntrinsicOptimization:
                                                 (Function
                                                     (SymbolTable
-                                                        192
+                                                        200
                                                         {
                                                             __1_k:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     __1_k
                                                                     []
                                                                     Local
@@ -117,7 +118,7 @@
                                                                 ),
                                                             arg0:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg0
                                                                     []
                                                                     In
@@ -133,7 +134,7 @@
                                                                 ),
                                                             arg1:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg1
                                                                     []
                                                                     In
@@ -149,7 +150,7 @@
                                                                 ),
                                                             arg2:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg2
                                                                     []
                                                                     In
@@ -164,7 +165,7 @@
                                                                 ),
                                                             arg3:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg3
                                                                     []
                                                                     In
@@ -179,7 +180,7 @@
                                                                 ),
                                                             arg4:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg4
                                                                     []
                                                                     In
@@ -194,7 +195,7 @@
                                                                 ),
                                                             arg5:
                                                                 (Variable
-                                                                    192
+                                                                    200
                                                                     arg5
                                                                     []
                                                                     In
@@ -232,18 +233,18 @@
                                                         .false.
                                                     )
                                                     []
-                                                    [(Var 192 arg0)
-                                                    (Var 192 arg1)
-                                                    (Var 192 arg2)
-                                                    (Var 192 arg3)
-                                                    (Var 192 arg4)
-                                                    (Var 192 arg5)]
+                                                    [(Var 200 arg0)
+                                                    (Var 200 arg1)
+                                                    (Var 200 arg2)
+                                                    (Var 200 arg3)
+                                                    (Var 200 arg4)
+                                                    (Var 200 arg5)]
                                                     [(=
-                                                        (Var 192 __1_k)
+                                                        (Var 200 __1_k)
                                                         (IntegerBinOp
-                                                            (Var 192 arg2)
+                                                            (Var 200 arg2)
                                                             Sub
-                                                            (Var 192 arg4)
+                                                            (Var 200 arg4)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -253,23 +254,23 @@
                                                         ()
                                                         (IntegerCompare
                                                             (IntegerBinOp
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 Add
-                                                                (Var 192 arg4)
+                                                                (Var 200 arg4)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
                                                             Lt
-                                                            (Var 192 arg3)
+                                                            (Var 200 arg3)
                                                             (Logical 4 [])
                                                             ()
                                                         )
                                                         [(=
-                                                            (Var 192 __1_k)
+                                                            (Var 200 __1_k)
                                                             (IntegerBinOp
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 Add
-                                                                (Var 192 arg4)
+                                                                (Var 200 arg4)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -277,18 +278,18 @@
                                                         )
                                                         (=
                                                             (ArrayItem
-                                                                (Var 192 arg0)
+                                                                (Var 200 arg0)
                                                                 [(()
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 ())]
                                                                 (Real 8 [])
                                                                 RowMajor
                                                                 ()
                                                             )
                                                             (ArrayItem
-                                                                (Var 192 arg1)
+                                                                (Var 200 arg1)
                                                                 [(()
-                                                                (Var 192 __1_k)
+                                                                (Var 200 __1_k)
                                                                 ())]
                                                                 (Real 8 [])
                                                                 RowMajor
@@ -301,6 +302,7 @@
                                                     Public
                                                     .false.
                                                     .false.
+                                                    ()
                                                 )
                                         })
                                     loop_vec
@@ -323,7 +325,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4 []))
@@ -335,9 +337,9 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(=
                                             (ArrayItem
-                                                (Var 185 b)
+                                                (Var 193 b)
                                                 [(()
-                                                (Var 185 i)
+                                                (Var 193 i)
                                                 ())]
                                                 (Real 8 [])
                                                 RowMajor
@@ -352,17 +354,17 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerConstant 1151 (Integer 4 []))
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(SubroutineCall
-                                            185 vector_copy_f64f64i32@IntrinsicOptimization
+                                            193 vector_copy_f64f64i32@IntrinsicOptimization
                                             ()
-                                            [((Var 185 a))
-                                            ((Var 185 b))
+                                            [((Var 193 a))
+                                            ((Var 193 b))
                                             ((IntegerBinOp
-                                                (Var 185 i)
+                                                (Var 193 i)
                                                 Mul
                                                 (IntegerConstant 8 (Integer 4 []))
                                                 (Integer 4 [])
@@ -370,7 +372,7 @@
                                             ))
                                             ((IntegerBinOp
                                                 (IntegerBinOp
-                                                    (Var 185 i)
+                                                    (Var 193 i)
                                                     Add
                                                     (IntegerConstant 1 (Integer 4 []))
                                                     (Integer 4 [])
@@ -388,7 +390,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 185 i)
+                                        ((Var 193 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4 []))
@@ -401,9 +403,9 @@
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem
-                                                    (Var 185 a)
+                                                    (Var 193 a)
                                                     [(()
-                                                    (Var 185 i)
+                                                    (Var 193 i)
                                                     ())]
                                                     (Real 8 [])
                                                     RowMajor
@@ -424,6 +426,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -436,13 +439,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        189
+                        197
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    189
+                                    197
                                     _lpython_main_program
-                                    191 _lpython_main_program
+                                    199 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -452,7 +455,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        189 _lpython_main_program
+                        197 _lpython_main_program
                         ()
                         []
                         ()
@@ -534,6 +537,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arccosh:
                                 (Function
@@ -606,6 +610,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsin:
                                 (Function
@@ -678,6 +683,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arcsinh:
                                 (Function
@@ -750,6 +756,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctan:
                                 (Function
@@ -822,6 +829,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__arctanh:
                                 (Function
@@ -894,6 +902,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__ceil:
                                 (Function
@@ -1046,6 +1055,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cos:
                                 (Function
@@ -1118,6 +1128,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__cosh:
                                 (Function
@@ -1190,6 +1201,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__degrees:
                                 (Function
@@ -1270,6 +1282,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__exp:
                                 (Function
@@ -1342,6 +1355,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__floor:
                                 (Function
@@ -1494,6 +1508,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log:
                                 (Function
@@ -1566,6 +1581,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log10:
                                 (Function
@@ -1638,6 +1654,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__log2:
                                 (Function
@@ -1726,6 +1743,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__mod:
                                 (Function
@@ -1862,6 +1880,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__radians:
                                 (Function
@@ -1942,6 +1961,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sin:
                                 (Function
@@ -2014,6 +2034,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sinh:
                                 (Function
@@ -2086,6 +2107,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__sqrt:
                                 (Function
@@ -2182,6 +2204,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tan:
                                 (Function
@@ -2254,6 +2277,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_0__tanh:
                                 (Function
@@ -2326,6 +2350,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccos:
                                 (Function
@@ -2398,6 +2423,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arccosh:
                                 (Function
@@ -2470,6 +2496,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsin:
                                 (Function
@@ -2542,6 +2569,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arcsinh:
                                 (Function
@@ -2614,6 +2642,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctan:
                                 (Function
@@ -2686,6 +2715,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__arctanh:
                                 (Function
@@ -2758,6 +2788,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__ceil:
                                 (Function
@@ -2903,6 +2934,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cos:
                                 (Function
@@ -2975,6 +3007,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__cosh:
                                 (Function
@@ -3047,6 +3080,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__degrees:
                                 (Function
@@ -3132,6 +3166,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__exp:
                                 (Function
@@ -3204,6 +3239,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__floor:
                                 (Function
@@ -3349,6 +3385,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log:
                                 (Function
@@ -3421,6 +3458,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log10:
                                 (Function
@@ -3493,6 +3531,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__log2:
                                 (Function
@@ -3589,6 +3628,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__mod:
                                 (Function
@@ -3715,6 +3755,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__radians:
                                 (Function
@@ -3800,6 +3841,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sin:
                                 (Function
@@ -3872,6 +3914,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sinh:
                                 (Function
@@ -3944,6 +3987,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__sqrt:
                                 (Function
@@ -4048,6 +4092,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tan:
                                 (Function
@@ -4120,6 +4165,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             __lpython_overloaded_1__tanh:
                                 (Function
@@ -4192,6 +4238,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacos:
                                 (Function
@@ -4252,6 +4299,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dacosh:
                                 (Function
@@ -4312,6 +4360,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasin:
                                 (Function
@@ -4372,6 +4421,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dasinh:
                                 (Function
@@ -4432,6 +4482,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datan:
                                 (Function
@@ -4492,6 +4543,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_datanh:
                                 (Function
@@ -4552,6 +4604,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcos:
                                 (Function
@@ -4612,6 +4665,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dcosh:
                                 (Function
@@ -4672,6 +4726,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dexp:
                                 (Function
@@ -4732,6 +4787,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog:
                                 (Function
@@ -4792,6 +4848,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dlog10:
                                 (Function
@@ -4852,6 +4909,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsin:
                                 (Function
@@ -4912,6 +4970,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsinh:
                                 (Function
@@ -4972,6 +5031,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtan:
                                 (Function
@@ -5032,6 +5092,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dtanh:
                                 (Function
@@ -5092,6 +5153,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacos:
                                 (Function
@@ -5152,6 +5214,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sacosh:
                                 (Function
@@ -5212,6 +5275,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasin:
                                 (Function
@@ -5272,6 +5336,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sasinh:
                                 (Function
@@ -5332,6 +5397,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satan:
                                 (Function
@@ -5392,6 +5458,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_satanh:
                                 (Function
@@ -5452,6 +5519,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scos:
                                 (Function
@@ -5512,6 +5580,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_scosh:
                                 (Function
@@ -5572,6 +5641,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_sexp:
                                 (Function
@@ -5632,6 +5702,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog:
                                 (Function
@@ -5692,6 +5763,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_slog10:
                                 (Function
@@ -5752,6 +5824,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssin:
                                 (Function
@@ -5812,6 +5885,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssinh:
                                 (Function
@@ -5872,6 +5946,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stan:
                                 (Function
@@ -5932,6 +6007,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_stanh:
                                 (Function
@@ -5992,6 +6068,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             arccos:
                                 (GenericProcedure

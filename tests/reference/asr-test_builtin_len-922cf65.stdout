@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_len:
                                 (Function
@@ -644,6 +645,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

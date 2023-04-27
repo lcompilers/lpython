@@ -279,7 +279,7 @@ public:
             std::string dims;
             use_ref = use_ref && !is_array;
             if (ASRUtils::is_integer(*v_m_type)) {
-                headers.insert("inttypes");
+                headers.insert("inttypes.h");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v_m_type);
                 std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 if( is_array ) {
@@ -354,7 +354,7 @@ public:
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_complex(*v_m_type)) {
-                headers.insert("complex");
+                headers.insert("complex.h");
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v_m_type);
                 std::string type_name = "float complex";
                 if (t->m_kind == 8) type_name = "double complex";
@@ -713,8 +713,11 @@ R"(
             }
         }
         std::string to_include = "";
-        for (auto s: headers) {
-            to_include += "#include <" + s + ".h>\n";
+        for (auto &s: headers) {
+            to_include += "#include <" + s + ">\n";
+        }
+        for (auto &s: user_headers) {
+            to_include += "#include \"" + s + "\"\n";
         }
         if( c_ds_api->get_func_decls().size() > 0 ) {
             array_types_decls += "\n" + c_ds_api->get_func_decls() + "\n";
@@ -828,6 +831,7 @@ R"(
         }
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
+                + indent1 + "_lpython_set_argv(argc, argv);\n"
                 + decl + body
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
@@ -1005,7 +1009,7 @@ R"(
     }
 
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
-        headers.insert("complex");
+        headers.insert("complex.h");
         std::string re = std::to_string(x.m_re);
         std::string im = std::to_string(x.m_im);
         src = "CMPLX(" + re + ", " + im + ")";
@@ -1056,12 +1060,18 @@ R"(
             for( int i = 0; i < n_dims; i++ ) {
                 if( m_dims[i].m_start ) {
                     visit_expr(*m_dims[i].m_start);
-                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].lower_bound = " + src + ";\n";
+                } else {
+                    src = "0";
                 }
+                dim_set_code += indent + dest_src + "->dims[" +
+                    std::to_string(i) + "].lower_bound = " + src + ";\n";
                 if( m_dims[i].m_length ) {
                     visit_expr(*m_dims[i].m_length);
-                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
+                } else {
+                    src = "0";
                 }
+                dim_set_code += indent + dest_src + "->dims[" +
+                    std::to_string(i) + "].length = " + src + ";\n";
             }
             src.clear();
             src += dim_set_code;
@@ -1196,7 +1206,7 @@ R"(
 
     void visit_ArrayConstant(const ASR::ArrayConstant_t& x) {
         // TODO: Support and test for multi-dimensional array constants
-        headers.insert("stdarg");
+        headers.insert("stdarg.h");
         std::string array_const = "";
         for( size_t i = 0; i < x.n_args; i++ ) {
             visit_expr(*x.m_args[i]);

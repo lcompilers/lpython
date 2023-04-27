@@ -1,0 +1,13 @@
+{
+    "basename": "c-bindc_06-a30d20f",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/bindc_06.py",
+    "infile_hash": "f611dfc06ff7aa56b20ee2cea505d1c7f2f87588cc9b212f2674bd51",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-bindc_06-a30d20f.stdout",
+    "stdout_hash": "86ef63a009653d61445aaedce780f9de82a6fd798fb5270c14efb421",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

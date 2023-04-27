@@ -1,0 +1,566 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            _global_symbols:
+                (Module
+                    (SymbolTable
+                        10
+                        {
+                            _lpython_main_program:
+                                (Function
+                                    (SymbolTable
+                                        9
+                                        {
+                                            
+                                        })
+                                    _lpython_main_program
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [check]
+                                    []
+                                    [(SubroutineCall
+                                        10 check
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            check:
+                                (Function
+                                    (SymbolTable
+                                        7
+                                        {
+                                            
+                                        })
+                                    check
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [g]
+                                    []
+                                    [(Assert
+                                        (IntegerCompare
+                                            (FunctionCall
+                                                10 g
+                                                ()
+                                                [((Var 10 f))
+                                                ((IntegerConstant 10 (Integer 4 [])))]
+                                                (Integer 4 [])
+                                                ()
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 11 (Integer 4 []))
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (FunctionCall
+                                                10 g
+                                                ()
+                                                [((Var 10 f2))
+                                                ((IntegerConstant 20 (Integer 4 [])))]
+                                                (Integer 4 [])
+                                                ()
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 30 (Integer 4 []))
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (FunctionCall
+                                                10 g
+                                                ()
+                                                [((Var 10 f3))
+                                                ((IntegerConstant 5 (Integer 4 [])))]
+                                                (Integer 4 [])
+                                                ()
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 21 (Integer 4 []))
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        2
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    2
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    2
+                                                    x
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        [(Integer 4 [])]
+                                        (Integer 4 [])
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 2 x)]
+                                    [(=
+                                        (Var 2 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (Var 2 x)
+                                            Add
+                                            (IntegerConstant 1 (Integer 4 []))
+                                            (Integer 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 2 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f2:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    3
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    3
+                                                    x
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f2
+                                    (FunctionType
+                                        [(Integer 4 [])]
+                                        (Integer 4 [])
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 3 x)]
+                                    [(=
+                                        (Var 3 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (Var 3 x)
+                                            Add
+                                            (IntegerConstant 10 (Integer 4 []))
+                                            (Integer 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 3 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f3:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    4
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    4
+                                                    x
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f3
+                                    (FunctionType
+                                        [(Integer 4 [])]
+                                        (Integer 4 [])
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [f
+                                    f2]
+                                    [(Var 4 x)]
+                                    [(=
+                                        (Var 4 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (FunctionCall
+                                                10 f
+                                                ()
+                                                [((Var 4 x))]
+                                                (Integer 4 [])
+                                                ()
+                                                ()
+                                            )
+                                            Add
+                                            (FunctionCall
+                                                10 f2
+                                                ()
+                                                [((Var 4 x))]
+                                                (Integer 4 [])
+                                                ()
+                                                ()
+                                            )
+                                            (Integer 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 4 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            g:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    5
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            arg:
+                                                (Variable
+                                                    5
+                                                    arg
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            func:
+                                                (Function
+                                                    (SymbolTable
+                                                        6
+                                                        {
+                                                            func_arg_0:
+                                                                (Variable
+                                                                    6
+                                                                    func_arg_0
+                                                                    []
+                                                                    Unspecified
+                                                                    ()
+                                                                    ()
+                                                                    Default
+                                                                    (Integer 4 [])
+                                                                    Source
+                                                                    Public
+                                                                    Required
+                                                                    .false.
+                                                                ),
+                                                            func_return_var_name:
+                                                                (Variable
+                                                                    6
+                                                                    func_return_var_name
+                                                                    []
+                                                                    ReturnVar
+                                                                    ()
+                                                                    ()
+                                                                    Default
+                                                                    (Integer 4 [])
+                                                                    Source
+                                                                    Public
+                                                                    Required
+                                                                    .false.
+                                                                )
+                                                        })
+                                                    func
+                                                    (FunctionType
+                                                        [(Integer 4 [])]
+                                                        (Integer 4 [])
+                                                        BindC
+                                                        Interface
+                                                        ()
+                                                        .false.
+                                                        .false.
+                                                        .false.
+                                                        .false.
+                                                        .false.
+                                                        []
+                                                        []
+                                                        .false.
+                                                    )
+                                                    []
+                                                    [(Var 6 func_arg_0)]
+                                                    []
+                                                    (Var 6 func_return_var_name)
+                                                    Public
+                                                    .false.
+                                                    .false.
+                                                    ()
+                                                ),
+                                            ret:
+                                                (Variable
+                                                    5
+                                                    ret
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    g
+                                    (FunctionType
+                                        [(FunctionType
+                                            [(Integer 4 [])]
+                                            (Integer 4 [])
+                                            BindC
+                                            Interface
+                                            ()
+                                            .false.
+                                            .false.
+                                            .false.
+                                            .false.
+                                            .false.
+                                            []
+                                            []
+                                            .false.
+                                        )
+                                        (Integer 4 [])]
+                                        (Integer 4 [])
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [func]
+                                    [(Var 5 func)
+                                    (Var 5 arg)]
+                                    [(=
+                                        (Var 5 ret)
+                                        (FunctionCall
+                                            5 func
+                                            ()
+                                            [((Var 5 arg))]
+                                            (Integer 4 [])
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 _lpython_return_variable)
+                                        (Var 5 ret)
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 5 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    _global_symbols
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        8
+                        {
+                            _lpython_main_program:
+                                (ExternalSymbol
+                                    8
+                                    _lpython_main_program
+                                    10 _lpython_main_program
+                                    _global_symbols
+                                    []
+                                    _lpython_main_program
+                                    Public
+                                )
+                        })
+                    main_program
+                    [_global_symbols]
+                    [(SubroutineCall
+                        8 _lpython_main_program
+                        ()
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

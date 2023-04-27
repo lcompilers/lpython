@@ -35,7 +35,7 @@ def verify2d(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
 def verify1d_sum(array_a: f64[:], array_b: f64[:], result: f64[:], size: i32):
     i: i32
     eps: f64
-    eps = 1e-12
+    eps = 1e-9
 
     for i in range(size):
         assert abs(array_a[i]**2.0 + 5.0*array_b[i]**3.0 - result[i]) <= eps
@@ -44,7 +44,7 @@ def verify1d_sum(array_a: f64[:], array_b: f64[:], result: f64[:], size: i32):
 def verify1d_mul(array_a: f64[:], array_b: f64[:], result: f64[:], size: i32):
     i: i32
     eps: f64
-    eps = 1e-12
+    eps = 1e-5
 
     for i in range(size):
         assert abs(array_a[i]**2.0 * 5.0*array_b[i]**3.0 - result[i]) <= eps

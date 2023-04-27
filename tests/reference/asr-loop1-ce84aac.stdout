@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             main0:
                                 (Function
@@ -139,6 +140,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_factorial_1:
                                 (Function
@@ -272,6 +274,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_factorial_2:
                                 (Function
@@ -402,6 +405,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_factorial_3:
                                 (Function
@@ -555,6 +559,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

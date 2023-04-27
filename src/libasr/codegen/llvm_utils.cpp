@@ -966,24 +966,16 @@ namespace LCompilers {
                 llvm_utils->create_ptr_gep(src_key_mask, itr));
             LLVM::CreateStore(*builder, key_mask_value,
                 llvm_utils->create_ptr_gep(dest_key_mask, itr));
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_set = builder->CreateICmpEQ(key_mask_value,
                 llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
-            builder->CreateCondBr(is_key_set, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
 
+            llvm_utils->create_if_else(is_key_set, [&]() {
                 llvm::Value* srci = llvm_utils->create_ptr_gep(src_key_value_pairs, itr);
                 llvm::Value* desti = llvm_utils->create_ptr_gep(dest_key_value_pairs, itr);
                 deepcopy_key_value_pair_linked_list(srci, desti, dest_key_value_pairs,
                     src_capacity, dict_type, module, name2memidx);
-            }
-            builder->CreateBr(mergeBB);
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
+            }, [=]() {
+            });
             llvm::Value* tmp = builder->CreateAdd(
                         itr,
                         llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
@@ -1004,17 +996,10 @@ namespace LCompilers {
         llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                                    llvm::APInt(32, 0));
 
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
         llvm::Value* cond = builder->CreateOr(
                                 builder->CreateICmpSGE(pos, end_point),
                                 builder->CreateICmpSLT(pos, zero));
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        {
+        llvm_utils->create_if_else(cond, [&]() {
             std::string index_error = "IndexError: %s%d%s%d\n",
             message1 = "List index is out of range. Index range is (0, ",
             message2 = "), but the given index is ";
@@ -1029,11 +1014,8 @@ namespace LCompilers {
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, module, *builder, exit_code);
-        }
-        builder->CreateBr(mergeBB);
-
-        llvm_utils->start_new_block(elseBB);
-        llvm_utils->start_new_block(mergeBB);
+        }, [=]() {
+        });
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
@@ -1181,26 +1163,17 @@ namespace LCompilers {
             llvm::Value* is_key_matching = llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
                                                                   llvm::APInt(1, 0));
             LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* compare_keys = builder->CreateAnd(is_key_set,
                                             builder->CreateNot(is_key_skip));
-            builder->CreateCondBr(compare_keys, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
+            llvm_utils->create_if_else(compare_keys, [&]() {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
                                     false, module, LLVM::is_llvm_struct(key_asr_type));
                 is_key_matching = llvm_utils->is_equal_by_value(key, original_key, module,
                                                                 key_asr_type);
                 LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
-            }
-            builder->CreateBr(mergeBB);
+            }, [=]() {
+            });
 
-
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
             // TODO: Allow safe exit if pos becomes key_hash again.
             // Ideally should not happen as dict will be resized once
             // load factor touches a threshold (which will always be less than 1)
@@ -1269,25 +1242,16 @@ namespace LCompilers {
             llvm::Value* is_key_matching = llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
                                                                 llvm::APInt(1, 0));
             LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* compare_keys = builder->CreateAnd(is_key_set,
                                             builder->CreateNot(is_key_skip));
-            builder->CreateCondBr(compare_keys, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
+            llvm_utils->create_if_else(compare_keys, [&]() {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
                                 false, module, LLVM::is_llvm_struct(key_asr_type));
                 is_key_matching = llvm_utils->is_equal_by_value(key, original_key, module,
                                                                 key_asr_type);
                 LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
-            }
-            builder->CreateBr(mergeBB);
-
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
+            }, [=]() {
+            });
             // TODO: Allow safe exit if pos becomes key_hash again.
             // Ideally should not happen as dict will be resized once
             // load factor touches a threshold (which will always be less than 1)
@@ -1371,20 +1335,11 @@ namespace LCompilers {
             llvm::Value* break_signal = llvm_utils->is_equal_by_value(key, kv_key, module, key_asr_type);
             break_signal = builder->CreateNot(break_signal);
             LLVM::CreateStore(*builder, break_signal, is_key_matching_var);
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-            builder->CreateCondBr(break_signal, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
+            llvm_utils->create_if_else(break_signal, [&]() {
                 llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
                 LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
-            }
-            builder->CreateBr(mergeBB);
-
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
+            }, [=]() {
+            });
         }
 
         builder->CreateBr(loophead);
@@ -1545,6 +1500,148 @@ namespace LCompilers {
         return item;
     }
 
+    llvm::Value* LLVMDict::resolve_collision_for_read_with_bound_check(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* /*value_asr_type*/) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, key_asr_type, true);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+            llvm_utils->list_api->read_item(key_list, pos, false, module,
+                LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+
+        llvm_utils->create_if_else(is_key_matching, [&]() {
+        }, [&]() {
+            std::string message = "The dict does not contain the specified key";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        });
+        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
+                                                false, module, false);
+        return item;
+    }
+
+    void LLVMDict::_check_key_present_or_default(llvm::Module& module, llvm::Value *key, llvm::Value *key_list,
+        ASR::ttype_t* key_asr_type, llvm::Value *value_list, llvm::Value *pos,
+        llvm::Value *def_value, llvm::Value* &result) {
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+            llvm_utils->list_api->read_item(key_list, pos, false, module,
+                LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+        llvm_utils->create_if_else(is_key_matching, [&]() {
+            llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
+                                                false, module, false);
+            LLVM::CreateStore(*builder, item, result);
+        }, [=]() {
+            LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), result);
+        });
+    }
+
+    llvm::Value* LLVMDict::resolve_collision_for_read_with_default(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+        llvm::Value* def_value) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, key_asr_type, true);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(key_asr_type),
+            ASRUtils::get_type_code(value_asr_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        llvm::Value* result = builder->CreateAlloca(value_type, nullptr);
+        _check_key_present_or_default(module, key, key_list, key_asr_type, value_list,
+                                        pos, def_value, result);
+        return result;
+    }
+
+    llvm::Value* LLVMDictOptimizedLinearProbing::resolve_collision_for_read_with_bound_check(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* /*value_asr_type*/) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        if( !are_iterators_set ) {
+            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        }
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm::Value* is_prob_not_neeeded = builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        builder->CreateCondBr(is_prob_not_neeeded, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            // A single by value comparison is needed even though
+            // we don't need to do linear probing. This is because
+            // the user can provide a key which is absent in the dict
+            // but is giving the same hash value as one of the keys present in the dict.
+            // In the above case we will end up returning value for a key
+            // which is not present in the dict. Instead we should return an error
+            // which is done in the below code.
+            llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, key_hash, false, module,
+                    LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [&]() {
+                std::string message = "The dict does not contain the specified key";
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                int exit_code_int = 1;
+                llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                        llvm::APInt(32, exit_code_int));
+                exit(context, module, *builder, exit_code);
+            });
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            this->resolve_collision(capacity, key_hash, key, key_list, key_mask,
+                           module, key_asr_type, true);
+        }
+        llvm_utils->start_new_block(mergeBB);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        // Check if the actual key is present or not
+        llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, pos, false, module,
+                    LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+
+        llvm_utils->create_if_else(is_key_matching, [&]() {
+        }, [&]() {
+            std::string message = "The dict does not contain the specified key";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        });
+        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
+                                                        false, module, true);
+        return item;
+    }
+
     llvm::Value* LLVMDictOptimizedLinearProbing::resolve_collision_for_read(
         llvm::Value* dict, llvm::Value* key_hash,
         llvm::Value* key, llvm::Module& module,
@@ -1574,29 +1671,14 @@ namespace LCompilers {
             // In the above case we will end up returning value for a key
             // which is not present in the dict. Instead we should return an error
             // which is done in the below code.
-            llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-            llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
                 llvm_utils->list_api->read_item(key_list, key_hash, false, module,
                     LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
-            builder->CreateCondBr(is_key_matching, thenBB_single_match, elseBB_single_match);
-            builder->SetInsertPoint(thenBB_single_match);
-            LLVM::CreateStore(*builder, key_hash, pos_ptr);
-            builder->CreateBr(mergeBB_single_match);
-            llvm_utils->start_new_block(elseBB_single_match);
-            {
-                std::string message = "The dict does not contain the specified key";
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
-                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
-                int exit_code_int = 1;
-                llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                        llvm::APInt(32, exit_code_int));
-                exit(context, module, *builder, exit_code);
-            }
-            llvm_utils->start_new_block(mergeBB_single_match);
+
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [=]() {
+            });
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
@@ -1609,6 +1691,57 @@ namespace LCompilers {
         llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
                                                         false, module, true);
         return item;
+    }
+
+    llvm::Value* LLVMDictOptimizedLinearProbing::resolve_collision_for_read_with_default(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+        llvm::Value *def_value) {
+        llvm::Value* key_list = get_key_list(dict);
+        llvm::Value* value_list = get_value_list(dict);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        if( !are_iterators_set ) {
+            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        }
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(key_asr_type),
+            ASRUtils::get_type_code(value_asr_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        llvm::Value* result = builder->CreateAlloca(value_type, nullptr);
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                                        llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm::Value* is_prob_not_neeeded = builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        builder->CreateCondBr(is_prob_not_neeeded, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
+                llvm_utils->list_api->read_item(key_list, key_hash, false, module,
+                    LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
+            llvm_utils->create_if_else(is_key_matching, [=]() {
+                LLVM::CreateStore(*builder, key_hash, pos_ptr);
+            }, [=]() {
+                LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), result);
+            });
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            this->resolve_collision(capacity, key_hash, key, key_list, key_mask,
+                           module, key_asr_type, true);
+        }
+        llvm_utils->start_new_block(mergeBB);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        _check_key_present_or_default(module, key, key_list, key_asr_type, value_list,
+                                        pos, def_value, result);
+        return result;
     }
 
     llvm::Value* LLVMDictSeparateChaining::resolve_collision_for_read(
@@ -1634,10 +1767,36 @@ namespace LCompilers {
         } else {
             tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
         }
-        llvm::Function *fn_single_match = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB_single_match = llvm::BasicBlock::Create(context, "then", fn_single_match);
-        llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+        llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
+        llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
+        LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
+        return tmp_value_ptr;
+    }
+
+    llvm::Value* LLVMDictSeparateChaining::resolve_collision_for_read_with_bound_check(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
+        llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Type* kv_struct_type = get_key_value_pair_type(key_asr_type, value_asr_type);
+        this->resolve_collision(capacity, key_hash, key, key_value_pair_linked_list,
+                                kv_struct_type, key_mask, module, key_asr_type);
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(key_asr_type),
+            ASRUtils::get_type_code(value_asr_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        llvm::Value* tmp_value_ptr_local = nullptr;
+        if( !are_iterators_set ) {
+            tmp_value_ptr = builder->CreateAlloca(value_type, nullptr);
+            tmp_value_ptr_local = tmp_value_ptr;
+        } else {
+            tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
+        }
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
@@ -1646,18 +1805,13 @@ namespace LCompilers {
             builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
         );
-        builder->CreateCondBr(does_kv_exists, thenBB_single_match, elseBB_single_match);
-        builder->SetInsertPoint(thenBB_single_match);
-        {
+
+        llvm_utils->create_if_else(does_kv_exists, [=]() {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
             llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
             LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
-
-        }
-        builder->CreateBr(mergeBB_single_match);
-        llvm_utils->start_new_block(elseBB_single_match);
-        {
+        }, [&]() {
             std::string message = "The dict does not contain the specified key";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -1666,8 +1820,50 @@ namespace LCompilers {
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, module, *builder, exit_code);
+        });
+        return tmp_value_ptr;
+    }
+
+    llvm::Value* LLVMDictSeparateChaining::resolve_collision_for_read_with_default(
+        llvm::Value* dict, llvm::Value* key_hash,
+        llvm::Value* key, llvm::Module& module,
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type, llvm::Value *def_value) {
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
+        llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Type* kv_struct_type = get_key_value_pair_type(key_asr_type, value_asr_type);
+        this->resolve_collision(capacity, key_hash, key, key_value_pair_linked_list,
+                                kv_struct_type, key_mask, module, key_asr_type);
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(key_asr_type),
+            ASRUtils::get_type_code(value_asr_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        llvm::Value* tmp_value_ptr_local = nullptr;
+        if( !are_iterators_set ) {
+            tmp_value_ptr = builder->CreateAlloca(value_type, nullptr);
+            tmp_value_ptr_local = tmp_value_ptr;
+        } else {
+            tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
         }
-        llvm_utils->start_new_block(mergeBB_single_match);
+        llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        does_kv_exists = builder->CreateAnd(does_kv_exists,
+            builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
+            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+        );
+
+        llvm_utils->create_if_else(does_kv_exists, [=]() {
+            llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+            llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
+            llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
+            LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
+        }, [&]() {
+            LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), tmp_value_ptr_local);
+        });
         return tmp_value_ptr;
     }
 
@@ -1960,22 +2156,14 @@ namespace LCompilers {
             llvm::Value* itr = LLVM::CreateLoad(*builder, idx_ptr);
             llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
                 llvm_utils->create_ptr_gep(old_key_mask_value, itr));
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_set = builder->CreateICmpEQ(key_mask_value,
                 llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
-            builder->CreateCondBr(is_key_set, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
 
+            llvm_utils->create_if_else(is_key_set, [&]() {
                 llvm::Value* srci = llvm_utils->create_ptr_gep(old_key_value_pairs_value, itr);
                 write_key_value_pair_linked_list(srci, dict, capacity, key_asr_type, value_asr_type, module, name2memidx);
-            }
-            builder->CreateBr(mergeBB);
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
+            }, [=]() {
+            });
             llvm::Value* tmp = builder->CreateAdd(
                         itr,
                         llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
@@ -2019,11 +2207,6 @@ namespace LCompilers {
     void LLVMDict::rehash_all_at_once_if_needed(llvm::Value* dict, llvm::Module* module,
         ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* rehash_condition = builder->CreateICmpEQ(capacity,
@@ -2037,26 +2220,16 @@ namespace LCompilers {
         llvm::Value* load_factor_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
                                                                    llvm::APFloat((float) 0.6));
         rehash_condition = builder->CreateOr(rehash_condition, builder->CreateFCmpOGE(load_factor, load_factor_threshold));
-        builder->CreateCondBr(rehash_condition, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        {
+        llvm_utils->create_if_else(rehash_condition, [&]() {
             rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
-        }
-        builder->CreateBr(mergeBB);
-
-        llvm_utils->start_new_block(elseBB);
-        llvm_utils->start_new_block(mergeBB);
+        }, [=]() {
+        });
     }
 
     void LLVMDictSeparateChaining::rehash_all_at_once_if_needed(
         llvm::Value* dict, llvm::Module* module,
         ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(dict));
         llvm::Value* buckets_filled = LLVM::CreateLoad(*builder, get_pointer_to_number_of_filled_buckets(dict));
         llvm::Value* rehash_condition = LLVM::CreateLoad(*builder, get_pointer_to_rehash_flag(dict));
@@ -2069,15 +2242,10 @@ namespace LCompilers {
                                                                    llvm::APFloat((float) 2.0));
         rehash_condition = builder->CreateAnd(rehash_condition,
             builder->CreateFCmpOGE(avg_ll_length, avg_ll_length_threshold));
-        builder->CreateCondBr(rehash_condition, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        {
+        llvm_utils->create_if_else(rehash_condition, [&]() {
             rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
-        }
-        builder->CreateBr(mergeBB);
-
-        llvm_utils->start_new_block(elseBB);
-        llvm_utils->start_new_block(mergeBB);
+        }, [=]() {
+        });
     }
 
     void LLVMDict::write_item(llvm::Value* dict, llvm::Value* key,
@@ -2103,12 +2271,32 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMDict::read_item(llvm::Value* dict, llvm::Value* key,
-                             llvm::Module& module, ASR::Dict_t* dict_type,
+                             llvm::Module& module, ASR::Dict_t* dict_type, bool enable_bounds_checking,
                              bool get_pointer) {
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
-        llvm::Value* value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+        llvm::Value* value_ptr;
+        if (enable_bounds_checking) {
+            value_ptr = this->resolve_collision_for_read_with_bound_check(dict, key_hash, key, module,
                                                                   dict_type->m_key_type, dict_type->m_value_type);
+        } else {
+            value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+                                                                  dict_type->m_key_type, dict_type->m_value_type);
+        }
+        if( get_pointer ) {
+            return value_ptr;
+        }
+        return LLVM::CreateLoad(*builder, value_ptr);
+    }
+
+    llvm::Value* LLVMDict::get_item(llvm::Value* dict, llvm::Value* key,
+                             llvm::Module& module, ASR::Dict_t* dict_type, llvm::Value* def_value,
+                             bool get_pointer) {
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
+        llvm::Value* value_ptr = this->resolve_collision_for_read_with_default(dict, key_hash, key, module,
+                                                                  dict_type->m_key_type, dict_type->m_value_type,
+                                                                  def_value);
         if( get_pointer ) {
             return value_ptr;
         }
@@ -2116,11 +2304,36 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMDictSeparateChaining::read_item(llvm::Value* dict, llvm::Value* key,
-        llvm::Module& module, ASR::Dict_t* dict_type, bool get_pointer) {
+        llvm::Module& module, ASR::Dict_t* dict_type, bool enable_bounds_checking, bool get_pointer) {
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
-        llvm::Value* value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+        llvm::Value* value_ptr;
+        if (enable_bounds_checking) {
+            value_ptr = this->resolve_collision_for_read_with_bound_check(dict, key_hash, key, module,
                                                                   dict_type->m_key_type, dict_type->m_value_type);
+        } else {
+            value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+                                                                  dict_type->m_key_type, dict_type->m_value_type);
+        }
+        std::pair<std::string, std::string> llvm_key = std::make_pair(
+            ASRUtils::get_type_code(dict_type->m_key_type),
+            ASRUtils::get_type_code(dict_type->m_value_type)
+        );
+        llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
+        value_ptr = builder->CreateBitCast(value_ptr, value_type->getPointerTo());
+        if( get_pointer ) {
+            return value_ptr;
+        }
+        return LLVM::CreateLoad(*builder, value_ptr);
+    }
+
+    llvm::Value* LLVMDictSeparateChaining::get_item(llvm::Value* dict, llvm::Value* key,
+        llvm::Module& module, ASR::Dict_t* dict_type, llvm::Value* def_value, bool get_pointer) {
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
+        llvm::Value* value_ptr = this->resolve_collision_for_read_with_default(dict, key_hash, key, module,
+                                                                  dict_type->m_key_type, dict_type->m_value_type,
+                                                                  def_value);
         std::pair<std::string, std::string> llvm_key = std::make_pair(
             ASRUtils::get_type_code(dict_type->m_key_type),
             ASRUtils::get_type_code(dict_type->m_value_type)
@@ -2470,17 +2683,9 @@ namespace LCompilers {
         // end
         llvm_utils->start_new_block(loopend);
 
-
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
         llvm::Value* cond = builder->CreateICmpEQ(
                               LLVM::CreateLoad(*builder, i), current_end_point);
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        {
+        llvm_utils->create_if_else(cond, [&]() {
             std::string message = "The list does not contain the element: ";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -2489,12 +2694,8 @@ namespace LCompilers {
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, module, *builder, exit_code);
-        }
-        builder->CreateBr(mergeBB);
-
-        llvm_utils->start_new_block(elseBB);
-        llvm_utils->start_new_block(mergeBB);
-
+        }, [=]() {
+        });
         return LLVM::CreateLoad(*builder, i);
     }
 
@@ -2545,27 +2746,16 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopbody);
         {
             // if occurrence found, increment cnt
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
             llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
                 false, module, LLVM::is_llvm_struct(item_type));
             llvm::Value* cond = llvm_utils->is_equal_by_value(left_arg, item, module, item_type);
-            builder->CreateCondBr(cond, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
+            llvm_utils->create_if_else(cond, [&]() {
                 tmp = builder->CreateAdd(
                             LLVM::CreateLoad(*builder, cnt),
                             llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                 LLVM::CreateStore(*builder, tmp, cnt);
-            }
-            builder->CreateBr(mergeBB);
-
-            llvm_utils->start_new_block(elseBB);
-            llvm_utils->start_new_block(mergeBB);
-
+            }, [=]() {
+            });
             // increment i
             tmp = builder->CreateAdd(
                         LLVM::CreateLoad(*builder, i),

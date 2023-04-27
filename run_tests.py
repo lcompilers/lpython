@@ -28,6 +28,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     wat = is_included("wat")
     run = is_included("run")
     run_with_dbg = is_included("run_with_dbg")
+    disable_main = is_included("disable_main")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
@@ -111,7 +112,11 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
                  filename, update_reference, extra_args)
 
     if c:
-        run_test(filename, "c", "lpython --no-color --show-c {infile}",
+        if disable_main:
+            run_test(filename, "c", "lpython --no-color --disable-main --show-c {infile}",
+                 filename, update_reference, extra_args)
+        else:
+            run_test(filename, "c", "lpython --no-color --show-c {infile}",
                  filename, update_reference, extra_args)
     if wat:
         run_test(filename, "wat", "lpython --no-color --show-wat {infile}",

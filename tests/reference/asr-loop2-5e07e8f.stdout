@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        13
+                        14
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        12
+                                        13
                                         {
                                             
                                         })
@@ -30,10 +30,17 @@
                                         []
                                         .false.
                                     )
-                                    [test_for]
+                                    [sys@global_initializer
+                                    test_for]
                                     []
                                     [(SubroutineCall
-                                        13 test_for
+                                        14 sys@global_initializer
+                                        3 global_initializer
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        14 test_for
                                         ()
                                         []
                                         ()
@@ -42,10 +49,11 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             exit:
                                 (ExternalSymbol
-                                    13
+                                    14
                                     exit
                                     3 exit
                                     sys
@@ -53,14 +61,24 @@
                                     exit
                                     Public
                                 ),
+                            sys@global_initializer:
+                                (ExternalSymbol
+                                    14
+                                    sys@global_initializer
+                                    3 global_initializer
+                                    sys
+                                    []
+                                    global_initializer
+                                    Public
+                                ),
                             test_for:
                                 (Function
                                     (SymbolTable
-                                        9
+                                        10
                                         {
                                             i:
                                                 (Variable
-                                                    9
+                                                    10
                                                     i
                                                     []
                                                     Local
@@ -94,7 +112,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 9 i)
+                                        ((Var 10 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (IntegerConstant 10 (Integer 4 []))
@@ -106,7 +124,7 @@
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(If
                                             (IntegerCompare
-                                                (Var 9 i)
+                                                (Var 10 i)
                                                 Eq
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (Logical 4 [])
@@ -119,7 +137,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 9 i)
+                                                (Var 10 i)
                                                 Gt
                                                 (IntegerConstant 5 (Integer 4 []))
                                                 (Logical 4 [])
@@ -132,7 +150,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 9 i)
+                                                (Var 10 i)
                                                 Eq
                                                 (IntegerConstant 3 (Integer 4 []))
                                                 (Logical 4 [])
@@ -145,7 +163,7 @@
                                         )]
                                     )
                                     (SubroutineCall
-                                        13 exit
+                                        14 exit
                                         ()
                                         [((IntegerConstant 2 (Integer 4 [])))]
                                         ()
@@ -154,6 +172,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -164,13 +183,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        11
+                        12
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    11
+                                    12
                                     _lpython_main_program
-                                    13 _lpython_main_program
+                                    14 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -180,7 +199,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        11 _lpython_main_program
+                        12 _lpython_main_program
                         ()
                         []
                         ()
@@ -194,11 +213,11 @@
                             _lpython_argv:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        7
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    5
+                                                    7
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -215,7 +234,7 @@
                                                 ),
                                             argc:
                                                 (Variable
-                                                    5
+                                                    7
                                                     argc
                                                     []
                                                     Local
@@ -230,7 +249,7 @@
                                                 ),
                                             argv:
                                                 (Variable
-                                                    5
+                                                    7
                                                     argv
                                                     []
                                                     Local
@@ -247,7 +266,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    5
+                                                    7
                                                     i
                                                     []
                                                     Local
@@ -283,7 +302,7 @@
                                     _lpython_get_argv]
                                     []
                                     [(=
-                                        (Var 5 argc)
+                                        (Var 7 argc)
                                         (FunctionCall
                                             3 _lpython_get_argc
                                             ()
@@ -294,12 +313,22 @@
                                         )
                                         ()
                                     )
+                                    (=
+                                        (Var 7 argv)
+                                        (ListConstant
+                                            []
+                                            (List
+                                                (Character 1 -2 () [])
+                                            )
+                                        )
+                                        ()
+                                    )
                                     (DoLoop
                                         ()
-                                        ((Var 5 i)
+                                        ((Var 7 i)
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
-                                            (Var 5 argc)
+                                            (Var 7 argc)
                                             Sub
                                             (IntegerConstant 1 (Integer 4 []))
                                             (Integer 4 [])
@@ -307,11 +336,11 @@
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
                                         [(ListAppend
-                                            (Var 5 argv)
+                                            (Var 7 argv)
                                             (FunctionCall
                                                 3 _lpython_get_argv
                                                 ()
-                                                [((Var 5 i))]
+                                                [((Var 7 i))]
                                                 (Character 1 -2 () [])
                                                 ()
                                                 ()
@@ -319,24 +348,25 @@
                                         )]
                                     )
                                     (=
-                                        (Var 5 _lpython_return_variable)
-                                        (Var 5 argv)
+                                        (Var 7 _lpython_return_variable)
+                                        (Var 7 argv)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 5 _lpython_return_variable)
+                                    (Var 7 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_get_argc:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        5
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    6
+                                                    5
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -369,19 +399,20 @@
                                     []
                                     []
                                     []
-                                    (Var 6 _lpython_return_variable)
+                                    (Var 5 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_get_argv:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        6
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    7
+                                                    6
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -396,7 +427,7 @@
                                                 ),
                                             index:
                                                 (Variable
-                                                    7
+                                                    6
                                                     index
                                                     []
                                                     In
@@ -427,11 +458,29 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 7 index)]
+                                    [(Var 6 index)]
                                     []
-                                    (Var 7 _lpython_return_variable)
+                                    (Var 6 _lpython_return_variable)
                                     Public
                                     .false.
+                                    .false.
+                                    ()
+                                ),
+                            argv:
+                                (Variable
+                                    3
+                                    argv
+                                    []
+                                    Local
+                                    ()
+                                    ()
+                                    Default
+                                    (List
+                                        (Character 1 -2 () [])
+                                    )
+                                    Source
+                                    Public
+                                    Required
                                     .false.
                                 ),
                             exit:
@@ -480,6 +529,52 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
+                                ),
+                            global_initializer:
+                                (Function
+                                    (SymbolTable
+                                        9
+                                        {
+                                            
+                                        })
+                                    global_initializer
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [_lpython_argv]
+                                    []
+                                    [(=
+                                        (Var 3 argv)
+                                        (FunctionCall
+                                            3 _lpython_argv
+                                            ()
+                                            []
+                                            (List
+                                                (Character 1 -2 () [])
+                                            )
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
                                 )
                         })
                     sys

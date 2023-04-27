@@ -83,6 +83,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_bgt64:
                                 (Function
@@ -160,6 +161,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_dsin:
                                 (Function
@@ -220,6 +222,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lfortran_ssin:
                                 (Function
@@ -280,6 +283,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             _lpython_main_program:
                                 (Function
@@ -316,6 +320,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_c_callbacks:
                                 (Function
@@ -663,6 +668,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols

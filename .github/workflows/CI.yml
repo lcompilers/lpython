@@ -184,3 +184,63 @@ jobs:
             which node
             node -v
             node src/lpython/tests/test_lpython.js
+
+  test_pip_pkgs:
+    name: Test PIP Installable Packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/provision-with-micromamba@v15
+        with:
+          environment-file: ci/environment.yml
+          extra-specs: |
+            bison=3.4
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          variant: sccache
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Setup Platform (Linux)
+        shell: bash -l {0}
+        run: |
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
+            echo "WIN=0" >> $GITHUB_ENV
+            echo "MACOS=0" >> $GITHUB_ENV
+            echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
+
+      - name: Build Linux
+        shell: bash -l {0}
+        run: |
+            xonsh ci/build.xsh
+
+      - name: PIP show version
+        shell: bash -l {0}
+        run: |
+            python -m pip -V
+
+      - name: PIP install required packages
+        shell: bash -l {0}
+        run: |
+            python -m pip install lpynn numpy
+
+      - name: PIP show installed packages
+        shell: bash -l {0}
+        run: |
+            python -m pip list
+
+      - name: Test PIP Packages with Python
+        shell: bash -l {0}
+        run: |
+            export PYTHONPATH=./src/runtime/lpython
+            python integration_tests/test_pip_import_01.py
+
+      - name: Test PIP Packages with LPython
+        shell: bash -l {0}
+        run: |
+            pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
+            echo $pip_pkg_path
+            ./src/bin/lpython integration_tests/test_pip_import_01.py -I $pip_pkg_path

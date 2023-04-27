@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        115
+                        123
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        114
+                                        122
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        115 check
+                                        123 check
                                         ()
                                         []
                                         ()
@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -71,19 +72,19 @@
                                     test_complex_binop_64]
                                     []
                                     [(SubroutineCall
-                                        115 test_complex_abs
+                                        123 test_complex_abs
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        115 test_complex_binop_32
+                                        123 test_complex_binop_32
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        115 test_complex_binop_64
+                                        123 test_complex_binop_64
                                         ()
                                         []
                                         ()
@@ -92,6 +93,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_abs:
                                 (Function
@@ -304,6 +306,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_binop_32:
                                 (Function
@@ -496,6 +499,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_binop_64:
                                 (Function
@@ -670,6 +674,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -682,13 +687,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        113
+                        121
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    113
+                                    121
                                     _lpython_main_program
-                                    115 _lpython_main_program
+                                    123 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -698,7 +703,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        113 _lpython_main_program
+                        121 _lpython_main_program
                         ()
                         []
                         ()

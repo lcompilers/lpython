@@ -1,0 +1,13 @@
+{
+    "basename": "c-loop4-eec10d3",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/loop4.py",
+    "infile_hash": "660eb1a895c81609d791240171fc34b6f0fea02c43de8f86420b06b7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-loop4-eec10d3.stdout",
+    "stdout_hash": "fcac40cfa4688bd9f947e6b94eec42690e91a2ba41dbf2f80db2b3ef",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

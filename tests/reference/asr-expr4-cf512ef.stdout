@@ -2,6 +2,91 @@
     (SymbolTable
         1
         {
+            _global_symbols:
+                (Module
+                    (SymbolTable
+                        4
+                        {
+                            test_del:
+                                (Function
+                                    (SymbolTable
+                                        2
+                                        {
+                                            a:
+                                                (Variable
+                                                    2
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    2
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4 [])
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_del
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 2 a)
+                                        (IntegerConstant 4 (Integer 4 []))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 2 b)
+                                        (IntegerConstant 20 (Integer 4 []))
+                                        ()
+                                    )
+                                    (ExplicitDeallocate
+                                        [(Var 2 a)
+                                        (Var 2 b)]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    _global_symbols
+                    []
+                    .false.
+                    .false.
+                ),
             main_program:
                 (Program
                     (SymbolTable
@@ -12,79 +97,6 @@
                     main_program
                     []
                     []
-                ),
-            test_del:
-                (Function
-                    (SymbolTable
-                        2
-                        {
-                            a:
-                                (Variable
-                                    2
-                                    a
-                                    []
-                                    Local
-                                    ()
-                                    ()
-                                    Default
-                                    (Integer 4 [])
-                                    Source
-                                    Public
-                                    Required
-                                    .false.
-                                ),
-                            b:
-                                (Variable
-                                    2
-                                    b
-                                    []
-                                    Local
-                                    ()
-                                    ()
-                                    Default
-                                    (Integer 4 [])
-                                    Source
-                                    Public
-                                    Required
-                                    .false.
-                                )
-                        })
-                    test_del
-                    (FunctionType
-                        []
-                        ()
-                        Source
-                        Implementation
-                        ()
-                        .false.
-                        .false.
-                        .false.
-                        .false.
-                        .false.
-                        []
-                        []
-                        .false.
-                    )
-                    []
-                    []
-                    [(=
-                        (Var 2 a)
-                        (IntegerConstant 4 (Integer 4 []))
-                        ()
-                    )
-                    (=
-                        (Var 2 b)
-                        (IntegerConstant 20 (Integer 4 []))
-                        ()
-                    )
-                    (ExplicitDeallocate
-                        [(Var 2 a)
-                        (Var 2 b)]
-                    )]
-                    ()
-                    Public
-                    .false.
-                    .false.
                 )
         })
     []

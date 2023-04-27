@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        116
+                        124
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        115
+                                        123
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        116 check
+                                        124 check
                                         ()
                                         []
                                         ()
@@ -42,6 +42,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             check:
                                 (Function
@@ -72,25 +73,25 @@
                                     test_complex_not]
                                     []
                                     [(SubroutineCall
-                                        116 test_real_imag
+                                        124 test_real_imag
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_complex
+                                        124 test_complex
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_complex_unary_minus
+                                        124 test_complex_unary_minus
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        116 test_complex_not
+                                        124 test_complex_not
                                         ()
                                         []
                                         ()
@@ -99,6 +100,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex:
                                 (Function
@@ -999,6 +1001,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_not:
                                 (Function
@@ -1176,6 +1179,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_complex_unary_minus:
                                 (Function
@@ -1763,6 +1767,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 ),
                             test_real_imag:
                                 (Function
@@ -1956,6 +1961,7 @@
                                     Public
                                     .false.
                                     .false.
+                                    ()
                                 )
                         })
                     _global_symbols
@@ -1968,13 +1974,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        114
+                        122
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    114
+                                    122
                                     _lpython_main_program
-                                    116 _lpython_main_program
+                                    124 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1984,7 +1990,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        114 _lpython_main_program
+                        122 _lpython_main_program
                         ()
                         []
                         ()
