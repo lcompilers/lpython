@@ -28,3 +28,17 @@ def normalize_input_vectors(input_vectors: list[list[f64]]):
 
         for i in range(rows):
             input_vectors[i][j] = normalize(input_vectors[i][j], colMinVal, colMaxVal, -1.0, 1.0)
+
+def normalize_output_vector(output_vector: list[f64]):
+    rows: i32 = len(output_vector)
+    colMinVal: f64 = output_vector[0]
+    colMaxVal: f64 = output_vector[0]
+    i: i32
+    for i in range(rows):
+        if output_vector[i] > colMaxVal:
+            colMaxVal = output_vector[i]
+        if output_vector[i] < colMinVal:
+            colMinVal = output_vector[i]
+
+    for i in range(rows):
+        output_vector[i] = normalize(output_vector[i], colMinVal, colMaxVal, -1.0, 1.0)
