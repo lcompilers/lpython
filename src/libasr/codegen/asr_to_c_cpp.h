@@ -2187,7 +2187,7 @@ R"(#include <stdio.h>
                     + "` is not implemented");
             }
         }
-        headers.insert("math");
+        headers.insert("math.h");
         this->visit_expr(*x.m_args[0]);
         out += "(" + src + ")";
         src = out;
