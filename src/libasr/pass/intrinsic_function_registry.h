@@ -148,6 +148,8 @@ class ASRBuilder {
         ASR::cmpopType::Eq, y, logical, nullptr))
     #define iNotEq(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,            \
         ASR::cmpopType::NotEq, y, logical, nullptr))
+    #define sNotEq(x, y) EXPR(ASR::make_StringCompare_t(al, loc, x,             \
+        ASR::cmpopType::NotEq, y, logical, nullptr))
     #define iLt(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
         ASR::cmpopType::Lt, y, logical, nullptr))
     #define iLtE(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,              \
@@ -516,8 +518,8 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             List(int32)))));
         body.push_back(al, Assign(i, i32(0)));
         body.push_back(al, b.While(loc, iLtE(i, iSub(pat_len, i32(1))), {
-            ListAppend(lps, i32(0)),
-            Assign(i, iAdd(i, i32(1)))
+            Assign(i, iAdd(i, i32(1))),
+            ListAppend(lps, i32(0))
         }));
         body.push_back(al, Assign(flag, bool(false)));
         body.push_back(al, Assign(i, i32(1)));
@@ -552,7 +554,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
                 Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
             }, {
                 b.If(loc, And(iLt(i, s_len),
-                    iNotEq(StringItem(args[1], iAdd(j, i32(1))),
+                    sNotEq(StringItem(args[1], iAdd(j, i32(1))),
                         StringItem(args[0], iAdd(i, i32(1))))), {
                     b.If(loc, iNotEq(j, i32(0)), {
                         Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
@@ -1170,6 +1172,7 @@ namespace Partition {
         Vec<ASR::ttype_t*>& /*arg_types*/, Vec<ASR::call_arg_t>& new_args,
         int64_t /*overload_id*/, ASR::expr_t* compile_time_value)
     {
+        // TODO: show runtime error for empty separator or pattern
         declare_function_variables("_lpython_str_partition");
         {
             args.reserve(al, 2);
