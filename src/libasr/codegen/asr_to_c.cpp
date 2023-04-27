@@ -585,7 +585,6 @@ R"(
 #include <stdio.h>
 #include <string.h>
 #include <lfortran_intrinsics.h>
-#include <math.h>
 
 #define ASSERT(cond)                                                           \
     {                                                                          \
