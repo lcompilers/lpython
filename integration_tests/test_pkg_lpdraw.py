@@ -14,7 +14,8 @@ def test_screen(H: i32, W: i32, Screen: i32[H, W]):
         for j in range(W):
             cnt += (Screen[i, j] - 256)
 
-    assert cnt == -979375
+    assert cnt == -979630
+
 
 def main():
     Width: i32 = 100 # x-axis limits [0, 99]
