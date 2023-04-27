@@ -1,4 +1,5 @@
-from lnn.perceptron import init_perceptron, print_perceptron, normalize_input_vectors, Perceptron, train_dataset
+from lnn.perceptron import init_perceptron, print_perceptron, Perceptron, train_dataset
+from lnn.utils import normalize_input_vectors
 from lpdraw import Line, Circle, Display, Clear
 from lpython import i32, f64, Const
 from numpy import empty, int32
