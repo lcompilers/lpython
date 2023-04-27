@@ -37,13 +37,13 @@ struct dimension_descriptor
 // Implementations
 double _lcompilers_abs_f64(double x)
 {
-    double _lcompilers_abs_f64;
+    double result;
     if (x >=   0.00000000000000000e+00) {
-        _lcompilers_abs_f64 = x;
+        result = x;
     } else {
-        _lcompilers_abs_f64 = -x;
+        result = -x;
     }
-    return _lcompilers_abs_f64;
+    return result;
 }
 
 double f()
