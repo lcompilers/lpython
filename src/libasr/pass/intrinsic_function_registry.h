@@ -119,7 +119,7 @@ class ASRBuilder {
     #define i32(x)   EXPR(ASR::make_IntegerConstant_t(al, loc, x, int32))
     #define i32_n(x) EXPR(ASR::make_IntegerUnaryMinus_t(al, loc, i32(abs(x)),   \
         int32, i32(x)))
-    #define bool(x)  EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
+    #define bool32(x)  EXPR(ASR::make_LogicalConstant_t(al, loc, x, logical))
 
     #define ListItem(x, pos, type) EXPR(ASR::make_ListItem_t(al, loc, x, pos,   \
         type, nullptr))
@@ -521,7 +521,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             Assign(i, iAdd(i, i32(1))),
             ListAppend(lps, i32(0))
         }));
-        body.push_back(al, Assign(flag, bool(false)));
+        body.push_back(al, Assign(flag, bool32(false)));
         body.push_back(al, Assign(i, i32(1)));
         body.push_back(al, Assign(pi_len, i32(0)));
         body.push_back(al, b.While(loc, iLt(i, pat_len), {
@@ -550,7 +550,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
             }, {}),
             b.If(loc, iEq(j, pat_len), {
                 Assign(result, iSub(i, j)),
-                Assign(flag, bool(true)),
+                Assign(flag, bool32(true)),
                 Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
             }, {
                 b.If(loc, And(iLt(i, s_len),
@@ -962,7 +962,7 @@ static inline void generate_body_for_scalar_output(Allocator& al, const Location
     builder.generate_reduction_intrinsic_stmts_for_scalar_output(loc,
         array, fn_scope, fn_body, idx_vars, doloop_body,
         [=, &al, &fn_body] () {
-            ASR::expr_t* logical_false = bool(false);
+            ASR::expr_t* logical_false = bool32(false);
             ASR::stmt_t* return_var_init = Assign(return_var, logical_false);
             fn_body.push_back(al, return_var_init);
         },
@@ -985,7 +985,7 @@ static inline void generate_body_for_array_output(Allocator& al, const Location&
         loc, array, dim, fn_scope, fn_body,
         idx_vars, target_idx_vars, doloop_body,
         [=, &al, &fn_body] {
-            ASR::expr_t* logical_false = bool(false);
+            ASR::expr_t* logical_false = bool32(false);
             ASR::stmt_t* result_init = Assign(result, logical_false);
             fn_body.push_back(al, result_init);
         },
