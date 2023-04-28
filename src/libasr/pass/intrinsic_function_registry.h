@@ -441,14 +441,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             body_1, return_var_1, BindC, Interface, s2c(al, c_func_name));
         fn_symtab->add_symbol(c_func_name, s);
         dep.push_back(al, s2c(al, c_func_name));
-        Vec<ASR::call_arg_t> call_args;
-        {
-            call_args.reserve(al, 1);
-            ASR::call_arg_t arg;
-            arg.m_value = args[0];
-            call_args.push_back(al, arg);
-        }
-        body.push_back(al, Assign(result, b.Call(s, call_args, arg_type)));
+        body.push_back(al, Assign(result, b.Call(s, args, arg_type)));
     }
 
     ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
@@ -795,14 +788,7 @@ namespace Abs {
                     body_1, return_var_1, BindC, Interface, s2c(al, c_func_name));
                 fn_symtab->add_symbol(c_func_name, s);
                 dep.push_back(al, s2c(al, c_func_name));
-                Vec<ASR::call_arg_t> call_args;
-                {
-                    call_args.reserve(al, 1);
-                    ASR::call_arg_t arg;
-                    arg.m_value = args[0];
-                    call_args.push_back(al, arg);
-                }
-                aimag_of_x = b.Call(s, call_args, real_type);
+                aimag_of_x = b.Call(s, args, real_type);
             }
             ASR::expr_t *constant_two = EXPR(ASR::make_RealConstant_t(al, loc,
                 2.0, real_type));
