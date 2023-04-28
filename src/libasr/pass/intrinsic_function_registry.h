@@ -261,7 +261,7 @@ class ASRBuilder {
 
     // Statements --------------------------------------------------------------
     #define Return() STMT(ASR::make_Return_t(al, loc))
-    #define Assign(lhs, rhs) ASRUtils::STMT(ASR::make_Assignment_t(al, loc,     \
+    #define Assignment(lhs, rhs) ASRUtils::STMT(ASR::make_Assignment_t(al, loc, \
         lhs, rhs, nullptr))
 
     template <typename LOOP_BODY>
@@ -441,7 +441,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             body_1, return_var_1, BindC, Interface, s2c(al, c_func_name));
         fn_symtab->add_symbol(c_func_name, s);
         dep.push_back(al, s2c(al, c_func_name));
-        body.push_back(al, Assign(result, b.Call(s, args, arg_type)));
+        body.push_back(al, Assignment(result, b.Call(s, args, arg_type)));
     }
 
     ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
@@ -492,58 +492,58 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     Variable(flag, logical, Local)
     Variable(lps, List(int32), Local)
 
-    body.push_back(al, Assign(s_len, StringLen(args[0])));
-    body.push_back(al, Assign(pat_len, StringLen(args[1])));
-    body.push_back(al, Assign(result, i32_n(-1)));
+    body.push_back(al, Assignment(s_len, StringLen(args[0])));
+    body.push_back(al, Assignment(pat_len, StringLen(args[1])));
+    body.push_back(al, Assignment(result, i32_n(-1)));
     body.push_back(al, b.If(iEq(pat_len, i32(0)), {
-            Assign(result, i32(0)), Return()
+            Assignment(result, i32(0)), Return()
         }, {
             b.If(iEq(s_len, i32(0)), { Return() }, {})
         }));
-    body.push_back(al, Assign(lps,
+    body.push_back(al, Assignment(lps,
         EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0, List(int32)))));
-    body.push_back(al, Assign(i, i32(0)));
+    body.push_back(al, Assignment(i, i32(0)));
     body.push_back(al, b.While(iLtE(i, iSub(pat_len, i32(1))), {
-        Assign(i, iAdd(i, i32(1))),
+        Assignment(i, iAdd(i, i32(1))),
         ListAppend(lps, i32(0))
     }));
-    body.push_back(al, Assign(flag, bool32(false)));
-    body.push_back(al, Assign(i, i32(1)));
-    body.push_back(al, Assign(pi_len, i32(0)));
+    body.push_back(al, Assignment(flag, bool32(false)));
+    body.push_back(al, Assignment(i, i32(1)));
+    body.push_back(al, Assignment(pi_len, i32(0)));
     body.push_back(al, b.While(iLt(i, pat_len), {
         b.If(sEq(StringItem(args[1], iAdd(i, i32(1))),
                  StringItem(args[1], iAdd(pi_len, i32(1)))), {
-            Assign(pi_len, iAdd(pi_len, i32(1))),
-            Assign(ListItem(lps, i, int32), pi_len),
-            Assign(i, iAdd(i, i32(1)))
+            Assignment(pi_len, iAdd(pi_len, i32(1))),
+            Assignment(ListItem(lps, i, int32), pi_len),
+            Assignment(i, iAdd(i, i32(1)))
         }, {
             b.If(iNotEq(pi_len, i32(0)), {
-                Assign(pi_len, ListItem(lps, iSub(pi_len, i32(1)), int32))
+                Assignment(pi_len, ListItem(lps, iSub(pi_len, i32(1)), int32))
             }, {
-                Assign(i, iAdd(i, i32(1)))
+                Assignment(i, iAdd(i, i32(1)))
             })
         })
     }));
-    body.push_back(al, Assign(j, i32(0)));
-    body.push_back(al, Assign(i, i32(0)));
+    body.push_back(al, Assignment(j, i32(0)));
+    body.push_back(al, Assignment(i, i32(0)));
     body.push_back(al, b.While(And(iGtE(iSub(s_len, i),
             iSub(pat_len, j)), Not(flag)), {
         b.If(sEq(StringItem(args[1], iAdd(j, i32(1))),
                 StringItem(args[0], iAdd(i, i32(1)))), {
-            Assign(i, iAdd(i, i32(1))),
-            Assign(j, iAdd(j, i32(1)))
+            Assignment(i, iAdd(i, i32(1))),
+            Assignment(j, iAdd(j, i32(1)))
         }, {}),
         b.If(iEq(j, pat_len), {
-            Assign(result, iSub(i, j)),
-            Assign(flag, bool32(true)),
-            Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
+            Assignment(result, iSub(i, j)),
+            Assignment(flag, bool32(true)),
+            Assignment(j, ListItem(lps, iSub(j, i32(1)), int32))
         }, {
             b.If(And(iLt(i, s_len), sNotEq(StringItem(args[1], iAdd(j, i32(1))),
                     StringItem(args[0], iAdd(i, i32(1))))), {
                 b.If(iNotEq(j, i32(0)), {
-                    Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
+                    Assignment(j, ListItem(lps, iSub(j, i32(1)), int32))
                 }, {
-                    Assign(i, iAdd(i, i32(1)))
+                    Assignment(i, iAdd(i, i32(1)))
                 })
             }, {})
         })
@@ -751,9 +751,9 @@ namespace Abs {
             }
 
             Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
-            if_body.push_back(al, Assign(result, args[0]));
+            if_body.push_back(al, Assignment(result, args[0]));
             Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
-            else_body.push_back(al, Assign(result, negative_x));
+            else_body.push_back(al, Assignment(result, negative_x));
             body.push_back(al, STMT(ASR::make_If_t(al, loc, test,
                 if_body.p, if_body.n, else_body.p, else_body.n)));
         } else {
@@ -805,7 +805,7 @@ namespace Abs {
             bin_op_1 = EXPR(ASR::make_RealBinOp_t(al, loc, bin_op_1,
                 ASR::binopType::Add, bin_op_2, real_type, nullptr));
 
-            body.push_back(al, Assign(result, EXPR(ASR::make_RealBinOp_t(al,
+            body.push_back(al, Assignment(result, EXPR(ASR::make_RealBinOp_t(al,
                 loc, bin_op_1, ASR::binopType::Pow, constant_point_five,
                 real_type, nullptr))));
         }
@@ -938,13 +938,13 @@ static inline void generate_body_for_scalar_output(Allocator& al, const Location
         array, fn_scope, fn_body, idx_vars, doloop_body,
         [=, &al, &fn_body] () {
             ASR::expr_t* logical_false = bool32(false);
-            ASR::stmt_t* return_var_init = Assign(return_var, logical_false);
+            ASR::stmt_t* return_var_init = Assignment(return_var, logical_false);
             fn_body.push_back(al, return_var_init);
         },
         [=, &al, &idx_vars, &doloop_body, &builder] () {
             ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
             ASR::expr_t* logical_or = builder.Or(return_var, array_ref, loc);
-            ASR::stmt_t* loop_invariant = Assign(return_var, logical_or);
+            ASR::stmt_t* loop_invariant = Assignment(return_var, logical_or);
             doloop_body.push_back(al, loop_invariant);
         }
     );
@@ -961,14 +961,14 @@ static inline void generate_body_for_array_output(Allocator& al, const Location&
         idx_vars, target_idx_vars, doloop_body,
         [=, &al, &fn_body] {
             ASR::expr_t* logical_false = bool32(false);
-            ASR::stmt_t* result_init = Assign(result, logical_false);
+            ASR::stmt_t* result_init = Assignment(result, logical_false);
             fn_body.push_back(al, result_init);
         },
         [=, &al, &idx_vars, &target_idx_vars, &doloop_body, &result, &builder] () {
             ASR::expr_t* result_ref = PassUtils::create_array_ref(result, target_idx_vars, al);
             ASR::expr_t* array_ref = PassUtils::create_array_ref(array, idx_vars, al);
             ASR::expr_t* logical_or = builder.ElementalOr(result_ref, array_ref, loc);
-            ASR::stmt_t* loop_invariant = Assign(result_ref, logical_or);
+            ASR::stmt_t* loop_invariant = Assignment(result_ref, logical_or);
             doloop_body.push_back(al, loop_invariant);
         });
 }
@@ -1159,15 +1159,15 @@ namespace Partition {
         ASR::ttype_t *return_type = b.Tuple({character(-2), character(-2), character(-2)});
         Variable(result, return_type, ReturnVar)
         Variable(index, int32, Local);
-        body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
+        body.push_back(al, Assignment(index, b.Call(UnaryIntrinsicFunction::
             create_KMP_function(al, loc, scope), args, int32)));
         body.push_back(al, b.If(iEq(index, i32_n(-1)), {
-                Assign(result, b.TupleConstant({ args[0],
+                Assignment(result, b.TupleConstant({ args[0],
                     StringConstant("", character(0)),
                     StringConstant("", character(0)) },
                 b.Tuple({character(-2), character(0), character(0)})))
             }, {
-                Assign(result, b.TupleConstant({
+                Assignment(result, b.TupleConstant({
                     StringSection(args[0], i32(0), index), args[1],
                     StringSection(args[0], iAdd(index, StringLen(args[1])),
                         StringLen(args[0]))}, return_type))
