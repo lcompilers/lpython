@@ -66,7 +66,7 @@ class ASRBuilder {
 
     ASRBuilder(Allocator& al_, const Location& loc_): al(al_), loc(loc_) {}
 
-    #define declare_function_variables(name)                                    \
+    #define declare_basic_variables(name)                                       \
         std::string fn_name = scope->get_unique_name(name);                     \
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);               \
         ASRBuilder b(al, loc);                                                  \
@@ -416,7 +416,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     }
     new_name = "_lcompilers_" + new_name + "_" + type_to_str_python(arg_type);
 
-    declare_function_variables(new_name);
+    declare_basic_variables(new_name);
     if (scope->get_symbol(new_name)) {
         ASR::symbol_t *s = scope->get_symbol(new_name);
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
@@ -479,7 +479,7 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
      * then returns the position of the first occurrence of the
      * string in the pattern.
      */
-    declare_function_variables("KMP_string_matching");
+    declare_basic_variables("KMP_string_matching");
     fill_func_arg("target_string", character(-2));
     fill_func_arg("pattern", character(-2));
 
@@ -712,7 +712,7 @@ namespace Abs {
             Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
         std::string func_name = "_lcompilers_abs_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
-        declare_function_variables(func_name);
+        declare_basic_variables(func_name);
         if (scope->get_symbol(func_name)) {
             ASR::symbol_t *s = scope->get_symbol(func_name);
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
@@ -981,7 +981,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     std::string new_name = "any_" + std::to_string(kind) +
                             "_" + std::to_string(rank) +
                             "_" + std::to_string(overload_id);
-    declare_function_variables(new_name);
+    declare_basic_variables(new_name);
     // Check if Function is already defined.
     {
         std::string new_func_name = new_name;
@@ -1143,7 +1143,7 @@ namespace Partition {
         int64_t /*overload_id*/, ASR::expr_t* compile_time_value)
     {
         // TODO: show runtime error for empty separator or pattern
-        declare_function_variables("_lpython_str_partition");
+        declare_basic_variables("_lpython_str_partition");
         fill_func_arg("target_string", character(-2));
         fill_func_arg("pattern", character(-2));
 
