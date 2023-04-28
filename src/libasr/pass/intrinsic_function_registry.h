@@ -59,15 +59,17 @@ class ASRBuilder {
     private:
 
     Allocator& al;
+    // TODO: use the location to point C++ code in `intrinsic_function_registry`
+    const Location &loc;
 
     public:
 
-    ASRBuilder(Allocator& al_): al(al_) {}
+    ASRBuilder(Allocator& al_, const Location& loc_): al(al_), loc(loc_) {}
 
     #define declare_function_variables(name)                                    \
         std::string fn_name = scope->get_unique_name(name);                     \
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);               \
-        ASRBuilder b(al);                                                       \
+        ASRBuilder b(al, loc);                                                  \
         Vec<ASR::expr_t*> args; args.reserve(al, 1);                            \
         Vec<ASR::stmt_t*> body; body.reserve(al, 1);                            \
         SetChar dep; dep.reserve(al, 1);
@@ -107,7 +109,7 @@ class ASRBuilder {
     #define character(x) TYPE(ASR::make_Character_t(al, loc, 1, x, nullptr,    \
         nullptr, 0))
     #define List(x)      TYPE(ASR::make_List_t(al, loc, x))
-    ASR::ttype_t *Tuple(const Location &loc, std::vector<ASR::ttype_t*> tuple_type) {
+    ASR::ttype_t *Tuple(std::vector<ASR::ttype_t*> tuple_type) {
         Vec<ASR::ttype_t*> m_tuple_type; m_tuple_type.reserve(al, 3);
         for (auto &x: tuple_type) {
             m_tuple_type.push_back(al, x);
@@ -157,8 +159,7 @@ class ASRBuilder {
     #define iGtE(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,              \
         ASR::cmpopType::GtE, y, logical, nullptr))
 
-    ASR::stmt_t *If(const Location &loc, ASR::expr_t *a_test,
-            std::vector<ASR::stmt_t*> if_body,
+    ASR::stmt_t *If(ASR::expr_t *a_test, std::vector<ASR::stmt_t*> if_body,
             std::vector<ASR::stmt_t*> else_body) {
         Vec<ASR::stmt_t*> m_if_body; m_if_body.reserve(al, 1);
         for (auto &x: if_body) m_if_body.push_back(al, x);
@@ -170,8 +171,7 @@ class ASRBuilder {
             m_else_body.p, m_else_body.n));
     }
 
-    ASR::stmt_t *While(const Location &loc, ASR::expr_t *a_test,
-            std::vector<ASR::stmt_t*> body) {
+    ASR::stmt_t *While(ASR::expr_t *a_test, std::vector<ASR::stmt_t*> body) {
         Vec<ASR::stmt_t*> m_body; m_body.reserve(al, 1);
         for (auto &x: body) m_body.push_back(al, x);
 
@@ -179,8 +179,7 @@ class ASRBuilder {
             m_body.p, m_body.n));
     }
 
-    ASR::expr_t *TupleConstant(const Location &loc,
-            std::vector<ASR::expr_t*> ele, ASR::ttype_t *type) {
+    ASR::expr_t *TupleConstant(std::vector<ASR::expr_t*> ele, ASR::ttype_t *type) {
         Vec<ASR::expr_t*> m_ele; m_ele.reserve(al, 3);
         for (auto &x: ele) m_ele.push_back(al, x);
         return EXPR(ASR::make_TupleConstant_t(al, loc, m_ele.p, m_ele.n, type));
@@ -241,15 +240,13 @@ class ASRBuilder {
     }
 
     ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::call_arg_t>& args,
-                      ASR::ttype_t* return_type,
-                      const Location& loc) {
+                      ASR::ttype_t* return_type) {
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
                 s, s, args.p, args.size(), return_type, nullptr, nullptr));
     }
 
     ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::expr_t *>& args,
-                      ASR::ttype_t* return_type,
-                      const Location& loc) {
+                      ASR::ttype_t* return_type) {
         Vec<ASR::call_arg_t> args_; args_.reserve(al, 2);
         visit_expr_list(al, args, args_);
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
@@ -257,8 +254,7 @@ class ASRBuilder {
     }
 
     ASR::expr_t* Call(ASR::symbol_t* s, Vec<ASR::call_arg_t>& args,
-                      ASR::ttype_t* return_type, ASR::expr_t* value,
-                      const Location& loc) {
+                      ASR::ttype_t* return_type, ASR::expr_t* value) {
         return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
                 s, s, args.p, args.size(), return_type, value, nullptr));
     }
@@ -418,7 +414,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     if (scope->get_symbol(new_name)) {
         ASR::symbol_t *s = scope->get_symbol(new_name);
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-        return b.Call(s, new_args, expr_type(f->m_return_var), value, loc);
+        return b.Call(s, new_args, expr_type(f->m_return_var), value);
     }
     {
         Variable(x, arg_type, In);
@@ -452,13 +448,13 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
             arg.m_value = args[0];
             call_args.push_back(al, arg);
         }
-        body.push_back(al, Assign(result, b.Call(s, call_args, arg_type, loc)));
+        body.push_back(al, Assign(result, b.Call(s, call_args, arg_type)));
     }
 
     ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
     scope->add_symbol(fn_name, new_symbol);
-    return b.Call(new_symbol, new_args, arg_type, value, loc);
+    return b.Call(new_symbol, new_args, arg_type, value);
 }
 
 static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& loc,
@@ -508,32 +504,30 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         body.push_back(al, Assign(s_len, StringLen(args[0])));
         body.push_back(al, Assign(pat_len, StringLen(args[1])));
         body.push_back(al, Assign(result, i32_n(-1)));
-        body.push_back(al, b.If(loc, iEq(pat_len, i32(0)), {
+        body.push_back(al, b.If(iEq(pat_len, i32(0)), {
                 Assign(result, i32(0)), Return()
             }, {
-                b.If(loc, iEq(s_len, i32(0)), { Return() }, {})
+                b.If(iEq(s_len, i32(0)), { Return() }, {})
             }));
         body.push_back(al, Assign(lps,
-            EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0,
-            List(int32)))));
+            EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0, List(int32)))));
         body.push_back(al, Assign(i, i32(0)));
-        body.push_back(al, b.While(loc, iLtE(i, iSub(pat_len, i32(1))), {
+        body.push_back(al, b.While(iLtE(i, iSub(pat_len, i32(1))), {
             Assign(i, iAdd(i, i32(1))),
             ListAppend(lps, i32(0))
         }));
         body.push_back(al, Assign(flag, bool32(false)));
         body.push_back(al, Assign(i, i32(1)));
         body.push_back(al, Assign(pi_len, i32(0)));
-        body.push_back(al, b.While(loc, iLt(i, pat_len), {
-            b.If(loc, sEq(StringItem(args[1], iAdd(i, i32(1))),
+        body.push_back(al, b.While(iLt(i, pat_len), {
+            b.If(sEq(StringItem(args[1], iAdd(i, i32(1))),
                     StringItem(args[1], iAdd(pi_len, i32(1)))), {
                 Assign(pi_len, iAdd(pi_len, i32(1))),
                 Assign(ListItem(lps, i, int32), pi_len),
                 Assign(i, iAdd(i, i32(1)))
             }, {
-                b.If(loc, iNotEq(pi_len, i32(0)), {
-                    Assign(pi_len, ListItem(lps, iSub(pi_len, i32(1)),
-                        int32))
+                b.If(iNotEq(pi_len, i32(0)), {
+                    Assign(pi_len, ListItem(lps, iSub(pi_len, i32(1)), int32))
                 }, {
                     Assign(i, iAdd(i, i32(1)))
                 })
@@ -541,22 +535,22 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         }));
         body.push_back(al, Assign(j, i32(0)));
         body.push_back(al, Assign(i, i32(0)));
-        body.push_back(al, b.While(loc, And(iGtE(iSub(s_len, i),
+        body.push_back(al, b.While(And(iGtE(iSub(s_len, i),
                 iSub(pat_len, j)), Not(flag)), {
-            b.If(loc, sEq(StringItem(args[1], iAdd(j, i32(1))),
+            b.If(sEq(StringItem(args[1], iAdd(j, i32(1))),
                     StringItem(args[0], iAdd(i, i32(1)))), {
                 Assign(i, iAdd(i, i32(1))),
                 Assign(j, iAdd(j, i32(1)))
             }, {}),
-            b.If(loc, iEq(j, pat_len), {
+            b.If(iEq(j, pat_len), {
                 Assign(result, iSub(i, j)),
                 Assign(flag, bool32(true)),
                 Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
             }, {
-                b.If(loc, And(iLt(i, s_len),
+                b.If(And(iLt(i, s_len),
                     sNotEq(StringItem(args[1], iAdd(j, i32(1))),
                         StringItem(args[0], iAdd(i, i32(1))))), {
-                    b.If(loc, iNotEq(j, i32(0)), {
+                    b.If(iNotEq(j, i32(0)), {
                         Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
                     }, {
                         Assign(i, iAdd(i, i32(1)))
@@ -735,7 +729,7 @@ namespace Abs {
             ASR::symbol_t *s = scope->get_symbol(func_name);
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
             return b.Call(s, new_args, expr_type(f->m_return_var),
-                compile_time_value, loc);
+                compile_time_value);
         }
         {
             Variable(x, arg_types[0], In)
@@ -813,7 +807,7 @@ namespace Abs {
                     arg.m_value = args[0];
                     call_args.push_back(al, arg);
                 }
-                aimag_of_x = b.Call(s, call_args, real_type, loc);
+                aimag_of_x = b.Call(s, call_args, real_type);
             }
             ASR::expr_t *constant_two = EXPR(ASR::make_RealConstant_t(al, loc,
                 2.0, real_type));
@@ -838,7 +832,7 @@ namespace Abs {
         ASR::symbol_t *f_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, f_sym);
-        return b.Call(f_sym, new_args, return_type, compile_time_value, loc);
+        return b.Call(f_sym, new_args, return_type, compile_time_value);
     }
 
 } // namespace Abs
@@ -956,7 +950,7 @@ static inline ASR::asr_t* create_Any(
 static inline void generate_body_for_scalar_output(Allocator& al, const Location& loc,
     ASR::expr_t* array, ASR::expr_t* return_var, SymbolTable* fn_scope,
     Vec<ASR::stmt_t*>& fn_body) {
-    ASRBuilder builder(al);
+    ASRBuilder builder(al, loc);
     Vec<ASR::expr_t*> idx_vars;
     Vec<ASR::stmt_t*> doloop_body;
     builder.generate_reduction_intrinsic_stmts_for_scalar_output(loc,
@@ -978,7 +972,7 @@ static inline void generate_body_for_scalar_output(Allocator& al, const Location
 static inline void generate_body_for_array_output(Allocator& al, const Location& loc,
     ASR::expr_t* array, ASR::expr_t* dim, ASR::expr_t* result,
     SymbolTable* fn_scope, Vec<ASR::stmt_t*>& fn_body) {
-    ASRBuilder builder(al);
+    ASRBuilder builder(al, loc);
     Vec<ASR::expr_t*> idx_vars, target_idx_vars;
     Vec<ASR::stmt_t*> doloop_body;
     builder.generate_reduction_intrinsic_stmts_for_array_output(
@@ -1027,7 +1021,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
                 } else {
                     return_type = ASRUtils::expr_type(f->m_args[(int) f->n_args - 1]);
                 }
-                return b.Call(s, new_args, return_type, compile_time_value, loc);
+                return b.Call(s, new_args, return_type, compile_time_value);
             } else {
                 new_func_name += std::to_string(i);
                 i++;
@@ -1094,7 +1088,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
             body, Source, Implementation, nullptr);
     }
     scope->add_symbol(fn_name, new_symbol);
-    return b.Call(new_symbol, new_args, logical_return_type, compile_time_value, loc);
+    return b.Call(new_symbol, new_args, logical_return_type, compile_time_value);
 }
 
 } // namespace Any
@@ -1110,7 +1104,7 @@ namespace Partition {
             (if separator does not exist)  tuple:   (string, "", "")
             res_tuple_type: stores the type of each expression present in resulting 3-tuple
         */
-        ASRBuilder b(al);
+        ASRBuilder b(al, loc);
         int sep_pos = ASRUtils::KMP_string_match(s_var, sep);
         std::string first_res, second_res, third_res;
         if(sep_pos == -1) {
@@ -1128,16 +1122,16 @@ namespace Partition {
         ASR::ttype_t *first_res_type = character(first_res.size());
         ASR::ttype_t *second_res_type = character(second_res.size());
         ASR::ttype_t *third_res_type = character(third_res.size());
-        return b.TupleConstant(loc, { StringConstant(first_res, first_res_type),
+        return b.TupleConstant({ StringConstant(first_res, first_res_type),
             StringConstant(second_res, second_res_type),
             StringConstant(third_res, third_res_type) },
-            b.Tuple(loc, {first_res_type, second_res_type, third_res_type}));
+            b.Tuple({first_res_type, second_res_type, third_res_type}));
     }
 
     static inline ASR::asr_t *create_partition(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, ASR::expr_t *s_var,
             const std::function<void (const std::string &, const Location &)> err) {
-        ASRBuilder b(al);
+        ASRBuilder b(al, loc);
         if (args.size() != 1) {
             err("str.partition() takes exactly one argument", loc);
         }
@@ -1150,7 +1144,7 @@ namespace Partition {
         e_args.push_back(al, s_var);
         e_args.push_back(al, arg);
 
-        ASR::ttype_t *return_type = b.Tuple(loc, {character(-2), character(-2), character(-2)});
+        ASR::ttype_t *return_type = b.Tuple({character(-2), character(-2), character(-2)});
         ASR::expr_t *value = nullptr;
         if (ASR::is_a<ASR::StringConstant_t>(*s_var)
          && ASR::is_a<ASR::StringConstant_t>(*arg)) {
@@ -1181,19 +1175,19 @@ namespace Partition {
             Variable(pattern, character(-2), In);
             args.push_back(al, pattern);
         }
-        ASR::ttype_t *return_type = b.Tuple(loc, {character(-2), character(-2), character(-2)});
+        ASR::ttype_t *return_type = b.Tuple({character(-2), character(-2), character(-2)});
         Variable(result, return_type, ReturnVar)
         {
             Variable(index, int32, Local);
             body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
-                create_KMP_function(al, loc, scope), args, int32, loc)));
-            body.push_back(al, b.If(loc, iEq(index, i32_n(-1)), {
-                    Assign(result, b.TupleConstant(loc, {
-                        args[0], StringConstant("", character(0)),
+                create_KMP_function(al, loc, scope), args, int32)));
+            body.push_back(al, b.If(iEq(index, i32_n(-1)), {
+                    Assign(result, b.TupleConstant({ args[0],
+                        StringConstant("", character(0)),
                         StringConstant("", character(0)) },
-                    b.Tuple(loc,{character(-2), character(0), character(0)})))
+                    b.Tuple({character(-2), character(0), character(0)})))
                 }, {
-                    Assign(result, b.TupleConstant(loc, {
+                    Assign(result, b.TupleConstant({
                         StringSection(args[0], i32(0), index), args[1],
                         StringSection(args[0], iAdd(index, StringLen(args[1])),
                             StringLen(args[0]))}, return_type))
@@ -1203,7 +1197,7 @@ namespace Partition {
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, fn_sym);
-        return b.Call(fn_sym, new_args, return_type, compile_time_value, loc);
+        return b.Call(fn_sym, new_args, return_type, compile_time_value);
     }
 } // namespace Partition
 
