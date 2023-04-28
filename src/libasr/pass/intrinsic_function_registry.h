@@ -89,6 +89,10 @@ class ASRBuilder {
     #define declare(var_name, type, intent)                                     \
         b.Variable(fn_symtab, var_name, type, ASR::intentType::intent)
 
+    #define fill_func_arg(arg_name, type) {                              \
+        auto arg = declare(arg_name, type, In);                                 \
+        args.push_back(al, arg); }
+
     #define make_Function_t(name, symtab, dep, args, body, return_var, abi,     \
             deftype, bindc_name)                                                \
         ASR::down_cast<ASR::symbol_t>( ASRUtils::make_Function_t_util(al, loc,  \
@@ -418,10 +422,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
         return b.Call(s, new_args, expr_type(f->m_return_var), value);
     }
-    {
-        auto arg = declare("x", arg_type, In);
-        args.push_back(al, arg);
-    }
+    fill_func_arg("x", arg_type);
     auto result = declare(new_name, arg_type, ReturnVar);
 
     {
@@ -479,12 +480,9 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
      * string in the pattern.
      */
     declare_function_variables("KMP_string_matching");
-    {
-        auto arg_1 = declare("target_string", character(-2), In);
-        args.push_back(al, arg_1);
-        auto arg_2 = declare("pattern", character(-2), In);
-        args.push_back(al, arg_2);
-    }
+    fill_func_arg("target_string", character(-2));
+    fill_func_arg("pattern", character(-2));
+
     auto result = declare("result", int32, ReturnVar);
     auto pi_len = declare("pi_len", int32, Local);
     auto i = declare("i", int32, Local);
@@ -721,11 +719,7 @@ namespace Abs {
             return b.Call(s, new_args, expr_type(f->m_return_var),
                 compile_time_value);
         }
-        {
-            auto arg = declare("x", arg_types[0], In);
-            args.push_back(al, arg);
-        }
-
+        fill_func_arg("x", arg_types[0]);
         auto result = declare(func_name, return_type, ReturnVar);
 
         if (is_integer(*arg_types[0]) || is_real(*arg_types[0])) {
@@ -1017,15 +1011,13 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     int result_dims = 0;
     {
         ASR::ttype_t* mask_type = ASRUtils::duplicate_type_with_empty_dims(al, arg_type);
-        auto mask_arg = declare("mask", mask_type, In);
-        args.push_back(al, mask_arg);
+        fill_func_arg("mask", mask_type);
         if( overload_id == 1 ) {
             ASR::ttype_t* dim_type = ASRUtils::expr_type(new_args[1].m_value);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Integer_t>(*dim_type));
             int kind = ASRUtils::extract_kind_from_ttype_t(dim_type);
             LCOMPILERS_ASSERT(kind == 4);
-            auto dim_arg = declare("dim", dim_type, In);
-            args.push_back(al, dim_arg);
+            fill_func_arg("dim", dim_type);
 
             Vec<ASR::dimension_t> dims;
             size_t n_dims = ASRUtils::extract_n_dims_from_ttype(arg_type);
@@ -1152,12 +1144,9 @@ namespace Partition {
     {
         // TODO: show runtime error for empty separator or pattern
         declare_function_variables("_lpython_str_partition");
-        {
-            auto target_string = declare("target_string", character(-2), In);
-            args.push_back(al, target_string);
-            auto pattern = declare("pattern", character(-2), In);
-            args.push_back(al, pattern);
-        }
+        fill_func_arg("target_string", character(-2));
+        fill_func_arg("pattern", character(-2));
+
         ASR::ttype_t *return_type = b.Tuple({character(-2), character(-2), character(-2)});
         auto result = declare("result", return_type, ReturnVar);
         auto index = declare("index", int32, Local);
