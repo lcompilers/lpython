@@ -491,76 +491,71 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
         args.push_back(al, pattern);
     }
     Variable(result, int32, ReturnVar);
+    Variable(pi_len, int32, Local)
+    Variable(i, int32, Local)
+    Variable(j, int32, Local)
+    Variable(s_len, int32, Local)
+    Variable(pat_len, int32, Local)
+    Variable(flag, logical, Local)
+    Variable(lps, List(int32), Local)
 
-    {
-        Variable(pi_len, int32, Local)
-        Variable(i, int32, Local)
-        Variable(j, int32, Local)
-        Variable(s_len, int32, Local)
-        Variable(pat_len, int32, Local)
-        Variable(flag, logical, Local)
-        Variable(lps, List(int32), Local)
-
-        body.push_back(al, Assign(s_len, StringLen(args[0])));
-        body.push_back(al, Assign(pat_len, StringLen(args[1])));
-        body.push_back(al, Assign(result, i32_n(-1)));
-        body.push_back(al, b.If(iEq(pat_len, i32(0)), {
-                Assign(result, i32(0)), Return()
-            }, {
-                b.If(iEq(s_len, i32(0)), { Return() }, {})
-            }));
-        body.push_back(al, Assign(lps,
-            EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0, List(int32)))));
-        body.push_back(al, Assign(i, i32(0)));
-        body.push_back(al, b.While(iLtE(i, iSub(pat_len, i32(1))), {
-            Assign(i, iAdd(i, i32(1))),
-            ListAppend(lps, i32(0))
+    body.push_back(al, Assign(s_len, StringLen(args[0])));
+    body.push_back(al, Assign(pat_len, StringLen(args[1])));
+    body.push_back(al, Assign(result, i32_n(-1)));
+    body.push_back(al, b.If(iEq(pat_len, i32(0)), {
+            Assign(result, i32(0)), Return()
+        }, {
+            b.If(iEq(s_len, i32(0)), { Return() }, {})
         }));
-        body.push_back(al, Assign(flag, bool32(false)));
-        body.push_back(al, Assign(i, i32(1)));
-        body.push_back(al, Assign(pi_len, i32(0)));
-        body.push_back(al, b.While(iLt(i, pat_len), {
-            b.If(sEq(StringItem(args[1], iAdd(i, i32(1))),
-                    StringItem(args[1], iAdd(pi_len, i32(1)))), {
-                Assign(pi_len, iAdd(pi_len, i32(1))),
-                Assign(ListItem(lps, i, int32), pi_len),
-                Assign(i, iAdd(i, i32(1)))
+    body.push_back(al, Assign(lps,
+        EXPR(ASR::make_ListConstant_t(al, loc, nullptr, 0, List(int32)))));
+    body.push_back(al, Assign(i, i32(0)));
+    body.push_back(al, b.While(iLtE(i, iSub(pat_len, i32(1))), {
+        Assign(i, iAdd(i, i32(1))),
+        ListAppend(lps, i32(0))
+    }));
+    body.push_back(al, Assign(flag, bool32(false)));
+    body.push_back(al, Assign(i, i32(1)));
+    body.push_back(al, Assign(pi_len, i32(0)));
+    body.push_back(al, b.While(iLt(i, pat_len), {
+        b.If(sEq(StringItem(args[1], iAdd(i, i32(1))),
+                 StringItem(args[1], iAdd(pi_len, i32(1)))), {
+            Assign(pi_len, iAdd(pi_len, i32(1))),
+            Assign(ListItem(lps, i, int32), pi_len),
+            Assign(i, iAdd(i, i32(1)))
+        }, {
+            b.If(iNotEq(pi_len, i32(0)), {
+                Assign(pi_len, ListItem(lps, iSub(pi_len, i32(1)), int32))
             }, {
-                b.If(iNotEq(pi_len, i32(0)), {
-                    Assign(pi_len, ListItem(lps, iSub(pi_len, i32(1)), int32))
+                Assign(i, iAdd(i, i32(1)))
+            })
+        })
+    }));
+    body.push_back(al, Assign(j, i32(0)));
+    body.push_back(al, Assign(i, i32(0)));
+    body.push_back(al, b.While(And(iGtE(iSub(s_len, i),
+            iSub(pat_len, j)), Not(flag)), {
+        b.If(sEq(StringItem(args[1], iAdd(j, i32(1))),
+                StringItem(args[0], iAdd(i, i32(1)))), {
+            Assign(i, iAdd(i, i32(1))),
+            Assign(j, iAdd(j, i32(1)))
+        }, {}),
+        b.If(iEq(j, pat_len), {
+            Assign(result, iSub(i, j)),
+            Assign(flag, bool32(true)),
+            Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
+        }, {
+            b.If(And(iLt(i, s_len), sNotEq(StringItem(args[1], iAdd(j, i32(1))),
+                    StringItem(args[0], iAdd(i, i32(1))))), {
+                b.If(iNotEq(j, i32(0)), {
+                    Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
                 }, {
                     Assign(i, iAdd(i, i32(1)))
                 })
-            })
-        }));
-        body.push_back(al, Assign(j, i32(0)));
-        body.push_back(al, Assign(i, i32(0)));
-        body.push_back(al, b.While(And(iGtE(iSub(s_len, i),
-                iSub(pat_len, j)), Not(flag)), {
-            b.If(sEq(StringItem(args[1], iAdd(j, i32(1))),
-                    StringItem(args[0], iAdd(i, i32(1)))), {
-                Assign(i, iAdd(i, i32(1))),
-                Assign(j, iAdd(j, i32(1)))
-            }, {}),
-            b.If(iEq(j, pat_len), {
-                Assign(result, iSub(i, j)),
-                Assign(flag, bool32(true)),
-                Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
-            }, {
-                b.If(And(iLt(i, s_len),
-                    sNotEq(StringItem(args[1], iAdd(j, i32(1))),
-                        StringItem(args[0], iAdd(i, i32(1))))), {
-                    b.If(iNotEq(j, i32(0)), {
-                        Assign(j, ListItem(lps, iSub(j, i32(1)), int32))
-                    }, {
-                        Assign(i, iAdd(i, i32(1)))
-                    })
-                }, {})
-            })
-        }));
-        body.push_back(al, Return());
-
-    }
+            }, {})
+        })
+    }));
+    body.push_back(al, Return());
     ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
     scope->add_symbol(fn_name, fn_sym);
@@ -1177,23 +1172,21 @@ namespace Partition {
         }
         ASR::ttype_t *return_type = b.Tuple({character(-2), character(-2), character(-2)});
         Variable(result, return_type, ReturnVar)
-        {
-            Variable(index, int32, Local);
-            body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
-                create_KMP_function(al, loc, scope), args, int32)));
-            body.push_back(al, b.If(iEq(index, i32_n(-1)), {
-                    Assign(result, b.TupleConstant({ args[0],
-                        StringConstant("", character(0)),
-                        StringConstant("", character(0)) },
-                    b.Tuple({character(-2), character(0), character(0)})))
-                }, {
-                    Assign(result, b.TupleConstant({
-                        StringSection(args[0], i32(0), index), args[1],
-                        StringSection(args[0], iAdd(index, StringLen(args[1])),
-                            StringLen(args[0]))}, return_type))
-                }));
-            body.push_back(al, Return());
-        }
+        Variable(index, int32, Local);
+        body.push_back(al, Assign(index, b.Call(UnaryIntrinsicFunction::
+            create_KMP_function(al, loc, scope), args, int32)));
+        body.push_back(al, b.If(iEq(index, i32_n(-1)), {
+                Assign(result, b.TupleConstant({ args[0],
+                    StringConstant("", character(0)),
+                    StringConstant("", character(0)) },
+                b.Tuple({character(-2), character(0), character(0)})))
+            }, {
+                Assign(result, b.TupleConstant({
+                    StringSection(args[0], i32(0), index), args[1],
+                    StringSection(args[0], iAdd(index, StringLen(args[1])),
+                        StringLen(args[0]))}, return_type))
+            }));
+        body.push_back(al, Return());
         ASR::symbol_t *fn_sym = make_Function_t(fn_name, fn_symtab, dep, args,
             body, result, Source, Implementation, nullptr);
         scope->add_symbol(fn_name, fn_sym);
