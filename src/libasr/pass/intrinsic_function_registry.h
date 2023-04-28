@@ -539,18 +539,18 @@ namespace Abs {
 
 } // namespace Abs
 
-#define create_exp_macro(X)                                                               \
+#define create_exp_macro(X, stdeval)                                                      \
 namespace X {                                                                             \
     static inline ASR::expr_t* eval_##X(Allocator &al, const Location &loc,               \
             Vec<ASR::expr_t*> &args) {                                                    \
         LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));                            \
+        double rv;                                                                        \
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);                                   \
-        if (ASRUtils::is_real(*t)) {                                                      \
-            double val = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;               \
-            return EXPR(ASR::make_RealConstant_t(al, loc, val, t));                       \
-        } else {                                                                          \
-            return nullptr;                                                               \
+        if( ASRUtils::extract_value(args[0], rv) ) {                                      \
+            double val = std::stdeval(rv);                                                \
+            return ASRUtils::EXPR(ASR::make_RealConstant_t(al, loc, val, t));             \
         }                                                                                 \
+        return nullptr;                                                                   \
     }                                                                                     \
     static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,              \
             Vec<ASR::expr_t*>& args,                                                      \
@@ -568,9 +568,9 @@ namespace X {                                                                   
     }                                                                                     \
 } // namespace X                                                                          
 
-create_exp_macro(Exp)
-create_exp_macro(Exp2)
-create_exp_macro(Expm1)
+create_exp_macro(Exp, exp)
+create_exp_macro(Exp2, exp2)
+create_exp_macro(Expm1, expm1)
 
 namespace ListIndex {
 
