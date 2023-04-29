@@ -1202,8 +1202,19 @@ static inline std::string binop_to_str_python(const ASR::binopType t) {
 }
 
 static inline bool is_immutable(const ASR::ttype_t *type) {
+    bool is_integer = ASR::is_a<ASR::Integer_t>(*type);
+    bool is_dimensionless = false;
+    bool is_real = ASR::is_a<ASR::Real_t>(*type);
+    if(is_integer){
+        ASR::Integer_t *integer = ASR::down_cast<ASR::Integer_t>(type);
+        is_dimensionless = integer->n_dims == 0;
+    }
+    if(is_real){
+        ASR::Real_t *real = ASR::down_cast<ASR::Real_t>(type);
+        is_dimensionless = real->n_dims == 0;
+    }
     return ((ASR::is_a<ASR::Character_t>(*type) || ASR::is_a<ASR::Tuple_t>(*type)
-        || ASR::is_a<ASR::Complex_t>(*type)));
+        || ASR::is_a<ASR::Complex_t>(*type)) || is_dimensionless);
 }
 
 // Returns a list of values
