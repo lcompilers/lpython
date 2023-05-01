@@ -4413,6 +4413,13 @@ public:
                             );
                             throw SemanticAbort();
                         }
+                        if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
+                            LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
+                            Vec<ASR::expr_t*> list_ele;
+                            list_ele.reserve(al, 1);
+                            tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
+                                            list_ele.size(), value_type));
+                        }
                         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
                             std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
                             std::string totype = ASRUtils::type_to_str_python(value_type);
@@ -4451,11 +4458,18 @@ public:
                     }
                 }
             }
-            if (!tmp_value) continue;
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
+            if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
+                LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
+                Vec<ASR::expr_t*> list_ele;
+                list_ele.reserve(al, 1);
+                tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
+                                list_ele.size(), target_type));
+            }
+            if (!tmp_value) continue;
+            ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
                 if( !ASRUtils::check_equal_type(target_type, value_type) ) {
@@ -6082,7 +6096,7 @@ public:
 
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
-                String Validation Methods i.e all "is" based functions are handled here 
+                String Validation Methods i.e all "is" based functions are handled here
             */
             std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
@@ -6454,9 +6468,9 @@ public:
             return;
         } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
-                * Specification - 
+                * Specification -
 
-                Return True if all cased characters [lowercase, uppercase, titlecase] in the string 
+                Return True if all cased characters [lowercase, uppercase, titlecase] in the string
                 are lowercase and there is at least one cased character, False otherwise.
 
                 * islower() method is limited to English Alphabets currently
@@ -6473,7 +6487,7 @@ public:
 
             if(attr_name == "islower") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
@@ -6493,7 +6507,7 @@ public:
                 return;
             } else if(attr_name == "isupper") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
                 */
                 bool is_cased_present = false;
@@ -6513,7 +6527,7 @@ public:
                 return;
             } else if(attr_name == "isdecimal") {
                 /*
-                    * Specification: 
+                    * Specification:
                     Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
                 */
                 bool is_decimal = (s_var.size() != 0);
@@ -6528,8 +6542,8 @@ public:
                 return;
             } else if(attr_name == "isascii") {
                 /*
-                    * Specification - 
-                    Return True if the string is empty or all characters in the string are ASCII, False otherwise. 
+                    * Specification -
+                    Return True if the string is empty or all characters in the string are ASCII, False otherwise.
                     ASCII characters have code points in the range U+0000-U+007F.
                 */
                 bool is_ascii = true;
