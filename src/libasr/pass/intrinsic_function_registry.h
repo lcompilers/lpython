@@ -45,6 +45,9 @@ enum class IntrinsicFunctions : int64_t {
     Asin,
     Acos,
     Atan,
+    Sinh,
+    Cosh,
+    Tanh,
     Gamma,
     LogGamma,
     Abs,
@@ -351,6 +354,9 @@ create_trig(Tan, tan, tan)
 create_trig(Asin, asin, asin)
 create_trig(Acos, acos, acos)
 create_trig(Atan, atan, atan)
+create_trig(Sinh, sinh, sinh)
+create_trig(Cosh, cosh, cosh)
+create_trig(Tanh, tanh, tanh)
 
 namespace Abs {
 
@@ -914,6 +920,12 @@ namespace IntrinsicFunctionRegistry {
             &Acos::instantiate_Acos},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
             &Atan::instantiate_Atan},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sinh),
+            &Sinh::instantiate_Sinh},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cosh),
+            &Cosh::instantiate_Cosh},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tanh),
+            &Tanh::instantiate_Tanh},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             &Abs::instantiate_Abs},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
@@ -936,6 +948,12 @@ namespace IntrinsicFunctionRegistry {
             "acos"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
             "atan"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sinh),
+            "sinh"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cosh),
+            "cosh"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tanh),
+            "tanh"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
@@ -958,6 +976,9 @@ namespace IntrinsicFunctionRegistry {
                 {"asin", {&Asin::create_Asin, &Asin::eval_Asin}},
                 {"acos", {&Acos::create_Acos, &Acos::eval_Acos}},
                 {"atan", {&Atan::create_Atan, &Atan::eval_Atan}},
+                {"sinh", {&Sinh::create_Sinh, &Sinh::eval_Sinh}},
+                {"cosh", {&Cosh::create_Cosh, &Cosh::eval_Cosh}},
+                {"tanh", {&Tanh::create_Tanh, &Tanh::eval_Tanh}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
                 {"exp", {&Exp::create_Exp, &Exp::eval_Exp}},
                 {"exp2", {&Exp2::create_Exp2, &Exp2::eval_Exp2}},
@@ -1038,6 +1059,9 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Asin)
         INTRINSIC_NAME_CASE(Acos)
         INTRINSIC_NAME_CASE(Atan)
+        INTRINSIC_NAME_CASE(Sinh)
+        INTRINSIC_NAME_CASE(Cosh)
+        INTRINSIC_NAME_CASE(Tanh)
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
