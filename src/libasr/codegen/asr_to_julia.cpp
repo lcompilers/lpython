@@ -1892,6 +1892,9 @@ public:
             SET_INTRINSIC_NAME(Asin, "asin");
             SET_INTRINSIC_NAME(Acos, "acos");
             SET_INTRINSIC_NAME(Atan, "atan");
+            SET_INTRINSIC_NAME(Sinh, "sinh");
+            SET_INTRINSIC_NAME(Cosh, "cosh");
+            SET_INTRINSIC_NAME(Tanh, "tanh");
             SET_INTRINSIC_NAME(Abs, "abs");
             default : {
                 throw LCompilersException("IntrinsicFunction: `"

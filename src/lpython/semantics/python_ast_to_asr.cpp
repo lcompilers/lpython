@@ -4405,6 +4405,13 @@ public:
                             );
                             throw SemanticAbort();
                         }
+                        if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
+                            LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
+                            Vec<ASR::expr_t*> list_ele;
+                            list_ele.reserve(al, 1);
+                            tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
+                                            list_ele.size(), value_type));
+                        }
                         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
                             std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
                             std::string totype = ASRUtils::type_to_str_python(value_type);
@@ -4443,11 +4450,18 @@ public:
                     }
                 }
             }
-            if (!tmp_value) continue;
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
+            if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
+                LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
+                Vec<ASR::expr_t*> list_ele;
+                list_ele.reserve(al, 1);
+                tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
+                                list_ele.size(), target_type));
+            }
+            if (!tmp_value) continue;
+            ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
                 if( !ASRUtils::check_equal_type(target_type, value_type) ) {
@@ -6553,7 +6567,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh"
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
              && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
