@@ -2084,8 +2084,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        emit_string(x.m_s);
-        m_wa.emit_i32_const(m_string_to_iov_loc_map[x.m_s]);
+        std::string s = unescape_string(m_al, x.m_s);
+        emit_string(s);
+        m_wa.emit_i32_const(m_string_to_iov_loc_map[s]);
     }
 
     void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
