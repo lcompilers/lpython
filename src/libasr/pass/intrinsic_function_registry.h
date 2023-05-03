@@ -51,6 +51,7 @@ enum class IntrinsicFunctions : int64_t {
     Gamma,
     LogGamma,
     Abs,
+    Ord,
     Any,
     ListIndex,
     // ...
@@ -542,6 +543,90 @@ namespace Abs {
 
 } // namespace Abs
 
+namespace Ord{
+    static ASR::expr_t* eval_Ord(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::expr_t *expr = args[0];
+        ASR::ttype_t *t = ASRUtils::expr_type(expr);
+        int64_t val;
+        if (ASRUtils::expr_value(expr)) {
+            char* c = ASR::down_cast<ASR::StringConstant_t>(expr)->m_s;
+            val = static_cast<int64_t>(c[0]);
+        }
+        return ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+            al, loc, val, type));
+    }
+    static inline ASR::asr_t* create_Ord(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic ord function accepts exactly 1 argument", loc);
+        }
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
+        if (ASRUtils::is_character(*type)) {
+            char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(args[0]))->m_s;
+            if ((ASRUtils::expr_value(args[0]) != nullptr) && std::string(c).size() != 1) {
+                    err("ord() is only supported for String of length 1", args[0]->base.loc);
+                }
+        }
+        if (!ASRUtils::is_character(*type)) {
+            err("Argument of the ord function must be String of length 1",
+                args[0]->base.loc);
+        }
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Ord,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Ord), 0, type);
+    }
+        static inline ASR::expr_t* instantiate_Ord(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
+        std::string func_name = "_lcompilers_ord_" + type_to_str_python(arg_types[0]);
+        ASR::ttype_t *return_type = arg_types[0];
+        if (scope->get_symbol(func_name)) {
+            ASR::symbol_t *s = scope->get_symbol(func_name);
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
+            return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, s, s,
+                new_args.p, new_args.size(), expr_type(f->m_return_var),
+                compile_time_value, nullptr));
+        }
+
+        func_name = scope->get_unique_name(func_name);
+        SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
+
+        Vec<ASR::expr_t*> args;
+        {
+            args.reserve(al, 1);
+            create_variable(arg, "x", ASR::intentType::In, ASR::abiType::Source,
+                false, fn_symtab, arg_types[0]);
+            args.push_back(al, arg);
+        }
+
+        create_variable(return_var, func_name, ASRUtils::intent_return_var,
+            ASR::abiType::Source, false, fn_symtab, return_type);
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, 1);
+        SetChar dep;
+        dep.reserve(al, 1);
+
+        /*
+         if (c is character) then
+            r = ord(c)
+        */
+        if (is_character(*arg_types[0])) {
+            // TODO : Handle the Runtime Operation here.
+        }
+
+        ASR::symbol_t *f_sym = make_Function_t(func_name, fn_symtab, dep, args,
+            body, return_var, Source, Implementation, nullptr);
+        scope->add_symbol(func_name, f_sym);
+        return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc, f_sym, f_sym,
+            new_args.p, new_args.size(), return_type, compile_time_value, nullptr));
+    }
+
+} // namespace Ord
+
 namespace ListIndex {
 
 static inline ASR::expr_t *eval_list_index(Allocator &/*al*/,
@@ -871,7 +956,6 @@ namespace IntrinsicFunctionRegistry {
     static const std::map<int64_t, impl_function>& intrinsic_function_by_id_db = {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
             &LogGamma::instantiate_LogGamma},
-
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sin),
             &Sin::instantiate_Sin},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
@@ -892,6 +976,8 @@ namespace IntrinsicFunctionRegistry {
             &Tanh::instantiate_Tanh},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             &Abs::instantiate_Abs},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Ord),
+            &Ord::instantiate_Ord},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             &Any::instantiate_Any}
     };
@@ -899,7 +985,6 @@ namespace IntrinsicFunctionRegistry {
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
             "log_gamma"},
-
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sin),
             "sin"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
@@ -920,6 +1005,8 @@ namespace IntrinsicFunctionRegistry {
             "tanh"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Ord),
+            "ord"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"}
     };
@@ -938,6 +1025,7 @@ namespace IntrinsicFunctionRegistry {
                 {"cosh", {&Cosh::create_Cosh, &Cosh::eval_Cosh}},
                 {"tanh", {&Tanh::create_Tanh, &Tanh::eval_Tanh}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
+                {"ord", {&Ord::create_Ord, &Ord::eval_Ord}},
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
@@ -956,7 +1044,8 @@ namespace IntrinsicFunctionRegistry {
                  id_ == ASRUtils::IntrinsicFunctions::Cos ||
                  id_ == ASRUtils::IntrinsicFunctions::Gamma ||
                  id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
-                 id_ == ASRUtils::IntrinsicFunctions::Sin );
+                 id_ == ASRUtils::IntrinsicFunctions::Sin ||
+                 id_ == ASRUtils::IntrinsicFunctions::Ord );
     }
 
     /*
@@ -1017,6 +1106,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
+        INTRINSIC_NAME_CASE(Ord)
         INTRINSIC_NAME_CASE(Any)
         INTRINSIC_NAME_CASE(ListIndex)
         default : {

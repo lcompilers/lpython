@@ -2181,6 +2181,7 @@ R"(#include <stdio.h>
             SET_INTRINSIC_NAME(Cosh, "cosh");
             SET_INTRINSIC_NAME(Tanh, "tanh");
             SET_INTRINSIC_NAME(Abs, "abs");
+            SET_INTRINSIC_NAME(Ord, "ord");
             default : {
                 throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
