@@ -1206,7 +1206,10 @@ class CCPPDSUtils {
             } else {
                 dict_init(dict_type, dict_struct_type, dict_type_code);
                 dict_resize_naive(dict_type, dict_struct_type, dict_type_code);
-                throw CodeGenError("Only Integer keys supported for now in C-dictionary");
+                dict_insert_naive(dict_type, dict_struct_type, dict_type_code);
+                dict_get_item_naive(dict_type, dict_struct_type, dict_type_code);
+                dict_get_item_with_fallback_naive(dict_type, dict_struct_type, dict_type_code);
+                dict_len(dict_type, dict_struct_type, dict_type_code);
             }
             return dict_struct_type;
         }
@@ -1328,6 +1331,33 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
+        void dict_insert_naive(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_in_func = global_scope->get_unique_name("dict_insert_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_insert"] = dict_in_func;
+            std::string dict_rz = typecodeToDSfuncs[dict_type_code]["dict_resize"];
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = "void " + dict_in_func + "(" + dict_struct_type + "* x, " +\
+                                        key + " k," + val + " v)" ;
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "int c = 0;\n";
+            generated_code += indent + tab + "while(c < x->capacity && x->present[c]) c++;\n";
+            generated_code += indent + tab + "if (c == x->capacity) {\n";
+            generated_code += indent + tab + tab + dict_rz + "(x);\n";
+            generated_code += indent + tab + "}\n";
+            std::string key_deep_copy = get_deepcopy(dict_type->m_key_type, "k", "x->key[c]");
+            std::string val_deep_copy = get_deepcopy(dict_type->m_value_type, "v", "x->value[c]");
+            generated_code += indent + tab + key_deep_copy + ";\n";
+            generated_code += indent + tab + val_deep_copy + ";\n";
+            generated_code += indent + tab + "x->present[c] = true;\n";
+            generated_code += indent + "}\n\n";
+        }
+
         void dict_get_item_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
@@ -1349,6 +1379,29 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
+        void dict_get_item_naive(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_get_func = global_scope->get_unique_name("dict_get_item_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_get"] = dict_get_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = val + " " + dict_get_func + "(" + dict_struct_type + "* x, " +\
+                                        key + " k)" ;
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            std::string key_cmp_func = get_compare_func(dict_type->m_key_type);
+            std::string key_cmp = key_cmp_func + "(x->key[i], k)";
+            generated_code += indent + tab + "for (int i=0; i<x->capacity; i++) {\n";
+            generated_code += indent + tab + tab + "if (x->present[i] && "+ key_cmp + ") return x->value[i];\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + "printf(\"Key not found\\n\");\n";
+            generated_code += indent + tab + "exit(1);\n";
+            generated_code += indent + "}\n\n";
+        }
+
         void dict_get_item_with_fallback_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
@@ -1365,6 +1418,28 @@ class CCPPDSUtils {
             generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
             generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
+            generated_code += indent + tab + "return dv;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_get_item_with_fallback_naive(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_get_func = global_scope->get_unique_name("dict_get_item_fb_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_get_fb"] = dict_get_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = val + " " + dict_get_func + "(" + dict_struct_type + "* x, " +\
+                                        key + " k, " + val + " dv)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            std::string key_cmp_func = get_compare_func(dict_type->m_key_type);
+            std::string key_cmp = key_cmp_func + "(x->key[i], k)";
+            generated_code += indent + tab + "for (int i=0; i<x->capacity; i++) {\n";
+            generated_code += indent + tab + tab + "if (x->present[i] && "+ key_cmp + ") return x->value[i];\n";
+            generated_code += indent + tab + "}\n";
             generated_code += indent + tab + "return dv;\n";
             generated_code += indent + "}\n\n";
         }
