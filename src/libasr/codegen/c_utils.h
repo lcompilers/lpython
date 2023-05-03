@@ -1175,9 +1175,6 @@ class CCPPDSUtils {
         }
 
         std::string get_dict_type(ASR::Dict_t* dict_type) {
-            if (!ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
-                throw CodeGenError("Only Integer keys supported for now in C-dictionary");
-            }
             std::string dict_type_code = ASRUtils::get_type_code((ASR::ttype_t*)dict_type, true);
             if (typecodeToDStype.find(dict_type_code) != typecodeToDStype.end()) {
                 return typecodeToDStype[dict_type_code];
@@ -1196,14 +1193,21 @@ class CCPPDSUtils {
             tmp_gen += indent + tab + "bool *present;\n";
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
-            dict_init(dict_type, dict_struct_type, dict_type_code);
-            dict_resize(dict_type, dict_struct_type, dict_type_code);
-            dict_insert(dict_type, dict_struct_type, dict_type_code);
-            dict_get_item(dict_type, dict_struct_type, dict_type_code);
-            dict_get_item_with_fallback(dict_type, dict_struct_type, dict_type_code);
-            dict_len(dict_type, dict_struct_type, dict_type_code);
-            dict_pop(dict_type, dict_struct_type, dict_type_code);
-            dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
+
+            if (ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
+                dict_init(dict_type, dict_struct_type, dict_type_code);
+                dict_resize_probing(dict_type, dict_struct_type, dict_type_code);
+                dict_insert_probing(dict_type, dict_struct_type, dict_type_code);
+                dict_get_item_probing(dict_type, dict_struct_type, dict_type_code);
+                dict_get_item_with_fallback_probing(dict_type, dict_struct_type, dict_type_code);
+                dict_len(dict_type, dict_struct_type, dict_type_code);
+                dict_pop_probing(dict_type, dict_struct_type, dict_type_code);
+                dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
+            } else {
+                dict_init(dict_type, dict_struct_type, dict_type_code);
+                dict_resize_naive(dict_type, dict_struct_type, dict_type_code);
+                throw CodeGenError("Only Integer keys supported for now in C-dictionary");
+            }
             return dict_struct_type;
         }
 
@@ -1231,7 +1235,7 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
-        void dict_resize(ASR::Dict_t *dict_type, std::string dict_struct_type,
+        void dict_resize_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
@@ -1276,7 +1280,29 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
-        void dict_insert(ASR::Dict_t *dict_type, std::string dict_struct_type,
+        void dict_resize_naive(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_rez_func = global_scope->get_unique_name("dict_resize_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_resize"] = dict_rez_func;
+            std::string signature = "void " + dict_rez_func + "(" + dict_struct_type + "* x)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "x->capacity = 2*x->capacity + 1;\n";
+            generated_code += indent + tab + "x->key = (" + key + "*) " +
+                              "realloc(x->key, x->capacity * sizeof(" + key + "));\n";
+            generated_code += indent + tab + "x->value = (" + val + "*) " +
+                              "realloc(x->value, x->capacity * sizeof(" + val + "));\n";
+            generated_code += indent + tab + "x->key = (bool*) " +
+                              "realloc(x->present, x->capacity * sizeof(bool));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_insert_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
@@ -1302,7 +1328,7 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
-        void dict_get_item(ASR::Dict_t *dict_type, std::string dict_struct_type,
+        void dict_get_item_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
@@ -1323,7 +1349,7 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
-        void dict_get_item_with_fallback(ASR::Dict_t *dict_type, std::string dict_struct_type,
+        void dict_get_item_with_fallback_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
@@ -1361,7 +1387,7 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
-        void dict_pop(ASR::Dict_t *dict_type, std::string dict_struct_type,
+        void dict_pop_probing(ASR::Dict_t *dict_type, std::string dict_struct_type,
                 std::string dict_type_code) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
