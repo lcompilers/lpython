@@ -51,6 +51,9 @@ enum class IntrinsicFunctions : int64_t {
     Gamma,
     LogGamma,
     Abs,
+    Exp,
+    Exp2,
+    Expm1,
     Any,
     ListIndex,
     Partition,
@@ -821,6 +824,39 @@ namespace Abs {
 
 } // namespace Abs
 
+#define create_exp_macro(X, stdeval)                                                      \
+namespace X {                                                                             \
+    static inline ASR::expr_t* eval_##X(Allocator &al, const Location &loc,               \
+            Vec<ASR::expr_t*> &args) {                                                    \
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));                            \
+        double rv;                                                                        \
+        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);                                   \
+        if( ASRUtils::extract_value(args[0], rv) ) {                                      \
+            double val = std::stdeval(rv);                                                \
+            return ASRUtils::EXPR(ASR::make_RealConstant_t(al, loc, val, t));             \
+        }                                                                                 \
+        return nullptr;                                                                   \
+    }                                                                                     \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,              \
+            Vec<ASR::expr_t*>& args,                                                      \
+            const std::function<void (const std::string &, const Location &)> err) {      \
+        if (args.size() != 1) {                                                           \
+            err("Intrinsic function `"#X"` accepts exactly 1 argument", loc);             \
+        }                                                                                 \
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);                                \
+        if (!ASRUtils::is_real(*type)) {                                                  \
+            err("Argument of the `"#X"` function must be Real",                           \
+                args[0]->base.loc);                                                       \
+        }                                                                                 \
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_##X,      \
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X), 0, type);              \
+    }                                                                                     \
+} // namespace X                                                                          
+
+create_exp_macro(Exp, exp)
+create_exp_macro(Exp2, exp2)
+create_exp_macro(Expm1, expm1)
+
 namespace ListIndex {
 
 static inline ASR::expr_t *eval_list_index(Allocator &/*al*/,
@@ -1233,6 +1269,12 @@ namespace IntrinsicFunctionRegistry {
             "tanh"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
             "abs"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
+            "exp"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
+            "exp2"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Expm1),
+            "expm1"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"}
     };
@@ -1251,6 +1293,9 @@ namespace IntrinsicFunctionRegistry {
                 {"cosh", {&Cosh::create_Cosh, &Cosh::eval_Cosh}},
                 {"tanh", {&Tanh::create_Tanh, &Tanh::eval_Tanh}},
                 {"abs", {&Abs::create_Abs, &Abs::eval_Abs}},
+                {"exp", {&Exp::create_Exp, &Exp::eval_Exp}},
+                {"exp2", {&Exp2::create_Exp2, &Exp2::eval_Exp2}},
+                {"expm1", {&Expm1::create_Expm1, &Expm1::eval_Expm1}},
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
     };
@@ -1269,7 +1314,10 @@ namespace IntrinsicFunctionRegistry {
                  id_ == ASRUtils::IntrinsicFunctions::Cos ||
                  id_ == ASRUtils::IntrinsicFunctions::Gamma ||
                  id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
-                 id_ == ASRUtils::IntrinsicFunctions::Sin );
+                 id_ == ASRUtils::IntrinsicFunctions::Sin ||
+                 id_ == ASRUtils::IntrinsicFunctions::Exp ||
+                 id_ == ASRUtils::IntrinsicFunctions::Exp2 ||
+                 id_ == ASRUtils::IntrinsicFunctions::Expm1 );
     }
 
     /*
@@ -1330,6 +1378,9 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
         INTRINSIC_NAME_CASE(Abs)
+        INTRINSIC_NAME_CASE(Exp)
+        INTRINSIC_NAME_CASE(Exp2)
+        INTRINSIC_NAME_CASE(Expm1)
         INTRINSIC_NAME_CASE(Any)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)

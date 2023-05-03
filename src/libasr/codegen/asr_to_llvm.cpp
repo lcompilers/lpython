@@ -1929,6 +1929,26 @@ public:
         tmp = list_api->index(plist, item, asr_el_type, *module);
     }
 
+    void generate_Exp(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
+    }
+
+    void generate_Exp2(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp2, item);
+    }
+
+    void generate_Expm1(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        llvm::Value* exp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
+        llvm::Value* one = llvm::ConstantFP::get(builder->getFloatTy(), 1.0);
+        tmp = builder->CreateFSub(exp, one);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -1941,6 +1961,48 @@ public:
                     }
                     default: {
                         throw CodeGenError("list.index only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Exp: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Exp(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("exp() only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Exp2: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Exp2(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("exp2() only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Expm1: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Expm1(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("expm1() only accepts one argument",
                                             x.base.base.loc);
                     }
                 }

@@ -4018,6 +4018,8 @@ public:
     std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
     int64_t gotoids;
     std::vector<ASR::symbol_t*> do_loop_variables;
+    // Stores the name of imported functions and the modules they are imported from
+    std::map<std::string, std::string> imported_functions;
 
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
@@ -4256,6 +4258,9 @@ public:
         // Here, we call the global_initializer & global_statements to
         // initialize and execute the global symbols
         std::string mod_name = x.m_module;
+        for (size_t i = 0; i < x.n_names; i++) {
+            imported_functions[x.m_names[i].m_name] = mod_name;
+        }
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
@@ -6567,14 +6572,20 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1"
             };
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name)
-             && not_cpython_builtin.find(call_name) == not_cpython_builtin.end()) {
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
+                (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
+                imported_functions.find(call_name) != imported_functions.end() )) {
                 ASRUtils::create_intrinsic_function create_func =
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) && 
+                    imported_functions[call_name] == "math" ) {
+                    throw SemanticError("Function '" + call_name + "' does not accept vector values",
+                        x.base.base.loc);
+                }
                 tmp = create_func(al, x.base.base.loc, args_,
                     [&](const std::string &msg, const Location &loc) {
                     throw SemanticError(msg, loc); });
