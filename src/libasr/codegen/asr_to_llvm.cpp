@@ -1938,7 +1938,7 @@ public:
 
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         ptr_loads = ptr_loads_copy;
-        list_api->reverse(plist, *module);
+        list_api->reverse(plist, asr_el_type, *module);
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {

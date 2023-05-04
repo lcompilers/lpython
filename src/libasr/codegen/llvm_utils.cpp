@@ -2626,7 +2626,7 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
-    void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
+    void LLVMList::reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
 
         /* Equivalent in C++:
          *
@@ -2658,6 +2658,10 @@ namespace LCompilers {
                     llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
         LLVM::CreateStore(*builder, tmp, j);        // j = end_point - 1
 
+        // std::string type_code = ASRUtils::get_type_code(list_type);
+        // llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
+        // llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
+
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -2665,17 +2669,29 @@ namespace LCompilers {
         // head
         llvm_utils->start_new_block(loophead);
         {
-            llvm::Value *cond = builder->CreateICmpSGT(j, LLVM::CreateLoad(*builder, i));
+            llvm::Value *cond = builder->CreateICmpSGT(LLVM::CreateLoad(*builder, j), LLVM::CreateLoad(*builder, i));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
         // body
         llvm_utils->start_new_block(loopbody);
         {
-            tmp = read_item(list, i, false, module, false);    // tmp = list[i]
-            write_item(list, i, LLVM::CreateLoad(*builder,
-                        read_item(list, j, false, module, false)), false, module);    // list[i] = list[j]
-            write_item(list, i, tmp, false, module);           // list[j] = tmp
+            tmp = read_item(list, LLVM::CreateLoad(*builder, i),
+                false, module, LLVM::is_llvm_struct(list_type));    // tmp = list[i]
+            write_item(list, LLVM::CreateLoad(*builder, i), LLVM::CreateLoad(*builder,
+                        read_item(list, LLVM::CreateLoad(*builder, j), false, module, LLVM::is_llvm_struct(list_type))),
+                        false, module);    // list[i] = list[j]
+            write_item(list, LLVM::CreateLoad(*builder, j),
+                        LLVM::CreateLoad(*builder, tmp), false, module);    // list[j] = tmp
+
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+            tmp = builder->CreateSub(
+                        LLVM::CreateLoad(*builder, j),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, j);
         }
         builder->CreateBr(loophead);
 

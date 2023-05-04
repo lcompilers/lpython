@@ -258,7 +258,7 @@ namespace LCompilers {
 
             void list_clear(llvm::Value* list);
 
-            void reverse(llvm::Value* list, llvm::Module& module);
+            void reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
 
             llvm::Value* find_item_position(llvm::Value* list,
                 llvm::Value* item, ASR::ttype_t* item_type,
