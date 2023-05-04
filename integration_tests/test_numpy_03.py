@@ -30,7 +30,7 @@ def test_nd_to_1d(a: f64[:, :]):
     newshape1[0] = 4096
     d = reshape(c, newshape1)
     for l in range(4096):
-        i = i32(int(l/256))
+        i = i32(l/256)
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
         assert abs(d[l] - f64(i + j + k) - 0.5) <= eps
@@ -87,7 +87,7 @@ def test_reshape_with_argument():
 
     d: f64[4096] = empty(4096)
     for l in range(4096):
-        i = i32(int(l/256))
+        i = i32(l/256)
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
         d[l] = f64(i + j + k) + 0.5

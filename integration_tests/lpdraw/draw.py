@@ -86,7 +86,7 @@ def Line(H: i32, W: i32, Screen: i32[H, W], x1: i32, y1: i32, x2: i32, y2: i32) 
             y1 += sy
 
 def Circle(H: i32, W: i32, Screen: i32[H, W], x: i32, y: i32, r: f64) -> None:
-    x0: i32 = i32(int(r))
+    x0: i32 = i32(r)
     y0: i32 = 0
     err: i32 = 0
 

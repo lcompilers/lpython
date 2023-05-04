@@ -20,7 +20,7 @@ def elemental_sqrt64():
     shape[0] = 4096
     observed = reshape(sqrt(array), shape)
     for l in range(4096):
-        i = i32(int(l/256))
+        i = i32(l/256)
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
         assert abs(observed[l]**2.0 - f64(i + j + k)) <= eps
@@ -42,7 +42,7 @@ def elemental_sqrt32():
     shape[0] = 256
     observed = reshape(sqrt(array), shape)
     for l in range(256):
-        i = i32(int(l/16))
+        i = i32(l/16)
         j = (l - i*16)
         assert abs(observed[l]**f32(2.0) - f32(i + j)) <= eps
 
