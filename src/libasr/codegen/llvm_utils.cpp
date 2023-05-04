@@ -2626,6 +2626,63 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
+    void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
+
+        /* Equivalent in C++:
+         *
+         * int i = 0;
+         * int j = end_point - 1;
+         * 
+         * tmp;
+         *
+         * while(j > i) {
+         *      tmp = list[i];
+         *      list[i] = list[j];
+         *      list[j] = tmp;
+         *      i = i + 1;
+         *      j = j - 1;
+         *  }
+         */
+
+        llvm::Value* end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);       // i = 0
+        llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
+        llvm::Value* tmp = nullptr;
+        tmp = builder->CreateSub(
+                    LLVM::CreateLoad(*builder, end_point),
+                    llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+        LLVM::CreateStore(*builder, tmp, j);        // j = end_point - 1
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(j, LLVM::CreateLoad(*builder, i));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = read_item(list, i, false, module, false);    // tmp = list[i]
+            write_item(list, i, LLVM::CreateLoad(*builder,
+                        read_item(list, j, false, module, false)), false, module);    // list[i] = list[j]
+            write_item(list, i, tmp, false, module);           // list[j] = tmp
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
     llvm::Value* LLVMList::find_item_position(llvm::Value* list,
         llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);

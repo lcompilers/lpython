@@ -24,6 +24,7 @@ struct AttributeHandler {
             {"list@remove", &eval_list_remove},
             {"list@count", &eval_list_count},
             {"list@index", &eval_list_index},
+            {"list@reverse", &eval_list_reverse},
             {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
             {"list@pop", &eval_list_pop},
@@ -161,6 +162,20 @@ struct AttributeHandler {
         }
         ASRUtils::create_intrinsic_function create_function =
             ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.index");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
+    static ASR::asr_t* eval_list_reverse(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.reverse");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
