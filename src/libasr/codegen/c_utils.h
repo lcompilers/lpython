@@ -1193,7 +1193,8 @@ class CCPPDSUtils {
             tmp_gen += indent + tab + "bool *present;\n";
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
-
+            generate_compare_funcs(dict_type->m_key_type);
+            generate_compare_funcs(dict_type->m_value_type);
             if (ASR::is_a<ASR::Integer_t>(*dict_type->m_key_type)) {
                 dict_init(dict_type, dict_struct_type, dict_type_code);
                 dict_resize_probing(dict_type, dict_struct_type, dict_type_code);
@@ -1210,6 +1211,8 @@ class CCPPDSUtils {
                 dict_get_item_naive(dict_type, dict_struct_type, dict_type_code);
                 dict_get_item_with_fallback_naive(dict_type, dict_struct_type, dict_type_code);
                 dict_len(dict_type, dict_struct_type, dict_type_code);
+                dict_pop_naive(dict_type, dict_struct_type, dict_type_code);
+                dict_deepcopy(dict_type, dict_struct_type, dict_type_code);
             }
             return dict_struct_type;
         }
@@ -1275,6 +1278,7 @@ class CCPPDSUtils {
             generated_code += indent + tab + "for(size_t i=0; i<x->capacity/2; i++) {\n";
             generated_code += indent + tab + tab + "if(tmp_p[i]) {\n";
             generated_code += indent + tab + tab + tab + "int j=tmp_key[i]\%x->capacity;\n";
+            generated_code += indent + tab + tab + tab + "j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
             generated_code += indent + tab + tab + tab + \
                 "x->key[j] = tmp_key[i]; x->value[j] = tmp_val[i]; x->present[j] = true;\n";
@@ -1300,7 +1304,7 @@ class CCPPDSUtils {
                               "realloc(x->key, x->capacity * sizeof(" + key + "));\n";
             generated_code += indent + tab + "x->value = (" + val + "*) " +
                               "realloc(x->value, x->capacity * sizeof(" + val + "));\n";
-            generated_code += indent + tab + "x->key = (bool*) " +
+            generated_code += indent + tab + "x->present = (bool*) " +
                               "realloc(x->present, x->capacity * sizeof(bool));\n";
             generated_code += indent + "}\n\n";
         }
@@ -1320,10 +1324,11 @@ class CCPPDSUtils {
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int j=k\%x->capacity; int c = 0;\n";
+            generated_code += indent + tab + "j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + "while(c < x->capacity && x->present[j] && x->key[j]!=k) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (c == x->capacity) {\n";
             generated_code += indent + tab + tab + dict_rz + "(x);\n";
-            generated_code += indent + tab + tab + "j=k\%x->capacity;\n";
+            generated_code += indent + tab + tab + "j=k\%x->capacity; j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + tab + "while(x->present[j]) j=(j+1)\%x->capacity;\n";
             generated_code += indent + tab + "}\n";
             generated_code += indent + tab + \
@@ -1345,15 +1350,17 @@ class CCPPDSUtils {
             func_decls += indent + "inline " + signature + ";\n";
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
+            std::string key_cmp_func = get_compare_func(dict_type->m_key_type);
+            std::string key_cmp = key_cmp_func + "(x->key[c], k)";
             generated_code += indent + tab + "int c = 0;\n";
-            generated_code += indent + tab + "while(c < x->capacity && x->present[c]) c++;\n";
+            generated_code += indent + tab + "while(c < x->capacity && x->present[c] && !" + key_cmp + ") c++;\n";
             generated_code += indent + tab + "if (c == x->capacity) {\n";
             generated_code += indent + tab + tab + dict_rz + "(x);\n";
             generated_code += indent + tab + "}\n";
             std::string key_deep_copy = get_deepcopy(dict_type->m_key_type, "k", "x->key[c]");
             std::string val_deep_copy = get_deepcopy(dict_type->m_value_type, "v", "x->value[c]");
-            generated_code += indent + tab + key_deep_copy + ";\n";
-            generated_code += indent + tab + val_deep_copy + ";\n";
+            generated_code += indent + tab + key_deep_copy + "\n";
+            generated_code += indent + tab + val_deep_copy + "\n";
             generated_code += indent + tab + "x->present[c] = true;\n";
             generated_code += indent + "}\n\n";
         }
@@ -1372,6 +1379,7 @@ class CCPPDSUtils {
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
+            generated_code += indent + tab + "j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
             generated_code += indent + tab + "printf(\"Key not found\\n\");\n";
@@ -1416,6 +1424,7 @@ class CCPPDSUtils {
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int j=k\%x->capacity, c = 0;\n";
+             generated_code += indent + tab + "j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + "while(c<x->capacity && x->present[j] && !(x->key[j] == k)) j=(j+1)\%x->capacity, c++;\n";
             generated_code += indent + tab + "if (x->present[j] && x->key[j] == k) return x->value[j];\n";
             generated_code += indent + tab + "return dv;\n";
@@ -1475,12 +1484,37 @@ class CCPPDSUtils {
             signature = indent + signature;
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int j = k\%x->capacity;\n";
+            generated_code += indent + tab + "j=(j+x->capacity)\%x->capacity;\n";
             generated_code += indent + tab + "for(int i=0; i < x->capacity; i++) {\n";
             generated_code += indent + tab + tab + "if (x->present[j] && x->key[j] == k) {\n";
             generated_code += indent + tab + tab + tab + "x->present[j] = false;\n";
             generated_code += indent + tab + tab + tab + "return x->value[j];\n";
             generated_code += indent + tab + tab + "}\n";
             generated_code += indent + tab + tab + "j = (j+1)\%x->capacity;\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + "printf(\"Key not found\\n\"); exit(1);\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void dict_pop_naive(ASR::Dict_t *dict_type, std::string dict_struct_type,
+                std::string dict_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string dict_pop_func = global_scope->get_unique_name("dict_pop_" + dict_type_code);
+            typecodeToDSfuncs[dict_type_code]["dict_pop"] = dict_pop_func;
+            std::string key = CUtils::get_c_type_from_ttype_t(dict_type->m_key_type);
+            std::string val = CUtils::get_c_type_from_ttype_t(dict_type->m_value_type);
+            std::string signature = val + " " + dict_pop_func + "(" + dict_struct_type + "* x, " + key + " k)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            std::string key_cmp_func = get_compare_func(dict_type->m_key_type);
+            std::string key_cmp = key_cmp_func + "(x->key[i], k)";
+            generated_code += indent + tab + "for(int i=0; i < x->capacity; i++) {\n";
+            generated_code += indent + tab + tab + "if (x->present[i] && "+ key_cmp + ") {\n";
+            generated_code += indent + tab + tab + tab + "x->present[i] = false;\n";
+            generated_code += indent + tab + tab + tab + "return x->value[i];\n";
+            generated_code += indent + tab + tab + "}\n";
             generated_code += indent + tab + "}\n";
             generated_code += indent + tab + "printf(\"Key not found\\n\"); exit(1);\n";
             generated_code += indent + "}\n\n";
