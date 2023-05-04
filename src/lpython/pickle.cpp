@@ -185,6 +185,8 @@ class ASRJsonVisitor :
     public ASR::JsonBaseVisitor<ASRJsonVisitor>
 {
 public:
+    bool show_intrinsic_modules;
+
     using ASR::JsonBaseVisitor<ASRJsonVisitor>::JsonBaseVisitor;
 
     std::string get_str() {
@@ -200,59 +202,64 @@ public:
     }
 
     void visit_Module(const ASR::Module_t &x) {
-        s.append("{");
-        inc_indent(); s.append("\n" + indtd);
-        s.append("\"node\": \"Module\"");
-        s.append(",\n" + indtd);
-        s.append("\"fields\": {");
-        inc_indent(); s.append("\n" + indtd);
-        s.append("\"name\": ");
-        s.append("\"" + std::string(x.m_name) + "\"");
-        s.append(",\n" + indtd);
-        s.append("\"dependencies\": ");
-        s.append("[");
-        if (x.n_dependencies > 0) {
+        if (x.m_intrinsic && !show_intrinsic_modules) { // do not show intrinsic modules by default
+            s.append("{");
             inc_indent(); s.append("\n" + indtd);
-            for (size_t i=0; i<x.n_dependencies; i++) {
-                s.append("\"" + std::string(x.m_dependencies[i]) + "\"");
-                if (i < x.n_dependencies-1) {
-                    s.append(",\n" + indtd);
-                };
+            s.append("\"node\": \"Module\"");
+            s.append(",\n" + indtd);
+            s.append("\"fields\": {");
+            inc_indent(); s.append("\n" + indtd);
+            s.append("\"name\": ");
+            s.append("\"" + std::string(x.m_name) + "\"");
+            s.append(",\n" + indtd);
+            s.append("\"dependencies\": ");
+            s.append("[");
+            if (x.n_dependencies > 0) {
+                inc_indent(); s.append("\n" + indtd);
+                for (size_t i=0; i<x.n_dependencies; i++) {
+                    s.append("\"" + std::string(x.m_dependencies[i]) + "\"");
+                    if (i < x.n_dependencies-1) {
+                        s.append(",\n" + indtd);
+                    };
+                }
+                dec_indent(); s.append("\n" + indtd);
+            }
+            s.append("]");
+            s.append(",\n" + indtd);
+            s.append("\"loaded_from_mod\": ");
+            if (x.m_loaded_from_mod) {
+                s.append("true");
+            } else {
+                s.append("false");
+            }
+            s.append(",\n" + indtd);
+            s.append("\"intrinsic\": ");
+            if (x.m_intrinsic) {
+                s.append("true");
+            } else {
+                s.append("false");
             }
             dec_indent(); s.append("\n" + indtd);
-        }
-        s.append("]");
-        s.append(",\n" + indtd);
-        s.append("\"loaded_from_mod\": ");
-        if (x.m_loaded_from_mod) {
-            s.append("true");
+            s.append("}");
+            s.append(",\n" + indtd);
+            append_location(s, x.base.base.loc.first, x.base.base.loc.last);
+            dec_indent(); s.append("\n" + indtd);
+            s.append("}");
         } else {
-            s.append("false");
+            ASR::JsonBaseVisitor<ASRJsonVisitor>::visit_Module(x);
         }
-        s.append(",\n" + indtd);
-        s.append("\"intrinsic\": ");
-        if (x.m_intrinsic) {
-            s.append("true");
-        } else {
-            s.append("false");
-        }
-        dec_indent(); s.append("\n" + indtd);
-        s.append("}");
-        s.append(",\n" + indtd);
-        append_location(s, x.base.base.loc.first, x.base.base.loc.last);
-        dec_indent(); s.append("\n" + indtd);
-        s.append("}");
     }
 };
 
-std::string pickle_json(ASR::asr_t &asr, LocationManager &lm) {
+std::string pickle_json(ASR::asr_t &asr, LocationManager &lm, bool show_intrinsic_modules) {
     ASRJsonVisitor v(lm);
+    v.show_intrinsic_modules = show_intrinsic_modules;
     v.visit_asr(asr);
     return v.get_str();
 }
 
-std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm) {
-    return pickle_json((ASR::asr_t &)asr, lm);
+std::string pickle_json(ASR::TranslationUnit_t &asr, LocationManager &lm, bool show_intrinsic_modules) {
+    return pickle_json((ASR::asr_t &)asr, lm, show_intrinsic_modules);
 }
 
 }

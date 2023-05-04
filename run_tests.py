@@ -21,6 +21,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     ast = is_included("ast")
     ast_new = is_included("ast_new")
     asr = is_included("asr")
+    asr_json = is_included("asr_json")
     llvm = is_included("llvm")
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
@@ -76,6 +77,15 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
             filename,
             "asr",
             "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if asr_json:
+        run_test(
+            filename,
+            "asr_json",
+            "lpython --show-asr --json {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)

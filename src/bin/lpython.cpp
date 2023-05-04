@@ -210,7 +210,7 @@ int emit_asr(const std::string &infile,
         std::cout << LCompilers::LPython::pickle_tree(*asr,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.json) {
-         std::cout << LCompilers::LPython::pickle_json(*asr, lm) << std::endl;
+         std::cout << LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules) << std::endl;
     } else {
         std::cout << LCompilers::LPython::pickle(*asr, compiler_options.use_colors,
             compiler_options.indent, with_intrinsic_modules) << std::endl;
