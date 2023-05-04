@@ -812,32 +812,27 @@
                                                     [(=
                                                         (Var 193 i)
                                                         (Cast
-                                                            (Cast
-                                                                (RealBinOp
-                                                                    (Cast
-                                                                        (Var 193 l)
-                                                                        IntegerToReal
-                                                                        (Real 8 [])
-                                                                        ()
-                                                                    )
-                                                                    Div
-                                                                    (Cast
-                                                                        (IntegerConstant 256 (Integer 4 []))
-                                                                        IntegerToReal
-                                                                        (Real 8 [])
-                                                                        (RealConstant
-                                                                            256.000000
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
+                                                            (RealBinOp
+                                                                (Cast
+                                                                    (Var 193 l)
+                                                                    IntegerToReal
                                                                     (Real 8 [])
                                                                     ()
                                                                 )
-                                                                RealToInteger
-                                                                (Integer 8 [])
+                                                                Div
+                                                                (Cast
+                                                                    (IntegerConstant 256 (Integer 4 []))
+                                                                    IntegerToReal
+                                                                    (Real 8 [])
+                                                                    (RealConstant
+                                                                        256.000000
+                                                                        (Real 8 [])
+                                                                    )
+                                                                )
+                                                                (Real 8 [])
                                                                 ()
                                                             )
-                                                            IntegerToInteger
+                                                            RealToInteger
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -1352,32 +1347,27 @@
                                                     [(=
                                                         (Var 195 i)
                                                         (Cast
-                                                            (Cast
-                                                                (RealBinOp
-                                                                    (Cast
-                                                                        (Var 195 l)
-                                                                        IntegerToReal
-                                                                        (Real 8 [])
-                                                                        ()
-                                                                    )
-                                                                    Div
-                                                                    (Cast
-                                                                        (IntegerConstant 256 (Integer 4 []))
-                                                                        IntegerToReal
-                                                                        (Real 8 [])
-                                                                        (RealConstant
-                                                                            256.000000
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
+                                                            (RealBinOp
+                                                                (Cast
+                                                                    (Var 195 l)
+                                                                    IntegerToReal
                                                                     (Real 8 [])
                                                                     ()
                                                                 )
-                                                                RealToInteger
-                                                                (Integer 8 [])
+                                                                Div
+                                                                (Cast
+                                                                    (IntegerConstant 256 (Integer 4 []))
+                                                                    IntegerToReal
+                                                                    (Real 8 [])
+                                                                    (RealConstant
+                                                                        256.000000
+                                                                        (Real 8 [])
+                                                                    )
+                                                                )
+                                                                (Real 8 [])
                                                                 ()
                                                             )
-                                                            IntegerToInteger
+                                                            RealToInteger
                                                             (Integer 4 [])
                                                             ()
                                                         )
