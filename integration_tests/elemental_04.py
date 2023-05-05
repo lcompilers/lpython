@@ -23,7 +23,7 @@ def verify(observed: f32[:], base: i32, eps: f32):
     j: i32
 
     for k in range(100):
-        i = i32(int(k/10))
+        i = i32(k/10)
         j = (k - i*10)
         assert abs(f32(base)**(observed[k]) - f32(i + j + 1)) <= eps
 

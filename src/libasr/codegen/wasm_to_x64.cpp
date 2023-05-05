@@ -342,6 +342,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I32Ne() { visit_I64Ne(); }
 
     void visit_I32WrapI64() { } // empty, since i32's and i64's are considered similar currently.
+    void visit_I32TruncF64S() { visit_I64TruncF64S(); }
 
     void visit_I64Const(int64_t value) {
         m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));

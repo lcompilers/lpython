@@ -13,15 +13,31 @@ __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
 
 # data-types
 
+type_to_convert_func = {
+    "i8": int,
+    "i16": int,
+    "i32": int,
+    "i64": int,
+    "f32": float,
+    "f64": float,
+    "c32": complex,
+    "c64": complex,
+    "c_ptr": lambda x: x,
+    "Const": lambda x: x,
+    "Callable": lambda x: x,
+    "Pointer": lambda x: x,
+}
+
 class Type:
     def __init__(self, name):
         self._name = name
+        self._convert = type_to_convert_func[name]
 
     def __getitem__(self, params):
         return Array(self, params)
 
     def __call__(self, arg):
-        return arg
+        return self._convert(arg)
 
 def dataclass(arg):
     return py_dataclass(arg)

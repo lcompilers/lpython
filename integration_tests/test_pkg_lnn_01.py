@@ -31,7 +31,7 @@ def plot_graph(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]
     y2 *= scale_offset
 
     # print (x1, y1, x2, y2)
-    Line(Height, Width, Screen, i32(int(x1 + shift_offset)), i32(int(y1 + shift_offset)), i32(int(x2 + shift_offset)), i32(int(y2 + shift_offset)))
+    Line(Height, Width, Screen, i32(x1 + shift_offset), i32(y1 + shift_offset), i32(x2 + shift_offset), i32(y2 + shift_offset))
 
     i: i32
     point_size: i32 = 5
@@ -41,12 +41,12 @@ def plot_graph(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]
         input_vectors[i][0] += shift_offset
         input_vectors[i][1] += shift_offset
         if outputs[i] == 1:
-            x: i32 = i32(int(input_vectors[i][0]))
-            y: i32 = i32(int(input_vectors[i][1]))
+            x: i32 = i32(input_vectors[i][0])
+            y: i32 = i32(input_vectors[i][1])
             Line(Height, Width, Screen, x - point_size, y, x + point_size, y)
             Line(Height, Width, Screen, x, y - point_size, x, y + point_size)
         else:
-            Circle(Height, Width, Screen, i32(int(input_vectors[i][0])), i32(int(input_vectors[i][1])), f64(point_size))
+            Circle(Height, Width, Screen, i32(input_vectors[i][0]), i32(input_vectors[i][1]), f64(point_size))
 
     Display(Height, Width, Screen)
 
