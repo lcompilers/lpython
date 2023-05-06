@@ -861,8 +861,13 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0
-            || strcmp(prefix, "rb") == 0) {
+    } else if (strcmp(prefix, "b") == 0) {
+        LCompilers::Str s_;
+        s_.from_str(al, std::string(s));
+        std::string str = std::string(unescape_string(al, s_));
+        str = "b'" + str + "'";
+        tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str), nullptr);
+    } else if ( strcmp(prefix, "br") == 0 || strcmp(prefix, "rb") == 0) {
         std::string str = std::string(s);
         str = "b'" + str + "'";
         tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str), nullptr);
