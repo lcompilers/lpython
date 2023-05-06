@@ -938,7 +938,11 @@ R"(#include <stdio.h>
         for (size_t idx = 0; idx < s.size(); idx++) {
             if (s[idx] == '\n') {
                 src += "\\n";
-            } else if (s[idx] == '\\') {
+            } else if (s[idx] == '\t') {
+                src += "\\t";
+            }  else if (s[idx] == '\r') {
+                src += "\\r";
+            }else if (s[idx] == '\\') {
                 src += "\\\\";
             } else if (s[idx] == '\"') {
                 src += "\\\"";
