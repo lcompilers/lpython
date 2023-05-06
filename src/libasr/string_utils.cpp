@@ -154,7 +154,7 @@ std::string join_paths(const std::vector<std::string> &paths) {
     return p;
 }
 
-std::string unescape_string(Allocator &/*al*/, std::string s) {
+char* unescape_string(Allocator &al, LCompilers::Str &s) {
     std::string x;
     for (size_t idx=0; idx < s.size(); idx++) {
         if (s[idx] == '\\' && s[idx+1] == 'n') {
@@ -179,7 +179,7 @@ std::string unescape_string(Allocator &/*al*/, std::string s) {
             x += s[idx];
         }
     }
-    return x;
+    return LCompilers::s2c(al, x);
 }
 
 } // namespace LCompilers
