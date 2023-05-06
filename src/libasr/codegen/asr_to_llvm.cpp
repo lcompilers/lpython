@@ -6006,8 +6006,7 @@ public:
     }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        std::string s = unescape_string(al, x.m_s);
-        tmp = builder->CreateGlobalStringPtr(s);
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 
     inline void fetch_ptr(ASR::Variable_t* x) {
