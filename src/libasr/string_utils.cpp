@@ -157,11 +157,16 @@ std::string join_paths(const std::vector<std::string> &paths) {
 char* unescape_string(Allocator &al, LCompilers::Str &s) {
     std::string x;
     for (size_t idx=0; idx < s.size(); idx++) {
-        if (s[idx] == '\\' && s[idx+1] == 'n') {
+        if (s[idx] == '\\' && s[idx+1] == '\n') { // continuation character
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == 'n') {
             x += "\n";
             idx++;
         } else if (s[idx] == '\\' && s[idx+1] == 't') {
             x += "\t";
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == 'r') {
+            x += "\r";
             idx++;
         } else if (s[idx] == '\\' && s[idx+1] == 'b') {
             x += "\b";
@@ -174,6 +179,9 @@ char* unescape_string(Allocator &al, LCompilers::Str &s) {
             idx++;
         } else if (s[idx] == '\\' && s[idx+1] == '"') {
             x += '"';
+            idx++;
+        } else if (s[idx] == '\\' && s[idx+1] == '\'') {
+            x += '\'';
             idx++;
         } else {
             x += s[idx];
