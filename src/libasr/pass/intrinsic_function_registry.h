@@ -612,9 +612,10 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
     ASR::expr_t* compile_time_value = eval_list_reverse(al, loc, arg_values);
-    return ASR::make_IntrinsicFunction_t(al, loc,
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
-            args.p, args.size(), 0, nullptr, compile_time_value);
+            args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 
 } // namespace ListReverse
