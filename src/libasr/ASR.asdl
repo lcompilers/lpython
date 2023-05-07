@@ -215,6 +215,7 @@ stmt
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)
     | DictInsert(expr a, expr key, expr value)
+    | Expr(expr expression)
 
 
 expr

@@ -1887,6 +1887,11 @@ public:
                              dict_type->m_value_type, name2memidx);
     }
 
+    void visit_Expr(const ASR::Expr_t& x) {
+        // std::cout << "inside visit Expr" << std::endl;
+        this->visit_expr_wrapper(x.m_expression, false);
+    }
+
     void visit_ListRemove(const ASR::ListRemove_t& x) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
