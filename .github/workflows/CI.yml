@@ -225,6 +225,8 @@ jobs:
       - name: PIP install required packages
         shell: bash -l {0}
         run: |
+            # Package lpynn has lpython_emulation as dependency
+            # Hence, it should by default install lpython_emulation
             python -m pip install lpynn numpy
 
       - name: PIP show installed packages
@@ -235,7 +237,6 @@ jobs:
       - name: Test PIP Packages with Python
         shell: bash -l {0}
         run: |
-            export PYTHONPATH=./src/runtime/lpython
             python integration_tests/test_pip_import_01.py
 
       - name: Test PIP Packages with LPython
