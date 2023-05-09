@@ -300,7 +300,10 @@ class CTypes:
         if "LPYTHON_PY_MOD_NAME" in os.environ:
             crtlib = get_crtlib_path()
             self.library = ctypes.CDLL(crtlib)
-            self.cf = self.library[self.name]
+            try:
+                self.cf = self.library[self.name]
+            except AttributeError:
+                self.cf = CTypes.emulations[self.name]
         else:
             self.cf = CTypes.emulations[self.name]
         argtypes = []
