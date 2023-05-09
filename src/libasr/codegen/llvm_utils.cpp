@@ -1962,6 +1962,21 @@ namespace LCompilers {
                 }
                 return tuple_hash;
             }
+            case ASR::ttypeType::Logical: {
+                llvm::AllocaInst *hash_value = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+
+                llvm::Value* is_key_one = builder->CreateICmpEQ(key,
+                    llvm::ConstantInt::get(context, llvm::APInt(1, 1)));
+                
+                llvm_utils->create_if_else(is_key_one, [&]() {
+                    LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 1)), hash_value);
+                }, [=]() {
+                    LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), hash_value);
+                });
+                return hash_value;
+            }
             default: {
                 throw LCompilersException("Hashing " + ASRUtils::type_to_str_python(key_asr_type) +
                                           " isn't implemented yet.");
