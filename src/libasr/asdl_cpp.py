@@ -2458,10 +2458,15 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
                 LCOMPILERS_ASSERT(e->m_external);
                 LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
-            } else if (s->type == ASR::symbolType::Function) {
-                return ASR::down_cast<ASR::Function_t>(s)->m_function_signature;
             }
-            return ASR::down_cast<ASR::Variable_t>(s)->m_type;
+            if (s->type == ASR::symbolType::Function) {
+                return ASR::down_cast<ASR::Function_t>(s)->m_function_signature;
+            } else if( s->type == ASR::symbolType::Variable ) {
+                return ASR::down_cast<ASR::Variable_t>(s)->m_type;
+            } else {
+                LCOMPILERS_ASSERT_MSG(false, std::to_string(s->type));
+            }
+            return nullptr;
         }""" \
                     % (name, name), 2, new_line=False)
         elif name == "OverloadedBinOp":
