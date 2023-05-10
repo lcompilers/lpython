@@ -705,6 +705,24 @@ PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
             file.write(template)
 
         # ----------------------------------------------------------------------
+        # Generate the Shared library
         # TODO: Use LLVM instead of C backend
         r = os.system("lpython --show-c --disable-main a.py > a.h")
         assert r == 0, "Failed to create C file"
+        gcc_flags = ""
+        if platform.system() == "Linux":
+            gcc_flags = " -shared -fPIC "
+        elif platform.system() == "Darwin":
+            gcc_flags = " -bundle -flat_namespace -undefined suppress "
+        else:
+            raise NotImplementedError("Platform not implemented")
+        python_path = "-I" + get_python_inc() + " "
+        numpy_path = "-I" + get_include()
+        rt_path_01 = "-I" + get_rtlib_dir() + "/../libasr/runtime "
+        rt_path_02 = "-L" + get_rtlib_dir() + " -Wl,-rpath " \
+            + get_rtlib_dir() + " -llpython_runtime "
+        python_lib = "-L" "$CONDA_PREFIX/lib/ -lpython3.10 -lm"
+        r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
+            " a.c -o lpython_jit_module.so " + rt_path_01 + rt_path_02 + python_lib)
+        assert r == 0, "Failed to create the shared library"
+
