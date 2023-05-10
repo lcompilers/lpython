@@ -3574,9 +3574,13 @@ public:
                         is_inline = true;
                     } else if (name == "static") {
                         is_static = true;
+                    } else if (name == "jit") {
+                        throw SemanticError("`@lpython.jit` decorator must be "
+                            "run from CPython, not compiled using LPython",
+                            dec->base.loc);
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
-                            x.base.base.loc);
+                            dec->base.loc);
                     }
                 } else if (AST::is_a<AST::Call_t>(*dec)) {
                     AST::Call_t *call_d = AST::down_cast<AST::Call_t>(dec);
