@@ -733,6 +733,21 @@ public:
                 }
                 return ASRUtils::TYPE(ASR::make_Integer_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
             }
+            case ASR::ttypeType::UnsignedInteger: {
+                ASR::UnsignedInteger_t *t = ASR::down_cast<ASR::UnsignedInteger_t>(return_type);
+                fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
+                fix_exprs_ttype_t(func_calls, args, f);
+                Vec<ASR::dimension_t> new_dims;
+                new_dims.reserve(al, t->n_dims);
+                for( size_t i = 0; i < func_calls.size(); i += 2 ) {
+                    ASR::dimension_t new_dim;
+                    new_dim.loc = func_calls[i]->base.loc;
+                    new_dim.m_start = func_calls[i];
+                    new_dim.m_length = func_calls[i + 1];
+                    new_dims.push_back(al, new_dim);
+                }
+                return ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
+            }
             case ASR::ttypeType::Real: {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(return_type);
                 fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);

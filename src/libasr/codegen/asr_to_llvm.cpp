@@ -477,6 +477,10 @@ public:
                     el_type = getIntType(a_kind);
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    el_type = getIntType(a_kind);
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     el_type = getFPType(a_kind);
                     break;

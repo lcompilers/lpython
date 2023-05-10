@@ -618,6 +618,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
     }
     if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
         // OK
+    } else if (ASR::is_a<ASR::UnsignedIntegerConstant_t>(*a_value)) {
+        // OK
     } else if (ASR::is_a<ASR::RealConstant_t>(*a_value)) {
         // OK
     } else if (ASR::is_a<ASR::ComplexConstant_t>(*a_value)) {
@@ -1674,6 +1676,12 @@ inline bool ttype_set_dimensions(ASR::ttype_t *x,
             Integer_type->m_dims = m_dims;
             return true;
         }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t* Integer_type = ASR::down_cast<ASR::UnsignedInteger_t>(x);
+            Integer_type->n_dims = n_dims;
+            Integer_type->m_dims = m_dims;
+            return true;
+        }
         case ASR::ttypeType::Real: {
             ASR::Real_t* Real_type = ASR::down_cast<ASR::Real_t>(x);
             Real_type->n_dims = n_dims;
@@ -1737,6 +1745,7 @@ static inline bool is_aggregate_type(ASR::ttype_t* asr_type) {
     }
     return ASRUtils::is_array(asr_type) ||
             !(ASR::is_a<ASR::Integer_t>(*asr_type) ||
+              ASR::is_a<ASR::UnsignedInteger_t>(*asr_type) ||
               ASR::is_a<ASR::Real_t>(*asr_type) ||
               ASR::is_a<ASR::Complex_t>(*asr_type) ||
               ASR::is_a<ASR::Logical_t>(*asr_type));
@@ -1750,6 +1759,13 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
             size_t dimsn = dims ? dims->n : tnew->n_dims;
             return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, dimsp, dimsn));
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t* tnew = ASR::down_cast<ASR::UnsignedInteger_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Real: {
@@ -1839,6 +1855,11 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
         case ASR::ttypeType::Integer: {
             ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
             return ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t* tnew = ASR::down_cast<ASR::UnsignedInteger_t>(t);
+            return ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Real: {
