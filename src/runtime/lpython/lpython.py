@@ -1,9 +1,11 @@
-from inspect import getfullargspec, getcallargs, isclass
+from inspect import getfullargspec, getcallargs, isclass, getsource
 import os
 import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
 from goto import with_goto
+from numpy import get_include
+from distutils.sysconfig import get_python_inc
 
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
@@ -726,3 +728,8 @@ PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
             " a.c -o lpython_jit_module.so " + rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
 
+    def __call__(self, *args, **kwargs):
+        import sys; sys.path.append('.')
+        # import the symbol from the shared library
+        function = getattr(__import__("lpython_jit_module"), self.fn_name)
+        return function(*args, **kwargs)
