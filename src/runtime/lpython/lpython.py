@@ -514,3 +514,24 @@ def ccallable(f):
 
 def ccallback(f):
     return f
+
+class jit:
+    def __init__(self, function):
+        self.fn_name = function.__name__
+        # Get the source code of the function
+        source_code = getsource(function)
+        source_code = source_code[source_code.find('\n'):]
+
+        # TODO: Create a filename based on the function name
+        # filename = function.__name__ + ".py"
+
+        # Open the file for writing
+        with open("a.py", "w") as file:
+            # Write the Python source code to the file
+            file.write("@ccallable")
+            file.write(source_code)
+
+        # ----------------------------------------------------------------------
+        # TODO: Use LLVM instead of C backend
+        r = os.system("lpython --show-c --disable-main a.py > a.h")
+        assert r == 0, "Failed to create C file"
