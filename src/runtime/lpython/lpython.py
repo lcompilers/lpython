@@ -6,7 +6,7 @@ from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_datacla
 from goto import with_goto
 
 # TODO: this does not seem to restrict other imports
-__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
+__slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable"]
@@ -18,6 +18,10 @@ type_to_convert_func = {
     "i16": int,
     "i32": int,
     "i64": int,
+    "u8": lambda x: x,
+    "u16": lambda x: x,
+    "u32": lambda x: x,
+    "u64": lambda x: x,
     "f32": float,
     "f64": float,
     "c32": complex,
@@ -65,6 +69,10 @@ i8 = Type("i8")
 i16 = Type("i16")
 i32 = Type("i32")
 i64 = Type("i64")
+u8 = Type("u8")
+u16 = Type("u16")
+u32 = Type("u32")
+u64 = Type("u64")
 f32 = Type("f32")
 f64 = Type("f64")
 c32 = Type("c32")

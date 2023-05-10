@@ -58,8 +58,10 @@ namespace CastingUtil {
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Complex), ASR::cast_kindType::IntegerToComplex},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Real), ASR::cast_kindType::IntegerToReal},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Logical), ASR::cast_kindType::IntegerToLogical},
+        {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::UnsignedInteger), ASR::cast_kindType::IntegerToUnsignedInteger},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Real), ASR::cast_kindType::LogicalToReal},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Integer), ASR::cast_kindType::LogicalToInteger},
+        {std::make_pair(ASR::ttypeType::UnsignedInteger, ASR::ttypeType::Integer), ASR::cast_kindType::UnsignedIntegerToInteger},
     };
 
     // Data structure which contains casting rules for equal intrinsic
@@ -906,6 +908,18 @@ public:
                 4, dims.p, dims.size()));
         } else if (var_annotation == "i64") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "u8") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                1, dims.p, dims.size()));
+        } else if (var_annotation == "u16") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                2, dims.p, dims.size()));
+        } else if (var_annotation == "u32") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "u64") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
                 8, dims.p, dims.size()));
         } else if (var_annotation == "f32") {
             type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
@@ -1916,6 +1930,12 @@ public:
             if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
                 dest_type = ASRUtils::get_contained_type(dest_type);
             }
+        } else if(ASRUtils::is_unsigned_integer(*left_type)
+                 && ASRUtils::is_unsigned_integer(*right_type)) {
+            dest_type = ASRUtils::expr_type(left);
+            if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
+                dest_type = ASRUtils::get_contained_type(dest_type);
+            }
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
@@ -2087,6 +2107,60 @@ public:
             }
 
             tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
+
+        } else if (ASRUtils::is_unsigned_integer(*dest_type)) {
+            ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
+            int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
+            int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
+            if( !(n_dims_left == 0 && n_dims_right == 0) ) {
+                if( n_dims_left != 0 && n_dims_right != 0 ) {
+                    LCOMPILERS_ASSERT(n_dims_left == n_dims_right);
+                    dest_type = left_type;
+                } else {
+                    if( n_dims_left > 0 ) {
+                        dest_type = left_type;
+                    } else {
+                        dest_type = right_type;
+                    }
+                }
+            }
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                int64_t left_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t right_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                                    ASRUtils::expr_value(right))->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
+                    case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
+                    case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
+                    case (ASR::binopType::BitLShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value << right_value;
+                        break;
+                    }
+                    case (ASR::binopType::BitRShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value >> right_value;
+                        break;
+                    }
+                    default: { LCOMPILERS_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
+                    al, loc, result, dest_type));
+            }
+
+            tmp = ASR::make_UnsignedIntegerBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_real(*dest_type)) {
 
@@ -5464,7 +5538,6 @@ public:
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
         if (ASRUtils::is_integer(*dest_type)) {
-
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = -1;
                 ASRUtils::extract_value(ASRUtils::expr_value(left), left_value);
@@ -5486,9 +5559,30 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             }
-
             tmp = ASR::make_IntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
-
+        } else if (ASRUtils::is_unsigned_integer(*dest_type)) {
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                int64_t left_value = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(left), left_value);
+                int64_t right_value = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(right), right_value);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
+                    case (ASR::cmpopType::Gt): { result = left_value > right_value; break; }
+                    case (ASR::cmpopType::GtE): { result = left_value >= right_value; break; }
+                    case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
+                    case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
+                    case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                    al, x.base.base.loc, result, type));
+            }
+            tmp = ASR::make_UnsignedIntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -6742,9 +6836,20 @@ public:
                 tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
                                              arg_type, size_type, nullptr);
                 return ;
-            } else if( call_name == "f64" || call_name == "f32" ||
-                call_name == "i64" || call_name == "i32" || call_name == "c32" ||
-                call_name == "c64" || call_name == "i8" || call_name == "i16" ) {
+            } else if(
+                        call_name == "f64" ||
+                        call_name == "f32" ||
+                        call_name == "i64" ||
+                        call_name == "i32" ||
+                        call_name == "i16" ||
+                        call_name == "i8"  ||
+                        call_name == "u64" ||
+                        call_name == "u32" ||
+                        call_name == "u16" ||
+                        call_name == "u8"  ||
+                        call_name == "c32" ||
+                        call_name == "c64"
+                    ) {
                 parse_args()
                 ASR::ttype_t* target_type = nullptr;
                 if( call_name == "i8" ) {
@@ -6755,6 +6860,14 @@ public:
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 } else if( call_name == "i64" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
+                } else if( call_name == "u8" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 1, nullptr, 0));
+                } else if( call_name == "u16" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 2, nullptr, 0));
+                } else if( call_name == "u32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 4, nullptr, 0));
+                } else if( call_name == "u64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 8, nullptr, 0));
                 } else if( call_name == "f32" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
                 } else if( call_name == "f64" ) {

@@ -425,6 +425,10 @@ public:
         handle_BinOp(x);
     }
 
+    void visit_UnsignedIntegerBinOp(const ASR::UnsignedIntegerBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
     void visit_RealBinOp(const ASR::RealBinOp_t& x) {
         handle_BinOp(x);
     }

@@ -842,6 +842,11 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
             value = (T) const_int->m_n;
             break;
         }
+        case ASR::exprType::UnsignedIntegerConstant: {
+            ASR::UnsignedIntegerConstant_t* const_int = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(value_expr);
+            value = (T) const_int->m_n;
+            break;
+        }
         case ASR::exprType::RealConstant: {
             ASR::RealConstant_t* const_real = ASR::down_cast<ASR::RealConstant_t>(value_expr);
             value = (T) const_real->m_r;
@@ -917,6 +922,16 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         case ASR::ttypeType::Integer: {
             ASR::Integer_t *integer = ASR::down_cast<ASR::Integer_t>(t);
             res = "i" + std::to_string(integer->m_kind * 8);
+            if( encode_dimensions_ ) {
+                encode_dimensions(integer->n_dims, res, use_underscore_sep);
+                return res;
+            }
+            is_dimensional = integer->n_dims > 0;
+            break;
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t *integer = ASR::down_cast<ASR::UnsignedInteger_t>(t);
+            res = "u" + std::to_string(integer->m_kind * 8);
             if( encode_dimensions_ ) {
                 encode_dimensions(integer->n_dims, res, use_underscore_sep);
                 return res;
@@ -1090,7 +1105,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
 {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
-            ASR::Integer_t *i = (ASR::Integer_t*)t;
+            ASR::Integer_t *i = ASR::down_cast<ASR::Integer_t>(t);
             std::string res = "";
             switch (i->m_kind) {
                 case 1: { res = "i8"; break; }
@@ -1098,6 +1113,21 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
                 case 4: { res = "i32"; break; }
                 case 8: { res = "i64"; break; }
                 default: { throw LCompilersException("Integer kind not supported"); }
+            }
+            if (i->n_dims == 1 && for_error_message) {
+                res = type_python_1dim_helper(res, i->m_dims);
+            }
+            return res;
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t *i = ASR::down_cast<ASR::UnsignedInteger_t>(t);
+            std::string res = "";
+            switch (i->m_kind) {
+                case 1: { res = "u8"; break; }
+                case 2: { res = "u16"; break; }
+                case 4: { res = "u32"; break; }
+                case 8: { res = "u64"; break; }
+                default: { throw LCompilersException("UnsignedInteger kind not supported"); }
             }
             if (i->n_dims == 1 && for_error_message) {
                 res = type_python_1dim_helper(res, i->m_dims);
@@ -1374,6 +1404,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
         case ASR::ttypeType::Integer : {
             return ASR::down_cast<ASR::Integer_t>(type)->m_kind;
         }
+        case ASR::ttypeType::UnsignedInteger : {
+            return ASR::down_cast<ASR::UnsignedInteger_t>(type)->m_kind;
+        }
         case ASR::ttypeType::Real : {
             return ASR::down_cast<ASR::Real_t>(type)->m_kind;
         }
@@ -1404,6 +1437,10 @@ static inline bool is_pointer(ASR::ttype_t *x) {
 
 static inline bool is_integer(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Integer_t>(*type_get_past_pointer(&x));
+}
+
+static inline bool is_unsigned_integer(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::UnsignedInteger_t>(*type_get_past_pointer(&x));
 }
 
 static inline bool is_real(ASR::ttype_t &x) {
@@ -1481,6 +1518,12 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
     switch (x->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t* Integer_type = ASR::down_cast<ASR::Integer_t>(x);
+            n_dims = Integer_type->n_dims;
+            m_dims = Integer_type->m_dims;
+            break;
+        }
+        case ASR::ttypeType::UnsignedInteger: {
+            ASR::UnsignedInteger_t* Integer_type = ASR::down_cast<ASR::UnsignedInteger_t>(x);
             n_dims = Integer_type->n_dims;
             m_dims = Integer_type->m_dims;
             break;
@@ -2109,6 +2152,22 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
             case (ASR::ttypeType::Integer) : {
                 ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(a);
                 ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(b);
+                if (a2->m_kind == b2->m_kind) {
+                    if( check_for_dimensions ) {
+                        return ASRUtils::dimensions_equal(
+                                a2->m_dims, a2->n_dims,
+                                b2->m_dims, b2->n_dims);
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return false;
+                }
+                break;
+            }
+            case (ASR::ttypeType::UnsignedInteger) : {
+                ASR::UnsignedInteger_t *a2 = ASR::down_cast<ASR::UnsignedInteger_t>(a);
+                ASR::UnsignedInteger_t *b2 = ASR::down_cast<ASR::UnsignedInteger_t>(b);
                 if (a2->m_kind == b2->m_kind) {
                     if( check_for_dimensions ) {
                         return ASRUtils::dimensions_equal(
