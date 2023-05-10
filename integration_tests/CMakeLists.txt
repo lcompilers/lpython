@@ -311,7 +311,7 @@ RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
 RUN(NAME const_04            LABELS cpython llvm c)
 RUN(NAME expr_01             LABELS cpython llvm c wasm wasm_x64)
-RUN(NAME expr_01u            LABELS cpython llvm)
+RUN(NAME expr_01u            LABELS cpython llvm c)
 RUN(NAME expr_02             LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME expr_03             LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME expr_04             LABELS cpython llvm c wasm)
