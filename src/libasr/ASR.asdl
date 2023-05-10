@@ -237,7 +237,7 @@ expr
     | IntegerUnaryMinus(expr arg, ttype type, expr? value)
     | IntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | IntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
-    | UnsignedIntegerConstant(float re, float im, ttype type)
+    | UnsignedIntegerConstant(int n, ttype type)
     | UnsignedIntegerUnaryMinus(expr arg, ttype type, expr? value)
     | UnsignedIntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | UnsignedIntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
