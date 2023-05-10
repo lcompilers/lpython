@@ -329,6 +329,7 @@ RUN(NAME expr_15             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c)
 RUN(NAME expr_02u            LABELS cpython llvm c)
+RUN(NAME expr_03u            LABELS cpython llvm c)
 
 RUN(NAME loop_01             LABELS cpython llvm c)
 RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86 wasm_x64)

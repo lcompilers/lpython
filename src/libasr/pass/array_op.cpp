@@ -310,6 +310,11 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                             al, loc, left, (ASR::binopType)x->m_op,
                             right, x->m_type, nullptr));
 
+            case ASR::exprType::UnsignedIntegerBinOp:
+                return ASRUtils::EXPR(ASR::make_UnsignedIntegerBinOp_t(
+                            al, loc, left, (ASR::binopType)x->m_op,
+                            right, x->m_type, nullptr));
+
             case ASR::exprType::RealBinOp:
                 return ASRUtils::EXPR(ASR::make_RealBinOp_t(
                             al, loc, left, (ASR::binopType)x->m_op,
@@ -327,6 +332,11 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
             case ASR::exprType::IntegerCompare:
                 return ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+                            al, loc, left, (ASR::cmpopType)x->m_op,
+                            right, x->m_type, nullptr));
+
+            case ASR::exprType::UnsignedIntegerCompare:
+                return ASRUtils::EXPR(ASR::make_UnsignedIntegerCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
                             right, x->m_type, nullptr));
 
@@ -355,7 +365,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             case ASR::exprType::RealCompare:
             case ASR::exprType::ComplexCompare:
             case ASR::exprType::LogicalCompare:
-            case ASR::exprType::IntegerCompare: {
+            case ASR::exprType::IntegerCompare:
+            case ASR::exprType::UnsignedIntegerCompare: {
                 ASR::ttype_t* arr_expr_type = ASRUtils::expr_type(arr_expr);
                 ASR::dimension_t* m_dims;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(arr_expr_type, m_dims);
@@ -647,6 +658,10 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         replace_ArrayOpCommon(x, "_integer_bin_op_res");
     }
 
+    void replace_UnsignedIntegerBinOp(ASR::UnsignedIntegerBinOp_t* x) {
+        replace_ArrayOpCommon(x, "_unsigned_integer_bin_op_res");
+    }
+
     void replace_ComplexBinOp(ASR::ComplexBinOp_t* x) {
         replace_ArrayOpCommon<ASR::ComplexBinOp_t>(x, "_complex_bin_op_res");
     }
@@ -657,6 +672,10 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
     void replace_IntegerCompare(ASR::IntegerCompare_t* x) {
         replace_ArrayOpCommon<ASR::IntegerCompare_t>(x, "_integer_comp_op_res");
+    }
+
+    void replace_UnsignedIntegerCompare(ASR::UnsignedIntegerCompare_t* x) {
+        replace_ArrayOpCommon<ASR::UnsignedIntegerCompare_t>(x, "_unsigned_integer_comp_op_res");
     }
 
     void replace_RealCompare(ASR::RealCompare_t* x) {
