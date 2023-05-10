@@ -24,8 +24,25 @@ def ff3():
     x = -i16(one << i16(13))
     assert i32(x.bit_length()) == 14
 
+def ff4():
+    print((-100).bit_length())
+    print((-4).bit_length())
+
+    assert (-100).bit_length() == 7
+    assert (-4).bit_length() == 3
+
+def ff5():
+    a: i32
+    a = 100
+    print((-a).bit_length())
+    print((-(-(-(-a)))).bit_length())
+
+    assert (-a).bit_length() == 7
+    assert (-(-(-(-a)))).bit_length() == 7
 
 ff()
 ff1()
 ff2()
 ff3()
+ff4()
+ff5()

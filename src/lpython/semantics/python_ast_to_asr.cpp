@@ -6531,6 +6531,17 @@ public:
                 }
                 tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;
+            } else if (AST::is_a<AST::UnaryOp_t>(*at->m_value)) {
+                AST::UnaryOp_t* uop = AST::down_cast<AST::UnaryOp_t>(at->m_value);
+                visit_UnaryOp(*uop);
+                Vec<ASR::expr_t*> eles;
+                eles.reserve(al, x.n_args);
+                for (size_t i=0; i<x.n_args; i++) {
+                    eles.push_back(al, args[i].m_value);
+                }
+                ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
+                handle_attribute(expr, at->m_attr, x.base.base.loc, eles);
+                return;
             } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
                 if (std::string(at->m_attr) == std::string("bit_length")) {
                     //bit_length() attribute:

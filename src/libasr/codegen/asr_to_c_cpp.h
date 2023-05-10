@@ -1604,7 +1604,7 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
-        if (expr_precedence <= last_expr_precedence) {
+        if (expr_precedence < last_expr_precedence) {
             src = "-" + src;
         } else {
             src = "-(" + src + ")";
