@@ -46,6 +46,18 @@ bool present(char** const v, size_t n, const std::string name) {
     return false;
 }
 
+std::string pf2s(Platform p) {
+    switch (p) {
+        case (Platform::Linux) : return "Linux";
+        case (Platform::macOS_Intel) : return "macOS Intel";
+        case (Platform::macOS_ARM) : return "macOS ARM";
+        case (Platform::Windows) : return "Windows";
+        case (Platform::FreeBSD) : return "FreeBSD";
+        case (Platform::OpenBSD) : return "OpenBSD";
+    }
+    return "Unsupported Platform";
+}
+
 Platform get_platform()
 {
 #if defined(_WIN32)

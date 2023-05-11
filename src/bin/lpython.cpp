@@ -76,6 +76,29 @@ std::string get_kokkos_dir()
     throw LCompilers::LCompilersException("LFORTRAN_KOKKOS_DIR is not defined");
 }
 
+int visualize_json(std::string &astr_data_json, LCompilers::Platform os) {
+    using namespace LCompilers;
+    std::string file_loc = LCompilers::LPython::generate_visualize_html(astr_data_json);
+    std::string open_cmd = "";
+    switch (os) {
+        case Linux: open_cmd = "xdg-open"; break;
+        case Windows: open_cmd = "start"; break;
+        case macOS_Intel:
+        case macOS_ARM: open_cmd = "open"; break;
+        default:
+            std::cerr << "Unsupported Platform " << pf2s(os) <<std::endl;
+            std::cerr << "Please open file " << file_loc << " manually" <<std::endl;
+            return 11;
+    }
+    std::string cmd = open_cmd + " " + file_loc;
+    int err = system(cmd.data());
+    if (err) {
+        std::cout << "The command '" + cmd + "' failed." << std::endl;
+        return 11;
+    }
+    return 0;
+}
+
 #ifdef HAVE_LFORTRAN_LLVM
 
 #endif
@@ -158,6 +181,18 @@ int emit_ast(const std::string &infile,
             lm.file_ends.push_back(input.size());
         }
          std::cout << LCompilers::LPython::pickle_json(*ast, lm) << std::endl;
+    } else if (compiler_options.visualize) {
+        LCompilers::LocationManager lm;
+        {
+            LCompilers::LocationManager::FileLocations fl;
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            std::string input = LCompilers::read_file(infile);
+            lm.init_simple(input);
+            lm.file_ends.push_back(input.size());
+        }
+        LCompilers::Result<std::string> r = LCompilers::LPython::pickle_json(*ast, lm);
+        return visualize_json(r.result, compiler_options.platform);
     } else {
         std::cout << LCompilers::LPython::pickle_python(*ast,
             compiler_options.use_colors, compiler_options.indent) << std::endl;
@@ -211,6 +246,9 @@ int emit_asr(const std::string &infile,
             compiler_options.use_colors, with_intrinsic_modules) << std::endl;
     } else if (compiler_options.json) {
          std::cout << LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules) << std::endl;
+    } else if (compiler_options.visualize) {
+        std::string astr_data_json = LCompilers::LPython::pickle_json(*asr, lm, with_intrinsic_modules);
+        return visualize_json(astr_data_json, compiler_options.platform);
     } else {
         std::cout << LCompilers::LPython::pickle(*asr, compiler_options.use_colors,
             compiler_options.indent, with_intrinsic_modules) << std::endl;
@@ -1433,6 +1471,7 @@ int main(int argc, char *argv[])
         std::string arg_pass;
         std::string skip_pass;
         bool arg_no_color = false;
+        bool arg_no_indent = false;
         bool show_llvm = false;
         bool show_asm = false;
         bool show_wat = false;
@@ -1496,9 +1535,10 @@ int main(int argc, char *argv[])
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-        app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
+        app.add_flag("--no-indent", arg_no_indent, "Turn off Indented print ASR/AST");
         app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
         app.add_flag("--json", compiler_options.json, "Print ASR/AST Json format");
+        app.add_flag("--visualize", compiler_options.visualize, "Print ASR/AST Visualization");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_option("--skip-pass", skip_pass, "Skip an ASR pass in default pipeline");
         app.add_flag("--disable-main", compiler_options.disable_main, "Do not generate any code for the `main` function");
@@ -1566,16 +1606,7 @@ int main(int argc, char *argv[])
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
             std::cout << "LPython version: " << version << std::endl;
-            std::cout << "Platform: ";
-            switch (compiler_options.platform) {
-                case (LCompilers::Platform::Linux) : std::cout << "Linux"; break;
-                case (LCompilers::Platform::macOS_Intel) : std::cout << "macOS Intel"; break;
-                case (LCompilers::Platform::macOS_ARM) : std::cout << "macOS ARM"; break;
-                case (LCompilers::Platform::Windows) : std::cout << "Windows"; break;
-                case (LCompilers::Platform::FreeBSD) : std::cout << "FreeBSD"; break;
-                case (LCompilers::Platform::OpenBSD) : std::cout << "OpenBSD"; break;
-            }
-            std::cout << std::endl;
+            std::cout << "Platform: " << pf2s(compiler_options.platform) << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM
             std::cout << "Default target: " << LCompilers::LLVMEvaluator::get_default_target_triple() << std::endl;
 #endif
@@ -1603,6 +1634,7 @@ int main(int argc, char *argv[])
         }
 
         compiler_options.use_colors = !arg_no_color;
+        compiler_options.indent = !arg_no_indent;
 
         // if (fmt) {
         //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,

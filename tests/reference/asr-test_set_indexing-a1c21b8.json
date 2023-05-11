@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_set_indexing-a1c21b8",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_set_indexing.py",
+    "infile_hash": "24f02fc93b8ed20f1c9ea7ae862faa087d070ec288577b90b90b3bc5",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_set_indexing-a1c21b8.stderr",
+    "stderr_hash": "fe69096aca9c3be072acac0e28081e5378f30d4ba335176abc76c555",
+    "returncode": 2
+}

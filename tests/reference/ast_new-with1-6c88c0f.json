@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-with1-6c88c0f",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/with1.py",
+    "infile_hash": "76c56f94e39ec49c634bd827a4b1e6c14e8da599466c733c44d55b1e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-with1-6c88c0f.stdout",
+    "stdout_hash": "da9e18ca666189ea27993cfac36f5193654225e29453bd37b5df0a17",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

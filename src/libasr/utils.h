@@ -17,6 +17,7 @@ enum Platform {
     OpenBSD,
 };
 
+std::string pf2s(Platform);
 Platform get_platform();
 
 struct CompilerOptions {
@@ -34,9 +35,10 @@ struct CompilerOptions {
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;
-    bool indent = false;
+    bool indent = true;
     bool json = false;
     bool tree = false;
+    bool visualize = false;
     bool fast = false;
     bool openmp = false;
     bool generate_object_code = false;

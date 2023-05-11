@@ -89,6 +89,7 @@ inst/bin/*
 *_ldd.txt
 *_lines.dat.txt
 *__tmp__generated__.c
+visualize*.html
 a.c
 a.h
 a.py
