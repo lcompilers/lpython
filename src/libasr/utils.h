@@ -35,7 +35,7 @@ struct CompilerOptions {
     bool symtab_only = false;
     bool show_stacktrace = false;
     bool use_colors = true;
-    bool indent = false;
+    bool indent = true;
     bool json = false;
     bool tree = false;
     bool visualize = false;

@@ -1471,6 +1471,7 @@ int main(int argc, char *argv[])
         std::string arg_pass;
         std::string skip_pass;
         bool arg_no_color = false;
+        bool arg_no_indent = false;
         bool show_llvm = false;
         bool show_asm = false;
         bool show_wat = false;
@@ -1534,7 +1535,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
-        app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
+        app.add_flag("--no-indent", arg_no_indent, "Turn off Indented print ASR/AST");
         app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
         app.add_flag("--json", compiler_options.json, "Print ASR/AST Json format");
         app.add_flag("--visualize", compiler_options.visualize, "Print ASR/AST Visualization");
@@ -1633,6 +1634,7 @@ int main(int argc, char *argv[])
         }
 
         compiler_options.use_colors = !arg_no_color;
+        compiler_options.indent = !arg_no_indent;
 
         // if (fmt) {
         //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
