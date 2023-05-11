@@ -5137,7 +5137,13 @@ public:
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::symbol_t *t, const Location& loc) {
-        if (ASRUtils::is_complex(*type)) {
+        if (ASRUtils::is_array(type)) {
+            std::string attr = attr_char;
+            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 0);
+            handle_attribute(se, attr, loc, args);
+        } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             if (attr == "imag") {
                 ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
@@ -6705,7 +6711,7 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) && 
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);

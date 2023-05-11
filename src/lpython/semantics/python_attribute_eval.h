@@ -20,6 +20,7 @@ struct AttributeHandler {
     AttributeHandler() {
         attribute_map = {
             {"int@bit_length", &eval_int_bit_length},
+            {"array@size", &eval_array_size},
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
             {"list@count", &eval_list_count},
@@ -42,6 +43,8 @@ struct AttributeHandler {
             return "set";
         } else if (ASR::is_a<ASR::Dict_t>(*t)) {
             return "dict";
+        } else if (ASRUtils::is_array(t)) {
+            return "array";
         } else if (ASR::is_a<ASR::Integer_t>(*t)) {
             return "int";
         }
@@ -55,7 +58,7 @@ struct AttributeHandler {
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
         }
-        std::string key = get_type_name(type) + "@" + attr_name;
+        std::string key = class_name + "@" + attr_name;
         auto search = attribute_map.find(key);
         if (search != attribute_map.end()) {
             attribute_eval_callback cb = search->second;
@@ -75,6 +78,15 @@ struct AttributeHandler {
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         int_kind, nullptr, 0));
         return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_array_size(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (args.size() != 0) {
+            throw SemanticError("array.size() takes no arguments", loc);
+        }
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        return ASR::make_ArraySize_t(al, loc, s, nullptr, int_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
