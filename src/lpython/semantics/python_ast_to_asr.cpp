@@ -6749,13 +6749,16 @@ public:
                                         std::to_string(args.size()) + " arguments instead.",
                                         x.base.base.loc);
                 }
+                const Location &loc = x.base.base.loc;
                 ASR::expr_t *var = args[0].m_value;
                 ASR::expr_t *dim = nullptr;
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 if (args.size() == 2) {
-                    dim = args[1].m_value;
+                    ASR::expr_t* const_one = ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type));
+                    dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
+                        args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
                 }
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-                tmp = ASR::make_ArraySize_t(al, x.base.base.loc, var, dim, int_type, nullptr);
+                tmp = ASR::make_ArraySize_t(al, loc, var, dim, int_type, nullptr);
                 return;
             } else if (call_name == "empty") {
                 // TODO: check that the `empty` arguments are compatible
