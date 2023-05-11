@@ -179,7 +179,12 @@
                                     )
                                     (=
                                         (Var 3 nsize)
-                                        (IntegerConstant 1234 (Integer 4 []))
+                                        (ArraySize
+                                            (Var 3 a)
+                                            ()
+                                            (Integer 4 [])
+                                            ()
+                                        )
                                         ()
                                     )
                                     (DoConcurrentLoop
@@ -394,7 +399,12 @@
                                     (Var 2 c)]
                                     [(=
                                         (Var 2 N)
-                                        (IntegerConstant 1234 (Integer 4 []))
+                                        (ArraySize
+                                            (Var 2 a)
+                                            ()
+                                            (Integer 4 [])
+                                            ()
+                                        )
                                         ()
                                     )
                                     (DoConcurrentLoop

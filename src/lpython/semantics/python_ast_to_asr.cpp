@@ -5137,7 +5137,13 @@ public:
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::symbol_t *t, const Location& loc) {
-        if (ASRUtils::is_complex(*type)) {
+        if (ASRUtils::is_array(type)) {
+            std::string attr = attr_char;
+            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 0);
+            handle_attribute(se, attr, loc, args);
+        } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             if (attr == "imag") {
                 ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
@@ -6705,7 +6711,7 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) && 
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
@@ -6737,21 +6743,19 @@ public:
                 // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
-                // TODO: size should be part of ASR. That way
-                // ASR itself does not need a runtime library
-                // a runtime library thus becomes optional --- can either be
-                // implemented using ASR, or the backend can link it at runtime
-                ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                    4, nullptr, 0));
-                /*
-                ASR::symbol_t *a_name = nullptr;
-                throw SemanticError("TODO: add the size() function and look it up",
-                    x.base.base.loc);
-                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, a_name,
-                    nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-                */
-
-                tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, 1234, a_type);
+                parse_args();
+                if( args.size() < 1 || args.size() > 2 ) {
+                    throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
+                }
+                ASR::expr_t *var = args[0].m_value;
+                ASR::expr_t *dim = nullptr;
+                if (args.size() == 2) {
+                    dim = args[1].m_value;
+                }
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+                tmp = ASR::make_ArraySize_t(al, x.base.base.loc, var, dim, int_type, nullptr);
                 return;
             } else if (call_name == "empty") {
                 // TODO: check that the `empty` arguments are compatible
