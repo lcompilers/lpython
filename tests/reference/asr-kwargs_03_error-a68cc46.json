@@ -1,0 +1,13 @@
+{
+    "basename": "asr-kwargs_03_error-a68cc46",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/kwargs_03_error.py",
+    "infile_hash": "1cee111472c1f8b7eea276f308ac7a1fea12438606c658bd0757973c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-kwargs_03_error-a68cc46.stderr",
+    "stderr_hash": "83b858c0d4e17fe2f03b1e47652414c4478d709def5d3fbaa71aad71",
+    "returncode": 2
+}

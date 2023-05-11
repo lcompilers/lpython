@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_append_type_mismatch-030e9c7",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_append_type_mismatch.py",
+    "infile_hash": "d545fce3cd501b0c1bbf3f4a705a68a6f66356e4e6f9806dd0c4c9da",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_append_type_mismatch-030e9c7.stderr",
+    "stderr_hash": "6610c87a3c164e9cc8884eaf66397658c311199814689ebd4793c92a",
+    "returncode": 2
+}

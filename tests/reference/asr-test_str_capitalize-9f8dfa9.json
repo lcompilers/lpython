@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_str_capitalize-9f8dfa9",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_str_capitalize.py",
+    "infile_hash": "692d46b579b69174d3f9bc7091d1b79d6e003fd14bc669a6f93dcb80",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_str_capitalize-9f8dfa9.stderr",
+    "stderr_hash": "7dea3deffeee54e7f479d4c0dbcd7b5aab3b1a28e4a568adfb52cf51",
+    "returncode": 2
+}
