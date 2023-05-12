@@ -570,11 +570,13 @@ class lpython:
         source_code = getsource(function)
         source_code = source_code[source_code.find('\n'):]
 
-        # TODO: Create a filename based on the function name
-        # filename = function.__name__ + ".py"
+        dir_name = "./lpython_decorator_" + self.fn_name
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
+        filename = dir_name + "/" + self.fn_name
 
         # Open the file for writing
-        with open("a.py", "w") as file:
+        with open(filename + ".py", "w") as file:
             # Write the Python source code to the file
             file.write("@ccallable")
             file.write(source_code)
@@ -680,7 +682,7 @@ class lpython:
 #include <numpy/ndarrayobject.h>
 
 // LPython generated C code
-#include "a.h"
+#include "{self.fn_name}.h"
 
 // Define the Python module and method mappings
 static PyObject* define_module(PyObject* self, PyObject* args) {{
@@ -718,13 +720,14 @@ PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
 """
         # ----------------------------------------------------------------------
         # Write the C source code to the file
-        with open("a.c", "w") as file:
+        with open(filename + ".c", "w") as file:
             file.write(template)
 
         # ----------------------------------------------------------------------
         # Generate the Shared library
         # TODO: Use LLVM instead of C backend
-        r = os.system("lpython --show-c --disable-main a.py > a.h")
+        r = os.system("lpython --show-c --disable-main "
+            + filename + ".py > " + filename + ".h")
         assert r == 0, "Failed to create C file"
 
         gcc_flags = ""
@@ -738,14 +741,15 @@ PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
         from numpy import get_include
         from distutils.sysconfig import get_python_inc, get_python_lib
         python_path = "-I" + get_python_inc() + " "
-        numpy_path = "-I" + get_include()
+        numpy_path = "-I" + get_include() + " "
         rt_path_01 = "-I" + get_rtlib_dir() + "/../libasr/runtime "
         rt_path_02 = "-L" + get_rtlib_dir() + " -Wl,-rpath " \
             + get_rtlib_dir() + " -llpython_runtime "
         python_lib = "-L" + get_python_lib() + "/../.. -lpython3.10 -lm"
 
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            " a.c -o lpython_jit_module.so " + rt_path_01 + rt_path_02 + python_lib)
+            filename + ".c -o lpython_jit_module.so " +
+            rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
 
     def __call__(self, *args, **kwargs):
