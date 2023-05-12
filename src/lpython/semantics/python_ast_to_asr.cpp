@@ -3775,6 +3775,22 @@ public:
         return ASR::down_cast<ASR::symbol_t>(tmp);
     }
 
+    char* extract_keyword_val_from_decorator(AST::Call_t* x, std::string keyword) {
+        for (size_t i=0; i < x->n_keywords; i++) {
+            if (std::string(x->m_keywords[i].m_arg) == keyword) {
+                if (AST::is_a<AST::ConstantStr_t>(*x->m_keywords[i].m_value)) {
+                    std::string module_name = AST::down_cast<AST::ConstantStr_t>(
+                                x->m_keywords[i].m_value)->m_value;
+                    return s2c(al, module_name);
+                } else {
+                    throw SemanticError("module should be constant string in ccall",
+                        x->base.base.loc);
+                }
+            }
+        }
+        return nullptr;
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
@@ -3801,6 +3817,9 @@ public:
                         current_procedure_interface = true;
                     } else if (name == "ccallback" || name == "ccallable") {
                         current_procedure_abi_type = ASR::abiType::BindC;
+                    } else if (name == "pythoncall") {
+                        current_procedure_abi_type = ASR::abiType::BindPython;
+                        current_procedure_interface = true;
                     } else if (name == "overload") {
                         overload = true;
                     } else if (name == "interface") {
@@ -3825,23 +3844,14 @@ public:
                     AST::Call_t *call_d = AST::down_cast<AST::Call_t>(dec);
                     if (AST::is_a<AST::Name_t>(*call_d->m_func)) {
                         std::string name = AST::down_cast<AST::Name_t>(call_d->m_func)->m_id;
-                        if (name == "ccall" || "ccallable") {
+                        if (name == "ccall" || name == "ccallable") {
                             current_procedure_abi_type = ASR::abiType::BindC;
-                            if (name == "ccall") current_procedure_interface = true;
-                            if (call_d->n_keywords > 0) {
-                                for (size_t i=0; i < call_d->n_keywords; i++) {
-                                    if (std::string(call_d->m_keywords[i].m_arg) == "header") {
-                                        if (AST::is_a<AST::ConstantStr_t>(*call_d->m_keywords[i].m_value)) {
-                                            std::string header_name = AST::down_cast<AST::ConstantStr_t>(
-                                                        call_d->m_keywords[i].m_value)->m_value;
-                                            module_file = s2c(al, header_name);
-                                        } else {
-                                            throw SemanticError("header should be constant string in ccall/ccallable",
-                                                x.base.base.loc);
-                                        }
-                                    }
-                                }
-                            }
+                            current_procedure_interface = (name == "ccall");
+                            module_file = extract_keyword_val_from_decorator(call_d, "header");
+                        } else if (name == "pythoncall") {
+                            current_procedure_abi_type = ASR::abiType::BindPython;
+                            current_procedure_interface = true;
+                            module_file = extract_keyword_val_from_decorator(call_d, "module");
                         } else {
                             throw SemanticError("Unsupported Decorator type",
                                     x.base.base.loc);
@@ -3969,8 +3979,7 @@ public:
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
-        if (current_procedure_abi_type == ASR::abiType::BindC &&
-                current_procedure_interface) {
+        if (current_procedure_interface) {
             deftype = ASR::deftypeType::Interface;
         }
         if (x.m_returns && !AST::is_a<AST::ConstantNone_t>(*x.m_returns)) {

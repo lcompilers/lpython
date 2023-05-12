@@ -137,6 +137,12 @@ presence = Required | Optional
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
 
+-- abi=BindPython: the symbol's implementation is
+-- stored in text format in the user source code file.
+-- The symbol is executed using the CPython interpreter.
+-- LPython manages the conversion of arguments to be passed to such symbols
+-- and also converts the return values from such symbols.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -153,6 +159,7 @@ abi                   -- External     ABI
     | LFortranModule  --   Yes        LFortran
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
+    | BindPython      --   Yes        Python
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 
