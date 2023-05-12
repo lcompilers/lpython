@@ -700,13 +700,13 @@ static PyMethodDef module_methods[] = {{
 // Define the module initialization function
 static struct PyModuleDef module_def = {{
     PyModuleDef_HEAD_INIT,
-    "lpython_jit_module",
+    "lpython_module_{self.fn_name}",
     "Shared library to use LPython generated functions",
     -1,
     module_methods
 }};
 
-PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
+PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
     PyObject* module;
 
     // Create the module object
@@ -748,12 +748,13 @@ PyMODINIT_FUNC PyInit_lpython_jit_module(void) {{
         python_lib = "-L" + get_python_lib() + "/../.. -lpython3.10 -lm"
 
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            filename + ".c -o lpython_jit_module.so " +
+            filename + ".c -o lpython_module_" + self.fn_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
 
     def __call__(self, *args, **kwargs):
         import sys; sys.path.append('.')
         # import the symbol from the shared library
-        function = getattr(__import__("lpython_jit_module"), self.fn_name)
+        function = getattr(__import__("lpython_module_" + self.fn_name),
+            self.fn_name)
         return function(*args, **kwargs)
