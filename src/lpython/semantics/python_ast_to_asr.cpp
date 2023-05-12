@@ -467,6 +467,20 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(est);
+    } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
+        ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, et->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)et,
+            m->m_name, nullptr, 0, et->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
     } else if (ASR::is_a<ASR::Variable_t>(*t)) {
         ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
         // `mv` is the Variable in a module. Now we construct
@@ -5302,12 +5316,12 @@ public:
                 return ;
             }
 
-            ASR::symbol_t *t = current_scope->resolve_symbol(value);
-
-            if (!t) {
+            ASR::symbol_t *org_sym = current_scope->resolve_symbol(value);
+            if (!org_sym) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
                     x.base.base.loc);
             }
+            ASR::symbol_t *t = ASRUtils::symbol_get_past_external(org_sym);
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
                 visit_AttributeUtil(var->m_type, x.m_attr, t, x.base.base.loc);
@@ -5320,7 +5334,7 @@ public:
                                         x.base.base.loc);
                 }
                 ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
-                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                 ASR::expr_t* enum_member_var = ASRUtils::EXPR(ASR::make_EnumStaticMember_t(al, x.base.base.loc, enum_type_var,
                                                     enum_member, enum_type->m_type,
                                                     ASRUtils::expr_value(enum_member_variable->m_symbolic_value)));
@@ -5338,12 +5352,12 @@ public:
                 }
                 if( ASR::is_a<ASR::Variable_t>(*struct_member) ) {
                     ASR::Variable_t* struct_member_variable = ASR::down_cast<ASR::Variable_t>(struct_member);
-                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                     tmp = ASR::make_StructStaticMember_t(al, x.base.base.loc,
                                                         struct_type_var, struct_member, struct_member_variable->m_type,
                                                         nullptr);
                 } else if( ASR::is_a<ASR::UnionType_t>(*struct_member) ) {
-                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                     ASR::ttype_t* union_type = ASRUtils::TYPE(ASR::make_Union_t(al, x.base.base.loc, struct_member, nullptr, 0));
                     tmp = ASR::make_StructStaticMember_t(al, x.base.base.loc, struct_type_var, struct_member, union_type, nullptr);
                 }
