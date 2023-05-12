@@ -525,7 +525,16 @@ def ccallable(f):
 def ccallback(f):
     return f
 
-class jit:
+class lpython:
+    """
+    The @lpython decorator compiles a given function using LPython.
+
+    The decorator should be used from CPython mode, i.e., when the module is
+    being run using CPython. When possible, it is recommended to use LPython
+    for the main program, and use the @cpython decorator from the LPython mode
+    to access CPython features that are not supported by LPython.
+    """
+
     def __init__(self, function):
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))

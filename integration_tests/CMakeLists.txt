@@ -543,4 +543,4 @@ RUN(NAME intrinsics_01     LABELS cpython llvm) # any
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any
 
 # Jit
-RUN(NAME test_jit_01       LABELS cpython)
+RUN(NAME test_lpython_decorator       LABELS cpython)
