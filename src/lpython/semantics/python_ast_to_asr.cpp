@@ -5900,6 +5900,21 @@ public:
                         throw SemanticError("'" + value + "' is not defined in the scope",
                             x.base.base.loc);
                     }
+                    if (ASR::is_a<ASR::Module_t>(*t)) {
+                        std::string call_name = at->m_attr;
+                        std::string call_name_store = "__" + value + "_" + call_name;
+                        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+                        call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
+                        ASR::symbol_t *st = import_from_module(al, m, current_scope, value,
+                                            call_name, call_name_store, x.base.base.loc);
+                        current_scope->add_symbol(call_name_store, st);
+                        Vec<ASR::call_arg_t> args;
+                        args.reserve(al, c->n_args);
+                        visit_expr_list(c->m_args, c->n_args, args);
+                        tmp = make_call_helper(al, st, current_scope, args,
+                                call_name, x.base.base.loc);
+                        return;
+                    }
                     Vec<ASR::expr_t*> elements;
                     elements.reserve(al, c->n_args);
                     for (size_t i = 0; i < c->n_args; ++i) {
