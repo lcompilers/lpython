@@ -541,7 +541,7 @@ RUN(NAME callback_01       LABELS cpython llvm)
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm) # any
 
-COMPILE(NAME import_order_01     LABELS cpython llvm c) # any
+# lpython decorator
+RUN(NAME lpython_decorator_01    LABELS cpython)
 
-# Jit
-RUN(NAME test_lpython_decorator       LABELS cpython)
+COMPILE(NAME import_order_01     LABELS cpython llvm c) # any
