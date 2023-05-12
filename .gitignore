@@ -90,6 +90,7 @@ inst/bin/*
 *_lines.dat.txt
 *__tmp__generated__.c
 visualize*.html
+lpython_decorator*/
 a.c
 a.h
 a.py

@@ -3603,8 +3603,8 @@ public:
                         is_inline = true;
                     } else if (name == "static") {
                         is_static = true;
-                    } else if (name == "jit") {
-                        throw SemanticError("`@lpython.jit` decorator must be "
+                    } else if (name == "lpython") {
+                        throw SemanticError("`@lpython` decorator must be "
                             "run from CPython, not compiled using LPython",
                             dec->base.loc);
                     } else {
