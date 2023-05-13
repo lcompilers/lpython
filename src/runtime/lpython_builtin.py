@@ -811,18 +811,18 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
     return res
 
 @overload
-def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+def _lpython_str_endswith(s: str, suffix: str) -> bool:
 
     if(len(suffix) > len(s)):
         return False
-    
+
     i : i32
     i = 0
     while(i < len(suffix)):
         if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
             return False
         i += 1
-        
+
     return True
 
 @overload
@@ -839,13 +839,13 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
     ind = _lpython_str_find(s, sep)
     if ind == -1:
         res = (s, "", "")
-    else: 
-        res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
+    else:
+        res = (s[0:ind], sep, s[ind+len(sep): len(s)])
     return res
 
 @overload
 def _lpython_str_islower(s: str) -> bool:
-    is_cased_present: bool 
+    is_cased_present: bool
     is_cased_present = False
     i:str
     for i in s:
@@ -857,7 +857,7 @@ def _lpython_str_islower(s: str) -> bool:
 
 @overload
 def _lpython_str_isupper(s: str) -> bool:
-    is_cased_present: bool 
+    is_cased_present: bool
     is_cased_present = False
     i:str
     for i in s:
