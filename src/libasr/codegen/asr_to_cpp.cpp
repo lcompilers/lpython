@@ -354,6 +354,12 @@ public:
                 } else {
                     sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
                 }
+            } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
+                ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
+                std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+                std::string list_type_c = list_api->get_list_type(t, list_element_type);
+                sub = format_type("", list_type_c, v.m_name,
+                                    false, false);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -381,6 +387,9 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+
+        list_api->set_indentation(indentation_level, indentation_spaces);
+        list_api->set_global_scope(global_scope);
 
         std::string headers =
 R"(#include <iostream>
@@ -468,7 +477,16 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
-        src = headers + array_types_decls + unit_src;
+        if (list_api->get_list_func_decls().size() > 0) {
+            array_types_decls += "\n" + list_api->get_list_func_decls() + "\n";
+        }
+
+        std::string list_funcs_defined = "";
+        if (list_api->get_generated_code().size() > 0) {
+            list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+
+        src = headers + array_types_decls + unit_src + list_funcs_defined;
     }
 
     void visit_Program(const ASR::Program_t &x) {
