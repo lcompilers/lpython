@@ -1,0 +1,5 @@
+semantic error: struct S s must be initialized a value
+ --> tests/errors/structs_02.py:8:5
+  |
+8 |     s: S
+  |     ^^^^ 
