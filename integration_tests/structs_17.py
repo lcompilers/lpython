@@ -6,13 +6,13 @@ class B:
     @dataclass
     class C:
         cz: f32
-    bc: C
+    bc: C = C(f32(0.0))
 
 @dataclass
 class A:
     y: f32
     x: i32
-    b: B
+    b: B = B(0, B.C(f32(0.0)))
 
 
 def f(a: A):

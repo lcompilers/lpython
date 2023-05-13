@@ -8,8 +8,8 @@ class A:
 
 @dataclass
 class B:
-    a: A
     z: i32
+    a: A = A(f32(0.0), 0)
 
 def f(b: B):
     print(b.z, b.a.x, b.a.y)
@@ -20,7 +20,7 @@ def f(b: B):
 def g():
     a1: A = A(f32(1.0), 1)
     a2: A = A(f32(2.0), 2)
-    b: B = B(a1, 1)
+    b: B = B(1, a1)
     b.a = deepcopy(a2)
     b.z = 1
     b.a.x = 2
