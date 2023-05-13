@@ -472,29 +472,37 @@ def gcd(a: i32, b: i32) -> i32:
     Returns greatest common divisor of `a` and `b`
     """
     temp: i32
-    if a < 0:
-        a = -a
-    if b < 0:
-        b = -b
-    while b != 0:
-        a = mod(a, b)
-        temp = a
-        a = b
-        b = temp
-    return a
+    a_: i32
+    b_: i32
+    a_ = a
+    b_ = b
+    if a_ < 0:
+        a_ = -a_
+    if b_ < 0:
+        b_ = -b_
+    while b_ != 0:
+        a_ = mod(a_, b_)
+        temp = a_
+        a_ = b_
+        b_ = temp
+    return a_
 
 
 def lcm(a: i32, b: i32) -> i32:
     """
     Returns least common multiple of `a` and `b`
     """
-    if a < 0:
-        a = -a
-    if b < 0:
-        b = -b
-    if a*b == 0:
+    a_: i32
+    b_: i32
+    a_ = a
+    b_ = b
+    if a_ < 0:
+        a_ = -a_
+    if b_ < 0:
+        b_ = -b_
+    if a_*b_ == 0:
         return 0
-    return i32(floor((a*b)/gcd(a, b)))
+    return i32(floor((a_*b_)/gcd(a_, b_)))
 
 
 def copysign(x: f64, y: f64) -> f64:
