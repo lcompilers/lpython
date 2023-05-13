@@ -4844,6 +4844,13 @@ public:
                     std::string var_name = std::string(v->m_name);
                     throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
                 }
+                if (sym->type == ASR::symbolType::Variable) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
+                    if (v->m_intent == ASR::intentType::In) {
+                        throw SemanticError("Assignment to an input function parameter `"
+                            + std::string(v->m_name) + "` is not allowed", target->base.loc);
+                    }
+                }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
                                     overloaded));
