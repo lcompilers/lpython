@@ -257,6 +257,10 @@ namespace CUtils {
                 type_src = "int" + std::to_string(kind * 8) + "_t";
                 break;
             }
+            case ASR::ttypeType::UnsignedInteger: {
+                type_src = "uint" + std::to_string(kind * 8) + "_t";
+                break;
+            }
             case ASR::ttypeType::Logical: {
                 type_src = "bool";
                 break;

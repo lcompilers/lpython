@@ -58,7 +58,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "ast",
-            "lpython --show-ast --indent --no-color {infile} -o {outfile}",
+            "lpython --show-ast --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
@@ -67,7 +67,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "ast_new",
-            "lpython --show-ast --indent --new-parser --no-color {infile} -o {outfile}",
+            "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
@@ -76,7 +76,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "asr",
-            "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+            "lpython --show-asr --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
@@ -92,7 +92,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
 
     if pass_ is not None:
         cmd = "lpython --pass=" + pass_ + \
-            " --show-asr --indent --no-color {infile} -o {outfile}"
+            " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)
 

@@ -58,8 +58,10 @@ namespace CastingUtil {
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Complex), ASR::cast_kindType::IntegerToComplex},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Real), ASR::cast_kindType::IntegerToReal},
         {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::Logical), ASR::cast_kindType::IntegerToLogical},
+        {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::UnsignedInteger), ASR::cast_kindType::IntegerToUnsignedInteger},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Real), ASR::cast_kindType::LogicalToReal},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Integer), ASR::cast_kindType::LogicalToInteger},
+        {std::make_pair(ASR::ttypeType::UnsignedInteger, ASR::ttypeType::Integer), ASR::cast_kindType::UnsignedIntegerToInteger},
     };
 
     // Data structure which contains casting rules for equal intrinsic
@@ -465,6 +467,20 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(est);
+    } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
+        ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, et->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)et,
+            m->m_name, nullptr, 0, et->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
     } else if (ASR::is_a<ASR::Variable_t>(*t)) {
         ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
         // `mv` is the Variable in a module. Now we construct
@@ -731,6 +747,21 @@ public:
                 }
                 return ASRUtils::TYPE(ASR::make_Integer_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
             }
+            case ASR::ttypeType::UnsignedInteger: {
+                ASR::UnsignedInteger_t *t = ASR::down_cast<ASR::UnsignedInteger_t>(return_type);
+                fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
+                fix_exprs_ttype_t(func_calls, args, f);
+                Vec<ASR::dimension_t> new_dims;
+                new_dims.reserve(al, t->n_dims);
+                for( size_t i = 0; i < func_calls.size(); i += 2 ) {
+                    ASR::dimension_t new_dim;
+                    new_dim.loc = func_calls[i]->base.loc;
+                    new_dim.m_start = func_calls[i];
+                    new_dim.m_length = func_calls[i + 1];
+                    new_dims.push_back(al, new_dim);
+                }
+                return ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
+            }
             case ASR::ttypeType::Real: {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(return_type);
                 fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
@@ -906,6 +937,18 @@ public:
                 4, dims.p, dims.size()));
         } else if (var_annotation == "i64") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "u8") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                1, dims.p, dims.size()));
+        } else if (var_annotation == "u16") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                2, dims.p, dims.size()));
+        } else if (var_annotation == "u32") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "u64") {
+            type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, loc,
                 8, dims.p, dims.size()));
         } else if (var_annotation == "f32") {
             type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
@@ -1916,6 +1959,12 @@ public:
             if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
                 dest_type = ASRUtils::get_contained_type(dest_type);
             }
+        } else if(ASRUtils::is_unsigned_integer(*left_type)
+                 && ASRUtils::is_unsigned_integer(*right_type)) {
+            dest_type = ASRUtils::expr_type(left);
+            if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
+                dest_type = ASRUtils::get_contained_type(dest_type);
+            }
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
@@ -2087,6 +2136,60 @@ public:
             }
 
             tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
+
+        } else if (ASRUtils::is_unsigned_integer(*dest_type)) {
+            ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
+            int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
+            int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
+            if( !(n_dims_left == 0 && n_dims_right == 0) ) {
+                if( n_dims_left != 0 && n_dims_right != 0 ) {
+                    LCOMPILERS_ASSERT(n_dims_left == n_dims_right);
+                    dest_type = left_type;
+                } else {
+                    if( n_dims_left > 0 ) {
+                        dest_type = left_type;
+                    } else {
+                        dest_type = right_type;
+                    }
+                }
+            }
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                int64_t left_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t right_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                                    ASRUtils::expr_value(right))->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
+                    case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
+                    case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
+                    case (ASR::binopType::BitLShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value << right_value;
+                        break;
+                    }
+                    case (ASR::binopType::BitRShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value >> right_value;
+                        break;
+                    }
+                    default: { LCOMPILERS_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
+                    al, loc, result, dest_type));
+            }
+
+            tmp = ASR::make_UnsignedIntegerBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_real(*dest_type)) {
 
@@ -3500,9 +3603,13 @@ public:
                         is_inline = true;
                     } else if (name == "static") {
                         is_static = true;
+                    } else if (name == "lpython") {
+                        throw SemanticError("`@lpython` decorator must be "
+                            "run from CPython, not compiled using LPython",
+                            dec->base.loc);
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
-                            x.base.base.loc);
+                            dec->base.loc);
                     }
                 } else if (AST::is_a<AST::Call_t>(*dec)) {
                     AST::Call_t *call_d = AST::down_cast<AST::Call_t>(dec);
@@ -3985,6 +4092,10 @@ public:
     }
 
     void visit_Assert(const AST::Assert_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
+
+    void visit_If(const AST::If_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
 };
@@ -5044,7 +5155,13 @@ public:
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::symbol_t *t, const Location& loc) {
-        if (ASRUtils::is_complex(*type)) {
+        if (ASRUtils::is_array(type)) {
+            std::string attr = attr_char;
+            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 0);
+            handle_attribute(se, attr, loc, args);
+        } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             if (attr == "imag") {
                 ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
@@ -5203,12 +5320,12 @@ public:
                 return ;
             }
 
-            ASR::symbol_t *t = current_scope->resolve_symbol(value);
-
-            if (!t) {
+            ASR::symbol_t *org_sym = current_scope->resolve_symbol(value);
+            if (!org_sym) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
                     x.base.base.loc);
             }
+            ASR::symbol_t *t = ASRUtils::symbol_get_past_external(org_sym);
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
                 visit_AttributeUtil(var->m_type, x.m_attr, t, x.base.base.loc);
@@ -5221,7 +5338,7 @@ public:
                                         x.base.base.loc);
                 }
                 ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
-                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                 ASR::expr_t* enum_member_var = ASRUtils::EXPR(ASR::make_EnumStaticMember_t(al, x.base.base.loc, enum_type_var,
                                                     enum_member, enum_type->m_type,
                                                     ASRUtils::expr_value(enum_member_variable->m_symbolic_value)));
@@ -5239,12 +5356,12 @@ public:
                 }
                 if( ASR::is_a<ASR::Variable_t>(*struct_member) ) {
                     ASR::Variable_t* struct_member_variable = ASR::down_cast<ASR::Variable_t>(struct_member);
-                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                     tmp = ASR::make_StructStaticMember_t(al, x.base.base.loc,
                                                         struct_type_var, struct_member, struct_member_variable->m_type,
                                                         nullptr);
                 } else if( ASR::is_a<ASR::UnionType_t>(*struct_member) ) {
-                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                    ASR::expr_t* struct_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, org_sym));
                     ASR::ttype_t* union_type = ASRUtils::TYPE(ASR::make_Union_t(al, x.base.base.loc, struct_member, nullptr, 0));
                     tmp = ASR::make_StructStaticMember_t(al, x.base.base.loc, struct_type_var, struct_member, union_type, nullptr);
                 }
@@ -5464,7 +5581,6 @@ public:
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
         if (ASRUtils::is_integer(*dest_type)) {
-
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = -1;
                 ASRUtils::extract_value(ASRUtils::expr_value(left), left_value);
@@ -5486,9 +5602,30 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             }
-
             tmp = ASR::make_IntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
-
+        } else if (ASRUtils::is_unsigned_integer(*dest_type)) {
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                int64_t left_value = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(left), left_value);
+                int64_t right_value = -1;
+                ASRUtils::extract_value(ASRUtils::expr_value(right), right_value);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
+                    case (ASR::cmpopType::Gt): { result = left_value > right_value; break; }
+                    case (ASR::cmpopType::GtE): { result = left_value >= right_value; break; }
+                    case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
+                    case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
+                    case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                    al, x.base.base.loc, result, type));
+            }
+            tmp = ASR::make_UnsignedIntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -5762,6 +5899,24 @@ public:
                     if (!t) {
                         throw SemanticError("'" + value + "' is not defined in the scope",
                             x.base.base.loc);
+                    }
+                    if (ASR::is_a<ASR::Module_t>(*t)) {
+                        std::string call_name = at->m_attr;
+                        std::string call_name_store = "__" + value + "_" + call_name;
+                        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+                        call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
+                        ASR::symbol_t *st = current_scope->resolve_symbol(call_name_store);
+                        if (!st) {
+                            st = import_from_module(al, m, current_scope, value,
+                                            call_name, call_name_store, x.base.base.loc);
+                            current_scope->add_symbol(call_name_store, st);
+                        }
+                        Vec<ASR::call_arg_t> args;
+                        args.reserve(al, c->n_args);
+                        visit_expr_list(c->m_args, c->n_args, args);
+                        tmp = make_call_helper(al, st, current_scope, args,
+                                call_name, x.base.base.loc);
+                        return;
                     }
                     Vec<ASR::expr_t*> elements;
                     elements.reserve(al, c->n_args);
@@ -6531,6 +6686,17 @@ public:
                 }
                 tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;
+            } else if (AST::is_a<AST::UnaryOp_t>(*at->m_value)) {
+                AST::UnaryOp_t* uop = AST::down_cast<AST::UnaryOp_t>(at->m_value);
+                visit_UnaryOp(*uop);
+                Vec<ASR::expr_t*> eles;
+                eles.reserve(al, x.n_args);
+                for (size_t i=0; i<x.n_args; i++) {
+                    eles.push_back(al, args[i].m_value);
+                }
+                ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
+                handle_attribute(expr, at->m_attr, x.base.base.loc, eles);
+                return;
             } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
                 if (std::string(at->m_attr) == std::string("bit_length")) {
                     //bit_length() attribute:
@@ -6581,7 +6747,7 @@ public:
                     ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
-                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) && 
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
                     imported_functions[call_name] == "math" ) {
                     throw SemanticError("Function '" + call_name + "' does not accept vector values",
                         x.base.base.loc);
@@ -6613,21 +6779,22 @@ public:
                 // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
-                // TODO: size should be part of ASR. That way
-                // ASR itself does not need a runtime library
-                // a runtime library thus becomes optional --- can either be
-                // implemented using ASR, or the backend can link it at runtime
-                ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                    4, nullptr, 0));
-                /*
-                ASR::symbol_t *a_name = nullptr;
-                throw SemanticError("TODO: add the size() function and look it up",
-                    x.base.base.loc);
-                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, a_name,
-                    nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-                */
-
-                tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, 1234, a_type);
+                parse_args();
+                if( args.size() < 1 || args.size() > 2 ) {
+                    throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
+                }
+                const Location &loc = x.base.base.loc;
+                ASR::expr_t *var = args[0].m_value;
+                ASR::expr_t *dim = nullptr;
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                if (args.size() == 2) {
+                    ASR::expr_t* const_one = ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type));
+                    dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
+                        args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
+                }
+                tmp = ASR::make_ArraySize_t(al, loc, var, dim, int_type, nullptr);
                 return;
             } else if (call_name == "empty") {
                 // TODO: check that the `empty` arguments are compatible
@@ -6731,9 +6898,20 @@ public:
                 tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
                                              arg_type, size_type, nullptr);
                 return ;
-            } else if( call_name == "f64" || call_name == "f32" ||
-                call_name == "i64" || call_name == "i32" || call_name == "c32" ||
-                call_name == "c64" || call_name == "i8" || call_name == "i16" ) {
+            } else if(
+                        call_name == "f64" ||
+                        call_name == "f32" ||
+                        call_name == "i64" ||
+                        call_name == "i32" ||
+                        call_name == "i16" ||
+                        call_name == "i8"  ||
+                        call_name == "u64" ||
+                        call_name == "u32" ||
+                        call_name == "u16" ||
+                        call_name == "u8"  ||
+                        call_name == "c32" ||
+                        call_name == "c64"
+                    ) {
                 parse_args()
                 ASR::ttype_t* target_type = nullptr;
                 if( call_name == "i8" ) {
@@ -6744,6 +6922,14 @@ public:
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
                 } else if( call_name == "i64" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
+                } else if( call_name == "u8" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 1, nullptr, 0));
+                } else if( call_name == "u16" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 2, nullptr, 0));
+                } else if( call_name == "u32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 4, nullptr, 0));
+                } else if( call_name == "u64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 8, nullptr, 0));
                 } else if( call_name == "f32" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4, nullptr, 0));
                 } else if( call_name == "f64" ) {

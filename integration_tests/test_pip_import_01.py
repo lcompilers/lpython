@@ -1,4 +1,5 @@
-from lpynn.perceptron import init_perceptron, print_perceptron, normalize_input_vectors, Perceptron, train_dataset
+from lpynn.perceptron import init_perceptron, print_perceptron, Perceptron, train_dataset
+from lpynn.utils import normalize_input_vectors
 from lpython import i32, f64
 
 def main0():

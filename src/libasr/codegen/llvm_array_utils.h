@@ -183,7 +183,7 @@ namespace LCompilers {
                 * implemented by current class).
                 */
                 virtual
-                llvm::Value* get_offset(llvm::Value* dim_des) = 0;
+                llvm::Value* get_offset(llvm::Value* dim_des, bool load=true) = 0;
 
                 /*
                 * Returns lower bound in the input
@@ -207,7 +207,7 @@ namespace LCompilers {
                 * implemented by current class.
                 */
                 virtual
-                llvm::Value* get_stride(llvm::Value* dim_des) = 0;
+                llvm::Value* get_stride(llvm::Value* dim_des, bool load=true) = 0;
 
                 /*
                 * Returns dimension size in the input
@@ -370,7 +370,7 @@ namespace LCompilers {
                 void set_rank(llvm::Value* arr, llvm::Value* rank);
 
                 virtual
-                llvm::Value* get_offset(llvm::Value* dim_des);
+                llvm::Value* get_offset(llvm::Value* dim_des, bool load=true);
 
                 virtual
                 llvm::Value* get_lower_bound(llvm::Value* dim_des, bool load=true);
@@ -390,7 +390,7 @@ namespace LCompilers {
                     llvm::Value* dim);
 
                 virtual
-                llvm::Value* get_stride(llvm::Value* dim_des);
+                llvm::Value* get_stride(llvm::Value* dim_des, bool load=true);
 
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,

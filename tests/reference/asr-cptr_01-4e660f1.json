@@ -1,0 +1,13 @@
+{
+    "basename": "asr-cptr_01-4e660f1",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/cptr_01.py",
+    "infile_hash": "92647f6c175f3599be307df700902b5f7fe69826f22fd5f082713ee4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-cptr_01-4e660f1.stderr",
+    "stderr_hash": "0477f93b29ff4932b3471a59731a173fb19d6e44273236829eeaffbe",
+    "returncode": 2
+}

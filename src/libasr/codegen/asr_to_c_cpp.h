@@ -394,6 +394,14 @@ R"(#include <stdio.h>
                     case (4) : sub = "int32_t "; break;
                     case (8) : sub = "int64_t "; break;
                 }
+            } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
+                int kind = ASR::down_cast<ASR::UnsignedInteger_t>(return_var->m_type)->m_kind;
+                switch (kind) {
+                    case (1) : sub = "uint8_t "; break;
+                    case (2) : sub = "uint16_t "; break;
+                    case (4) : sub = "uint32_t "; break;
+                    case (8) : sub = "uint64_t "; break;
+                }
             } else if (ASRUtils::is_real(*return_var->m_type)) {
                 bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
                 if (is_float) {
@@ -1382,6 +1390,12 @@ R"(#include <stdio.h>
                 // src = src;
                 break;
             }
+            case (ASR::cast_kindType::IntegerToUnsignedInteger) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                src = "(uint" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
             case (ASR::cast_kindType::ComplexToComplex) : {
                 break;
             }
@@ -1522,6 +1536,10 @@ R"(#include <stdio.h>
         handle_Compare(x);
     }
 
+    void visit_UnsignedIntegerCompare(const ASR::UnsignedIntegerCompare_t &x) {
+        handle_Compare(x);
+    }
+
     void visit_RealCompare(const ASR::RealCompare_t &x) {
         handle_Compare(x);
     }
@@ -1604,7 +1622,7 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
-        if (expr_precedence <= last_expr_precedence) {
+        if (expr_precedence < last_expr_precedence) {
             src = "-" + src;
         } else {
             src = "-(" + src + ")";
@@ -1669,6 +1687,10 @@ R"(#include <stdio.h>
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+        handle_BinOp(x);
+    }
+
+    void visit_UnsignedIntegerBinOp(const ASR::UnsignedIntegerBinOp_t &x) {
         handle_BinOp(x);
     }
 

@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-for2-af08901",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/for2.py",
+    "infile_hash": "32c45d5c5edc44504a3fa5d24c6c1660977d2ceceeef311ee5a37410",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-for2-af08901.stdout",
+    "stdout_hash": "ac6e50517c5d609747b66c75e15bfa69ada7f0f41ebeb943da9b3167",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

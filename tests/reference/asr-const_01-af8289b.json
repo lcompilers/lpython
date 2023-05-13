@@ -1,0 +1,13 @@
+{
+    "basename": "asr-const_01-af8289b",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/const_01.py",
+    "infile_hash": "c147e6905815b0476dd2ec10669bb4c7fd65d604910e00b8b9eade30",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-const_01-af8289b.stderr",
+    "stderr_hash": "f47e74e916315ec82f38680f66c9cf5ef3c958bcdfa87b9efe09b264",
+    "returncode": 2
+}

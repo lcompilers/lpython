@@ -89,6 +89,11 @@ inst/bin/*
 *_ldd.txt
 *_lines.dat.txt
 *__tmp__generated__.c
+visualize*.html
+lpython_decorator*/
+a.c
+a.h
+a.py
 
 ### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
 

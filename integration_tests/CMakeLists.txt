@@ -280,6 +280,8 @@ RUN(NAME variable_decl_02         LABELS cpython llvm c)
 RUN(NAME variable_decl_03         LABELS cpython llvm c)
 RUN(NAME array_expr_01            LABELS cpython llvm c)
 RUN(NAME array_expr_02            LABELS cpython llvm c)
+RUN(NAME array_size_01            LABELS cpython llvm c)
+RUN(NAME array_size_02            LABELS cpython llvm c)
 RUN(NAME array_01            LABELS cpython llvm wasm c)
 RUN(NAME array_02            LABELS cpython wasm c)
 RUN(NAME bindc_01            LABELS cpython llvm c)
@@ -326,6 +328,11 @@ RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c)
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME expr_15             LABELS cpython llvm c)
+
+RUN(NAME expr_01u            LABELS cpython llvm c)
+RUN(NAME expr_02u            LABELS cpython llvm c)
+RUN(NAME expr_03u            LABELS cpython llvm c)
+
 RUN(NAME loop_01             LABELS cpython llvm c)
 RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME loop_03             LABELS cpython llvm c wasm wasm_x64)
@@ -333,6 +340,7 @@ RUN(NAME loop_04             LABELS cpython llvm c)
 RUN(NAME loop_05             LABELS cpython llvm c)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
+RUN(NAME if_03    FAIL       LABELS cpython llvm c)
 RUN(NAME print_02            LABELS cpython llvm c)
 RUN(NAME test_types_01       LABELS cpython llvm c)
 RUN(NAME test_types_02       LABELS cpython llvm c wasm)
@@ -477,6 +485,8 @@ RUN(NAME enum_04             LABELS cpython llvm c)
 RUN(NAME enum_05             LABELS llvm c
         EXTRAFILES enum_05b.c)
 RUN(NAME enum_06             LABELS cpython llvm c)
+RUN(NAME enum_07             IMPORT_PATH ..
+                             LABELS cpython llvm c)
 RUN(NAME union_01            LABELS cpython llvm c)
 RUN(NAME union_02            LABELS llvm c)
 RUN(NAME union_03            LABELS cpython llvm c)
@@ -489,6 +499,8 @@ RUN(NAME vec_01              LABELS cpython llvm c)
 RUN(NAME test_str_comparison LABELS cpython llvm c)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
+RUN(NAME test_sys_01         LABELS cpython llvm c)
+
 
 RUN(NAME test_package_01     LABELS cpython llvm)
 RUN(NAME test_pkg_lpdraw     LABELS cpython llvm wasm)
@@ -532,5 +544,8 @@ RUN(NAME callback_01       LABELS cpython llvm)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm) # any
+
+# lpython decorator
+RUN(NAME lpython_decorator_01    LABELS cpython)
 
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any

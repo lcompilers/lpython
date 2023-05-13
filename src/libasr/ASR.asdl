@@ -237,6 +237,10 @@ expr
     | IntegerUnaryMinus(expr arg, ttype type, expr? value)
     | IntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | IntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
+    | UnsignedIntegerConstant(int n, ttype type)
+    | UnsignedIntegerUnaryMinus(expr arg, ttype type, expr? value)
+    | UnsignedIntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | UnsignedIntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | RealConstant(float r, ttype type)
     | RealUnaryMinus(expr arg, ttype type, expr? value)
     | RealCompare(expr left, cmpop op, expr right, ttype type, expr? value)
@@ -346,6 +350,7 @@ expr
 
 ttype
     = Integer(int kind, dimension* dims)
+    | UnsignedInteger(int kind, dimension* dims)
     | Real(int kind, dimension* dims)
     | Complex(int kind, dimension* dims)
     | Character(int kind, int len, expr? len_expr, dimension* dims)
@@ -402,6 +407,8 @@ cast_kind
     | RealToCharacter
     | IntegerToCharacter
     | LogicalToCharacter
+    | UnsignedIntegerToInteger
+    | IntegerToUnsignedInteger
 
 dimension = (expr? start, expr? length)
 
