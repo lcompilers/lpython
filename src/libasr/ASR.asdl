@@ -295,6 +295,47 @@ expr
     | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
     | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
 
+-- The following Symbol nodes are used to construct a symbolic expression
+    | SymbolicCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | SymbolicBinOp(expr left, binop op, expr right, ttype type, expr? value)
+-- The fn_type is defined elsewhere, such as: 0=Sin, 1=Cos, 2=Tan, 3=Log,
+--   4=Sqrt, 5=LegendreP, 6=MeijerG, 7=BesselJ, 8=Hypergeometric, ...
+    | SymbolicMathFunction(expr* args, int fn_type, ttype type, expr? value)
+
+-- These are methods that operate on the symbolic expression. These are all
+-- done at runtime (say using SymEngine)
+    | SymbolicDiff(expr e, expr *vars, ttype type, expr? value)
+    | SymbolicLimit(expr e, expr x, expr x0, ttype type, expr? value)
+    | SymbolicIntegrate(expr e, expr *vars, expr *lower, expr *upper, ttype type, expr? value)
+    | SymbolicExpand(expr e, ttype type, expr? value)
+    | SymbolicExpandFunction(expr e, ttype type, expr? value)
+    | SymbolicExpandTrig(expr e, ttype type, expr? value)
+    | SymbolicRewriteAsSum(expr e, ttype type, expr? value)
+    | SymbolicLeadingTerm(expr e, expr x, ttype type, expr? value)
+    | SymbolicApart(expr e, ttype type, expr? value)
+    | SymbolicTogether(expr e, ttype type, expr? value)
+    | SymbolicSubs(expr e, expr a, expr b, ttype type, expr? value)
+    | SymbolicOperand(expr e, expr n, ttype type, expr? value)
+    | SymbolicN(expr e, int n, ttype type, expr? value)
+    | SymbolicSeries(expr e, expr x, int n, ttype type, expr? value)
+    | SymbolicSum(expr e, expr n, expr lower, expr upper, ttype type, expr? value)
+    | SymbolicDomain(expr e, ttype type, expr? value)
+    | SymbolicRange(expr e, ttype type, expr? value)
+    | SymbolicReal(expr e, ttype type, expr? value)
+    | SymbolicImag(expr e, ttype type, expr? value)
+
+-- These are specific functions, every math function (Sin, Cos, MeijerG, ..)
+-- might have couple of these specific methods:
+    | SymbolicHypergeometricRadiusOfConvergence(expr e, ttype type, expr? value)
+    | SymbolicTrigPeriod(expr e, ttype type, expr? value)
+    | SymbolicTrigTaylorTerm(expr e, expr x, ttype type, expr? value)
+    | SymbolicTrigRewriteAsExp(expr e, ttype type, expr? value)
+    | SymbolicTrigRewriteAsSin(expr e, ttype type, expr? value)
+    | SymbolicTrigRewriteAsTan(expr e, ttype type, expr? value)
+    | SymbolicTrigRewriteAsPow(expr e, ttype type, expr? value)
+    | SymbolicTrigRewriteAsCot(expr e, ttype type, expr? value)
+
+
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
     | StructStaticMember(expr v, symbol m, ttype type, expr? value)
@@ -355,6 +396,7 @@ ttype
     | Complex(int kind, dimension* dims)
     | Character(int kind, int len, expr? len_expr, dimension* dims)
     | Logical(int kind, dimension* dims)
+    | Symbolic()
     | Set(ttype type)
     | List(ttype type)
     | Tuple(ttype* type)
