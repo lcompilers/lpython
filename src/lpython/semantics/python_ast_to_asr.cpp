@@ -2465,6 +2465,11 @@ public:
             is_c_p_pointer_call = false;
             if (x.m_value) {
                 this->visit_expr(*x.m_value);
+            } else {
+                if (ASR::is_a<ASR::Struct_t>(*type)) {
+                    throw SemanticError(ASRUtils::type_to_str_python(type) + " " + var_name
+                            +  " must be initialized a value", x.base.base.loc);
+                }
             }
             if( is_c_p_pointer_call ) {
                 create_add_variable_to_scope(var_name, nullptr, type,
