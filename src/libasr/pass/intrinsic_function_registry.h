@@ -57,6 +57,7 @@ enum class IntrinsicFunctions : int64_t {
     Any,
     ListIndex,
     Partition,
+    ListReverse,
     // ...
 };
 
@@ -905,6 +906,35 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
 
 } // namespace ListIndex
 
+namespace ListReverse {
+
+static inline ASR::expr_t *eval_list_reverse(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 1) {
+        err("list.reverse() takes no arguments", loc);
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_reverse(al, loc, arg_values);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace ListReverse
+
 namespace Any {
 
 static inline ASR::expr_t *eval_Any(Allocator & /*al*/,
@@ -1276,7 +1306,9 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Expm1),
             "expm1"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
-            "list.index"}
+            "list.index"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
+            "list.reverse"}
     };
 
     static const std::map<std::string,
@@ -1298,6 +1330,7 @@ namespace IntrinsicFunctionRegistry {
                 {"expm1", {&Expm1::create_Expm1, &Expm1::eval_Expm1}},
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
+                {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -1384,6 +1417,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Any)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
+        INTRINSIC_NAME_CASE(ListReverse)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }

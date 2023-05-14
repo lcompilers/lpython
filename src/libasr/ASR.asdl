@@ -215,6 +215,7 @@ stmt
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)
     | DictInsert(expr a, expr key, expr value)
+    | Expr(expr expression)
 
 
 expr
@@ -225,7 +226,7 @@ expr
     | FunctionCall(symbol name, symbol? original_name, call_arg* args,
             ttype type, expr? value, expr? dt)
     | IntrinsicFunction(int intrinsic_id, expr* args, int overload_id,
-            ttype type, expr? value)
+            ttype? type, expr? value)
     | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)

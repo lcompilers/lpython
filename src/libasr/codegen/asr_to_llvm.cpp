@@ -1891,6 +1891,10 @@ public:
                              dict_type->m_value_type, name2memidx);
     }
 
+    void visit_Expr(const ASR::Expr_t& x) {
+        this->visit_expr_wrapper(x.m_expression, false);
+    }
+
     void visit_ListRemove(const ASR::ListRemove_t& x) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
@@ -1951,6 +1955,17 @@ public:
         llvm::Value* exp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
         llvm::Value* one = llvm::ConstantFP::get(builder->getFloatTy(), 1.0);
         tmp = builder->CreateFSub(exp, one);
+
+    void generate_ListReverse(ASR::expr_t* m_arg) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        ptr_loads = ptr_loads_copy;
+        list_api->reverse(plist, asr_el_type, *module);
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
@@ -2011,6 +2026,10 @@ public:
                     }
                 }
                 break ;
+            }
+            case ASRUtils::IntrinsicFunctions::ListReverse: {
+                generate_ListReverse(x.m_args[0]);
+                break;
             }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::
