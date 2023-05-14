@@ -1955,6 +1955,7 @@ public:
         llvm::Value* exp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
         llvm::Value* one = llvm::ConstantFP::get(builder->getFloatTy(), 1.0);
         tmp = builder->CreateFSub(exp, one);
+    }
 
     void generate_ListReverse(ASR::expr_t* m_arg) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
