@@ -1888,7 +1888,6 @@ public:
     }
 
     void visit_Expr(const ASR::Expr_t& x) {
-        // std::cout << "inside visit Expr" << std::endl;
         this->visit_expr_wrapper(x.m_expression, false);
     }
 

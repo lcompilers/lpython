@@ -2653,14 +2653,8 @@ namespace LCompilers {
                                     context, llvm::APInt(32, 0)), i);       // i = 0
         llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
         llvm::Value* tmp = nullptr;
-        tmp = builder->CreateSub(
-                    LLVM::CreateLoad(*builder, end_point),
-                    llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+        tmp = builder->CreateSub(end_point, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
         LLVM::CreateStore(*builder, tmp, j);        // j = end_point - 1
-
-        // std::string type_code = ASRUtils::get_type_code(list_type);
-        // llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
-        // llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
 
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
@@ -2678,11 +2672,12 @@ namespace LCompilers {
         {
             tmp = read_item(list, LLVM::CreateLoad(*builder, i),
                 false, module, LLVM::is_llvm_struct(list_type));    // tmp = list[i]
-            write_item(list, LLVM::CreateLoad(*builder, i), LLVM::CreateLoad(*builder,
-                        read_item(list, LLVM::CreateLoad(*builder, j), false, module, LLVM::is_llvm_struct(list_type))),
+            write_item(list, LLVM::CreateLoad(*builder, i),
+                        read_item(list, LLVM::CreateLoad(*builder, j),
+                        false, module, LLVM::is_llvm_struct(list_type)),
                         false, module);    // list[i] = list[j]
             write_item(list, LLVM::CreateLoad(*builder, j),
-                        LLVM::CreateLoad(*builder, tmp), false, module);    // list[j] = tmp
+                        tmp, false, module);    // list[j] = tmp
 
             tmp = builder->CreateAdd(
                         LLVM::CreateLoad(*builder, i),
