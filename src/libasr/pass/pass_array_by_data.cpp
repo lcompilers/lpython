@@ -351,12 +351,14 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
 
         Allocator& al;
         PassArrayByDataProcedureVisitor& v;
+        std::set<ASR::symbol_t*>& not_to_be_erased;
 
     public:
 
         EditProcedureCallsVisitor(Allocator& al_,
-            PassArrayByDataProcedureVisitor& v_):
-        al(al_), v(v_) {}
+            PassArrayByDataProcedureVisitor& v_,
+            std::set<ASR::symbol_t*>& not_to_be_erased_):
+        al(al_), v(v_), not_to_be_erased(not_to_be_erased_) {}
 
         template <typename T>
         void update_args_for_pass_arr_by_data_funcs_passed_as_callback(const T& x) {
@@ -414,11 +416,29 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             return new_args;
         }
 
+        bool can_edit_call(ASR::call_arg_t* args, size_t n_args) {
+            for ( size_t i = 0; i < n_args; i++ ) {
+                if( args[i].m_value &&
+                    ASRUtils::expr_type(args[i].m_value) &&
+                    ASR::is_a<ASR::Pointer_t>(*
+                        ASRUtils::expr_type(args[i].m_value)) ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         template <typename T>
         void visit_Call(const T& x) {
             ASR::symbol_t* subrout_sym = x.m_name;
             bool is_external = ASR::is_a<ASR::ExternalSymbol_t>(*subrout_sym);
             subrout_sym = ASRUtils::symbol_get_past_external(subrout_sym);
+
+            if( !can_edit_call(x.m_args, x.n_args) ) {
+                not_to_be_erased.insert(subrout_sym);
+                return ;
+            }
+
             if( v.proc2newproc.find(subrout_sym) == v.proc2newproc.end() ) {
                 update_args_for_pass_arr_by_data_funcs_passed_as_callback(x);
                 return;
@@ -501,11 +521,13 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
     private:
 
         PassArrayByDataProcedureVisitor& v;
+        std::set<ASR::symbol_t*>& not_to_be_erased;
 
     public:
 
-        RemoveArrayByDescriptorProceduresVisitor(Allocator& al_, PassArrayByDataProcedureVisitor& v_):
-            PassVisitor(al_, nullptr), v(v_) {}
+        RemoveArrayByDescriptorProceduresVisitor(Allocator& al_, PassArrayByDataProcedureVisitor& v_,
+            std::set<ASR::symbol_t*>& not_to_be_erased_):
+            PassVisitor(al_, nullptr), v(v_), not_to_be_erased(not_to_be_erased_) {}
 
         // Shouldn't be done because allocatable arrays when
         // assigned to array constants work fine in gfortran
@@ -519,7 +541,8 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
             std::vector<std::string> to_be_erased;
 
             for( auto& item: current_scope->get_scope() ) {
-                if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
+                if( v.proc2newproc.find(item.second) != v.proc2newproc.end() &&
+                    not_to_be_erased.find(item.second) == not_to_be_erased.end() ) {
                     LCOMPILERS_ASSERT(item.first == ASRUtils::symbol_name(item.second))
                     to_be_erased.push_back(item.first);
                 }
@@ -537,7 +560,8 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
             std::vector<std::string> to_be_erased;
 
             for( auto& item: current_scope->get_scope() ) {
-                if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
+                if( v.proc2newproc.find(item.second) != v.proc2newproc.end() &&
+                    not_to_be_erased.find(item.second) == not_to_be_erased.end() ) {
                     LCOMPILERS_ASSERT(item.first == ASRUtils::symbol_name(item.second))
                     to_be_erased.push_back(item.first);
                 }
@@ -556,9 +580,10 @@ void pass_array_by_data(Allocator &al, ASR::TranslationUnit_t &unit,
     v.visit_TranslationUnit(unit);
     EditProcedureVisitor e(v);
     e.visit_TranslationUnit(unit);
-    EditProcedureCallsVisitor u(al, v);
+    std::set<ASR::symbol_t*> not_to_be_erased;
+    EditProcedureCallsVisitor u(al, v, not_to_be_erased);
     u.visit_TranslationUnit(unit);
-    RemoveArrayByDescriptorProceduresVisitor x(al, v);
+    RemoveArrayByDescriptorProceduresVisitor x(al, v, not_to_be_erased);
     x.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor y(al);
     y.visit_TranslationUnit(unit);

@@ -1,4 +1,5 @@
 from lpython import i32, f64, i64, i16, i8, f32, dataclass
+from numpy import empty
 
 @dataclass
 class A:
@@ -49,9 +50,8 @@ def update_2(s: A[:]):
     s[1].c = i8(3)
 
 def g():
-    # TODO: Replace y: A[2] with y: A[2] = [None, None]
-    # TODO: And enable cpython in integration_tests.
-    y: A[2]
+    # TODO: Enable cpython in integration_tests.
+    y: A[2] = empty([2], dtype=A)
     y[0] = A(1.1, 1, i64(1), f32(1.1), i16(1), i8(1), True)
     y[1] = A(2.2, 2, i64(2), f32(2.2), i16(2), i8(2), True)
     verify(y, 1, 1.1, 2, 2.2)

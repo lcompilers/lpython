@@ -681,6 +681,12 @@ public:
     void handle_ArrayItemSection(const T &x) {
         visit_expr(*x.m_v);
         for (size_t i=0; i<x.n_args; i++) {
+            if( x.m_args[i].m_step != nullptr ) {
+                require_with_loc(x.m_args[i].m_left != nullptr &&
+                                 x.m_args[i].m_right != nullptr,
+                    "Sliced dimension should always have lower and "
+                    "upper bounds present.", x.base.base.loc);
+            }
             visit_array_index(x.m_args[i]);
         }
         require(x.m_type != nullptr,

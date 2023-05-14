@@ -11,8 +11,8 @@ class Vec:
 
 @dataclass
 class MatVec:
-    mat: Mat
-    vec: Vec
+    mat: Mat = Mat([f64(0.0), f64(0.0)])
+    vec: Vec = Vec([f64(0.0), f64(0.0)])
 
 def rotate(mat_vec: MatVec) -> f64[2]:
     rotated_vec: f64[2] = empty(2, dtype=float64)

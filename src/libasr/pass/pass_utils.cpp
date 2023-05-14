@@ -18,6 +18,12 @@ namespace LCompilers {
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    ASR::UnsignedInteger_t* x_type_ref = ASR::down_cast<ASR::UnsignedInteger_t>(t2);
+                    n_dims = x_type_ref->n_dims;
+                    m_dims = x_type_ref->m_dims;
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(t2);
                     n_dims = x_type_ref->n_dims;
@@ -62,6 +68,17 @@ namespace LCompilers {
                     ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(t2);
                     if( create_new ) {
                         new_type = ASRUtils::TYPE(ASR::make_Integer_t(*al, x_type->base.loc, x_type_ref->m_kind,
+                                                            m_dims, n_dims));
+                    } else {
+                        x_type_ref->n_dims = n_dims;
+                        x_type_ref->m_dims = m_dims;
+                    }
+                    break;
+                }
+                case ASR::ttypeType::UnsignedInteger: {
+                    ASR::UnsignedInteger_t* x_type_ref = ASR::down_cast<ASR::UnsignedInteger_t>(t2);
+                    if( create_new ) {
+                        new_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(*al, x_type->base.loc, x_type_ref->m_kind,
                                                             m_dims, n_dims));
                     } else {
                         x_type_ref->n_dims = n_dims;

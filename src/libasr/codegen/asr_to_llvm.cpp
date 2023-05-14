@@ -477,6 +477,10 @@ public:
                     el_type = getIntType(a_kind);
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    el_type = getIntType(a_kind);
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     el_type = getFPType(a_kind);
                     break;
@@ -1933,6 +1937,25 @@ public:
         tmp = list_api->index(plist, item, asr_el_type, *module);
     }
 
+    void generate_Exp(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
+    }
+
+    void generate_Exp2(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        tmp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp2, item);
+    }
+
+    void generate_Expm1(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value *item = tmp;
+        llvm::Value* exp = builder->CreateUnaryIntrinsic(llvm::Intrinsic::exp, item);
+        llvm::Value* one = llvm::ConstantFP::get(builder->getFloatTy(), 1.0);
+        tmp = builder->CreateFSub(exp, one);
+
     void generate_ListReverse(ASR::expr_t* m_arg) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
@@ -1957,6 +1980,48 @@ public:
                     }
                     default: {
                         throw CodeGenError("list.index only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Exp: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Exp(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("exp() only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Exp2: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Exp2(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("exp2() only accepts one argument",
+                                            x.base.base.loc);
+                    }
+                }
+                break ;
+            }
+            case ASRUtils::IntrinsicFunctions::Expm1: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Expm1(m_arg);
+                        break ;
+                    }
+                    default: {
+                        throw CodeGenError("expm1() only accepts one argument",
                                             x.base.base.loc);
                     }
                 }
@@ -2825,6 +2890,36 @@ public:
                 }
                 break;
             }
+            case (ASR::ttypeType::UnsignedInteger) : {
+                ASR::UnsignedInteger_t* v_type = down_cast<ASR::UnsignedInteger_t>(asr_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                a_kind = v_type->m_kind;
+                if( n_dims > 0 ) {
+                    if( m_abi == ASR::abiType::BindC ) {
+                        if( ASRUtils::is_fixed_size_array(v_type->m_dims, v_type->n_dims) ) {
+                            llvm_type = llvm::ArrayType::get(get_el_type(asr_type), ASRUtils::get_fixed_size_of_array(
+                                                                                    v_type->m_dims, v_type->n_dims));
+                        } else {
+                            llvm_type = get_el_type(asr_type)->getPointerTo();
+                        }
+                    } else {
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            is_malloc_array_type = true;
+                            llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                        } else {
+                            llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        }
+                    }
+                } else {
+                    // LLVM does not distinguish signed and unsigned integer types
+                    // Only integer operations can be signed/unsigned
+                    llvm_type = getIntType(a_kind);
+                }
+                break;
+            }
             case (ASR::ttypeType::Real) : {
                 ASR::Real_t* v_type = down_cast<ASR::Real_t>(asr_type);
                 m_dims = v_type->m_dims;
@@ -3417,6 +3512,34 @@ public:
                 }
                 break;
             }
+            case (ASR::ttypeType::UnsignedInteger) : {
+                ASR::UnsignedInteger_t* v_type = down_cast<ASR::UnsignedInteger_t>(asr_type);
+                n_dims = v_type->n_dims;
+                a_kind = v_type->m_kind;
+                if( n_dims > 0 ) {
+                    if (m_abi == ASR::abiType::BindC ||
+                        (!ASRUtils::is_dimension_empty(v_type->m_dims, v_type->n_dims))) {
+                        // Bind(C) arrays are represened as a pointer
+                        type = getIntType(a_kind, true);
+                    } else {
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            type = arr_descr->get_malloc_array_type(asr_type, el_type, get_pointer);
+                        } else {
+                            type = arr_descr->get_array_type(asr_type, el_type, get_pointer);
+                        }
+                    }
+                } else {
+                    if (arg_m_abi == ASR::abiType::BindC
+                        && arg_m_value_attr) {
+                        type = getIntType(a_kind, false);
+                    } else {
+                        type = getIntType(a_kind, true);
+                    }
+                }
+                break;
+            }
             case (ASR::ttypeType::Pointer) : {
                 ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(asr_type);
                 bool is_pointer_ = ASR::is_a<ASR::Class_t>(*t2);
@@ -3862,6 +3985,11 @@ public:
                     return_type = getIntType(a_kind);
                     break;
                 }
+                case (ASR::ttypeType::UnsignedInteger) : {
+                    int a_kind = down_cast<ASR::UnsignedInteger_t>(return_var_type0)->m_kind;
+                    return_type = getIntType(a_kind);
+                    break;
+                }
                 case (ASR::ttypeType::Real) : {
                     int a_kind = down_cast<ASR::Real_t>(return_var_type0)->m_kind;
                     return_type = getFPType(a_kind);
@@ -4248,6 +4376,8 @@ public:
             ASR::ttype_t* fptr_type = ASRUtils::expr_type(fptr);
             llvm::Type* llvm_fptr_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(fptr_type));
             llvm::Value* fptr_array = builder->CreateAlloca(llvm_fptr_type);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
+                arr_descr->get_offset(fptr_array, false));
             ASR::dimension_t* fptr_dims;
             int fptr_rank = ASRUtils::extract_dimensions_from_ttype(
                                 ASRUtils::expr_type(fptr),
@@ -4268,16 +4398,21 @@ public:
             }
             llvm_cptr = builder->CreateBitCast(llvm_cptr, llvm_fptr_data_type->getPointerTo());
             builder->CreateStore(llvm_cptr, fptr_data);
+            llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             for( int i = 0; i < fptr_rank; i++ ) {
                 llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
                 llvm::Value* desi = arr_descr->get_pointer_to_dimension_descriptor(fptr_des, curr_dim);
+                llvm::Value* desi_stride = arr_descr->get_stride(desi, false);
                 llvm::Value* desi_lb = arr_descr->get_lower_bound(desi, false);
                 llvm::Value* desi_size = arr_descr->get_dimension_size(fptr_des, curr_dim, false);
+                builder->CreateStore(prod, desi_stride);
                 llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* new_lb = i32_one;
                 llvm::Value* new_ub = shape_data ? CreateLoad(llvm_utils->create_ptr_gep(shape_data, i)) : i32_one;
                 builder->CreateStore(new_lb, desi_lb);
-                builder->CreateStore(builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one), desi_size);
+                llvm::Value* new_size = builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one);
+                builder->CreateStore(new_size, desi_size);
+                prod = builder->CreateMul(prod, new_size);
             }
         } else {
             int64_t ptr_loads_copy = ptr_loads;
@@ -4977,6 +5112,47 @@ public:
         }
     }
 
+    void visit_UnsignedIntegerCompare(const ASR::UnsignedIntegerCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpUGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpUGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpULT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpULE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
     void visit_RealCompare(const ASR::RealCompare_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
@@ -5456,7 +5632,8 @@ public:
         tmp = lfortran_str_slice(str, left, right, step, left_present, right_present);
     }
 
-    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+    template <typename T>
+    void handle_SU_IntegerBinOp(const T &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -5465,7 +5642,8 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        LCOMPILERS_ASSERT(ASRUtils::is_integer(*x.m_type))
+        LCOMPILERS_ASSERT(ASRUtils::is_integer(*x.m_type) ||
+            ASRUtils::is_unsigned_integer(*x.m_type))
         switch (x.m_op) {
             case ASR::binopType::Add: {
                 tmp = builder->CreateAdd(left_val, right_val);
@@ -5527,6 +5705,14 @@ public:
                 break;
             }
         }
+    }
+
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+        handle_SU_IntegerBinOp(x);
+    }
+
+    void visit_UnsignedIntegerBinOp(const ASR::UnsignedIntegerBinOp_t &x) {
+        handle_SU_IntegerBinOp(x);
     }
 
     void visit_RealBinOp(const ASR::RealBinOp_t &x) {
@@ -5734,11 +5920,11 @@ public:
         tmp = lfortran_complex_bin_op(zero_c, c, f_name, type);
     }
 
-    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
+    template <typename T>
+    void handle_SU_IntegerConstant(const T &x) {
         int64_t val = x.m_n;
         int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch( a_kind ) {
-
             case 1: {
                 tmp = llvm::ConstantInt::get(context, llvm::APInt(8, val, true));
                 break ;
@@ -5761,6 +5947,14 @@ public:
             }
 
         }
+    }
+
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
+        handle_SU_IntegerConstant(x);
+    }
+
+    void visit_UnsignedIntegerConstant(const ASR::UnsignedIntegerConstant_t &x) {
+        handle_SU_IntegerConstant(x);
     }
 
     void visit_RealConstant(const ASR::RealConstant_t &x) {
@@ -5964,8 +6158,7 @@ public:
     }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        std::string s = unescape_string(al, x.m_s);
-        tmp = builder->CreateGlobalStringPtr(s);
+        tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 
     inline void fetch_ptr(ASR::Variable_t* x) {
@@ -6344,6 +6537,24 @@ public:
                 }
                 break;
             }
+            case (ASR::cast_kindType::IntegerToUnsignedInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 &&
+                    arg_kind != dest_kind )
+                {
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateSExt(tmp, getIntType(dest_kind));
+                    } else {
+                        tmp = builder->CreateTrunc(tmp, getIntType(dest_kind));
+                    }
+                }
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
+                // tmp = tmp
+                break;
+            }
             case (ASR::cast_kindType::ComplexToComplex) : {
                 llvm::Type *target_type;
                 int arg_kind = -1, dest_kind = -1;
@@ -6653,6 +6864,31 @@ public:
                     default: {
                         throw CodeGenError(R"""(Printing support is available only
                                             for 8, 16, 32, and 64 bit integer kinds.)""",
+                                            x.base.base.loc);
+                    }
+                }
+                args.push_back(tmp);
+            } else if (ASRUtils::is_unsigned_integer(*t)) {
+                switch( a_kind ) {
+                    case 1 : {
+                        fmt.push_back("%hhi");
+                        break;
+                    }
+                    case 2 : {
+                        fmt.push_back("%hi");
+                        break;
+                    }
+                    case 4 : {
+                        fmt.push_back("%d");
+                        break;
+                    }
+                    case 8 : {
+                        fmt.push_back("%lld");
+                        break;
+                    }
+                    default: {
+                        throw CodeGenError(R"""(Printing support is available only
+                                            for 8, 16, 32, and 64 bit unsigned integer kinds.)""",
                                             x.base.base.loc);
                     }
                 }
@@ -7049,6 +7285,11 @@ public:
                 switch (arg_type->type) {
                     case (ASR::ttypeType::Integer) : {
                         int a_kind = down_cast<ASR::Integer_t>(arg_type)->m_kind;
+                        target_type = getIntType(a_kind);
+                        break;
+                    }
+                    case (ASR::ttypeType::UnsignedInteger) : {
+                        int a_kind = down_cast<ASR::UnsignedInteger_t>(arg_type)->m_kind;
                         target_type = getIntType(a_kind);
                         break;
                     }

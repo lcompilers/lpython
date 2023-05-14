@@ -6,6 +6,7 @@
 #include <cctype>
 
 #include <libasr/alloc.h>
+#include <libasr/containers.h>
 
 namespace LCompilers {
 
@@ -37,7 +38,7 @@ bool is_relative_path(const std::string &path);
 // Joins paths (paths can be empty)
 std::string join_paths(const std::vector<std::string> &paths);
 
-std::string unescape_string(Allocator &al, std::string s);
+char* unescape_string(Allocator &al, LCompilers::Str &s);
 
 } // namespace LCompilers
 

@@ -196,6 +196,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
+asr_json = true
 
 [[test]]
 filename = "../integration_tests/test_import_02.py"
@@ -597,6 +598,10 @@ filename = "parser/string2.py"
 ast_new = true
 
 [[test]]
+filename = "parser/string3.py"
+ast_new = true
+
+[[test]]
 filename = "parser/global1.py"
 ast = true
 ast_new = true
@@ -631,6 +636,10 @@ asr = true
 
 [[test]]
 filename = "errors/structs_01.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_02.py"
 asr = true
 
 [[test]]

@@ -19,9 +19,9 @@ def test_global_symbols():
 def update_global_symbols():
     global b, c, d
     x: f64 = f64(c) * d
-    b = i32(int(x))
+    b = i32(x)
     y: f64 = f64(b) / 12.0
-    c = i64(int(y))
+    c = i64(y)
     z: i64 = i64(b) * c
     d = f64(z)
 

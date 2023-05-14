@@ -14,8 +14,7 @@ def change_struct(a: A):
     a.y = a.y + f32(1)
 
 def g():
-    x: A
-    x = A(f32(3.25), 3)
+    x: A = A(f32(3.25), 3)
     f(x)
     assert x.x == 3
     assert f64(x.y) == 3.25

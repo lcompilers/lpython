@@ -6,7 +6,7 @@ W = TypeVar("W")
 
 def Pixel(H: i32, W: i32, Screen: i32[H, W], x: i32, y: i32) -> None:
     if x >= 0 and y >= 0 and x < W and y < H:
-        Screen[i32(int(H - 1 - y)), i32(int(x))] = 255
+        Screen[H - 1 - y, x] = 255
 
 def Clear(H: i32, W: i32, Screen: i32[H, W]):
     i: i32
@@ -53,33 +53,40 @@ def Display(H: i32, W: i32, Screen: i32[H, W]):
 def Line(H: i32, W: i32, Screen: i32[H, W], x1: i32, y1: i32, x2: i32, y2: i32) -> None:
     dx: i32 = abs(x2 - x1)
     dy: i32 = abs(y2 - y1)
+
     sx: i32
     sy: i32
 
-    if x1 > x2:
-        sx = -1
-    else:
+    if x1 < x2:
         sx = 1
-    if y1 > y2:
-        sy = -1
     else:
+        sx = -1
+
+    if y1 < y2:
         sy = 1
+    else:
+        sy = -1
 
     err: i32 = dx - dy
 
     while x1 != x2 or y1 != y2:
         Pixel(H, W, Screen, x1, y1)
         e2: i32 = 2 * err
+
         if e2 > -dy:
             err -= dy
             x1 += sx
+
+        if x1 == x2 and y1 == y2:
+            Pixel(H, W, Screen, x1, y1)
+            break
+
         if e2 < dx:
             err += dx
             y1 += sy
-    Pixel(H, W, Screen, x2, y2)
 
 def Circle(H: i32, W: i32, Screen: i32[H, W], x: i32, y: i32, r: f64) -> None:
-    x0: i32 = i32(int(r))
+    x0: i32 = i32(r)
     y0: i32 = 0
     err: i32 = 0
 

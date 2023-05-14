@@ -21,6 +21,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     ast = is_included("ast")
     ast_new = is_included("ast_new")
     asr = is_included("asr")
+    asr_json = is_included("asr_json")
     llvm = is_included("llvm")
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
@@ -57,7 +58,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "ast",
-            "lpython --show-ast --indent --no-color {infile} -o {outfile}",
+            "lpython --show-ast --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
@@ -66,7 +67,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "ast_new",
-            "lpython --show-ast --indent --new-parser --no-color {infile} -o {outfile}",
+            "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
@@ -75,14 +76,23 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "asr",
-            "lpython --show-asr --indent --no-color {infile} -o {outfile}",
+            "lpython --show-asr --no-color {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if asr_json:
+        run_test(
+            filename,
+            "asr_json",
+            "lpython --show-asr --json {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
 
     if pass_ is not None:
         cmd = "lpython --pass=" + pass_ + \
-            " --show-asr --indent --no-color {infile} -o {outfile}"
+            " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)
 

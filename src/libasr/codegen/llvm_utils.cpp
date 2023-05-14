@@ -1962,6 +1962,9 @@ namespace LCompilers {
                 }
                 return tuple_hash;
             }
+            case ASR::ttypeType::Logical: {
+                return builder->CreateZExt(key, llvm::Type::getInt32Ty(context));
+            }
             default: {
                 throw LCompilersException("Hashing " + ASRUtils::type_to_str_python(key_asr_type) +
                                           " isn't implemented yet.");
