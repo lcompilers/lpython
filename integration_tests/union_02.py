@@ -19,9 +19,9 @@ class C:
 @ccall
 @union
 class D(Union):
-    a: A
-    b: B
-    c: C
+    a: A = A()
+    b: B = B()
+    c: C = C()
 
 def test_struct_union():
     d: D = D()

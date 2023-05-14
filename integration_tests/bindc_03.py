@@ -42,7 +42,7 @@ def h(q_void: CPtr) -> None:
 def run():
     a: CPtr
     array_wrapped: ArrayWrapped = ArrayWrapped(a)
-    array_wrapped1: ArrayWrapped
+    array_wrapped1: ArrayWrapped = ArrayWrapped()
     size: i32
     size = 10
     a = get_array(size)

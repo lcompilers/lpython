@@ -9,9 +9,8 @@ class A:
 def f(a: CPtr) -> None:
     x: i32
     y: f32
-    a1: A
+    a1: A = A(3, f32(3.25))
     a2: Pointer[A]
-    a1 = A(3, f32(3.25))
     a2 = pointer(a1)
     print(a2, pointer(a1))
     x = a2.x
