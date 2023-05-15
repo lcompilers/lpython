@@ -6,6 +6,7 @@ source_filename = "LFortran"
 @0 = private unnamed_addr constant [2 x i8] c" \00", align 1
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [13 x i8] c"%lld%s%lld%s\00", align 1
+@3 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
 define void @__module__global_symbols__lpython_main_program() {
 .entry:
@@ -17,13 +18,42 @@ define void @__module__global_symbols__lpython_main_program() {
   %4 = load i16*, i16** @x, align 8
   %5 = ptrtoint i16* %4 to i64
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @2, i32 0, i32 0), i64 %3, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i64 %5, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
+  call void @__module__global_symbols_test_issue_1781()
   br label %return
 
 return:                                           ; preds = %.entry
   ret void
 }
 
+define void @__module__global_symbols_test_issue_1781() {
+.entry:
+  %p = alloca void*, align 8
+  store void* null, void** %p, align 8
+  %0 = load void*, void** %p, align 8
+  %1 = ptrtoint void* %0 to i64
+  %2 = icmp eq i64 %1, 0
+  br i1 %2, label %then, label %else
+
+then:                                             ; preds = %.entry
+  br label %ifcont
+
+else:                                             ; preds = %.entry
+  call void (i8*, ...) @_lcompilers_print_error(i8* getelementptr inbounds ([16 x i8], [16 x i8]* @3, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont
+
+ifcont:                                           ; preds = %else, %then
+  br label %return
+
+return:                                           ; preds = %ifcont
+  ret void
+}
+
 declare void @_lfortran_printf(i8*, ...)
+
+declare void @_lcompilers_print_error(i8*, ...)
+
+declare void @exit(i32)
 
 define i32 @main(i32 %0, i8** %1) {
 .entry:

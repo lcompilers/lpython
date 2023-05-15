@@ -368,7 +368,14 @@
                                     )
                                     [f]
                                     []
-                                    [(SubroutineCall
+                                    [(=
+                                        (Var 4 b)
+                                        (PointerNullConstant
+                                            (CPtr)
+                                        )
+                                        ()
+                                    )
+                                    (SubroutineCall
                                         7 f
                                         ()
                                         [((Var 4 b))]
