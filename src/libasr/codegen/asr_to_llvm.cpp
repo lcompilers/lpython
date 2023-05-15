@@ -5134,6 +5134,49 @@ public:
         }
     }
 
+    void visit_CPtrCompare(const ASR::CPtrCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        left = builder->CreatePtrToInt(left, getIntType(8, false));
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        right = builder->CreatePtrToInt(right, getIntType(8, false));
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpSGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpSGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpSLT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpSLE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
     void visit_RealCompare(const ASR::RealCompare_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
