@@ -700,38 +700,33 @@ class TreeVisitorVisitor(ASDLVisitor):
         self.make_visitor(cons.name, cons.fields, True)
 
     def make_visitor(self, name, fields, cons):
-        if len(fields) == 2 and (name == "TranslationUnit" or name == "Module"):
-            self.emit("void visit_%s(const %s_t &/*x*/) {" % (name, name), 1)
-            self.emit("// Handled in the pickle.cpp", 2)
-            self.emit("}", 1)
-        else:
-            self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-            self.emit(          'if(!attached) {', 2)
-            self.emit(              'attached = true;', 3)
-            self.emit(              's.append("\\n"+indtd);', 3)
-            self.emit(              'last ? s.append("╰─") : s.append("├─");', 3)
-            self.emit(          '}', 2)
-            self.emit(          'last ? inc_indent() : inc_lindent();', 2)
-            self.emit(          'last = false;', 2)
-            if cons:
-                self.emit(    'if (use_colors) {', 2)
-                self.emit(        's.append(color(style::bold));', 3)
-                self.emit(        's.append(color(fg::magenta));', 3)
-                self.emit(    '}', 2)
-                self.emit(    's.append("%s");' % name, 2)
-                self.emit(    'if (use_colors) {', 2)
-                self.emit(        's.append(color(fg::reset));', 3)
-                self.emit(        's.append(color(style::reset));', 3)
-                self.emit(    '}', 2)
-            self.used = False
-            for n, field in enumerate(fields):
-                self.visitField(field, cons, n == len(fields)-1)
-            self.emit(    'dec_indent();', 2)
-            if not self.used:
-                # Note: a better solution would be to change `&x` to `& /* x */`
-                # above, but we would need to change emit to return a string.
-                self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
-            self.emit("}", 1)
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.emit(          'if(!attached) {', 2)
+        self.emit(              'attached = true;', 3)
+        self.emit(              's.append("\\n"+indtd);', 3)
+        self.emit(              'last ? s.append("╰─") : s.append("├─");', 3)
+        self.emit(          '}', 2)
+        self.emit(          'last ? inc_indent() : inc_lindent();', 2)
+        self.emit(          'last = false;', 2)
+        if cons:
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(style::bold));', 3)
+            self.emit(        's.append(color(fg::magenta));', 3)
+            self.emit(    '}', 2)
+            self.emit(    's.append("%s");' % name, 2)
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(fg::reset));', 3)
+            self.emit(        's.append(color(style::reset));', 3)
+            self.emit(    '}', 2)
+        self.used = False
+        for n, field in enumerate(fields):
+            self.visitField(field, cons, n == len(fields)-1)
+        self.emit(    'dec_indent();', 2)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
 
     def make_simple_sum_visitor(self, name, types):
         self.emit("void visit_%s(const %s &x) {" % (name, name), 1)
