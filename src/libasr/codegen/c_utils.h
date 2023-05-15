@@ -471,6 +471,22 @@ class CCPPDSUtils {
                         default: { throw LCompilersException("Integer kind not supported"); }
                     }
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    ASR::UnsignedInteger_t *ui = (ASR::UnsignedInteger_t*)t;
+                    switch (ui->m_kind) {
+                        case 1: { return "%u"; }
+                        case 2: { return "%u"; }
+                        case 4: { return "%u"; }
+                        case 8: {
+                            if (platform == Platform::Linux) {
+                                return "%lu";
+                            } else {
+                                return "%llu";
+                            }
+                        }
+                        default: { throw LCompilersException("Unsigned Integer kind not supported"); }
+                    }
+                }
                 case ASR::ttypeType::Real: {
                     ASR::Real_t *r = (ASR::Real_t*)t;
                     switch (r->m_kind) {
