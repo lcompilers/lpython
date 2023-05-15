@@ -1,4 +1,6 @@
-from lpython import c_p_pointer, CPtr, pointer, i32, Pointer, ccall, p_c_pointer, dataclass, ccallable
+from lpython import (c_p_pointer, CPtr, pointer, i32,
+                    Pointer, ccall, p_c_pointer, dataclass,
+                    ccallable, empty_c_void_p)
 
 @dataclass
 class ArrayWrapped:
@@ -46,6 +48,7 @@ def run():
     size: i32
     size = 10
     a = get_array(size)
+    assert a != empty_c_void_p()
     array_wrapped.array = a
     f(array_wrapped.array)
     array_wrapped1 = array_wrapped
