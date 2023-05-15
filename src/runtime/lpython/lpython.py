@@ -232,6 +232,14 @@ def convert_type_to_ctype(arg):
         return ctypes.c_int16
     elif arg == i8:
         return ctypes.c_int8
+    elif arg == u64:
+        return ctypes.c_uint64
+    elif arg == u32:
+        return ctypes.c_uint32
+    elif arg == u16:
+        return ctypes.c_uint16
+    elif arg == u8:
+        return ctypes.c_uint8
     elif arg == CPtr:
         return ctypes.c_void_p
     elif arg == str:
@@ -264,11 +272,16 @@ def convert_numpy_dtype_to_ctype(arg):
         return ctypes.c_int32
     elif arg == np.int16:
         return ctypes.c_int16
-    elif arg == np.uint16:
-        # TODO: once LPython supports unsigned, change this to unsigned:
-        return ctypes.c_int16
     elif arg == np.int8:
         return ctypes.c_int8
+    elif arg == np.uint64:
+        return ctypes.c_uint64
+    elif arg == np.uint32:
+        return ctypes.c_uint32
+    elif arg == np.uint16:
+        return ctypes.c_uint16
+    elif arg == np.uint8:
+        return ctypes.c_uint8
     elif arg == np.void:
         return ctypes.c_void_p
     elif arg is None:
@@ -431,11 +444,29 @@ def pointer(x, type_=None):
     if isinstance(x, ndarray):
         return x.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(x.dtype)))
     else:
-        if type_ == i32:
+        if type_ == i8:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int8(x)),
+                    ctypes.c_void_p)
+        elif type_ == i16:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int16(x)),
+                    ctypes.c_void_p)
+        elif type_ == i32:
             return ctypes.cast(ctypes.pointer(ctypes.c_int32(x)),
                     ctypes.c_void_p)
         elif type_ == i64:
             return ctypes.cast(ctypes.pointer(ctypes.c_int64(x)),
+                    ctypes.c_void_p)
+        elif type_ == u8:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint8(x)),
+                    ctypes.c_void_p)
+        elif type_ == u16:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint16(x)),
+                    ctypes.c_void_p)
+        elif type_ == u32:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint32(x)),
+                    ctypes.c_void_p)
+        elif type_ == u64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint64(x)),
                     ctypes.c_void_p)
         elif type_ == f32:
             return ctypes.cast(ctypes.pointer(ctypes.c_float(x)),
