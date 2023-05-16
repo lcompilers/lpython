@@ -44,6 +44,7 @@ class Type:
         return self._convert(arg)
 
 def dataclass(arg):
+    arg.__class_getitem__ = lambda self: None
     return py_dataclass(arg)
 
 def is_dataclass(obj):
