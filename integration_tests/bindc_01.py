@@ -8,6 +8,7 @@ print(queries, x)
 def test_issue_1781():
     p: CPtr = empty_c_void_p()
     assert p == empty_c_void_p()
+    assert not (p != empty_c_void_p())
 
 
 test_issue_1781()

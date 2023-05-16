@@ -132,6 +132,22 @@
                                             ()
                                         )
                                         ()
+                                    )
+                                    (Assert
+                                        (LogicalNot
+                                            (CPtrCompare
+                                                (Var 2 p)
+                                                NotEq
+                                                (PointerNullConstant
+                                                    (CPtr)
+                                                )
+                                                (Logical 4 [])
+                                                ()
+                                            )
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
                                     )]
                                     ()
                                     Public
