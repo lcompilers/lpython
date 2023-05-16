@@ -894,14 +894,13 @@ public:
     }
 
     int64_t find_argument_position_from_name(ASR::StructType_t* orig_struct, std::string arg_name) {
-        int64_t arg_position = -1;
         for( size_t i = 0; i < orig_struct->n_members; i++ ) {
             std::string original_arg_name = std::string(orig_struct->m_members[i]);
             if( original_arg_name == arg_name ) {
                 return i;
             }
         }
-        return arg_position;
+        return -1;
     }
 
     void visit_expr_list(AST::expr_t** pos_args, size_t n_pos_args,
