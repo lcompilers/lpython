@@ -643,6 +643,26 @@ filename = "errors/structs_02.py"
 asr = true
 
 [[test]]
+filename = "errors/structs_03.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_04.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_05.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_06.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_07.py"
+asr = true
+
+[[test]]
 filename = "errors/const_01.py"
 asr = true
 
