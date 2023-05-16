@@ -6599,6 +6599,14 @@ public:
         tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
     }
 
+    void parse_args(const AST::Call_t &x, Vec<ASR::call_arg_t> &args) {
+        // Keyword arguments handled in make_call_helper()
+        if( x.n_keywords == 0 ) {
+            args.reserve(al, x.n_args);
+            visit_expr_list(x.m_args, x.n_args, args);
+        }
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name = "";
         Vec<ASR::call_arg_t> args;
@@ -6612,14 +6620,9 @@ public:
             tmp = nullptr;
             return ;
         }
-        // Keyword arguments handled in make_call_helper
-        #define parse_args() if( x.n_keywords == 0 ) { \
-            args.reserve(al, x.n_args); \
-            visit_expr_list(x.m_args, x.n_args, args); \
-        } \
 
         if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
-            parse_args()
+            parse_args(x, args);
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
@@ -6788,7 +6791,7 @@ public:
                 // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
-                parse_args();
+                parse_args(x, args);;
                 if( args.size() < 1 || args.size() > 2 ) {
                     throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
                                         std::to_string(args.size()) + " arguments instead.",
@@ -6820,7 +6823,7 @@ public:
                 tmp = nullptr;
                 return;
             } else if (call_name == "callable") {
-                parse_args()
+                parse_args(x, args);
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
                         std::to_string(args.size()) + " given)", x.base.base.loc);
@@ -6836,13 +6839,13 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
             } else if( call_name == "pointer" ) {
-                parse_args()
+                parse_args(x, args);
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
                                             ASRUtils::expr_type(args[0].m_value)));
                 tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
                 return ;
             } else if( call_name == "array" ) {
-                parse_args()
+                parse_args(x, args);
                 if( args.size() != 1 ) {
                     throw SemanticError("array accepts only 1 argument for now, got " +
                                         std::to_string(args.size()) + " arguments instead.",
@@ -6862,7 +6865,7 @@ public:
                 }
                 return;
             } else if( call_name == "deepcopy" ) {
-                parse_args()
+                parse_args(x, args);
                 if( args.size() != 1 ) {
                     throw SemanticError("deepcopy only accepts one argument, found " +
                                         std::to_string(args.size()) + " instead.",
@@ -6921,7 +6924,7 @@ public:
                         call_name == "c32" ||
                         call_name == "c64"
                     ) {
-                parse_args()
+                parse_args(x, args);
                 ASR::ttype_t* target_type = nullptr;
                 if( call_name == "i8" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 1, nullptr, 0));
@@ -6953,7 +6956,7 @@ public:
                 tmp = (ASR::asr_t*) arg;
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
-                parse_args()
+                parse_args(x, args);
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
@@ -6965,7 +6968,7 @@ public:
             } // end of "comment"
         }
 
-        parse_args()
+        parse_args(x, args);
         tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
