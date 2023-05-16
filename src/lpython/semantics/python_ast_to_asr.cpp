@@ -893,6 +893,63 @@ public:
         return true;
     }
 
+    int64_t find_argument_position_from_name(ASR::StructType_t* orig_struct, std::string arg_name) {
+        int64_t arg_position = -1;
+        for( size_t i = 0; i < orig_struct->n_members; i++ ) {
+            std::string original_arg_name = std::string(orig_struct->m_members[i]);
+            if( original_arg_name == arg_name ) {
+                return i;
+            }
+        }
+        return arg_position;
+    }
+
+    void visit_expr_list(AST::expr_t** pos_args, size_t n_pos_args,
+                         AST::keyword_t* kwargs, size_t n_kwargs,
+                         Vec<ASR::call_arg_t>& call_args_vec,
+                         ASR::StructType_t* orig_struct, const Location &loc) {
+        LCOMPILERS_ASSERT(call_args_vec.reserve_called);
+
+        // Fill the whole call_args_vec with nullptr
+        // This is for error handling later on.
+        for( size_t i = 0; i < n_pos_args + n_kwargs; i++ ) {
+            ASR::call_arg_t call_arg;
+            Location loc;
+            loc.first = loc.last = 1;
+            call_arg.m_value = nullptr;
+            call_arg.loc = loc;
+            call_args_vec.push_back(al, call_arg);
+        }
+
+        // Now handle positional arguments in the following loop
+        for( size_t i = 0; i < n_pos_args; i++ ) {
+            this->visit_expr(*pos_args[i]);
+            ASR::expr_t* expr = ASRUtils::EXPR(tmp);
+            call_args_vec.p[i].loc = expr->base.loc;
+            call_args_vec.p[i].m_value = expr;
+        }
+
+        // Now handle keyword arguments in the following loop
+        for( size_t i = 0; i < n_kwargs; i++ ) {
+            this->visit_expr(*kwargs[i].m_value);
+            ASR::expr_t* expr = ASRUtils::EXPR(tmp);
+            std::string arg_name = std::string(kwargs[i].m_arg);
+            int64_t arg_pos = find_argument_position_from_name(orig_struct, arg_name);
+            if( arg_pos == -1 ) {
+                throw SemanticError("Member '" + arg_name + "' not found in struct", kwargs[i].loc);
+            } else if (arg_pos >= (int64_t)call_args_vec.size()) {
+                throw SemanticError("Not enough arguments to " + std::string(orig_struct->m_name)
+                    + "(), expected " + std::to_string(orig_struct->n_members), loc);
+            }
+            if( call_args_vec[arg_pos].m_value != nullptr ) {
+                throw SemanticError(std::string(orig_struct->m_name) + "() got multiple values for argument '"
+                                    + arg_name + "'", kwargs[i].loc);
+            }
+            call_args_vec.p[arg_pos].loc = expr->base.loc;
+            call_args_vec.p[arg_pos].m_value = expr;
+        }
+    }
+
     void visit_expr_list_with_cast(ASR::expr_t** m_args, size_t n_args,
                                    Vec<ASR::call_arg_t>& call_args_vec,
                                    Vec<ASR::call_arg_t>& args,
@@ -1195,7 +1252,17 @@ public:
             }
         } else if(ASR::is_a<ASR::StructType_t>(*s)) {
             ASR::StructType_t* StructType = ASR::down_cast<ASR::StructType_t>(s);
-            for( size_t i = 0; i < std::min(args.size(), StructType->n_members); i++ ) {
+            if (n_kwargs > 0) {
+                args.reserve(al, n_pos_args + n_kwargs);
+                visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
+                                         args, StructType, loc);
+            }
+
+            if (args.size() > 0 && args.size() !=  StructType->n_members) {
+                throw SemanticError("StructConstructor arguments do not match the number of struct members", loc);
+            }
+
+            for( size_t i = 0; i < args.size(); i++ ) {
                 std::string member_name = StructType->m_members[i];
                 ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
                                                 StructType->m_symtab->resolve_symbol(member_name));
