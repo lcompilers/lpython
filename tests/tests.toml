@@ -291,8 +291,6 @@ c = true
 filename = "test_end_sep_keywords.py"
 asr = true
 
-# integration_tests
-
 [[test]]
 filename = "lpython1.py"
 llvm = true
@@ -300,6 +298,12 @@ llvm = true
 [[test]]
 filename = "print_str.py"
 wat = true
+
+[[test]]
+filename = "intent_01.py"
+asr = true
+
+# integration_tests
 
 [[test]]
 filename = "../integration_tests/test_builtin.py"
