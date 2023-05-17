@@ -4400,6 +4400,12 @@ public:
             llvm_cptr = builder->CreateBitCast(llvm_cptr, llvm_fptr_data_type->getPointerTo());
             builder->CreateStore(llvm_cptr, fptr_data);
             llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+            ASR::ArrayConstant_t* lower_bounds = nullptr;
+            if( x.m_lower_bounds ) {
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::ArrayConstant_t>(*x.m_lower_bounds));
+                lower_bounds = ASR::down_cast<ASR::ArrayConstant_t>(x.m_lower_bounds);
+                LCOMPILERS_ASSERT(fptr_rank == (int) lower_bounds->n_args);
+            }
             for( int i = 0; i < fptr_rank; i++ ) {
                 llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
                 llvm::Value* desi = arr_descr->get_pointer_to_dimension_descriptor(fptr_des, curr_dim);
@@ -4409,6 +4415,13 @@ public:
                 builder->CreateStore(prod, desi_stride);
                 llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* new_lb = i32_one;
+                if( lower_bounds ) {
+                    int ptr_loads_copy = ptr_loads;
+                    ptr_loads = 2;
+                    this->visit_expr_wrapper(lower_bounds->m_args[i], true);
+                    ptr_loads = ptr_loads_copy;
+                    new_lb = tmp;
+                }
                 llvm::Value* new_ub = shape_data ? CreateLoad(llvm_utils->create_ptr_gep(shape_data, i)) : i32_one;
                 builder->CreateStore(new_lb, desi_lb);
                 llvm::Value* new_size = builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one);
@@ -6048,46 +6061,11 @@ public:
         for (size_t i=0; i < x.n_args; i++) {
             llvm::Value *llvm_el = llvm_utils->create_gep(p_fxn, i);
             ASR::expr_t *el = x.m_args[i];
-            llvm::Value *llvm_val;
-            if (ASR::is_a<ASR::Integer_t>(*x.m_type)) {
-                ASR::IntegerConstant_t *ci = ASR::down_cast<ASR::IntegerConstant_t>(el);
-                switch (ASR::down_cast<ASR::Integer_t>(x.m_type)->m_kind) {
-                    case (4) : {
-                        int32_t el_value = ci->m_n;
-                        llvm_val = llvm::ConstantInt::get(context, llvm::APInt(32, static_cast<int32_t>(el_value), true));
-                        break;
-                    }
-                    case (8) : {
-                        int64_t el_value = ci->m_n;
-                        llvm_val = llvm::ConstantInt::get(context, llvm::APInt(32, el_value, true));
-                        break;
-                    }
-                    default :
-                        throw CodeGenError("ConstArray integer kind not supported yet");
-                }
-            } else if (ASR::is_a<ASR::Real_t>(*x.m_type)) {
-                ASR::RealConstant_t *cr = ASR::down_cast<ASR::RealConstant_t>(el);
-                switch (ASR::down_cast<ASR::Real_t>(x.m_type)->m_kind) {
-                    case (4) : {
-                        float el_value = cr->m_r;
-                        llvm_val = llvm::ConstantFP::get(context, llvm::APFloat(el_value));
-                        break;
-                    }
-                    case (8) : {
-                        double el_value = cr->m_r;
-                        llvm_val = llvm::ConstantFP::get(context, llvm::APFloat(el_value));
-                        break;
-                    }
-                    default :
-                        throw CodeGenError("ConstArray real kind not supported yet");
-                }
-            } else if (ASR::is_a<ASR::Logical_t>(*x.m_type)) {
-                ASR::LogicalConstant_t *cr = ASR::down_cast<ASR::LogicalConstant_t>(el);
-                llvm_val = llvm::ConstantInt::get(context, llvm::APInt(1, cr->m_value));
-            } else {
-                throw CodeGenError("ConstArray type not supported yet");
-            }
-            builder->CreateStore(llvm_val, llvm_el);
+            int64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 2;
+            this->visit_expr_wrapper(el, true);
+            ptr_loads = ptr_loads_copy;
+            builder->CreateStore(tmp, llvm_el);
         }
         // Return the vector as float* type:
         tmp = llvm_utils->create_gep(p_fxn, 0);

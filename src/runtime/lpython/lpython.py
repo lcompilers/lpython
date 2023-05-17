@@ -44,7 +44,10 @@ class Type:
         return self._convert(arg)
 
 def dataclass(arg):
-    arg.__class_getitem__ = lambda self: None
+    def __class_getitem__(key):
+        return Array(arg, key)
+    arg.__class_getitem__ = __class_getitem__
+
     return py_dataclass(arg)
 
 def is_dataclass(obj):
@@ -266,6 +269,8 @@ def convert_type_to_ctype(arg):
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
+        if is_dataclass(arg._type):
+            return arg
         type = convert_type_to_ctype(arg._type)
         return ctypes.POINTER(type)
     elif is_dataclass(arg):
@@ -535,6 +540,8 @@ class PointerToStruct:
 def c_p_pointer(cptr, targettype):
     targettype_ptr = convert_type_to_ctype(targettype)
     if isinstance(targettype, Array):
+        if py_is_dataclass(targettype._type):
+            return ctypes.cast(cptr.value, ctypes.py_object).value
         newa = ctypes.cast(cptr, targettype_ptr)
         return newa
     else:
