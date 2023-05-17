@@ -1090,14 +1090,19 @@ R"(
         std::string dest_src = std::move(src);
         src = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
+        ASR::ArrayConstant_t* lower_bounds = nullptr;
+        if( x.m_lower_bounds ) {
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::ArrayConstant_t>(*x.m_lower_bounds));
+            lower_bounds = ASR::down_cast<ASR::ArrayConstant_t>(x.m_lower_bounds);
+        }
         if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
             std::string dim_set_code = "";
             ASR::dimension_t* m_dims = nullptr;
             int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_ptr), m_dims);
             dim_set_code = indent + dest_src + "->n_dims = " + std::to_string(n_dims) + ";\n";
             for( int i = 0; i < n_dims; i++ ) {
-                if( m_dims[i].m_start ) {
-                    visit_expr(*m_dims[i].m_start);
+                if( lower_bounds ) {
+                    visit_expr(*lower_bounds->m_args[i]);
                 } else {
                     src = "0";
                 }
