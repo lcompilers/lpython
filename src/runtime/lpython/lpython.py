@@ -47,6 +47,9 @@ def dataclass(arg):
     arg.__class_getitem__ = lambda self: None
     return py_dataclass(arg)
 
+def is_ctypes_Structure(obj):
+    return (isclass(obj) and issubclass(obj, ctypes.Structure))
+
 def is_dataclass(obj):
     return ((isclass(obj) and issubclass(obj, ctypes.Structure)) or
              py_is_dataclass(obj))
@@ -221,6 +224,7 @@ class c_double_complex(c_complex):
     _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
 
 def convert_type_to_ctype(arg):
+    from enum import Enum
     if arg == f64:
         return ctypes.c_double
     elif arg == f32:
@@ -258,6 +262,9 @@ def convert_type_to_ctype(arg):
         return ctypes.POINTER(type)
     elif is_dataclass(arg):
         return convert_to_ctypes_Structure(arg)
+    elif issubclass(arg, Enum):
+        # TODO: store enum in ctypes.Structure with name and value as fields.
+        return ctypes.c_int64
     else:
         raise NotImplementedError("Type %r not implemented" % arg)
 
@@ -405,6 +412,7 @@ def convert_to_ctypes_Structure(f):
                 super().__init__(*args)
 
             for field, arg in zip(self._fields_, args):
+                from enum import Enum
                 member = self.__getattribute__(field[0])
                 value = arg
                 if isinstance(member, ctypes.Array):
@@ -417,6 +425,8 @@ def convert_to_ctypes_Structure(f):
                             value = value.flatten().tolist()
                             value = [c_double_complex(val.real, val.imag) for val in value]
                         value = type(member)(*value)
+                elif isinstance(value, Enum):
+                    value = value.value
                 self.__setattr__(field[0], value)
 
     ctypes_Structure.__name__ = f.__name__
@@ -498,6 +508,7 @@ class PointerToStruct:
 
     def __setattr__(self, name: str, value):
         name_ = self.ctypes_ptr.contents.__getattribute__(name)
+        from enum import Enum
         if isinstance(name_, c_float_complex):
             if isinstance(value, complex):
                 value = c_float_complex(value.real, value.imag)
@@ -518,6 +529,8 @@ class PointerToStruct:
                     value = value.flatten().tolist()
                     value = [c_double_complex(val.real, val.imag) for val in value]
                 value = type(name_)(*value)
+        elif isinstance(value, Enum):
+            value = value.value
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
@@ -526,9 +539,12 @@ def c_p_pointer(cptr, targettype):
         newa = ctypes.cast(cptr, targettype_ptr)
         return newa
     else:
+        if py_is_dataclass(targettype):
+            return ctypes.cast(cptr, ctypes.py_object).value
+
         targettype_ptr = ctypes.POINTER(targettype_ptr)
         newa = ctypes.cast(cptr, targettype_ptr)
-        if is_dataclass(targettype):
+        if is_ctypes_Structure(targettype):
             # return after wrapping newa inside PointerToStruct
             return PointerToStruct(newa)
         return newa
