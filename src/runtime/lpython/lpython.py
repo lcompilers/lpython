@@ -540,6 +540,8 @@ def c_p_pointer(cptr, targettype):
         return newa
     else:
         if py_is_dataclass(targettype):
+            if cptr.value is None:
+                return None
             return ctypes.cast(cptr, ctypes.py_object).value
 
         targettype_ptr = ctypes.POINTER(targettype_ptr)
