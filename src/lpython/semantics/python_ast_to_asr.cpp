@@ -2577,6 +2577,55 @@ public:
         return ASR::make_CPtrToPointer_t(al, loc, cptr, pptr, target_shape, lower_bounds);
     }
 
+    ASR::asr_t* check_to_allocate_array(AST::expr_t *value, std::string var_name,
+                                            const Location &loc) {
+        if (AST::is_a<AST::Call_t>(*value)) {
+            AST::Call_t *ct = AST::down_cast<AST::Call_t>(value);
+            if (AST::is_a<AST::Name_t>(*ct->m_func)) {
+                std::string call_name = AST::down_cast<AST::Name_t>(ct->m_func)->m_id;
+                if (call_name == "empty") {
+                    LCOMPILERS_ASSERT(ct->n_args > 0);
+                    if (AST::is_a<AST::Tuple_t>(*ct->m_args[0])) {
+                        AST::Tuple_t *tt = AST::down_cast<AST::Tuple_t>(ct->m_args[0]);
+                        Vec<ASR::alloc_arg_t> alloc_args_vec;
+                        alloc_args_vec.reserve(al, 1);
+                        ASR::alloc_arg_t new_arg;
+                        new_arg.loc = loc;
+                        ASR::ttype_t *int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                                            4, nullptr, 0));
+                        ASR::expr_t* const_0 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                    loc, 0, int32_type));
+                        Vec<ASR::dimension_t> dims_vec;
+                        dims_vec.reserve(al, tt->n_elts);
+                        for (size_t i=0; i<tt->n_elts; i++) {
+                            ASR::dimension_t new_dim;
+                            new_dim.loc = loc;
+                            this->visit_expr(*tt->m_elts[0]);
+                            new_dim.m_start = const_0;
+                            new_dim.m_length = ASRUtils::EXPR(tmp);
+                            dims_vec.push_back(al, new_dim);
+                        }
+                        new_arg.m_dims = dims_vec.p;
+                        new_arg.n_dims = dims_vec.size();
+                        ASR::symbol_t *v_sym = current_scope->resolve_symbol(var_name);
+                        ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al,
+                                        loc, v_sym));
+                        new_arg.m_a = v_expr;
+                        alloc_args_vec.push_back(al, new_arg);
+                        tmp = ASR::make_Allocate_t(al, loc,
+                                    alloc_args_vec.p, alloc_args_vec.size(),
+                                    nullptr, nullptr, nullptr);
+                        return tmp;
+                    } else {
+                        throw SemanticError("Only tuple argument is accepted as dimensions "
+                            "for allocating using empty()", ct->base.base.loc);
+                    }
+                }
+            }
+        }
+        return nullptr;
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false,
                              ASR::expr_t* init_expr=nullptr, ASR::abiType abi=ASR::abiType::Source) {
@@ -2644,6 +2693,13 @@ public:
         if( !is_c_p_pointer_call ) {
             create_add_variable_to_scope(var_name, init_expr, type,
                 x.base.base.loc, abi, storage_type);
+        }
+
+        if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
+            tmp = check_to_allocate_array(x.m_value, var_name, x.base.base.loc);
+            if( current_body && tmp) {
+                current_body->push_back(al, ASRUtils::STMT(tmp));
+            }
         }
 
         if( !is_c_p_pointer_call ) {
@@ -4729,6 +4785,19 @@ public:
                 list_ele.reserve(al, 1);
                 tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
                                 list_ele.size(), target_type));
+            }
+            if (tmp_value == nullptr && ASR::is_a<ASR::Var_t>(*target)) {
+                ASR::Var_t *var_tar = ASR::down_cast<ASR::Var_t>(target);
+                if (ASR::is_a<ASR::Variable_t>(*var_tar->m_v)) {
+                    if (ASR::down_cast<ASR::Variable_t>(var_tar->m_v)->m_storage == ASR::storage_typeType::Allocatable) {
+                        ASR::asr_t *st = check_to_allocate_array(x.m_value, ASRUtils::symbol_name(var_tar->m_v),
+                                            x.base.base.loc);
+                        if (st) {
+                            tmp_vec.push_back(st);
+                            continue;
+                        }
+                    }
+                }
             }
             if (!tmp_value) continue;
             ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);

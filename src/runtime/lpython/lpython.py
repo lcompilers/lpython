@@ -9,7 +9,8 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable"]
+        "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
+        "Allocatable"]
 
 # data-types
 
@@ -29,6 +30,7 @@ type_to_convert_func = {
     "c_ptr": lambda x: x,
     "Const": lambda x: x,
     "Callable": lambda x: x,
+    "Allocatable": lambda x: x,
     "Pointer": lambda x: x,
 }
 
@@ -87,6 +89,7 @@ c64 = Type("c64")
 CPtr = Type("c_ptr")
 Const = ConstType("Const")
 Callable = Type("Callable")
+Allocatable = Type("Allocatable")
 Union = ctypes.Union
 Pointer = PointerType("Pointer")
 
