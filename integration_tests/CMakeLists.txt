@@ -14,10 +14,21 @@ endif ()
 
 set(KIND no CACHE STRING "Type of Test")
 
+find_program(LPYTHON NAMES lpython)
+
+execute_process(COMMAND ${LPYTHON} --get-rtl-header-dir
+    OUTPUT_VARIABLE LPYTHON_RTL_HEADER_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+execute_process(COMMAND ${LPYTHON} --get-rtl-dir
+    OUTPUT_VARIABLE LPYTHON_RTL_DIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
 find_path(LPYTHON_RTLIB_DIR lfortran_intrinsics.h
-    ${CMAKE_SOURCE_DIR}/../src/libasr/runtime)
+    HINTS ${LPYTHON_RTL_HEADER_DIR})
 find_library(LPYTHON_RTLIB_LIBRARY lpython_runtime_static
-    ${CMAKE_SOURCE_DIR}/../src/runtime/)
+    HINTS ${LPYTHON_RTL_DIR})
 add_library(lpython_rtlib INTERFACE IMPORTED)
 set_property(TARGET lpython_rtlib PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${LPYTHON_RTLIB_DIR})
@@ -39,6 +50,7 @@ else ()
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("KIND: ${KIND}")
+message("LPYTHON: ${LPYTHON}")
 message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
@@ -61,13 +73,13 @@ macro(RUN)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND lpython -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    COMMAND ${LPYTHON} -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND lpython -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    COMMAND ${LPYTHON} -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()
@@ -85,13 +97,13 @@ macro(RUN)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND lpython -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()
@@ -130,7 +142,7 @@ macro(RUN)
             # x86 test
             add_custom_command(
                 OUTPUT ${name}.x86
-                COMMAND lpython --backend x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
+                COMMAND ${LPYTHON} --backend x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM
             )
@@ -147,7 +159,7 @@ macro(RUN)
             # wasm_to_x86 test
             add_custom_command(
                 OUTPUT ${name}.x86
-                COMMAND lpython --backend wasm_x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
+                COMMAND ${LPYTHON} --backend wasm_x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM
             )
@@ -164,7 +176,7 @@ macro(RUN)
             # wasm_to_x64 test
             add_custom_command(
                 OUTPUT ${name}.x64
-                COMMAND lpython --backend wasm_x64 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x64
+                COMMAND ${LPYTHON} --backend wasm_x64 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x64
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM
             )
@@ -179,7 +191,7 @@ macro(RUN)
             endif()
         elseif(KIND STREQUAL "wasm")
             # wasm test
-            execute_process(COMMAND lpython --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
+            execute_process(COMMAND ${LPYTHON} --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
 
             find_program(WASM_EXEC_RUNTIME node)
             execute_process(COMMAND "${WASM_EXEC_RUNTIME}" --version
@@ -224,13 +236,13 @@ macro(COMPILE)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND lpython --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    COMMAND ${LPYTHON} --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND lpython --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    COMMAND ${LPYTHON} --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()
@@ -240,13 +252,13 @@ macro(COMPILE)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND lpython --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND lpython --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()
