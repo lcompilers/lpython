@@ -1581,6 +1581,29 @@ public:
         }
     }
 
+    AST::expr_t* get_var_intent_and_annotation(AST::expr_t *annotation, ASR::intentType &intent) {
+        if (AST::is_a<AST::Subscript_t>(*annotation)) {
+            AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(annotation);
+            if (AST::is_a<AST::Name_t>(*s->m_value)) {
+                std::string ann_name = AST::down_cast<AST::Name_t>(s->m_value)->m_id;
+                if (ann_name == "In") {
+                    intent = ASRUtils::intent_in;
+                    return s->m_slice;
+                } else if (ann_name == "InOut") {
+                    intent = ASRUtils::intent_inout;
+                    return s->m_slice;
+                } else if (ann_name == "Out") {
+                    intent = ASRUtils::intent_out;
+                    return s->m_slice;
+                }
+                return annotation;
+            } else {
+                throw SemanticError("Only Name in Subscript supported for now in annotation", annotation->base.loc);
+            }
+        }
+        return annotation;
+    }
+
     // Convert Python AST type annotation to an ASR type
     // Examples:
     // i32, i64, f32, f64
@@ -2490,6 +2513,35 @@ public:
         current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
 
+    #define fill_shape_and_lower_bound_for_CPtrToPointer() ASR::dimension_t* target_dims = nullptr; \
+        int target_n_dims = ASRUtils::extract_dimensions_from_ttype(target_type, target_dims); \
+        ASR::expr_t* target_shape = nullptr; \
+        ASR::expr_t* lower_bounds = nullptr; \
+        if( target_n_dims > 0 ) { \
+            Vec<ASR::expr_t*> sizes, lbs; \
+            sizes.reserve(al, target_n_dims); \
+            lbs.reserve(al, target_n_dims); \
+            bool success = true; \
+            for( int i = 0; i < target_n_dims; i++ ) { \
+                if( target_dims->m_length == nullptr ) { \
+                    success = false; \
+                    break; \
+                } \
+                sizes.push_back(al, target_dims->m_length); \
+                lbs.push_back(al, ASRUtils::EXPR(ASR::make_IntegerConstant_t( \
+                    al, loc, 0, ASRUtils::TYPE( \
+                        ASR::make_Integer_t(al, loc, 4, nullptr, 0))))); \
+            } \
+            if( success ) { \
+                target_shape = ASRUtils::EXPR(ASR::make_ArrayConstant_t(al, \
+                    loc, sizes.p, sizes.size(), ASRUtils::expr_type(target_dims[0].m_length), \
+                    ASR::arraystorageType::RowMajor)); \
+                lower_bounds = ASRUtils::EXPR(ASR::make_ArrayConstant_t(al, \
+                    loc, lbs.p, lbs.size(), ASRUtils::expr_type(lbs[0]), \
+                    ASR::arraystorageType::RowMajor)); \
+            } \
+        } \
+
     ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
         AST::expr_t* ast_type_expr, const Location& loc) {
         this->visit_expr(*ast_cptr);
@@ -2509,8 +2561,8 @@ public:
             );
             throw SemanticAbort();
         }
-        return ASR::make_CPtrToPointer_t(al, loc, cptr,
-                                         pptr, nullptr);
+        fill_shape_and_lower_bound_for_CPtrToPointer();
+        return ASR::make_CPtrToPointer_t(al, loc, cptr, pptr, target_shape, lower_bounds);
     }
 
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
@@ -3741,7 +3793,9 @@ public:
             if (x.m_args.m_args[i].m_annotation == nullptr) {
                 throw SemanticError("Argument does not have a type", loc);
             }
-            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
+            ASR::intentType s_intent = ASRUtils::intent_unspecified;
+            AST::expr_t* arg_annotation_type = get_var_intent_and_annotation(x.m_args.m_args[i].m_annotation, s_intent);
+            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *arg_annotation_type);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
                 ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
@@ -3766,12 +3820,13 @@ public:
             }
 
             std::string arg_s = arg;
-
             ASR::expr_t *value = nullptr;
             ASR::expr_t *init_expr = nullptr;
-            ASR::intentType s_intent = ASRUtils::intent_in;
-            if (ASRUtils::is_array(arg_type)) {
-                s_intent = ASRUtils::intent_inout;
+            if (s_intent == ASRUtils::intent_unspecified) {
+                s_intent = ASRUtils::intent_in;
+                if (ASRUtils::is_array(arg_type)) {
+                    s_intent = ASRUtils::intent_inout;
+                }
             }
             ASR::storage_typeType storage_type =
                     ASR::storage_typeType::Default;
@@ -6125,8 +6180,10 @@ public:
             );
             throw SemanticAbort();
         }
-        return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
-                                         pptr, nullptr);
+        const Location& loc = x.base.base.loc;
+        fill_shape_and_lower_bound_for_CPtrToPointer();
+        return ASR::make_CPtrToPointer_t(al, loc, cptr,
+            pptr, target_shape, lower_bounds);
     }
 
     ASR::asr_t* create_PointerToCPtr(const AST::Call_t& x) {
