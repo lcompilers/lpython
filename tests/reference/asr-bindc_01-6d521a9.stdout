@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        4
+                        5
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             
                                         })
@@ -30,18 +30,24 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [test_issue_1781]
                                     []
                                     [(CPtrToPointer
-                                        (Var 4 queries)
-                                        (Var 4 x)
+                                        (Var 5 queries)
+                                        (Var 5 x)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 4 queries)
-                                        (Var 4 x)]
+                                        [(Var 5 queries)
+                                        (Var 5 x)]
                                         ()
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        5 test_issue_1781
+                                        ()
+                                        []
                                         ()
                                     )]
                                     ()
@@ -52,12 +58,16 @@
                                 ),
                             queries:
                                 (Variable
-                                    4
+                                    5
                                     queries
                                     []
                                     Local
-                                    ()
-                                    ()
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
                                     Default
                                     (CPtr)
                                     Source
@@ -65,9 +75,89 @@
                                     Required
                                     .false.
                                 ),
+                            test_issue_1781:
+                                (Function
+                                    (SymbolTable
+                                        2
+                                        {
+                                            p:
+                                                (Variable
+                                                    2
+                                                    p
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (CPtr)
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_issue_1781
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 2 p)
+                                        (PointerNullConstant
+                                            (CPtr)
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (CPtrCompare
+                                            (Var 2 p)
+                                            Eq
+                                            (PointerNullConstant
+                                                (CPtr)
+                                            )
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (LogicalNot
+                                            (CPtrCompare
+                                                (Var 2 p)
+                                                NotEq
+                                                (PointerNullConstant
+                                                    (CPtr)
+                                                )
+                                                (Logical 4 [])
+                                                ()
+                                            )
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
                             x:
                                 (Variable
-                                    4
+                                    5
                                     x
                                     []
                                     Local
@@ -91,13 +181,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        2
+                        3
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    2
+                                    3
                                     _lpython_main_program
-                                    4 _lpython_main_program
+                                    5 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -107,7 +197,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        2 _lpython_main_program
+                        3 _lpython_main_program
                         ()
                         []
                         ()

@@ -1556,6 +1556,10 @@ R"(#include <stdio.h>
         handle_Compare(x);
     }
 
+    void visit_CPtrCompare(const ASR::CPtrCompare_t &x) {
+        handle_Compare(x);
+    }
+
     template<typename T>
     void handle_Compare(const T &x) {
         CHECK_FAST_C_CPP(compiler_options, x)
@@ -1661,6 +1665,10 @@ R"(#include <stdio.h>
         } else {
             src = "!(" + src + ")";
         }
+    }
+
+    void visit_PointerNullConstant(const ASR::PointerNullConstant_t& /*x*/) {
+        src = "NULL";
     }
 
     void visit_GetPointer(const ASR::GetPointer_t& x) {

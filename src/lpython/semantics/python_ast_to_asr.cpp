@@ -5841,6 +5841,12 @@ public:
                                 x.base.base.loc);
             }
             tmp = ASR::make_ListCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+        } else if (ASR::is_a<ASR::CPtr_t>(*dest_type)) {
+            if (asr_op != ASR::cmpopType::Eq && asr_op != ASR::cmpopType::NotEq) {
+                throw SemanticError("Only Equal and Not-equal operators are supported for CPtr",
+                                x.base.base.loc);
+            }
+            tmp = ASR::make_CPtrCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         } else {
             throw SemanticError("Compare not supported for type: " + ASRUtils::type_to_str_python(dest_type),
                                 x.base.base.loc);
@@ -6882,7 +6888,13 @@ public:
             } else if (call_name == "empty_c_void_p") {
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
                 // with the type
-                tmp = nullptr;
+                ASR::ttype_t* type;
+                if (ann_assign_target_type) {
+                    type = ann_assign_target_type;
+                } else {
+                    type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                }
+                tmp = ASR::make_PointerNullConstant_t(al, x.base.base.loc, type);
                 return;
             } else if (call_name == "TypeVar") {
                 // Ignore TypeVar for now, we handle it based on the identifier itself

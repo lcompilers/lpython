@@ -542,7 +542,15 @@ def p_c_pointer(ptr, cptr):
         cptr.value = id(ptr)
 
 def empty_c_void_p():
-    return ctypes.c_void_p()
+    class ctypes_c_void_p(ctypes.c_void_p):
+
+        def __eq__(self, value):
+            return self.value == value.value
+
+        def __repr__(self):
+            return str(self.value)
+
+    return ctypes_c_void_p()
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
