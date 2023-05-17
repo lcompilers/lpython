@@ -84,6 +84,18 @@ Callable = Type("Callable")
 Union = ctypes.Union
 Pointer = PointerType("Pointer")
 
+
+class Intent:
+    def __init__(self, type):
+        self._type = type
+
+    def __getitem__(self, params):
+        return params
+
+In = Intent("In")
+Out = Intent("Out")
+InOut = Intent("InOut")
+
 # Generics
 
 class TypeVar():

@@ -1581,6 +1581,29 @@ public:
         }
     }
 
+    AST::expr_t* get_var_intent_and_annotation(AST::expr_t *annotation, ASR::intentType &intent) {
+        if (AST::is_a<AST::Subscript_t>(*annotation)) {
+            AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(annotation);
+            if (AST::is_a<AST::Name_t>(*s->m_value)) {
+                std::string ann_name = AST::down_cast<AST::Name_t>(s->m_value)->m_id;
+                if (ann_name == "In") {
+                    intent = ASRUtils::intent_in;
+                    return s->m_slice;
+                } else if (ann_name == "InOut") {
+                    intent = ASRUtils::intent_inout;
+                    return s->m_slice;
+                } else if (ann_name == "Out") {
+                    intent = ASRUtils::intent_out;
+                    return s->m_slice;
+                }
+                return annotation;
+            } else {
+                throw SemanticError("Only Name in Subscript supported for now in annotation", annotation->base.loc);
+            }
+        }
+        return annotation;
+    }
+
     // Convert Python AST type annotation to an ASR type
     // Examples:
     // i32, i64, f32, f64
@@ -3741,7 +3764,9 @@ public:
             if (x.m_args.m_args[i].m_annotation == nullptr) {
                 throw SemanticError("Argument does not have a type", loc);
             }
-            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
+            ASR::intentType s_intent = ASRUtils::intent_unspecified;
+            AST::expr_t* arg_annotation_type = get_var_intent_and_annotation(x.m_args.m_args[i].m_annotation, s_intent);
+            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *arg_annotation_type);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
                 ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
@@ -3766,12 +3791,13 @@ public:
             }
 
             std::string arg_s = arg;
-
             ASR::expr_t *value = nullptr;
             ASR::expr_t *init_expr = nullptr;
-            ASR::intentType s_intent = ASRUtils::intent_in;
-            if (ASRUtils::is_array(arg_type)) {
-                s_intent = ASRUtils::intent_inout;
+            if (s_intent == ASRUtils::intent_unspecified) {
+                s_intent = ASRUtils::intent_in;
+                if (ASRUtils::is_array(arg_type)) {
+                    s_intent = ASRUtils::intent_inout;
+                }
             }
             ASR::storage_typeType storage_type =
                     ASR::storage_typeType::Default;

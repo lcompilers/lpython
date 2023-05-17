@@ -311,6 +311,7 @@ namespace LCompilers {
                              std::map<std::string, std::map<std::string, int>>& name2memidx) {
         switch( asr_type->type ) {
             case ASR::ttypeType::Integer:
+            case ASR::ttypeType::UnsignedInteger:
             case ASR::ttypeType::Real:
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Complex: {
@@ -2635,7 +2636,7 @@ namespace LCompilers {
          *
          * int i = 0;
          * int j = end_point - 1;
-         * 
+         *
          * tmp;
          *
          * while(j > i) {
