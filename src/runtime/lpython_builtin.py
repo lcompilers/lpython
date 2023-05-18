@@ -198,18 +198,20 @@ def bin(n: i32) -> str:
         return '0b0'
     prep: str
     prep = '0b'
-    if n < 0:
-        n = -n
+    n_: i32
+    n_ = n
+    if n_ < 0:
+        n_ = -n_
         prep = '-0b'
     res: str
     res = ''
-    if (n - _lpython_floordiv(n, 2)*2) == 0:
+    if (n_ - _lpython_floordiv(n_, 2)*2) == 0:
         res += '0'
     else:
         res += '1'
-    while n > 1:
-        n = _lpython_floordiv(n, 2)
-        if (n - _lpython_floordiv(n, 2)*2) == 0:
+    while n_ > 1:
+        n_ = _lpython_floordiv(n_, 2)
+        if (n_ - _lpython_floordiv(n_, 2)*2) == 0:
             res += '0'
         else:
             res += '1'
@@ -227,16 +229,18 @@ def hex(n: i32) -> str:
         return '0x0'
     prep: str
     prep = '0x'
-    if n < 0:
+    n_: i32
+    n_ = n
+    if n_ < 0:
         prep = '-0x'
-        n = -n
+        n_ = -n_
     res: str
     res = ""
     remainder: i32
-    while n > 0:
-        remainder = n - _lpython_floordiv(n, 16)*16
-        n -= remainder
-        n = _lpython_floordiv(n, 16)
+    while n_ > 0:
+        remainder = n_ - _lpython_floordiv(n_, 16)*16
+        n_ -= remainder
+        n_ = _lpython_floordiv(n_, 16)
         res += hex_values[remainder]
     return prep + res[::-1]
 
@@ -252,16 +256,18 @@ def oct(n: i32) -> str:
         return '0o0'
     prep: str
     prep = '0o'
-    if n < 0:
+    n_: i32
+    n_ = n
+    if n_ < 0:
         prep = '-0o'
-        n = -n
+        n_ = -n_
     res: str
     res = ""
     remainder: i32
-    while n > 0:
-        remainder = n - _lpython_floordiv(n, 8)*8
-        n -= remainder
-        n = _lpython_floordiv(n, 8)
+    while n_ > 0:
+        remainder = n_ - _lpython_floordiv(n_, 8)*8
+        n_ -= remainder
+        n_ = _lpython_floordiv(n_, 8)
         res += _values[remainder]
     return prep + res[::-1]
 
@@ -805,18 +811,18 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
     return res
 
 @overload
-def _lpython_str_endswith(s: str, suffix: str) -> bool: 
+def _lpython_str_endswith(s: str, suffix: str) -> bool:
 
     if(len(suffix) > len(s)):
         return False
-    
+
     i : i32
     i = 0
     while(i < len(suffix)):
         if(suffix[len(suffix) - i - 1] != s[len(s) - i - 1]):
             return False
         i += 1
-        
+
     return True
 
 @overload
@@ -833,13 +839,13 @@ def _lpython_str_partition(s:str, sep: str) -> tuple[str, str, str]:
     ind = _lpython_str_find(s, sep)
     if ind == -1:
         res = (s, "", "")
-    else: 
-        res = (s[0:ind], sep, s[ind+len(sep): len(s)])    
+    else:
+        res = (s[0:ind], sep, s[ind+len(sep): len(s)])
     return res
 
 @overload
 def _lpython_str_islower(s: str) -> bool:
-    is_cased_present: bool 
+    is_cased_present: bool
     is_cased_present = False
     i:str
     for i in s:
@@ -851,7 +857,7 @@ def _lpython_str_islower(s: str) -> bool:
 
 @overload
 def _lpython_str_isupper(s: str) -> bool:
-    is_cased_present: bool 
+    is_cased_present: bool
     is_cased_present = False
     i:str
     for i in s:

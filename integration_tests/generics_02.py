@@ -1,8 +1,8 @@
-from lpython import TypeVar
+from lpython import TypeVar, InOut
 
 T = TypeVar('T')
 
-def swap(x: T, y: T):
+def swap(x: InOut[T], y: InOut[T]):
     temp: T
     temp = x
     x = y

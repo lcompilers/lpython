@@ -28,7 +28,6 @@ void main0();
 int32_t test_return_1(int32_t a);
 std::string test_return_2(int32_t a);
 int32_t test_return_3(int32_t a);
-void test_return_4(int32_t a);
 namespace {
 }
 
@@ -54,15 +53,8 @@ std::string test_return_2(int32_t a)
 int32_t test_return_3(int32_t a)
 {
     int32_t _lpython_return_variable;
-    a = 3;
     _lpython_return_variable = a;
     return _lpython_return_variable;
-}
-
-void test_return_4(int32_t a)
-{
-    a = 1;
-    return;
 }
 
 void main0()
@@ -72,7 +64,6 @@ void main0()
     i = test_return_1(4);
     s = test_return_2(4);
     i = test_return_3(4);
-    test_return_4(4);
 }
 
 void _lpython_main_program()

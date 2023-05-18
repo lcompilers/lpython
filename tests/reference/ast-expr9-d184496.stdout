@@ -113,18 +113,7 @@
         []
         []
         [])
-        [(Assign
-            [(Name
-                a
-                Store
-            )]
-            (ConstantInt
-                3
-                ()
-            )
-            ()
-        )
-        (Return
+        [(Return
             (Name
                 a
                 Load
@@ -135,38 +124,6 @@
             i32
             Load
         )
-        ()
-    )
-    (FunctionDef
-        test_return_4
-        ([]
-        [(a
-        (Name
-            i32
-            Load
-        )
-        ())]
-        []
-        []
-        []
-        []
-        [])
-        [(Assign
-            [(Name
-                a
-                Store
-            )]
-            (ConstantInt
-                1
-                ()
-            )
-            ()
-        )
-        (Return
-            ()
-        )]
-        []
-        ()
         ()
     )
     (FunctionDef
@@ -255,19 +212,6 @@
                 []
             )
             ()
-        )
-        (Expr
-            (Call
-                (Name
-                    test_return_4
-                    Load
-                )
-                [(ConstantInt
-                    4
-                    ()
-                )]
-                []
-            )
         )]
         []
         ()

@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        9
+                        8
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        8
+                                        7
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        9 main0
+                                        8 main0
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        5
                                         {
                                             i:
                                                 (Variable
-                                                    6
+                                                    5
                                                     i
                                                     []
                                                     Local
@@ -66,7 +66,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    6
+                                                    5
                                                     s
                                                     []
                                                     Local
@@ -98,13 +98,12 @@
                                     )
                                     [test_return_1
                                     test_return_2
-                                    test_return_3
-                                    test_return_4]
+                                    test_return_3]
                                     []
                                     [(=
-                                        (Var 6 i)
+                                        (Var 5 i)
                                         (FunctionCall
-                                            9 test_return_1
+                                            8 test_return_1
                                             ()
                                             [((IntegerConstant 4 (Integer 4 [])))]
                                             (Integer 4 [])
@@ -114,9 +113,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 s)
+                                        (Var 5 s)
                                         (FunctionCall
-                                            9 test_return_2
+                                            8 test_return_2
                                             ()
                                             [((IntegerConstant 4 (Integer 4 [])))]
                                             (Character 1 -2 () [])
@@ -126,21 +125,15 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 i)
+                                        (Var 5 i)
                                         (FunctionCall
-                                            9 test_return_3
+                                            8 test_return_3
                                             ()
                                             [((IntegerConstant 4 (Integer 4 [])))]
                                             (Integer 4 [])
                                             ()
                                             ()
                                         )
-                                        ()
-                                    )
-                                    (SubroutineCall
-                                        9 test_return_4
-                                        ()
-                                        [((IntegerConstant 4 (Integer 4 [])))]
                                         ()
                                     )]
                                     ()
@@ -379,68 +372,12 @@
                                     []
                                     [(Var 4 a)]
                                     [(=
-                                        (Var 4 a)
-                                        (IntegerConstant 3 (Integer 4 []))
-                                        ()
-                                    )
-                                    (=
                                         (Var 4 _lpython_return_variable)
                                         (Var 4 a)
                                         ()
                                     )
                                     (Return)]
                                     (Var 4 _lpython_return_variable)
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            test_return_4:
-                                (Function
-                                    (SymbolTable
-                                        5
-                                        {
-                                            a:
-                                                (Variable
-                                                    5
-                                                    a
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4 [])
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    test_return_4
-                                    (FunctionType
-                                        [(Integer 4 [])]
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    [(Var 5 a)]
-                                    [(=
-                                        (Var 5 a)
-                                        (IntegerConstant 1 (Integer 4 []))
-                                        ()
-                                    )
-                                    (Return)]
-                                    ()
                                     Public
                                     .false.
                                     .false.
@@ -455,13 +392,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        6
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    7
+                                    6
                                     _lpython_main_program
-                                    9 _lpython_main_program
+                                    8 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -471,7 +408,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        7 _lpython_main_program
+                        6 _lpython_main_program
                         ()
                         []
                         ()
