@@ -7,12 +7,13 @@ def f():
     i: i32
     for i in range(n):
         a[i] = f64(i+1)
+    for i in range(n):
+        assert abs(a[i] - f64(i + 1)) < 1e-12
     b: Allocatable[i32[:]]
     n = 10
     b = empty((n,), dtype=int32)
     for i in range(n):
         b[i] = i+1
-    print(a)
     for i in range(n):
         assert b[i] == i+1
 
