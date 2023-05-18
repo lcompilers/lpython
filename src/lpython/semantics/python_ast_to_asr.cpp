@@ -1029,7 +1029,8 @@ public:
         } else if (var_annotation == "pointer") {
             LCOMPILERS_ASSERT(n_args == 1);
             AST::expr_t* underlying_type = m_args[0];
-            type = ast_expr_to_asr_type(underlying_type->base.loc, *underlying_type);
+            bool is_allocatable = false;
+            type = ast_expr_to_asr_type(underlying_type->base.loc, *underlying_type, is_allocatable);
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
         } else {
             ASR::symbol_t *s = current_scope->resolve_symbol(var_annotation);
@@ -1609,7 +1610,7 @@ public:
     // i32, i64, f32, f64
     // f64[256], i32[:]
     ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation,
-        bool raise_error=true) {
+        bool &is_allocatable, bool raise_error=true) {
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 4);
         AST::expr_t** m_args = nullptr; size_t n_args = 0;
@@ -1632,11 +1633,11 @@ public:
                 Vec<ASR::ttype_t*> types;
                 types.reserve(al, 4);
                 if (AST::is_a<AST::Name_t>(*s->m_slice)) {
-                    types.push_back(al, ast_expr_to_asr_type(loc, *s->m_slice));
+                    types.push_back(al, ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable));
                 } else if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
                     AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
                     for (size_t i=0; i<t->n_elts; i++) {
-                        types.push_back(al, ast_expr_to_asr_type(loc, *t->m_elts[i]));
+                        types.push_back(al, ast_expr_to_asr_type(loc, *t->m_elts[i], is_allocatable));
                     }
                 } else {
                     throw SemanticError("Only Name or Tuple in Subscript supported for now in `tuple` annotation",
@@ -1656,14 +1657,15 @@ public:
                 if (arg_list->n_elts > 0) {
                     arg_types.reserve(al, arg_list->n_elts);
                     for (size_t i=0; i<arg_list->n_elts; i++) {
-                        arg_types.push_back(al, ast_expr_to_asr_type(loc, *arg_list->m_elts[i]));
+                        arg_types.push_back(al, ast_expr_to_asr_type(loc, *arg_list->m_elts[i],
+                                                is_allocatable));
                     }
                 } else {
                     arg_types.reserve(al, 1);
                 }
                 ASR::ttype_t* ret_type = nullptr;
                 if (t->n_elts == 2) {
-                    ret_type = ast_expr_to_asr_type(loc, *t->m_elts[1]);
+                    ret_type = ast_expr_to_asr_type(loc, *t->m_elts[1], is_allocatable);
                 }
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_FunctionType_t(al, loc, arg_types.p,
                         arg_types.size(), ret_type, ASR::abiType::Source,
@@ -1672,7 +1674,7 @@ public:
                 return type;
             } else if (var_annotation == "set") {
                 if (AST::is_a<AST::Name_t>(*s->m_slice)) {
-                    ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                    ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                     return ASRUtils::TYPE(ASR::make_Set_t(al, loc, type));
                 } else {
                     throw SemanticError("Only Name in Subscript supported for now in `set`"
@@ -1681,8 +1683,18 @@ public:
             } else if (var_annotation == "list") {
                 ASR::ttype_t *type = nullptr;
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
-                    type = ast_expr_to_asr_type(loc, *s->m_slice);
+                    type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                     return ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
+                } else {
+                    throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
+                        " annotation", loc);
+                }
+            } else if (var_annotation == "Allocatable") {
+                ASR::ttype_t *type = nullptr;
+                if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
+                    type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
+                    is_allocatable = true;
+                    return type;
                 } else {
                     throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
                         " annotation", loc);
@@ -1694,8 +1706,8 @@ public:
                         throw SemanticError("`dict` annotation must have 2 elements: types"
                             " of both keys and values", loc);
                     }
-                    ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0]);
-                    ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1]);
+                    ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0], is_allocatable);
+                    ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1], is_allocatable);
                     raise_error_when_dict_key_is_float_or_complex(key_type, loc);
                     return ASRUtils::TYPE(ASR::make_Dict_t(al, loc, key_type, value_type));
                 } else {
@@ -1703,10 +1715,10 @@ public:
                         " both keys and values", loc);
                 }
             } else if (var_annotation == "Pointer") {
-                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                 return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
             } else if (var_annotation == "Const") {
-                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
                 if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
@@ -2446,7 +2458,8 @@ public:
     }
 
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
-        ASR::ttype_t* type, const Location& loc, ASR::abiType abi) {
+        ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
+        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
 
         ASR::expr_t* value = nullptr;
         if( init_expr ) {
@@ -2461,8 +2474,6 @@ public:
         }
 
         ASR::intentType s_intent = ASRUtils::intent_local;
-        ASR::storage_typeType storage_type =
-                ASR::storage_typeType::Default;
         if( ASR::is_a<ASR::Const_t>(*type) ) {
             storage_type = ASR::storage_typeType::Parameter;
         }
@@ -2548,7 +2559,8 @@ public:
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         this->visit_expr(*ast_pptr);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
-        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(ast_type_expr->base.loc, *ast_type_expr);
+        bool is_allocatable = false;
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(ast_type_expr->base.loc, *ast_type_expr, is_allocatable);
         ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
         if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
             diag.add(diag::Diagnostic(
@@ -2565,17 +2577,70 @@ public:
         return ASR::make_CPtrToPointer_t(al, loc, cptr, pptr, target_shape, lower_bounds);
     }
 
+    ASR::asr_t* check_to_allocate_array(AST::expr_t *value, std::string var_name,
+                                            const Location &loc) {
+        if (AST::is_a<AST::Call_t>(*value)) {
+            AST::Call_t *ct = AST::down_cast<AST::Call_t>(value);
+            if (AST::is_a<AST::Name_t>(*ct->m_func)) {
+                std::string call_name = AST::down_cast<AST::Name_t>(ct->m_func)->m_id;
+                if (call_name == "empty") {
+                    LCOMPILERS_ASSERT(ct->n_args > 0);
+                    if (AST::is_a<AST::Tuple_t>(*ct->m_args[0])) {
+                        AST::Tuple_t *tt = AST::down_cast<AST::Tuple_t>(ct->m_args[0]);
+                        Vec<ASR::alloc_arg_t> alloc_args_vec;
+                        alloc_args_vec.reserve(al, 1);
+                        ASR::alloc_arg_t new_arg;
+                        new_arg.loc = loc;
+                        ASR::ttype_t *int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                                            4, nullptr, 0));
+                        ASR::expr_t* const_0 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                    loc, 0, int32_type));
+                        Vec<ASR::dimension_t> dims_vec;
+                        dims_vec.reserve(al, tt->n_elts);
+                        for (size_t i=0; i<tt->n_elts; i++) {
+                            ASR::dimension_t new_dim;
+                            new_dim.loc = loc;
+                            this->visit_expr(*tt->m_elts[0]);
+                            new_dim.m_start = const_0;
+                            new_dim.m_length = ASRUtils::EXPR(tmp);
+                            dims_vec.push_back(al, new_dim);
+                        }
+                        new_arg.m_dims = dims_vec.p;
+                        new_arg.n_dims = dims_vec.size();
+                        ASR::symbol_t *v_sym = current_scope->resolve_symbol(var_name);
+                        ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al,
+                                        loc, v_sym));
+                        new_arg.m_a = v_expr;
+                        alloc_args_vec.push_back(al, new_arg);
+                        tmp = ASR::make_Allocate_t(al, loc,
+                                    alloc_args_vec.p, alloc_args_vec.size(),
+                                    nullptr, nullptr, nullptr);
+                        return tmp;
+                    } else {
+                        throw SemanticError("Only tuple argument is accepted as dimensions "
+                            "for allocating using empty()", ct->base.base.loc);
+                    }
+                }
+            }
+        }
+        return nullptr;
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false,
                              ASR::expr_t* init_expr=nullptr, ASR::abiType abi=ASR::abiType::Source) {
-        ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
+        bool is_allocatable = false;
+        ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable);
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
         ann_assign_target_type = type;
         if( ASR::is_a<ASR::Struct_t>(*type) &&
             wrap_derived_type_in_pointer ) {
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
         }
-
+        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+        if (is_allocatable) {
+            storage_type = ASR::storage_typeType::Allocatable;
+        }
         bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
         ASR::expr_t *value = nullptr;
         if( !init_expr ) {
@@ -2591,7 +2656,7 @@ public:
             }
             if( is_c_p_pointer_call ) {
                 create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi);
+                    x.base.base.loc, abi, storage_type);
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
                 AST::expr_t* pptr = assign_ast_target;
@@ -2627,7 +2692,14 @@ public:
 
         if( !is_c_p_pointer_call ) {
             create_add_variable_to_scope(var_name, init_expr, type,
-                x.base.base.loc, abi);
+                x.base.base.loc, abi, storage_type);
+        }
+
+        if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
+            tmp = check_to_allocate_array(x.m_value, var_name, x.base.base.loc);
+            if( current_body && tmp) {
+                current_body->push_back(al, ASRUtils::STMT(tmp));
+            }
         }
 
         if( !is_c_p_pointer_call ) {
@@ -3786,7 +3858,7 @@ public:
         if (parent_scope->get_scope().find(sym_name) != parent_scope->get_scope().end()) {
             throw SemanticError("Function " + std::string(x.m_name) +  " is already defined", x.base.base.loc);
         }
-
+        bool is_allocatable = false;
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -3795,7 +3867,8 @@ public:
             }
             ASR::intentType s_intent = ASRUtils::intent_unspecified;
             AST::expr_t* arg_annotation_type = get_var_intent_and_annotation(x.m_args.m_args[i].m_annotation, s_intent);
-            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *arg_annotation_type);
+            is_allocatable = false;
+            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *arg_annotation_type, is_allocatable);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
                 ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
@@ -3833,6 +3906,9 @@ public:
             if( ASR::is_a<ASR::Const_t>(*arg_type) ) {
                 storage_type = ASR::storage_typeType::Parameter;
             }
+            if (is_allocatable) {
+                storage_type = ASR::storage_typeType::Allocatable;
+            }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
             bool value_attr = false;
@@ -3869,8 +3945,12 @@ public:
         if (x.m_returns && !AST::is_a<AST::ConstantNone_t>(*x.m_returns)) {
             if (AST::is_a<AST::Name_t>(*x.m_returns) || AST::is_a<AST::Subscript_t>(*x.m_returns)) {
                 std::string return_var_name = "_lpython_return_variable";
-                ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
+                is_allocatable = false;
+                ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns, is_allocatable);
                 ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                if (is_allocatable) {
+                    storage_type = ASR::storage_typeType::Allocatable;
+                }
                 ASR::ttype_t* return_type_ = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
                     return_type_ = ASR::down_cast<ASR::Const_t>(type)->m_type;
@@ -4705,6 +4785,19 @@ public:
                 list_ele.reserve(al, 1);
                 tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
                                 list_ele.size(), target_type));
+            }
+            if (tmp_value == nullptr && ASR::is_a<ASR::Var_t>(*target)) {
+                ASR::Var_t *var_tar = ASR::down_cast<ASR::Var_t>(target);
+                if (ASR::is_a<ASR::Variable_t>(*var_tar->m_v)) {
+                    if (ASR::down_cast<ASR::Variable_t>(var_tar->m_v)->m_storage == ASR::storage_typeType::Allocatable) {
+                        ASR::asr_t *st = check_to_allocate_array(x.m_value, ASRUtils::symbol_name(var_tar->m_v),
+                                            x.base.base.loc);
+                        if (st) {
+                            tmp_vec.push_back(st);
+                            continue;
+                        }
+                    }
+                }
             }
             if (!tmp_value) continue;
             ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
@@ -6167,7 +6260,8 @@ public:
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
         visit_expr(*x.m_args[1]);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
-        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1]);
+        bool is_allocatable = false;
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1], is_allocatable);
         ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
         if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
             diag.add(diag::Diagnostic(
@@ -7015,8 +7109,9 @@ public:
                                         std::to_string(x.n_args + x.n_keywords) + " instead.",
                                         x.base.base.loc);
                 }
-
-                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0], false);
+                bool is_allocatable = false;
+                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0],
+                                is_allocatable, false);
                 ASR::expr_t* arg = nullptr;
                 if( !arg_type ) {
                     visit_expr(*x.m_args[0]);
