@@ -3793,8 +3793,6 @@ public:
                         vectorize = true;
                     } else if (name == "restriction") {
                         is_restriction = true;
-                    } else if (name == "with_goto") {
-                        // TODO: Use goto attribute in function?
                     } else if (name == "inline") {
                         is_inline = true;
                     } else if (name == "static") {
@@ -4337,8 +4335,6 @@ private:
 
 public:
     ASR::asr_t *asr;
-    std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
-    int64_t gotoids;
     std::vector<ASR::symbol_t*> do_loop_variables;
     // Stores the name of imported functions and the modules they are imported from
     std::map<std::string, std::string> imported_functions;
@@ -4348,13 +4344,12 @@ public:
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
          bool allow_implicit_casting_)
          : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", {}, allow_implicit_casting_),
-         asr{unit}, gotoids{0}
+         asr{unit}
          {}
 
     // Transforms statements to a list of ASR statements
     // In addition, it also inserts the following nodes if needed:
     //   * ImplicitDeallocate
-    //   * GoToTarget
     // The `body` Vec must already be reserved
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
         tmp = nullptr;
@@ -4505,8 +4500,6 @@ public:
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
-        goto_name2id.clear();
-        gotoids = 0;
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -4527,13 +4520,6 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
-
-        for( auto itr: goto_name2id ) {
-            if( !std::get<1>(itr.second) ) {
-                throw SemanticError("Label '" + itr.first + "' is not defined in '"
-                                    + std::string(x.m_name) + "'", std::get<2>(itr.second));
-            }
-        }
     }
 
     void visit_Import(const AST::Import_t &x) {
@@ -5523,33 +5509,6 @@ public:
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
-            if( value == "label" ) {
-                std::string labelname = x.m_attr;
-                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
-                    goto_name2id[labelname] = std::make_tuple(gotoids, true, x.base.base.loc);
-                    gotoids += 1;
-                } else if( !std::get<1>(goto_name2id[labelname]) ) {
-                    goto_name2id[labelname] = std::make_tuple(
-                        std::get<0>(goto_name2id[labelname]),
-                        true,
-                        std::get<2>(goto_name2id[labelname])
-                    );
-                }
-                int id = std::get<0>(goto_name2id[labelname]);
-                tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id, x.m_attr);
-                return ;
-            }
-
-             if (value == "goto"){
-                std::string labelname = std::string(x.m_attr);
-                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
-                    goto_name2id[labelname] = std::make_tuple(gotoids, false, x.base.base.loc);
-                    gotoids += 1;
-                }
-                int id = std::get<0>(goto_name2id[labelname]);
-                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id, x.m_attr);
-                return ;
-            }
 
             ASR::symbol_t *org_sym = current_scope->resolve_symbol(value);
             if (!org_sym) {
