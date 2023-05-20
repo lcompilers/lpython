@@ -500,7 +500,7 @@ def lcm(a: i32, b: i32) -> i32:
         b_ = -b_
     if a_*b_ == 0:
         return 0
-    return i32(floor((a_*b_)/gcd(a_, b_))
+    return i32((a_*b_)//gcd(a_, b_))
 
 
 def copysign(x: f64, y: f64) -> f64:
