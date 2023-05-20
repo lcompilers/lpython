@@ -291,8 +291,6 @@ c = true
 filename = "test_end_sep_keywords.py"
 asr = true
 
-# integration_tests
-
 [[test]]
 filename = "lpython1.py"
 llvm = true
@@ -300,6 +298,12 @@ llvm = true
 [[test]]
 filename = "print_str.py"
 wat = true
+
+[[test]]
+filename = "intent_01.py"
+asr = true
+
+# integration_tests
 
 [[test]]
 filename = "../integration_tests/test_builtin.py"
@@ -643,6 +647,26 @@ filename = "errors/structs_02.py"
 asr = true
 
 [[test]]
+filename = "errors/structs_03.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_04.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_05.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_06.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_07.py"
+asr = true
+
+[[test]]
 filename = "errors/const_01.py"
 asr = true
 
@@ -794,6 +818,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_assign8.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign9.py"
 asr = true
 
 [[test]]

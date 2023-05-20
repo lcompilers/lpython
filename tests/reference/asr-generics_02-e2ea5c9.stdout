@@ -50,7 +50,7 @@
                                                     3
                                                     x
                                                     []
-                                                    In
+                                                    InOut
                                                     ()
                                                     ()
                                                     Default
@@ -65,7 +65,7 @@
                                                     3
                                                     y
                                                     []
-                                                    In
+                                                    InOut
                                                     ()
                                                     ()
                                                     Default
@@ -195,7 +195,7 @@
                                                     2
                                                     x
                                                     []
-                                                    In
+                                                    InOut
                                                     ()
                                                     ()
                                                     Default
@@ -213,7 +213,7 @@
                                                     2
                                                     y
                                                     []
-                                                    In
+                                                    InOut
                                                     ()
                                                     ()
                                                     Default

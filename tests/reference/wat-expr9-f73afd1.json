@@ -2,11 +2,11 @@
     "basename": "wat-expr9-f73afd1",
     "cmd": "lpython --no-color --show-wat {infile}",
     "infile": "tests/expr9.py",
-    "infile_hash": "1f02a7486b298ae9e74a163875a76f8fa7cc25d7f50547133dbbdfab",
+    "infile_hash": "4819e0f20d2ed25647ab94f74cb7b5b61e3d4f43e159e46ad79c1c4c",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "wat-expr9-f73afd1.stdout",
-    "stdout_hash": "1abbbc8caa76776e7ddda21597370a9712e50ff185fe6a08664cbc7f",
+    "stdout_hash": "5bbffc0b6257a735f45545017043d33024bee99cd55dd28997452bb6",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

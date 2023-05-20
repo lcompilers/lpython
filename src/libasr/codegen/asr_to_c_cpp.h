@@ -1556,6 +1556,10 @@ R"(#include <stdio.h>
         handle_Compare(x);
     }
 
+    void visit_CPtrCompare(const ASR::CPtrCompare_t &x) {
+        handle_Compare(x);
+    }
+
     template<typename T>
     void handle_Compare(const T &x) {
         CHECK_FAST_C_CPP(compiler_options, x)
@@ -1661,6 +1665,10 @@ R"(#include <stdio.h>
         } else {
             src = "!(" + src + ")";
         }
+    }
+
+    void visit_PointerNullConstant(const ASR::PointerNullConstant_t& /*x*/) {
+        src = "NULL";
     }
 
     void visit_GetPointer(const ASR::GetPointer_t& x) {
@@ -1803,23 +1811,56 @@ R"(#include <stdio.h>
 
     void visit_Allocate(const ASR::Allocate_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string out = indent + "// FIXME: allocate(";
+        std::string out = "";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::symbol_t* tmp_sym = nullptr;
+            ASR::ttype_t* type = nullptr;
             ASR::expr_t* tmp_expr = x.m_args[i].m_a;
             if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
                 const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
                 tmp_sym = tmp_var->m_v;
+                type = ASRUtils::expr_type(tmp_expr);
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
                                     std::to_string(tmp_expr->type),
                                     tmp_expr->base.loc);
             }
-            //ASR::dimension_t* dims = x.m_args[i].m_dims;
-            //size_t n_dims = x.m_args[i].n_dims;
-            out += std::string(ASRUtils::symbol_name(tmp_sym)) + ", ";
+            std::string sym = ASRUtils::symbol_name(tmp_sym);
+            if (ASRUtils::is_array(type)) {
+                std::string size_str = "1";
+                out += indent + sym + "->n_dims = " + std::to_string(x.m_args[i].n_dims) + ";\n";
+                for (size_t j=0; j<x.m_args[i].n_dims; j++) {
+                    std::string st, l;
+                    if (x.m_args[i].m_dims[j].m_start) {
+                        self().visit_expr(*x.m_args[i].m_dims[j].m_start);
+                        st = src;
+                    } else {
+                        st = "0";
+                    }
+                    if (x.m_args[i].m_dims[j].m_length) {
+                        self().visit_expr(*x.m_args[i].m_dims[j].m_length);
+                        l = src;
+                    } else {
+                        l = "1";
+                    }
+                    size_str += "*" + l;
+                    out += indent + sym + "->dims[" + std::to_string(j) + "].lower_bound = ";
+                    out += st + ";\n";
+                    out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
+                    out += l + ";\n";
+                }
+                std::string ty = CUtils::get_c_type_from_ttype_t(type);
+                size_str += "*sizeof(" + ty + ")";
+                out += indent + sym + "->data = (" + ty + "*) _lfortran_malloc(" + size_str + ")";
+                out += ";\n";
+                out += indent + sym + "->is_allocated = true;\n";
+            } else {
+                std::string ty = CUtils::get_c_type_from_ttype_t(type), size_str;
+                size_str = "sizeof(" + ty + ")";
+                out += indent + sym + " = (" + ty + "*) _lfortran_malloc(" + size_str + ")";
+                out += ";\n";
+            }
         }
-        out += ");\n";
         src = out;
     }
 

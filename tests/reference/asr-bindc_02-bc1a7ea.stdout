@@ -36,6 +36,7 @@
                                         (Var 196 queries)
                                         (Var 196 x)
                                         ()
+                                        ()
                                     )
                                     (Print
                                         ()
@@ -130,6 +131,13 @@
                                     []
                                     []
                                     [(=
+                                        (Var 193 yq)
+                                        (PointerNullConstant
+                                            (CPtr)
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (ArrayItem
                                             (Var 193 y)
                                             [(()
@@ -264,6 +272,7 @@
                                         (Var 193 yq)
                                         (Var 193 yptr1)
                                         ()
+                                        ()
                                     )
                                     (Print
                                         ()
@@ -284,8 +293,12 @@
                                     queries
                                     []
                                     Local
-                                    ()
-                                    ()
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
                                     Default
                                     (CPtr)
                                     Source

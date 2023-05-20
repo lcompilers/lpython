@@ -9,7 +9,8 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable"]
+        "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
+        "Allocatable"]
 
 # data-types
 
@@ -29,6 +30,7 @@ type_to_convert_func = {
     "c_ptr": lambda x: x,
     "Const": lambda x: x,
     "Callable": lambda x: x,
+    "Allocatable": lambda x: x,
     "Pointer": lambda x: x,
 }
 
@@ -44,7 +46,14 @@ class Type:
         return self._convert(arg)
 
 def dataclass(arg):
+    def __class_getitem__(key):
+        return Array(arg, key)
+    arg.__class_getitem__ = __class_getitem__
+
     return py_dataclass(arg)
+
+def is_ctypes_Structure(obj):
+    return (isclass(obj) and issubclass(obj, ctypes.Structure))
 
 def is_dataclass(obj):
     return ((isclass(obj) and issubclass(obj, ctypes.Structure)) or
@@ -80,8 +89,21 @@ c64 = Type("c64")
 CPtr = Type("c_ptr")
 Const = ConstType("Const")
 Callable = Type("Callable")
+Allocatable = Type("Allocatable")
 Union = ctypes.Union
 Pointer = PointerType("Pointer")
+
+
+class Intent:
+    def __init__(self, type):
+        self._type = type
+
+    def __getitem__(self, params):
+        return params
+
+In = Intent("In")
+Out = Intent("Out")
+InOut = Intent("InOut")
 
 # Generics
 
@@ -220,6 +242,7 @@ class c_double_complex(c_complex):
     _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
 
 def convert_type_to_ctype(arg):
+    from enum import Enum
     if arg == f64:
         return ctypes.c_double
     elif arg == f32:
@@ -232,6 +255,14 @@ def convert_type_to_ctype(arg):
         return ctypes.c_int16
     elif arg == i8:
         return ctypes.c_int8
+    elif arg == u64:
+        return ctypes.c_uint64
+    elif arg == u32:
+        return ctypes.c_uint32
+    elif arg == u16:
+        return ctypes.c_uint16
+    elif arg == u8:
+        return ctypes.c_uint8
     elif arg == CPtr:
         return ctypes.c_void_p
     elif arg == str:
@@ -245,10 +276,15 @@ def convert_type_to_ctype(arg):
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
+        if is_dataclass(arg._type):
+            return arg
         type = convert_type_to_ctype(arg._type)
         return ctypes.POINTER(type)
     elif is_dataclass(arg):
         return convert_to_ctypes_Structure(arg)
+    elif issubclass(arg, Enum):
+        # TODO: store enum in ctypes.Structure with name and value as fields.
+        return ctypes.c_int64
     else:
         raise NotImplementedError("Type %r not implemented" % arg)
 
@@ -264,11 +300,16 @@ def convert_numpy_dtype_to_ctype(arg):
         return ctypes.c_int32
     elif arg == np.int16:
         return ctypes.c_int16
-    elif arg == np.uint16:
-        # TODO: once LPython supports unsigned, change this to unsigned:
-        return ctypes.c_int16
     elif arg == np.int8:
         return ctypes.c_int8
+    elif arg == np.uint64:
+        return ctypes.c_uint64
+    elif arg == np.uint32:
+        return ctypes.c_uint32
+    elif arg == np.uint16:
+        return ctypes.c_uint16
+    elif arg == np.uint8:
+        return ctypes.c_uint8
     elif arg == np.void:
         return ctypes.c_void_p
     elif arg is None:
@@ -391,6 +432,7 @@ def convert_to_ctypes_Structure(f):
                 super().__init__(*args)
 
             for field, arg in zip(self._fields_, args):
+                from enum import Enum
                 member = self.__getattribute__(field[0])
                 value = arg
                 if isinstance(member, ctypes.Array):
@@ -403,6 +445,8 @@ def convert_to_ctypes_Structure(f):
                             value = value.flatten().tolist()
                             value = [c_double_complex(val.real, val.imag) for val in value]
                         value = type(member)(*value)
+                elif isinstance(value, Enum):
+                    value = value.value
                 self.__setattr__(field[0], value)
 
     ctypes_Structure.__name__ = f.__name__
@@ -431,11 +475,29 @@ def pointer(x, type_=None):
     if isinstance(x, ndarray):
         return x.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(x.dtype)))
     else:
-        if type_ == i32:
+        if type_ == i8:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int8(x)),
+                    ctypes.c_void_p)
+        elif type_ == i16:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int16(x)),
+                    ctypes.c_void_p)
+        elif type_ == i32:
             return ctypes.cast(ctypes.pointer(ctypes.c_int32(x)),
                     ctypes.c_void_p)
         elif type_ == i64:
             return ctypes.cast(ctypes.pointer(ctypes.c_int64(x)),
+                    ctypes.c_void_p)
+        elif type_ == u8:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint8(x)),
+                    ctypes.c_void_p)
+        elif type_ == u16:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint16(x)),
+                    ctypes.c_void_p)
+        elif type_ == u32:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint32(x)),
+                    ctypes.c_void_p)
+        elif type_ == u64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_uint64(x)),
                     ctypes.c_void_p)
         elif type_ == f32:
             return ctypes.cast(ctypes.pointer(ctypes.c_float(x)),
@@ -466,6 +528,7 @@ class PointerToStruct:
 
     def __setattr__(self, name: str, value):
         name_ = self.ctypes_ptr.contents.__getattribute__(name)
+        from enum import Enum
         if isinstance(name_, c_float_complex):
             if isinstance(value, complex):
                 value = c_float_complex(value.real, value.imag)
@@ -486,17 +549,26 @@ class PointerToStruct:
                     value = value.flatten().tolist()
                     value = [c_double_complex(val.real, val.imag) for val in value]
                 value = type(name_)(*value)
+        elif isinstance(value, Enum):
+            value = value.value
         self.ctypes_ptr.contents.__setattr__(name, value)
 
 def c_p_pointer(cptr, targettype):
     targettype_ptr = convert_type_to_ctype(targettype)
     if isinstance(targettype, Array):
+        if py_is_dataclass(targettype._type):
+            return ctypes.cast(cptr.value, ctypes.py_object).value
         newa = ctypes.cast(cptr, targettype_ptr)
         return newa
     else:
+        if py_is_dataclass(targettype):
+            if cptr.value is None:
+                return None
+            return ctypes.cast(cptr, ctypes.py_object).value
+
         targettype_ptr = ctypes.POINTER(targettype_ptr)
         newa = ctypes.cast(cptr, targettype_ptr)
-        if is_dataclass(targettype):
+        if is_ctypes_Structure(targettype):
             # return after wrapping newa inside PointerToStruct
             return PointerToStruct(newa)
         return newa
@@ -510,7 +582,15 @@ def p_c_pointer(ptr, cptr):
         cptr.value = id(ptr)
 
 def empty_c_void_p():
-    return ctypes.c_void_p()
+    class ctypes_c_void_p(ctypes.c_void_p):
+
+        def __eq__(self, value):
+            return self.value == value.value
+
+        def __repr__(self):
+            return str(self.value)
+
+    return ctypes_c_void_p()
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
