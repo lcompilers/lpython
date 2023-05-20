@@ -1,6 +1,6 @@
-from lpython import i32, f64
+from lpython import i32, f64, InOut
 
-def insert_tuples_into_list(l: list[tuple[i32, f64, str]], size: i32) -> list[tuple[i32, f64, str]]:
+def insert_tuples_into_list(l: InOut[list[tuple[i32, f64, str]]], size: i32) -> list[tuple[i32, f64, str]]:
     i: i32
     string: str
     t: tuple[i32, f64, str]
