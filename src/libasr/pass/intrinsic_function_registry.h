@@ -58,6 +58,7 @@ enum class IntrinsicFunctions : int64_t {
     ListIndex,
     Partition,
     ListReverse,
+    ListPop,
     // ...
 };
 
@@ -935,6 +936,40 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 
 } // namespace ListReverse
 
+namespace ListPop {
+
+static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 1) {
+        err("For now pop() takes no arguments", loc);
+    }
+
+    ASR::expr_t* list_expr = args[0];
+    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_pop(al, loc, arg_values);
+    ASR::ttype_t *to_type = list_type;
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            args.p, args.size(), 0, to_type, compile_time_value)));
+}
+
+} // namespace ListPop
+
 namespace Any {
 
 static inline ASR::expr_t *eval_Any(Allocator & /*al*/,
@@ -1308,7 +1343,9 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
-            "list.reverse"}
+            "list.reverse"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            "list.pop"}
     };
 
     static const std::map<std::string,
@@ -1331,6 +1368,7 @@ namespace IntrinsicFunctionRegistry {
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
+                {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}}
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -1418,6 +1456,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
+        INTRINSIC_NAME_CASE(ListPop)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }

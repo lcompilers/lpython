@@ -1969,6 +1969,18 @@ public:
         list_api->reverse(plist, asr_el_type, *module);
     }
 
+    void generate_ListPop(ASR::expr_t* m_arg) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        ptr_loads = ptr_loads_copy;
+        tmp = list_api->pop(plist, asr_el_type, *module);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -1985,6 +1997,14 @@ public:
                     }
                 }
                 break ;
+            }
+            case ASRUtils::IntrinsicFunctions::ListReverse: {
+                generate_ListReverse(x.m_args[0]);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::ListPop: {
+                generate_ListPop(x.m_args[0]);
+                break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {
                 switch (x.m_overload_id) {
@@ -2027,10 +2047,6 @@ public:
                     }
                 }
                 break ;
-            }
-            case ASRUtils::IntrinsicFunctions::ListReverse: {
-                generate_ListReverse(x.m_args[0]);
-                break;
             }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::

@@ -2898,6 +2898,38 @@ namespace LCompilers {
         builder->CreateStore(end_point, end_point_ptr);
     }
 
+    llvm::Value* LLVMList::pop(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
+        // If list is empty, output error
+
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+
+        llvm::Value* cond = builder->CreateICmpEQ(llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), end_point);
+        llvm_utils->create_if_else(cond, [&]() {
+            std::string message = "pop from empty list";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("IndexError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        }, [=]() {
+        });
+
+        // Get last element of list
+        llvm::Value* tmp = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 1)));
+        tmp = read_item(list, tmp, false, module, LLVM::is_llvm_struct(list_type));
+
+        // Decrement end point by one
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+        return tmp;
+    }
+
     void LLVMList::list_clear(llvm::Value* list) {
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
         llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
