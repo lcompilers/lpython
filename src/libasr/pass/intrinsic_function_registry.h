@@ -962,10 +962,9 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_list_pop(al, loc, arg_values);
     ASR::ttype_t *to_type = list_type;
-    return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
+    return ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
-            args.p, args.size(), 0, to_type, compile_time_value)));
+            args.p, args.size(), 0, to_type, compile_time_value);
 }
 
 } // namespace ListPop
