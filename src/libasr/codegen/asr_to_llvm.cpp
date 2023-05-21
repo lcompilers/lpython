@@ -4926,6 +4926,7 @@ public:
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::StructInstanceMember ||
             x.m_target->type == ASR::exprType::ListItem ||
+            x.m_target->type == ASR::exprType::DictItem ||
             x.m_target->type == ASR::exprType::UnionInstanceMember ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
@@ -4978,6 +4979,21 @@ public:
 
                 target = list_api->read_item(list, pos, compiler_options.enable_bounds_checking,
                                              *module, true);
+            } else if(ASR::is_a<ASR::DictItem_t>(*x.m_target)) {
+                ASR::DictItem_t* asr_target0 = ASR::down_cast<ASR::DictItem_t>(x.m_target);
+                int64_t ptr_loads_copy = ptr_loads;
+                ptr_loads = 0;
+                this->visit_expr(*asr_target0->m_a);
+                ptr_loads = ptr_loads_copy;
+                llvm::Value* dict = tmp;
+                this->visit_expr_wrapper(asr_target0->m_key, true);
+                llvm::Value* key = tmp;
+
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                            ASRUtils::expr_type(asr_target0->m_a));
+                set_dict_api(dict_type);
+                target = llvm_utils->dict_api->read_item(dict, key, *module, dict_type,
+                                    compiler_options.enable_bounds_checking, true);
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
