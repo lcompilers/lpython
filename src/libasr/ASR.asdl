@@ -330,6 +330,7 @@ expr
     | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
 
     | IntrinsicFunctionSqrt(expr arg, ttype type, expr? value)
+    | TypeConstant(ttype type)
 
 
 -- `len` in Character:

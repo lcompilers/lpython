@@ -1969,6 +1969,17 @@ public:
         list_api->reverse(plist, asr_el_type, *module);
     }
 
+    void generate_Type(ASR::expr_t* m_arg) {
+        this->visit_expr_wrapper(m_arg, true);
+        llvm::Value* item = tmp;
+
+        // Get the LLVM type of the value
+        llvm::Type* llvmType = item->getType();
+
+        // Create an LLVM expression for the type
+        tmp = builder->CreateBitCast(tmp, llvmType);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -2030,6 +2041,19 @@ public:
             }
             case ASRUtils::IntrinsicFunctions::ListReverse: {
                 generate_ListReverse(x.m_args[0]);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::Type: {
+                switch (x.m_overload_id) {
+                    case 0: {
+                        ASR::expr_t* m_arg = x.m_args[0];
+                        generate_Type(m_arg);
+                        break;
+                    }
+                    default: {
+                        throw CodeGenError("Type() only accepts one argument", x.base.base.loc);
+                    }
+                }
                 break;
             }
             default: {
