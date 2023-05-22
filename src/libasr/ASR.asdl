@@ -414,6 +414,8 @@ cast_kind
     | LogicalToCharacter
     | UnsignedIntegerToInteger
     | IntegerToUnsignedInteger
+    | CPtrToUnsignedInteger
+    | UnsignedIntegerToCPtr
 
 dimension = (expr? start, expr? length)
 
