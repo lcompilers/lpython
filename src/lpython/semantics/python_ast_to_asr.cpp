@@ -6029,15 +6029,18 @@ public:
             tmp = ASR::make_Return_t(al, x.base.base.loc);
             return;
         }
-        this->visit_expr(*x.m_value);
-        ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
         ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
         if( ASR::is_a<ASR::Const_t>(*target_type) ) {
             target_type = ASRUtils::get_contained_type(target_type);
         }
+        ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
+        ann_assign_target_type = target_type;
+        this->visit_expr(*x.m_value);
+        ann_assign_target_type = ann_assign_target_type_copy;
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
         if( ASR::is_a<ASR::Const_t>(*value_type) ) {
             value_type = ASRUtils::get_contained_type(value_type);
         }
