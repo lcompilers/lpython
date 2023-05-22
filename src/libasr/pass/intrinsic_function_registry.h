@@ -58,6 +58,7 @@ enum class IntrinsicFunctions : int64_t {
     ListIndex,
     Partition,
     ListReverse,
+    Type,
     // ...
 };
 
@@ -1243,6 +1244,33 @@ namespace Partition {
     }
 } // namespace Partition
 
+namespace Type {
+
+    static inline ASR::expr_t *eval_Type(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        LCOMPILERS_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
+        return ASR::down_cast<ASR::expr_t>(ASR::make_TypeConstant_t(al, loc, t));
+    }
+
+    static inline ASR::asr_t* create_Type(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+
+        if (args.size() != 1) {
+            err("Intrinsic type function currently supports only 1 argument", loc);
+        }
+
+        // TODO - Replace this type , it shouldn't be integer .
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                            4, nullptr, 0));;
+
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Type,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Type), 0, type);
+    }
+
+} // namespace Type
+
 namespace IntrinsicFunctionRegistry {
 
     static const std::map<int64_t, impl_function>& intrinsic_function_by_id_db = {
@@ -1308,7 +1336,9 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
-            "list.reverse"}
+            "list.reverse"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Type),
+            "type"}
     };
 
     static const std::map<std::string,
@@ -1331,6 +1361,7 @@ namespace IntrinsicFunctionRegistry {
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
+                {"type", {&Type::create_Type, &Type::eval_Type}}
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -1344,6 +1375,7 @@ namespace IntrinsicFunctionRegistry {
     static inline bool is_elemental(int64_t id) {
         ASRUtils::IntrinsicFunctions id_ = static_cast<ASRUtils::IntrinsicFunctions>(id);
         return ( id_ == ASRUtils::IntrinsicFunctions::Abs ||
+                 id_ == ASRUtils::IntrinsicFunctions::Type ||
                  id_ == ASRUtils::IntrinsicFunctions::Cos ||
                  id_ == ASRUtils::IntrinsicFunctions::Gamma ||
                  id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
@@ -1418,6 +1450,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
+        INTRINSIC_NAME_CASE(Type)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
