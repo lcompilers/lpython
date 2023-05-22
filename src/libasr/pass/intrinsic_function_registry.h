@@ -58,6 +58,7 @@ enum class IntrinsicFunctions : int64_t {
     ListIndex,
     Partition,
     ListReverse,
+    SymbolicSymbol
     // ...
 };
 
@@ -1243,6 +1244,41 @@ namespace Partition {
     }
 } // namespace Partition
 
+namespace SymbolicSymbol {
+
+    static inline ASR::expr_t *eval_SymbolicSymbol(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        // TODO
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicSymbol(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic Symbol function accepts exactly 1 argument", loc);
+        }
+
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::is_character(*type)) {
+            err("Argument of the abs function must be a Character",
+                args[0]->base.loc);
+        }
+
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicSymbol,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol), 0, to_type);
+    }
+
+    static inline ASR::expr_t* instantiate_SymbolicSymbol(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
+        // TODO
+        return nullptr;
+    }
+
+} // namespace SymbolicSymbol
+
 namespace IntrinsicFunctionRegistry {
 
     static const std::map<int64_t, impl_function>& intrinsic_function_by_id_db = {
@@ -1272,7 +1308,9 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             &Any::instantiate_Any},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
-            &Partition::instantiate_Partition}
+            &Partition::instantiate_Partition},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+            &SymbolicSymbol::instantiate_SymbolicSymbol}
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -1308,7 +1346,9 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             "list.index"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
-            "list.reverse"}
+            "list.reverse"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+            "Symbol"}
     };
 
     static const std::map<std::string,
@@ -1331,6 +1371,7 @@ namespace IntrinsicFunctionRegistry {
                 {"any", {&Any::create_Any, &Any::eval_Any}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
+                {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -1350,7 +1391,8 @@ namespace IntrinsicFunctionRegistry {
                  id_ == ASRUtils::IntrinsicFunctions::Sin ||
                  id_ == ASRUtils::IntrinsicFunctions::Exp ||
                  id_ == ASRUtils::IntrinsicFunctions::Exp2 ||
-                 id_ == ASRUtils::IntrinsicFunctions::Expm1 );
+                 id_ == ASRUtils::IntrinsicFunctions::Expm1 ||
+                 id_ == ASRUtils::IntrinsicFunctions::SymbolicSymbol);
     }
 
     /*
@@ -1418,6 +1460,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
+        INTRINSIC_NAME_CASE(SymbolicSymbol)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }

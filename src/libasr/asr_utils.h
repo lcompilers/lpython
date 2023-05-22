@@ -1214,6 +1214,9 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
         }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -1615,6 +1618,11 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(x);
             n_dims = tp->n_dims;
             m_dims = tp->m_dims;
+            break;
+        }
+        case ASR::ttypeType::SymbolicExpression: {
+            n_dims = 0;
+            m_dims = nullptr;
             break;
         }
         default:
@@ -2203,6 +2211,9 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
                 break;
             }
             case ASR::ttypeType::CPtr: {
+                return true;
+            }
+            case ASR::ttypeType::SymbolicExpression: {
                 return true;
             }
             case (ASR::ttypeType::Real) : {

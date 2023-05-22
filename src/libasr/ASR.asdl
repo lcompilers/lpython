@@ -370,6 +370,7 @@ ttype
     | Const(ttype type)
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
+    | SymbolicExpression()
     | FunctionType(ttype* arg_types, ttype? return_var_type,
         abi abi, deftype deftype, string? bindc_name, bool elemental,
         bool pure, bool module, bool inline, bool static, ttype* type_params,

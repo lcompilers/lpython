@@ -1026,6 +1026,8 @@ public:
                 4, dims.p, dims.size()));
         } else if (var_annotation == "CPtr") {
             type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+        } else if (var_annotation == "S") {
+            type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         } else if (var_annotation == "pointer") {
             LCOMPILERS_ASSERT(n_args == 1);
             AST::expr_t* underlying_type = m_args[0];
@@ -6980,7 +6982,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "symbol"
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
