@@ -303,14 +303,19 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &lpython, bool& enum_py, bool& copy,
+                            bool &lpython, bool& enum_py, bool& copy, bool& sympy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
     lpython = false;
     enum_py = false;
     copy = false;
+    sympy = false;
     if( module_name == "copy" ) {
         copy = true;
+        return nullptr;
+    }
+    if (module_name == "sympy") {
+        sympy = true;
         return nullptr;
     }
     LCOMPILERS_ASSERT(symtab);
@@ -612,10 +617,10 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool lpython, enum_py, copy;
+        bool lpython, enum_py, copy, sympy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                lpython, enum_py, copy,
+                lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
         LCOMPILERS_ASSERT(!lpython && !enum_py)
@@ -4128,13 +4133,13 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -4189,13 +4194,13 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.

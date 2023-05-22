@@ -1261,7 +1261,7 @@ namespace SymbolicSymbol {
 
         ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::is_character(*type)) {
-            err("Argument of the abs function must be a Character",
+            err("Argument of the Symbol function must be a Character",
                 args[0]->base.loc);
         }
 
