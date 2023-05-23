@@ -71,6 +71,7 @@
                                     )
                                     Default
                                     (CPtr)
+                                    ()
                                     Source
                                     Public
                                     Required
@@ -91,6 +92,7 @@
                                                     ()
                                                     Default
                                                     (CPtr)
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -168,6 +170,7 @@
                                     (Pointer
                                         (Integer 2 [])
                                     )
+                                    ()
                                     Source
                                     Public
                                     Required
