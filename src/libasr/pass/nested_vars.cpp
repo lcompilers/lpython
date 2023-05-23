@@ -167,7 +167,8 @@ public:
             // nested procedure.
             if ( current_scope &&
                  v->m_parent_symtab->get_counter() != current_scope->get_counter() &&
-                 v->m_storage != ASR::storage_typeType::Parameter ) {
+                 (v->m_storage != ASR::storage_typeType::Parameter ||
+                  ASRUtils::is_array(v->m_type)) ) {
                 nesting_map[par_func_sym].insert(x.m_v);
             }
         }
@@ -261,19 +262,37 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                 ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(
                             ASRUtils::symbol_get_past_external(it2));
                 new_ext_var = current_scope->get_unique_name(new_ext_var);
-                ASR::ttype_t* var_type = var->m_type;
-                if( ASRUtils::is_array(var_type) ) {
-                    Vec<ASR::dimension_t> dims;
-                    size_t n_dims = ASRUtils::extract_n_dims_from_ttype(var_type);
-                    dims.reserve(al, n_dims);
-                    for( size_t i = 0; i < n_dims; i++ ) {
-                        ASR::dimension_t dim;
-                        dim.loc = var_type->base.loc;
-                        dim.m_start = nullptr;
-                        dim.m_length = nullptr;
-                        dims.push_back(al, dim);
+                ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(var->m_type);
+                if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
+                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(var_type);
+                    if( current_scope->get_counter() != ASRUtils::symbol_parent_symtab(
+                            struct_t->m_derived_type)->get_counter() ) {
+                        ASR::symbol_t* m_derived_type = current_scope->get_symbol(
+                            ASRUtils::symbol_name(struct_t->m_derived_type));
+                        if( m_derived_type == nullptr ) {
+                            char* fn_name = ASRUtils::symbol_name(struct_t->m_derived_type);
+                            ASR::symbol_t* original_symbol = ASRUtils::symbol_get_past_external(struct_t->m_derived_type);
+                            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                                al, struct_t->m_derived_type->base.loc,
+                                /* a_symtab */ current_scope,
+                                /* a_name */ fn_name,
+                                original_symbol,
+                                ASRUtils::symbol_name(ASRUtils::get_asr_owner(original_symbol)),
+                                nullptr, 0, fn_name, ASR::accessType::Public
+                            );
+                            m_derived_type = ASR::down_cast<ASR::symbol_t>(fn);
+                            current_scope->add_symbol(fn_name, m_derived_type);
+                        }
+                        var_type = ASRUtils::TYPE(ASR::make_Struct_t(al, struct_t->base.base.loc,
+                                    m_derived_type, struct_t->m_dims, struct_t->n_dims));
+                        if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
+                            var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc, var_type));
+                        }
                     }
-                    var_type = ASRUtils::duplicate_type(al, var_type, &dims);
+                }
+                if( ASRUtils::is_array(var_type) &&
+                    !ASR::is_a<ASR::Pointer_t>(*var_type) ) {
+                    var_type = ASRUtils::duplicate_type_with_empty_dims(al, var_type);
                     var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc, var_type));
                 }
                 ASR::expr_t *sym_expr = PassUtils::create_auxiliary_variable(
@@ -442,9 +461,29 @@ public:
                             ext_sym = ASR::down_cast<ASR::symbol_t>(fn);
                             current_scope->add_symbol(sym_name_ext, ext_sym);
                         }
+                        ASR::symbol_t* sym_ = sym;
+                        if( current_scope->get_counter() != ASRUtils::symbol_parent_symtab(sym_)->get_counter() ) {
+                            std::string sym_name = ASRUtils::symbol_name(sym_);
+                            sym_ = current_scope->get_symbol(sym_name);
+                            if( !sym_ ) {
+                                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                                    al, t->base.loc,
+                                    /* a_symtab */ current_scope,
+                                    /* a_name */ s2c(al, current_scope->get_unique_name(sym_name)),
+                                    ASRUtils::symbol_get_past_external(sym),
+                                    ASRUtils::symbol_name(ASRUtils::get_asr_owner(ASRUtils::symbol_get_past_external(sym))),
+                                    nullptr, 0, s2c(al, sym_name), ASR::accessType::Public
+                                );
+                                sym_ = ASR::down_cast<ASR::symbol_t>(fn);
+                                current_scope->add_symbol(sym_name, sym_);
+                            }
+                        }
+                        LCOMPILERS_ASSERT(ext_sym != nullptr);
+                        LCOMPILERS_ASSERT(sym_ != nullptr);
                         ASR::expr_t *target = ASRUtils::EXPR(ASR::make_Var_t(al, t->base.loc, ext_sym));
-                        ASR::expr_t *val = ASRUtils::EXPR(ASR::make_Var_t(al, t->base.loc, sym));
-                        if( ASRUtils::is_array(ASRUtils::symbol_type(sym)) ) {
+                        ASR::expr_t *val = ASRUtils::EXPR(ASR::make_Var_t(al, t->base.loc, sym_));
+                        if( ASRUtils::is_array(ASRUtils::symbol_type(sym)) ||
+                            ASR::is_a<ASR::Pointer_t>(*ASRUtils::symbol_type(sym)) ) {
                             ASR::stmt_t *associate = ASRUtils::STMT(ASR::make_Associate_t(al, t->base.loc,
                                                         target, val));
                             body.push_back(al, associate);
@@ -484,7 +523,7 @@ public:
 
     void visit_Function(const ASR::Function_t &x) {
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-        SymbolTable* current_scope_copy = this->current_scope;
+        SymbolTable* current_scope_copy = current_scope;
         ASR::symbol_t *sym_copy = cur_func_sym;
         cur_func_sym = (ASR::symbol_t*)&xx;
         current_scope = xx.m_symtab;

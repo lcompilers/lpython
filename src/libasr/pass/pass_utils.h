@@ -506,6 +506,7 @@ namespace LCompilers {
         template <typename T>
         void replace_ArrayConstant(ASR::ArrayConstant_t* x, T* replacer,
             bool& remove_original_statement, Vec<ASR::stmt_t*>* result_vec) {
+            Allocator& al = replacer->al;
             if( !replacer->result_var ) {
                 return ;
             }
@@ -544,6 +545,21 @@ namespace LCompilers {
                         args.reserve(replacer->al, 1);
                         args.push_back(replacer->al, ai);
                         ASR::ttype_t* array_ref_type = ASRUtils::expr_type(ASRUtils::EXPR((ASR::asr_t*)arr_var));
+                        if( ASR::is_a<ASR::Struct_t>(*ASRUtils::type_get_past_pointer(array_ref_type)) ) {
+                            ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(
+                                ASRUtils::type_get_past_pointer(array_ref_type));
+                            if( replacer->current_scope->get_counter() != ASRUtils::symbol_parent_symtab(
+                                    struct_t->m_derived_type)->get_counter() ) {
+                                ASR::symbol_t* m_derived_type = replacer->current_scope->resolve_symbol(
+                                    ASRUtils::symbol_name(struct_t->m_derived_type));
+                                ASR::ttype_t* struct_type = ASRUtils::TYPE(ASR::make_Struct_t(al,
+                                    struct_t->base.base.loc, m_derived_type, struct_t->m_dims, struct_t->n_dims));
+                                if( ASR::is_a<ASR::Pointer_t>(*array_ref_type) ) {
+                                    struct_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, array_ref_type->base.loc, struct_type));
+                                }
+                                array_ref_type = struct_type;
+                            }
+                        }
                         Vec<ASR::dimension_t> empty_dims;
                         empty_dims.reserve(replacer->al, 1);
                         array_ref_type = ASRUtils::duplicate_type(replacer->al, array_ref_type, &empty_dims);
@@ -669,7 +685,9 @@ namespace LCompilers {
                 Vec<ASR::ttype_t*> arg_types;
                 arg_types.reserve(al, a_args.n);
                 for(auto &e: a_args) {
-                    arg_types.push_back(al, ASRUtils::expr_type(e));
+                    ASRUtils::ReplaceWithFunctionParamVisitor replacer(al, x->m_args, x->n_args);
+                    arg_types.push_back(al, replacer.replace_args_with_FunctionParam(
+                                                ASRUtils::expr_type(e)));
                 }
                 s_func_type->m_arg_types = arg_types.p;
                 s_func_type->n_arg_types = arg_types.n;
@@ -683,6 +701,7 @@ namespace LCompilers {
             }
         }
     }
+
 
     } // namespace PassUtils
 

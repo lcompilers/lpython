@@ -142,8 +142,19 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
             ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
             replacer.result_var = ASRUtils::EXPR(ASR::make_Var_t(al,
                                     x.base.base.loc, &(xx.base)));
-            ASR::CallReplacerOnExpressionsVisitor<
-                InitExprVisitor>::visit_Variable(x);
+
+            SymbolTable* current_scope_copy = current_scope;
+            current_scope = x.m_parent_symtab;
+            if (x.m_symbolic_value) {
+                ASR::expr_t** current_expr_copy = current_expr;
+                current_expr = const_cast<ASR::expr_t**>(&(x.m_symbolic_value));
+                call_replacer();
+                current_expr = current_expr_copy;
+                if( x.m_symbolic_value )
+                visit_expr(*x.m_symbolic_value);
+            }
+            visit_ttype(*x.m_type);
+            current_scope = current_scope_copy;
         }
 
 };

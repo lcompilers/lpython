@@ -120,6 +120,7 @@ namespace LCompilers {
             LLVMList* list_api;
             LLVMDictInterface* dict_api;
             LLVMArrUtils::Descriptor* arr_api;
+            llvm::Module* module;
 
             LLVMUtils(llvm::LLVMContext& context,
                 llvm::IRBuilder<>* _builder);
@@ -145,6 +146,8 @@ namespace LCompilers {
             void set_iterators();
 
             void reset_iterators();
+
+            void set_module(llvm::Module* module_);
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
                 ASR::ttype_t* asr_type, llvm::Module* module,

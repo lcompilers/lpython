@@ -1233,7 +1233,7 @@ public:
                                                     s2c(al, dummy_ret_name), variable_dependencies_vec.p,
                                                     variable_dependencies_vec.size(), ASR::intentType::Local,
                                                     nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    a_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                    a_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
                     ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
                     current_scope->add_symbol(dummy_ret_name, variable_sym);
@@ -2488,6 +2488,7 @@ public:
                 s2c(al, var_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(),
                 s_intent, init_expr, value, storage_type, type,
+                nullptr,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
@@ -2968,7 +2969,7 @@ public:
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                 s2c(al, var_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(), s_intent, init_expr,
-                value, storage_type, type, current_procedure_abi_type,
+                value, storage_type, type, nullptr, current_procedure_abi_type,
                 s_access, s_presence, value_attr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
     }
@@ -2999,7 +3000,7 @@ public:
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                 s2c(al, var_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(),
-                s_intent, init_expr, value, storage_type, type,
+                s_intent, init_expr, value, storage_type, type, nullptr,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
@@ -3715,7 +3716,7 @@ public:
                 current_scope, s2c(al, arg_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(), ASRUtils::intent_unspecified,
                 nullptr, nullptr, ASR::storage_typeType::Default, func->m_arg_types[i],
-                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
+                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
                 false));
             current_scope->add_symbol(arg_name, v);
             LCOMPILERS_ASSERT(v != nullptr)
@@ -3734,7 +3735,7 @@ public:
                 current_scope, s2c(al, return_var_name), variable_dependencies_vec.p,
                 variable_dependencies_vec.size(), ASRUtils::intent_return_var,
                 nullptr, nullptr, ASR::storage_typeType::Default, func->m_return_var_type,
-                ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
+                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
                 false);
             current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(return_var));
             to_return = ASRUtils::EXPR(ASR::make_Var_t(al, loc,
@@ -3927,7 +3928,7 @@ public:
                         s2c(al, arg_s), variable_dependencies_vec.p,
                         variable_dependencies_vec.size(),
                         s_intent, init_expr, value, storage_type, arg_type,
-                        current_procedure_abi_type, s_access, s_presence,
+                        nullptr, current_procedure_abi_type, s_access, s_presence,
                         value_attr);
                 v = ASR::down_cast<ASR::symbol_t>(_tmp);
 
@@ -3961,7 +3962,7 @@ public:
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.m_returns->base.loc,
                     current_scope, s2c(al, return_var_name), variable_dependencies_vec.p,
                     variable_dependencies_vec.size(), ASRUtils::intent_return_var,
-                    nullptr, nullptr, storage_type, type, current_procedure_abi_type, ASR::Public,
+                    nullptr, nullptr, storage_type, type, nullptr, current_procedure_abi_type, ASR::Public,
                     ASR::presenceType::Required, false);
                 LCOMPILERS_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
@@ -4273,7 +4274,7 @@ public:
                         // Build the variable and add it to the scope
                         ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
                             s2c(al, tvar_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
-                            s_intent, init_expr, value, storage_type, type, current_procedure_abi_type,
+                            s_intent, init_expr, value, storage_type, type, nullptr, current_procedure_abi_type,
                             s_access, s_presence, value_attr);
                         current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
 
@@ -4919,7 +4920,7 @@ public:
             current_scope, s2c(al, explicit_iter_name),
             variable_dependencies_vec.p, variable_dependencies_vec.size(),
             ASR::intentType::Local, nullptr, nullptr, storage_type,
-            int_type, ASR::abiType::Source, ASR::accessType::Public,
+            int_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false
         );
         current_scope->add_symbol(explicit_iter_name,
@@ -5107,7 +5108,7 @@ public:
                 ASR::asr_t* tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
                     s2c(al, tmp_assign_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                    loop_src_var_ttype, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
+                    loop_src_var_ttype, nullptr, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
                 );
                 ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
                 current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
@@ -6983,7 +6984,8 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1"
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1",
+                "sum" // For sum called over lists
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||

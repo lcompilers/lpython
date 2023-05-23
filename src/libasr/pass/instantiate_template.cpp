@@ -57,7 +57,7 @@ public:
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type);
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                 s2c(al, var_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
-                s_intent, init_expr, value, storage_type, arg_type,
+                s_intent, init_expr, value, storage_type, arg_type, nullptr,
                 abi_type, s_access, s_presence, value_attr);
 
             current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
@@ -81,7 +81,7 @@ public:
                 variable_dependencies_vec.p,
                 variable_dependencies_vec.size(),
                 return_var->m_intent, nullptr, nullptr,
-                return_var->m_storage, return_type,
+                return_var->m_storage, return_type, return_var->m_type_declaration,
                 return_var->m_abi, return_var->m_access,
                 return_var->m_presence, return_var->m_value_attr);
             current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
@@ -103,7 +103,7 @@ public:
                     ASR::asr_t *new_var = ASR::make_Variable_t(al, var_sym->base.base.loc,
                         current_scope, s2c(al, var_sym_name), variable_dependencies_vec.p,
                         variable_dependencies_vec.size(), var_sym->m_intent, nullptr, nullptr,
-                        var_sym->m_storage, new_sym_type, var_sym->m_abi, var_sym->m_access,
+                        var_sym->m_storage, new_sym_type, var_sym->m_type_declaration, var_sym->m_abi, var_sym->m_access,
                         var_sym->m_presence, var_sym->m_value_attr);
                     current_scope->add_symbol(var_sym_name, ASR::down_cast<ASR::symbol_t>(new_var));
                 }

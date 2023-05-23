@@ -5,7 +5,7 @@
 
 namespace LCompilers {
 
-    void pass_nested_vars(Allocator &al, ASR::TranslationUnit_t &unit,
+     void pass_nested_vars(Allocator &al, ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions& pass_options);
 
 } // namespace LCompilers
