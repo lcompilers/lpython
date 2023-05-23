@@ -3868,6 +3868,12 @@ public:
             AST::expr_t* arg_annotation_type = get_var_intent_and_annotation(x.m_args.m_args[i].m_annotation, s_intent);
             is_allocatable = false;
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *arg_annotation_type, is_allocatable);
+            if ((s_intent == ASRUtils::intent_inout || s_intent == ASRUtils::intent_out)
+                && !ASRUtils::is_aggregate_type(arg_type)) {
+                throw SemanticError("Simple Type " + ASRUtils::type_to_str_python(arg_type)
+                    + " cannot be intent InOut/Out", loc);
+            }
+
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
                 ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
