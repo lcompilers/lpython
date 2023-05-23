@@ -1098,6 +1098,10 @@ asr = true
 filename = "errors/func_05.py"
 asr = true
 
+[[test]]
+filename = "errors/func_06.py"
+asr = true
+
 # tests/runtime_errors
 [[test]]
 filename = "runtime_errors/test_list_01.py"
