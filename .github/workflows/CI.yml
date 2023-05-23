@@ -227,7 +227,7 @@ jobs:
         run: |
             # Package lpynn has lpython_emulation as dependency
             # Hence, it should by default install lpython_emulation
-            python -m pip install lpython_emulation==0.0.1.8 lpynn==0.0.1.3 numpy==1.24.3
+            python -m pip install lpython_emulation==0.0.1.9 lpynn==0.0.1.4 numpy==1.24.3
 
       - name: PIP show installed packages
         shell: bash -l {0}
