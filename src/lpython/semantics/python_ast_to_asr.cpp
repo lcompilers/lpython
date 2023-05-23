@@ -4662,6 +4662,38 @@ public:
                 targets.size());
     }
 
+    bool check_is_assign_to_input_param(AST::expr_t* x) {
+        if (AST::is_a<AST::Name_t>(*x)) {
+            AST::Name_t* n = AST::down_cast<AST::Name_t>(x);
+            ASR::symbol_t* s = current_scope->resolve_symbol(n->m_id);
+            if (!s) {
+                throw SemanticError("Variable: '" + std::string(n->m_id) + "' is not declared",
+                        x->base.loc);
+            }
+            ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
+            if (v->m_intent == ASR::intentType::In) {
+                throw SemanticError("Assignment to an input function parameter `"
+                    + std::string(v->m_name) + "` is not allowed", x->base.loc);
+            }
+            return true;
+        } else if (AST::is_a<AST::Subscript_t>(*x)) {
+            AST::Subscript_t* s = AST::down_cast<AST::Subscript_t>(x);
+            return check_is_assign_to_input_param(s->m_value);
+        } else if (AST::is_a<AST::Attribute_t>(*x)) {
+            AST::Attribute_t* s = AST::down_cast<AST::Attribute_t>(x);
+            return check_is_assign_to_input_param(s->m_value);
+        } else if (AST::is_a<AST::Tuple_t>(*x)) {
+            AST::Tuple_t* t = AST::down_cast<AST::Tuple_t>(x);
+            bool is_assign_to_input = false;
+            for (size_t i = 0; i < t->n_elts && !is_assign_to_input; i++) {
+                is_assign_to_input = is_assign_to_input || check_is_assign_to_input_param(t->m_elts[i]);
+            }
+            return is_assign_to_input;
+        }else {
+            throw SemanticError("Unsupported type in check_is_assign_to_input_param()", x->base.loc);
+        }
+    }
+
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
         bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
@@ -4689,6 +4721,7 @@ public:
         }
         for (size_t i=0; i<x.n_targets; i++) {
             tmp_value = assign_value;
+            check_is_assign_to_input_param(x.m_targets[i]);
             if (AST::is_a<AST::Subscript_t>(*x.m_targets[i])) {
                 AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*sb->m_value)) {
@@ -4830,13 +4863,6 @@ public:
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
                     std::string var_name = std::string(v->m_name);
                     throw SemanticError("Assignment to loop variable `" + std::string(to_lower(var_name)) +"` is not allowed", target->base.loc);
-                }
-                if (sym->type == ASR::symbolType::Variable) {
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(sym);
-                    if (v->m_intent == ASR::intentType::In) {
-                        throw SemanticError("Assignment to an input function parameter `"
-                            + std::string(v->m_name) + "` is not allowed", target->base.loc);
-                    }
                 }
             }
             tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
