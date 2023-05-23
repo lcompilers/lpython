@@ -6985,7 +6985,7 @@ public:
                 // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
-                parse_args(x, args);;
+                parse_args(x, args);
                 if( args.size() < 1 || args.size() > 2 ) {
                     throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
                                         std::to_string(args.size()) + " arguments instead.",
@@ -7017,6 +7017,43 @@ public:
                     type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
                 }
                 tmp = ASR::make_PointerNullConstant_t(al, x.base.base.loc, type);
+                return;
+            } else if (call_name == "cptr_to_u64") {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError("cptr_to_u64 accpets exactly 1 argument",
+                                        x.base.base.loc);
+                }
+
+                ASR::expr_t *var = args[0].m_value;
+                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
+                if (!ASR::is_a<ASR::CPtr_t>(*a_type)) {
+                    throw SemanticError("Argument of type `CPtr` is expected in cptr_to_u64",
+                                        x.base.base.loc);
+                }
+                ASR::ttype_t *u_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al,
+                                x.base.base.loc, 8, nullptr, 0));
+
+                tmp = ASR::make_Cast_t(al, x.base.base.loc,
+                    var, ASR::cast_kindType::CPtrToUnsignedInteger, u_type, nullptr);
+                return;
+            } else if (call_name == "u64_to_cptr") {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError("u64_to_cptr accpets exactly 1 argument",
+                                        x.base.base.loc);
+                }
+
+                ASR::expr_t *var = args[0].m_value;
+                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
+                if (!ASR::is_a<ASR::UnsignedInteger_t>(*a_type)) {
+                    throw SemanticError("Argument of type `u64` is expected in u64_to_cptr",
+                                        x.base.base.loc);
+                }
+                ASR::ttype_t *c_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+
+                tmp = ASR::make_Cast_t(al, x.base.base.loc,
+                    var, ASR::cast_kindType::UnsignedIntegerToCPtr, c_type, nullptr);
                 return;
             } else if (call_name == "TypeVar") {
                 // Ignore TypeVar for now, we handle it based on the identifier itself

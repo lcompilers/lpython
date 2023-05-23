@@ -1513,6 +1513,16 @@ R"(#include <stdio.h>
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::CPtrToUnsignedInteger) : {
+                src = "(uint64_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToCPtr) : {
+                src = "(void*)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
