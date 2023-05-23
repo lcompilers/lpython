@@ -6818,6 +6818,14 @@ public:
                 // tmp = tmp
                 break;
             }
+            case (ASR::cast_kindType::CPtrToUnsignedInteger) : {
+                tmp = builder->CreatePtrToInt(tmp, getIntType(8, false));
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToCPtr) : {
+                tmp = builder->CreateIntToPtr(tmp, llvm::Type::getVoidTy(context)->getPointerTo());
+                break;
+            }
             case (ASR::cast_kindType::ComplexToComplex) : {
                 llvm::Type *target_type;
                 int arg_kind = -1, dest_kind = -1;
