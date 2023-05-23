@@ -1063,10 +1063,6 @@ filename = "errors/loop_03.py"
 asr = true
 
 [[test]]
-filename = "errors/test_goto.py"
-asr = true
-
-[[test]]
 filename = "errors/bindc_01.py"
 asr = true
 
