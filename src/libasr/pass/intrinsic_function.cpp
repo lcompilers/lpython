@@ -245,6 +245,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         }
         result_counter += 1;
         ASR::call_arg_t new_arg;
+        LCOMPILERS_ASSERT(result_var_)
         new_arg.loc = result_var_->base.loc;
         new_arg.m_value = result_var_;
         new_args.push_back(al, new_arg);

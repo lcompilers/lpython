@@ -259,7 +259,7 @@ namespace LCompilers {
         if( current_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
             ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, idx_var_name, nullptr, 0,
                                                     ASR::intentType::Local, nullptr, nullptr, storage_,
-                                                    var_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                    var_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
             current_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
             idx_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
@@ -312,7 +312,7 @@ namespace LCompilers {
                 if( current_scope->get_symbol(idx_var_name) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, var_name, nullptr, 0,
                                                             intent, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                            int32_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                            int32_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                             presence, false);
                     current_scope->add_symbol(idx_var_name, ASR::down_cast<ASR::symbol_t>(idx_sym));
                     var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
@@ -357,7 +357,7 @@ namespace LCompilers {
                 if( current_scope->get_symbol(idx_var_name) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, var_name, nullptr, 0,
                                             ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                            int32_type, ASR::abiType::Source, ASR::accessType::Public,
+                                            int32_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                             ASR::presenceType::Required, false);
                     current_scope->add_symbol(idx_var_name, ASR::down_cast<ASR::symbol_t>(idx_sym));
                     var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
@@ -401,7 +401,7 @@ namespace LCompilers {
                 if( current_scope->get_symbol(idx_var_name) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, var_name, nullptr, 0,
                                             ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                            int32_type, ASR::abiType::Source, ASR::accessType::Public,
+                                            int32_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                             ASR::presenceType::Required, false);
                     current_scope->add_symbol(idx_var_name, ASR::down_cast<ASR::symbol_t>(idx_sym));
                     var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
@@ -621,7 +621,7 @@ namespace LCompilers {
             Allocator& al, SymbolTable*& current_scope, ASR::stmt_t*& assign_stmt) {
             ASR::asr_t* expr_sym = ASR::make_Variable_t(al, expr->base.loc, current_scope, s2c(al, name), nullptr, 0,
                                                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    ASRUtils::expr_type(expr), ASR::abiType::Source, ASR::accessType::Public,
+                                                    ASRUtils::expr_type(expr), nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
@@ -638,7 +638,7 @@ namespace LCompilers {
             ASR::intentType var_intent) {
             ASR::asr_t* expr_sym = ASR::make_Variable_t(al, loc, current_scope, s2c(al, name), nullptr, 0,
                                                     var_intent, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    var_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                    var_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
@@ -688,7 +688,7 @@ namespace LCompilers {
                 std::string arg_name = "arg" + std::to_string(i);
                 ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, unit.base.base.loc, vector_copy_symtab,
                                         s2c(al, arg_name), nullptr, 0, ASR::intentType::In, nullptr, nullptr, ASR::storage_typeType::Default,
-                                        types[std::min(i, (int) types.size() - 1)], ASR::abiType::Source, ASR::accessType::Public,
+                                        types[std::min(i, (int) types.size() - 1)], nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                         ASR::presenceType::Required, false));
                 ASR::expr_t* arg_expr = ASRUtils::EXPR(ASR::make_Var_t(al, arg->base.loc, arg));
                 arg_exprs.push_back(al, arg_expr);

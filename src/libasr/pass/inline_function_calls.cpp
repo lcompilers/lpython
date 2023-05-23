@@ -310,7 +310,7 @@ public:
                         al, func_var->base.base.loc, current_scope,
                         s2c(al, local_var_name), nullptr, 0, ASR::intentType::Local,
                         nullptr, nullptr, ASR::storage_typeType::Default,
-                        local_var_type, ASR::abiType::Source, ASR::accessType::Public,
+                        local_var_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                         ASR::presenceType::Required, false);
                 current_scope->add_symbol(local_var_name, local_var);
                 arg2value[func_var_name] = local_var;
