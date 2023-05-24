@@ -16,4 +16,12 @@ def test_dict():
     assert abs(rollnumber2cpi[0] - 1.1) <= 1e-12
     assert len(rollnumber2cpi) == 1001
 
+def test_issue_1839():
+    assert len({1: 2, 1: 3, 4: 5}) == 2
+    x: dict[i32, i32] = {}
+    x = {1: 1, 1: 2, 1: 3}
+    assert len(x) == 1
+
+
 test_dict()
+test_issue_1839()
