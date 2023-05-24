@@ -3937,6 +3937,16 @@ public:
                 v = ASR::down_cast<ASR::symbol_t>(_tmp);
 
             }
+            if (current_scope->get_scope().find(arg_s) !=
+                    current_scope->get_scope().end()) {
+                ASR::symbol_t *orig_decl = current_scope->get_symbol(arg_s);
+                throw SemanticError(diag::Diagnostic(
+                    "Parameter is already declared",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("original declaration", {orig_decl->base.loc}, false),
+                        diag::Label("redeclaration", {v->base.loc}),
+                    }));
+            }
             current_scope->add_symbol(arg_s, v);
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 v)));
