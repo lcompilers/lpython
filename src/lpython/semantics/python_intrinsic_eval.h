@@ -349,12 +349,10 @@ struct IntrinsicNodeHandler {
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_StringLen_t(al, loc, arg, to_type, value));
         } else if (ASR::is_a<ASR::Set_t>(*type)) {
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                int64_t ival = (int64_t)ASR::down_cast<ASR::SetConstant_t>(
-                                        ASRUtils::expr_value(arg))->n_elements;
-                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
-                                loc, ival, to_type));
-            }
+            // Skip for set as they can have multiple same values
+            // which shouldn't account for len.
+            // Example: {1, 1, 1, 3} and the length should be 2.
+            // So it should be handled in the backend.
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_SetLen_t(al, loc, arg, to_type, value));
         } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
@@ -371,12 +369,10 @@ struct IntrinsicNodeHandler {
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_ListLen_t(al, loc, arg, to_type, value));
         } else if (ASR::is_a<ASR::Dict_t>(*type)) {
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                int64_t ival = (int64_t)ASR::down_cast<ASR::DictConstant_t>(
-                                        ASRUtils::expr_value(arg))->n_keys;
-                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
-                                loc, ival, to_type));
-            }
+            // Skip for dictionary as they can have multiple same keys
+            // which shouldn't account for len.
+            // Example: {1: 2, 1: 3, 1: 4} and the length should be 1.
+            // So it should be handled in the backend.
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_DictLen_t(al, loc, arg, to_type, value));
         }
