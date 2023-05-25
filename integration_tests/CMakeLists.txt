@@ -343,6 +343,7 @@ RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c)
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME expr_15             LABELS cpython llvm c)
+RUN(NAME expr_16             LABELS cpython c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c)
 RUN(NAME expr_02u            LABELS cpython llvm c)
