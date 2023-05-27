@@ -4979,21 +4979,6 @@ public:
 
                 target = list_api->read_item(list, pos, compiler_options.enable_bounds_checking,
                                              *module, true);
-            } else if(ASR::is_a<ASR::DictItem_t>(*x.m_target)) {
-                ASR::DictItem_t* asr_target0 = ASR::down_cast<ASR::DictItem_t>(x.m_target);
-                int64_t ptr_loads_copy = ptr_loads;
-                ptr_loads = 0;
-                this->visit_expr(*asr_target0->m_a);
-                ptr_loads = ptr_loads_copy;
-                llvm::Value* dict = tmp;
-                this->visit_expr_wrapper(asr_target0->m_key, true);
-                llvm::Value* key = tmp;
-
-                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
-                                            ASRUtils::expr_type(asr_target0->m_a));
-                set_dict_api(dict_type);
-                target = llvm_utils->dict_api->read_item(dict, key, *module, dict_type,
-                                    compiler_options.enable_bounds_checking, true);
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
@@ -5097,6 +5082,27 @@ public:
                 arr_descr->copy_array(value, target, module.get(),
                                     target_type, false, false);
             }
+        } else if( ASR::is_a<ASR::DictItem_t>(*x.m_target) ) {
+            ASR::DictItem_t* dict_item_t = ASR::down_cast<ASR::DictItem_t>(x.m_target);
+            ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(dict_item_t->m_a));
+            int64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*dict_item_t->m_a);
+            llvm::Value* pdict = tmp;
+
+            ptr_loads = !LLVM::is_llvm_struct(dict_type->m_key_type);
+            this->visit_expr_wrapper(dict_item_t->m_key, true);
+            llvm::Value *key = tmp;
+            ptr_loads = ptr_loads_copy;
+
+            set_dict_api(dict_type);
+            // Note - The value is fully loaded to an LLVM value (not at all a pointer)
+            // as opposed to DictInsert where LLVM values are loaded depending upon
+            // the ASR type of value. Might give issues here.
+            llvm_utils->dict_api->write_item(pdict, key, value, module.get(),
+                                dict_type->m_key_type,
+                                dict_type->m_value_type, name2memidx);
         } else {
             builder->CreateStore(value, target);
         }
