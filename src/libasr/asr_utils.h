@@ -311,6 +311,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             return tp->m_param;
         }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "symbolic expression";
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
@@ -1081,6 +1084,9 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             }
             return "Const[" + get_type_code(p->m_type, use_underscore_sep,
                                             encode_dimensions_, set_dimensional_hint) + "]";
+        }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "

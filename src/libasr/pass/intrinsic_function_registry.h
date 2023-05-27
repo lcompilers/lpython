@@ -1270,13 +1270,6 @@ namespace SymbolicSymbol {
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol), 0, to_type);
     }
 
-    static inline ASR::expr_t* instantiate_SymbolicSymbol(Allocator &al, const Location &loc,
-            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
-        // TODO
-        return nullptr;
-    }
-
 } // namespace SymbolicSymbol
 
 namespace IntrinsicFunctionRegistry {
@@ -1309,8 +1302,6 @@ namespace IntrinsicFunctionRegistry {
             &Any::instantiate_Any},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
             &Partition::instantiate_Partition},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
-            &SymbolicSymbol::instantiate_SymbolicSymbol}
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
