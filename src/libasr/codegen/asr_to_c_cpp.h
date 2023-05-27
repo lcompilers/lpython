@@ -503,6 +503,86 @@ R"(#include <stdio.h>
         return "\ntemplate <" + template_for_Kokkos + ">\n" + func;
     }
 
+    std::string get_arg_conv_bind_python(const ASR::Function_t &x) {
+        // args for bind python not yet supported
+        LCOMPILERS_ASSERT(x.n_args == 0);
+
+        std::string arg_conv = R"(
+    pArgs = PyTuple_New()" + std::to_string(x.n_args) + R"();
+)";
+        for (size_t i = 0; i < x.n_args; ++i) {
+            arg_conv += R"(
+    // Use appropriate Py* Function for x.m_arg[i] conversion
+    pValue = PyLong_FromLong(x.m_arg[i]);
+    if (!pValue) {
+        Py_DECREF(pArgs);
+        Py_DECREF(pModule);
+        fprintf(stderr, "Cannot convert argument\n");
+        exit(1);
+    }
+    /* pValue reference stolen here: */
+    PyTuple_SetItem(pArgs, )" + std::to_string(i) +  R"(, pValue);
+)";
+        }
+        return arg_conv;
+    }
+
+    std::string get_func_body_bind_python(const ASR::Function_t &x) {
+        user_headers.insert("Python.h");
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string var_decls = "PyObject *pName, *pModule, *pFunc; PyObject *pArgs, *pValue;\n";
+        std::string func_body = R"(
+    /*
+        Python Environment initialization and function evaluation
+        should ideally happen once and not for every function call
+    */
+
+    Py_Initialize();
+    wchar_t* argv1 = Py_DecodeLocale("", NULL);
+    wchar_t** argv = {&argv1};
+    PySys_SetArgv(1, argv);
+    pName = PyUnicode_FromString(")" + std::string(x.m_module_file) + R"(");
+    // TODO: check for error in pName
+
+    pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+    if (pModule == NULL) {
+        PyErr_Print();
+        fprintf(stderr, "Failed to load python module )" + std::string(x.m_module_file) + R"(\n");
+        exit(1);
+    }
+
+    pFunc = PyObject_GetAttrString(pModule, ")" + std::string(x.m_name) + R"(");
+    if (!pFunc || !PyCallable_Check(pFunc)) {
+        if (PyErr_Occurred()) PyErr_Print();
+        fprintf(stderr, "Cannot find function )" + std::string(x.m_name) + R"(\n");
+        Py_XDECREF(pFunc);
+        Py_DECREF(pModule);
+        exit(1);
+    }
+
+    )" + get_arg_conv_bind_python(x) + R"(
+
+    pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pArgs);
+    if (pValue == NULL) {
+        Py_DECREF(pFunc);
+        Py_DECREF(pModule);
+        PyErr_Print();
+        fprintf(stderr,"Call failed\n");
+        exit(1);
+    }
+    // TODO: handle/convert the return value here
+    Py_DECREF(pValue);
+
+    if (Py_FinalizeEx() < 0) {
+        fprintf(stderr,"BindPython: Unknown Error\n");
+        exit(1);
+    }
+)";
+        return "{\n" + indent + var_decls + func_body + "}\n";
+    }
+
     std::string declare_all_functions(const SymbolTable &scope) {
         std::string code, t;
         for (auto &item : scope.get_scope()) {
@@ -552,14 +632,19 @@ R"(#include <stdio.h>
             return;
         }
         ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
-        if (f_type->m_abi == ASR::abiType::BindC
-            && f_type->m_deftype == ASR::deftypeType::Interface) {
-            if (x.m_module_file) {
-                user_headers.insert(std::string(x.m_module_file));
-                src = "";
-                return;
-            } else {
-                sub += ";\n";
+        if (f_type->m_deftype == ASR::deftypeType::Interface) {
+            if (f_type->m_abi == ASR::abiType::BindC) {
+                if (x.m_module_file) {
+                    user_headers.insert(std::string(x.m_module_file));
+                    src = "";
+                    return;
+                } else {
+                    sub += ";\n";
+                }
+            } else if (f_type->m_abi == ASR::abiType::BindPython) {
+                indentation_level += 1;
+                sub += "\n" + get_func_body_bind_python(x);
+                indentation_level -= 1;
             }
         } else {
             sub += "\n";
