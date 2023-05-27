@@ -1049,6 +1049,18 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 
 namespace ListPop {
 
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 1, "Call to list.pop must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "Argument to list.pop must be of list type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASRUtils::check_equal_type(x.m_type,
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Return type of list.pop must be of same type as list's element type",
+        x.base.base.loc, diagnostics);
+}
+
 static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
     const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for ListConstant expression
@@ -1984,6 +1996,8 @@ namespace IntrinsicFunctionRegistry {
             {&Partition::instantiate_Partition, &Partition::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             {nullptr, &ListIndex::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            {nullptr, &ListPop::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             {nullptr, &ListReverse::verify_args}},
     };
@@ -2099,6 +2113,9 @@ namespace IntrinsicFunctionRegistry {
     }
 
     static inline verify_function get_verify_function(int64_t id) {
+        if( intrinsic_function_by_id_db.find(id) == intrinsic_function_by_id_db.end() ) {
+            return nullptr;
+        }
         return std::get<1>(intrinsic_function_by_id_db.at(id));
     }
 
