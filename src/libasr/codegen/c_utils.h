@@ -330,6 +330,87 @@ namespace CUtils {
         return type_src;
     }
 
+    static inline std::string get_py_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromLong"; break;
+                    case 8: type_src = "PyLong_FromLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromUnsignedLong"; break;
+                    case 8: type_src = "PyLong_FromUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_src = "PyBool_FromLong";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_FromDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "PyUnicode_FromString";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
+    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsLong"; break;
+                    case 8: type_src = "PyLong_AsLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsUnsignedLong"; break;
+                    case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_AsDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "(char*)PyUnicode_AsUTF8";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
 } // namespace CUtils
 
 

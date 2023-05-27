@@ -504,16 +504,15 @@ R"(#include <stdio.h>
     }
 
     std::string get_arg_conv_bind_python(const ASR::Function_t &x) {
-        // args for bind python not yet supported
-        LCOMPILERS_ASSERT(x.n_args == 0);
 
         std::string arg_conv = R"(
     pArgs = PyTuple_New()" + std::to_string(x.n_args) + R"();
 )";
         for (size_t i = 0; i < x.n_args; ++i) {
+            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
             arg_conv += R"(
-    // Use appropriate Py* Function for x.m_arg[i] conversion
-    pValue = PyLong_FromLong(x.m_arg[i]);
+    pValue = )" + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type) + "("
+    + std::string(arg->m_name) + R"();
     if (!pValue) {
         Py_DECREF(pArgs);
         Py_DECREF(pModule);
@@ -525,6 +524,20 @@ R"(#include <stdio.h>
 )";
         }
         return arg_conv;
+    }
+
+    std::string get_return_value_conv_bind_python(const ASR::Function_t &x) {
+        if (!x.m_return_var) return "";
+        ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
+        std::string indent = "\n    ";
+        std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
+        std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
+        std::string ret_stmt = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
+        std::string clear_pValue = "";
+        if (!ASRUtils::is_aggregate_type(r_v->m_type)) {
+            clear_pValue = indent + "Py_DECREF(pValue);";
+        }
+        return ret_var_decl + ret_stmt + clear_pValue + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {
@@ -541,8 +554,13 @@ R"(#include <stdio.h>
     wchar_t* argv1 = Py_DecodeLocale("", NULL);
     wchar_t** argv = {&argv1};
     PySys_SetArgv(1, argv);
+
     pName = PyUnicode_FromString(")" + std::string(x.m_module_file) + R"(");
-    // TODO: check for error in pName
+    if (pName == NULL) {
+        PyErr_Print();
+        fprintf(stderr, "Failed to convert to unicode string )" + std::string(x.m_module_file) + R"(\n");
+        exit(1);
+    }
 
     pModule = PyImport_Import(pName);
     Py_DECREF(pName);
@@ -560,9 +578,7 @@ R"(#include <stdio.h>
         Py_DECREF(pModule);
         exit(1);
     }
-
-    )" + get_arg_conv_bind_python(x) + R"(
-
+)" + get_arg_conv_bind_python(x) + R"(
     pValue = PyObject_CallObject(pFunc, pArgs);
     Py_DECREF(pArgs);
     if (pValue == NULL) {
@@ -572,14 +588,16 @@ R"(#include <stdio.h>
         fprintf(stderr,"Call failed\n");
         exit(1);
     }
-    // TODO: handle/convert the return value here
-    Py_DECREF(pValue);
-
+)" + get_return_value_conv_bind_python(x) + R"(
     if (Py_FinalizeEx() < 0) {
         fprintf(stderr,"BindPython: Unknown Error\n");
         exit(1);
     }
 )";
+        if (x.m_return_var) {
+            auto r_v = ASRUtils::EXPR2VAR(x.m_return_var);
+            func_body += "\n    return " + std::string(r_v->m_name) + ";\n";
+        }
         return "{\n" + indent + var_decls + func_body + "}\n";
     }
 
