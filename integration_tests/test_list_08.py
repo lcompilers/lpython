@@ -1,7 +1,7 @@
-from lpython import i32, f64
+from lpython import i32, f64, InOut
 from copy import deepcopy
 
-def sort(l: list[i32]) -> list[i32]:
+def sort(l: InOut[list[i32]]) -> list[i32]:
     i: i32; j: i32
 
     for i in range(len(l)):

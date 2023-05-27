@@ -2,11 +2,11 @@
     "basename": "asr-structs_05-fa98307",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/structs_05.py",
-    "infile_hash": "94d06fb2844e1060d5df5291c3ccc4bd0e2bc8a8a59651814f0c4f0e",
+    "infile_hash": "5c587158fe09782d15aa8f5f9c24468c62795e9f537a9eb439d8e8a4",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-structs_05-fa98307.stdout",
-    "stdout_hash": "4adb7d314cd3d28086e7e0ebb8a701b1de0d0f253d5de63730b6f113",
+    "stdout_hash": "bde17720270048c509903eac1703b839f3e34c0a9cb1d8df1811bd55",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

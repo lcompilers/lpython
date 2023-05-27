@@ -16,6 +16,7 @@ struct AttributeHandler {
                                 const Location &, Vec<ASR::expr_t*> &, diag::Diagnostics &);
 
     std::map<std::string, attribute_eval_callback> attribute_map;
+    std::set<std::string> modify_attr_set;
 
     AttributeHandler() {
         attribute_map = {
@@ -35,6 +36,10 @@ struct AttributeHandler {
             {"dict@get", &eval_dict_get},
             {"dict@pop", &eval_dict_pop}
         };
+
+        modify_attr_set = {"list@append", "list@remove",
+            "list@reverse", "list@clear", "list@insert", "list@pop",
+            "set@pop", "set@add", "set@remove", "dict@pop"};
     }
 
     std::string get_type_name(ASR::ttype_t *t) {
@@ -60,6 +65,13 @@ struct AttributeHandler {
             throw SemanticError("Type name is not implemented yet.", loc);
         }
         std::string key = class_name + "@" + attr_name;
+        if (modify_attr_set.find(key) != modify_attr_set.end()) {
+            ASR::Variable_t* v = ASRUtils::EXPR2VAR(e);
+            if (v->m_intent == ASRUtils::intent_in) {
+                throw SemanticError("Modifying input function parameter `"
+                            + std::string(v->m_name) + "` is not allowed", loc);
+            }
+        }
         auto search = attribute_map.find(key);
         if (search != attribute_map.end()) {
             attribute_eval_callback cb = search->second;

@@ -1,4 +1,4 @@
-from lpython import i32, f64
+from lpython import i32, f64, InOut
 
 def normalize(value: f64, leftMin: f64, leftMax: f64, rightMin: f64, rightMax: f64) -> f64:
     # Figure out how 'wide' each range is
@@ -11,7 +11,7 @@ def normalize(value: f64, leftMin: f64, leftMax: f64, rightMin: f64, rightMax: f
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
-def normalize_input_vectors(input_vectors: list[list[f64]]):
+def normalize_input_vectors(input_vectors: InOut[list[list[f64]]]):
     rows: i32 = len(input_vectors)
     cols: i32 = len(input_vectors[0])
 
@@ -29,7 +29,7 @@ def normalize_input_vectors(input_vectors: list[list[f64]]):
         for i in range(rows):
             input_vectors[i][j] = normalize(input_vectors[i][j], colMinVal, colMaxVal, -1.0, 1.0)
 
-def normalize_output_vector(output_vector: list[f64]):
+def normalize_output_vector(output_vector: InOut[list[f64]]):
     rows: i32 = len(output_vector)
     colMinVal: f64 = output_vector[0]
     colMaxVal: f64 = output_vector[0]

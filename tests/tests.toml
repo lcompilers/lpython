@@ -1063,10 +1063,6 @@ filename = "errors/loop_03.py"
 asr = true
 
 [[test]]
-filename = "errors/test_goto.py"
-asr = true
-
-[[test]]
 filename = "errors/bindc_01.py"
 asr = true
 
@@ -1084,6 +1080,26 @@ asr = true
 
 [[test]]
 filename = "errors/func_01.py"
+asr = true
+
+[[test]]
+filename = "errors/func_02.py"
+asr = true
+
+[[test]]
+filename = "errors/func_03.py"
+asr = true
+
+[[test]]
+filename = "errors/func_04.py"
+asr = true
+
+[[test]]
+filename = "errors/func_05.py"
+asr = true
+
+[[test]]
+filename = "errors/func_06.py"
 asr = true
 
 # tests/runtime_errors

@@ -693,9 +693,9 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
 
 // strcpy -----------------------------------------------------------
 
-LFORTRAN_API void _lfortran_strcpy(char** x, char *y)
+LFORTRAN_API void _lfortran_strcpy(char** x, char *y, int8_t free_target)
 {
-    if (*x) free((void *)*x);
+    if (*x && free_target) free((void *)*x);
     *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
     strcpy(*x, y);
 }
@@ -1126,7 +1126,7 @@ LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift) {
     if(shift > 0) {
         return i << shift;
     } else if(shift < 0) {
-        return i >> abs((int)shift);
+        return i >> abs(shift);
     } else {
         return i;
     }
@@ -1336,6 +1336,16 @@ LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status
     return (int64_t)fd;
 }
 
+LFORTRAN_API void _lfortran_inquire(char *f_name, bool *exists) {
+    FILE *fp = fopen(f_name, "r");
+    if (fp != NULL) {
+        *exists = true;
+        fclose(fp); // close the file
+        return;
+    }
+    *exists = false;
+}
+
 LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
 {
     if (unit_num == -1) {
@@ -1350,6 +1360,24 @@ LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
         exit(1);
     }
     fread(p, sizeof(int32_t), 1, unit_to_file[unit_num]);
+}
+
+LFORTRAN_API void _lfortran_read_char(char **p, int32_t unit_num)
+{
+    if (unit_num == -1) {
+        // Read from stdin
+        *p = (char*)malloc(16);
+        FILE *fp = fdopen(0, "r+");
+        fread(*p, sizeof(char), 16, fp);
+        fclose(fp);
+        return;
+    }
+    if (!unit_to_file[unit_num]) {
+        printf("No file found with given unit\n");
+        exit(1);
+    }
+    *p = (char*)malloc(16);
+    fread(*p, sizeof(char), 16, unit_to_file[unit_num]);
 }
 
 LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)

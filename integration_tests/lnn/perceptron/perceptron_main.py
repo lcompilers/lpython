@@ -1,4 +1,4 @@
-from lpython import dataclass, i32, f64
+from lpython import dataclass, i32, f64, InOut
 from sys import exit
 
 @dataclass
@@ -27,7 +27,7 @@ def init_weights(size: i32) -> list[f64]:
     weights.append(0.0) # append bias
     return weights
 
-def init_perceptron(p: Perceptron, n: i32, rate: f64, iterations_limit: i32, des_accuracy: f64):
+def init_perceptron(p: InOut[Perceptron], n: i32, rate: f64, iterations_limit: i32, des_accuracy: f64):
     if (n < 1 or n > 1000):
         print("no_of_inputs must be between [1, 1000]")
         exit(1)
@@ -39,7 +39,7 @@ def init_perceptron(p: Perceptron, n: i32, rate: f64, iterations_limit: i32, des
     p.cur_accuracy = 0.0
     p.epochs_cnt = 0
 
-def train_perceptron(p: Perceptron, input_vector: list[f64], actual_output: i32):
+def train_perceptron(p: InOut[Perceptron], input_vector: list[f64], actual_output: i32):
     predicted_output: i32 = predict_perceptron(p, input_vector)
     error: i32 = actual_output - predicted_output
     i: i32
@@ -65,7 +65,7 @@ def train_epoch(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32
         if predict_perceptron(p, input_vector) != outputs[i]:
             train_perceptron(p, input_vector, outputs[i])
 
-def train_dataset(p: Perceptron, input_vectors: list[list[f64]], outputs: list[i32]):
+def train_dataset(p: InOut[Perceptron], input_vectors: list[list[f64]], outputs: list[i32]):
     p.cur_accuracy = 0.0
     p.epochs_cnt = 0
     while p.cur_accuracy < p.des_accuracy and p.epochs_cnt < p.iterations_limit:

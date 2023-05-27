@@ -104,7 +104,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
         ASR::ttype_t* slice_asr_type = get_array_from_slice(x, x_arr_var);
         ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x->base.base.loc, current_scope, new_var_name, nullptr, 0,
                                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                    slice_asr_type, ASR::abiType::Source, ASR::accessType::Public,
+                                    slice_asr_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                     ASR::presenceType::Required, false);
         ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
         current_scope->add_symbol(std::string(new_var_name), slice_sym);
@@ -211,7 +211,12 @@ class ArraySectionVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArraySe
             if (x.m_overloaded) {
                 this->visit_stmt(*x.m_overloaded);
             }
-    }
+        }
+
+        void visit_Associate(const ASR::Associate_t& /*x*/) {
+            // Associating a slice to a pointer array
+            // should happen only in the backends.
+        }
 
 };
 

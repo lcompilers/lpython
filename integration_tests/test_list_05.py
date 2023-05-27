@@ -1,4 +1,4 @@
-from lpython import i32, f64
+from lpython import i32, f64, InOut
 
 def check_list_of_tuples(l: list[tuple[i32, f64, str]], sign: i32):
     size: i32 = len(l)
@@ -29,7 +29,7 @@ def fill_list_of_tuples(size: i32) -> list[tuple[i32, f64, str]]:
 
     return l1
 
-def insert_tuples_into_list(l: list[tuple[i32, f64, str]], size: i32) -> list[tuple[i32, f64, str]]:
+def insert_tuples_into_list(l: InOut[list[tuple[i32, f64, str]]], size: i32) -> list[tuple[i32, f64, str]]:
     i: i32
     string: str
     t: tuple[i32, f64, str]

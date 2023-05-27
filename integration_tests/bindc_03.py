@@ -1,6 +1,7 @@
 from lpython import (c_p_pointer, CPtr, pointer, i32,
                     Pointer, ccall, p_c_pointer, dataclass,
-                    ccallable, empty_c_void_p)
+                    ccallable, empty_c_void_p, cptr_to_u64,
+                    u64_to_cptr, u64)
 
 @dataclass
 class ArrayWrapped:
@@ -50,6 +51,11 @@ def run():
     a = get_array(size)
     assert a != empty_c_void_p()
     array_wrapped.array = a
+    f(array_wrapped.array)
+    q: u64 = cptr_to_u64(a)
+    x: CPtr
+    x = u64_to_cptr(q)
+    array_wrapped.array = x
     f(array_wrapped.array)
     array_wrapped1 = array_wrapped
     h(array_wrapped1.array)

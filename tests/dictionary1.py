@@ -33,7 +33,7 @@ def test_dict_pop():
     x = y.pop("a")
 
 
-def f(x: dict[i32, i32]):
+def f(x: InOut[dict[i32, i32]]):
     x[2] = 4
 
 def test_issue_204():

@@ -114,6 +114,10 @@ namespace LCompilers {
         are_iterators_set(false) {
         }
 
+    void LLVMUtils::set_module(llvm::Module* module_) {
+        module = module_;
+    }
+
     llvm::Value* LLVMUtils::create_gep(llvm::Value* ds, int idx) {
         std::vector<llvm::Value*> idx_vec = {
         llvm::ConstantInt::get(context, llvm::APInt(32, 0)),

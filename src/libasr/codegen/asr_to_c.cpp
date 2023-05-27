@@ -245,6 +245,37 @@ public:
                     std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
                 }
+            } else if (ASRUtils::is_real(*t2)) {
+                ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(t2);
+                std::string type_name;
+                if (t->m_kind == 4) {
+                    type_name = "float";
+                } else if (t->m_kind == 8) {
+                    type_name = "double";
+                } else {
+                    diag.codegen_error_label("Real kind '"
+                        + std::to_string(t->m_kind)
+                        + "' not supported", {v.base.base.loc}, "");
+                    throw Abort();
+                }
+                if( !ASRUtils::is_array(v_m_type) ) {
+                    type_name.append(" *");
+                }
+                if( is_array ) {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string encoded_type_name = "f" + std::to_string(t->m_kind * 8);
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                } else {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                }
             } else if(ASR::is_a<ASR::Struct_t>(*t2)) {
                 ASR::Struct_t *t = ASR::down_cast<ASR::Struct_t>(t2);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
