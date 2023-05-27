@@ -554,8 +554,8 @@ R"(#include <stdio.h>
         ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
         if (f_type->m_abi == ASR::abiType::BindC
             && f_type->m_deftype == ASR::deftypeType::Interface) {
-            if (x.m_c_header) {
-                user_headers.insert(std::string(x.m_c_header));
+            if (x.m_module_file) {
+                user_headers.insert(std::string(x.m_module_file));
                 src = "";
                 return;
             } else {
@@ -625,8 +625,8 @@ R"(#include <stdio.h>
         src = sub;
         if (f_type->m_abi == ASR::abiType::BindC
             && f_type->m_deftype == ASR::deftypeType::Implementation) {
-            if (x.m_c_header) {
-                std::string header_name = std::string(x.m_c_header);
+            if (x.m_module_file) {
+                std::string header_name = std::string(x.m_module_file);
                 user_headers.insert(header_name);
                 emit_headers[header_name]+= "\n" + src;
                 src = "";

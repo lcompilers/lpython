@@ -3790,7 +3790,7 @@ public:
         bool is_restriction = false;
         bool is_deterministic = false;
         bool is_side_effect_free = false;
-        char *bindc_name=nullptr, *c_header_file=nullptr;
+        char *bindc_name=nullptr, *module_file=nullptr;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -3834,7 +3834,7 @@ public:
                                         if (AST::is_a<AST::ConstantStr_t>(*call_d->m_keywords[i].m_value)) {
                                             std::string header_name = AST::down_cast<AST::ConstantStr_t>(
                                                         call_d->m_keywords[i].m_value)->m_value;
-                                            c_header_file = s2c(al, header_name);
+                                            module_file = s2c(al, header_name);
                                         } else {
                                             throw SemanticError("header should be constant string in ccall/ccallable",
                                                 x.base.base.loc);
@@ -4013,7 +4013,7 @@ public:
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
                     tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
-                    c_header_file);
+                    module_file);
                     return_variable->m_type = return_type_;
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
@@ -4035,7 +4035,7 @@ public:
                 s_access, deftype, bindc_name,
                 false, is_pure, is_module, is_inline, is_static,
                 tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
-                c_header_file);
+                module_file);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);
