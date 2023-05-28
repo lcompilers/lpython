@@ -2156,6 +2156,22 @@ public:
             }
             tmp = ASR::make_ListConcat_t(al, loc, left, right, dest_type, value);
             return;
+        } else if (ASR::is_a<ASR::Tuple_t>(*left_type) && ASR::is_a<ASR::Tuple_t>(*right_type)
+                   && op == ASR::binopType::Add) {
+            Vec<ASR::ttype_t*> tuple_type_vec;
+            ASR::Tuple_t* tuple_type_left = ASR::down_cast<ASR::Tuple_t>(left_type);
+            ASR::Tuple_t* tuple_type_right = ASR::down_cast<ASR::Tuple_t>(right_type);
+            tuple_type_vec.reserve(al, tuple_type_left->n_type + tuple_type_right->n_type);
+            for (size_t i=0; i<tuple_type_left->n_type; i++) {
+                tuple_type_vec.push_back(al, tuple_type_left->m_type[i]);
+            }
+            for (size_t i=0; i<tuple_type_right->n_type; i++) {
+                tuple_type_vec.push_back(al, tuple_type_right->m_type[i]);
+            }
+            ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
+                                        tuple_type_vec.p, tuple_type_vec.n));
+            tmp = ASR::make_TupleConcat_t(al, loc, left, right, tuple_type, value);
+            return;
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
