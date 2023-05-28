@@ -42,6 +42,14 @@ def h(q_void: CPtr) -> None:
         print(el)
         assert el == i * i + i%2
 
+
+@ccallable(header="_test_bindc_03_my_header.h")
+def test_emit_header_ccallable() -> i32:
+    i: i32 = 5
+    assert i == 5
+    i = i*5
+    return i + 10
+
 def run():
     a: CPtr
     array_wrapped: ArrayWrapped = ArrayWrapped(a)
@@ -59,5 +67,6 @@ def run():
     f(array_wrapped.array)
     array_wrapped1 = array_wrapped
     h(array_wrapped1.array)
+    assert test_emit_header_ccallable() == 35
 
 run()

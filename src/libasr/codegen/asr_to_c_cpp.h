@@ -104,6 +104,7 @@ public:
     std::map<uint64_t, SymbolInfo> sym_info;
     std::map<uint64_t, std::string> const_var_names;
     std::map<int32_t, std::string> gotoid2name;
+    std::map<std::string, std::string> emit_headers;
 
     // Output configuration:
     // Use std::string or char*
@@ -622,6 +623,15 @@ R"(#include <stdio.h>
         }
         sub += "\n";
         src = sub;
+        if (f_type->m_abi == ASR::abiType::BindC
+            && f_type->m_deftype == ASR::deftypeType::Implementation) {
+            if (x.m_c_header) {
+                std::string header_name = std::string(x.m_c_header);
+                user_headers.insert(header_name);
+                emit_headers[header_name]+= "\n" + src;
+                src = "";
+            }
+        }
         current_scope = current_scope_copy;
     }
 

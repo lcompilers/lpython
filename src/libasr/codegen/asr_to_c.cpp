@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <memory>
 
 #include <libasr/asr.h>
@@ -655,29 +656,6 @@ R"(
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
-#define ASSERT(cond)                                                           \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-#define ASSERT_MSG(cond, msg)                                                  \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-
 )";
 
         std::string indent(indentation_level * indentation_spaces, ' ');
@@ -807,6 +785,24 @@ R"(
         }
         src = to_include + head + array_types_decls + unit_src +
               ds_funcs_defined + util_funcs_defined;
+        if (!emit_headers.empty()) {
+            std::string to_includes_1 = "";
+            for (auto &s: headers) {
+                to_includes_1 += "#include <" + s + ">\n";
+            }
+            for (auto &f_name: emit_headers) {
+                std::ofstream out_file;
+                std::string out_src = to_includes_1 + head + f_name.second;
+                std::string ifdefs = f_name.first.substr(0, f_name.first.length() - 2);
+                std::transform(ifdefs.begin(), ifdefs.end(), ifdefs.begin(), ::toupper);
+                ifdefs += "_H";
+                out_src = "#ifndef " + ifdefs + "\n#define " + ifdefs + "\n\n" + out_src;
+                out_src += "\n\n#endif\n";
+                out_file.open(f_name.first);
+                out_file << out_src;
+                out_file.close();
+            }
+        }
     }
 
     void visit_Module(const ASR::Module_t &x) {
