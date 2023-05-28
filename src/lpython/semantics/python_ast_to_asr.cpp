@@ -3809,9 +3809,9 @@ public:
                     AST::Call_t *call_d = AST::down_cast<AST::Call_t>(dec);
                     if (AST::is_a<AST::Name_t>(*call_d->m_func)) {
                         std::string name = AST::down_cast<AST::Name_t>(call_d->m_func)->m_id;
-                        if (name == "ccall") {
+                        if (name == "ccall" || "ccallable") {
                             current_procedure_abi_type = ASR::abiType::BindC;
-                            current_procedure_interface = true;
+                            if (name == "ccall") current_procedure_interface = true;
                             if (call_d->n_keywords > 0) {
                                 for (size_t i=0; i < call_d->n_keywords; i++) {
                                     if (std::string(call_d->m_keywords[i].m_arg) == "header") {
@@ -3820,7 +3820,7 @@ public:
                                                         call_d->m_keywords[i].m_value)->m_value;
                                             c_header_file = s2c(al, header_name);
                                         } else {
-                                            throw SemanticError("header should be constant string in ccall",
+                                            throw SemanticError("header should be constant string in ccall/ccallable",
                                                 x.base.base.loc);
                                         }
                                     }
