@@ -6,55 +6,6 @@
 
 namespace LCompilers  {
 
-// This function is taken from:
-// https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash2.cpp#L37
-uint32_t murmur_hash(const void * key, int len, uint32_t seed)
-{
-    // 'm' and 'r' are mixing constants generated offline.
-    // They're not really 'magic', they just happen to work well.
-    const uint32_t m = 0x5bd1e995;
-    const int r = 24;
-    // Initialize the hash to a 'random' value
-    uint32_t h = seed ^ len;
-    // Mix 4 bytes at a time into the hash
-    const unsigned char * data = (const unsigned char *)key;
-    while(len >= 4)
-    {
-        uint32_t k = *(uint32_t*)data;
-        k *= m;
-        k ^= k >> r;
-        k *= m;
-        h *= m;
-        h ^= k;
-        data += 4;
-        len -= 4;
-    }
-    // Handle the last few bytes of the input array
-    switch(len)
-    {
-        case 3: h ^= data[2] << 16; // fall through
-        case 2: h ^= data[1] << 8;  // fall through
-        case 1: h ^= data[0];
-            h *= m;
-    };
-    // Do a few final mixes of the hash to ensure the last few
-    // bytes are well-incorporated.
-    h ^= h >> 13;
-    h *= m;
-    h ^= h >> 15;
-    return h;
-}
-
-uint32_t murmur_hash_str(const std::string &s, uint32_t seed)
-{
-    return murmur_hash(&s[0], s.length(), seed);
-}
-
-uint32_t murmur_hash_int(uint64_t i, uint32_t seed)
-{
-    return murmur_hash(&i, 8, seed);
-}
-
 template< typename T >
 std::string hexify(T i)
 {
@@ -75,7 +26,7 @@ void SymbolTable::reset_global_counter() {
     symbol_table_counter = 0;
 }
 
-void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
+void SymbolTable::mark_all_variables_external(Allocator &al) {
     for (auto &a : scope) {
         switch (a.second->type) {
             case (ASR::symbolType::Variable) : {
@@ -90,6 +41,10 @@ void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
                 v->m_body = nullptr;
                 v->n_body = 0;
                 break;
+            }
+            case (ASR::symbolType::Module) : {
+                ASR::Module_t *v = ASR::down_cast<ASR::Module_t>(a.second);
+                v->m_symtab->mark_all_variables_external(al);
             }
             default : {};
         }

@@ -102,7 +102,7 @@ public:
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
             ASR::make_Variable_t(al, loc, symtab, \
             s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
-            ASR::storage_typeType::Default, type, \
+            ASR::storage_typeType::Default, type, nullptr, \
             ASR::abiType::Source, ASR::accessType::Public, \
             ASR::presenceType::Required, false)); \
         ASR::expr_t* arg_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)); \
@@ -178,7 +178,7 @@ public:
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_section_symtab,
             s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
-            ASR::storage_typeType::Default, list_type,
+            ASR::storage_typeType::Default, list_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
         ASR::expr_t* res_list = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg));
@@ -454,7 +454,7 @@ public:
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_concat_symtab,
             s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
-            ASR::storage_typeType::Default, list_type,
+            ASR::storage_typeType::Default, list_type, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
         ASR::expr_t* res_list = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg));

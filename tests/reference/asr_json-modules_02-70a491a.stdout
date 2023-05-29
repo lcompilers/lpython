@@ -143,6 +143,7 @@
                                                                 "last_column": 10
                                                             }
                                                         },
+                                                        "type_declaration": [],
                                                         "abi": "Source",
                                                         "access": "Public",
                                                         "presence": "Required",

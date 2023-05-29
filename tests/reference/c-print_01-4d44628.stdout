@@ -5,29 +5,6 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
-#define ASSERT(cond)                                                           \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-#define ASSERT_MSG(cond, msg)                                                  \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-
 
 struct dimension_descriptor
 {
@@ -40,10 +17,10 @@ void f()
     char * x = NULL;
     char * y = NULL;
     printf("%s\n", "Hello World!");
-    _lfortran_strcpy(&x, ",");
-    _lfortran_strcpy(&y, "!!");
+    _lfortran_strcpy(&x, ",", 1);
+    _lfortran_strcpy(&y, "!!", 1);
     printf("%s%s%s\n", "a", x, "b");
-    _lfortran_strcpy(&x, "-+-+-");
+    _lfortran_strcpy(&x, "-+-+-", 1);
     printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
     printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
     printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);

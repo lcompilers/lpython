@@ -1,4 +1,4 @@
-from lpython import i32, f64, i64, i16, i8, f32, dataclass
+from lpython import i32, f64, i64, i16, i8, f32, dataclass, InOut
 from numpy import empty
 
 @dataclass
@@ -33,7 +33,7 @@ def verify(s: A[:], x1: i32, y1: f64, x2: i32, y2: f64):
     assert s1.c == i8(x2)
     assert s1.d
 
-def update_1(s: A):
+def update_1(s: InOut[A]):
     s.x = 2
     s.y = 1.2
     s.z = i64(2)
