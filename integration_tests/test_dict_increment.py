@@ -4,7 +4,7 @@ def test_dict_increment():
     d_int_int: dict[i32, i32]
     d_int_float: dict[i32, f64]
     d_bool_float: dict[bool, f64]
-    d_str_int: dict[str, i32]
+    d_str_float: dict[str, f64]
     d_int_str: dict[i32, str]
     i1: i32
     i2: i32
@@ -48,22 +48,12 @@ def test_dict_increment():
     assert d_bool_float[j1 < 2.0] == d_bool_float[j1 > 2.0]
     assert d_bool_float[True] == j2
 
-    # Not working with str key. Example:
-
-    # d_str_int = {"1": 1}
-    # print(d_str_int["1"])
-    # d_str_int["1"] += 1
-    # print(d_str_int["1"])
-    # d_str_int["1"] = d_str_int["1"] + 1
-    # print(d_str_int["1"])
-
-    # j1 = 2.0
-    # d_str_int = {'key': j1}
-    # while j1 < 4.0:
-    #     d_str_int['key'] += 0.1
-    #     j1 += 0.1
-    #     print(d_str_int['key'], j1)
-    #     assert d_str_int['key'] == j1
+    j1 = 2.0
+    d_str_float = {'key': j1}
+    while j1 < 4.0:
+        d_str_float['ke' + 'y'] += 0.1
+        j1 += 0.1
+        assert d_str_float['key'] == j1
 
     s1 = "0"
     d_int_str = {-1: s1}
