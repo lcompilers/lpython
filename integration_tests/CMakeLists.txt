@@ -36,6 +36,15 @@ set_property(TARGET lpython_rtlib PROPERTY INTERFACE_LINK_LIBRARIES
     ${LPYTHON_RTLIB_LIBRARY})
 target_link_libraries(lpython_rtlib INTERFACE m)
 
+find_package(Python COMPONENTS Development)
+message("\n")
+message("System has the Python development artifacts: ${Python_Development_FOUND}")
+message("The Python include directories: ${Python_INCLUDE_DIRS}")
+message("The Python libraries: ${Python_LIBRARIES}")
+message("The Python library directories: ${Python_LIBRARY_DIRS}")
+message("The Python runtime library directories: ${Python_RUNTIME_LIBRARY_DIRS}")
+message("Python version: ${Python_VERSION}")
+
 enable_testing()
 
 message("\n")
@@ -57,7 +66,7 @@ message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
 macro(RUN)
-    set(options FAIL)
+    set(options FAIL ENABLE_CPYTHON)
     set(oneValueArgs NAME IMPORT_PATH)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -66,6 +75,11 @@ macro(RUN)
     set(import_path ${RUN_IMPORT_PATH})
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
+    endif()
+
+    set(enable_cpython "")
+    if (${RUN_ENABLE_CPYTHON})
+        set(enable_cpython "--enable-cpython")
     endif()
 
     if (${KIND} IN_LIST RUN_LABELS)
@@ -97,13 +111,13 @@ macro(RUN)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} ${enable_cpython} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND ${LPYTHON} ${enable_cpython} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()
@@ -112,6 +126,12 @@ macro(RUN)
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
+            if (${RUN_ENABLE_CPYTHON})
+                target_link_libraries(${name} Python::Python)
+                if (RUN_EXTRAFILES)
+                    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${RUN_EXTRAFILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+                endif()
+            endif()
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
