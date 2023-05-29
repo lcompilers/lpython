@@ -890,10 +890,31 @@ R"(
         }
 
         std::string body;
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    Py_Initialize();
+    wchar_t* argv1 = Py_DecodeLocale("", NULL);
+    wchar_t** argv_ = {&argv1};
+    PySys_SetArgv(1, argv_);
+)";
+            body += "\n";
+        }
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
+
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    if (Py_FinalizeEx() < 0) {
+        fprintf(stderr,"BindPython: Unknown Error\n");
+        exit(1);
+    }
+)";
+            body += "\n";
+        }
+
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
                 + indent1 + "_lpython_set_argv(argc, argv);\n"

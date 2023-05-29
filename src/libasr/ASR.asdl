@@ -86,7 +86,7 @@ symbol
         bool loaded_from_mod, bool intrinsic)
     | Function(symbol_table symtab, identifier name, ttype function_signature,
         identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free,  string? c_header)
+        access access, bool deterministic, bool side_effect_free,  string? module_file)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -137,6 +137,12 @@ presence = Required | Optional
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
 
+-- abi=BindPython: the symbol's implementation is
+-- stored in text format in the user source code file.
+-- The symbol is executed using the CPython interpreter.
+-- LPython manages the conversion of arguments to be passed to such symbols
+-- and also converts the return values from such symbols.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -153,6 +159,7 @@ abi                   -- External     ABI
     | LFortranModule  --   Yes        LFortran
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
+    | BindPython      --   Yes        Python
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 
