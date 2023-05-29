@@ -29,6 +29,19 @@ namespace LCompilers {
         builder.CreateCall(fn_printf, args);
     }
 
+    static inline void symengine_str(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
+    {
+        llvm::Function *fn_symengine_str = module.getFunction("symengine_str");
+        if (!fn_symengine_str) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_symengine_str = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "symengine_str", &module);
+        }
+        builder.CreateCall(fn_symengine_str, args);
+    }
+
     static inline void print_error(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
     {
