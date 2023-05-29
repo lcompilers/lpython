@@ -2679,10 +2679,10 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopbody);
         {
             tmp = read_item(list, LLVM::CreateLoad(*builder, i),
-                false, module, LLVM::is_llvm_struct(list_type));    // tmp = list[i]
+                false, module, false);    // tmp = list[i]
             write_item(list, LLVM::CreateLoad(*builder, i),
                         read_item(list, LLVM::CreateLoad(*builder, j),
-                        false, module, LLVM::is_llvm_struct(list_type)),
+                        false, module, false),
                         false, module);    // list[i] = list[j]
             write_item(list, LLVM::CreateLoad(*builder, j),
                         tmp, false, module);    // list[j] = tmp
