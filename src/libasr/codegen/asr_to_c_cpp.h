@@ -532,12 +532,13 @@ R"(#include <stdio.h>
         std::string indent = "\n    ";
         std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
         std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
-        std::string ret_stmt = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
+        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
+        std::string ret_stmt = indent + "return " + std::string(r_v->m_name) + ";";
         std::string clear_pValue = "";
         if (!ASRUtils::is_aggregate_type(r_v->m_type)) {
             clear_pValue = indent + "Py_DECREF(pValue);";
         }
-        return ret_var_decl + ret_stmt + clear_pValue + "\n";
+        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {
@@ -545,16 +546,6 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string var_decls = "PyObject *pName, *pModule, *pFunc; PyObject *pArgs, *pValue;\n";
         std::string func_body = R"(
-    /*
-        Python Environment initialization and function evaluation
-        should ideally happen once and not for every function call
-    */
-
-    Py_Initialize();
-    wchar_t* argv1 = Py_DecodeLocale("", NULL);
-    wchar_t** argv = {&argv1};
-    PySys_SetArgv(1, argv);
-
     pName = PyUnicode_FromString(")" + std::string(x.m_module_file) + R"(");
     if (pName == NULL) {
         PyErr_Print();
@@ -588,16 +579,7 @@ R"(#include <stdio.h>
         fprintf(stderr,"Call failed\n");
         exit(1);
     }
-)" + get_return_value_conv_bind_python(x) + R"(
-    if (Py_FinalizeEx() < 0) {
-        fprintf(stderr,"BindPython: Unknown Error\n");
-        exit(1);
-    }
-)";
-        if (x.m_return_var) {
-            auto r_v = ASRUtils::EXPR2VAR(x.m_return_var);
-            func_body += "\n    return " + std::string(r_v->m_name) + ";\n";
-        }
+)" + get_return_value_conv_bind_python(x);
         return "{\n" + indent + var_decls + func_body + "}\n";
     }
 
