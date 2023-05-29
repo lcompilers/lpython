@@ -1911,6 +1911,10 @@ namespace Partition {
 
 namespace SymbolicSymbol {
 
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        // TODO
+    }
+
     static inline ASR::expr_t *eval_SymbolicSymbol(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args) {
         // TODO
@@ -1981,6 +1985,8 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &ListIndex::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             {nullptr, &ListReverse::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+            {nullptr, &SymbolicSymbol::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -2018,11 +2024,11 @@ namespace IntrinsicFunctionRegistry {
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             "list.reverse"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
-            "Symbol"}
+            "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
-            "sum"},
+            "sum"}
     };
 
 
