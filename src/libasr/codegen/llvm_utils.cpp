@@ -3045,4 +3045,18 @@ namespace LCompilers {
         return is_equal;
     }
 
+    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2,
+                           ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
+                           llvm::Value* concat_tuple,
+                           llvm::Module& module) {
+        std::vector<llvm::Value*> values;
+        for( size_t i = 0; i < tuple_type_1->n_type; i++ ) {
+            values.push_back(llvm_utils->tuple_api->read_item(t1, i, false));
+        }
+        for( size_t i = 0; i < tuple_type_2->n_type; i++ ) {
+            values.push_back(llvm_utils->tuple_api->read_item(t2, i, false));
+        }
+        tuple_init(concat_tuple, values);
+    }
+
 } // namespace LCompilers
