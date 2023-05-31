@@ -1912,7 +1912,15 @@ namespace Partition {
 namespace SymbolicSymbol {
 
     static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
-        // TODO
+        const Location& loc = x.base.base.loc;
+        ASRUtils::require_impl(x.n_args == 1,
+            "SymbolicSymbol intrinsic must have exactly 1 input argument",
+            loc, diagnostics);
+
+        ASR::ttype_t* input_type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASR::is_a<ASR::Character_t>(*input_type),
+            "SymbolicSymbol intrinsic expects a character input argument",
+            loc, diagnostics);
     }
 
     static inline ASR::expr_t *eval_SymbolicSymbol(Allocator &al, const Location &loc,
