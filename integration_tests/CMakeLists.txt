@@ -64,154 +64,150 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    set(fail ${${RUN_FAIL}})
+    set(name ${${RUN_NAME}})
+    set(file_name ${${RUN_FILE_NAME}})
+    set(import_path ${${RUN_IMPORT_PATH}})
+    set(labels ${${RUN_LABELS}})
+    set(run_enable_cpython ${${RUN_ENABLE_CPYTHON}})
+    set(extra_files ${${RUN_EXTRAFILES}})
+    set(extra_args ${${RUN_EXTRA_ARGS}})
 
-macro(RUN)
-    set(options FAIL ENABLE_CPYTHON)
-    set(oneValueArgs NAME IMPORT_PATH)
-    set(multiValueArgs LABELS EXTRAFILES)
-    cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
-                          "${multiValueArgs}" ${ARGN} )
-    set(name ${RUN_NAME})
-    set(import_path ${RUN_IMPORT_PATH})
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
     endif()
 
-    set(enable_cpython "")
-    if (${RUN_ENABLE_CPYTHON})
-        set(enable_cpython "--enable-cpython")
-    endif()
-
-    if (${KIND} IN_LIST RUN_LABELS)
+    if (${KIND} IN_LIST labels)
         if (KIND STREQUAL "llvm")
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    COMMAND ${LPYTHON} -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                     VERBATIM)
             endif()
-            add_executable(${name} ${name}.o ${RUN_EXTRAFILES})
+            add_executable(${name} ${name}.o ${extra_files})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${enable_cpython} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    COMMAND ${LPYTHON} ${extra_args} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${enable_cpython} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                     VERBATIM)
             endif()
 
-            add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
+            add_executable(${name} ${name}.c ${extra_files})
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
-            if (${RUN_ENABLE_CPYTHON})
+            if (run_enable_cpython)
                 target_link_libraries(${name} Python::Python)
-                if (RUN_EXTRAFILES)
-                    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${RUN_EXTRAFILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+                if (extra_files)
+                    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
                 endif()
             endif()
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "cpython")
             # CPython test
-            if (RUN_EXTRAFILES)
+            if (extra_files)
                 set(PY_MOD "${name}_mod")
-                add_library(${PY_MOD} SHARED ${RUN_EXTRAFILES})
+                add_library(${PY_MOD} SHARED ${extra_files})
                 set_target_properties(${PY_MOD} PROPERTIES LINKER_LANGUAGE C)
             else()
                 set(PY_MOD "")
             endif()
 
-            add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
+            add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
             set_tests_properties(${name} PROPERTIES
                 ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "x86")
             # x86 test
             add_custom_command(
                 OUTPUT ${name}.x86
-                COMMAND ${LPYTHON} --backend x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                COMMAND ${LPYTHON} ${extra_args} --backend x86 ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.x86
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                 VERBATIM
             )
             add_custom_target(${name} ALL
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "wasm_x86")
             # wasm_to_x86 test
             add_custom_command(
                 OUTPUT ${name}.x86
-                COMMAND ${LPYTHON} --backend wasm_x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                COMMAND ${LPYTHON} ${extra_args} --backend wasm_x86 ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.x86
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                 VERBATIM
             )
             add_custom_target(${name} ALL
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "wasm_x64")
             # wasm_to_x64 test
             add_custom_command(
                 OUTPUT ${name}.x64
-                COMMAND ${LPYTHON} --backend wasm_x64 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x64
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                COMMAND ${LPYTHON} ${extra_args} --backend wasm_x64 ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.x64
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                 VERBATIM
             )
             add_custom_target(${name} ALL
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x64)
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x64)
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "wasm")
             # wasm test
-            execute_process(COMMAND ${LPYTHON} --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
+            execute_process(COMMAND ${LPYTHON} ${extra_args} --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name})
 
             find_program(WASM_EXEC_RUNTIME node)
             execute_process(COMMAND "${WASM_EXEC_RUNTIME}" --version
@@ -226,13 +222,37 @@ macro(RUN)
             endif()
             set(WASM_EXEC_FLAGS ${WASM_EXEC_FLAGS} "--experimental-wasi-unstable-preview1")
             add_test(${name} ${WASM_EXEC_RUNTIME} ${WASM_EXEC_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${name}.js)
-            if (RUN_LABELS)
-                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
-            if (${RUN_FAIL})
+            if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         endif()
+    endif()
+endmacro(RUN_UTIL)
+
+macro(RUN)
+    set(options FAIL NOFAST ENABLE_CPYTHON)
+    set(oneValueArgs NAME IMPORT_PATH)
+    set(multiValueArgs LABELS EXTRAFILES)
+    cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
+                        "${multiValueArgs}" ${ARGN} )
+
+    set(RUN_EXTRA_ARGS "")
+    set(RUN_FILE_NAME ${RUN_NAME})
+
+    if (RUN_ENABLE_CPYTHON)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
+    endif()
+
+    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+
+    if (NOT RUN_NOFAST)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
+        set(RUN_NAME "${RUN_NAME}_FAST")
+        list(REMOVE_ITEM RUN_LABELS cpython) # remove cpython from --fast test
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
 
