@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        120 f
+                                        128 f
                                         ()
                                         []
                                         ()
@@ -59,14 +59,14 @@
                                                     _lpython_floordiv
                                                     Private
                                                 ),
-                                            _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
+                                            _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
                                                 (ExternalSymbol
                                                     2
-                                                    _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                    4 __lpython_overloaded_6___lpython_floordiv
+                                                    _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
+                                                    4 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
                                                     []
-                                                    __lpython_overloaded_6___lpython_floordiv
+                                                    __lpython_overloaded_10___lpython_floordiv
                                                     Public
                                                 ),
                                             b1:
@@ -150,7 +150,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
+                                    [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
                                     []
                                     [(=
                                         (Var 2 i)
@@ -267,7 +267,7 @@
                                         (Var 2 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                 2 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .true.
@@ -304,7 +304,7 @@
                                         (Var 2 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                 2 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .false.
@@ -441,13 +441,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -457,7 +457,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()
