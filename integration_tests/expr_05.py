@@ -1,4 +1,4 @@
-from lpython import i32, i64, f64
+from lpython import i32, i64, f64, u16
 
 def test_multiply(a: i32, b: i32) -> i32:
     return a*b
@@ -78,5 +78,12 @@ def main0():
     assert abs((11.0%-3.0) - (-1.0)) < eps
     assert abs((-11.0%3.0) - (1.0)) < eps
 
+    # Test issue 1869 and 1870
+    a1: u16 = u16(10)
+    b1: u16 = u16(3)
+    c1: u16 = a1 % b1
+    assert c1 == u16(1)
+    c1 = a1 // b1
+    assert c1 == u16(3)
 
 main0()
