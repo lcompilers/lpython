@@ -1491,6 +1491,12 @@ R"(#include <stdio.h>
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                src = "(int" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
             case (ASR::cast_kindType::ComplexToComplex) : {
                 break;
             }
