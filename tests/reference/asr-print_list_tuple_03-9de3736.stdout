@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        128
+                        5
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        4
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        128 f
+                                        5 f
                                         ()
                                         []
                                         ()
@@ -49,32 +49,6 @@
                                     (SymbolTable
                                         2
                                         {
-                                            list:
-                                                (ExternalSymbol
-                                                    2
-                                                    list
-                                                    4 list
-                                                    lpython_builtin
-                                                    []
-                                                    list
-                                                    Private
-                                                ),
-                                            s:
-                                                (Variable
-                                                    2
-                                                    s
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Character 1 -2 () [])
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
                                             x:
                                                 (Variable
                                                     2
@@ -84,8 +58,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (List
-                                                        (Character 1 -2 () [])
+                                                    (Dict
+                                                        (Integer 4 [])
+                                                        (Tuple
+                                                            [(Integer 4 [])
+                                                            (Integer 4 [])]
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -102,8 +80,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (List
-                                                        (Character 1 -2 () [])
+                                                    (Dict
+                                                        (Integer 4 [])
+                                                        (List
+                                                            (Integer 4 [])
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -128,112 +109,99 @@
                                         []
                                         .false.
                                     )
-                                    [list]
+                                    []
                                     []
                                     [(=
-                                        (Var 2 s)
-                                        (StringConstant
-                                            "lpython"
-                                            (Character 1 7 () [])
-                                        )
-                                        ()
-                                    )
-                                    (=
                                         (Var 2 x)
-                                        (FunctionCall
-                                            2 list
-                                            ()
-                                            [((Var 2 s))]
-                                            (List
-                                                (Character 1 -2 () [])
+                                        (DictConstant
+                                            [(IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(TupleConstant
+                                                [(IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4 []))]
+                                                (Tuple
+                                                    [(Integer 4 [])
+                                                    (Integer 4 [])]
+                                                )
                                             )
-                                            ()
-                                            ()
+                                            (TupleConstant
+                                                [(IntegerConstant 3 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4 []))]
+                                                (Tuple
+                                                    [(Integer 4 [])
+                                                    (Integer 4 [])]
+                                                )
+                                            )]
+                                            (Dict
+                                                (Integer 4 [])
+                                                (Tuple
+                                                    [(Integer 4 [])
+                                                    (Integer 4 [])]
+                                                )
+                                            )
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 y)
-                                        (ListConstant
-                                            [(StringConstant
-                                                "a"
-                                                (Character 1 1 () [])
-                                            )
-                                            (StringConstant
-                                                "b"
-                                                (Character 1 1 () [])
-                                            )
-                                            (StringConstant
-                                                "c"
-                                                (Character 1 1 () [])
-                                            )]
-                                            (List
-                                                (Character 1 1 () [])
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 2 x)
-                                        (FunctionCall
-                                            2 list
-                                            ()
-                                            [((Var 2 y))]
-                                            (List
-                                                (Character 1 -2 () [])
-                                            )
-                                            ()
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 2 x)
-                                        (FunctionCall
-                                            2 list
-                                            ()
-                                            [((StringConstant
-                                                "lpython"
-                                                (Character 1 7 () [])
-                                            ))]
-                                            (List
-                                                (Character 1 -2 () [])
+                                        (DictConstant
+                                            [(IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(ListConstant
+                                                [(IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4 []))]
+                                                (List
+                                                    (Integer 4 [])
+                                                )
                                             )
                                             (ListConstant
-                                                [(StringConstant
-                                                    "l"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "p"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "y"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "t"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "h"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "o"
-                                                    (Character 1 1 () [])
-                                                )
-                                                (StringConstant
-                                                    "n"
-                                                    (Character 1 1 () [])
-                                                )]
+                                                [(IntegerConstant 3 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4 []))]
                                                 (List
-                                                    (Character 1 1 () [])
+                                                    (Integer 4 [])
                                                 )
+                                            )]
+                                            (Dict
+                                                (Integer 4 [])
+                                                (List
+                                                    (Integer 4 [])
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(DictItem
+                                            (Var 2 x)
+                                            (IntegerConstant 1 (Integer 4 []))
+                                            ()
+                                            (Tuple
+                                                [(Integer 4 [])
+                                                (Integer 4 [])]
                                             )
                                             ()
                                         )
+                                        (DictItem
+                                            (Var 2 x)
+                                            (IntegerConstant 2 (Integer 4 []))
+                                            ()
+                                            (Tuple
+                                                [(Integer 4 [])
+                                                (Integer 4 [])]
+                                            )
+                                            ()
+                                        )
+                                        (DictItem
+                                            (Var 2 y)
+                                            (IntegerConstant 1 (Integer 4 []))
+                                            ()
+                                            (List
+                                                (Integer 4 [])
+                                            )
+                                            ()
+                                        )]
+                                        ()
                                         ()
                                     )]
                                     ()
@@ -244,22 +212,20 @@
                                 )
                         })
                     _global_symbols
-                    [lpython_builtin]
+                    []
                     .false.
                     .false.
                 ),
-            lpython_builtin:
-                (IntrinsicModule lpython_builtin),
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        3
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    126
+                                    3
                                     _lpython_main_program
-                                    128 _lpython_main_program
+                                    5 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -269,7 +235,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        126 _lpython_main_program
+                        3 _lpython_main_program
                         ()
                         []
                         ()

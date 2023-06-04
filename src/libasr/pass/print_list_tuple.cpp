@@ -78,8 +78,19 @@ class PrintListTupleVisitor
 
     void print_list_helper(ASR::expr_t *list_expr, ASR::expr_t *sep_expr,
                 ASR::expr_t *end_expr, const Location &loc) {
+        ASR::ttype_t *l_type = ASRUtils::expr_type(list_expr);
+        ASR::stmt_t* a_stmt = nullptr;
+        if (!ASR::is_a<ASR::Var_t>(*list_expr)) {
+            std::string tmp_assing_name =
+                current_scope->get_unique_name("__tmp_assign_name_list");
+            ASR::expr_t *a_var = PassUtils::create_auxiliary_variable(loc,
+                tmp_assing_name, al, current_scope, l_type);
+            a_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
+                    al, loc, a_var, list_expr, nullptr));
+            list_expr = a_var;
+        }
         ASR::List_t *listC =
-                ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(list_expr));
+                ASR::down_cast<ASR::List_t>(l_type);
         ASR::ttype_t *int_type = ASRUtils::TYPE(
                 ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *bool_type = ASRUtils::TYPE(
@@ -199,6 +210,7 @@ class PrintListTupleVisitor
             al, loc, nullptr, loop_head, loop_body.p, loop_body.size()));
 
         {
+            if (a_stmt) print_pass_result_tmp.push_back(al, a_stmt);
             print_pass_result_tmp.push_back(al, print_open_bracket);
             print_pass_result_tmp.push_back(al, loop);
             print_pass_result_tmp.push_back(al, print_close_bracket);
@@ -207,8 +219,21 @@ class PrintListTupleVisitor
 
     void print_tuple_helper(ASR::expr_t *tup_expr, ASR::expr_t *sep_expr,
                 ASR::expr_t *end_expr, const Location &loc) {
+        ASR::ttype_t *t_type = ASRUtils::expr_type(tup_expr);
+        Vec<ASR::stmt_t*> tmp_vec;
+        tmp_vec.reserve(al, 3);
+        if (!ASR::is_a<ASR::Var_t>(*tup_expr)) {
+            std::string tmp_assing_name =
+                current_scope->get_unique_name("__tmp_assign_name_tuple");
+            ASR::expr_t *a_var = PassUtils::create_auxiliary_variable(loc,
+                tmp_assing_name, al, current_scope, t_type);
+            ASR::stmt_t* a_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
+            al, loc, a_var, tup_expr, nullptr));
+            tmp_vec.push_back(al, a_stmt);
+            tup_expr = a_var;
+        }
         ASR::Tuple_t *tup =
-                ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(tup_expr));
+                ASR::down_cast<ASR::Tuple_t>(t_type);
         ASR::ttype_t *int_type = ASRUtils::TYPE(
                 ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *str_type_len_0 = ASRUtils::TYPE(ASR::make_Character_t(
@@ -242,8 +267,6 @@ class PrintListTupleVisitor
         v3.push_back(al, close_bracket);
         v4.push_back(al, comma_space);
 
-        Vec<ASR::stmt_t*> tmp_vec;
-        tmp_vec.reserve(al, 3);
         ASR::stmt_t *print_open_bracket = ASRUtils::STMT(
             ASR::make_Print_t(al, loc, nullptr, v1.p, v1.size(),
                                 nullptr, empty_str));

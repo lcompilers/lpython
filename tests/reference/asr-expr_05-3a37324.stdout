@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        122
+                        130
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        121
+                                        129
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        122 main0
+                                        130 main0
                                         ()
                                         []
                                         ()
@@ -49,6 +49,26 @@
                                     (SymbolTable
                                         4
                                         {
+                                            _lpython_floordiv:
+                                                (ExternalSymbol
+                                                    4
+                                                    _lpython_floordiv
+                                                    6 _lpython_floordiv
+                                                    lpython_builtin
+                                                    []
+                                                    _lpython_floordiv
+                                                    Private
+                                                ),
+                                            _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv:
+                                                (ExternalSymbol
+                                                    4
+                                                    _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
+                                                    6 __lpython_overloaded_5___lpython_floordiv
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_5___lpython_floordiv
+                                                    Public
+                                                ),
                                             _mod:
                                                 (ExternalSymbol
                                                     4
@@ -69,14 +89,24 @@
                                                     __lpython_overloaded_2___mod
                                                     Public
                                                 ),
-                                            _mod@__lpython_overloaded_5___mod:
+                                            _mod@__lpython_overloaded_4___mod:
                                                 (ExternalSymbol
                                                     4
-                                                    _mod@__lpython_overloaded_5___mod
-                                                    6 __lpython_overloaded_5___mod
+                                                    _mod@__lpython_overloaded_4___mod
+                                                    6 __lpython_overloaded_4___mod
                                                     lpython_builtin
                                                     []
-                                                    __lpython_overloaded_5___mod
+                                                    __lpython_overloaded_4___mod
+                                                    Public
+                                                ),
+                                            _mod@__lpython_overloaded_9___mod:
+                                                (ExternalSymbol
+                                                    4
+                                                    _mod@__lpython_overloaded_9___mod
+                                                    6 __lpython_overloaded_9___mod
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_9___mod
                                                     Public
                                                 ),
                                             a:
@@ -95,6 +125,25 @@
                                                     Required
                                                     .false.
                                                 ),
+                                            a1:
+                                                (Variable
+                                                    4
+                                                    a1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (UnsignedInteger
+                                                        2
+                                                        []
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
                                             b:
                                                 (Variable
                                                     4
@@ -105,6 +154,44 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b1:
+                                                (Variable
+                                                    4
+                                                    b1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (UnsignedInteger
+                                                        2
+                                                        []
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c1:
+                                                (Variable
+                                                    4
+                                                    c1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (UnsignedInteger
+                                                        2
+                                                        []
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -227,7 +314,9 @@
                                     [test_multiply
                                     test_mod
                                     _mod@__lpython_overloaded_2___mod
-                                    _mod@__lpython_overloaded_5___mod]
+                                    _mod@__lpython_overloaded_9___mod
+                                    _mod@__lpython_overloaded_4___mod
+                                    _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv]
                                     []
                                     [(=
                                         (Var 4 a)
@@ -254,7 +343,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                122 test_multiply
+                                                130 test_multiply
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -327,7 +416,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                122 test_mod
+                                                130 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -345,7 +434,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                122 test_mod
+                                                130 test_mod
                                                 ()
                                                 [((IntegerConstant 23 (Integer 4 [])))
                                                 ((IntegerConstant 3 (Integer 4 [])))]
@@ -373,7 +462,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                122 test_mod
+                                                130 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -445,7 +534,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                122 test_mod
+                                                130 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -1113,7 +1202,7 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        4 _mod@__lpython_overloaded_5___mod
+                                                        4 _mod@__lpython_overloaded_9___mod
                                                         4 _mod
                                                         [((RealConstant
                                                             11.000000
@@ -1175,7 +1264,7 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        4 _mod@__lpython_overloaded_5___mod
+                                                        4 _mod@__lpython_overloaded_9___mod
                                                         4 _mod
                                                         [((RealUnaryMinus
                                                             (RealConstant
@@ -1219,6 +1308,124 @@
                                             )
                                             Lt
                                             (Var 4 eps)
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 a1)
+                                        (Cast
+                                            (IntegerConstant 10 (Integer 4 []))
+                                            IntegerToUnsignedInteger
+                                            (UnsignedInteger
+                                                2
+                                                []
+                                            )
+                                            (UnsignedIntegerConstant
+                                                10
+                                                (UnsignedInteger
+                                                    2
+                                                    []
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 b1)
+                                        (Cast
+                                            (IntegerConstant 3 (Integer 4 []))
+                                            IntegerToUnsignedInteger
+                                            (UnsignedInteger
+                                                2
+                                                []
+                                            )
+                                            (UnsignedIntegerConstant
+                                                3
+                                                (UnsignedInteger
+                                                    2
+                                                    []
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 c1)
+                                        (FunctionCall
+                                            4 _mod@__lpython_overloaded_4___mod
+                                            4 _mod
+                                            [((Var 4 a1))
+                                            ((Var 4 b1))]
+                                            (UnsignedInteger
+                                                2
+                                                []
+                                            )
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (UnsignedIntegerCompare
+                                            (Var 4 c1)
+                                            Eq
+                                            (Cast
+                                                (IntegerConstant 1 (Integer 4 []))
+                                                IntegerToUnsignedInteger
+                                                (UnsignedInteger
+                                                    2
+                                                    []
+                                                )
+                                                (UnsignedIntegerConstant
+                                                    1
+                                                    (UnsignedInteger
+                                                        2
+                                                        []
+                                                    )
+                                                )
+                                            )
+                                            (Logical 4 [])
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 c1)
+                                        (FunctionCall
+                                            4 _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
+                                            4 _lpython_floordiv
+                                            [((Var 4 a1))
+                                            ((Var 4 b1))]
+                                            (UnsignedInteger
+                                                2
+                                                []
+                                            )
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (UnsignedIntegerCompare
+                                            (Var 4 c1)
+                                            Eq
+                                            (Cast
+                                                (IntegerConstant 3 (Integer 4 []))
+                                                IntegerToUnsignedInteger
+                                                (UnsignedInteger
+                                                    2
+                                                    []
+                                                )
+                                                (UnsignedIntegerConstant
+                                                    3
+                                                    (UnsignedInteger
+                                                        2
+                                                        []
+                                                    )
+                                                )
+                                            )
                                             (Logical 4 [])
                                             ()
                                         )
@@ -1447,13 +1654,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    120
+                                    128
                                     _lpython_main_program
-                                    122 _lpython_main_program
+                                    130 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1463,7 +1670,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        120 _lpython_main_program
+                        128 _lpython_main_program
                         ()
                         []
                         ()

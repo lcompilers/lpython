@@ -411,6 +411,60 @@
                                                     Required
                                                     .false.
                                                 ),
+                                            __tmp_assign_name_list:
+                                                (Variable
+                                                    2
+                                                    __tmp_assign_name_list
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list1:
+                                                (Variable
+                                                    2
+                                                    __tmp_assign_name_list1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 1 () [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list2:
+                                                (Variable
+                                                    2
+                                                    __tmp_assign_name_list2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
                                             a:
                                                 (Variable
                                                     2
@@ -1920,6 +1974,23 @@
                                         ()
                                         ()
                                     )
+                                    (=
+                                        (Var 2 __tmp_assign_name_list)
+                                        (ListConstant
+                                            [(IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4 []))
+                                                (Integer 4 [])
+                                                (IntegerConstant -3 (Integer 4 []))
+                                            )
+                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4 []))]
+                                            (List
+                                                (Integer 4 [])
+                                            )
+                                        )
+                                        ()
+                                    )
                                     (Print
                                         ()
                                         [(StringConstant
@@ -1938,19 +2009,7 @@
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (ListLen
-                                                (ListConstant
-                                                    [(IntegerUnaryMinus
-                                                        (IntegerConstant 3 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -3 (Integer 4 []))
-                                                    )
-                                                    (IntegerConstant 2 (Integer 4 []))
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (IntegerConstant 0 (Integer 4 []))]
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list)
                                                 (Integer 4 [])
                                                 ()
                                             )
@@ -1963,19 +2022,7 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (ListConstant
-                                                    [(IntegerUnaryMinus
-                                                        (IntegerConstant 3 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -3 (Integer 4 []))
-                                                    )
-                                                    (IntegerConstant 2 (Integer 4 []))
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (IntegerConstant 0 (Integer 4 []))]
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list)
                                                 (Var 2 __list_iterator14)
                                                 (Integer 4 [])
                                                 ()
@@ -1995,19 +2042,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListConstant
-                                                            [(IntegerUnaryMinus
-                                                                (IntegerConstant 3 (Integer 4 []))
-                                                                (Integer 4 [])
-                                                                (IntegerConstant -3 (Integer 4 []))
-                                                            )
-                                                            (IntegerConstant 2 (Integer 4 []))
-                                                            (IntegerConstant 1 (Integer 4 []))
-                                                            (IntegerConstant 0 (Integer 4 []))]
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                        )
+                                                        (Var 2 __tmp_assign_name_list)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -2044,6 +2079,39 @@
                                             (Character 1 1 () [])
                                         )]
                                         ()
+                                        ()
+                                    )
+                                    (=
+                                        (Var 2 __tmp_assign_name_list1)
+                                        (ListConstant
+                                            [(StringConstant
+                                                "a"
+                                                (Character 1 1 () [])
+                                            )
+                                            (StringConstant
+                                                "b"
+                                                (Character 1 1 () [])
+                                            )
+                                            (StringConstant
+                                                "c"
+                                                (Character 1 1 () [])
+                                            )
+                                            (StringConstant
+                                                "d"
+                                                (Character 1 1 () [])
+                                            )
+                                            (StringConstant
+                                                "e"
+                                                (Character 1 1 () [])
+                                            )
+                                            (StringConstant
+                                                "f"
+                                                (Character 1 1 () [])
+                                            )]
+                                            (List
+                                                (Character 1 1 () [])
+                                            )
+                                        )
                                         ()
                                     )
                                     (Print
@@ -2064,35 +2132,7 @@
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (ListLen
-                                                (ListConstant
-                                                    [(StringConstant
-                                                        "a"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "b"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "c"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "d"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "e"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "f"
-                                                        (Character 1 1 () [])
-                                                    )]
-                                                    (List
-                                                        (Character 1 1 () [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list1)
                                                 (Integer 4 [])
                                                 ()
                                             )
@@ -2109,35 +2149,7 @@
                                                 (Character 1 1 () [])
                                             )
                                             (ListItem
-                                                (ListConstant
-                                                    [(StringConstant
-                                                        "a"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "b"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "c"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "d"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "e"
-                                                        (Character 1 1 () [])
-                                                    )
-                                                    (StringConstant
-                                                        "f"
-                                                        (Character 1 1 () [])
-                                                    )]
-                                                    (List
-                                                        (Character 1 1 () [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list1)
                                                 (Var 2 __list_iterator15)
                                                 (Character 1 1 () [])
                                                 ()
@@ -2161,35 +2173,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListConstant
-                                                            [(StringConstant
-                                                                "a"
-                                                                (Character 1 1 () [])
-                                                            )
-                                                            (StringConstant
-                                                                "b"
-                                                                (Character 1 1 () [])
-                                                            )
-                                                            (StringConstant
-                                                                "c"
-                                                                (Character 1 1 () [])
-                                                            )
-                                                            (StringConstant
-                                                                "d"
-                                                                (Character 1 1 () [])
-                                                            )
-                                                            (StringConstant
-                                                                "e"
-                                                                (Character 1 1 () [])
-                                                            )
-                                                            (StringConstant
-                                                                "f"
-                                                                (Character 1 1 () [])
-                                                            )]
-                                                            (List
-                                                                (Character 1 1 () [])
-                                                            )
-                                                        )
+                                                        (Var 2 __tmp_assign_name_list1)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -2228,6 +2212,19 @@
                                         ()
                                         ()
                                     )
+                                    (=
+                                        (Var 2 __tmp_assign_name_list2)
+                                        (ListConstant
+                                            [(IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 3 (Integer 4 []))
+                                            (IntegerConstant 4 (Integer 4 []))]
+                                            (List
+                                                (Integer 4 [])
+                                            )
+                                        )
+                                        ()
+                                    )
                                     (Print
                                         ()
                                         [(StringConstant
@@ -2246,15 +2243,7 @@
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (ListLen
-                                                (ListConstant
-                                                    [(IntegerConstant 1 (Integer 4 []))
-                                                    (IntegerConstant 2 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 []))
-                                                    (IntegerConstant 4 (Integer 4 []))]
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list2)
                                                 (Integer 4 [])
                                                 ()
                                             )
@@ -2267,15 +2256,7 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (ListConstant
-                                                    [(IntegerConstant 1 (Integer 4 []))
-                                                    (IntegerConstant 2 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 []))
-                                                    (IntegerConstant 4 (Integer 4 []))]
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                )
+                                                (Var 2 __tmp_assign_name_list2)
                                                 (Var 2 __list_iterator16)
                                                 (Integer 4 [])
                                                 ()
@@ -2295,15 +2276,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListConstant
-                                                            [(IntegerConstant 1 (Integer 4 []))
-                                                            (IntegerConstant 2 (Integer 4 []))
-                                                            (IntegerConstant 3 (Integer 4 []))
-                                                            (IntegerConstant 4 (Integer 4 []))]
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                        )
+                                                        (Var 2 __tmp_assign_name_list2)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -2739,6 +2712,164 @@
                                                     Required
                                                     .false.
                                                 ),
+                                            __tmp_assign_name_list:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (List
+                                                                (List
+                                                                    (Real 8 [])
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list1:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list2:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Real 8 [])
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list3:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list3
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list4:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list4
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Integer 4 [])
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list5:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list5
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list6:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list6
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list7:
+                                                (Variable
+                                                    3
+                                                    __tmp_assign_name_list7
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 () [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
                                             w:
                                                 (Variable
                                                     3
@@ -3159,7 +3290,25 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 3 __tmp_assign_name_list)
+                                            (ListItem
+                                                (Var 3 w)
+                                                (Var 3 __list_iterator)
+                                                (List
+                                                    (List
+                                                        (List
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -3177,20 +3326,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 3 w)
-                                                        (Var 3 __list_iterator)
-                                                        (List
-                                                            (List
-                                                                (List
-                                                                    (List
-                                                                        (Real 8 [])
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -3200,7 +3336,23 @@
                                                 ()
                                             )
                                             (IntegerConstant 1 (Integer 4 [])))
-                                            [(Print
+                                            [(=
+                                                (Var 3 __tmp_assign_name_list1)
+                                                (ListItem
+                                                    (Var 3 __tmp_assign_name_list)
+                                                    (Var 3 __list_iterator1)
+                                                    (List
+                                                        (List
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                        )
+                                                    )
+                                                    ()
+                                                )
+                                                ()
+                                            )
+                                            (Print
                                                 ()
                                                 [(StringConstant
                                                     "["
@@ -3218,31 +3370,7 @@
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 3 w)
-                                                                (Var 3 __list_iterator)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 3 __list_iterator1)
-                                                            (List
-                                                                (List
-                                                                    (List
-                                                                        (Real 8 [])
-                                                                    )
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 3 __tmp_assign_name_list1)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -3252,7 +3380,21 @@
                                                     ()
                                                 )
                                                 (IntegerConstant 1 (Integer 4 [])))
-                                                [(Print
+                                                [(=
+                                                    (Var 3 __tmp_assign_name_list2)
+                                                    (ListItem
+                                                        (Var 3 __tmp_assign_name_list1)
+                                                        (Var 3 __list_iterator2)
+                                                        (List
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                        )
+                                                        ()
+                                                    )
+                                                    ()
+                                                )
+                                                (Print
                                                     ()
                                                     [(StringConstant
                                                         "["
@@ -3270,40 +3412,7 @@
                                                     (IntegerConstant 0 (Integer 4 []))
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 3 w)
-                                                                        (Var 3 __list_iterator)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 3 __list_iterator1)
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
-                                                                (Var 3 __list_iterator2)
-                                                                (List
-                                                                    (List
-                                                                        (Real 8 [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 3 __tmp_assign_name_list2)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -3313,7 +3422,19 @@
                                                         ()
                                                     )
                                                     (IntegerConstant 1 (Integer 4 [])))
-                                                    [(Print
+                                                    [(=
+                                                        (Var 3 __tmp_assign_name_list3)
+                                                        (ListItem
+                                                            (Var 3 __tmp_assign_name_list2)
+                                                            (Var 3 __list_iterator3)
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                            ()
+                                                        )
+                                                        ()
+                                                    )
+                                                    (Print
                                                         ()
                                                         [(StringConstant
                                                             "["
@@ -3331,47 +3452,7 @@
                                                         (IntegerConstant 0 (Integer 4 []))
                                                         (IntegerBinOp
                                                             (ListLen
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
-                                                                                (List
-                                                                                    (List
-                                                                                        (List
-                                                                                            (List
-                                                                                                (Real 8 [])
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 3 __list_iterator1)
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                            ()
-                                                                        )
-                                                                        (Var 3 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 3 __list_iterator3)
-                                                                    (List
-                                                                        (Real 8 [])
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 3 __tmp_assign_name_list3)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -3384,47 +3465,7 @@
                                                         [(Print
                                                             ()
                                                             [(ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
-                                                                                (List
-                                                                                    (List
-                                                                                        (List
-                                                                                            (List
-                                                                                                (Real 8 [])
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 3 __list_iterator1)
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                            ()
-                                                                        )
-                                                                        (Var 3 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 3 __list_iterator3)
-                                                                    (List
-                                                                        (Real 8 [])
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 3 __tmp_assign_name_list3)
                                                                 (Var 3 __list_iterator4)
                                                                 (Real 8 [])
                                                                 ()
@@ -3444,47 +3485,7 @@
                                                                 Lt
                                                                 (IntegerBinOp
                                                                     (ListLen
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (ListItem
-                                                                                    (ListItem
-                                                                                        (Var 3 w)
-                                                                                        (Var 3 __list_iterator)
-                                                                                        (List
-                                                                                            (List
-                                                                                                (List
-                                                                                                    (List
-                                                                                                        (Real 8 [])
-                                                                                                    )
-                                                                                                )
-                                                                                            )
-                                                                                        )
-                                                                                        ()
-                                                                                    )
-                                                                                    (Var 3 __list_iterator1)
-                                                                                    (List
-                                                                                        (List
-                                                                                            (List
-                                                                                                (Real 8 [])
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                    ()
-                                                                                )
-                                                                                (Var 3 __list_iterator2)
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 3 __list_iterator3)
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                            ()
-                                                                        )
+                                                                        (Var 3 __tmp_assign_name_list3)
                                                                         (Integer 4 [])
                                                                         ()
                                                                     )
@@ -3532,40 +3533,7 @@
                                                             Lt
                                                             (IntegerBinOp
                                                                 (ListLen
-                                                                    (ListItem
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
-                                                                                (List
-                                                                                    (List
-                                                                                        (List
-                                                                                            (List
-                                                                                                (Real 8 [])
-                                                                                            )
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 3 __list_iterator1)
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                            ()
-                                                                        )
-                                                                        (Var 3 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
+                                                                    (Var 3 __tmp_assign_name_list2)
                                                                     (Integer 4 [])
                                                                     ()
                                                                 )
@@ -3613,31 +3581,7 @@
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 3 w)
-                                                                        (Var 3 __list_iterator)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (List
-                                                                                        (Real 8 [])
-                                                                                    )
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 3 __list_iterator1)
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 3 __tmp_assign_name_list1)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -3685,20 +3629,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 3 w)
-                                                                (Var 3 __list_iterator)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (List
-                                                                                (Real 8 [])
-                                                                            )
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 3 __tmp_assign_name_list)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -3813,7 +3744,21 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 3 __tmp_assign_name_list4)
+                                            (ListItem
+                                                (Var 3 x)
+                                                (Var 3 __list_iterator5)
+                                                (List
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -3831,16 +3776,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 3 x)
-                                                        (Var 3 __list_iterator5)
-                                                        (List
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list4)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -3850,7 +3786,19 @@
                                                 ()
                                             )
                                             (IntegerConstant 1 (Integer 4 [])))
-                                            [(Print
+                                            [(=
+                                                (Var 3 __tmp_assign_name_list5)
+                                                (ListItem
+                                                    (Var 3 __tmp_assign_name_list4)
+                                                    (Var 3 __list_iterator6)
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                )
+                                                ()
+                                            )
+                                            (Print
                                                 ()
                                                 [(StringConstant
                                                     "["
@@ -3868,23 +3816,7 @@
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
-                                                                (List
-                                                                    (List
-                                                                        (Integer 4 [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 3 __list_iterator6)
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 3 __tmp_assign_name_list5)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -3897,23 +3829,7 @@
                                                 [(Print
                                                     ()
                                                     [(ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
-                                                                (List
-                                                                    (List
-                                                                        (Integer 4 [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 3 __list_iterator6)
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 3 __tmp_assign_name_list5)
                                                         (Var 3 __list_iterator7)
                                                         (Integer 4 [])
                                                         ()
@@ -3933,23 +3849,7 @@
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 3 x)
-                                                                        (Var 3 __list_iterator5)
-                                                                        (List
-                                                                            (List
-                                                                                (Integer 4 [])
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 3 __list_iterator6)
-                                                                    (List
-                                                                        (Integer 4 [])
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 3 __tmp_assign_name_list5)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -3997,16 +3897,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
-                                                                (List
-                                                                    (List
-                                                                        (Integer 4 [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 3 __tmp_assign_name_list4)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -4121,7 +4012,19 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 3 __tmp_assign_name_list6)
+                                            (ListItem
+                                                (Var 3 y)
+                                                (Var 3 __list_iterator8)
+                                                (List
+                                                    (Real 8 [])
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -4139,14 +4042,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 3 y)
-                                                        (Var 3 __list_iterator8)
-                                                        (List
-                                                            (Real 8 [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list6)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -4159,14 +4055,7 @@
                                             [(Print
                                                 ()
                                                 [(ListItem
-                                                    (ListItem
-                                                        (Var 3 y)
-                                                        (Var 3 __list_iterator8)
-                                                        (List
-                                                            (Real 8 [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list6)
                                                     (Var 3 __list_iterator9)
                                                     (Real 8 [])
                                                     ()
@@ -4186,14 +4075,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 3 y)
-                                                                (Var 3 __list_iterator8)
-                                                                (List
-                                                                    (Real 8 [])
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 3 __tmp_assign_name_list6)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -4308,7 +4190,19 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 3 __tmp_assign_name_list7)
+                                            (ListItem
+                                                (Var 3 z)
+                                                (Var 3 __list_iterator10)
+                                                (List
+                                                    (Character 1 -2 () [])
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -4326,14 +4220,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 3 z)
-                                                        (Var 3 __list_iterator10)
-                                                        (List
-                                                            (Character 1 -2 () [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list7)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -4350,14 +4237,7 @@
                                                     (Character 1 1 () [])
                                                 )
                                                 (ListItem
-                                                    (ListItem
-                                                        (Var 3 z)
-                                                        (Var 3 __list_iterator10)
-                                                        (List
-                                                            (Character 1 -2 () [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 3 __tmp_assign_name_list7)
                                                     (Var 3 __list_iterator11)
                                                     (Character 1 -2 () [])
                                                     ()
@@ -4381,14 +4261,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 3 z)
-                                                                (Var 3 __list_iterator10)
-                                                                (List
-                                                                    (Character 1 -2 () [])
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 3 __tmp_assign_name_list7)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -4624,6 +4497,122 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list1:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (List
+                                                                (Real 8 [])
+                                                            )
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list2:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Real 8 [])
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list3:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list3
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list4:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list4
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Character 1 -2 () [])
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list5:
+                                                (Variable
+                                                    5
+                                                    __tmp_assign_name_list5
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 () [])
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -6400,7 +6389,19 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 5 __tmp_assign_name_list)
+                                            (ListItem
+                                                (Var 5 p)
+                                                (Var 5 __list_iterator)
+                                                (List
+                                                    (Integer 4 [])
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -6418,14 +6419,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 5 p)
-                                                        (Var 5 __list_iterator)
-                                                        (List
-                                                            (Integer 4 [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 5 __tmp_assign_name_list)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -6438,14 +6432,7 @@
                                             [(Print
                                                 ()
                                                 [(ListItem
-                                                    (ListItem
-                                                        (Var 5 p)
-                                                        (Var 5 __list_iterator)
-                                                        (List
-                                                            (Integer 4 [])
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 5 __tmp_assign_name_list)
                                                     (Var 5 __list_iterator1)
                                                     (Integer 4 [])
                                                     ()
@@ -6465,14 +6452,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 5 p)
-                                                                (Var 5 __list_iterator)
-                                                                (List
-                                                                    (Integer 4 [])
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 5 __tmp_assign_name_list)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -6587,7 +6567,23 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 5 __tmp_assign_name_list1)
+                                            (ListItem
+                                                (Var 5 q)
+                                                (Var 5 __list_iterator2)
+                                                (List
+                                                    (List
+                                                        (List
+                                                            (Real 8 [])
+                                                        )
+                                                    )
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -6605,18 +6601,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 5 q)
-                                                        (Var 5 __list_iterator2)
-                                                        (List
-                                                            (List
-                                                                (List
-                                                                    (Real 8 [])
-                                                                )
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 5 __tmp_assign_name_list1)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -6626,7 +6611,21 @@
                                                 ()
                                             )
                                             (IntegerConstant 1 (Integer 4 [])))
-                                            [(Print
+                                            [(=
+                                                (Var 5 __tmp_assign_name_list2)
+                                                (ListItem
+                                                    (Var 5 __tmp_assign_name_list1)
+                                                    (Var 5 __list_iterator3)
+                                                    (List
+                                                        (List
+                                                            (Real 8 [])
+                                                        )
+                                                    )
+                                                    ()
+                                                )
+                                                ()
+                                            )
+                                            (Print
                                                 ()
                                                 [(StringConstant
                                                     "["
@@ -6644,27 +6643,7 @@
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 5 q)
-                                                                (Var 5 __list_iterator2)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 5 __list_iterator3)
-                                                            (List
-                                                                (List
-                                                                    (Real 8 [])
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 5 __tmp_assign_name_list2)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -6674,7 +6653,19 @@
                                                     ()
                                                 )
                                                 (IntegerConstant 1 (Integer 4 [])))
-                                                [(Print
+                                                [(=
+                                                    (Var 5 __tmp_assign_name_list3)
+                                                    (ListItem
+                                                        (Var 5 __tmp_assign_name_list2)
+                                                        (Var 5 __list_iterator4)
+                                                        (List
+                                                            (Real 8 [])
+                                                        )
+                                                        ()
+                                                    )
+                                                    ()
+                                                )
+                                                (Print
                                                     ()
                                                     [(StringConstant
                                                         "["
@@ -6692,34 +6683,7 @@
                                                     (IntegerConstant 0 (Integer 4 []))
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (Real 8 [])
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 5 __list_iterator3)
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
-                                                                (Var 5 __list_iterator4)
-                                                                (List
-                                                                    (Real 8 [])
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 5 __tmp_assign_name_list3)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -6732,34 +6696,7 @@
                                                     [(Print
                                                         ()
                                                         [(ListItem
-                                                            (ListItem
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (Real 8 [])
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 5 __list_iterator3)
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
-                                                                (Var 5 __list_iterator4)
-                                                                (List
-                                                                    (Real 8 [])
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 5 __tmp_assign_name_list3)
                                                             (Var 5 __list_iterator5)
                                                             (Real 8 [])
                                                             ()
@@ -6779,34 +6716,7 @@
                                                             Lt
                                                             (IntegerBinOp
                                                                 (ListLen
-                                                                    (ListItem
-                                                                        (ListItem
-                                                                            (ListItem
-                                                                                (Var 5 q)
-                                                                                (Var 5 __list_iterator2)
-                                                                                (List
-                                                                                    (List
-                                                                                        (List
-                                                                                            (Real 8 [])
-                                                                                        )
-                                                                                    )
-                                                                                )
-                                                                                ()
-                                                                            )
-                                                                            (Var 5 __list_iterator3)
-                                                                            (List
-                                                                                (List
-                                                                                    (Real 8 [])
-                                                                                )
-                                                                            )
-                                                                            ()
-                                                                        )
-                                                                        (Var 5 __list_iterator4)
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                        ()
-                                                                    )
+                                                                    (Var 5 __tmp_assign_name_list3)
                                                                     (Integer 4 [])
                                                                     ()
                                                                 )
@@ -6854,27 +6764,7 @@
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
-                                                                        (List
-                                                                            (List
-                                                                                (List
-                                                                                    (Real 8 [])
-                                                                                )
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 5 __list_iterator3)
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 5 __tmp_assign_name_list2)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -6922,18 +6812,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 5 q)
-                                                                (Var 5 __list_iterator2)
-                                                                (List
-                                                                    (List
-                                                                        (List
-                                                                            (Real 8 [])
-                                                                        )
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 5 __tmp_assign_name_list1)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -7048,7 +6927,21 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 5 __tmp_assign_name_list4)
+                                            (ListItem
+                                                (Var 5 r)
+                                                (Var 5 __list_iterator6)
+                                                (List
+                                                    (List
+                                                        (Character 1 -2 () [])
+                                                    )
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -7066,16 +6959,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 5 r)
-                                                        (Var 5 __list_iterator6)
-                                                        (List
-                                                            (List
-                                                                (Character 1 -2 () [])
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 5 __tmp_assign_name_list4)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -7085,7 +6969,19 @@
                                                 ()
                                             )
                                             (IntegerConstant 1 (Integer 4 [])))
-                                            [(Print
+                                            [(=
+                                                (Var 5 __tmp_assign_name_list5)
+                                                (ListItem
+                                                    (Var 5 __tmp_assign_name_list4)
+                                                    (Var 5 __list_iterator7)
+                                                    (List
+                                                        (Character 1 -2 () [])
+                                                    )
+                                                    ()
+                                                )
+                                                ()
+                                            )
+                                            (Print
                                                 ()
                                                 [(StringConstant
                                                     "["
@@ -7103,23 +6999,7 @@
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
-                                                                (List
-                                                                    (List
-                                                                        (Character 1 -2 () [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 5 __list_iterator7)
-                                                            (List
-                                                                (Character 1 -2 () [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 5 __tmp_assign_name_list5)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -7136,23 +7016,7 @@
                                                         (Character 1 1 () [])
                                                     )
                                                     (ListItem
-                                                        (ListItem
-                                                            (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
-                                                                (List
-                                                                    (List
-                                                                        (Character 1 -2 () [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
-                                                            (Var 5 __list_iterator7)
-                                                            (List
-                                                                (Character 1 -2 () [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 5 __tmp_assign_name_list5)
                                                         (Var 5 __list_iterator8)
                                                         (Character 1 -2 () [])
                                                         ()
@@ -7176,23 +7040,7 @@
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
-                                                                (ListItem
-                                                                    (ListItem
-                                                                        (Var 5 r)
-                                                                        (Var 5 __list_iterator6)
-                                                                        (List
-                                                                            (List
-                                                                                (Character 1 -2 () [])
-                                                                            )
-                                                                        )
-                                                                        ()
-                                                                    )
-                                                                    (Var 5 __list_iterator7)
-                                                                    (List
-                                                                        (Character 1 -2 () [])
-                                                                    )
-                                                                    ()
-                                                                )
+                                                                (Var 5 __tmp_assign_name_list5)
                                                                 (Integer 4 [])
                                                                 ()
                                                             )
@@ -7240,16 +7088,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
-                                                                (List
-                                                                    (List
-                                                                        (Character 1 -2 () [])
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 5 __tmp_assign_name_list4)
                                                             (Integer 4 [])
                                                             ()
                                                         )
@@ -7453,6 +7292,101 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list:
+                                                (Variable
+                                                    4
+                                                    __tmp_assign_name_list
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 () [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list1:
+                                                (Variable
+                                                    4
+                                                    __tmp_assign_name_list1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4 [])
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_list2:
+                                                (Variable
+                                                    4
+                                                    __tmp_assign_name_list2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Tuple
+                                                            [(Integer 4 [])
+                                                            (Character 1 -2 () [])]
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_tuple:
+                                                (Variable
+                                                    4
+                                                    __tmp_assign_name_tuple
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Tuple
+                                                        [(Integer 4 [])
+                                                        (Integer 4 [])]
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            __tmp_assign_name_tuple1:
+                                                (Variable
+                                                    4
+                                                    __tmp_assign_name_tuple1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Tuple
+                                                        [(Integer 4 [])
+                                                        (Character 1 -2 () [])]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -7783,7 +7717,20 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 4 __tmp_assign_name_tuple)
+                                            (ListItem
+                                                (Var 4 a)
+                                                (Var 4 __list_iterator)
+                                                (Tuple
+                                                    [(Integer 4 [])
+                                                    (Integer 4 [])]
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "("
@@ -7798,15 +7745,7 @@
                                         (Print
                                             ()
                                             [(TupleItem
-                                                (ListItem
-                                                    (Var 4 a)
-                                                    (Var 4 __list_iterator)
-                                                    (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_tuple)
                                                 (IntegerConstant 0 (Integer 4 []))
                                                 (Integer 4 [])
                                                 ()
@@ -7838,15 +7777,7 @@
                                         (Print
                                             ()
                                             [(TupleItem
-                                                (ListItem
-                                                    (Var 4 a)
-                                                    (Var 4 __list_iterator)
-                                                    (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_tuple)
                                                 (IntegerConstant 1 (Integer 4 []))
                                                 (Integer 4 [])
                                                 ()
@@ -7932,6 +7863,18 @@
                                             (Character 1 0 () [])
                                         )
                                     )
+                                    (=
+                                        (Var 4 __tmp_assign_name_list)
+                                        (TupleItem
+                                            (Var 4 b)
+                                            (IntegerConstant 0 (Integer 4 []))
+                                            (List
+                                                (Character 1 -2 () [])
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
                                     (Print
                                         ()
                                         [(StringConstant
@@ -7950,14 +7893,7 @@
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (ListLen
-                                                (TupleItem
-                                                    (Var 4 b)
-                                                    (IntegerConstant 0 (Integer 4 []))
-                                                    (List
-                                                        (Character 1 -2 () [])
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_list)
                                                 (Integer 4 [])
                                                 ()
                                             )
@@ -7974,14 +7910,7 @@
                                                 (Character 1 1 () [])
                                             )
                                             (ListItem
-                                                (TupleItem
-                                                    (Var 4 b)
-                                                    (IntegerConstant 0 (Integer 4 []))
-                                                    (List
-                                                        (Character 1 -2 () [])
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_list)
                                                 (Var 4 __list_iterator1)
                                                 (Character 1 -2 () [])
                                                 ()
@@ -8005,14 +7934,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (TupleItem
-                                                            (Var 4 b)
-                                                            (IntegerConstant 0 (Integer 4 []))
-                                                            (List
-                                                                (Character 1 -2 () [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 4 __tmp_assign_name_list)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -8069,6 +7991,18 @@
                                             (Character 1 0 () [])
                                         )
                                     )
+                                    (=
+                                        (Var 4 __tmp_assign_name_list1)
+                                        (TupleItem
+                                            (Var 4 b)
+                                            (IntegerConstant 1 (Integer 4 []))
+                                            (List
+                                                (Integer 4 [])
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
                                     (Print
                                         ()
                                         [(StringConstant
@@ -8087,14 +8021,7 @@
                                         (IntegerConstant 0 (Integer 4 []))
                                         (IntegerBinOp
                                             (ListLen
-                                                (TupleItem
-                                                    (Var 4 b)
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_list1)
                                                 (Integer 4 [])
                                                 ()
                                             )
@@ -8107,14 +8034,7 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (TupleItem
-                                                    (Var 4 b)
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                    ()
-                                                )
+                                                (Var 4 __tmp_assign_name_list1)
                                                 (Var 4 __list_iterator2)
                                                 (Integer 4 [])
                                                 ()
@@ -8134,14 +8054,7 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (TupleItem
-                                                            (Var 4 b)
-                                                            (IntegerConstant 1 (Integer 4 []))
-                                                            (List
-                                                                (Integer 4 [])
-                                                            )
-                                                            ()
-                                                        )
+                                                        (Var 4 __tmp_assign_name_list1)
                                                         (Integer 4 [])
                                                         ()
                                                     )
@@ -8252,7 +8165,22 @@
                                             ()
                                         )
                                         (IntegerConstant 1 (Integer 4 [])))
-                                        [(Print
+                                        [(=
+                                            (Var 4 __tmp_assign_name_list2)
+                                            (ListItem
+                                                (Var 4 c)
+                                                (Var 4 __list_iterator3)
+                                                (List
+                                                    (Tuple
+                                                        [(Integer 4 [])
+                                                        (Character 1 -2 () [])]
+                                                    )
+                                                )
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Print
                                             ()
                                             [(StringConstant
                                                 "["
@@ -8270,17 +8198,7 @@
                                             (IntegerConstant 0 (Integer 4 []))
                                             (IntegerBinOp
                                                 (ListLen
-                                                    (ListItem
-                                                        (Var 4 c)
-                                                        (Var 4 __list_iterator3)
-                                                        (List
-                                                            (Tuple
-                                                                [(Integer 4 [])
-                                                                (Character 1 -2 () [])]
-                                                            )
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __tmp_assign_name_list2)
                                                     (Integer 4 [])
                                                     ()
                                                 )
@@ -8290,7 +8208,20 @@
                                                 ()
                                             )
                                             (IntegerConstant 1 (Integer 4 [])))
-                                            [(Print
+                                            [(=
+                                                (Var 4 __tmp_assign_name_tuple1)
+                                                (ListItem
+                                                    (Var 4 __tmp_assign_name_list2)
+                                                    (Var 4 __list_iterator4)
+                                                    (Tuple
+                                                        [(Integer 4 [])
+                                                        (Character 1 -2 () [])]
+                                                    )
+                                                    ()
+                                                )
+                                                ()
+                                            )
+                                            (Print
                                                 ()
                                                 [(StringConstant
                                                     "("
@@ -8305,25 +8236,7 @@
                                             (Print
                                                 ()
                                                 [(TupleItem
-                                                    (ListItem
-                                                        (ListItem
-                                                            (Var 4 c)
-                                                            (Var 4 __list_iterator3)
-                                                            (List
-                                                                (Tuple
-                                                                    [(Integer 4 [])
-                                                                    (Character 1 -2 () [])]
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
-                                                        (Var 4 __list_iterator4)
-                                                        (Tuple
-                                                            [(Integer 4 [])
-                                                            (Character 1 -2 () [])]
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __tmp_assign_name_tuple1)
                                                     (IntegerConstant 0 (Integer 4 []))
                                                     (Integer 4 [])
                                                     ()
@@ -8359,25 +8272,7 @@
                                                     (Character 1 1 () [])
                                                 )
                                                 (TupleItem
-                                                    (ListItem
-                                                        (ListItem
-                                                            (Var 4 c)
-                                                            (Var 4 __list_iterator3)
-                                                            (List
-                                                                (Tuple
-                                                                    [(Integer 4 [])
-                                                                    (Character 1 -2 () [])]
-                                                                )
-                                                            )
-                                                            ()
-                                                        )
-                                                        (Var 4 __list_iterator4)
-                                                        (Tuple
-                                                            [(Integer 4 [])
-                                                            (Character 1 -2 () [])]
-                                                        )
-                                                        ()
-                                                    )
+                                                    (Var 4 __tmp_assign_name_tuple1)
                                                     (IntegerConstant 1 (Integer 4 []))
                                                     (Character 1 -2 () [])
                                                     ()
@@ -8413,17 +8308,7 @@
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
-                                                            (ListItem
-                                                                (Var 4 c)
-                                                                (Var 4 __list_iterator3)
-                                                                (List
-                                                                    (Tuple
-                                                                        [(Integer 4 [])
-                                                                        (Character 1 -2 () [])]
-                                                                    )
-                                                                )
-                                                                ()
-                                                            )
+                                                            (Var 4 __tmp_assign_name_list2)
                                                             (Integer 4 [])
                                                             ()
                                                         )

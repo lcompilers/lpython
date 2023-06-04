@@ -2129,6 +2129,50 @@ public:
         tmp = tuple_api->read_item(ptuple, pos, LLVM::is_llvm_struct(x.m_type));
     }
 
+    void visit_TupleConcat(const ASR::TupleConcat_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_left);
+        llvm::Value* left = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value* right = tmp;
+        ptr_loads = ptr_loads_copy;
+
+        ASR::Tuple_t* tuple_type_left = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_left));
+        std::string type_code_left = ASRUtils::get_type_code(tuple_type_left->m_type,
+                                                        tuple_type_left->n_type);
+        ASR::Tuple_t* tuple_type_right = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_right));
+        std::string type_code_right = ASRUtils::get_type_code(tuple_type_right->m_type,
+                                                        tuple_type_right->n_type);
+        std::string type_code = type_code_left + type_code_right;
+        std::vector<llvm::Type*> llvm_el_types;
+        ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
+        bool is_array_type = false, is_malloc_array_type = false;
+        bool is_list = false;
+        ASR::dimension_t* m_dims = nullptr;
+        int n_dims = 0, a_kind = -1;
+        for( size_t i = 0; i < tuple_type_left->n_type; i++ ) {
+            llvm_el_types.push_back(get_type_from_ttype_t(tuple_type_left->m_type[i],
+                                    nullptr,
+                                    m_storage, is_array_type, is_malloc_array_type,
+                                    is_list, m_dims, n_dims, a_kind));
+        }
+        is_array_type = false; is_malloc_array_type = false;
+        is_list = false;
+        m_dims = nullptr;
+        n_dims = 0; a_kind = -1;
+        for( size_t i = 0; i < tuple_type_right->n_type; i++ ) {
+            llvm_el_types.push_back(get_type_from_ttype_t(tuple_type_right->m_type[i],
+                                    nullptr,
+                                    m_storage, is_array_type, is_malloc_array_type,
+                                    is_list, m_dims, n_dims, a_kind));
+        }
+        llvm::Type* concat_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
+        llvm::Value* concat_tuple = builder->CreateAlloca(concat_tuple_type, nullptr, "concat_tuple");
+        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple, *module);
+        tmp = concat_tuple;
+    }
+
     void visit_ArrayItem(const ASR::ArrayItem_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);

@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        119
+                        127
                         {
                             test_UnaryOp:
                                 (Function
@@ -441,7 +441,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             
                         })
