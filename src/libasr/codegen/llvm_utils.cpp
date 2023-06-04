@@ -2679,10 +2679,10 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopbody);
         {
             tmp = read_item(list, LLVM::CreateLoad(*builder, i),
-                false, module, LLVM::is_llvm_struct(list_type));    // tmp = list[i]
+                false, module, false);    // tmp = list[i]
             write_item(list, LLVM::CreateLoad(*builder, i),
                         read_item(list, LLVM::CreateLoad(*builder, j),
-                        false, module, LLVM::is_llvm_struct(list_type)),
+                        false, module, false),
                         false, module);    // list[i] = list[j]
             write_item(list, LLVM::CreateLoad(*builder, j),
                         tmp, false, module);    // list[j] = tmp
@@ -3133,6 +3133,20 @@ namespace LCompilers {
             is_equal = builder->CreateAnd(is_equal, is_t1_eq_t2);
         }
         return is_equal;
+    }
+
+    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2,
+                           ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
+                           llvm::Value* concat_tuple,
+                           llvm::Module& module) {
+        std::vector<llvm::Value*> values;
+        for( size_t i = 0; i < tuple_type_1->n_type; i++ ) {
+            values.push_back(llvm_utils->tuple_api->read_item(t1, i, false));
+        }
+        for( size_t i = 0; i < tuple_type_2->n_type; i++ ) {
+            values.push_back(llvm_utils->tuple_api->read_item(t2, i, false));
+        }
+        tuple_init(concat_tuple, values);
     }
 
 } // namespace LCompilers

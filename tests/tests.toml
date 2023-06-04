@@ -441,6 +441,11 @@ asr = true
 pass = "print_list_tuple"
 
 [[test]]
+filename = "../integration_tests/print_list_tuple_03.py"
+asr = true
+pass = "print_list_tuple"
+
+[[test]]
 filename = "../integration_tests/print_04.py"
 llvm = true
 

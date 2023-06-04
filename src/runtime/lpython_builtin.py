@@ -1,4 +1,5 @@
-from lpython import i8, i16, i32, i64, f32, f64, c32, c64, overload
+from lpython import (i8, i16, i32, i64, f32, f64, c32, c64, overload, u8,
+                     u16, u32, u64)
 #from sys import exit
 
 #: abs() as a generic procedure.
@@ -486,6 +487,10 @@ def _lpython_floordiv(a: i8, b: i8) -> i8:
     return result - i8(1)
 
 @overload
+def _lpython_floordiv(a: u8, b: u8) -> u8:
+    return u8(_lpython_floordiv(i8(a), i8(b)))
+
+@overload
 def _lpython_floordiv(a: i16, b: i16) -> i16:
     r: f64 # f32 rounds things up and gives incorrect results
     r = float(a)/float(b)
@@ -494,6 +499,10 @@ def _lpython_floordiv(a: i16, b: i16) -> i16:
     if r >= 0.0 or f64(result) == r:
         return result
     return result - i16(1)
+
+@overload
+def _lpython_floordiv(a: u16, b: u16) -> u16:
+    return u16(_lpython_floordiv(i16(a), i16(b)))
 
 @overload
 def _lpython_floordiv(a: i32, b: i32) -> i32:
@@ -506,6 +515,10 @@ def _lpython_floordiv(a: i32, b: i32) -> i32:
     return result - 1
 
 @overload
+def _lpython_floordiv(a: u32, b: u32) -> u32:
+    return u32(_lpython_floordiv(i32(a), i32(b)))
+
+@overload
 def _lpython_floordiv(a: i64, b: i64) -> i64:
     r: f64
     r = a/b
@@ -514,6 +527,10 @@ def _lpython_floordiv(a: i64, b: i64) -> i64:
     if r >= 0.0 or f64(result) == r:
         return result
     return result - i64(1)
+
+@overload
+def _lpython_floordiv(a: u64, b: u64) -> u64:
+    return u64(_lpython_floordiv(i64(a), i64(b)))
 
 @overload
 def _lpython_floordiv(a: bool, b: bool) -> bool:
@@ -535,7 +552,23 @@ def _mod(a: i32, b: i32) -> i32:
     return a - _lpython_floordiv(a, b)*b
 
 @overload
+def _mod(a: u8, b: u8) -> u8:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: u16, b: u16) -> u16:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: u32, b: u32) -> u32:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
 def _mod(a: f32, b: f32) -> f32:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: u64, b: u64) -> u64:
     return a - _lpython_floordiv(a, b)*b
 
 @overload

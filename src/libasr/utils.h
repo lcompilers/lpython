@@ -56,6 +56,7 @@ struct CompilerOptions {
     bool emit_debug_line_column = false;
     bool verbose = false;
     bool pass_cumulative = false;
+    bool enable_cpython = false;
     std::vector<std::string> import_paths;
     Platform platform;
 

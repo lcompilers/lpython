@@ -316,6 +316,11 @@ namespace LCompilers {
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
+            
+            void concat(llvm::Value* t1, llvm::Value* t2,
+                        ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
+                        llvm::Value* concat_tuple,
+                        llvm::Module& module);
     };
 
     class LLVMDictInterface {
