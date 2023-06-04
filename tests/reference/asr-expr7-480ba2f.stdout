@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        122
+                        130
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        121
+                                        129
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        122 main0
+                                        130 main0
                                         ()
                                         []
                                         ()
@@ -86,7 +86,7 @@
                                     test_pow_1]
                                     []
                                     [(SubroutineCall
-                                        122 test_pow
+                                        130 test_pow
                                         ()
                                         []
                                         ()
@@ -94,7 +94,7 @@
                                     (=
                                         (Var 4 c)
                                         (FunctionCall
-                                            122 test_pow_1
+                                            130 test_pow_1
                                             ()
                                             [((IntegerConstant 1 (Integer 4 [])))
                                             ((IntegerConstant 2 (Integer 4 [])))]
@@ -348,13 +348,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    120
+                                    128
                                     _lpython_main_program
-                                    122 _lpython_main_program
+                                    130 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -364,7 +364,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        120 _lpython_main_program
+                        128 _lpython_main_program
                         ()
                         []
                         ()
