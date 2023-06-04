@@ -395,7 +395,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             a_mod->m_intrinsic = intrinsic;
             mod2 = a_mod;
         }
-        symtab->add_symbol(a_name, (ASR::symbol_t*)a_mod);
+        symtab->add_or_overwrite_symbol(a_name, (ASR::symbol_t*)a_mod);
         a_mod->m_symtab->parent = symtab;
     }
     if (intrinsic) {
