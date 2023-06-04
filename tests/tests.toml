@@ -714,6 +714,14 @@ filename = "errors/test_str_slicing3.py"
 asr = true
 
 [[test]]
+filename = "errors/test_str_slicing4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_list_slicing.py"
+asr = true
+
+[[test]]
 filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 

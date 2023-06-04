@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_str_slicing4-a0c7a69",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_str_slicing4.py",
+    "infile_hash": "7bd3e8d21550f50244ee88e383dbd42cde33f03c516cfcaaeaaadd71",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_str_slicing4-a0c7a69.stderr",
+    "stderr_hash": "a5dd047df86649936606a0b134d10e76c6aacb224319be4aefd64bfe",
+    "returncode": 2
+}
