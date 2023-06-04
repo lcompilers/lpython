@@ -50,8 +50,9 @@ def test_dict_increment():
 
     j1 = 2.0
     d_str_float = {'key': j1}
+    s1 = "ke"
     while j1 < 4.0:
-        d_str_float['ke' + 'y'] += 0.1
+        d_str_float[s1 + 'y'] += 0.1
         j1 += 0.1
         assert d_str_float['key'] == j1
 
