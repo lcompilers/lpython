@@ -360,6 +360,7 @@ RUN(NAME print_05            LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME print_float         LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME print_list_tuple_01    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_02    LABELS cpython llvm c NOFAST)
+RUN(NAME print_list_tuple_03    LABELS cpython llvm c NOFAST)
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c)
