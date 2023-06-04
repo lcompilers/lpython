@@ -6,29 +6,6 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
-#define ASSERT(cond)                                                           \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-#define ASSERT_MSG(cond, msg)                                                  \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-
 
 struct dimension_descriptor
 {
@@ -176,7 +153,7 @@ void resize_if_needed_str(struct list_str* x) {
 void list_append_str(struct list_str* x, char* element) {
     resize_if_needed_str(x);
     x->data[x->current_end_point] = NULL;
-    _lfortran_strcpy(&x->data[x->current_end_point], element);
+    _lfortran_strcpy(&x->data[x->current_end_point], element, 1);
     x->current_end_point += 1;
 }
 
@@ -193,7 +170,7 @@ void list_insert_str(struct list_str* x, int pos, char* element) {
     }
 
     x->data[pos] = NULL;
-    _lfortran_strcpy(&x->data[pos], element);
+    _lfortran_strcpy(&x->data[pos], element, 1);
     x->current_end_point += 1;
 }
 

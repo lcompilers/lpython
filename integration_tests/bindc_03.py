@@ -1,6 +1,7 @@
 from lpython import (c_p_pointer, CPtr, pointer, i32,
                     Pointer, ccall, p_c_pointer, dataclass,
-                    ccallable, empty_c_void_p)
+                    ccallable, empty_c_void_p, cptr_to_u64,
+                    u64_to_cptr, u64)
 
 @dataclass
 class ArrayWrapped:
@@ -41,6 +42,14 @@ def h(q_void: CPtr) -> None:
         print(el)
         assert el == i * i + i%2
 
+
+@ccallable(header="_test_bindc_03_my_header.h")
+def test_emit_header_ccallable() -> i32:
+    i: i32 = 5
+    assert i == 5
+    i = i*5
+    return i + 10
+
 def run():
     a: CPtr
     array_wrapped: ArrayWrapped = ArrayWrapped(a)
@@ -51,7 +60,13 @@ def run():
     assert a != empty_c_void_p()
     array_wrapped.array = a
     f(array_wrapped.array)
+    q: u64 = cptr_to_u64(a)
+    x: CPtr
+    x = u64_to_cptr(q)
+    array_wrapped.array = x
+    f(array_wrapped.array)
     array_wrapped1 = array_wrapped
     h(array_wrapped1.array)
+    assert test_emit_header_ccallable() == 35
 
 run()

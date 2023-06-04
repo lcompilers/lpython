@@ -1,4 +1,4 @@
-from lpython import f64, i32, c64
+from lpython import f64, i32, c64, InOut
 
 
 def test_print_list():
@@ -20,7 +20,7 @@ def test_print_list():
     print(x, y, z, t)
 
 
-def f(y: list[i32]) -> list[i32]:
+def f(y: InOut[list[i32]]) -> list[i32]:
     y.append(4)
     return y
 

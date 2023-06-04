@@ -1,0 +1,8 @@
+semantic error: Parameter is already declared
+ --> tests/errors/func_06.py:1:12
+  |
+1 | def init_X(m:i32, n: i32, b: CPtr, m: i32) -> None:
+  |            ~~~~~ original declaration
+  |
+1 | def init_X(m:i32, n: i32, b: CPtr, m: i32) -> None:
+  |                                    ^^^^^^ redeclaration

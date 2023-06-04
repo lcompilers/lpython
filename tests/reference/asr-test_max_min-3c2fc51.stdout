@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        124
+                        132
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        123
+                                        131
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        124 check
+                                        132 check
                                         ()
                                         []
                                         ()
@@ -73,25 +73,25 @@
                                     test_min_float]
                                     []
                                     [(SubroutineCall
-                                        124 test_max_int
+                                        132 test_max_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_max_float
+                                        132 test_max_float
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_min_int
+                                        132 test_min_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_min_float
+                                        132 test_min_float
                                         ()
                                         []
                                         ()
@@ -117,6 +117,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -132,6 +133,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -147,6 +149,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -284,6 +287,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -299,6 +303,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -314,6 +319,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -485,6 +491,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -500,6 +507,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -515,6 +523,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -652,6 +661,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -667,6 +677,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -682,6 +693,7 @@
                                                     ()
                                                     Default
                                                     (Integer 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -849,13 +861,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        122
+                        130
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    122
+                                    130
                                     _lpython_main_program
-                                    124 _lpython_main_program
+                                    132 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -865,7 +877,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        122 _lpython_main_program
+                        130 _lpython_main_program
                         ()
                         []
                         ()

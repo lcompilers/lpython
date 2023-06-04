@@ -444,7 +444,7 @@ int emit_wat(const std::string &infile,
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    LCompilers::Result<LCompilers::Vec<uint8_t>> r2 = LCompilers::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
+    LCompilers::Result<LCompilers::Vec<uint8_t>> r2 = LCompilers::asr_to_wasm_bytes_stream(*asr, al, diagnostics, compiler_options);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r2.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -918,7 +918,7 @@ int compile_to_binary_wasm(
 
     // ASR -> WASM
     auto asr_to_wasm_start = std::chrono::high_resolution_clock::now();
-    LCompilers::Result<int> res = LCompilers::asr_to_wasm(*asr, al,  outfile, time_report, diagnostics);
+    LCompilers::Result<int> res = LCompilers::asr_to_wasm(*asr, al,  outfile, time_report, diagnostics, compiler_options);
     auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1065,7 +1065,7 @@ int compile_to_binary_wasm_to_x86(
 
     // ASR -> WASM
     auto asr_to_wasm_start = std::chrono::high_resolution_clock::now();
-    LCompilers::Result<LCompilers::Vec<uint8_t>> r3 = LCompilers::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
+    LCompilers::Result<LCompilers::Vec<uint8_t>> r3 = LCompilers::asr_to_wasm_bytes_stream(*asr, al, diagnostics, compiler_options);
     auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1246,6 +1246,11 @@ int link_executable(const std::vector<std::string> &infiles,
         cmd += " -I " + rtlib_header_dir;
         cmd += " -L" + base_path
             + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+        if (compiler_options.enable_cpython) {
+            std::string py_version = "3.10";
+            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
+            cmd += " " + py_flags;
+        }
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -1349,7 +1354,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
-            wasm = LCompilers::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
+            wasm = LCompilers::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics, compiler_options);
             out = diagnostics.render(lm, compiler_options);
             if (wasm.ok) {
                 LCompilers::Result<std::string>
@@ -1414,7 +1419,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
-            wasm = LCompilers::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
+            wasm = LCompilers::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics, compiler_options);
             out = diagnostics.render(lm, compiler_options);
             if (wasm.ok) {
                 out = "0"; // exit code
@@ -1556,6 +1561,7 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
+        app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");

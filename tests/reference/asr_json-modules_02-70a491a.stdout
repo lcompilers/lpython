@@ -75,7 +75,7 @@
                                         "access": "Public",
                                         "deterministic": false,
                                         "side_effect_free": false,
-                                        "c_header": []
+                                        "module_file": []
                                     },
                                     "loc": {
                                         "first": 0,
@@ -143,6 +143,7 @@
                                                                 "last_column": 10
                                                             }
                                                         },
+                                                        "type_declaration": [],
                                                         "abi": "Source",
                                                         "access": "Public",
                                                         "presence": "Required",
@@ -581,7 +582,7 @@
                                         "access": "Public",
                                         "deterministic": false,
                                         "side_effect_free": false,
-                                        "c_header": []
+                                        "module_file": []
                                     },
                                     "loc": {
                                         "first": 51,
@@ -807,7 +808,7 @@
                                         "access": "Public",
                                         "deterministic": false,
                                         "side_effect_free": false,
-                                        "c_header": []
+                                        "module_file": []
                                     },
                                     "loc": {
                                         "first": 154,
@@ -967,7 +968,7 @@
                                         "access": "Public",
                                         "deterministic": false,
                                         "side_effect_free": false,
-                                        "c_header": []
+                                        "module_file": []
                                     },
                                     "loc": {
                                         "first": 188,

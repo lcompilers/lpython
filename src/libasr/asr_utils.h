@@ -1288,10 +1288,15 @@ static inline Vec<char*> get_scope_names(Allocator &al, const SymbolTable *symta
     return scope_names;
 }
 
-static inline ASR::expr_t* get_constant_expression_with_given_type(Allocator& al, ASR::ttype_t* asr_type) {
+static inline ASR::expr_t* get_constant_expression_with_given_type(Allocator& al, ASR::ttype_t* asr_type,
+    bool set_to_addition_identity=false) {
     switch (asr_type->type) {
         case ASR::ttypeType::Integer: {
-            return ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, asr_type->base.loc, -1, asr_type));
+            int64_t value = -1;
+            if( set_to_addition_identity ) {
+                value = 0;
+            }
+            return ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, asr_type->base.loc, value, asr_type));
         }
         case ASR::ttypeType::Real: {
             return ASRUtils::EXPR(ASR::make_RealConstant_t(al, asr_type->base.loc, 0.0, asr_type));
@@ -1596,12 +1601,12 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = nullptr;
             break;
         }
-        case ASR::ttypeType::FunctionType: {
+        case ASR::ttypeType::Dict: {
             n_dims = 0;
             m_dims = nullptr;
             break;
         }
-        case ASR::ttypeType::Dict: {
+        case ASR::ttypeType::Set: {
             n_dims = 0;
             m_dims = nullptr;
             break;
@@ -1615,6 +1620,11 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(x);
             n_dims = tp->n_dims;
             m_dims = tp->m_dims;
+            break;
+        }
+        case ASR::ttypeType::FunctionType: {
+            n_dims = 0;
+            m_dims = nullptr;
             break;
         }
         default:
@@ -1751,63 +1761,121 @@ static inline bool is_aggregate_type(ASR::ttype_t* asr_type) {
               ASR::is_a<ASR::Logical_t>(*asr_type));
 }
 
+static inline ASR::dimension_t* duplicate_dimensions(Allocator& al, ASR::dimension_t* m_dims, size_t n_dims);
+
 static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
                                            Vec<ASR::dimension_t>* dims = nullptr) {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::UnsignedInteger: {
             ASR::UnsignedInteger_t* tnew = ASR::down_cast<ASR::UnsignedInteger_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Real: {
             ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Logical: {
             ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                         dimsp, dimsn));
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* tnew = ASR::down_cast<ASR::Struct_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Struct_t(al, t->base.loc,
                         tnew->m_derived_type, dimsp, dimsn));
         }
         case ASR::ttypeType::Class: {
             ASR::Class_t* tnew = ASR::down_cast<ASR::Class_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
-            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tnew->m_dims, tnew->n_dims);
+                dimsn = tnew->n_dims;
+            }
             return ASRUtils::TYPE(ASR::make_Class_t(al, t->base.loc,
                         tnew->m_class_type, dimsp, dimsn));
         }
@@ -1817,6 +1885,10 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             return ASRUtils::TYPE(ASR::make_Pointer_t(al, ptr->base.base.loc,
                         dup_type));
         }
+        case ASR::ttypeType::CPtr: {
+            ASR::CPtr_t* ptr = ASR::down_cast<ASR::CPtr_t>(t);
+            return ASRUtils::TYPE(ASR::make_CPtr_t(al, ptr->base.base.loc));
+        }
         case ASR::ttypeType::Const: {
             ASR::Const_t* c = ASR::down_cast<ASR::Const_t>(t);
             ASR::ttype_t* dup_type = duplicate_type(al, c->m_type, dims);
@@ -1825,12 +1897,34 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
-            ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
-            size_t dimsn = dims ? dims->n : tp->n_dims;
+            ASR::dimension_t* dimsp;
+            size_t dimsn;
+            if (dims != nullptr) {
+                dimsp = dims->p;
+                dimsn = dims->n;
+            } else {
+                dimsp = duplicate_dimensions(al, tp->m_dims, tp->n_dims);
+                dimsn = tp->n_dims;
+            }
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
                         tp->m_param, dimsp, dimsn));
+        }
+        case ASR::ttypeType::FunctionType: {
+            ASR::FunctionType_t* ft = ASR::down_cast<ASR::FunctionType_t>(t);
+            //ASR::ttype_t* dup_type = duplicate_type(al, c->m_type, dims);
+            Vec<ASR::ttype_t*> arg_types;
+            arg_types.reserve(al, ft->n_arg_types);
+            for( size_t i = 0; i < ft->n_arg_types; i++ ) {
+                ASR::ttype_t *t = ASRUtils::duplicate_type(al, ft->m_arg_types[i]);
+                arg_types.push_back(al, t);
+            }
+            return ASRUtils::TYPE(ASR::make_FunctionType_t(al, ft->base.base.loc,
+                arg_types.p, arg_types.size(), ft->m_return_var_type, ft->m_abi,
+                ft->m_deftype, ft->m_bindc_name, ft->m_elemental, ft->m_pure, ft->m_module, ft->m_inline,
+                ft->m_static, ft->m_type_params, ft->n_type_params, ft->m_restrictions, ft->n_restrictions,
+                ft->m_is_restriction));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -2357,7 +2451,7 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
     return false;
 }
 
-inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y, bool check_for_dimensions=false) {
     ASR::ttype_t *x_underlying, *y_underlying;
     x_underlying = nullptr;
     y_underlying = nullptr;
@@ -2448,7 +2542,7 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
         return false;
     }
 
-    return types_equal(x, y);
+    return types_equal(x, y, check_for_dimensions);
 }
 
 int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
@@ -2476,9 +2570,39 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
     return false;
 }
 
+static inline ASR::intentType symbol_intent(const ASR::symbol_t *f)
+{
+    switch( f->type ) {
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_intent;
+        }
+        default: {
+            throw LCompilersException("Cannot return intent of, " +
+                                    std::to_string(f->type) + " symbol.");
+        }
+    }
+    return ASR::intentType::Unspecified;
+}
+
+static inline ASR::intentType expr_intent(ASR::expr_t* expr) {
+    switch( expr->type ) {
+        case ASR::exprType::Var: {
+            return ASRUtils::symbol_intent(ASR::down_cast<ASR::Var_t>(expr)->m_v);
+        }
+        default: {
+            throw LCompilersException("Cannot extract intent of ASR::exprType::" +
+                std::to_string(expr->type));
+        }
+    }
+    return ASR::intentType::Unspecified;
+}
+
 static inline bool is_data_only_array(ASR::ttype_t* type, ASR::abiType abi) {
     ASR::dimension_t* m_dims = nullptr;
     size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);
+    if( n_dims == 0 ) {
+        return false;
+    }
     return (abi == ASR::abiType::BindC || !ASRUtils::is_dimension_empty(m_dims, n_dims));
 }
 
@@ -2518,7 +2642,8 @@ static inline ASR::symbol_t* import_struct_instance_member(Allocator& al, ASR::s
     std::string v_name = ASRUtils::symbol_name(v);
     std::string struct_t_name = ASRUtils::symbol_name(struct_t);
     std::string struct_ext_name = struct_t_name;
-    if( scope->resolve_symbol(struct_t_name) != struct_t ) {
+    if( ASRUtils::symbol_get_past_external(
+            scope->resolve_symbol(struct_t_name)) != struct_t ) {
         struct_ext_name = "1_" + struct_ext_name;
     }
     if( scope->resolve_symbol(struct_ext_name) == nullptr ) {
@@ -2733,32 +2858,15 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
 };
 
-inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
-    SymbolTable* m_symtab, char* m_name, char** m_dependencies, size_t n_dependencies,
-    ASR::expr_t** a_args, size_t n_args, ASR::stmt_t** m_body, size_t n_body,
-    ASR::expr_t* m_return_var, ASR::abiType m_abi, ASR::accessType m_access,
-    ASR::deftypeType m_deftype, char* m_bindc_name, bool m_elemental, bool m_pure,
-    bool m_module, bool m_inline, bool m_static, ASR::ttype_t** m_type_params,
-    size_t n_type_params, ASR::symbol_t** m_restrictions, size_t n_restrictions,
-    bool m_is_restriction, bool m_deterministic, bool m_side_effect_free, char *m_c_header=nullptr) {
-    Vec<ASR::ttype_t*> arg_types;
-    arg_types.reserve(al, n_args);
-    for( size_t i = 0; i < n_args; i++ ) {
-        arg_types.push_back(al, ASRUtils::expr_type(a_args[i]));
+// Finds the argument index that is equal to `v`, otherwise -1.
+inline int64_t lookup_var_index(ASR::expr_t **args, size_t n_args, ASR::Var_t *v) {
+    ASR::symbol_t *s = v->m_v;
+    for (size_t i = 0; i < n_args; i++) {
+        if (ASR::down_cast<ASR::Var_t>(args[i])->m_v == s) {
+            return i;
+        }
     }
-    ASR::ttype_t* return_var_type = nullptr;
-    if( m_return_var ) {
-        return_var_type = ASRUtils::expr_type(m_return_var);
-    }
-    ASR::ttype_t* func_type = ASRUtils::TYPE(ASR::make_FunctionType_t(
-        al, loc, arg_types.p, arg_types.size(), return_var_type, m_abi,
-        m_deftype, m_bindc_name, m_elemental, m_pure, m_module, m_inline,
-        m_static, m_type_params, n_type_params, m_restrictions, n_restrictions,
-        m_is_restriction));
-    return ASR::make_Function_t(
-        al, loc, m_symtab, m_name, func_type, m_dependencies, n_dependencies,
-        a_args, n_args, m_body, n_body, m_return_var, m_access, m_deterministic,
-        m_side_effect_free, m_c_header);
+    return -1;
 }
 
 class ExprStmtDuplicator: public ASR::BaseExprStmtDuplicator<ExprStmtDuplicator>
@@ -2768,6 +2876,93 @@ class ExprStmtDuplicator: public ASR::BaseExprStmtDuplicator<ExprStmtDuplicator>
     ExprStmtDuplicator(Allocator &al): BaseExprStmtDuplicator(al) {}
 
 };
+
+class ReplaceWithFunctionParamVisitor: public ASR::BaseExprReplacer<ReplaceWithFunctionParamVisitor> {
+
+    private:
+
+    Allocator& al;
+
+    ASR::expr_t** m_args;
+
+    size_t n_args;
+
+    public:
+
+    ReplaceWithFunctionParamVisitor(Allocator& al_, ASR::expr_t** m_args_, size_t n_args_) :
+        al(al_), m_args(m_args_), n_args(n_args_) {}
+
+    void replace_Var(ASR::Var_t* x) {
+        size_t arg_idx = 0;
+        bool idx_found = false;
+        std::string arg_name = ASRUtils::symbol_name(x->m_v);
+        for( size_t j = 0; j < n_args && !idx_found; j++ ) {
+            if( ASR::is_a<ASR::Var_t>(*(m_args[j])) ) {
+                std::string arg_name_2 = std::string(ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Var_t>(m_args[j])->m_v));
+                arg_idx = j;
+                idx_found = arg_name_2 == arg_name;
+            }
+        }
+
+        if( idx_found ) {
+            LCOMPILERS_ASSERT(current_expr);
+            ASR::ttype_t* t_ = replace_args_with_FunctionParam(
+                                ASRUtils::symbol_type(x->m_v));
+            *current_expr = ASRUtils::EXPR(ASR::make_FunctionParam_t(
+                                al, m_args[arg_idx]->base.loc, arg_idx,
+                                t_, nullptr));
+        }
+    }
+
+    ASR::ttype_t* replace_args_with_FunctionParam(ASR::ttype_t* t) {
+        ASRUtils::ExprStmtDuplicator duplicator(al);
+        duplicator.allow_procedure_calls = true;
+
+        // We need to substitute all direct argument variable references with
+        // FunctionParam.
+        duplicator.success = true;
+        t = duplicator.duplicate_ttype(t);
+        LCOMPILERS_ASSERT(duplicator.success);
+        replace_ttype(t);
+        return t;
+    }
+
+};
+
+inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
+    SymbolTable* m_symtab, char* m_name, char** m_dependencies, size_t n_dependencies,
+    ASR::expr_t** a_args, size_t n_args, ASR::stmt_t** m_body, size_t n_body,
+    ASR::expr_t* m_return_var, ASR::abiType m_abi, ASR::accessType m_access,
+    ASR::deftypeType m_deftype, char* m_bindc_name, bool m_elemental, bool m_pure,
+    bool m_module, bool m_inline, bool m_static, ASR::ttype_t** m_type_params,
+    size_t n_type_params, ASR::symbol_t** m_restrictions, size_t n_restrictions,
+    bool m_is_restriction, bool m_deterministic, bool m_side_effect_free, char *m_module_file=nullptr) {
+    Vec<ASR::ttype_t*> arg_types;
+    arg_types.reserve(al, n_args);
+    ReplaceWithFunctionParamVisitor replacer(al, a_args, n_args);
+    for( size_t i = 0; i < n_args; i++ ) {
+        // We need to substitute all direct argument variable references with
+        // FunctionParam.
+        ASR::ttype_t *t = replacer.replace_args_with_FunctionParam(
+                            expr_type(a_args[i]));
+        arg_types.push_back(al, t);
+    }
+    ASR::ttype_t* return_var_type = nullptr;
+    if( m_return_var ) {
+        return_var_type = replacer.replace_args_with_FunctionParam(
+                            ASRUtils::expr_type(m_return_var));
+    }
+    ASR::ttype_t* func_type = ASRUtils::TYPE(ASR::make_FunctionType_t(
+        al, loc, arg_types.p, arg_types.size(), return_var_type, m_abi,
+        m_deftype, m_bindc_name, m_elemental, m_pure, m_module, m_inline,
+        m_static, m_type_params, n_type_params, m_restrictions, n_restrictions,
+        m_is_restriction));
+    return ASR::make_Function_t(
+        al, loc, m_symtab, m_name, func_type, m_dependencies, n_dependencies,
+        a_args, n_args, m_body, n_body, m_return_var, m_access, m_deterministic,
+        m_side_effect_free, m_module_file);
+}
 
 class SymbolDuplicator {
 
@@ -2856,8 +3051,8 @@ class SymbolDuplicator {
             ASR::make_Variable_t(al, variable->base.base.loc, destination_symtab,
                 variable->m_name, variable->m_dependencies, variable->n_dependencies,
                 variable->m_intent, m_symbolic_value, m_value, variable->m_storage,
-                m_type, variable->m_abi, variable->m_access, variable->m_presence,
-                variable->m_value_attr));
+                m_type, variable->m_type_declaration, variable->m_abi, variable->m_access,
+                variable->m_presence, variable->m_value_attr));
     }
 
     ASR::symbol_t* duplicate_ExternalSymbol(ASR::ExternalSymbol_t* external_symbol,
@@ -3242,7 +3437,7 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
         // The following if check determines whether the i-th argument
         // can be called by just passing the data pointer and
         // dimensional information spearately via extra arguments.
-        if( ASRUtils::is_dimension_empty(dims, n_dims) &&
+        if( n_dims > 0 && ASRUtils::is_dimension_empty(dims, n_dims) &&
             (argi->m_intent == ASRUtils::intent_in ||
              argi->m_intent == ASRUtils::intent_out ||
              argi->m_intent == ASRUtils::intent_inout) &&
@@ -3264,8 +3459,44 @@ static inline ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim,
     if( bound == "ubound" ) {
         bound_type = ASR::arrayboundType::UBound;
     }
+    ASR::expr_t* bound_value = nullptr;
+    ASR::dimension_t* arr_dims = nullptr;
+    int arr_n_dims = ASRUtils::extract_dimensions_from_ttype(
+        ASRUtils::expr_type(arr_expr), arr_dims);
+    if( dim > arr_n_dims || dim < 1) {
+        throw LCompilersException("Dimension " + std::to_string(dim) +
+            " is invalid. Rank of the array, " + std::to_string(arr_n_dims));
+    }
+    dim = dim - 1;
+    if( arr_dims[dim].m_start && arr_dims[dim].m_length ) {
+        ASR::expr_t* arr_start = ASRUtils::expr_value(arr_dims[dim].m_start);
+        ASR::expr_t* arr_length = ASRUtils::expr_value(arr_dims[dim].m_length);
+        if( bound_type == ASR::arrayboundType::LBound &&
+            ASRUtils::is_value_constant(arr_start) ) {
+            int64_t const_lbound = -1;
+            if( !ASRUtils::extract_value(arr_start, const_lbound) ) {
+                LCOMPILERS_ASSERT(false);
+            }
+            bound_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                            al, arr_expr->base.loc, const_lbound, int32_type));
+        } else if( bound_type == ASR::arrayboundType::UBound &&
+            ASRUtils::is_value_constant(arr_start) &&
+            ASRUtils::is_value_constant(arr_length) ) {
+            int64_t const_lbound = -1;
+            if( !ASRUtils::extract_value(arr_start, const_lbound) ) {
+                LCOMPILERS_ASSERT(false);
+            }
+            int64_t const_length = -1;
+            if( !ASRUtils::extract_value(arr_length, const_length) ) {
+                LCOMPILERS_ASSERT(false);
+            }
+            bound_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                            al, arr_expr->base.loc,
+                            const_lbound + const_length - 1, int32_type));
+        }
+    }
     return ASRUtils::EXPR(ASR::make_ArrayBound_t(al, arr_expr->base.loc, arr_expr, dim_expr,
-                int32_type, bound_type, nullptr));
+                int32_type, bound_type, bound_value));
 }
 
 static inline ASR::expr_t* get_size(ASR::expr_t* arr_expr, int dim,
@@ -3452,6 +3683,39 @@ static inline void visit_expr_list(Allocator &al, Vec<ASR::expr_t *> exprs,
         arg.m_value = exprs[i];
         exprs_vec.push_back(al, arg);
     }
+}
+
+class VerifyAbort {};
+
+static inline void require_impl(bool cond, const std::string &error_msg,
+    const Location &loc, diag::Diagnostics &diagnostics) {
+    if (!cond) {
+        diagnostics.message_label("ASR verify: " + error_msg,
+            {loc}, "failed here",
+            diag::Level::Error, diag::Stage::ASRVerify);
+        throw VerifyAbort();
+    }
+}
+
+static inline ASR::dimension_t* duplicate_dimensions(Allocator& al, ASR::dimension_t* m_dims, size_t n_dims) {
+    Vec<ASR::dimension_t> dims;
+    dims.reserve(al, n_dims);
+    ASRUtils::ExprStmtDuplicator expr_duplicator(al);
+    for (size_t i = 0; i < n_dims; i++) {
+        ASR::expr_t* start = m_dims[i].m_start;
+        if( start != nullptr ) {
+            start = expr_duplicator.duplicate_expr(start);
+        }
+        ASR::expr_t* length = m_dims[i].m_length;
+        if( length != nullptr ) {
+            length = expr_duplicator.duplicate_expr(length);
+        }
+        ASR::dimension_t t;
+        t.m_start = start;
+        t.m_length = length;
+        dims.push_back(al, t);
+    }
+    return dims.p;
 }
 
 } // namespace ASRUtils

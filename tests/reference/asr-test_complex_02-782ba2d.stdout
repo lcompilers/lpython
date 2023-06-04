@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        123
+                        131
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        122
+                                        130
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        123 check
+                                        131 check
                                         ()
                                         []
                                         ()
@@ -72,19 +72,19 @@
                                     test_complex_binop_64]
                                     []
                                     [(SubroutineCall
-                                        123 test_complex_abs
+                                        131 test_complex_abs
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        123 test_complex_binop_32
+                                        131 test_complex_binop_32
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        123 test_complex_binop_64
+                                        131 test_complex_binop_64
                                         ()
                                         []
                                         ()
@@ -130,6 +130,7 @@
                                                     ()
                                                     Default
                                                     (Real 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -145,6 +146,7 @@
                                                     ()
                                                     Default
                                                     (Complex 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -160,6 +162,7 @@
                                                     ()
                                                     Default
                                                     (Complex 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -323,6 +326,7 @@
                                                     ()
                                                     Default
                                                     (Complex 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -338,6 +342,7 @@
                                                     ()
                                                     Default
                                                     (Complex 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -353,6 +358,7 @@
                                                     ()
                                                     Default
                                                     (Complex 4 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -516,6 +522,7 @@
                                                     ()
                                                     Default
                                                     (Complex 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -531,6 +538,7 @@
                                                     ()
                                                     Default
                                                     (Complex 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -546,6 +554,7 @@
                                                     ()
                                                     Default
                                                     (Complex 8 [])
+                                                    ()
                                                     Source
                                                     Public
                                                     Required
@@ -687,13 +696,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        121
+                        129
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    121
+                                    129
                                     _lpython_main_program
-                                    123 _lpython_main_program
+                                    131 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -703,7 +712,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        121 _lpython_main_program
+                        129 _lpython_main_program
                         ()
                         []
                         ()

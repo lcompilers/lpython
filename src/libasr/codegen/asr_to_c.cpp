@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <memory>
 
 #include <libasr/asr.h>
@@ -234,6 +235,37 @@ public:
                     bool is_fixed_size = true;
                     std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                } else {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                }
+            } else if (ASRUtils::is_real(*t2)) {
+                ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(t2);
+                std::string type_name;
+                if (t->m_kind == 4) {
+                    type_name = "float";
+                } else if (t->m_kind == 8) {
+                    type_name = "double";
+                } else {
+                    diag.codegen_error_label("Real kind '"
+                        + std::to_string(t->m_kind)
+                        + "' not supported", {v.base.base.loc}, "");
+                    throw Abort();
+                }
+                if( !ASRUtils::is_array(v_m_type) ) {
+                    type_name.append(" *");
+                }
+                if( is_array ) {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string encoded_type_name = "f" + std::to_string(t->m_kind * 8);
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
                                         encoded_type_name, t->m_dims, t->n_dims,
                                         use_ref, dummy,
@@ -624,29 +656,6 @@ R"(
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
-#define ASSERT(cond)                                                           \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-#define ASSERT_MSG(cond, msg)                                                  \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-
 )";
 
         std::string indent(indentation_level * indentation_spaces, ' ');
@@ -776,6 +785,24 @@ R"(
         }
         src = to_include + head + array_types_decls + unit_src +
               ds_funcs_defined + util_funcs_defined;
+        if (!emit_headers.empty()) {
+            std::string to_includes_1 = "";
+            for (auto &s: headers) {
+                to_includes_1 += "#include <" + s + ">\n";
+            }
+            for (auto &f_name: emit_headers) {
+                std::ofstream out_file;
+                std::string out_src = to_includes_1 + head + f_name.second;
+                std::string ifdefs = f_name.first.substr(0, f_name.first.length() - 2);
+                std::transform(ifdefs.begin(), ifdefs.end(), ifdefs.begin(), ::toupper);
+                ifdefs += "_H";
+                out_src = "#ifndef " + ifdefs + "\n#define " + ifdefs + "\n\n" + out_src;
+                out_src += "\n\n#endif\n";
+                out_file.open(f_name.first);
+                out_file << out_src;
+                out_file.close();
+            }
+        }
     }
 
     void visit_Module(const ASR::Module_t &x) {
@@ -863,10 +890,31 @@ R"(
         }
 
         std::string body;
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    Py_Initialize();
+    wchar_t* argv1 = Py_DecodeLocale("", NULL);
+    wchar_t** argv_ = {&argv1};
+    PySys_SetArgv(1, argv_);
+)";
+            body += "\n";
+        }
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
+
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    if (Py_FinalizeEx() < 0) {
+        fprintf(stderr,"BindPython: Unknown Error\n");
+        exit(1);
+    }
+)";
+            body += "\n";
+        }
+
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
                 + indent1 + "_lpython_set_argv(argc, argv);\n"

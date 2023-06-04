@@ -11,7 +11,9 @@
     (global $1 (mut i32) (i32.const 0))
     (global $2 (mut i64) (i64.const 0))
     (global $3 (mut f32) (f32.const 0.000000))
-    (global $4 (mut f64) (f64.const 0.000000))
+    (global $4 (mut f32) (f32.const 0.000000))
+    (global $5 (mut f64) (f64.const 0.000000))
+    (global $6 (mut f64) (f64.const 0.000000))
     (func $2 (type 2) (param) (result)
         (local)
         call 3

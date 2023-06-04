@@ -8,29 +8,6 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
-#define ASSERT(cond)                                                           \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-#define ASSERT_MSG(cond, msg)                                                  \
-    {                                                                          \
-        if (!(cond)) {                                                         \
-            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
-            printf("%s%s", "\nfunction ", __func__);                           \
-            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
-            printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
-            exit(1);                                                           \
-        }                                                                      \
-    }
-
 
 struct dimension_descriptor
 {
@@ -83,7 +60,7 @@ void test_arrays()
     int32_t i;
     bool is_small;
     compare_operator->op_code = 0;
-    _lfortran_strcpy(&compare_operator->op_name, "<");
+    _lfortran_strcpy(&compare_operator->op_name, "<", 1);
     for (i=0; i<=40 - 1; i++) {
         array1->data[(i - array1->dims[0].lower_bound)] = i + 1;
         array2->data[(i - array2->dims[0].lower_bound)] = (double)(2*i + 1);

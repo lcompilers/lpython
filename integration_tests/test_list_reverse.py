@@ -8,6 +8,8 @@ def test_list_reverse():
     l5: list[str] = []
     l6: list[str] = []
     l7: list[str] = []
+    l8: list[list[i32]] = []
+    l9: list[tuple[i32, f64, str]] = []
     i: i32
     j: f64
     s: str
@@ -42,6 +44,14 @@ def test_list_reverse():
         l7.append(s)
         l6.reverse()
         assert l6 == l7
+    
+    l8 = [[1, 2], [3, 4, 5], [6, 7, 8, 9], [10]]
+    l8.reverse()
+    assert l8 == [[10], [6, 7, 8, 9], [3, 4, 5], [1, 2]]
+
+    l9 = [(1, 2.0, "abc"), (3, 4.0, "def"), (5, 6.0, "ghi")]
+    l9.reverse()
+    assert l9 == [(5, 6.0, "ghi"), (3, 4.0, "def"), (1, 2.0, "abc")]
 
 
 test_list_reverse()

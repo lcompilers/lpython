@@ -86,7 +86,7 @@ symbol
         bool loaded_from_mod, bool intrinsic)
     | Function(symbol_table symtab, identifier name, ttype function_signature,
         identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free,  string? c_header)
+        access access, bool deterministic, bool side_effect_free,  string? module_file)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -103,7 +103,8 @@ symbol
     | UnionType(symbol_table symtab, identifier name, identifier* dependencies,
         identifier* members, abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies,
-        intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type,
+        intent intent, expr? symbolic_value, expr? value, storage_type storage,
+        ttype type, symbol? type_declaration,
         abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument,
@@ -136,6 +137,12 @@ presence = Required | Optional
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
 
+-- abi=BindPython: the symbol's implementation is
+-- stored in text format in the user source code file.
+-- The symbol is executed using the CPython interpreter.
+-- LPython manages the conversion of arguments to be passed to such symbols
+-- and also converts the return values from such symbols.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -152,6 +159,7 @@ abi                   -- External     ABI
     | LFortranModule  --   Yes        LFortran
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
+    | BindPython      --   Yes        Python
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 
@@ -267,6 +275,7 @@ expr
     | TupleConstant(expr* elements, ttype type)
     | TupleLen(expr arg, ttype type, expr value)
     | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | TupleConcat(expr left, expr right, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
@@ -284,6 +293,7 @@ expr
     | DictLen(expr arg, ttype type, expr? value)
 
     | Var(symbol v)
+    | FunctionParam(int param_number, ttype type, expr? value) --- used in types
 
     | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
     | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
@@ -412,6 +422,8 @@ cast_kind
     | LogicalToCharacter
     | UnsignedIntegerToInteger
     | IntegerToUnsignedInteger
+    | CPtrToUnsignedInteger
+    | UnsignedIntegerToCPtr
 
 dimension = (expr? start, expr? length)
 

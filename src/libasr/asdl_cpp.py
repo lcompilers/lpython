@@ -1169,7 +1169,9 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
 
     def __init__(self, stream, data):
         self.replace_expr = []
+        self.replace_ttype = []
         self.is_expr = False
+        self.is_ttype = False
         self.is_product = False
         self.current_expr_copy_variable_count = 0
         super(ExprBaseReplacerVisitor, self).__init__(stream, data)
@@ -1195,15 +1197,31 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         self.replace_expr.append(("", 0))
         self.replace_expr.append(("    switch(x->type) {", 1))
 
+        self.replace_ttype.append(("    void replace_ttype(ASR::ttype_t* x) {", 0))
+        self.replace_ttype.append(("    if( !x ) {", 1))
+        self.replace_ttype.append(("    return ;", 2))
+        self.replace_ttype.append(("    }", 1))
+        self.replace_ttype.append(("", 0))
+        self.replace_ttype.append(("    switch(x->type) {", 1))
+
         super(ExprBaseReplacerVisitor, self).visitModule(mod)
 
         self.replace_expr.append(("    default: {", 2))
-        self.replace_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.replace_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Replacement in  " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.replace_expr.append(("    }", 2))
         self.replace_expr.append(("    }", 1))
         self.replace_expr.append(("", 0))
         self.replace_expr.append(("    }", 0))
+
+        self.replace_ttype.append(("    default: {", 2))
+        self.replace_ttype.append(('    LCOMPILERS_ASSERT_MSG(false, "Replacement in " + std::to_string(x->type) + " type is not supported yet.");', 3))
+        self.replace_ttype.append(("    }", 2))
+        self.replace_ttype.append(("    }", 1))
+        self.replace_ttype.append(("", 0))
+        self.replace_ttype.append(("    }", 0))
         for line, level in self.replace_expr:
+            self.emit(line, level=level)
+        for line, level in self.replace_ttype:
             self.emit(line, level=level)
         self.emit("")
         self.emit("};")
@@ -1215,7 +1233,8 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
 
     def visitSum(self, sum, *args):
         self.is_expr = args[0] == 'expr'
-        if self.is_expr:
+        self.is_ttype = args[0] == 'ttype'
+        if self.is_expr or self.is_ttype:
             for tp in sum.types:
                 self.visit(tp, *args)
 
@@ -1239,12 +1258,21 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
             self.replace_expr.append(("    self().replace_%s(down_cast<ASR::%s_t>(x));" % (name, name), 3))
             self.replace_expr.append(("    break;", 3))
             self.replace_expr.append(("    }", 2))
+        elif self.is_ttype:
+            self.replace_ttype.append(("    case ASR::ttypeType::%s: {" % name, 2))
+            self.replace_ttype.append(("    self().replace_%s(down_cast<ASR::%s_t>(x));" % (name, name), 3))
+            self.replace_ttype.append(("    break;", 3))
+            self.replace_ttype.append(("    }", 2))
         self.emit("}", 1)
         self.emit("")
 
     def visitField(self, field):
         arguments = None
-        if field.type == "expr" or field.type == "symbol" or field.type == "call_arg":
+        if (field.type == "expr" or
+            field.type == "symbol" or
+            field.type == "call_arg" or
+            field.type == "ttype" or
+            field.type == "dimension"):
             level = 2
             if field.seq:
                 self.used = True
@@ -1257,15 +1285,29 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
                     self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level + 1)
                     self.emit("    }", level)
                     self.current_expr_copy_variable_count += 1
+                elif field.type == "dimension":
+                    self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
+                    self.emit("    current_expr = &(x->m_%s[i].m_length);" % (field.name), level)
+                    self.emit("    self().replace_expr(x->m_%s[i].m_length);"%(field.name), level)
+                    self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
+                    self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
+                    self.emit("    current_expr = &(x->m_%s[i].m_start);" % (field.name), level)
+                    self.emit("    self().replace_expr(x->m_%s[i].m_start);"%(field.name), level)
+                    self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
                 self.emit("}", level)
             else:
                 if field.type != "symbol":
                     self.used = True
-                    self.emit("ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
-                    self.emit("current_expr = &(x->m_%s);" % (field.name), level)
-                    self.emit("self().replace_%s(x->m_%s);" % (field.type, field.name), level)
-                    self.emit("current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
-                    self.current_expr_copy_variable_count += 1
+                    if field.type == "ttype":
+                        self.emit("self().replace_%s(x->m_%s);" % (field.type, field.name), level)
+                    else:
+                        self.emit("ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
+                        self.emit("current_expr = &(x->m_%s);" % (field.name), level)
+                        self.emit("self().replace_%s(x->m_%s);" % (field.type, field.name), level)
+                        self.emit("current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                        self.current_expr_copy_variable_count += 1
 
 class StmtBaseReplacerVisitor(ASDLVisitor):
 

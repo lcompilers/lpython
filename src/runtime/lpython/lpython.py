@@ -3,12 +3,11 @@ import os
 import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
-from goto import with_goto
 
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
-        "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
+        "p_c_pointer", "vectorize", "inline", "Union", "static",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
         "Allocatable"]
 
@@ -458,6 +457,14 @@ def ccall(f):
         return f
     return CTypes(f)
 
+def pythoncall(*args, **kwargs):
+    def inner(fn):
+        import importlib
+        module = importlib.import_module(kwargs["module"])
+        fn_new = getattr(module, fn.__name__)
+        return fn_new
+    return inner
+
 def union(f):
     fields = []
     for name in f.__annotations__:
@@ -591,6 +598,12 @@ def empty_c_void_p():
             return str(self.value)
 
     return ctypes_c_void_p()
+
+def cptr_to_u64(cptr):
+    return ctypes.addressof(cptr)
+
+def u64_to_cptr(ivalue):
+    return ctypes.c_void_p(ivalue)
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
