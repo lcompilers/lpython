@@ -2902,7 +2902,7 @@ namespace LCompilers {
         builder->CreateStore(end_point, end_point_ptr);
     }
 
-    llvm::Value* LLVMList::pop(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
+    llvm::Value* LLVMList::pop_last(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
         // If list is empty, output error
 
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
@@ -2932,6 +2932,64 @@ namespace LCompilers {
                                     context, llvm::APInt(32, 1)));
         builder->CreateStore(end_point, end_point_ptr);
         return tmp;
+    }
+
+    llvm::Value* LLVMList::pop_position(llvm::Value* list, llvm::Value* pos,
+                                        ASR::ttype_t* list_type, llvm::Module& module) {
+
+        /* Equivalent in C++:
+         * while(end_point > pos) {
+         *     tmp = pos + 1;
+         *     list[pos] = list[tmp];
+         *     pos = tmp;
+         * }
+         */
+
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+
+        llvm::AllocaInst *pos_ptr = builder->CreateAlloca(
+                                    llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, pos, pos_ptr);
+        llvm::Value* tmp = nullptr;
+
+        // Get element to return
+        llvm::Value* item = read_item(list, LLVM::CreateLoad(*builder, pos_ptr),
+                                      true, module, LLVM::is_llvm_struct(list_type));
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(end_point,
+                                            LLVM::CreateLoad(*builder, pos_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, pos_ptr),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            write_item(list, LLVM::CreateLoad(*builder, pos_ptr),
+                read_item(list, tmp, false, module, false), false, module);
+            LLVM::CreateStore(*builder, tmp, pos_ptr);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        // Decrement end point by one
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                       context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+
+        return item;
     }
 
     void LLVMList::list_clear(llvm::Value* list) {

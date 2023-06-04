@@ -1,5 +1,11 @@
-semantic error: For now pop() takes no arguments
- --> tests/errors/test_list3.py:5:9
-  |
-5 |     x = a.pop(2.2)
-  |         ^^^^^^^^^^ 
+ASR verify pass error: ASR verify: Argument to list.pop must be an integer
+Internal Compiler Error: Unhandled exception
+BFD: DWARF error: section .debug_info is larger than its filesize! (0x93ef57 vs 0x530ea0)
+Traceback (most recent call last):
+[2m  Binary file "[0m[1m[35m$DIR/src/bin/lpython[39m[0m[2m", in _start()[0m
+[2m  Binary file "[0m[1m[35m/lib/x86_64-linux-gnu/libc.so.6[39m[0m[2m", in __libc_start_main()[0m
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1732, in ??[0m
+    return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 230, in ??[0m
+    compiler_options, true, infile);
+LCompilersException: Verify failed

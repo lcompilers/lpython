@@ -1050,11 +1050,20 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 namespace ListPop {
 
 static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
-    ASRUtils::require_impl(x.n_args == 1, "Call to list.pop must have exactly one argument",
+    ASRUtils::require_impl(x.n_args <= 2, "Call to list.pop must have at most one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
         "Argument to list.pop must be of list type",
         x.base.base.loc, diagnostics);
+    switch(x.m_overload_id) {
+        case 0:
+            break;
+        case 1:
+            ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[1])),
+            "Argument to list.pop must be an integer",
+            x.base.base.loc, diagnostics);
+            break;
+    }
     ASRUtils::require_impl(ASRUtils::check_equal_type(x.m_type,
             ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
         "Return type of list.pop must be of same type as list's element type",
@@ -1070,8 +1079,8 @@ static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
 static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
     Vec<ASR::expr_t*>& args,
     const std::function<void (const std::string &, const Location &)> err) {
-    if (args.size() != 1) {
-        err("For now pop() takes no arguments", loc);
+    if (args.size() > 2) {
+        err("Call to list.pop must have at most one argument", loc);
     }
 
     ASR::expr_t* list_expr = args[0];
@@ -1085,9 +1094,10 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_list_pop(al, loc, arg_values);
     ASR::ttype_t *to_type = list_type;
+    int64_t overload_id = (args.size() == 2);
     return ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
-            args.p, args.size(), 0, to_type, compile_time_value);
+            args.p, args.size(), overload_id, to_type, compile_time_value);
 }
 
 } // namespace ListPop
