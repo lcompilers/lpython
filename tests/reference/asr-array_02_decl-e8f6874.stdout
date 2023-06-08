@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,8 +74,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [(()
-                                                    ())])
+                                                    (Array
+                                                        (Real 4)
+                                                        [(()
+                                                        ())]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -85,9 +88,12 @@
                                         })
                                     accept_multidim_f32_array
                                     (FunctionType
-                                        [(Real 4 [(()
-                                        ())])]
-                                        (Real 4 [])
+                                        [(Array
+                                            (Real 4)
+                                            [(()
+                                            ())]
+                                        )]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -107,9 +113,9 @@
                                         (ArrayItem
                                             (Var 203 xf32)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Real 4 [])
+                                            (Real 4)
                                             RowMajor
                                             ()
                                         )
@@ -136,7 +142,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -152,10 +158,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [(()
-                                                    ())
-                                                    (()
-                                                    ())])
+                                                    (Array
+                                                        (Real 8)
+                                                        [(()
+                                                        ())
+                                                        (()
+                                                        ())]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -165,11 +174,14 @@
                                         })
                                     accept_multidim_f64_array
                                     (FunctionType
-                                        [(Real 8 [(()
-                                        ())
-                                        (()
-                                        ())])]
-                                        (Real 8 [])
+                                        [(Array
+                                            (Real 8)
+                                            [(()
+                                            ())
+                                            (()
+                                            ())]
+                                        )]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -189,12 +201,12 @@
                                         (ArrayItem
                                             (Var 204 xf64)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())
                                             (()
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ())]
-                                            (Real 8 [])
+                                            (Real 8)
                                             RowMajor
                                             ()
                                         )
@@ -221,7 +233,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -237,10 +249,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [(()
-                                                    ())
-                                                    (()
-                                                    ())])
+                                                    (Array
+                                                        (Integer 4)
+                                                        [(()
+                                                        ())
+                                                        (()
+                                                        ())]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -250,11 +265,14 @@
                                         })
                                     accept_multidim_i32_array
                                     (FunctionType
-                                        [(Integer 4 [(()
-                                        ())
-                                        (()
-                                        ())])]
-                                        (Integer 4 [])
+                                        [(Array
+                                            (Integer 4)
+                                            [(()
+                                            ())
+                                            (()
+                                            ())]
+                                        )]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -274,12 +292,12 @@
                                         (ArrayItem
                                             (Var 201 xi32)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())
                                             (()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             RowMajor
                                             ()
                                         )
@@ -306,7 +324,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -322,12 +340,15 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [(()
-                                                    ())
-                                                    (()
-                                                    ())
-                                                    (()
-                                                    ())])
+                                                    (Array
+                                                        (Integer 8)
+                                                        [(()
+                                                        ())
+                                                        (()
+                                                        ())
+                                                        (()
+                                                        ())]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -337,13 +358,16 @@
                                         })
                                     accept_multidim_i64_array
                                     (FunctionType
-                                        [(Integer 8 [(()
-                                        ())
-                                        (()
-                                        ())
-                                        (()
-                                        ())])]
-                                        (Integer 8 [])
+                                        [(Array
+                                            (Integer 8)
+                                            [(()
+                                            ())
+                                            (()
+                                            ())
+                                            (()
+                                            ())]
+                                        )]
+                                        (Integer 8)
                                         Source
                                         Implementation
                                         ()
@@ -363,15 +387,15 @@
                                         (ArrayItem
                                             (Var 202 xi64)
                                             [(()
-                                            (IntegerConstant 9 (Integer 4 []))
+                                            (IntegerConstant 9 (Integer 4))
                                             ())
                                             (()
-                                            (IntegerConstant 9 (Integer 4 []))
+                                            (IntegerConstant 9 (Integer 4))
                                             ())
                                             (()
-                                            (IntegerConstant 9 (Integer 4 []))
+                                            (IntegerConstant 9 (Integer 4))
                                             ())]
-                                            (Integer 8 [])
+                                            (Integer 8)
                                             RowMajor
                                             ()
                                         )
@@ -398,12 +422,15 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 5 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 99 (Integer 4 [])))])
+                                                    (Array
+                                                        (Complex 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 5 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 99 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -419,14 +446,17 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 10 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 13 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 11 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 16 (Integer 4 [])))])
+                                                    (Array
+                                                        (Complex 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 10 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 13 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 11 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -442,8 +472,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 [])))])
+                                                    (Array
+                                                        (Real 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -459,10 +492,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 10 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 4 (Integer 4 [])))])
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 10 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 4 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -478,10 +514,13 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 3 (Integer 4 [])))])
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -497,12 +536,15 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 10 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 10 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 10 (Integer 4 [])))])
+                                                    (Array
+                                                        (Integer 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 10 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 10 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 10 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -537,7 +579,7 @@
                                             208 accept_multidim_i32_array
                                             ()
                                             [((Var 205 ai32))]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )]
@@ -550,7 +592,7 @@
                                             208 accept_multidim_i64_array
                                             ()
                                             [((Var 205 ai64))]
-                                            (Integer 8 [])
+                                            (Integer 8)
                                             ()
                                             ()
                                         )]
@@ -563,7 +605,7 @@
                                             208 accept_multidim_f32_array
                                             ()
                                             [((Var 205 af32))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )]
@@ -576,7 +618,7 @@
                                             208 accept_multidim_f64_array
                                             ()
                                             [((Var 205 af64))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )]
@@ -641,7 +683,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -657,7 +699,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -667,8 +709,8 @@
                                         })
                                     __lpython_overloaded_0__arccos
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -689,7 +731,7 @@
                                             3 _lfortran_dacos
                                             ()
                                             [((Var 41 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -716,7 +758,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -732,7 +774,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -742,8 +784,8 @@
                                         })
                                     __lpython_overloaded_0__arccosh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -764,7 +806,7 @@
                                             3 _lfortran_dacosh
                                             ()
                                             [((Var 65 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -791,7 +833,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -807,7 +849,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -817,8 +859,8 @@
                                         })
                                     __lpython_overloaded_0__arcsin
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -839,7 +881,7 @@
                                             3 _lfortran_dasin
                                             ()
                                             [((Var 37 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -866,7 +908,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -882,7 +924,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -892,8 +934,8 @@
                                         })
                                     __lpython_overloaded_0__arcsinh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -914,7 +956,7 @@
                                             3 _lfortran_dasinh
                                             ()
                                             [((Var 61 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -941,7 +983,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -957,7 +999,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -967,8 +1009,8 @@
                                         })
                                     __lpython_overloaded_0__arctan
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -989,7 +1031,7 @@
                                             3 _lfortran_datan
                                             ()
                                             [((Var 53 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1016,7 +1058,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1032,7 +1074,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1042,8 +1084,8 @@
                                         })
                                     __lpython_overloaded_0__arctanh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1064,7 +1106,7 @@
                                             3 _lfortran_datanh
                                             ()
                                             [((Var 69 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1091,7 +1133,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1107,7 +1149,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1123,7 +1165,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1133,8 +1175,8 @@
                                         })
                                     __lpython_overloaded_0__ceil
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1154,7 +1196,7 @@
                                         (Cast
                                             (Var 76 x)
                                             RealToInteger
-                                            (Integer 8 [])
+                                            (Integer 8)
                                             ()
                                         )
                                         ()
@@ -1165,15 +1207,15 @@
                                                 (Var 76 x)
                                                 LtE
                                                 (Cast
-                                                    (IntegerConstant 0 (Integer 4 []))
+                                                    (IntegerConstant 0 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         0.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
                                             Or
@@ -1183,13 +1225,13 @@
                                                 (Cast
                                                     (Var 76 result)
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -1197,7 +1239,7 @@
                                             (Cast
                                                 (Var 76 result)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             ()
@@ -1212,16 +1254,16 @@
                                                 (Var 76 result)
                                                 Add
                                                 (Cast
-                                                    (IntegerConstant 1 (Integer 4 []))
+                                                    (IntegerConstant 1 (Integer 4))
                                                     IntegerToInteger
-                                                    (Integer 8 [])
-                                                    (IntegerConstant 1 (Integer 8 []))
+                                                    (Integer 8)
+                                                    (IntegerConstant 1 (Integer 8))
                                                 )
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             IntegerToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1247,7 +1289,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1263,7 +1305,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1273,8 +1315,8 @@
                                         })
                                     __lpython_overloaded_0__cos
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1295,7 +1337,7 @@
                                             3 _lfortran_dcos
                                             ()
                                             [((Var 9 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1322,7 +1364,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1338,7 +1380,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1348,8 +1390,8 @@
                                         })
                                     __lpython_overloaded_0__cosh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1370,7 +1412,7 @@
                                             3 _lfortran_dcosh
                                             ()
                                             [((Var 23 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1397,7 +1439,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1413,7 +1455,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1423,8 +1465,8 @@
                                         })
                                     __lpython_overloaded_0__degrees
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1447,14 +1489,14 @@
                                                 Mul
                                                 (RealConstant
                                                     180.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Var 3 pi_64)
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1480,7 +1522,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1496,7 +1538,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1506,8 +1548,8 @@
                                         })
                                     __lpython_overloaded_0__exp
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1528,7 +1570,7 @@
                                             3 _lfortran_dexp
                                             ()
                                             [((Var 49 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1555,7 +1597,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1571,7 +1613,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1587,7 +1629,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1597,8 +1639,8 @@
                                         })
                                     __lpython_overloaded_0__floor
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1618,7 +1660,7 @@
                                         (Cast
                                             (Var 74 x)
                                             RealToInteger
-                                            (Integer 8 [])
+                                            (Integer 8)
                                             ()
                                         )
                                         ()
@@ -1629,15 +1671,15 @@
                                                 (Var 74 x)
                                                 GtE
                                                 (Cast
-                                                    (IntegerConstant 0 (Integer 4 []))
+                                                    (IntegerConstant 0 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         0.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
                                             Or
@@ -1647,13 +1689,13 @@
                                                 (Cast
                                                     (Var 74 result)
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -1661,7 +1703,7 @@
                                             (Cast
                                                 (Var 74 result)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             ()
@@ -1676,16 +1718,16 @@
                                                 (Var 74 result)
                                                 Sub
                                                 (Cast
-                                                    (IntegerConstant 1 (Integer 4 []))
+                                                    (IntegerConstant 1 (Integer 4))
                                                     IntegerToInteger
-                                                    (Integer 8 [])
-                                                    (IntegerConstant 1 (Integer 8 []))
+                                                    (Integer 8)
+                                                    (IntegerConstant 1 (Integer 8))
                                                 )
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             IntegerToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1711,7 +1753,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1727,7 +1769,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1737,8 +1779,8 @@
                                         })
                                     __lpython_overloaded_0__log
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1759,7 +1801,7 @@
                                             3 _lfortran_dlog
                                             ()
                                             [((Var 27 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1786,7 +1828,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1802,7 +1844,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1812,8 +1854,8 @@
                                         })
                                     __lpython_overloaded_0__log10
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1834,7 +1876,7 @@
                                             3 _lfortran_dlog10
                                             ()
                                             [((Var 31 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1861,7 +1903,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1877,7 +1919,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1887,8 +1929,8 @@
                                         })
                                     __lpython_overloaded_0__log2
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1910,7 +1952,7 @@
                                                 3 _lfortran_dlog
                                                 ()
                                                 [((Var 34 x))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
@@ -1920,13 +1962,13 @@
                                                 ()
                                                 [((RealConstant
                                                     2.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1952,7 +1994,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1988,7 +2030,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2004,7 +2046,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2014,9 +2056,9 @@
                                         })
                                     __lpython_overloaded_0__mod
                                     (FunctionType
-                                        [(Integer 8 [])
-                                        (Integer 8 [])]
-                                        (Integer 8 [])
+                                        [(Integer 8)
+                                        (Integer 8)]
+                                        (Integer 8)
                                         Source
                                         Implementation
                                         ()
@@ -2037,21 +2079,21 @@
                                             (Var 72 x2)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 72 _lpython_return_variable)
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
                                             ()
                                         )
@@ -2065,7 +2107,7 @@
                                             72 _mod
                                             [((Var 72 x1))
                                             ((Var 72 x2))]
-                                            (Integer 8 [])
+                                            (Integer 8)
                                             ()
                                             ()
                                         )
@@ -2092,7 +2134,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2108,7 +2150,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2118,8 +2160,8 @@
                                         })
                                     __lpython_overloaded_0__radians
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2141,15 +2183,15 @@
                                                 (Var 58 x)
                                                 Mul
                                                 (Var 3 pi_64)
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Div
                                             (RealConstant
                                                 180.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -2175,7 +2217,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2191,7 +2233,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2201,8 +2243,8 @@
                                         })
                                     __lpython_overloaded_0__sin
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2223,7 +2265,7 @@
                                             3 _lfortran_dsin
                                             ()
                                             [((Var 5 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -2250,7 +2292,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2266,7 +2308,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2276,8 +2318,8 @@
                                         })
                                     __lpython_overloaded_0__sinh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2298,7 +2340,7 @@
                                             3 _lfortran_dsinh
                                             ()
                                             [((Var 19 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -2325,7 +2367,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2341,7 +2383,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2351,8 +2393,8 @@
                                         })
                                     __lpython_overloaded_0__sqrt
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2374,31 +2416,31 @@
                                             Pow
                                             (RealBinOp
                                                 (Cast
-                                                    (IntegerConstant 1 (Integer 4 []))
+                                                    (IntegerConstant 1 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         1.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
                                                 Div
                                                 (Cast
-                                                    (IntegerConstant 2 (Integer 4 []))
+                                                    (IntegerConstant 2 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         2.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     0.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -2424,7 +2466,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2440,7 +2482,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2450,8 +2492,8 @@
                                         })
                                     __lpython_overloaded_0__tan
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2472,7 +2514,7 @@
                                             3 _lfortran_dtan
                                             ()
                                             [((Var 15 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -2499,7 +2541,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2515,7 +2557,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -2525,8 +2567,8 @@
                                         })
                                     __lpython_overloaded_0__tanh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -2547,7 +2589,7 @@
                                             3 _lfortran_dtanh
                                             ()
                                             [((Var 45 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -2574,7 +2616,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2590,7 +2632,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2600,8 +2642,8 @@
                                         })
                                     __lpython_overloaded_1__arccos
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2622,7 +2664,7 @@
                                             3 _lfortran_sacos
                                             ()
                                             [((Var 43 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -2649,7 +2691,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2665,7 +2707,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2675,8 +2717,8 @@
                                         })
                                     __lpython_overloaded_1__arccosh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2697,7 +2739,7 @@
                                             3 _lfortran_sacosh
                                             ()
                                             [((Var 67 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -2724,7 +2766,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2740,7 +2782,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2750,8 +2792,8 @@
                                         })
                                     __lpython_overloaded_1__arcsin
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2772,7 +2814,7 @@
                                             3 _lfortran_sasin
                                             ()
                                             [((Var 39 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -2799,7 +2841,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2815,7 +2857,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2825,8 +2867,8 @@
                                         })
                                     __lpython_overloaded_1__arcsinh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2847,7 +2889,7 @@
                                             3 _lfortran_sasinh
                                             ()
                                             [((Var 63 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -2874,7 +2916,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2890,7 +2932,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2900,8 +2942,8 @@
                                         })
                                     __lpython_overloaded_1__arctan
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2922,7 +2964,7 @@
                                             3 _lfortran_satan
                                             ()
                                             [((Var 55 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -2949,7 +2991,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2965,7 +3007,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -2975,8 +3017,8 @@
                                         })
                                     __lpython_overloaded_1__arctanh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -2997,7 +3039,7 @@
                                             3 _lfortran_satanh
                                             ()
                                             [((Var 71 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3024,7 +3066,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3040,7 +3082,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3056,7 +3098,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3066,8 +3108,8 @@
                                         })
                                     __lpython_overloaded_1__ceil
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3088,11 +3130,11 @@
                                             (Cast
                                                 (Var 77 x)
                                                 RealToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             IntegerToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3103,15 +3145,15 @@
                                                 (Var 77 x)
                                                 LtE
                                                 (Cast
-                                                    (IntegerConstant 0 (Integer 4 []))
+                                                    (IntegerConstant 0 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     (RealConstant
                                                         0.000000
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                     )
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
                                             Or
@@ -3119,10 +3161,10 @@
                                                 (Var 77 x)
                                                 Eq
                                                 (Var 77 resultf)
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -3139,15 +3181,15 @@
                                             (Var 77 resultf)
                                             Add
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 IntegerToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     1.000000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3173,7 +3215,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3189,7 +3231,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3199,8 +3241,8 @@
                                         })
                                     __lpython_overloaded_1__cos
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3221,7 +3263,7 @@
                                             3 _lfortran_scos
                                             ()
                                             [((Var 11 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3248,7 +3290,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3264,7 +3306,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3274,8 +3316,8 @@
                                         })
                                     __lpython_overloaded_1__cosh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3296,7 +3338,7 @@
                                             3 _lfortran_scosh
                                             ()
                                             [((Var 25 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3323,7 +3365,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3339,7 +3381,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3349,8 +3391,8 @@
                                         })
                                     __lpython_overloaded_1__degrees
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3372,20 +3414,20 @@
                                             Mul
                                             (RealBinOp
                                                 (Cast
-                                                    (IntegerConstant 180 (Integer 4 []))
+                                                    (IntegerConstant 180 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     (RealConstant
                                                         180.000000
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                     )
                                                 )
                                                 Div
                                                 (Var 3 pi_32)
-                                                (Real 4 [])
+                                                (Real 4)
                                                 ()
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3411,7 +3453,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3427,7 +3469,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3437,8 +3479,8 @@
                                         })
                                     __lpython_overloaded_1__exp
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3459,7 +3501,7 @@
                                             3 _lfortran_sexp
                                             ()
                                             [((Var 51 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3486,7 +3528,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3502,7 +3544,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3518,7 +3560,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3528,8 +3570,8 @@
                                         })
                                     __lpython_overloaded_1__floor
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3550,11 +3592,11 @@
                                             (Cast
                                                 (Var 75 x)
                                                 RealToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             IntegerToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3565,15 +3607,15 @@
                                                 (Var 75 x)
                                                 GtE
                                                 (Cast
-                                                    (IntegerConstant 0 (Integer 4 []))
+                                                    (IntegerConstant 0 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     (RealConstant
                                                         0.000000
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                     )
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
                                             Or
@@ -3581,10 +3623,10 @@
                                                 (Var 75 x)
                                                 Eq
                                                 (Var 75 resultf)
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -3601,15 +3643,15 @@
                                             (Var 75 resultf)
                                             Sub
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 IntegerToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     1.000000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3635,7 +3677,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3651,7 +3693,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3661,8 +3703,8 @@
                                         })
                                     __lpython_overloaded_1__log
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3683,7 +3725,7 @@
                                             3 _lfortran_slog
                                             ()
                                             [((Var 29 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3710,7 +3752,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3726,7 +3768,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3736,8 +3778,8 @@
                                         })
                                     __lpython_overloaded_1__log10
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3758,7 +3800,7 @@
                                             3 _lfortran_slog10
                                             ()
                                             [((Var 33 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -3785,7 +3827,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3801,7 +3843,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3811,8 +3853,8 @@
                                         })
                                     __lpython_overloaded_1__log2
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -3834,7 +3876,7 @@
                                                 3 _lfortran_slog
                                                 ()
                                                 [((Var 35 x))]
-                                                (Real 4 [])
+                                                (Real 4)
                                                 ()
                                                 ()
                                             )
@@ -3845,20 +3887,20 @@
                                                 [((Cast
                                                     (RealConstant
                                                         2.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                     RealToReal
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     (RealConstant
                                                         2.000000
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                     )
                                                 ))]
-                                                (Real 4 [])
+                                                (Real 4)
                                                 ()
                                                 ()
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -3884,7 +3926,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3920,7 +3962,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3936,7 +3978,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -3946,9 +3988,9 @@
                                         })
                                     __lpython_overloaded_1__mod
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -3968,13 +4010,13 @@
                                         (IntegerCompare
                                             (Var 73 x2)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 73 _lpython_return_variable)
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ()
                                         )
                                         (Return)]
@@ -3987,7 +4029,7 @@
                                             73 _mod
                                             [((Var 73 x1))
                                             ((Var 73 x2))]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -4014,7 +4056,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4030,7 +4072,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4040,8 +4082,8 @@
                                         })
                                     __lpython_overloaded_1__radians
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4065,18 +4107,18 @@
                                                 (Var 3 pi_32)
                                                 Div
                                                 (Cast
-                                                    (IntegerConstant 180 (Integer 4 []))
+                                                    (IntegerConstant 180 (Integer 4))
                                                     IntegerToReal
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     (RealConstant
                                                         180.000000
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                     )
                                                 )
-                                                (Real 4 [])
+                                                (Real 4)
                                                 ()
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -4102,7 +4144,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4118,7 +4160,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4128,8 +4170,8 @@
                                         })
                                     __lpython_overloaded_1__sin
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4150,7 +4192,7 @@
                                             3 _lfortran_ssin
                                             ()
                                             [((Var 7 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -4177,7 +4219,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4193,7 +4235,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4203,8 +4245,8 @@
                                         })
                                     __lpython_overloaded_1__sinh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4225,7 +4267,7 @@
                                             3 _lfortran_ssinh
                                             ()
                                             [((Var 21 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -4252,7 +4294,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4268,7 +4310,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4278,8 +4320,8 @@
                                         })
                                     __lpython_overloaded_1__sqrt
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4302,38 +4344,38 @@
                                             (Cast
                                                 (RealBinOp
                                                     (Cast
-                                                        (IntegerConstant 1 (Integer 4 []))
+                                                        (IntegerConstant 1 (Integer 4))
                                                         IntegerToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             1.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
                                                     Div
                                                     (Cast
-                                                        (IntegerConstant 2 (Integer 4 []))
+                                                        (IntegerConstant 2 (Integer 4))
                                                         IntegerToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             2.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         0.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     0.500000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -4359,7 +4401,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4375,7 +4417,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4385,8 +4427,8 @@
                                         })
                                     __lpython_overloaded_1__tan
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4407,7 +4449,7 @@
                                             3 _lfortran_stan
                                             ()
                                             [((Var 17 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -4434,7 +4476,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4450,7 +4492,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -4460,8 +4502,8 @@
                                         })
                                     __lpython_overloaded_1__tanh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         Source
                                         Implementation
                                         ()
@@ -4482,7 +4524,7 @@
                                             3 _lfortran_stanh
                                             ()
                                             [((Var 47 x))]
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                             ()
                                         )
@@ -4509,7 +4551,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4525,7 +4567,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4535,8 +4577,8 @@
                                         })
                                     _lfortran_dacos
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4572,7 +4614,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4588,7 +4630,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4598,8 +4640,8 @@
                                         })
                                     _lfortran_dacosh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4635,7 +4677,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4651,7 +4693,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4661,8 +4703,8 @@
                                         })
                                     _lfortran_dasin
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4698,7 +4740,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4714,7 +4756,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4724,8 +4766,8 @@
                                         })
                                     _lfortran_dasinh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4761,7 +4803,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4777,7 +4819,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4787,8 +4829,8 @@
                                         })
                                     _lfortran_datan
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4824,7 +4866,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4840,7 +4882,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4850,8 +4892,8 @@
                                         })
                                     _lfortran_datanh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4887,7 +4929,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4903,7 +4945,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4913,8 +4955,8 @@
                                         })
                                     _lfortran_dcos
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -4950,7 +4992,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4966,7 +5008,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -4976,8 +5018,8 @@
                                         })
                                     _lfortran_dcosh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5013,7 +5055,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5029,7 +5071,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5039,8 +5081,8 @@
                                         })
                                     _lfortran_dexp
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5076,7 +5118,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5092,7 +5134,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5102,8 +5144,8 @@
                                         })
                                     _lfortran_dlog
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5139,7 +5181,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5155,7 +5197,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5165,8 +5207,8 @@
                                         })
                                     _lfortran_dlog10
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5202,7 +5244,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5218,7 +5260,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5228,8 +5270,8 @@
                                         })
                                     _lfortran_dsin
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5265,7 +5307,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5281,7 +5323,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5291,8 +5333,8 @@
                                         })
                                     _lfortran_dsinh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5328,7 +5370,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5344,7 +5386,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5354,8 +5396,8 @@
                                         })
                                     _lfortran_dtan
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5391,7 +5433,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5407,7 +5449,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -5417,8 +5459,8 @@
                                         })
                                     _lfortran_dtanh
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -5454,7 +5496,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5470,7 +5512,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5480,8 +5522,8 @@
                                         })
                                     _lfortran_sacos
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5517,7 +5559,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5533,7 +5575,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5543,8 +5585,8 @@
                                         })
                                     _lfortran_sacosh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5580,7 +5622,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5596,7 +5638,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5606,8 +5648,8 @@
                                         })
                                     _lfortran_sasin
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5643,7 +5685,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5659,7 +5701,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5669,8 +5711,8 @@
                                         })
                                     _lfortran_sasinh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5706,7 +5748,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5722,7 +5764,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5732,8 +5774,8 @@
                                         })
                                     _lfortran_satan
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5769,7 +5811,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5785,7 +5827,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5795,8 +5837,8 @@
                                         })
                                     _lfortran_satanh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5832,7 +5874,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5848,7 +5890,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5858,8 +5900,8 @@
                                         })
                                     _lfortran_scos
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5895,7 +5937,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5911,7 +5953,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5921,8 +5963,8 @@
                                         })
                                     _lfortran_scosh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -5958,7 +6000,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5974,7 +6016,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -5984,8 +6026,8 @@
                                         })
                                     _lfortran_sexp
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6021,7 +6063,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6037,7 +6079,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6047,8 +6089,8 @@
                                         })
                                     _lfortran_slog
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6084,7 +6126,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6100,7 +6142,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6110,8 +6152,8 @@
                                         })
                                     _lfortran_slog10
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6147,7 +6189,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6163,7 +6205,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6173,8 +6215,8 @@
                                         })
                                     _lfortran_ssin
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6210,7 +6252,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6226,7 +6268,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6236,8 +6278,8 @@
                                         })
                                     _lfortran_ssinh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6273,7 +6315,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6289,7 +6331,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6299,8 +6341,8 @@
                                         })
                                     _lfortran_stan
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6336,7 +6378,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6352,7 +6394,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -6362,8 +6404,8 @@
                                         })
                                     _lfortran_stanh
                                     (FunctionType
-                                        [(Real 4 [])]
-                                        (Real 4 [])
+                                        [(Real 4)]
+                                        (Real 4)
                                         BindC
                                         Interface
                                         ()
@@ -6522,21 +6564,21 @@
                                     (Cast
                                         (RealConstant
                                             3.141593
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         RealToReal
-                                        (Real 4 [])
+                                        (Real 4)
                                         (RealConstant
                                             3.141593
-                                            (Real 4 [])
+                                            (Real 4)
                                         )
                                     )
                                     (RealConstant
                                         3.141593
-                                        (Real 4 [])
+                                        (Real 4)
                                     )
                                     Default
-                                    (Real 4 [])
+                                    (Real 4)
                                     ()
                                     Source
                                     Public
@@ -6551,14 +6593,14 @@
                                     Local
                                     (RealConstant
                                         3.141593
-                                        (Real 8 [])
+                                        (Real 8)
                                     )
                                     (RealConstant
                                         3.141593
-                                        (Real 8 [])
+                                        (Real 8)
                                     )
                                     Default
-                                    (Real 8 [])
+                                    (Real 8)
                                     ()
                                     Source
                                     Public

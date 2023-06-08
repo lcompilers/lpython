@@ -22,8 +22,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
-                                                        (Integer 4 [])
+                                                        (Integer 4)
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -35,8 +35,8 @@
                                     f
                                     (FunctionType
                                         [(Dict
-                                            (Integer 4 [])
-                                            (Integer 4 [])
+                                            (Integer 4)
+                                            (Integer 4)
                                         )]
                                         ()
                                         Source
@@ -55,8 +55,8 @@
                                     [(Var 6 x)]
                                     [(DictInsert
                                         (Var 6 x)
-                                        (IntegerConstant 2 (Integer 4 []))
-                                        (IntegerConstant 4 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 4 (Integer 4))
                                     )]
                                     ()
                                     Public
@@ -79,8 +79,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
-                                                        (Integer 4 [])
+                                                        (Integer 4)
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -98,8 +98,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Character 1 -2 () [])
-                                                        (Integer 4 [])
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -116,7 +116,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -145,13 +145,13 @@
                                     [(=
                                         (Var 2 x)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))]
-                                            [(IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 4 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4))]
                                             (Dict
-                                                (Integer 4 [])
-                                                (Integer 4 [])
+                                                (Integer 4)
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -161,25 +161,25 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
                                             )]
                                             (Dict
-                                                (Character 1 1 () [])
-                                                (Integer 4 [])
+                                                (Character 1 1 ())
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -190,10 +190,10 @@
                                             (Var 2 y)
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             ()
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -204,10 +204,10 @@
                                             (Var 2 y)
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             ()
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -216,9 +216,9 @@
                                         (Var 2 z)
                                         (DictItem
                                             (Var 2 x)
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ()
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -243,7 +243,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -260,8 +260,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Character 1 -2 () [])
-                                                        (Integer 4 [])
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -293,25 +293,25 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
                                             )]
                                             (Dict
-                                                (Character 1 1 () [])
-                                                (Integer 4 [])
+                                                (Character 1 1 ())
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -322,10 +322,10 @@
                                             (Var 4 y)
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             ()
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -336,10 +336,10 @@
                                             (Var 4 y)
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -365,8 +365,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Character 1 -2 () [])
-                                                        (Integer 4 [])
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -398,25 +398,25 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
                                             )]
                                             (Dict
-                                                (Character 1 1 () [])
-                                                (Integer 4 [])
+                                                (Character 1 1 ())
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -425,12 +425,12 @@
                                         (Var 3 y)
                                         (StringConstant
                                             "c"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -3 (Integer 4 []))
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -3 (Integer 4))
                                         )
                                     )]
                                     ()
@@ -453,7 +453,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -470,8 +470,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Character 1 -2 () [])
-                                                        (Integer 4 [])
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -503,17 +503,17 @@
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             (Dict
-                                                (Character 1 1 () [])
-                                                (Integer 4 [])
+                                                (Character 1 1 ())
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -524,9 +524,9 @@
                                             (Var 5 y)
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -552,8 +552,8 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
-                                                        (Integer 4 [])
+                                                        (Integer 4)
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source

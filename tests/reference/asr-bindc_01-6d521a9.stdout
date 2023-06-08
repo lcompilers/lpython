@@ -131,7 +131,7 @@
                                             (PointerNullConstant
                                                 (CPtr)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -144,10 +144,10 @@
                                                 (PointerNullConstant
                                                     (CPtr)
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -168,7 +168,7 @@
                                     ()
                                     Default
                                     (Pointer
-                                        (Integer 2 [])
+                                        (Integer 2)
                                     )
                                     ()
                                     Source

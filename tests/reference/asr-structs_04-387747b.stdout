@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -72,7 +72,6 @@
                                                     Default
                                                     (Struct
                                                         8 A
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -89,7 +88,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -161,7 +160,6 @@
                                                     Default
                                                     (Struct
                                                         8 B
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -174,7 +172,6 @@
                                     (FunctionType
                                         [(Struct
                                             8 B
-                                            []
                                         )]
                                         ()
                                         Source
@@ -196,7 +193,7 @@
                                         [(StructInstanceMember
                                             (Var 4 b)
                                             3 z
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
@@ -205,12 +202,11 @@
                                                 3 a
                                                 (Struct
                                                     8 A
-                                                    []
                                                 )
                                                 ()
                                             )
                                             2 x
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
@@ -219,12 +215,11 @@
                                                 3 a
                                                 (Struct
                                                     8 A
-                                                    []
                                                 )
                                                 ()
                                             )
                                             2 y
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )]
                                         ()
@@ -235,12 +230,12 @@
                                             (StructInstanceMember
                                                 (Var 4 b)
                                                 3 z
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -253,17 +248,16 @@
                                                     3 a
                                                     (Struct
                                                         8 A
-                                                        []
                                                     )
                                                     ()
                                                 )
                                                 2 x
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -277,24 +271,23 @@
                                                         3 a
                                                         (Struct
                                                             8 A
-                                                            []
                                                         )
                                                         ()
                                                     )
                                                     2 y
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                 )
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 3.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -321,7 +314,6 @@
                                                     Default
                                                     (Struct
                                                         8 A
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -340,7 +332,6 @@
                                                     Default
                                                     (Struct
                                                         8 A
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -359,7 +350,6 @@
                                                     Default
                                                     (Struct
                                                         8 B
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -393,19 +383,18 @@
                                             [((Cast
                                                 (RealConstant
                                                     1.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     1.000000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             ))
-                                            ((IntegerConstant 1 (Integer 4 [])))]
+                                            ((IntegerConstant 1 (Integer 4)))]
                                             (Struct
                                                 8 A
-                                                []
                                             )
                                             ()
                                         )
@@ -418,19 +407,18 @@
                                             [((Cast
                                                 (RealConstant
                                                     2.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     2.000000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             ))
-                                            ((IntegerConstant 2 (Integer 4 [])))]
+                                            ((IntegerConstant 2 (Integer 4)))]
                                             (Struct
                                                 8 A
-                                                []
                                             )
                                             ()
                                         )
@@ -440,11 +428,10 @@
                                         (Var 5 b)
                                         (StructTypeConstructor
                                             8 B
-                                            [((IntegerConstant 1 (Integer 4 [])))
+                                            [((IntegerConstant 1 (Integer 4)))
                                             ((Var 5 a1))]
                                             (Struct
                                                 8 B
-                                                []
                                             )
                                             ()
                                         )
@@ -456,7 +443,6 @@
                                             3 a
                                             (Struct
                                                 8 A
-                                                []
                                             )
                                             ()
                                         )
@@ -467,10 +453,10 @@
                                         (StructInstanceMember
                                             (Var 5 b)
                                             3 z
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -480,15 +466,14 @@
                                                 3 a
                                                 (Struct
                                                     8 A
-                                                    []
                                                 )
                                                 ()
                                             )
                                             2 x
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -498,24 +483,23 @@
                                                 3 a
                                                 (Struct
                                                     8 A
-                                                    []
                                                 )
                                                 ()
                                             )
                                             2 y
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         (Cast
                                             (RealConstant
                                                 3.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 3.000000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -525,12 +509,12 @@
                                             (StructInstanceMember
                                                 (Var 5 a1)
                                                 2 x
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -541,19 +525,19 @@
                                                 (StructInstanceMember
                                                     (Var 5 a1)
                                                     2 y
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                 )
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -563,12 +547,12 @@
                                             (StructInstanceMember
                                                 (Var 5 a2)
                                                 2 x
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -579,19 +563,19 @@
                                                 (StructInstanceMember
                                                     (Var 5 a2)
                                                     2 y
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                 )
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 2.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

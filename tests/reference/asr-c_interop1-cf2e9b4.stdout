@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -47,8 +47,8 @@
                                         })
                                     f
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Interface
                                         ()
@@ -84,7 +84,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -100,7 +100,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -116,7 +116,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -132,7 +132,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -142,10 +142,10 @@
                                         })
                                     g
                                     (FunctionType
-                                        [(Real 8 [])
-                                        (Real 4 [])
-                                        (Integer 8 [])
-                                        (Integer 4 [])]
+                                        [(Real 8)
+                                        (Real 4)
+                                        (Integer 8)
+                                        (Integer 4)]
                                         ()
                                         BindC
                                         Interface
@@ -185,7 +185,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -201,7 +201,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -211,8 +211,8 @@
                                         })
                                     h
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         BindC
                                         Implementation
                                         ()
@@ -234,9 +234,9 @@
                                             Add
                                             (RealConstant
                                                 1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -262,7 +262,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -278,7 +278,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -294,7 +294,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     BindC
                                                     Public
@@ -310,7 +310,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -320,10 +320,10 @@
                                         })
                                     l
                                     (FunctionType
-                                        [(Real 8 [])
-                                        (Real 4 [])
-                                        (Integer 8 [])
-                                        (Integer 4 [])]
+                                        [(Real 8)
+                                        (Real 4)
+                                        (Integer 8)
+                                        (Integer 4)]
                                         ()
                                         BindC
                                         Implementation
@@ -346,7 +346,7 @@
                                         ()
                                         [(StringConstant
                                             "OK"
-                                            (Character 1 2 () [])
+                                            (Character 1 2 ())
                                         )]
                                         ()
                                         ()
@@ -371,7 +371,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -387,7 +387,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -403,7 +403,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -419,7 +419,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -435,7 +435,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -468,7 +468,7 @@
                                         (Var 6 x)
                                         (RealConstant
                                             5.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -478,7 +478,7 @@
                                             8 f
                                             ()
                                             [((Var 6 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -489,13 +489,13 @@
                                         (Cast
                                             (RealConstant
                                                 5.400000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 5.400000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -503,16 +503,16 @@
                                     (=
                                         (Var 6 z)
                                         (Cast
-                                            (IntegerConstant 3 (Integer 4 []))
+                                            (IntegerConstant 3 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 3 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 3 (Integer 8))
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 6 zz)
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (SubroutineCall
@@ -530,7 +530,7 @@
                                             8 h
                                             ()
                                             [((Var 6 x))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )

@@ -58,63 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            __tmp_assign_name_list:
-                                                (Variable
-                                                    2
-                                                    __tmp_assign_name_list
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (List
-                                                        (Integer 4 [])
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            __tmp_assign_name_tuple:
-                                                (Variable
-                                                    2
-                                                    __tmp_assign_name_tuple
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            __tmp_assign_name_tuple1:
-                                                (Variable
-                                                    2
-                                                    __tmp_assign_name_tuple1
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
-                                                    )
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -131,10 +75,10 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         (Tuple
-                                                            [(Integer 4 [])
-                                                            (Integer 4 [])]
+                                                            [(Integer 4)
+                                                            (Integer 4)]
                                                         )
                                                     )
                                                     ()
@@ -153,9 +97,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         (List
-                                                            (Integer 4 [])
+                                                            (Integer 4)
                                                         )
                                                     )
                                                     ()
@@ -186,29 +130,29 @@
                                     [(=
                                         (Var 2 x)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4 []))
-                                                (IntegerConstant 4 (Integer 4 []))]
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )]
                                             (Dict
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                         )
@@ -217,261 +161,272 @@
                                     (=
                                         (Var 2 y)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             [(ListConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 3 (Integer 4 []))
-                                                (IntegerConstant 4 (Integer 4 []))]
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )]
                                             (Dict
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
                                         )
                                         ()
                                     )
-                                    (=
-                                        (Var 2 __tmp_assign_name_tuple)
-                                        (DictItem
-                                            (Var 2 x)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            ()
-                                            (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
-                                            )
-                                            ()
-                                        )
-                                        ()
-                                    )
                                     (Print
                                         ()
                                         [(StringConstant
                                             "("
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(TupleItem
-                                            (Var 2 __tmp_assign_name_tuple)
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (DictItem
+                                                (Var 2 x)
+                                                (IntegerConstant 1 (Integer 4))
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
+                                            )
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             ", "
-                                            (Character 1 2 () [])
+                                            (Character 1 2 ())
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(TupleItem
-                                            (Var 2 __tmp_assign_name_tuple)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (DictItem
+                                                (Var 2 x)
+                                                (IntegerConstant 1 (Integer 4))
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
+                                            )
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             ")"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         (StringConstant
                                             " "
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
-                                    )
-                                    (=
-                                        (Var 2 __tmp_assign_name_tuple1)
-                                        (DictItem
-                                            (Var 2 x)
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            ()
-                                            (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
-                                            )
-                                            ()
-                                        )
-                                        ()
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             "("
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(TupleItem
-                                            (Var 2 __tmp_assign_name_tuple1)
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (DictItem
+                                                (Var 2 x)
+                                                (IntegerConstant 2 (Integer 4))
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
+                                            )
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             ", "
-                                            (Character 1 2 () [])
+                                            (Character 1 2 ())
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(TupleItem
-                                            (Var 2 __tmp_assign_name_tuple1)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (DictItem
+                                                (Var 2 x)
+                                                (IntegerConstant 2 (Integer 4))
+                                                ()
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                                ()
+                                            )
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )]
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             ")"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         (StringConstant
                                             " "
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
-                                    )
-                                    (=
-                                        (Var 2 __tmp_assign_name_list)
-                                        (DictItem
-                                            (Var 2 y)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            ()
-                                            (List
-                                                (Integer 4 [])
-                                            )
-                                            ()
-                                        )
-                                        ()
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             "["
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                     )
                                     (DoLoop
                                         ()
                                         ((Var 2 __list_iterator)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 __tmp_assign_name_list)
-                                                (Integer 4 [])
+                                                (DictItem
+                                                    (Var 2 y)
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    ()
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                )
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 __tmp_assign_name_list)
+                                                (DictItem
+                                                    (Var 2 y)
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    ()
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                )
                                                 (Var 2 __list_iterator)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )]
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 () [])
+                                                (Character 1 0 ())
                                             )
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 () [])
+                                                (Character 1 0 ())
                                             )
                                         )
                                         (If
@@ -480,31 +435,39 @@
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 __tmp_assign_name_list)
-                                                        (Integer 4 [])
+                                                        (DictItem
+                                                            (Var 2 y)
+                                                            (IntegerConstant 1 (Integer 4))
+                                                            ()
+                                                            (List
+                                                                (Integer 4)
+                                                            )
+                                                            ()
+                                                        )
+                                                        (Integer 4)
                                                         ()
                                                     )
                                                     Sub
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (Integer 4 [])
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    (Integer 4)
                                                     ()
                                                 )
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
                                             [(Print
                                                 ()
                                                 [(StringConstant
                                                     ", "
-                                                    (Character 1 2 () [])
+                                                    (Character 1 2 ())
                                                 )]
                                                 (StringConstant
                                                     ""
-                                                    (Character 1 0 () [])
+                                                    (Character 1 0 ())
                                                 )
                                                 (StringConstant
                                                     ""
-                                                    (Character 1 0 () [])
+                                                    (Character 1 0 ())
                                                 )
                                             )]
                                             []
@@ -514,7 +477,7 @@
                                         ()
                                         [(StringConstant
                                             "]"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
                                         ()
                                         ()

@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -69,7 +69,7 @@
                                     g
                                     (FunctionType
                                         []
-                                        (Integer 4 [])
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -86,7 +86,7 @@
                                     []
                                     [(=
                                         (Var 2 _lpython_return_variable)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (Return)]
@@ -110,7 +110,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -120,7 +120,7 @@
                                         })
                                     gsubrout
                                     (FunctionType
-                                        [(Integer 4 [])]
+                                        [(Integer 4)]
                                         ()
                                         Source
                                         Implementation
@@ -162,7 +162,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -178,7 +178,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -194,7 +194,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -227,7 +227,7 @@
                                             7 g
                                             ()
                                             []
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -239,7 +239,7 @@
                                             7 g
                                             ()
                                             []
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -251,7 +251,7 @@
                                             7 g
                                             ()
                                             []
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )

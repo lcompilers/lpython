@@ -116,7 +116,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -132,7 +132,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -148,7 +148,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -274,7 +274,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -290,7 +290,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -306,7 +306,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -322,7 +322,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -338,7 +338,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -380,17 +380,17 @@
                                             3 complex
                                             [((RealConstant
                                                 4.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             ))
                                             ((RealConstant
                                                 6.700000
-                                                (Real 8 [])
+                                                (Real 8)
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 4.500000
                                                 6.700000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -400,7 +400,7 @@
                                         (Var 3 eps)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -411,24 +411,24 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         4.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -440,24 +440,24 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         6.700000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -468,16 +468,16 @@
                                             3 complex@__lpython_overloaded_9__complex
                                             3 complex
                                             [((IntegerUnaryMinus
-                                                (IntegerConstant 4 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -4 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -4 (Integer 4))
                                             ))
-                                            ((IntegerConstant 2 (Integer 4 [])))]
-                                            (Complex 8 [])
+                                            ((IntegerConstant 2 (Integer 4)))]
+                                            (Complex 8)
                                             (ComplexConstant
                                                 -4.000000
                                                 2.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -490,31 +490,31 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             4.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -4.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -526,24 +526,24 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         2.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -553,16 +553,16 @@
                                         (FunctionCall
                                             3 complex@__lpython_overloaded_13__complex
                                             3 complex
-                                            [((IntegerConstant 4 (Integer 4 [])))
+                                            [((IntegerConstant 4 (Integer 4)))
                                             ((RealConstant
                                                 7.890000
-                                                (Real 8 [])
+                                                (Real 8)
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 4.000000
                                                 7.890000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -575,24 +575,24 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         4.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -604,24 +604,24 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         7.890000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -633,14 +633,14 @@
                                             3 complex
                                             [((RealConstant
                                                 5.600000
-                                                (Real 8 [])
+                                                (Real 8)
                                             ))
-                                            ((IntegerConstant 0 (Integer 4 [])))]
-                                            (Complex 8 [])
+                                            ((IntegerConstant 0 (Integer 4)))]
+                                            (Complex 8)
                                             (ComplexConstant
                                                 5.600000
                                                 0.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -653,24 +653,24 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         5.600000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -682,24 +682,24 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         0.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -708,7 +708,7 @@
                                         (Var 3 a)
                                         (RealConstant
                                             534.600000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -720,10 +720,10 @@
                                             [((Var 3 a))
                                             ((RealUnaryMinus
                                                 (Var 3 a)
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -736,24 +736,24 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         534.600000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -765,31 +765,31 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 3 x)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             534.600000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -534.600000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -800,19 +800,19 @@
                                             (Cast
                                                 (RealConstant
                                                     423.543081
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     423.543081
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 -423.543081
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -822,13 +822,13 @@
                                         (Cast
                                             (RealConstant
                                                 34.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 34.500000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -840,7 +840,7 @@
                                             3 complex
                                             [((Var 3 a2))
                                             ((Var 3 a3))]
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                             ()
                                         )
@@ -854,36 +854,36 @@
                                                     [(RealBinOp
                                                         (ComplexIm
                                                             (Var 3 x2)
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         Sub
                                                         (Cast
                                                             (RealConstant
                                                                 34.500000
-                                                                (Real 8 [])
+                                                                (Real 8)
                                                             )
                                                             RealToReal
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             (RealConstant
                                                                 34.500000
-                                                                (Real 4 [])
+                                                                (Real 4)
                                                             )
                                                         )
-                                                        (Real 4 [])
+                                                        (Real 4)
                                                         ()
                                                     )]
                                                     0
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                 )
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 3 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -891,9 +891,9 @@
                                     (=
                                         (Var 3 i1)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -5 (Integer 4))
                                         )
                                         ()
                                     )
@@ -901,13 +901,13 @@
                                         (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 6 (Integer 4 []))
+                                                (IntegerConstant 6 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 6 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 6 (Integer 8))
                                             )
-                                            (Integer 8 [])
-                                            (IntegerConstant -6 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant -6 (Integer 8))
                                         )
                                         ()
                                     )
@@ -918,7 +918,7 @@
                                             3 complex
                                             [((Var 3 a3))
                                             ((Var 3 a))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -931,7 +931,7 @@
                                             3 complex
                                             [((Var 3 a))
                                             ((Var 3 a3))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -944,7 +944,7 @@
                                             3 complex
                                             [((Var 3 i1))
                                             ((Var 3 i2))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -958,10 +958,10 @@
                                             [((Var 3 i1))
                                             ((IntegerUnaryMinus
                                                 (Var 3 i1)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -974,15 +974,15 @@
                                             3 complex
                                             [((IntegerUnaryMinus
                                                 (Var 3 i2)
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             ))
                                             ((IntegerUnaryMinus
                                                 (Var 3 i2)
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -996,10 +996,10 @@
                                             [((Var 3 i2))
                                             ((IntegerUnaryMinus
                                                 (Var 3 i1)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                             ()
                                         )
@@ -1025,7 +1025,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1041,7 +1041,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1057,7 +1057,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1109,22 +1109,22 @@
                                             (FunctionCall
                                                 5 complex@__lpython_overloaded_9__complex
                                                 5 complex
-                                                [((IntegerConstant 4 (Integer 4 [])))
-                                                ((IntegerConstant 5 (Integer 4 [])))]
-                                                (Complex 8 [])
+                                                [((IntegerConstant 4 (Integer 4)))
+                                                ((IntegerConstant 5 (Integer 4)))]
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     4.000000
                                                     5.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 4.000000
                                                 5.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -1135,10 +1135,10 @@
                                             (Cast
                                                 (Var 5 c)
                                                 ComplexToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1146,7 +1146,7 @@
                                     (Assert
                                         (LogicalNot
                                             (Var 5 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1156,13 +1156,13 @@
                                         (FunctionCall
                                             5 complex@__lpython_overloaded_9__complex
                                             5 complex
-                                            [((IntegerConstant 0 (Integer 4 [])))
-                                            ((IntegerConstant 0 (Integer 4 [])))]
-                                            (Complex 8 [])
+                                            [((IntegerConstant 0 (Integer 4)))
+                                            ((IntegerConstant 0 (Integer 4)))]
+                                            (Complex 8)
                                             (ComplexConstant
                                                 0.000000
                                                 0.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -1174,10 +1174,10 @@
                                             (Cast
                                                 (Var 5 c2)
                                                 ComplexToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1206,7 +1206,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1222,7 +1222,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1238,7 +1238,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1312,25 +1312,25 @@
                                             (FunctionCall
                                                 4 complex@__lpython_overloaded_13__complex
                                                 4 complex
-                                                [((IntegerConstant 3 (Integer 4 [])))
+                                                [((IntegerConstant 3 (Integer 4)))
                                                 ((RealConstant
                                                     4.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     3.000000
                                                     4.500000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 3.000000
                                                 4.500000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -1339,7 +1339,7 @@
                                         (Var 4 _c)
                                         (ComplexUnaryMinus
                                             (Var 4 c)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -1352,38 +1352,38 @@
                                                     (Cast
                                                         (ComplexRe
                                                             (Var 4 _c)
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         RealToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             3.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -3.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1396,38 +1396,38 @@
                                                     (Cast
                                                         (ComplexIm
                                                             (Var 4 _c)
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         RealToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             4.500000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -4.500000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1438,26 +1438,26 @@
                                             (FunctionCall
                                                 4 complex@__lpython_overloaded_9__complex
                                                 4 complex
-                                                [((IntegerConstant 5 (Integer 4 [])))
+                                                [((IntegerConstant 5 (Integer 4)))
                                                 ((IntegerUnaryMinus
-                                                    (IntegerConstant 78 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -78 (Integer 4 []))
+                                                    (IntegerConstant 78 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -78 (Integer 4))
                                                 ))]
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     5.000000
                                                     -78.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 5.000000
                                                 -78.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -1466,7 +1466,7 @@
                                         (Var 4 _c)
                                         (ComplexUnaryMinus
                                             (Var 4 _c)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -1479,38 +1479,38 @@
                                                     (Cast
                                                         (ComplexRe
                                                             (Var 4 _c)
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         RealToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             5.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -5.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1523,31 +1523,31 @@
                                                     (Cast
                                                         (ComplexIm
                                                             (Var 4 _c)
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         RealToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         78.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1560,30 +1560,30 @@
                                             [((RealUnaryMinus
                                                 (RealConstant
                                                     4.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             ))
                                             ((RealUnaryMinus
                                                 (RealConstant
                                                     7.800000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -7.800000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 -4.500000
                                                 -7.800000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -1593,7 +1593,7 @@
                                         (Var 4 c2)
                                         (ComplexUnaryMinus
                                             (Var 4 c2)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()
@@ -1605,27 +1605,27 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 4 c2)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         4.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1637,27 +1637,27 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 4 c2)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         7.800000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1666,26 +1666,26 @@
                                         (Var 4 c2)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 3 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
                                                 IntegerToComplex
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     3.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             Add
                                             (ComplexConstant
                                                 0.000000
                                                 4.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 3.000000
                                                 4.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                         )
                                         ()
@@ -1694,7 +1694,7 @@
                                         (Var 4 c2)
                                         (ComplexUnaryMinus
                                             (Var 4 c2)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()
@@ -1706,34 +1706,34 @@
                                                 [(RealBinOp
                                                     (ComplexRe
                                                         (Var 4 c2)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             3.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -3.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1745,34 +1745,34 @@
                                                 [(RealBinOp
                                                     (ComplexIm
                                                         (Var 4 c2)
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealUnaryMinus
                                                         (RealConstant
                                                             4.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         (RealConstant
                                                             -4.000000
-                                                            (Real 8 [])
+                                                            (Real 8)
                                                         )
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1797,7 +1797,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1813,7 +1813,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1829,7 +1829,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1845,7 +1845,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1875,26 +1875,26 @@
                                         (Var 2 x)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
                                                 IntegerToComplex
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     2.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             Add
                                             (ComplexConstant
                                                 0.000000
                                                 3.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 2.000000
                                                 3.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                         )
                                         ()
@@ -1903,7 +1903,7 @@
                                         (Var 2 eps)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -1911,7 +1911,7 @@
                                         (Var 2 a)
                                         (ComplexRe
                                             (Var 2 x)
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1920,7 +1920,7 @@
                                         (Var 2 b)
                                         (ComplexIm
                                             (Var 2 x)
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1934,18 +1934,18 @@
                                                     Sub
                                                     (RealConstant
                                                         2.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 2 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1959,18 +1959,18 @@
                                                     Sub
                                                     (RealConstant
                                                         3.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             LtE
                                             (Var 2 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

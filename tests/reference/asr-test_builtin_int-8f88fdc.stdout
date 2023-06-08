@@ -102,7 +102,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -134,23 +134,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -159,8 +159,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -171,23 +171,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -196,8 +196,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -208,23 +208,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -234,11 +234,11 @@
                                             (Var 3 b)
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -249,23 +249,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -274,8 +274,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -286,23 +286,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -311,8 +311,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -323,23 +323,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -348,8 +348,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -360,23 +360,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -385,8 +385,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -397,23 +397,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -422,8 +422,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -435,23 +435,23 @@
                                                 (Cast
                                                     (LogicalConstant
                                                         .true.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
                                                 Add
                                                 (Cast
                                                     (LogicalConstant
                                                         .true.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
@@ -459,26 +459,26 @@
                                                 (Cast
                                                     (LogicalConstant
                                                         .true.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
                                                 Sub
                                                 (Cast
                                                     (LogicalConstant
                                                         .false.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -493,8 +493,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -506,10 +506,10 @@
                                                 (Cast
                                                     (LogicalConstant
                                                         .true.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
                                                 Add
@@ -517,26 +517,26 @@
                                                     (Cast
                                                         (LogicalConstant
                                                             .true.
-                                                            (Logical 4 [])
+                                                            (Logical 4)
                                                         )
                                                         LogicalToInteger
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         ()
                                                     )
                                                     Add
                                                     (Cast
                                                         (LogicalConstant
                                                             .true.
-                                                            (Logical 4 [])
+                                                            (Logical 4)
                                                         )
                                                         LogicalToInteger
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         ()
                                                     )
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
@@ -544,26 +544,26 @@
                                                 (Cast
                                                     (LogicalConstant
                                                         .false.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
                                                 Add
                                                 (Cast
                                                     (LogicalConstant
                                                         .true.
-                                                        (Logical 4 [])
+                                                        (Logical 4)
                                                     )
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -572,8 +572,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -598,7 +598,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -614,7 +614,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -630,7 +630,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -660,29 +660,29 @@
                                         (Var 2 f)
                                         (RealConstant
                                             5.678000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 i)
-                                        (IntegerConstant 4 (Integer 4 []))
+                                        (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntegerConstant 0 (Integer 8 []))
+                                            (IntegerConstant 0 (Integer 8))
                                             Eq
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -692,17 +692,17 @@
                                             (Cast
                                                 (Var 2 i)
                                                 IntegerToInteger
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 4 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 4 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 4 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -712,11 +712,11 @@
                                         (Cast
                                             (RealConstant
                                                 3.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 3 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 3 (Integer 8))
                                         )
                                         ()
                                     )
@@ -725,12 +725,12 @@
                                             (Var 2 i2)
                                             Eq
                                             (Cast
-                                                (IntegerConstant 3 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 3 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 3 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -740,23 +740,23 @@
                                             (Cast
                                                 (RealConstant
                                                     5.678000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 5 (Integer 8))
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4 []))
+                                                (IntegerConstant 5 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 5 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -766,17 +766,17 @@
                                             (Cast
                                                 (Var 2 f)
                                                 RealToInteger
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4 []))
+                                                (IntegerConstant 5 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 5 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -786,12 +786,12 @@
                                         (RealUnaryMinus
                                             (RealConstant
                                                 183745.230000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 -183745.230000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -802,33 +802,33 @@
                                                 (RealUnaryMinus
                                                     (RealConstant
                                                         183745.230000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -183745.230000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
                                                 RealToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant -183745 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant -183745 (Integer 8))
                                             )
                                             Eq
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 183745 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -183745 (Integer 4 []))
+                                                    (IntegerConstant 183745 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -183745 (Integer 4))
                                                 )
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant -183745 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant -183745 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -838,21 +838,21 @@
                                             (Cast
                                                 (Var 2 f)
                                                 RealToInteger
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 183745 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -183745 (Integer 4 []))
+                                                    (IntegerConstant 183745 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -183745 (Integer 4))
                                                 )
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant -183745 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant -183745 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -862,23 +862,23 @@
                                             (Cast
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 5 (Integer 8))
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 5 (Integer 4 []))
+                                                (IntegerConstant 5 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 5 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -889,33 +889,33 @@
                                                 (RealUnaryMinus
                                                     (RealConstant
                                                         5.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -5.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )
                                                 RealToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant -5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant -5 (Integer 8))
                                             )
                                             Eq
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 5 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -5 (Integer 4 []))
+                                                    (IntegerConstant 5 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -5 (Integer 4))
                                                 )
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant -5 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant -5 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -925,23 +925,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 1 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 1 (Integer 8))
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 1 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 1 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -951,23 +951,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
