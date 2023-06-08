@@ -5180,6 +5180,34 @@ public:
                 throw SemanticError("Only Name is supported for Subscript",
                     sbt->base.base.loc);
             }
+        } else if (AST::is_a<AST::List_t>(*x.m_iter)) {
+            visit_expr(*x.m_iter);
+            ASR::expr_t *target = ASRUtils::EXPR(tmp);
+            ASR::ttype_t *loop_src_var_ttype = ASRUtils::expr_type(target);
+
+            // Create a temporary variable that will contain the evaluated value of List
+            std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, loop_src_var_ttype);
+            ASR::asr_t* tmp_assign_variable = ASR::make_Variable_t(al, target->base.loc, current_scope,
+                s2c(al, tmp_assign_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
+                ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                loop_src_var_ttype, nullptr, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
+            );
+            ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
+            current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
+
+            // Assign the List expr to temporary variable
+            ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
+                            ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
+                            target, nullptr);
+            current_body->push_back(al, ASRUtils::STMT(assign));
+            loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc);
+            for_iter_type = loop_end;
+            LCOMPILERS_ASSERT(loop_end);
+            loop_src_var_name = tmp_assign_name;
+            is_explicit_iterator_required = true;
         } else {
             throw SemanticError("Only function call `range(..)` supported as for loop iteration for now",
                 x.base.base.loc);
