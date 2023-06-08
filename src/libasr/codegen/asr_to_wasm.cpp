@@ -561,7 +561,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         using namespace wasm;
         int kind = ASRUtils::extract_kind_from_ttype_t(v->m_type);
         uint32_t global_var_idx = UINT_MAX;
-        switch (v->m_type->type){
+        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(v->m_type);
+        switch (v_m_type->type){
             case ASR::ttypeType::Integer: {
                 uint64_t init_val = 0;
                 if (v->m_value && ASR::is_a<ASR::IntegerConstant_t>(*v->m_value)) {
@@ -613,7 +614,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             default: {
                 diag.codegen_warning_label("Declare Global: Type "
-                 + ASRUtils::type_to_str(v->m_type) + " not yet supported", {v->base.base.loc}, "");
+                 + ASRUtils::type_to_str(v_m_type) + " not yet supported", {v->base.base.loc}, "");
                 global_var_idx = m_wa.declare_global_var(i32, 0);
             }
         }
@@ -791,7 +792,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         } else {
             if (ASRUtils::is_integer(*v->m_type)) {
                 ASR::Integer_t *v_int =
-                    ASR::down_cast<ASR::Integer_t>(v->m_type);
+                    ASR::down_cast<ASR::Integer_t>(ASRUtils::type_get_past_array(v->m_type));
                 if (is_array) {
                     type_vec.push_back(i32);
                 } else {
@@ -805,7 +806,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                 }
             } else if (ASRUtils::is_real(*v->m_type)) {
-                ASR::Real_t *v_float = ASR::down_cast<ASR::Real_t>(v->m_type);
+                ASR::Real_t *v_float = ASR::down_cast<ASR::Real_t>(
+                    ASRUtils::type_get_past_array(v->m_type));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -821,7 +823,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 }
             } else if (ASRUtils::is_logical(*v->m_type)) {
                 ASR::Logical_t *v_logical =
-                    ASR::down_cast<ASR::Logical_t>(v->m_type);
+                    ASR::down_cast<ASR::Logical_t>(
+                        ASRUtils::type_get_past_array(v->m_type));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -835,7 +838,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 }
             } else if (ASRUtils::is_character(*v->m_type)) {
                 ASR::Character_t *v_int =
-                    ASR::down_cast<ASR::Character_t>(v->m_type);
+                    ASR::down_cast<ASR::Character_t>(
+                        ASRUtils::type_get_past_array(v->m_type));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -852,7 +856,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 }
             } else if (ASRUtils::is_complex(*v->m_type)) {
                 ASR::Complex_t *v_comp =
-                    ASR::down_cast<ASR::Complex_t>(v->m_type);
+                    ASR::down_cast<ASR::Complex_t>(
+                        ASRUtils::type_get_past_array(v->m_type));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -962,7 +967,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         m_wa.emit_i32_const(avail_mem_loc);
                         emit_var_set(v);
 
-                        if (v->m_type->type == ASR::ttypeType::Complex) {
+                        if (ASRUtils::is_complex(*v->m_type)) {
                             kind *= 2;
                         }
                         avail_mem_loc += kind * total_array_size;
@@ -1118,7 +1123,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     uint32_t emit_memory_store(ASR::expr_t *v) {
-        auto ttype = ASRUtils::expr_type(v);
+        auto ttype = ASRUtils::type_get_past_array(ASRUtils::expr_type(v));
         auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         switch (ttype->type) {
             case ASR::ttypeType::Integer: {
@@ -1219,7 +1224,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_memory_load(ASR::expr_t *v) {
-        auto ttype = ASRUtils::expr_type(v);
+        auto ttype = ASRUtils::type_get_past_array(ASRUtils::expr_type(v));
         auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         switch (ttype->type) {
             case ASR::ttypeType::Integer: {
@@ -1990,7 +1995,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         auto v = ASR::down_cast<ASR::Variable_t>(s);
-        switch (v->m_type->type) {
+        switch (ASRUtils::type_get_past_array(v->m_type)->type) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Real:
@@ -2056,7 +2061,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                            {x.base.base.loc}, "");
             }
         }
-        if (ttype->type == ASR::ttypeType::Complex) {
+        if (ASRUtils::is_complex(*ttype)) {
             kind *= 2;
         }
         m_wa.emit_i32_const(kind);
@@ -2291,7 +2296,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void temp_value_set(ASR::expr_t* expr) {
-        auto ttype = ASRUtils::expr_type(expr);
+        auto ttype = ASRUtils::type_get_past_array(ASRUtils::expr_type(expr));
         auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         GLOBAL_VAR global_var;
         switch (ttype->type) {
@@ -2340,7 +2345,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void temp_value_get(ASR::expr_t* expr) {
-        auto ttype = ASRUtils::expr_type(expr);
+        auto ttype = ASRUtils::type_get_past_array(ASRUtils::expr_type(expr));
         auto kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         GLOBAL_VAR global_var;
         switch (ttype->type) {
@@ -2832,7 +2837,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                                             for 32, and 64 bit real kinds.)""");
                     }
                 }
-            } else if (t->type == ASR::ttypeType::Character) {
+            } else if (ASRUtils::is_character(*t)) {
                 m_wa.emit_i32_const(1); // file type: 1 for stdout
                 this->visit_expr(*x.m_values[i]); // iov location
                 m_wa.emit_i32_const(1); // size of iov vector
@@ -2841,7 +2846,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 // call WASI fd_write
                 m_wa.emit_call(m_import_func_idx_map[fd_write]);
                 m_wa.emit_drop();
-            } else if (t->type == ASR::ttypeType::Complex) {
+            } else if (ASRUtils::is_complex(*t)) {
                 INCLUDE_RUNTIME_FUNC(print_i64);
                 INCLUDE_RUNTIME_FUNC(print_f64);
                 emit_call_fd_write(1, "(", 1, 0);

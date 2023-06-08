@@ -42,35 +42,11 @@ namespace LCompilers {
         }
 
         bool is_explicit_shape(ASR::Variable_t* v) {
-            ASR::dimension_t* m_dims;
-            int n_dims;
+            ASR::dimension_t* m_dims = nullptr;
+            int n_dims = 0;
             switch( v->m_type->type ) {
-                case ASR::ttypeType::Integer: {
-                    ASR::Integer_t* v_type = ASR::down_cast<ASR::Integer_t>(v->m_type);
-                    m_dims = v_type->m_dims;
-                    n_dims = v_type->n_dims;
-                    break;
-                }
-                case ASR::ttypeType::Real: {
-                    ASR::Real_t* v_type = ASR::down_cast<ASR::Real_t>(v->m_type);
-                    m_dims = v_type->m_dims;
-                    n_dims = v_type->n_dims;
-                    break;
-                }
-                case ASR::ttypeType::Complex: {
-                    ASR::Complex_t* v_type = ASR::down_cast<ASR::Complex_t>(v->m_type);
-                    m_dims = v_type->m_dims;
-                    n_dims = v_type->n_dims;
-                    break;
-                }
-                case ASR::ttypeType::Logical: {
-                    ASR::Logical_t* v_type = ASR::down_cast<ASR::Logical_t>(v->m_type);
-                    m_dims = v_type->m_dims;
-                    n_dims = v_type->n_dims;
-                    break;
-                }
-                case ASR::ttypeType::Struct: {
-                    ASR::Struct_t* v_type = ASR::down_cast<ASR::Struct_t>(v->m_type);
+                case ASR::ttypeType::Array: {
+                    ASR::Array_t* v_type = ASR::down_cast<ASR::Array_t>(v->m_type);
                     m_dims = v_type->m_dims;
                     n_dims = v_type->n_dims;
                     break;
@@ -113,8 +89,10 @@ namespace LCompilers {
         }
 
         bool SimpleCMODescriptor::is_array(ASR::ttype_t* asr_type) {
-            std::string asr_type_code = ASRUtils::get_type_code(asr_type, false, false);
-            return tkr2array.find(asr_type_code) != tkr2array.end() && ASRUtils::is_array(asr_type);
+            std::string asr_type_code = ASRUtils::get_type_code(
+                ASRUtils::type_get_past_allocatable(asr_type), false, false);
+            return (tkr2array.find(asr_type_code) != tkr2array.end() &&
+                    ASRUtils::is_array(asr_type));
         }
 
         llvm::Value* SimpleCMODescriptor::

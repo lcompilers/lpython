@@ -46,6 +46,7 @@
 #include <libasr/pass/subroutine_from_function.h>
 #include <libasr/pass/transform_optional_argument_functions.h>
 #include <libasr/pass/nested_vars.h>
+#include <libasr/pass/print_struct_type.h>
 #include <libasr/asr_verify.h>
 
 #include <map>
@@ -92,7 +93,8 @@ namespace LCompilers {
             {"transform_optional_argument_functions", &pass_transform_optional_argument_functions},
             {"init_expr", &pass_replace_init_expr},
             {"nested_vars", &pass_nested_vars},
-            {"where", &pass_replace_where}
+            {"where", &pass_replace_where},
+            {"print_struct_type", &pass_replace_print_struct_type}
         };
 
         bool is_fast;
@@ -103,7 +105,7 @@ namespace LCompilers {
 
         void apply_passes(Allocator& al, ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions &pass_options,
-                           diag::Diagnostics &diagnostics) {
+                           [[maybe_unused]] diag::Diagnostics &diagnostics) {
             if (pass_options.pass_cumulative) {
                 int _pass_max_idx = -1, _opt_max_idx = -1;
                 for (std::string &current_pass: passes) {
@@ -202,6 +204,7 @@ namespace LCompilers {
                 "intrinsic_function",
                 "array_op",
                 "pass_array_by_data",
+                "print_struct_type",
                 "print_arr",
                 "print_list_tuple",
                 "array_dim_intrinsics_update",
@@ -224,6 +227,7 @@ namespace LCompilers {
                 "array_op",
                 "intrinsic_function",
                 "array_op",
+                "print_struct_type",
                 "print_arr",
                 "print_list_tuple",
                 "loop_vectorise",

@@ -262,9 +262,11 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                 ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(
                             ASRUtils::symbol_get_past_external(it2));
                 new_ext_var = current_scope->get_unique_name(new_ext_var);
-                ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(var->m_type);
-                if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
-                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(var_type);
+                ASR::ttype_t* var_type = ASRUtils::type_get_past_allocatable(
+                    ASRUtils::type_get_past_pointer(var->m_type));
+                ASR::ttype_t* var_type_ = ASRUtils::type_get_past_array(var_type);
+                if( ASR::is_a<ASR::Struct_t>(*var_type_) ) {
+                    ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(var_type_);
                     if( current_scope->get_counter() != ASRUtils::symbol_parent_symtab(
                             struct_t->m_derived_type)->get_counter() ) {
                         ASR::symbol_t* m_derived_type = current_scope->get_symbol(
@@ -283,17 +285,26 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                             m_derived_type = ASR::down_cast<ASR::symbol_t>(fn);
                             current_scope->add_symbol(fn_name, m_derived_type);
                         }
-                        var_type = ASRUtils::TYPE(ASR::make_Struct_t(al, struct_t->base.base.loc,
-                                    m_derived_type, struct_t->m_dims, struct_t->n_dims));
-                        if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
-                            var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc, var_type));
+                        var_type_ = ASRUtils::TYPE(ASR::make_Struct_t(al, struct_t->base.base.loc,
+                                    m_derived_type));
+                        if( ASR::is_a<ASR::Array_t>(*var_type) ) {
+                            ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(var_type);
+                            var_type = ASRUtils::make_Array_t_util(al, struct_t->base.base.loc,
+                                var_type_, array_t->m_dims, array_t->n_dims);
+                        } else {
+                            var_type = var_type_;
+                        }
+                        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::type_get_past_allocatable(var->m_type)) ) {
+                            var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc,
+                                ASRUtils::type_get_past_allocatable(var_type)));
                         }
                     }
                 }
                 if( ASRUtils::is_array(var_type) &&
                     !ASR::is_a<ASR::Pointer_t>(*var_type) ) {
                     var_type = ASRUtils::duplicate_type_with_empty_dims(al, var_type);
-                    var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc, var_type));
+                    var_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, var_type->base.loc,
+                        ASRUtils::type_get_past_allocatable(var_type)));
                 }
                 ASR::expr_t *sym_expr = PassUtils::create_auxiliary_variable(
                         it2->base.loc, new_ext_var,

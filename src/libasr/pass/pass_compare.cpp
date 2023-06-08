@@ -92,8 +92,7 @@ public:
     ASR::expr_t* compare_helper(Location& loc,
                     SymbolTable*& global_scope, ASR::expr_t *left, ASR::expr_t *rig,
                     ASR::ttype_t *type) {
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
         switch (type->type) {
             case ASR::ttypeType::Integer: {
                 return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al,
@@ -149,6 +148,7 @@ public:
             }
             default: {
                 LCOMPILERS_ASSERT(false);
+                return nullptr; // silence a warning
             }
         }
     }
@@ -167,10 +167,8 @@ public:
         ASR::Tuple_t *tuple_type = ASR::down_cast<ASR::Tuple_t>(type);
 
         std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name);
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
         Vec<ASR::expr_t*> arg_exprs;
         arg_exprs.reserve(al, 2);
@@ -254,8 +252,7 @@ public:
     */
     void replace_TupleCompare(const ASR::TupleCompare_t* x) {
         Location loc = x->base.base.loc;
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 2);
         ASR::call_arg_t call_arg;
@@ -282,10 +279,8 @@ public:
                            Vec<ASR::stmt_t*>& body, ASR::ttype_t* item_type) {
         Vec<ASR::expr_t*> idx_vars;
         PassUtils::create_idx_vars(idx_vars, 1, loc, al, symtab);
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::expr_t *const_zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
                         al, loc, 0, int_type));
         ASR::expr_t *const_one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
@@ -342,10 +337,8 @@ public:
         ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type);
 
         std::string fn_name = global_scope->get_unique_name("_lcompilers_list_compare_" + list_type_name);
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
         Vec<ASR::expr_t*> arg_exprs;
         arg_exprs.reserve(al, 2);
@@ -445,8 +438,7 @@ public:
     */
     void replace_ListCompare(const ASR::ListCompare_t* x) {
         Location loc = x->base.base.loc;
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 2);
         ASR::call_arg_t call_arg;
