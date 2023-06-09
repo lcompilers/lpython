@@ -560,9 +560,13 @@ class PointerToStruct:
             value = value.value
         self.ctypes_ptr.contents.__setattr__(name, value)
 
-def c_p_pointer(cptr, targettype):
+def c_p_pointer(cptr, targettype, targetshape=None):
     targettype_ptr = convert_type_to_ctype(targettype)
     if isinstance(targettype, Array):
+        if targetshape is None:
+            raise ValueError("target shape must be "
+                             "provided if target type is an array.")
+        # TODO: Add support for multi-dimensional shape of target variable
         if py_is_dataclass(targettype._type):
             return ctypes.cast(cptr.value, ctypes.py_object).value
         newa = ctypes.cast(cptr, targettype_ptr)
