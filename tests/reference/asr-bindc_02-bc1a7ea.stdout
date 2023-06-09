@@ -35,8 +35,24 @@
                                     [(CPtrToPointer
                                         (Var 204 queries)
                                         (Var 204 x)
-                                        ()
-                                        ()
+                                        (ArrayConstant
+                                            [(IntegerConstant 1 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [(()
+                                                ())]
+                                            )
+                                            RowMajor
+                                        )
+                                        (ArrayConstant
+                                            [(IntegerConstant 0 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [(()
+                                                ())]
+                                            )
+                                            RowMajor
+                                        )
                                     )
                                     (Print
                                         ()
@@ -189,8 +205,8 @@
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
-                                                    [((IntegerConstant 0 (Integer 4))
-                                                    (IntegerConstant 2 (Integer 4)))]
+                                                    [(()
+                                                    ())]
                                                 )
                                             )
                                             ()
@@ -204,8 +220,8 @@
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
-                                                    [((IntegerConstant 0 (Integer 4))
-                                                    (IntegerConstant 2 (Integer 4)))]
+                                                    [(()
+                                                    ())]
                                                 )
                                             )
                                             ()
@@ -286,8 +302,24 @@
                                     (CPtrToPointer
                                         (Var 201 yq)
                                         (Var 201 yptr1)
-                                        ()
-                                        ()
+                                        (ArrayConstant
+                                            [(IntegerConstant 2 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [(()
+                                                ())]
+                                            )
+                                            RowMajor
+                                        )
+                                        (ArrayConstant
+                                            [(IntegerConstant 0 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [(()
+                                                ())]
+                                            )
+                                            RowMajor
+                                        )
                                     )
                                     (Print
                                         ()
