@@ -225,6 +225,46 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_Requirement(const Requirement_t& x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The Requirement::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The Requirement::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Requirement::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Template(const Template_t& x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The Requirement::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The Requirement::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Requirement::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
     void visit_BlockCall(const BlockCall_t& x) {
         require(x.m_m != nullptr, "Block call made to inexisting block");
         require(symtab_in_scope(current_symtab, x.m_m),
@@ -592,6 +632,8 @@ public:
 
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
+        if (x.m_value)
+             visit_expr(*x.m_value);
         visit_ttype(*x.m_type);
 
         verify_unique_dependencies(x.m_dependencies, x.n_dependencies,
@@ -965,16 +1007,28 @@ public:
             std::string(ASRUtils::symbol_name(x.m_derived_type)) +
             "' cannot point outside of its symbol table, owner: " +
             symbol_owner);
-        for (size_t i=0; i<x.n_dims; i++) {
+    }
+
+    void visit_Array(const Array_t& x) {
+        visit_ttype(*x.m_type);
+        require(x.n_dims != 0, "Array type cannot have 0 dimensions.")
+        require(!ASR::is_a<ASR::Array_t>(*x.m_type), "Array type cannot be nested.")
+        for (size_t i = 0; i < x.n_dims; i++) {
             visit_dimension(x.m_dims[i]);
         }
     }
 
-    /*
     void visit_Pointer(const Pointer_t &x) {
+        require(!ASR::is_a<ASR::Allocatable_t>(*x.m_type),
+            "Pointer type conflicts with Allocatable type");
         visit_ttype(*x.m_type);
     }
-    */
+
+    void visit_Allocatable(const Allocatable_t &x) {
+        require(!ASR::is_a<ASR::Pointer_t>(*x.m_type),
+            "Allocatable type conflicts with Pointer type");
+        visit_ttype(*x.m_type);
+    }
 
 };
 

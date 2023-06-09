@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -67,7 +67,7 @@
                                         (Var 2 a)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -75,7 +75,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -85,7 +85,7 @@
                                             (Var 2 a)
                                             And
                                             (Var 2 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -97,9 +97,9 @@
                                             Or
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -110,7 +110,7 @@
                                             (Var 2 a)
                                             Or
                                             (Var 2 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -124,10 +124,10 @@
                                                 (Var 2 b)
                                                 Eq
                                                 (Var 2 b)
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -141,10 +141,10 @@
                                                 (Var 2 b)
                                                 NotEq
                                                 (Var 2 b)
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -155,7 +155,7 @@
                                             (Var 2 b)
                                             Or
                                             (Var 2 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

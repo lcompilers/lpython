@@ -18,7 +18,6 @@
                                     Default
                                     (TypeParameter
                                         T
-                                        []
                                     )
                                     ()
                                     Source
@@ -40,7 +39,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -56,7 +55,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -72,7 +71,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -82,8 +81,8 @@
                                         })
                                     __asr_generic_swap_0
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
+                                        [(Integer 4)
+                                        (Integer 4)]
                                         ()
                                         Source
                                         Implementation
@@ -161,8 +160,8 @@
                                     [(SubroutineCall
                                         6 __asr_generic_swap_0
                                         ()
-                                        [((IntegerConstant 1 (Integer 4 [])))
-                                        ((IntegerConstant 2 (Integer 4 [])))]
+                                        [((IntegerConstant 1 (Integer 4)))
+                                        ((IntegerConstant 2 (Integer 4)))]
                                         ()
                                     )]
                                     ()
@@ -187,7 +186,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -206,7 +204,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -225,7 +222,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -238,11 +234,9 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )
                                         (TypeParameter
                                             T
-                                            []
                                         )]
                                         ()
                                         Source
@@ -255,7 +249,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         []
                                         .false.

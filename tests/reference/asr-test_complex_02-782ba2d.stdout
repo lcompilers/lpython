@@ -129,7 +129,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -145,7 +145,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -161,7 +161,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -193,22 +193,22 @@
                                             (FunctionCall
                                                 2 complex@__lpython_overloaded_9__complex
                                                 2 complex
-                                                [((IntegerConstant 3 (Integer 4 [])))
-                                                ((IntegerConstant 4 (Integer 4 [])))]
-                                                (Complex 8 [])
+                                                [((IntegerConstant 3 (Integer 4)))
+                                                ((IntegerConstant 4 (Integer 4)))]
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     3.000000
                                                     4.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 3.000000
                                                 4.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -217,7 +217,7 @@
                                         (Var 2 eps)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -231,28 +231,28 @@
                                                             Abs
                                                             [(Var 2 x)]
                                                             0
-                                                            (Real 4 [])
+                                                            (Real 4)
                                                             ()
                                                         )
                                                         RealToReal
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         5.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Lt
                                             (Var 2 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -262,13 +262,13 @@
                                         (FunctionCall
                                             2 complex@__lpython_overloaded_9__complex
                                             2 complex
-                                            [((IntegerConstant 6 (Integer 4 [])))
-                                            ((IntegerConstant 8 (Integer 4 [])))]
-                                            (Complex 8 [])
+                                            [((IntegerConstant 6 (Integer 4)))
+                                            ((IntegerConstant 8 (Integer 4)))]
+                                            (Complex 8)
                                             (ComplexConstant
                                                 6.000000
                                                 8.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -283,24 +283,24 @@
                                                         Abs
                                                         [(Var 2 y)]
                                                         0
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                         ()
                                                     )
                                                     Sub
                                                     (RealConstant
                                                         10.000000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Lt
                                             (Var 2 eps)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -325,7 +325,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -341,7 +341,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -357,7 +357,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -388,34 +388,34 @@
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
-                                                    (IntegerConstant 2 (Integer 4 []))
+                                                    (IntegerConstant 2 (Integer 4))
                                                     IntegerToComplex
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         2.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                 )
                                                 Add
                                                 (ComplexConstant
                                                     0.000000
                                                     3.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     2.000000
                                                     3.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 2.000000
                                                 3.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -425,34 +425,34 @@
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
-                                                    (IntegerConstant 4 (Integer 4 []))
+                                                    (IntegerConstant 4 (Integer 4))
                                                     IntegerToComplex
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         4.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                 )
                                                 Add
                                                 (ComplexConstant
                                                     0.000000
                                                     5.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     4.000000
                                                     5.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 4.000000
                                                 5.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -463,7 +463,7 @@
                                             (Var 3 x)
                                             Add
                                             (Var 3 y)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -474,7 +474,7 @@
                                             (Var 3 x)
                                             Sub
                                             (Var 3 y)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -485,7 +485,7 @@
                                             (Var 3 x)
                                             Mul
                                             (Var 3 y)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -496,7 +496,7 @@
                                             (Var 3 x)
                                             Pow
                                             (Var 3 y)
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             ()
                                         )
                                         ()
@@ -521,7 +521,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -537,7 +537,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -553,7 +553,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -583,26 +583,26 @@
                                         (Var 4 x)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
                                                 IntegerToComplex
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     2.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             Add
                                             (ComplexConstant
                                                 0.000000
                                                 3.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 2.000000
                                                 3.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                         )
                                         ()
@@ -611,26 +611,26 @@
                                         (Var 4 y)
                                         (ComplexBinOp
                                             (Cast
-                                                (IntegerConstant 4 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4))
                                                 IntegerToComplex
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     4.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             Add
                                             (ComplexConstant
                                                 0.000000
                                                 5.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 4.000000
                                                 5.000000
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                         )
                                         ()
@@ -641,7 +641,7 @@
                                             (Var 4 x)
                                             Add
                                             (Var 4 y)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()
@@ -652,7 +652,7 @@
                                             (Var 4 x)
                                             Sub
                                             (Var 4 y)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()
@@ -663,7 +663,7 @@
                                             (Var 4 x)
                                             Mul
                                             (Var 4 y)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()
@@ -674,7 +674,7 @@
                                             (Var 4 x)
                                             Pow
                                             (Var 4 y)
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             ()
                                         )
                                         ()

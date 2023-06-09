@@ -88,8 +88,7 @@ struct AttributeHandler {
             throw SemanticError("int.bit_length() takes no arguments", loc);
         }
         int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        int_kind, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, int_kind));
         return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
     }
 
@@ -98,7 +97,7 @@ struct AttributeHandler {
         if (args.size() != 0) {
             throw SemanticError("array.size() takes no arguments", loc);
         }
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         return ASR::make_ArraySize_t(al, loc, s, nullptr, int_type, nullptr);
     }
 
@@ -171,8 +170,7 @@ struct AttributeHandler {
             );
             throw SemanticAbort();
         }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         return make_ListCount_t(al, loc, s, args[0], to_type, nullptr);
     }
 
@@ -211,8 +209,7 @@ struct AttributeHandler {
                         loc);
             }
             ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
             if (!ASRUtils::check_equal_type(pos_type, int_type)) {
                 throw SemanticError("List index should be of integer type",
                                     args[0]->base.loc);
@@ -243,8 +240,7 @@ struct AttributeHandler {
                         loc);
             }
             ASR::expr_t *idx = nullptr;
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
             ASR::ttype_t *type = ASRUtils::expr_type(s);
             ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
             if (args.size() == 1) {

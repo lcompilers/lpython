@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -53,7 +53,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -81,7 +81,7 @@
                                     []
                                     [(=
                                         (Var 2 a)
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -90,13 +90,13 @@
                                             (IntegerCompare
                                                 (Var 2 a)
                                                 Eq
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Logical 4 [])
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (IntegerConstant 6 (Integer 4 []))
-                                            (IntegerConstant 8 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 6 (Integer 4))
+                                            (IntegerConstant 8 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -107,19 +107,19 @@
                                             (IntegerCompare
                                                 (Var 2 b)
                                                 Gt
-                                                (IntegerConstant 5 (Integer 4 []))
-                                                (Logical 4 [])
+                                                (IntegerConstant 5 (Integer 4))
+                                                (Logical 4)
                                                 ()
                                             )
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

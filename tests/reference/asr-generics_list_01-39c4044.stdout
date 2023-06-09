@@ -18,7 +18,6 @@
                                     Default
                                     (TypeParameter
                                         T
-                                        []
                                     )
                                     ()
                                     Source
@@ -40,7 +39,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -56,7 +55,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -72,7 +71,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -88,7 +87,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -105,7 +104,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -117,9 +116,9 @@
                                     __asr_generic_mean_0
                                     (FunctionType
                                         [(List
-                                            (Integer 4 [])
+                                            (Integer 4)
                                         )]
-                                        (Real 8 [])
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -140,7 +139,7 @@
                                         (Var 16 k)
                                         (ListLen
                                             (Var 16 x)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -149,15 +148,15 @@
                                         (IntegerCompare
                                             (Var 16 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 16 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             ()
                                         )
@@ -171,11 +170,11 @@
                                             ()
                                             [((ListItem
                                                 (Var 16 x)
-                                                (IntegerConstant 0 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 0 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             ))]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -184,15 +183,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 16 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (Var 16 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (Var 16 res)
                                             (FunctionCall
@@ -202,10 +201,10 @@
                                                 ((ListItem
                                                     (Var 16 x)
                                                     (Var 16 i)
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 ))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
@@ -219,7 +218,7 @@
                                             ()
                                             [((Var 16 res))
                                             ((Var 16 k))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -246,7 +245,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -262,7 +261,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -278,7 +277,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -294,7 +293,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -311,7 +310,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                     ()
                                                     Source
@@ -323,9 +322,9 @@
                                     __asr_generic_mean_1
                                     (FunctionType
                                         [(List
-                                            (Real 8 [])
+                                            (Real 8)
                                         )]
-                                        (Real 8 [])
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -346,7 +345,7 @@
                                         (Var 17 k)
                                         (ListLen
                                             (Var 17 x)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -355,15 +354,15 @@
                                         (IntegerCompare
                                             (Var 17 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 17 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             ()
                                         )
@@ -377,11 +376,11 @@
                                             ()
                                             [((ListItem
                                                 (Var 17 x)
-                                                (IntegerConstant 0 (Integer 4 []))
-                                                (Real 8 [])
+                                                (IntegerConstant 0 (Integer 4))
+                                                (Real 8)
                                                 ()
                                             ))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -390,15 +389,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 17 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (Var 17 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (Var 17 res)
                                             (FunctionCall
@@ -408,10 +407,10 @@
                                                 ((ListItem
                                                     (Var 17 x)
                                                     (Var 17 i)
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                 ))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
@@ -425,7 +424,7 @@
                                             ()
                                             [((Var 17 res))
                                             ((Var 17 k))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -452,7 +451,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -468,7 +467,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -484,7 +483,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -500,7 +499,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                     ()
                                                     Source
                                                     Public
@@ -517,7 +516,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 1 () [])
+                                                        (Character 1 1 ())
                                                     )
                                                     ()
                                                     Source
@@ -529,9 +528,9 @@
                                     __asr_generic_mean_2
                                     (FunctionType
                                         [(List
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )]
-                                        (Real 8 [])
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -552,7 +551,7 @@
                                         (Var 18 k)
                                         (ListLen
                                             (Var 18 x)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -561,15 +560,15 @@
                                         (IntegerCompare
                                             (Var 18 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 18 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             ()
                                         )
@@ -583,11 +582,11 @@
                                             ()
                                             [((ListItem
                                                 (Var 18 x)
-                                                (IntegerConstant 0 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 0 (Integer 4))
+                                                (Character 1 1 ())
                                                 ()
                                             ))]
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                             ()
                                         )
@@ -596,15 +595,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 18 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (Var 18 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (Var 18 res)
                                             (FunctionCall
@@ -614,10 +613,10 @@
                                                 ((ListItem
                                                     (Var 18 x)
                                                     (Var 18 i)
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                     ()
                                                 ))]
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                                 ()
                                                 ()
                                             )
@@ -631,7 +630,7 @@
                                             ()
                                             [((Var 18 res))
                                             ((Var 18 k))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -677,14 +676,14 @@
                                             21 __asr_generic_mean_0
                                             ()
                                             [((ListConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             ))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )]
@@ -699,21 +698,21 @@
                                             [((ListConstant
                                                 [(RealConstant
                                                     1.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 (RealConstant
                                                     2.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 (RealConstant
                                                     3.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )]
                                                 (List
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             ))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )]
@@ -728,21 +727,21 @@
                                             [((ListConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )]
                                                 (List
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             ))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )]
@@ -771,7 +770,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -790,7 +788,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -809,7 +806,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -822,15 +818,12 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )
                                         (TypeParameter
                                             T
-                                            []
                                         )]
                                         (TypeParameter
                                             T
-                                            []
                                         )
                                         Source
                                         Implementation
@@ -842,7 +835,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         []
                                         .true.
@@ -871,7 +863,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -887,7 +879,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -903,7 +895,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -913,9 +905,9 @@
                                         })
                                     add_float
                                     (FunctionType
-                                        [(Real 8 [])
-                                        (Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)
+                                        (Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -937,7 +929,7 @@
                                             (Var 9 x)
                                             Add
                                             (Var 9 y)
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -963,7 +955,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -979,7 +971,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -995,7 +987,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1005,9 +997,9 @@
                                         })
                                     add_integer
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -1029,7 +1021,7 @@
                                             (Var 6 x)
                                             Add
                                             (Var 6 y)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1055,7 +1047,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1071,7 +1063,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1087,7 +1079,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1097,9 +1089,9 @@
                                         })
                                     add_string
                                     (FunctionType
-                                        [(Character 1 -2 () [])
-                                        (Character 1 -2 () [])]
-                                        (Character 1 -2 () [])
+                                        [(Character 1 -2 ())
+                                        (Character 1 -2 ())]
+                                        (Character 1 -2 ())
                                         Source
                                         Implementation
                                         ()
@@ -1120,7 +1112,7 @@
                                         (StringConcat
                                             (Var 12 x)
                                             (Var 12 y)
-                                            (Character 1 -4 () [])
+                                            (Character 1 -4 ())
                                             ()
                                         )
                                         ()
@@ -1146,7 +1138,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1162,7 +1154,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1180,7 +1172,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -1193,10 +1184,9 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )
-                                        (Integer 4 [])]
-                                        (Real 8 [])
+                                        (Integer 4)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1207,7 +1197,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         []
                                         .true.
@@ -1236,7 +1225,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1252,7 +1241,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1268,7 +1257,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1278,9 +1267,9 @@
                                         })
                                     div_float
                                     (FunctionType
-                                        [(Real 8 [])
-                                        (Integer 4 [])]
-                                        (Real 8 [])
+                                        [(Real 8)
+                                        (Integer 4)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1304,10 +1293,10 @@
                                             (Cast
                                                 (Var 10 k)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1333,7 +1322,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1349,7 +1338,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1365,7 +1354,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1375,9 +1364,9 @@
                                         })
                                     div_integer
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
-                                        (Real 8 [])
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1399,17 +1388,17 @@
                                             (Cast
                                                 (Var 7 x)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
                                                 (Var 7 k)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -1435,7 +1424,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1451,7 +1440,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1467,7 +1456,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1477,9 +1466,9 @@
                                         })
                                     div_string
                                     (FunctionType
-                                        [(Character 1 -2 () [])
-                                        (Integer 4 [])]
-                                        (Real 8 [])
+                                        [(Character 1 -2 ())
+                                        (Integer 4)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1499,7 +1488,7 @@
                                         (Var 13 _lpython_return_variable)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -1524,7 +1513,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1540,7 +1529,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1550,8 +1539,8 @@
                                         })
                                     empty_float
                                     (FunctionType
-                                        [(Real 8 [])]
-                                        (Real 8 [])
+                                        [(Real 8)]
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1570,7 +1559,7 @@
                                         (Var 8 _lpython_return_variable)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -1595,7 +1584,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1611,7 +1600,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1621,8 +1610,8 @@
                                         })
                                     empty_integer
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -1639,7 +1628,7 @@
                                     [(Var 5 x)]
                                     [(=
                                         (Var 5 _lpython_return_variable)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (Return)]
@@ -1663,7 +1652,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1679,7 +1668,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1689,8 +1678,8 @@
                                         })
                                     empty_string
                                     (FunctionType
-                                        [(Character 1 -2 () [])]
-                                        (Character 1 -2 () [])
+                                        [(Character 1 -2 ())]
+                                        (Character 1 -2 ())
                                         Source
                                         Implementation
                                         ()
@@ -1709,7 +1698,7 @@
                                         (Var 11 _lpython_return_variable)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         ()
                                     )
@@ -1734,7 +1723,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1750,7 +1739,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1766,7 +1755,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1784,7 +1773,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -1804,7 +1792,6 @@
                                                     (List
                                                         (TypeParameter
                                                             T
-                                                            []
                                                         )
                                                     )
                                                     ()
@@ -1819,10 +1806,9 @@
                                         [(List
                                             (TypeParameter
                                                 T
-                                                []
                                             )
                                         )]
-                                        (Real 8 [])
+                                        (Real 8)
                                         Source
                                         Implementation
                                         ()
@@ -1833,7 +1819,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         [21 zero
                                         21 add
@@ -1848,7 +1833,7 @@
                                         (Var 14 k)
                                         (ListLen
                                             (Var 14 x)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1857,15 +1842,15 @@
                                         (IntegerCompare
                                             (Var 14 k)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 14 _lpython_return_variable)
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             ()
                                         )
@@ -1879,16 +1864,14 @@
                                             ()
                                             [((ListItem
                                                 (Var 14 x)
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 (TypeParameter
                                                     T
-                                                    []
                                                 )
                                                 ()
                                             ))]
                                             (TypeParameter
                                                 T
-                                                []
                                             )
                                             ()
                                             ()
@@ -1898,15 +1881,15 @@
                                     (DoLoop
                                         ()
                                         ((Var 14 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (Var 14 k)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (Var 14 res)
                                             (FunctionCall
@@ -1918,13 +1901,11 @@
                                                     (Var 14 i)
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                 ))]
                                                 (TypeParameter
                                                     T
-                                                    []
                                                 )
                                                 ()
                                                 ()
@@ -1939,7 +1920,7 @@
                                             ()
                                             [((Var 14 res))
                                             ((Var 14 k))]
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                             ()
                                         )
@@ -1968,7 +1949,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -1987,7 +1967,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -2000,11 +1979,9 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         (TypeParameter
                                             T
-                                            []
                                         )
                                         Source
                                         Implementation
@@ -2016,7 +1993,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         []
                                         .true.

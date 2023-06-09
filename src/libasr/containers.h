@@ -123,6 +123,10 @@ struct Vec {
         return n;
     }
 
+    bool empty() const {
+        return n == 0;
+    }
+
     void resize(Allocator &al, size_t max){
         reserve(al, max);
         n = max;

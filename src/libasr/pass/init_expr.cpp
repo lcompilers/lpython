@@ -52,6 +52,7 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         bool remove_original_statement = false;
         PassUtils::ReplacerUtils::replace_StructTypeConstructor(
             x, this, true, remove_original_statement, result_vec);
+        *current_expr = nullptr;
     }
 
 };

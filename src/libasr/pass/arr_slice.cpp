@@ -45,7 +45,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
     ASR::ttype_t* get_array_from_slice(ASR::ArraySection_t* x, ASR::expr_t* arr_var) {
         Vec<ASR::dimension_t> m_dims;
         m_dims.reserve(al, x->n_args);
-        ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4, nullptr, 0));
+        ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4));
         ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x->base.base.loc, 1, int32_type));
         for( size_t i = 0; i < x->n_args; i++ ) {
             if( x->m_args[i].m_step != nullptr ) {
@@ -89,7 +89,8 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
         ASR::ttype_t* t2 = ASRUtils::type_get_past_pointer(x->m_type);
         ASR::ttype_t* new_type = ASRUtils::duplicate_type(al, t2, &m_dims);
         if (ASR::is_a<ASR::Pointer_t>(*x->m_type)) {
-            new_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x->base.base.loc, new_type));
+            new_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x->base.base.loc,
+                ASRUtils::type_get_past_allocatable(new_type)));
         }
 
         return new_type;
@@ -141,14 +142,14 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
                 doloop_body.push_back(al, assign_stmt);
             } else {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(idx_vars_target[i+1]));
-                ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind, nullptr, 0));
+                ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind));
                 ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x->base.base.loc, 1, int_type));
                 ASR::stmt_t* set_to_one = ASRUtils::STMT(ASR::make_Assignment_t(al, x->base.base.loc, idx_vars_target[i+1], const_1, nullptr));
                 doloop_body.push_back(al, set_to_one);
                 doloop_body.push_back(al, doloop);
             }
             int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(idx_vars_target[i]));
-            ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind, nullptr, 0));
+            ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind));
             ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x->base.base.loc, 1, int_type));
             ASR::expr_t* inc_expr = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x->base.base.loc, idx_vars_target[i], ASR::binopType::Add,
                                         const_1, int_type, nullptr));
@@ -157,7 +158,7 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
             doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, x->base.base.loc, nullptr, head, doloop_body.p, doloop_body.size()));
         }
         int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(idx_vars_target[0]));
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, a_kind));
         ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x->base.base.loc, 1, int_type));
         ASR::stmt_t* set_to_one = ASRUtils::STMT(ASR::make_Assignment_t(al, x->base.base.loc, idx_vars_target[0], const_1, nullptr));
         pass_result.push_back(al, set_to_one);

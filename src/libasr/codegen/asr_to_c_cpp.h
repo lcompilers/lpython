@@ -1960,7 +1960,9 @@ R"(#include <stdio.h>
                     out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
                     out += l + ";\n";
                 }
-                std::string ty = CUtils::get_c_type_from_ttype_t(type);
+                std::string ty = CUtils::get_c_type_from_ttype_t(
+                    ASRUtils::type_get_past_array(
+                        ASRUtils::type_get_past_allocatable(type)));
                 size_str += "*sizeof(" + ty + ")";
                 out += indent + sym + "->data = (" + ty + "*) _lfortran_malloc(" + size_str + ")";
                 out += ";\n";

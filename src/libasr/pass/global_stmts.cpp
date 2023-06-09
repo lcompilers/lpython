@@ -51,7 +51,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
 
                 int a_kind = down_cast<ASR::Integer_t>(ASRUtils::expr_type(value))->m_kind;
 
-                type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
+                type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind));
                 return_var = ASR::make_Variable_t(al, loc,
                     fn_scope, var_name, nullptr, 0, ASRUtils::intent_local, nullptr, nullptr,
                     ASR::storage_typeType::Default, type,

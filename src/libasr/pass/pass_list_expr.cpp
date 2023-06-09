@@ -48,10 +48,8 @@ public:
             al, loc, idx_vars[0], start, nullptr));
         body.push_back(al, loop_stmt);
 
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::expr_t *const_zero = ASRUtils::EXPR(
                     ASR::make_IntegerConstant_t(al, loc, 0, int_type));
 
@@ -155,10 +153,8 @@ public:
         std::string list_type_name = ASRUtils::get_type_code(list_type, true);
         std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
         Vec<ASR::expr_t*> arg_exprs;
         arg_exprs.reserve(al, 4);
@@ -356,10 +352,8 @@ public:
 
     void replace_ListSection(const ASR::ListSection_t* x) {
         Location loc = x->base.base.loc;
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 4);
         ASR::call_arg_t call_arg;
@@ -467,8 +461,7 @@ public:
         ASR::stmt_t* list_concat_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
             al, loc, res_list, value, nullptr));
         body.push_back(al, list_concat_stmt);
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
-            al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
 
         // Declare `__1_k` for iterations and assign `0`

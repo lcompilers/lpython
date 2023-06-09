@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -90,7 +90,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -106,7 +106,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 1 [])
+                                                    (Integer 1)
                                                     ()
                                                     Source
                                                     Public
@@ -122,7 +122,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 2 [])
+                                                    (Integer 2)
                                                     ()
                                                     Source
                                                     Public
@@ -138,7 +138,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -154,7 +154,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -184,7 +184,7 @@
                                         (Var 2 x)
                                         (RealConstant
                                             5.500000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -194,15 +194,15 @@
                                                 Abs
                                                 [(Var 2 x)]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -212,12 +212,12 @@
                                         (RealUnaryMinus
                                             (RealConstant
                                                 5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 -5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -228,15 +228,15 @@
                                                 Abs
                                                 [(Var 2 x)]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -247,24 +247,24 @@
                                                 Abs
                                                 [(RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -276,30 +276,30 @@
                                                 [(RealUnaryMinus
                                                     (RealConstant
                                                         5.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -5.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 5.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -310,19 +310,19 @@
                                             (Cast
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 -5.500000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -333,23 +333,23 @@
                                                 Abs
                                                 [(Var 2 x2)]
                                                 0
-                                                (Real 4 [])
+                                                (Real 4)
                                                 ()
                                             )
                                             Eq
                                             (Cast
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     5.500000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -357,9 +357,9 @@
                                     (=
                                         (Var 2 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -5 (Integer 4))
                                         )
                                         ()
                                     )
@@ -369,12 +369,12 @@
                                                 Abs
                                                 [(Var 2 i)]
                                                 0
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -384,20 +384,20 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(IntegerUnaryMinus
-                                                    (IntegerConstant 1 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -1 (Integer 4 []))
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -1 (Integer 4))
                                                 )]
                                                 0
-                                                (Integer 4 [])
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 1 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -406,13 +406,13 @@
                                         (Var 2 i2)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 6 (Integer 4 []))
+                                                (IntegerConstant 6 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 6 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 6 (Integer 8))
                                             )
-                                            (Integer 8 [])
-                                            (IntegerConstant -6 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant -6 (Integer 8))
                                         )
                                         ()
                                     )
@@ -422,17 +422,17 @@
                                                 Abs
                                                 [(Var 2 i2)]
                                                 0
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 6 (Integer 4 []))
+                                                (IntegerConstant 6 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 6 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 6 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -441,13 +441,13 @@
                                         (Var 2 i3)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4 []))
+                                                (IntegerConstant 7 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 1 [])
-                                                (IntegerConstant 7 (Integer 1 []))
+                                                (Integer 1)
+                                                (IntegerConstant 7 (Integer 1))
                                             )
-                                            (Integer 1 [])
-                                            (IntegerConstant -7 (Integer 1 []))
+                                            (Integer 1)
+                                            (IntegerConstant -7 (Integer 1))
                                         )
                                         ()
                                     )
@@ -457,17 +457,17 @@
                                                 Abs
                                                 [(Var 2 i3)]
                                                 0
-                                                (Integer 1 [])
+                                                (Integer 1)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4 []))
+                                                (IntegerConstant 7 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 1 [])
-                                                (IntegerConstant 7 (Integer 1 []))
+                                                (Integer 1)
+                                                (IntegerConstant 7 (Integer 1))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -476,13 +476,13 @@
                                         (Var 2 i4)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 8 (Integer 4 []))
+                                                (IntegerConstant 8 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant 8 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant 8 (Integer 2))
                                             )
-                                            (Integer 2 [])
-                                            (IntegerConstant -8 (Integer 2 []))
+                                            (Integer 2)
+                                            (IntegerConstant -8 (Integer 2))
                                         )
                                         ()
                                     )
@@ -492,17 +492,17 @@
                                                 Abs
                                                 [(Var 2 i4)]
                                                 0
-                                                (Integer 2 [])
+                                                (Integer 2)
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 8 (Integer 4 []))
+                                                (IntegerConstant 8 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant 8 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant 8 (Integer 2))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -511,7 +511,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -522,16 +522,16 @@
                                                 [(Cast
                                                     (Var 2 b)
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )]
                                                 0
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -540,7 +540,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -551,16 +551,16 @@
                                                 [(Cast
                                                     (Var 2 b)
                                                     LogicalToInteger
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                 )]
                                                 0
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

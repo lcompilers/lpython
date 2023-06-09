@@ -21,8 +21,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 5 (Integer 4 [])))])
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 5 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -38,8 +41,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 2 (Integer 4 [])))])
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -55,7 +61,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -71,7 +77,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -101,7 +107,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "abc"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         ()
                                     )
@@ -110,13 +116,13 @@
                                         (StringItem
                                             (Var 2 s)
                                             (IntegerBinOp
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 Add
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -125,10 +131,10 @@
                                         (Var 2 s)
                                         (StringSection
                                             (Var 2 s)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
                                             ()
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -140,7 +146,7 @@
                                             ()
                                             ()
                                             ()
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -152,11 +158,11 @@
                                             ()
                                             ()
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -167,8 +173,8 @@
                                             (Var 2 s)
                                             ()
                                             ()
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Character 1 -2 () [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -177,10 +183,10 @@
                                         (Var 2 s)
                                         (StringSection
                                             (Var 2 s)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 88 (Integer 4 []))
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Character 1 -2 () [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 88 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -190,29 +196,13 @@
                                         (StringSection
                                             (Var 2 s)
                                             ()
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 4 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -4 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -4 (Integer 4))
                                             )
-                                            (Character 1 -2 () [])
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 2 s)
-                                        (StringSection
-                                            (Var 2 s)
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 89 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -89 (Integer 4 []))
-                                            )
-                                            ()
-                                            (IntegerConstant 4 (Integer 4 []))
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -222,21 +212,13 @@
                                         (StringSection
                                             (Var 2 s)
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -3 (Integer 4 []))
+                                                (IntegerConstant 89 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -89 (Integer 4))
                                             )
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -3 (Integer 4 []))
-                                            )
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -3 (Integer 4 []))
-                                            )
-                                            (Character 1 -2 () [])
+                                            ()
+                                            (IntegerConstant 4 (Integer 4))
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -245,10 +227,34 @@
                                         (Var 2 s)
                                         (StringSection
                                             (Var 2 s)
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
+                                            )
+                                            (Character 1 -2 ())
                                             ()
-                                            (Character 1 -2 () [])
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 2 s)
+                                        (StringSection
+                                            (Var 2 s)
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))
+                                            ()
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()
@@ -258,9 +264,9 @@
                                         (ArrayItem
                                             (Var 2 A)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             RowMajor
                                             ()
                                         )
@@ -270,11 +276,14 @@
                                         (Var 2 B)
                                         (ArraySection
                                             (Var 2 A)
-                                            [((IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))
+                                            [((IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))
                                             ())]
-                                            (Integer 4 [((IntegerConstant 0 (Integer 4 []))
-                                            (IntegerConstant 5 (Integer 4 [])))])
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4)))]
+                                            )
                                             ()
                                         )
                                         ()
@@ -283,11 +292,14 @@
                                         (Var 2 B)
                                         (ArraySection
                                             (Var 2 A)
-                                            [((IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 [])))]
-                                            (Integer 4 [((IntegerConstant 0 (Integer 4 []))
-                                            (IntegerConstant 5 (Integer 4 [])))])
+                                            [((IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4)))]
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4)))]
+                                            )
                                             ()
                                         )
                                         ()
