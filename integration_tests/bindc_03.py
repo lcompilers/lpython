@@ -2,6 +2,7 @@ from lpython import (c_p_pointer, CPtr, pointer, i32,
                     Pointer, ccall, p_c_pointer, dataclass,
                     ccallable, empty_c_void_p, cptr_to_u64,
                     u64_to_cptr, u64)
+from numpy import array
 
 @dataclass
 class ArrayWrapped:
@@ -22,7 +23,7 @@ def get_array(size: i32) -> CPtr:
 def f(q_void: CPtr) -> None:
     i: i32
     el: i32
-    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:])
+    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:], array([10]))
     for i in range(10):
         q2: CPtr
         p_c_pointer(pointer(q[i]), q2)
@@ -35,7 +36,7 @@ def f(q_void: CPtr) -> None:
 def h(q_void: CPtr) -> None:
     i: i32
     el: i32
-    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:])
+    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:], array([10]))
     for i in range(10):
         # TODO: Use q[i] directly in the assert.
         el = q[i]

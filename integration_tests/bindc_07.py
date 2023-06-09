@@ -1,5 +1,5 @@
 from lpython import CPtr, i64, sizeof, i32, i16, i8, ccall, c_p_pointer, empty_c_void_p, Pointer, pointer
-from numpy import empty, int64
+from numpy import empty, int64, array
 
 @ccall
 def _lfortran_malloc(size: i32) -> CPtr:
@@ -13,12 +13,12 @@ def allocate_memory(size: i32) -> tuple[CPtr, CPtr, CPtr, CPtr]:
     return array1, array2, array3, array4
 
 def sum_arrays(array1: CPtr, array2: CPtr, array3: CPtr, array4: CPtr, size: i32):
-    iarray1: Pointer[i8[size]] = c_p_pointer(array1, i8[size])
-    iarray2: Pointer[i16[size]] = c_p_pointer(array2, i16[size])
-    iarray3: Pointer[i32[size]] = c_p_pointer(array3, i32[size])
-    iarray4: Pointer[i64[size]] = c_p_pointer(array4, i64[size])
+    iarray1: Pointer[i8[:]] = c_p_pointer(array1, i8[:], array([size]))
+    iarray2: Pointer[i16[:]] = c_p_pointer(array2, i16[:], array([size]))
+    iarray3: Pointer[i32[:]] = c_p_pointer(array3, i32[:], array([size]))
+    iarray4: Pointer[i64[:]] = c_p_pointer(array4, i64[:], array([size]))
     sum_array_cptr: CPtr = _lfortran_malloc(size * i32(sizeof(i64)))
-    sum_array: Pointer[i64[size]] = c_p_pointer(sum_array_cptr, i64[size])
+    sum_array: Pointer[i64[:]] = c_p_pointer(sum_array_cptr, i64[:], array([size]))
     i: i32
 
     for i in range(size):
