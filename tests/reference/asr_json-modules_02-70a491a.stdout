@@ -129,8 +129,7 @@
                                                         "type": {
                                                             "node": "Integer",
                                                             "fields": {
-                                                                "kind": 4,
-                                                                "dims": []
+                                                                "kind": 4
                                                             },
                                                             "loc": {
                                                                 "first": 71,
@@ -228,8 +227,7 @@
                                                                             "type": {
                                                                                 "node": "Integer",
                                                                                 "fields": {
-                                                                                    "kind": 4,
-                                                                                    "dims": []
+                                                                                    "kind": 4
                                                                                 },
                                                                                 "loc": {
                                                                                     "first": 84,
@@ -262,8 +260,7 @@
                                                                             "type": {
                                                                                 "node": "Integer",
                                                                                 "fields": {
-                                                                                    "kind": 4,
-                                                                                    "dims": []
+                                                                                    "kind": 4
                                                                                 },
                                                                                 "loc": {
                                                                                     "first": 86,
@@ -291,8 +288,7 @@
                                                                     "type": {
                                                                         "node": "Integer",
                                                                         "fields": {
-                                                                            "kind": 4,
-                                                                            "dims": []
+                                                                            "kind": 4
                                                                         },
                                                                         "loc": {
                                                                             "first": 84,
@@ -312,8 +308,7 @@
                                                                             "type": {
                                                                                 "node": "Integer",
                                                                                 "fields": {
-                                                                                    "kind": 4,
-                                                                                    "dims": []
+                                                                                    "kind": 4
                                                                                 },
                                                                                 "loc": {
                                                                                     "first": 84,
@@ -358,8 +353,7 @@
                                                                     "type": {
                                                                         "node": "Integer",
                                                                         "fields": {
-                                                                            "kind": 4,
-                                                                            "dims": []
+                                                                            "kind": 4
                                                                         },
                                                                         "loc": {
                                                                             "first": 89,
@@ -387,8 +381,7 @@
                                                             "type": {
                                                                 "node": "Integer",
                                                                 "fields": {
-                                                                    "kind": 4,
-                                                                    "dims": []
+                                                                    "kind": 4
                                                                 },
                                                                 "loc": {
                                                                     "first": 84,
@@ -408,8 +401,7 @@
                                                                     "type": {
                                                                         "node": "Integer",
                                                                         "fields": {
-                                                                            "kind": 4,
-                                                                            "dims": []
+                                                                            "kind": 4
                                                                         },
                                                                         "loc": {
                                                                             "first": 84,
@@ -489,8 +481,7 @@
                                                                     "type": {
                                                                         "node": "Integer",
                                                                         "fields": {
-                                                                            "kind": 4,
-                                                                            "dims": []
+                                                                            "kind": 4
                                                                         },
                                                                         "loc": {
                                                                             "first": 107,
@@ -518,8 +509,7 @@
                                                             "type": {
                                                                 "node": "Logical",
                                                                 "fields": {
-                                                                    "kind": 4,
-                                                                    "dims": []
+                                                                    "kind": 4
                                                                 },
                                                                 "loc": {
                                                                     "first": 102,
@@ -762,8 +752,7 @@
                                                                     "fields": {
                                                                         "kind": 1,
                                                                         "len": 3,
-                                                                        "len_expr": [],
-                                                                        "dims": []
+                                                                        "len_expr": []
                                                                     },
                                                                     "loc": {
                                                                         "first": 181,
@@ -922,8 +911,7 @@
                                                                     "fields": {
                                                                         "kind": 1,
                                                                         "len": 3,
-                                                                        "len_expr": [],
-                                                                        "dims": []
+                                                                        "len_expr": []
                                                                     },
                                                                     "loc": {
                                                                         "first": 207,

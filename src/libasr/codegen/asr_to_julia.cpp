@@ -223,15 +223,18 @@ public:
     {
         std::string type_name;
         if (ASRUtils::is_integer(*farg->m_type)) {
-            ASR::Integer_t* t = ASR::down_cast<ASR::Integer_t>(farg->m_type);
+            ASR::Integer_t* t = ASR::down_cast<ASR::Integer_t>(
+                ASRUtils::type_get_past_array(farg->m_type));
             type_name = "Int" + std::to_string(t->m_kind * 8);
         } else if (ASRUtils::is_real(*farg->m_type)) {
-            ASR::Real_t* t = ASR::down_cast<ASR::Real_t>(farg->m_type);
+            ASR::Real_t* t = ASR::down_cast<ASR::Real_t>(
+                ASRUtils::type_get_past_array(farg->m_type));
             type_name = "Float32";
             if (t->m_kind == 8)
                 type_name = "Float64";
         } else if (ASRUtils::is_complex(*farg->m_type)) {
-            ASR::Complex_t* t = ASR::down_cast<ASR::Complex_t>(farg->m_type);
+            ASR::Complex_t* t = ASR::down_cast<ASR::Complex_t>(
+                ASRUtils::type_get_past_array(farg->m_type));
             type_name = "ComplexF32";
             if (t->m_kind == 8)
                 type_name = "ComplexF64";
@@ -279,12 +282,15 @@ public:
     {
         std::string sub;
         bool is_array = ASRUtils::is_array(v.m_type);
+        ASR::dimension_t* m_dims = nullptr;
+        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(v.m_type, m_dims);
+        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(v.m_type);
         bool use_ref = (v.m_intent == ASRUtils::intent_out
                         || v.m_intent == ASRUtils::intent_inout)
                        && !is_array;
         std::string dims;
-        if (ASRUtils::is_pointer(v.m_type)) {
-            ASR::ttype_t* t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
+        if (ASRUtils::is_pointer(v_m_type)) {
+            ASR::ttype_t* t2 = ASR::down_cast<ASR::Pointer_t>(v_m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
                 ASR::Integer_t* t = ASR::down_cast<ASR::Integer_t>(t2);
                 std::string type_name = "Int" + std::to_string(t->m_kind * 8);
@@ -293,8 +299,8 @@ public:
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         is_argument);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref);
@@ -308,23 +314,23 @@ public:
             }
         } else {
             bool init_default = !is_argument && !v.m_symbolic_value
-                                && v.m_storage != ASR::storage_typeType::Allocatable;
-            if (ASRUtils::is_integer(*v.m_type)) {
-                ASR::Integer_t* t = ASR::down_cast<ASR::Integer_t>(v.m_type);
+                                && ASR::is_a<ASR::Allocatable_t>(*v_m_type);
+            if (ASRUtils::is_integer(*v_m_type)) {
+                ASR::Integer_t* t = ASR::down_cast<ASR::Integer_t>(v_m_type);
                 std::string type_name = "Int" + std::to_string(t->m_kind * 8);
                 if (is_array) {
                     generate_array_decl(sub,
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref, init_default ? "0" : "");
                 }
-            } else if (ASRUtils::is_real(*v.m_type)) {
-                ASR::Real_t* t = ASR::down_cast<ASR::Real_t>(v.m_type);
+            } else if (ASRUtils::is_real(*v_m_type)) {
+                ASR::Real_t* t = ASR::down_cast<ASR::Real_t>(v_m_type);
                 std::string type_name = "Float32";
                 if (t->m_kind == 8)
                     type_name = "Float64";
@@ -333,14 +339,14 @@ public:
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref, init_default ? "0.0" : "");
                 }
-            } else if (ASRUtils::is_complex(*v.m_type)) {
-                ASR::Complex_t* t = ASR::down_cast<ASR::Complex_t>(v.m_type);
+            } else if (ASRUtils::is_complex(*v_m_type)) {
+                ASR::Complex_t* t = ASR::down_cast<ASR::Complex_t>(v_m_type);
                 std::string type_name = "ComplexF32";
                 if (t->m_kind == 8)
                     type_name = "ComplexF64";
@@ -349,57 +355,55 @@ public:
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref, init_default ? "0.0" : "");
                 }
-            } else if (ASRUtils::is_logical(*v.m_type)) {
+            } else if (ASRUtils::is_logical(*v_m_type)) {
                 std::string type_name = "Bool";
-                ASR::Logical_t* t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 if (is_array) {
                     generate_array_decl(sub,
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref, init_default ? "false" : "");
                 }
-            } else if (ASRUtils::is_character(*v.m_type)) {
+            } else if (ASRUtils::is_character(*v_m_type)) {
                 std::string type_name = "String";
-                ASR::Character_t* t = ASR::down_cast<ASR::Character_t>(v.m_type);
                 if (is_array) {
                     generate_array_decl(sub,
                                         std::string(v.m_name),
                                         type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(type_name, v.m_name, use_ref, init_default ? "\"\"" : "");
                 }
-            } else if (ASR::is_a<ASR::Struct_t>(*v.m_type)) {
+            } else if (ASR::is_a<ASR::Struct_t>(*v_m_type)) {
                 // TODO: handle this
-                ASR::Struct_t* t = ASR::down_cast<ASR::Struct_t>(v.m_type);
+                ASR::Struct_t* t = ASR::down_cast<ASR::Struct_t>(v_m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 if (is_array) {
                     generate_array_decl(sub,
                                         std::string(v.m_name),
                                         der_type_name,
                                         dims,
-                                        t->m_dims,
-                                        t->n_dims,
+                                        m_dims,
+                                        n_dims,
                                         init_default);
                 } else {
                     sub = format_type(der_type_name, v.m_name, use_ref);
                 }
             } else {
-                diag.codegen_error_label("Type number '" + std::to_string(v.m_type->type)
+                diag.codegen_error_label("Type number '" + std::to_string(v_m_type->type)
                                              + "' not supported",
                                          { v.base.base.loc },
                                          "");

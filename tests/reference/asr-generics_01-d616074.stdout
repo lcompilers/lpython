@@ -18,7 +18,6 @@
                                     Default
                                     (TypeParameter
                                         T
-                                        []
                                     )
                                     ()
                                     Source
@@ -40,7 +39,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -56,7 +55,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -72,7 +71,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -82,9 +81,9 @@
                                         })
                                     __asr_generic_f_0
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -107,7 +106,7 @@
                                             ()
                                             [((Var 6 x))
                                             ((Var 6 y))]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -134,7 +133,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                     ()
                                                     Source
                                                     Public
@@ -150,7 +149,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                     ()
                                                     Source
                                                     Public
@@ -166,7 +165,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                     ()
                                                     Source
                                                     Public
@@ -176,9 +175,9 @@
                                         })
                                     __asr_generic_f_1
                                     (FunctionType
-                                        [(Character 1 1 () [])
-                                        (Character 1 1 () [])]
-                                        (Character 1 1 () [])
+                                        [(Character 1 1 ())
+                                        (Character 1 1 ())]
+                                        (Character 1 1 ())
                                         Source
                                         Implementation
                                         ()
@@ -201,7 +200,7 @@
                                             ()
                                             [((Var 7 x))
                                             ((Var 7 y))]
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                             ()
                                         )
@@ -245,9 +244,9 @@
                                         [(FunctionCall
                                             10 __asr_generic_f_0
                                             ()
-                                            [((IntegerConstant 1 (Integer 4 [])))
-                                            ((IntegerConstant 2 (Integer 4 [])))]
-                                            (Integer 4 [])
+                                            [((IntegerConstant 1 (Integer 4)))
+                                            ((IntegerConstant 2 (Integer 4)))]
+                                            (Integer 4)
                                             ()
                                             ()
                                         )]
@@ -261,13 +260,13 @@
                                             ()
                                             [((StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             ))
                                             ((StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             ))]
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                             ()
                                         )]
@@ -281,13 +280,13 @@
                                             ()
                                             [((StringConstant
                                                 "c"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             ))
                                             ((StringConstant
                                                 "d"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             ))]
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                             ()
                                         )]
@@ -316,7 +315,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -335,7 +333,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -354,7 +351,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -367,15 +363,12 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )
                                         (TypeParameter
                                             T
-                                            []
                                         )]
                                         (TypeParameter
                                             T
-                                            []
                                         )
                                         Source
                                         Implementation
@@ -387,7 +380,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         []
                                         .true.
@@ -416,7 +408,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -432,7 +424,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -448,7 +440,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -458,9 +450,9 @@
                                         })
                                     add_integer
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -482,7 +474,7 @@
                                             (Var 3 x)
                                             Add
                                             (Var 3 y)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -508,7 +500,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -524,7 +516,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -540,7 +532,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -550,9 +542,9 @@
                                         })
                                     add_string
                                     (FunctionType
-                                        [(Character 1 -2 () [])
-                                        (Character 1 -2 () [])]
-                                        (Character 1 -2 () [])
+                                        [(Character 1 -2 ())
+                                        (Character 1 -2 ())]
+                                        (Character 1 -2 ())
                                         Source
                                         Implementation
                                         ()
@@ -573,7 +565,7 @@
                                         (StringConcat
                                             (Var 4 x)
                                             (Var 4 y)
-                                            (Character 1 -4 () [])
+                                            (Character 1 -4 ())
                                             ()
                                         )
                                         ()
@@ -601,7 +593,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -620,7 +611,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -639,7 +629,6 @@
                                                     Default
                                                     (TypeParameter
                                                         T
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -652,15 +641,12 @@
                                     (FunctionType
                                         [(TypeParameter
                                             T
-                                            []
                                         )
                                         (TypeParameter
                                             T
-                                            []
                                         )]
                                         (TypeParameter
                                             T
-                                            []
                                         )
                                         Source
                                         Implementation
@@ -672,7 +658,6 @@
                                         .false.
                                         [(TypeParameter
                                             T
-                                            []
                                         )]
                                         [10 add]
                                         .false.
@@ -689,7 +674,6 @@
                                             ((Var 5 y))]
                                             (TypeParameter
                                                 T
-                                                []
                                             )
                                             ()
                                             ()

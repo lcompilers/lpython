@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -107,8 +107,8 @@
                                         (FunctionCall
                                             8 test_return_1
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))]
-                                            (Integer 4 [])
+                                            [((IntegerConstant 4 (Integer 4)))]
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -119,8 +119,8 @@
                                         (FunctionCall
                                             8 test_return_2
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 4 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             ()
                                             ()
                                         )
@@ -131,8 +131,8 @@
                                         (FunctionCall
                                             8 test_return_3
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))]
-                                            (Integer 4 [])
+                                            [((IntegerConstant 4 (Integer 4)))]
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -158,7 +158,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -174,7 +174,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -190,7 +190,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -200,8 +200,8 @@
                                         })
                                     test_return_1
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -218,7 +218,7 @@
                                     [(Var 2 a)]
                                     [(=
                                         (Var 2 x)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -247,7 +247,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -263,7 +263,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -279,7 +279,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -289,8 +289,8 @@
                                         })
                                     test_return_2
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Character 1 -2 () [])
+                                        [(Integer 4)]
+                                        (Character 1 -2 ())
                                         Source
                                         Implementation
                                         ()
@@ -309,7 +309,7 @@
                                         (Var 3 x)
                                         (StringConstant
                                             "test"
-                                            (Character 1 4 () [])
+                                            (Character 1 4 ())
                                         )
                                         ()
                                     )
@@ -339,7 +339,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -355,7 +355,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -365,8 +365,8 @@
                                         })
                                     test_return_3
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()

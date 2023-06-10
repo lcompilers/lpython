@@ -93,12 +93,12 @@
                                         [(FunctionCall
                                             2 pow@__lpython_overloaded_0__pow
                                             2 pow
-                                            [((IntegerConstant 2 (Integer 4 [])))
-                                            ((IntegerConstant 2 (Integer 4 [])))]
-                                            (Real 8 [])
+                                            [((IntegerConstant 2 (Integer 4)))
+                                            ((IntegerConstant 2 (Integer 4)))]
+                                            (Real 8)
                                             (RealConstant
                                                 4.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             ()
                                         )]
@@ -108,11 +108,11 @@
                                     (Print
                                         ()
                                         [(IntegerBinOp
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4))
                                             Pow
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant 4 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 4 (Integer 4))
                                         )]
                                         ()
                                         ()

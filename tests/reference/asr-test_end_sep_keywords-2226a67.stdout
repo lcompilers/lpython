@@ -73,15 +73,15 @@
                                         ()
                                         [(StringConstant
                                             "abc"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "lmn"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "pqr"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )]
                                         ()
                                         ()
@@ -90,19 +90,19 @@
                                         ()
                                         [(StringConstant
                                             "abc"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "lmn"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "pqr"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )]
                                         (StringConstant
                                             "+"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -110,43 +110,43 @@
                                         ()
                                         [(StringConstant
                                             "abc"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "lmn"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "pqr"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )]
                                         ()
                                         (StringConstant
                                             "xyz\n"
-                                            (Character 1 4 () [])
+                                            (Character 1 4 ())
                                         )
                                     )
                                     (Print
                                         ()
                                         [(StringConstant
                                             "abc"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "lmn"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         (StringConstant
                                             "pqr"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )]
                                         (StringConstant
                                             "+"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         (StringConstant
                                             "xyz\n"
-                                            (Character 1 4 () [])
+                                            (Character 1 4 ())
                                         )
                                     )]
                                     ()

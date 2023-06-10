@@ -28,6 +28,7 @@ struct CompilerOptions {
     std::string runtime_library_dir;
 
     bool fixed_form = false;
+    bool interactive = false;
     bool c_preprocessor = false;
     std::vector<std::string> c_preprocessor_defines;
     bool prescan = true;
@@ -49,6 +50,7 @@ struct CompilerOptions {
     bool new_parser = false;
     bool implicit_typing = false;
     bool implicit_interface = false;
+    bool print_leading_space = false;
     bool rtlib = false;
     std::string target = "";
     std::string arg_o = "";

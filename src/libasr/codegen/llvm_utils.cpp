@@ -313,7 +313,7 @@ namespace LCompilers {
     void LLVMUtils::deepcopy(llvm::Value* src, llvm::Value* dest,
                              ASR::ttype_t* asr_type, llvm::Module* module,
                              std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        switch( asr_type->type ) {
+        switch( ASRUtils::type_get_past_array(asr_type)->type ) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::UnsignedInteger:
             case ASR::ttypeType::Real:
@@ -346,18 +346,31 @@ namespace LCompilers {
                 ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
                     ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
                 std::string der_type_name = std::string(struct_type_t->m_name);
-                for( auto item: struct_type_t->m_symtab->get_scope() ) {
-                    std::string mem_name = item.first;
-                    int mem_idx = name2memidx[der_type_name][mem_name];
-                    llvm::Value* src_member = create_gep(src, mem_idx);
-                    if( !LLVM::is_llvm_struct(ASRUtils::symbol_type(item.second)) &&
-                        !ASRUtils::is_array(ASRUtils::symbol_type(item.second)) ) {
-                        src_member = LLVM::CreateLoad(*builder, src_member);
+                while( struct_type_t != nullptr ) {
+                    for( auto item: struct_type_t->m_symtab->get_scope() ) {
+                        if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
+                            ASR::is_a<ASR::CustomOperator_t>(*item.second) ) {
+                            continue ;
+                        }
+                        std::string mem_name = item.first;
+                        int mem_idx = name2memidx[der_type_name][mem_name];
+                        llvm::Value* src_member = create_gep(src, mem_idx);
+                        if( !LLVM::is_llvm_struct(ASRUtils::symbol_type(item.second)) &&
+                            !ASRUtils::is_array(ASRUtils::symbol_type(item.second)) ) {
+                            src_member = LLVM::CreateLoad(*builder, src_member);
+                        }
+                        llvm::Value* dest_member = create_gep(dest, mem_idx);
+                        deepcopy(src_member, dest_member,
+                            ASRUtils::symbol_type(item.second),
+                            module, name2memidx);
                     }
-                    llvm::Value* dest_member = create_gep(dest, mem_idx);
-                    deepcopy(src_member, dest_member,
-                        ASRUtils::symbol_type(item.second),
-                        module, name2memidx);
+                    if( struct_type_t->m_parent != nullptr ) {
+                        ASR::StructType_t* parent_struct_type_t =
+                            ASR::down_cast<ASR::StructType_t>(struct_type_t->m_parent);
+                        struct_type_t = parent_struct_type_t;
+                    } else {
+                        struct_type_t = nullptr;
+                    }
                 }
                 break ;
             }

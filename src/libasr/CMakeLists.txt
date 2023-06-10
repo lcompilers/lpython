@@ -44,6 +44,7 @@ set(SRC
     pass/class_constructor.cpp
     pass/arr_slice.cpp
     pass/print_arr.cpp
+    pass/print_struct_type.cpp
     pass/print_list_tuple.cpp
     pass/pass_utils.cpp
     pass/unused_functions.cpp

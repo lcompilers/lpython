@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -90,7 +90,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -106,7 +106,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -134,7 +134,7 @@
                                     []
                                     [(=
                                         (Var 2 i)
-                                        (IntegerConstant 34 (Integer 4 []))
+                                        (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -142,13 +142,13 @@
                                         (Cast
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 0.000000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -157,17 +157,17 @@
                                         (RealCompare
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -175,23 +175,23 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntegerConstant 34 (Integer 4 []))
+                                                (IntegerConstant 34 (Integer 4))
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     34.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 34.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -201,15 +201,15 @@
                                             (Cast
                                                 (Var 2 i)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 34.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -217,9 +217,9 @@
                                     (=
                                         (Var 2 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 4235 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -4235 (Integer 4 []))
+                                            (IntegerConstant 4235 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -4235 (Integer 4))
                                         )
                                         ()
                                     )
@@ -227,33 +227,33 @@
                                         (RealCompare
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 4235 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -4235 (Integer 4 []))
+                                                    (IntegerConstant 4235 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -4235 (Integer 4))
                                                 )
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealUnaryMinus
                                                 (RealConstant
                                                     4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -263,22 +263,22 @@
                                             (Cast
                                                 (Var 2 i)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealUnaryMinus
                                                 (RealConstant
                                                     4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -286,23 +286,23 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntegerConstant 34 (Integer 4 []))
+                                                (IntegerConstant 34 (Integer 4))
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     34.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 34.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -311,33 +311,33 @@
                                         (RealCompare
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 4235 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -4235 (Integer 4 []))
+                                                    (IntegerConstant 4235 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -4235 (Integer 4))
                                                 )
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealUnaryMinus
                                                 (RealConstant
                                                     4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -4235.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -346,17 +346,17 @@
                                         (RealCompare
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -366,15 +366,15 @@
                                             (Cast
                                                 (Var 2 f)
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -384,24 +384,24 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     1.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -411,24 +411,24 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     0.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -437,7 +437,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -446,7 +446,7 @@
                                         (Cast
                                             (Var 2 b)
                                             LogicalToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -457,9 +457,9 @@
                                             Eq
                                             (RealConstant
                                                 1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -468,7 +468,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -477,15 +477,15 @@
                                             (Cast
                                                 (Var 2 b)
                                                 LogicalToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
