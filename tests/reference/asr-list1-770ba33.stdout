@@ -323,37 +323,23 @@
                                     )
                                     (=
                                         (Var 2 d)
-<<<<<<< HEAD
                                         (IntrinsicFunction
                                             ListPop
                                             [(Var 2 a)]
                                             0
-                                            (Integer 4 [])
-=======
-                                        (ListPop
-                                            (Var 2 a)
-                                            (IntegerConstant -1 (Integer 4))
                                             (Integer 4)
->>>>>>> main
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 d)
-<<<<<<< HEAD
                                         (IntrinsicFunction
                                             ListPop
                                             [(Var 2 a)
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            (IntegerConstant 2 (Integer 4))]
                                             1
-                                            (Integer 4 [])
-=======
-                                        (ListPop
-                                            (Var 2 a)
-                                            (IntegerConstant 2 (Integer 4))
                                             (Integer 4)
->>>>>>> main
                                             ()
                                         )
                                         ()
