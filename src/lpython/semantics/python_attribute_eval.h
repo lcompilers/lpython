@@ -247,39 +247,6 @@ struct AttributeHandler {
             return make_ListInsert_t(al, loc, s, args[0], args[1]);
     }
 
-    static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
-        Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (args.size() > 1) {
-            throw SemanticError("pop() takes atmost one argument",
-                    loc);
-        }
-        ASR::expr_t *idx = nullptr;
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
-        ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-        if (args.size() == 1) {
-            ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
-            if (!ASRUtils::check_equal_type(pos_type, int_type)) {
-                std::string fnd = ASRUtils::type_to_str_python(pos_type);
-                std::string org = ASRUtils::type_to_str_python(int_type);
-                diag.add(diag::Diagnostic(
-                    "Type mismatch in 'pop', List index should be of integer type",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
-                                {args[0]->base.loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
-            idx = args[0];
-        } else {
-            // default is last index
-            idx = (ASR::expr_t*)ASR::make_IntegerConstant_t(al, loc, -1, int_type);
-        }
-
-        return make_ListPop_t(al, loc, s, idx, list_type, nullptr);
-    }
-
     static ASR::asr_t* eval_list_clear(ASR::expr_t *s, Allocator &al,
         const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
             if (args.size() != 0) {

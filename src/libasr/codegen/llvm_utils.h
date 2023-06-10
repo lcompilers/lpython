@@ -260,7 +260,9 @@ namespace LCompilers {
                         ASR::ttype_t* item_type, llvm::Module& module);
 
             llvm::Value* pop_position(llvm::Value* list, llvm::Value* pos,
-                                      ASR::ttype_t* list_type, llvm::Module& module);
+                                      ASR::ttype_t* list_type, llvm::Module* module,
+                                      std::map<std::string, std::map<std::string, int>>& name2memidx);
+
             llvm::Value* pop_last(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
 
             void list_clear(llvm::Value* list);

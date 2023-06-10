@@ -1094,6 +1094,8 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
         err("Call to list.pop must have at most one argument", loc);
     }
 
+    // TODO: Add a check to ensure that only integer typed indices are present
+
     ASR::expr_t* list_expr = args[0];
     ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
     ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;

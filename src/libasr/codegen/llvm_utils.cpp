@@ -2948,7 +2948,8 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMList::pop_position(llvm::Value* list, llvm::Value* pos,
-                                        ASR::ttype_t* list_type, llvm::Module& module) {
+        ASR::ttype_t* list_element_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
 
         /* Equivalent in C++:
          * while(end_point > pos) {
@@ -2968,7 +2969,21 @@ namespace LCompilers {
 
         // Get element to return
         llvm::Value* item = read_item(list, LLVM::CreateLoad(*builder, pos_ptr),
-                                      true, module, LLVM::is_llvm_struct(list_type));
+                                      true, *module, LLVM::is_llvm_struct(list_element_type));
+        // TODO: Create a macro for the following code to allocate auxiliary variables
+        // on stack.
+        if( LLVM::is_llvm_struct(list_element_type) ) {
+            std::string list_element_type_code = ASRUtils::get_type_code(list_element_type);
+            llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+            llvm::IRBuilder<> builder0(context);
+            builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+            LCOMPILERS_ASSERT(typecode2listtype.find(list_element_type_code) != typecode2listtype.end());
+            llvm::AllocaInst *target = builder0.CreateAlloca(
+                std::get<2>(typecode2listtype[list_element_type_code]), nullptr,
+                "pop_position_item");
+            llvm_utils->deepcopy(item, target, list_element_type, module, name2memidx);
+            item = target;
+        }
 
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
@@ -2989,7 +3004,7 @@ namespace LCompilers {
                         LLVM::CreateLoad(*builder, pos_ptr),
                         llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
             write_item(list, LLVM::CreateLoad(*builder, pos_ptr),
-                read_item(list, tmp, false, module, false), false, module);
+                read_item(list, tmp, false, *module, false), false, *module);
             LLVM::CreateStore(*builder, tmp, pos_ptr);
         }
         builder->CreateBr(loophead);

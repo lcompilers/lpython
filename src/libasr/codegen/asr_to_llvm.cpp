@@ -2040,11 +2040,11 @@ public:
         this->visit_expr(*m_arg);
         llvm::Value* plist = tmp;
 
-        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        ptr_loads = 2;
         this->visit_expr_wrapper(m_ele, true);
         ptr_loads = ptr_loads_copy;
         llvm::Value *pos = tmp;
-        tmp = list_api->pop_position(plist, pos, asr_el_type, *module);
+        tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
