@@ -3469,7 +3469,8 @@ public:
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
                 ASR::expr_t* val = ASRUtils::expr_value(ASRUtils::EXPR(tmp_step));
-                if (val != nullptr && ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n == 0) {
+                int64_t const_value = 1;
+                if (ASRUtils::is_value_constant(val, const_value) && const_value == 0) {
                     throw SemanticError("slice step cannot be zero", tmp_step->loc);
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
