@@ -27,6 +27,7 @@ def test_list_pop():
     assert x == (1, 2.0)
     assert len(l2) == 0
     l2.append((2, 3.0))
+    assert x == (1, 2.0)
 
     l3 = []
     for i in range(total):
@@ -54,9 +55,14 @@ def test_list_pop():
         j += 1
     assert len(l1) == 0
 
-    l2 = [(1, 1.0), (2, 4.0)]
-    x = l2.pop(0)
-    # print(x)        # incorrect
-    # print(l2)       # correct
+    total = 10
+    l2 = []
+    for i in range(total):
+        l2.append((i, f64(i * i)))
+    j = 0
+    for i in range(total):
+        assert l2.pop(j - i) == (i, f64(i * i))
+        j += 1
+    assert len(l2) == 0
 
 test_list_pop()
