@@ -2012,7 +2012,7 @@ public:
 
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         ptr_loads = ptr_loads_copy;
-        list_api->reverse(plist, asr_el_type, *module);
+        list_api->reverse(plist, *module);
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
@@ -2096,6 +2096,46 @@ public:
         list_api->list_clear(plist);
     }
 
+    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        ptr_loads = 2;      // right is int always
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+
+        ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
+        bool is_array_type_local = false, is_malloc_array_type_local = false;
+        bool is_list_local = false;
+        ASR::dimension_t* m_dims_local = nullptr;
+        int n_dims_local = -1, a_kind_local = -1;
+        llvm::Type* llvm_el_type = get_type_from_ttype_t(list_type->m_type,
+                                    nullptr,
+                                    ASR::storage_typeType::Default, is_array_type_local,
+                                    is_malloc_array_type_local, is_list_local, m_dims_local,
+                                    n_dims_local, a_kind_local);
+        std::string type_code = ASRUtils::get_type_code(list_type->m_type);
+        int32_t type_size = -1;
+        if( ASR::is_a<ASR::Character_t>(*list_type->m_type) ||
+            LLVM::is_llvm_struct(list_type->m_type) ||
+            ASR::is_a<ASR::Complex_t>(*list_type->m_type) ) {
+            llvm::DataLayout data_layout(module.get());
+            type_size = data_layout.getTypeAllocSize(llvm_el_type);
+        } else {
+            type_size = ASRUtils::extract_kind_from_ttype_t(list_type->m_type);
+        }
+        llvm::Type* repeat_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
+        llvm::Value* repeat_list = builder->CreateAlloca(repeat_list_type, nullptr, "repeat_list");
+        llvm::Value* left_len = list_api->len(left);
+        llvm::Value* capacity = builder->CreateMul(left_len, right);
+        list_api->list_init(type_code, repeat_list, *module,
+                            capacity, capacity);
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 1;
+        list_api->list_repeat_copy(repeat_list, left, right, left_len, module.get());
+        ptr_loads = ptr_loads_copy;
+        tmp = repeat_list;
+    }
+
     void visit_TupleCompare(const ASR::TupleCompare_t& x) {
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -2169,7 +2209,7 @@ public:
         }
         llvm::Type* concat_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
         llvm::Value* concat_tuple = builder->CreateAlloca(concat_tuple_type, nullptr, "concat_tuple");
-        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple, *module);
+        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple);
         tmp = concat_tuple;
     }
 
