@@ -444,6 +444,10 @@ public:
                     el_type = getIntType(a_kind, true);
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    el_type = getIntType(a_kind, true);
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     el_type = getFPType(a_kind, true);
                     break;
@@ -6411,6 +6415,7 @@ public:
                     ASRUtils::type_get_past_pointer(x->m_type));
                 switch (t2->type) {
                     case ASR::ttypeType::Integer:
+                    case ASR::ttypeType::UnsignedInteger:
                     case ASR::ttypeType::Real:
                     case ASR::ttypeType::Complex:
                     case ASR::ttypeType::Struct:
@@ -6759,6 +6764,7 @@ public:
             case (ASR::cast_kindType::IntegerToUnsignedInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
+                LCOMPILERS_ASSERT(arg_kind != -1 && dest_kind != -1)
                 if( arg_kind > 0 && dest_kind > 0 &&
                     arg_kind != dest_kind )
                 {
@@ -6771,7 +6777,18 @@ public:
                 break;
             }
             case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
-                // tmp = tmp
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                LCOMPILERS_ASSERT(arg_kind != -1 && dest_kind != -1)
+                if( arg_kind > 0 && dest_kind > 0 &&
+                    arg_kind != dest_kind )
+                {
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateSExt(tmp, getIntType(dest_kind));
+                    } else {
+                        tmp = builder->CreateTrunc(tmp, getIntType(dest_kind));
+                    }
+                }
                 break;
             }
             case (ASR::cast_kindType::CPtrToUnsignedInteger) : {
