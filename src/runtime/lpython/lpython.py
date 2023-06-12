@@ -682,29 +682,36 @@ class lpython:
         self.arg_type_formats = ""
         self.return_type = ""
         self.return_type_format = ""
+        self.array_as_return_type = ()
         self.arg_types = {}
         counter = 1
         for t in types.keys():
             if t == "return":
                 type = get_type_info(types[t])
-                self.return_type_format = type[0]
-                self.return_type = type[1]
+                if type[0] == 'O':
+                    self.array_as_return_type = type
+                    continue
+                else:
+                    self.return_type_format = type[0]
+                    self.return_type = type[1]
             else:
                 type = get_type_info(types[t])
                 self.arg_type_formats += type[0]
                 self.arg_types[counter] = type[1]
                 counter += 1
         # ----------------------------------------------------------------------
-        # `arg_0`: used as the return variables
+        # `arg_0` is used as the return variable
         # arguments are declared as `arg_1`, `arg_2`, ...
-        variables_decl = ""
+        variables_decl = "// Declare return variables and arguments\n"
         if self.return_type != "":
-            variables_decl = "// Declare return variables and arguments\n"
             variables_decl += "    " + get_data_type(self.return_type) + "arg_" \
                 + str(0) + ";\n"
+        elif self.array_as_return_type:
+            variables_decl += "    " + get_data_type( \
+                self.array_as_return_type[1][1][:-2]) + "arg_" + str(0) + ";\n"
         # ----------------------------------------------------------------------
         # `PyArray_AsCArray` is used to convert NumPy Arrays to C Arrays
-        # `fill_array_details` contains arrays operations to be
+        # `fill_array_details` contains array operations to be
         # performed on the arguments
         # `parse_args` are used to capture the args from CPython
         # `pass_args` are the args that are passed to the shared library function
@@ -766,7 +773,24 @@ class lpython:
     // Build and return the result as a Python object
     return Py_BuildValue("{self.return_type_format}", arg_0);"""
         else:
-            fill_return_details = f"""{self.fn_name}({pass_args});
+            if self.array_as_return_type:
+                fill_return_details = f"""
+    arg_0.data = malloc(sizeof({self.array_as_return_type[1][2][:-2]}));
+    arg_0.n_dims = 1;
+    arg_0.dims[0].lower_bound = 0;
+    arg_0.dims[0].length = arg_1;
+    arg_0.is_allocated = false;
+    {self.fn_name}({pass_args}, &arg_0);
+
+    // Build and return the result as a Python object
+    PyObject* list_obj = PyList_New(arg_1);
+    for (int i = 0; i < arg_1; i++) {{
+        PyObject* element = PyFloat_FromDouble(arg_0.data[i]);
+        PyList_SetItem(list_obj, i, element);
+    }}
+    return list_obj;"""
+            else:
+                fill_return_details = f"""{self.fn_name}({pass_args});
     Py_RETURN_NONE;"""
 
         # ----------------------------------------------------------------------
@@ -856,4 +880,8 @@ PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
         # import the symbol from the shared library
         function = getattr(__import__("lpython_module_" + self.fn_name),
             self.fn_name)
-        return function(*args, **kwargs)
+        if self.array_as_return_type:
+            from numpy import array
+            return array(function(*args, **kwargs))
+        else:
+            return function(*args, **kwargs)
