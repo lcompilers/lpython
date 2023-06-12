@@ -832,13 +832,15 @@ PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
             raise NotImplementedError("Platform not implemented")
 
         from numpy import get_include
-        from distutils.sysconfig import get_python_inc, get_python_lib
+        from distutils.sysconfig import get_python_inc, get_python_lib, \
+            get_python_version
         python_path = "-I" + get_python_inc() + " "
         numpy_path = "-I" + get_include() + " "
         rt_path_01 = "-I" + get_rtlib_dir() + "/../libasr/runtime "
         rt_path_02 = "-L" + get_rtlib_dir() + " -Wl,-rpath " \
             + get_rtlib_dir() + " -llpython_runtime "
-        python_lib = "-L" + get_python_lib() + "/../.. -lpython3.10 -lm"
+        python_lib = "-L" + get_python_lib() + "/../.. -lpython" + \
+            get_python_version() + " -lm"
 
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
             filename + ".c -o lpython_module_" + self.fn_name + ".so " +
