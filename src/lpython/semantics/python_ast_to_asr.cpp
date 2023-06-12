@@ -6205,6 +6205,18 @@ public:
                                         ASR::make_Var_t(al, x.base.base.loc, t));
                     handle_attribute(te, at->m_attr, x.base.base.loc, elements);
                     return;
+                } else if (AST::is_a<AST::Attribute_t>(*at->m_value)) {
+                    AST::Attribute_t *at2 = AST::down_cast<AST::Attribute_t>(at->m_value);
+                    visit_Attribute(*at2);
+                    ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(tmp);
+                    Vec<ASR::expr_t*> elements;
+                    elements.reserve(al, c->n_args);
+                    for (size_t i = 0; i < c->n_args; ++i) {
+                        visit_expr(*c->m_args[i]);
+                        elements.push_back(al, ASRUtils::EXPR(tmp));
+                    }
+                    handle_attribute(te, at->m_attr, x.base.base.loc, elements);
+                    return;
                 }
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",

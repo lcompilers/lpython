@@ -1755,7 +1755,13 @@ public:
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
-        ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_a));
+        ASR::List_t* asr_list = nullptr;
+        if (ASR::is_a<ASR::Var_t>(*x.m_a)) {
+            asr_list = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_a));
+        } else if (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_a)) {
+            ASR::StructInstanceMember_t* struct_instance = ASR::down_cast<ASR::StructInstanceMember_t>(x.m_a);
+            asr_list = ASR::down_cast<ASR::List_t>(struct_instance->m_type);
+        }
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_a);
