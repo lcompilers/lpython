@@ -250,6 +250,27 @@ public:
                     std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
                 }
+            } else if (ASRUtils::is_unsigned_integer(*t2)) {
+                ASR::UnsignedInteger_t *t = ASR::down_cast<ASR::UnsignedInteger_t>(ASRUtils::type_get_past_array(t2));
+                std::string type_name = "uint" + std::to_string(t->m_kind * 8) + "_t";
+                if( !ASRUtils::is_array(v_m_type) ) {
+                    type_name.append(" *");
+                }
+                if( is_array ) {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
+                    std::string encoded_type_name = "u" + std::to_string(t->m_kind * 8);
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, m_dims, n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                } else {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
+                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                }
             } else if (ASRUtils::is_real(*t2)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(t2);
                 std::string type_name;
