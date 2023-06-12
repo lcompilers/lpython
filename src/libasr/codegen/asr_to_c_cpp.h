@@ -1491,9 +1491,25 @@ R"(#include <stdio.h>
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::RealToUnsignedInteger) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                src = "(uint" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
             case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
                 int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 src = "(int" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToReal) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast IntegerToReal: Unsupported Kind " + std::to_string(dest_kind));
+                }
                 last_expr_precedence = 2;
                 break;
             }

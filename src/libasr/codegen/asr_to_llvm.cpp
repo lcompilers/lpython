@@ -6548,12 +6548,24 @@ public:
                 tmp = builder->CreateSIToFP(tmp, getFPType(a_kind, false));
 		        break;
             }
+            case (ASR::cast_kindType::UnsignedIntegerToReal) : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                tmp = builder->CreateSIToFP(tmp, getFPType(a_kind, false));
+		        break;
+            }
             case (ASR::cast_kindType::LogicalToReal) : {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 tmp = builder->CreateUIToFP(tmp, getFPType(a_kind, false));
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
+                llvm::Type *target_type;
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                target_type = getIntType(a_kind);
+                tmp = builder->CreateFPToSI(tmp, target_type);
+                break;
+            }
+            case (ASR::cast_kindType::RealToUnsignedInteger) : {
                 llvm::Type *target_type;
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 target_type = getIntType(a_kind);
