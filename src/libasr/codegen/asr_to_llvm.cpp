@@ -444,6 +444,10 @@ public:
                     el_type = getIntType(a_kind, true);
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    el_type = getIntType(a_kind, true);
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     el_type = getFPType(a_kind, true);
                     break;
@@ -6411,6 +6415,7 @@ public:
                     ASRUtils::type_get_past_pointer(x->m_type));
                 switch (t2->type) {
                     case ASR::ttypeType::Integer:
+                    case ASR::ttypeType::UnsignedInteger:
                     case ASR::ttypeType::Real:
                     case ASR::ttypeType::Complex:
                     case ASR::ttypeType::Struct:
