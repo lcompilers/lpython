@@ -422,6 +422,7 @@ RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
+RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)
