@@ -2021,6 +2021,32 @@ public:
         list_api->reverse(plist, asr_el_type, *module);
     }
 
+    void generate_ListPop_0(ASR::expr_t* m_arg) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
+        ptr_loads = ptr_loads_copy;
+        tmp = list_api->pop_last(plist, asr_el_type, *module);
+    }
+
+    void generate_ListPop_1(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *pos = tmp;
+        tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -2037,6 +2063,21 @@ public:
                     }
                 }
                 break ;
+            }
+            case ASRUtils::IntrinsicFunctions::ListReverse: {
+                generate_ListReverse(x.m_args[0]);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::ListPop: {
+                switch(x.m_overload_id) {
+                    case 0:
+                        generate_ListPop_0(x.m_args[0]);
+                        break;
+                    case 1:
+                        generate_ListPop_1(x.m_args[0], x.m_args[1]);
+                        break;
+                }
+                break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {
                 switch (x.m_overload_id) {
@@ -2079,10 +2120,6 @@ public:
                     }
                 }
                 break ;
-            }
-            case ASRUtils::IntrinsicFunctions::ListReverse: {
-                generate_ListReverse(x.m_args[0]);
-                break;
             }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::

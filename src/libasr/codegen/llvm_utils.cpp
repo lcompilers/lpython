@@ -2915,6 +2915,111 @@ namespace LCompilers {
         builder->CreateStore(end_point, end_point_ptr);
     }
 
+    llvm::Value* LLVMList::pop_last(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
+        // If list is empty, output error
+
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+
+        llvm::Value* cond = builder->CreateICmpEQ(llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), end_point);
+        llvm_utils->create_if_else(cond, [&]() {
+            std::string message = "pop from empty list";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("IndexError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        }, [=]() {
+        });
+
+        // Get last element of list
+        llvm::Value* tmp = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 1)));
+        tmp = read_item(list, tmp, false, module, LLVM::is_llvm_struct(list_type));
+
+        // Decrement end point by one
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+        return tmp;
+    }
+
+    llvm::Value* LLVMList::pop_position(llvm::Value* list, llvm::Value* pos,
+        ASR::ttype_t* list_element_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /* Equivalent in C++:
+         * while(end_point > pos) {
+         *     tmp = pos + 1;
+         *     list[pos] = list[tmp];
+         *     pos = tmp;
+         * }
+         */
+
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+
+        llvm::AllocaInst *pos_ptr = builder->CreateAlloca(
+                                    llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, pos, pos_ptr);
+        llvm::Value* tmp = nullptr;
+
+        // Get element to return
+        llvm::Value* item = read_item(list, LLVM::CreateLoad(*builder, pos_ptr),
+                                      true, *module, LLVM::is_llvm_struct(list_element_type));
+        // TODO: Create a macro for the following code to allocate auxiliary variables
+        // on stack.
+        if( LLVM::is_llvm_struct(list_element_type) ) {
+            std::string list_element_type_code = ASRUtils::get_type_code(list_element_type);
+            llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+            llvm::IRBuilder<> builder0(context);
+            builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+            LCOMPILERS_ASSERT(typecode2listtype.find(list_element_type_code) != typecode2listtype.end());
+            llvm::AllocaInst *target = builder0.CreateAlloca(
+                std::get<2>(typecode2listtype[list_element_type_code]), nullptr,
+                "pop_position_item");
+            llvm_utils->deepcopy(item, target, list_element_type, module, name2memidx);
+            item = target;
+        }
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(end_point,
+                                            LLVM::CreateLoad(*builder, pos_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, pos_ptr),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            write_item(list, LLVM::CreateLoad(*builder, pos_ptr),
+                read_item(list, tmp, false, *module, false), false, *module);
+            LLVM::CreateStore(*builder, tmp, pos_ptr);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        // Decrement end point by one
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                       context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+
+        return item;
+    }
+
     void LLVMList::list_clear(llvm::Value* list) {
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
         llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),

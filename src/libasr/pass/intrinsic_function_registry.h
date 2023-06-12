@@ -63,6 +63,7 @@ enum class IntrinsicFunctions : int64_t {
     ListIndex,
     Partition,
     ListReverse,
+    ListPop,
     Sum,
     // ...
 };
@@ -1057,6 +1058,65 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 
 } // namespace ListReverse
 
+namespace ListPop {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args <= 2, "Call to list.pop must have at most one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "Argument to list.pop must be of list type",
+        x.base.base.loc, diagnostics);
+    switch(x.m_overload_id) {
+        case 0:
+            break;
+        case 1:
+            ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[1])),
+            "Argument to list.pop must be an integer",
+            x.base.base.loc, diagnostics);
+            break;
+    }
+    ASRUtils::require_impl(ASRUtils::check_equal_type(x.m_type,
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Return type of list.pop must be of same type as list's element type",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() > 2) {
+        err("Call to list.pop must have at most one argument", loc);
+    }
+    if (args.size() == 2 &&
+        !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(args[1]))) {
+        err("Argument to list.pop must be an integer", loc);
+    }
+
+    ASR::expr_t* list_expr = args[0];
+    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_pop(al, loc, arg_values);
+    ASR::ttype_t *to_type = list_type;
+    int64_t overload_id = (args.size() == 2);
+    return ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            args.p, args.size(), overload_id, to_type, compile_time_value);
+}
+
+} // namespace ListPop
+
 namespace Any {
 
 static inline void verify_array(ASR::expr_t* array, ASR::ttype_t* return_type,
@@ -1976,6 +2036,8 @@ namespace IntrinsicFunctionRegistry {
             {&Partition::instantiate_Partition, &Partition::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             {nullptr, &ListIndex::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            {nullptr, &ListPop::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             {nullptr, &ListReverse::verify_args}},
     };
@@ -2014,6 +2076,8 @@ namespace IntrinsicFunctionRegistry {
             "list.index"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             "list.reverse"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            "list.pop"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2042,6 +2106,7 @@ namespace IntrinsicFunctionRegistry {
                 {"sum", {&Sum::create_Sum, &Sum::eval_Sum}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
+                {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}}
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2088,6 +2153,9 @@ namespace IntrinsicFunctionRegistry {
     }
 
     static inline verify_function get_verify_function(int64_t id) {
+        if( intrinsic_function_by_id_db.find(id) == intrinsic_function_by_id_db.end() ) {
+            return nullptr;
+        }
         return std::get<1>(intrinsic_function_by_id_db.at(id));
     }
 
@@ -2143,6 +2211,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
+        INTRINSIC_NAME_CASE(ListPop)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
