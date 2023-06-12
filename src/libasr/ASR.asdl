@@ -425,7 +425,9 @@ cast_kind
     | IntegerToCharacter
     | LogicalToCharacter
     | UnsignedIntegerToInteger
+    | UnsignedIntegerToReal
     | IntegerToUnsignedInteger
+    | RealToUnsignedInteger
     | CPtrToUnsignedInteger
     | UnsignedIntegerToCPtr
 
