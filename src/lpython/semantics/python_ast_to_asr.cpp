@@ -3464,8 +3464,14 @@ public:
             }
             if (sl->m_step != nullptr) {
                 this->visit_expr(*sl->m_step);
+                ASR::asr_t *tmp_step = tmp;
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
+                }
+                ASR::expr_t* val = ASRUtils::expr_value(ASRUtils::EXPR(tmp_step));
+                int64_t const_value = 1;
+                if (ASRUtils::is_value_constant(val, const_value) && const_value == 0) {
+                    throw SemanticError("slice step cannot be zero", tmp_step->loc);
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
             }
