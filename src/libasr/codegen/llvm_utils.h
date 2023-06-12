@@ -272,6 +272,12 @@ namespace LCompilers {
             void remove(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* item_type, llvm::Module& module);
 
+            llvm::Value* pop_position(llvm::Value* list, llvm::Value* pos,
+                                      ASR::ttype_t* list_type, llvm::Module* module,
+                                      std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            llvm::Value* pop_last(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
+
             void list_clear(llvm::Value* list);
 
             void reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
@@ -325,6 +331,11 @@ namespace LCompilers {
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
+
+            void concat(llvm::Value* t1, llvm::Value* t2,
+                        ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
+                        llvm::Value* concat_tuple,
+                        llvm::Module& module);
     };
 
     class LLVMDictInterface {

@@ -72,7 +72,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -88,7 +88,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -104,7 +104,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -120,7 +120,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -136,7 +136,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -152,7 +152,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -168,7 +168,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -184,7 +184,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -212,29 +212,29 @@
                                     []
                                     [(=
                                         (Var 4 p)
-                                        (IntegerConstant 97 (Integer 4 []))
+                                        (IntegerConstant 97 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 4 q)
-                                        (IntegerConstant 112 (Integer 4 []))
+                                        (IntegerConstant 112 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 4 r)
-                                        (IntegerConstant 10 (Integer 4 []))
+                                        (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 4 s)
-                                        (IntegerConstant 65 (Integer 4 []))
+                                        (IntegerConstant 65 (Integer 4))
                                         ()
                                     )
                                     (Print
                                         ()
                                         [(StringChr
                                             (Var 4 p)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )]
                                         ()
@@ -244,7 +244,7 @@
                                         ()
                                         [(StringChr
                                             (Var 4 q)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )]
                                         ()
@@ -254,7 +254,7 @@
                                         ()
                                         [(StringChr
                                             (Var 4 r)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )]
                                         ()
@@ -264,7 +264,7 @@
                                         ()
                                         [(StringChr
                                             (Var 4 s)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )]
                                         ()
@@ -274,7 +274,7 @@
                                         (Var 4 a)
                                         (StringConstant
                                             "!"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -282,7 +282,7 @@
                                         (Var 4 b)
                                         (StringConstant
                                             " "
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -290,7 +290,7 @@
                                         (Var 4 c)
                                         (StringConstant
                                             "Z"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -298,7 +298,7 @@
                                         (Var 4 d)
                                         (StringConstant
                                             "g"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -306,7 +306,7 @@
                                         ()
                                         [(StringOrd
                                             (Var 4 a)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )]
                                         ()
@@ -316,7 +316,7 @@
                                         ()
                                         [(StringOrd
                                             (Var 4 b)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )]
                                         ()
@@ -326,7 +326,7 @@
                                         ()
                                         [(StringOrd
                                             (Var 4 c)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )]
                                         ()
@@ -336,7 +336,7 @@
                                         ()
                                         [(StringOrd
                                             (Var 4 d)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )]
                                         ()
@@ -362,7 +362,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -378,7 +378,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -394,7 +394,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -410,7 +410,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -426,7 +426,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -442,7 +442,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -458,7 +458,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -474,7 +474,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -490,7 +490,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -506,7 +506,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -522,7 +522,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -538,7 +538,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -554,7 +554,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -570,7 +570,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -598,14 +598,14 @@
                                     []
                                     [(=
                                         (Var 3 i)
-                                        (IntegerConstant 33 (Integer 4 []))
+                                        (IntegerConstant 33 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 exclamation)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -613,22 +613,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 33 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 33 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "!"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -639,23 +639,23 @@
                                             Eq
                                             (StringConstant
                                                 "!"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 36 (Integer 4 []))
+                                        (IntegerConstant 36 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 dollar)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -663,22 +663,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 36 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 36 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "$"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -689,23 +689,23 @@
                                             Eq
                                             (StringConstant
                                                 "$"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 40 (Integer 4 []))
+                                        (IntegerConstant 40 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 left_parenthesis)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -713,22 +713,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 40 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 40 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "("
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -739,23 +739,23 @@
                                             Eq
                                             (StringConstant
                                                 "("
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 43 (Integer 4 []))
+                                        (IntegerConstant 43 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 plus)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -763,22 +763,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 43 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 43 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "+"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -789,23 +789,23 @@
                                             Eq
                                             (StringConstant
                                                 "+"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 48 (Integer 4 []))
+                                        (IntegerConstant 48 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 zero)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -813,22 +813,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 48 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 48 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "0"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -839,23 +839,23 @@
                                             Eq
                                             (StringConstant
                                                 "0"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 57 (Integer 4 []))
+                                        (IntegerConstant 57 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 nine)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -863,22 +863,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 57 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 57 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "9"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -889,23 +889,23 @@
                                             Eq
                                             (StringConstant
                                                 "9"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 59 (Integer 4 []))
+                                        (IntegerConstant 59 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 semicolon)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -913,22 +913,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 59 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 59 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     ";"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -939,23 +939,23 @@
                                             Eq
                                             (StringConstant
                                                 ";"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 65 (Integer 4 []))
+                                        (IntegerConstant 65 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 capital_a)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -963,22 +963,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 65 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 65 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "A"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -989,23 +989,23 @@
                                             Eq
                                             (StringConstant
                                                 "A"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 90 (Integer 4 []))
+                                        (IntegerConstant 90 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 capital_z)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -1013,22 +1013,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 90 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 90 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "Z"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1039,23 +1039,23 @@
                                             Eq
                                             (StringConstant
                                                 "Z"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 93 (Integer 4 []))
+                                        (IntegerConstant 93 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 right_bracket)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -1063,22 +1063,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 93 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 93 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "]"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1089,23 +1089,23 @@
                                             Eq
                                             (StringConstant
                                                 "]"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 97 (Integer 4 []))
+                                        (IntegerConstant 97 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 small_a)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -1113,22 +1113,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 97 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 97 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "a"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1139,23 +1139,23 @@
                                             Eq
                                             (StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 122 (Integer 4 []))
+                                        (IntegerConstant 122 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 small_z)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -1163,22 +1163,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 122 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 122 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "z"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1189,23 +1189,23 @@
                                             Eq
                                             (StringConstant
                                                 "z"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 i)
-                                        (IntegerConstant 125 (Integer 4 []))
+                                        (IntegerConstant 125 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 right_brace)
                                         (StringChr
                                             (Var 3 i)
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                             ()
                                         )
                                         ()
@@ -1213,22 +1213,22 @@
                                     (Assert
                                         (StringCompare
                                             (StringChr
-                                                (IntegerConstant 125 (Integer 4 []))
-                                                (Character 1 1 () [])
+                                                (IntegerConstant 125 (Integer 4))
+                                                (Character 1 1 ())
                                                 (StringConstant
                                                     "}"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1239,9 +1239,9 @@
                                             Eq
                                             (StringConstant
                                                 "}"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1266,7 +1266,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1282,7 +1282,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1298,7 +1298,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1314,7 +1314,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1330,7 +1330,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1346,7 +1346,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1362,7 +1362,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1378,7 +1378,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1394,7 +1394,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1410,7 +1410,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1426,7 +1426,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1442,7 +1442,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1458,7 +1458,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1474,7 +1474,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1504,7 +1504,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "!"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1512,7 +1512,7 @@
                                         (Var 2 exclamation_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1522,17 +1522,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "!"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 33 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 33 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 33 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 33 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1541,8 +1541,8 @@
                                         (IntegerCompare
                                             (Var 2 exclamation_unicode)
                                             Eq
-                                            (IntegerConstant 33 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 33 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1551,7 +1551,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "$"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1559,7 +1559,7 @@
                                         (Var 2 dollar_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1569,17 +1569,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "$"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 36 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 36 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 36 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 36 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1588,8 +1588,8 @@
                                         (IntegerCompare
                                             (Var 2 dollar_unicode)
                                             Eq
-                                            (IntegerConstant 36 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 36 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1598,7 +1598,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "("
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1606,7 +1606,7 @@
                                         (Var 2 left_parenthesis_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1616,17 +1616,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "("
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 40 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 40 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 40 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 40 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1635,8 +1635,8 @@
                                         (IntegerCompare
                                             (Var 2 left_parenthesis_unicode)
                                             Eq
-                                            (IntegerConstant 40 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 40 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1645,7 +1645,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "+"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1653,7 +1653,7 @@
                                         (Var 2 plus_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1663,17 +1663,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "+"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 43 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 43 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 43 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 43 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1682,8 +1682,8 @@
                                         (IntegerCompare
                                             (Var 2 plus_unicode)
                                             Eq
-                                            (IntegerConstant 43 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 43 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1692,7 +1692,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "0"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1700,7 +1700,7 @@
                                         (Var 2 zero_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1710,17 +1710,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "0"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 48 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 48 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 48 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 48 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1729,8 +1729,8 @@
                                         (IntegerCompare
                                             (Var 2 zero_unicode)
                                             Eq
-                                            (IntegerConstant 48 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 48 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1739,7 +1739,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "9"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1747,7 +1747,7 @@
                                         (Var 2 nine_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1757,17 +1757,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "9"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 57 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 57 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 57 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 57 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1776,8 +1776,8 @@
                                         (IntegerCompare
                                             (Var 2 nine_unicode)
                                             Eq
-                                            (IntegerConstant 57 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 57 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1786,7 +1786,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             ";"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1794,7 +1794,7 @@
                                         (Var 2 semicolon_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1804,17 +1804,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     ";"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 59 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 59 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 59 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 59 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1823,8 +1823,8 @@
                                         (IntegerCompare
                                             (Var 2 semicolon_unicode)
                                             Eq
-                                            (IntegerConstant 59 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 59 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1833,7 +1833,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "A"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1841,7 +1841,7 @@
                                         (Var 2 capital_a_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1851,17 +1851,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "A"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 65 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 65 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 65 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 65 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1870,8 +1870,8 @@
                                         (IntegerCompare
                                             (Var 2 capital_a_unicode)
                                             Eq
-                                            (IntegerConstant 65 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 65 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1880,7 +1880,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "Z"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1888,7 +1888,7 @@
                                         (Var 2 capital_z_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1898,17 +1898,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "Z"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 90 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 90 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 90 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 90 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1917,8 +1917,8 @@
                                         (IntegerCompare
                                             (Var 2 capital_z_unicode)
                                             Eq
-                                            (IntegerConstant 90 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 90 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1927,7 +1927,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "]"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1935,7 +1935,7 @@
                                         (Var 2 right_bracket_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1945,17 +1945,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "]"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 93 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 93 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 93 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 93 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -1964,8 +1964,8 @@
                                         (IntegerCompare
                                             (Var 2 right_bracket_unicode)
                                             Eq
-                                            (IntegerConstant 93 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 93 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -1974,7 +1974,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "a"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -1982,7 +1982,7 @@
                                         (Var 2 small_a_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1992,17 +1992,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "a"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 97 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 97 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 97 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 97 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -2011,8 +2011,8 @@
                                         (IntegerCompare
                                             (Var 2 small_a_unicode)
                                             Eq
-                                            (IntegerConstant 97 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 97 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -2021,7 +2021,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "z"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -2029,7 +2029,7 @@
                                         (Var 2 small_z_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -2039,17 +2039,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "z"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 122 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 122 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 122 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 122 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -2058,8 +2058,8 @@
                                         (IntegerCompare
                                             (Var 2 small_z_unicode)
                                             Eq
-                                            (IntegerConstant 122 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 122 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -2068,7 +2068,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "}"
-                                            (Character 1 1 () [])
+                                            (Character 1 1 ())
                                         )
                                         ()
                                     )
@@ -2076,7 +2076,7 @@
                                         (Var 2 right_brace_unicode)
                                         (StringOrd
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -2086,17 +2086,17 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "}"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 125 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 125 (Integer 4))
                                             )
                                             Eq
-                                            (IntegerConstant 125 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 125 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -2105,8 +2105,8 @@
                                         (IntegerCompare
                                             (Var 2 right_brace_unicode)
                                             Eq
-                                            (IntegerConstant 125 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 125 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

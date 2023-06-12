@@ -22,9 +22,9 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])
-                                                        (Integer 4 [])]
+                                                        [(Integer 4)
+                                                        (Integer 4)
+                                                        (Integer 4)]
                                                     )
                                                     ()
                                                     Source
@@ -42,8 +42,8 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
+                                                        [(Integer 4)
+                                                        (Integer 4)]
                                                     )
                                                     ()
                                                     Source
@@ -61,9 +61,9 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Character 1 -2 () [])
-                                                        (Character 1 -2 () [])
-                                                        (Character 1 -2 () [])]
+                                                        [(Character 1 -2 ())
+                                                        (Character 1 -2 ())
+                                                        (Character 1 -2 ())]
                                                     )
                                                     ()
                                                     Source
@@ -81,10 +81,10 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])
-                                                        (Real 4 [])
-                                                        (Character 1 -2 () [])]
+                                                        [(Integer 4)
+                                                        (Integer 4)
+                                                        (Real 4)
+                                                        (Character 1 -2 ())]
                                                     )
                                                     ()
                                                     Source
@@ -103,14 +103,14 @@
                                                     Default
                                                     (Tuple
                                                         [(Tuple
-                                                            [(Integer 4 [])
-                                                            (Integer 4 [])
-                                                            (Integer 4 [])]
+                                                            [(Integer 4)
+                                                            (Integer 4)
+                                                            (Integer 4)]
                                                         )
                                                         (Tuple
-                                                            [(Integer 4 [])
-                                                            (Integer 4 [])
-                                                            (Integer 4 [])]
+                                                            [(Integer 4)
+                                                            (Integer 4)
+                                                            (Integer 4)]
                                                         )]
                                                     )
                                                     ()
@@ -130,14 +130,14 @@
                                                     Default
                                                     (Tuple
                                                         [(Tuple
-                                                            [(Character 1 -2 () [])
-                                                            (Character 1 -2 () [])
-                                                            (Real 4 [])]
+                                                            [(Character 1 -2 ())
+                                                            (Character 1 -2 ())
+                                                            (Real 4)]
                                                         )
                                                         (Tuple
-                                                            [(Character 1 -2 () [])
-                                                            (Integer 4 [])
-                                                            (Real 4 [])]
+                                                            [(Character 1 -2 ())
+                                                            (Integer 4)
+                                                            (Real 4)]
                                                         )]
                                                     )
                                                     ()
@@ -155,7 +155,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -171,7 +171,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -188,8 +188,8 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
+                                                        [(Integer 4)
+                                                        (Integer 4)]
                                                     )
                                                     ()
                                                     Source
@@ -206,7 +206,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -222,7 +222,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -238,7 +238,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -267,13 +267,13 @@
                                     [(=
                                         (Var 2 a1)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         ()
@@ -282,24 +282,24 @@
                                         (Var 2 a1)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -3 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         ()
@@ -309,20 +309,20 @@
                                         (TupleConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             (Tuple
-                                                [(Character 1 1 () [])
-                                                (Character 1 1 () [])
-                                                (Character 1 1 () [])]
+                                                [(Character 1 1 ())
+                                                (Character 1 1 ())
+                                                (Character 1 1 ())]
                                             )
                                         )
                                         ()
@@ -332,13 +332,13 @@
                                         (Cast
                                             (RealConstant
                                                 0.450000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 0.450000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -347,25 +347,25 @@
                                         (Var 2 a3)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
                                             )
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             (Var 2 float_mem)
                                             (StringConstant
                                                 "d"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])
-                                                (Real 4 [])
-                                                (Character 1 1 () [])]
+                                                [(Integer 4)
+                                                (Integer 4)
+                                                (Real 4)
+                                                (Character 1 1 ())]
                                             )
                                         )
                                         ()
@@ -374,35 +374,35 @@
                                         (Var 2 a4)
                                         (TupleConstant
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 4 (Integer 4 []))
-                                                (IntegerConstant 5 (Integer 4 []))
-                                                (IntegerConstant 6 (Integer 4 []))]
+                                                [(IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)
+                                                    (Integer 4)]
                                                 )
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)
+                                                    (Integer 4)]
                                                 )]
                                             )
                                         )
@@ -413,13 +413,13 @@
                                         (Cast
                                             (RealConstant
                                                 3.400000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 3.400000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -429,13 +429,13 @@
                                         (Cast
                                             (RealConstant
                                                 5.600000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 5.600000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -446,42 +446,42 @@
                                             [(TupleConstant
                                                 [(StringConstant
                                                     "a"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (Var 2 float_mem1)]
                                                 (Tuple
-                                                    [(Character 1 1 () [])
-                                                    (Character 1 1 () [])
-                                                    (Real 4 [])]
+                                                    [(Character 1 1 ())
+                                                    (Character 1 1 ())
+                                                    (Real 4)]
                                                 )
                                             )
                                             (TupleConstant
                                                 [(StringConstant
                                                     "c"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (IntegerConstant 3 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
                                                 (Var 2 float_mem2)]
                                                 (Tuple
-                                                    [(Character 1 1 () [])
-                                                    (Integer 4 [])
-                                                    (Real 4 [])]
+                                                    [(Character 1 1 ())
+                                                    (Integer 4)
+                                                    (Real 4)]
                                                 )
                                             )]
                                             (Tuple
                                                 [(Tuple
-                                                    [(Character 1 1 () [])
-                                                    (Character 1 1 () [])
-                                                    (Real 4 [])]
+                                                    [(Character 1 1 ())
+                                                    (Character 1 1 ())
+                                                    (Real 4)]
                                                 )
                                                 (Tuple
-                                                    [(Character 1 1 () [])
-                                                    (Integer 4 [])
-                                                    (Real 4 [])]
+                                                    [(Character 1 1 ())
+                                                    (Integer 4)
+                                                    (Real 4)]
                                                 )]
                                             )
                                         )
@@ -491,8 +491,8 @@
                                         (Var 2 b0)
                                         (TupleItem
                                             (Var 2 a1)
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -502,26 +502,26 @@
                                             [(Var 2 b0)
                                             (Var 2 b1)]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         (TupleConstant
                                             [(TupleItem
                                                 (Var 2 a1)
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
                                             (TupleItem
                                                 (Var 2 a1)
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         ()
@@ -529,11 +529,11 @@
                                     (=
                                         (Var 2 a11)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         ()
@@ -541,11 +541,11 @@
                                     (=
                                         (Var 2 b11)
                                         (TupleConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                         )
                                         ()
@@ -555,7 +555,7 @@
                                             (Var 2 a11)
                                             Eq
                                             (Var 2 b11)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()

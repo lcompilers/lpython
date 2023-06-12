@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -125,7 +125,6 @@
                                                     Default
                                                     (Struct
                                                         7 A
-                                                        []
                                                     )
                                                     ()
                                                     Source
@@ -145,7 +144,6 @@
                                                     (Pointer
                                                         (Struct
                                                             7 A
-                                                            []
                                                         )
                                                     )
                                                     ()
@@ -163,7 +161,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -179,7 +177,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -209,22 +207,21 @@
                                         (Var 3 a1)
                                         (StructTypeConstructor
                                             7 A
-                                            [((IntegerConstant 3 (Integer 4 [])))
+                                            [((IntegerConstant 3 (Integer 4)))
                                             ((Cast
                                                 (RealConstant
                                                     3.250000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     3.250000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             ))]
                                             (Struct
                                                 7 A
-                                                []
                                             )
                                             ()
                                         )
@@ -237,7 +234,6 @@
                                             (Pointer
                                                 (Struct
                                                     7 A
-                                                    []
                                                 )
                                             )
                                             ()
@@ -252,7 +248,6 @@
                                             (Pointer
                                                 (Struct
                                                     7 A
-                                                    []
                                                 )
                                             )
                                             ()
@@ -265,7 +260,7 @@
                                         (StructInstanceMember
                                             (Var 3 a2)
                                             2 x
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -275,7 +270,7 @@
                                         (StructInstanceMember
                                             (Var 3 a2)
                                             2 y
-                                            (Real 4 [])
+                                            (Real 4)
                                             ()
                                         )
                                         ()
@@ -284,8 +279,8 @@
                                         (IntegerCompare
                                             (Var 3 x)
                                             Eq
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -295,15 +290,15 @@
                                             (Cast
                                                 (Var 3 y)
                                                 RealToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Eq
                                             (RealConstant
                                                 3.250000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -323,7 +318,6 @@
                                             (Pointer
                                                 (Struct
                                                     7 A
-                                                    []
                                                 )
                                             )
                                             ()

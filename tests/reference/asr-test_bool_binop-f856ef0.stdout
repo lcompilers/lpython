@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        120 f
+                                        128 f
                                         ()
                                         []
                                         ()
@@ -59,14 +59,14 @@
                                                     _lpython_floordiv
                                                     Private
                                                 ),
-                                            _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
+                                            _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
                                                 (ExternalSymbol
                                                     2
-                                                    _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                    4 __lpython_overloaded_6___lpython_floordiv
+                                                    _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
+                                                    4 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
                                                     []
-                                                    __lpython_overloaded_6___lpython_floordiv
+                                                    __lpython_overloaded_10___lpython_floordiv
                                                     Public
                                                 ),
                                             b1:
@@ -78,7 +78,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -94,7 +94,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -110,7 +110,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -126,7 +126,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -150,7 +150,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
+                                    [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
                                     []
                                     [(=
                                         (Var 2 i)
@@ -158,23 +158,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -183,8 +183,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -195,23 +195,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -220,8 +220,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -232,23 +232,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Mul
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -257,8 +257,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -267,25 +267,25 @@
                                         (Var 2 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                 2 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 ))
                                                 ((LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 ))]
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 1 [])
+                                                    (Logical 1)
                                                 )
                                                 ()
                                             )
                                             LogicalToInteger
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -294,8 +294,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -304,25 +304,25 @@
                                         (Var 2 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                 2 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 ))
                                                 ((LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 ))]
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 1 [])
+                                                    (Logical 1)
                                                 )
                                                 ()
                                             )
                                             LogicalToInteger
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -331,8 +331,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -343,23 +343,23 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Pow
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -368,8 +368,8 @@
                                         (IntegerCompare
                                             (Var 2 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -378,7 +378,7 @@
                                         (Var 2 b1)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -386,7 +386,7 @@
                                         (Var 2 b2)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -396,17 +396,17 @@
                                             (Cast
                                                 (Var 2 b1)
                                                 LogicalToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
                                                 (Var 2 b2)
                                                 LogicalToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -417,9 +417,9 @@
                                             Eq
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -441,13 +441,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -457,7 +457,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()

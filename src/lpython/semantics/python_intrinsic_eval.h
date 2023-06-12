@@ -57,8 +57,7 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                    8, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8));
         if (!arg) {
             return ASR::make_IntegerConstant_t(al, loc, 0, to_type);
         }
@@ -144,8 +143,7 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
-                                    8, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8));
         if (!arg) {
             return ASR::make_RealConstant_t(al, loc, 0.0, to_type);
         }
@@ -199,8 +197,7 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-                                    4, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
         if (!arg) {
             return ASR::make_LogicalConstant_t(al, loc, false, to_type);
         }
@@ -271,11 +268,9 @@ struct IntrinsicNodeHandler {
             arg = args[0].m_value;
             arg_type = ASRUtils::expr_type(arg);
         }
-        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, -2, nullptr, nullptr , 0));
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr));
         if (!arg) {
-            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                        1, 0, nullptr, nullptr , 0));
+            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, 0, nullptr));
             return ASR::make_StringConstant_t(al, loc, s2c(al, ""), res_type);
         }
         if (ASRUtils::is_real(*arg_type)) {
@@ -288,7 +283,7 @@ struct IntrinsicNodeHandler {
                 std::string value_str = sm.str();
                 sm.clear();
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr, nullptr , 0));
+                                            1, value_str.size(), nullptr));
                 res_value =  ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -300,7 +295,7 @@ struct IntrinsicNodeHandler {
                                         ASRUtils::expr_value(arg))->m_n;
                 std::string value_str = std::to_string(number);
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr, nullptr , 0));
+                                            1, value_str.size(), nullptr));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -312,7 +307,7 @@ struct IntrinsicNodeHandler {
                                         ASRUtils::expr_value(arg))->m_value;
                 std::string value_str = (bool_number)? "True" : "False";
                 ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                            1, value_str.size(), nullptr, nullptr , 0));
+                                            1, value_str.size(), nullptr));
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
                                 loc, s2c(al, value_str), res_type));
             }
@@ -335,8 +330,7 @@ struct IntrinsicNodeHandler {
         }
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::expr_t *value = nullptr;
         if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -413,8 +407,7 @@ struct IntrinsicNodeHandler {
         }
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::expr_t *value = nullptr;
         if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -441,7 +434,7 @@ struct IntrinsicNodeHandler {
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
         ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-            loc, 1, 1, nullptr, nullptr, 0));
+            loc, 1, 1, nullptr));
         ASR::expr_t *value = nullptr;
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {

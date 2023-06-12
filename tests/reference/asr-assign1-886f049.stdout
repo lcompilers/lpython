@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -53,7 +53,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -81,7 +81,7 @@
                                     []
                                     [(=
                                         (Var 2 r)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -89,15 +89,15 @@
                                         (IntegerBinOp
                                             (Var 2 r)
                                             Add
-                                            (IntegerConstant 4 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 4 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 s)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -106,7 +106,7 @@
                                             (Var 2 r)
                                             Mul
                                             (Var 2 s)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -116,15 +116,15 @@
                                         (IntegerBinOp
                                             (Var 2 r)
                                             Sub
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 s)
-                                        (IntegerConstant 10 (Integer 4 []))
+                                        (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -133,17 +133,17 @@
                                             (Cast
                                                 (Var 2 r)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
                                                 (Var 2 s)
                                                 IntegerToReal
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             ()
                                         )
                                         ()
@@ -152,7 +152,7 @@
                                         (Var 2 a)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         ()
                                     )
@@ -162,9 +162,9 @@
                                             (Var 2 a)
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Character 1 2 () [])
+                                            (Character 1 2 ())
                                             ()
                                         )
                                         ()

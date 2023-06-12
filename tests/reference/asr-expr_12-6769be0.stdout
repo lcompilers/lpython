@@ -59,8 +59,11 @@
                                                     ()
                                                     Default
                                                     (Pointer
-                                                        (Integer 2 [(()
-                                                        ())])
+                                                        (Array
+                                                            (Integer 2)
+                                                            [(()
+                                                            ())]
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -72,8 +75,11 @@
                                     check
                                     (FunctionType
                                         [(Pointer
-                                            (Integer 2 [(()
-                                            ())])
+                                            (Array
+                                                (Integer 2)
+                                                [(()
+                                                ())]
+                                            )
                                         )]
                                         ()
                                         Source
@@ -95,20 +101,20 @@
                                             (ArrayItem
                                                 (Var 3 ptr)
                                                 [(()
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 ())]
-                                                (Integer 2 [])
+                                                (Integer 2)
                                                 RowMajor
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant 1 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant 1 (Integer 2))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -118,20 +124,20 @@
                                             (ArrayItem
                                                 (Var 3 ptr)
                                                 [(()
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 ())]
-                                                (Integer 2 [])
+                                                (Integer 2)
                                                 RowMajor
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant 2 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant 2 (Integer 2))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -156,8 +162,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 2 [((IntegerConstant 0 (Integer 4 []))
-                                                    (IntegerConstant 2 (Integer 4 [])))])
+                                                    (Array
+                                                        (Integer 2)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4)))]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -174,8 +183,11 @@
                                                     ()
                                                     Default
                                                     (Pointer
-                                                        (Integer 2 [(()
-                                                        ())])
+                                                        (Array
+                                                            (Integer 2)
+                                                            [(()
+                                                            ())]
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -237,8 +249,11 @@
                                                     ()
                                                     Default
                                                     (Pointer
-                                                        (Integer 2 [(()
-                                                        ())])
+                                                        (Array
+                                                            (Integer 2)
+                                                            [(()
+                                                            ())]
+                                                        )
                                                     )
                                                     ()
                                                     Source
@@ -255,8 +270,11 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 2 [(()
-                                                    ())])
+                                                    (Array
+                                                        (Integer 2)
+                                                        [(()
+                                                        ())]
+                                                    )
                                                     ()
                                                     Source
                                                     Public
@@ -267,11 +285,17 @@
                                     g
                                     (FunctionType
                                         [(Pointer
-                                            (Integer 2 [(()
-                                            ())])
+                                            (Array
+                                                (Integer 2)
+                                                [(()
+                                                ())]
+                                            )
                                         )
-                                        (Integer 2 [(()
-                                        ())])]
+                                        (Array
+                                            (Integer 2)
+                                            [(()
+                                            ())]
+                                        )]
                                         ()
                                         Source
                                         Implementation
@@ -292,17 +316,17 @@
                                         (ArrayItem
                                             (Var 2 y)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Integer 2 [])
+                                            (Integer 2)
                                             RowMajor
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 2 [])
-                                            (IntegerConstant 1 (Integer 2 []))
+                                            (Integer 2)
+                                            (IntegerConstant 1 (Integer 2))
                                         )
                                         ()
                                     )
@@ -310,17 +334,17 @@
                                         (ArrayItem
                                             (Var 2 y)
                                             [(()
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ())]
-                                            (Integer 2 [])
+                                            (Integer 2)
                                             RowMajor
                                             ()
                                         )
                                         (Cast
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 2 [])
-                                            (IntegerConstant 2 (Integer 2 []))
+                                            (Integer 2)
+                                            (IntegerConstant 2 (Integer 2))
                                         )
                                         ()
                                     )
@@ -329,8 +353,11 @@
                                         (GetPointer
                                             (Var 2 y)
                                             (Pointer
-                                                (Integer 2 [(()
-                                                ())])
+                                                (Array
+                                                    (Integer 2)
+                                                    [(()
+                                                    ())]
+                                                )
                                             )
                                             ()
                                         )
@@ -341,18 +368,18 @@
                                         [(ArrayItem
                                             (Var 2 x)
                                             [(()
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ())]
-                                            (Integer 2 [])
+                                            (Integer 2)
                                             RowMajor
                                             ()
                                         )
                                         (ArrayItem
                                             (Var 2 x)
                                             [(()
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ())]
-                                            (Integer 2 [])
+                                            (Integer 2)
                                             RowMajor
                                             ()
                                         )]

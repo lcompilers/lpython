@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        124
+                        132
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        123
+                                        131
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        124 check
+                                        132 check
                                         ()
                                         []
                                         ()
@@ -73,25 +73,25 @@
                                     test_min_float]
                                     []
                                     [(SubroutineCall
-                                        124 test_max_int
+                                        132 test_max_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_max_float
+                                        132 test_max_float
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_min_int
+                                        132 test_min_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        124 test_min_float
+                                        132 test_min_float
                                         ()
                                         []
                                         ()
@@ -116,7 +116,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -132,7 +132,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -148,7 +148,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -209,7 +209,7 @@
                                         (Var 3 d)
                                         (RealConstant
                                             23.233000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -217,7 +217,7 @@
                                         (Var 3 e)
                                         (RealConstant
                                             23.223300
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -225,7 +225,7 @@
                                         (Var 3 f)
                                         (RealConstant
                                             21.230000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -237,13 +237,13 @@
                                                 [((Var 3 d))
                                                 ((Var 3 e))
                                                 ((Var 3 f))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 3 d)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -255,13 +255,13 @@
                                                 3 max
                                                 [((Var 3 e))
                                                 ((Var 3 f))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 3 e)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -286,7 +286,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -302,7 +302,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -318,7 +318,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -377,17 +377,17 @@
                                     []
                                     [(=
                                         (Var 2 a)
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 2 b)
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 2 c)
-                                        (IntegerConstant 3 (Integer 4 []))
+                                        (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (Assert
@@ -397,13 +397,13 @@
                                                 2 max
                                                 [((Var 2 a))
                                                 ((Var 2 b))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 2 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -416,13 +416,13 @@
                                                 [((Var 2 a))
                                                 ((Var 2 b))
                                                 ((Var 2 c))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 2 c)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -432,19 +432,19 @@
                                             (FunctionCall
                                                 2 max@__lpython_overloaded_1__max
                                                 2 max
-                                                [((IntegerConstant 1 (Integer 4 [])))
-                                                ((IntegerConstant 2 (Integer 4 [])))
-                                                ((IntegerConstant 3 (Integer 4 [])))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 3 (Integer 4 []))
+                                                [((IntegerConstant 1 (Integer 4)))
+                                                ((IntegerConstant 2 (Integer 4)))
+                                                ((IntegerConstant 3 (Integer 4)))]
+                                                (Integer 4)
+                                                (IntegerConstant 3 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -454,18 +454,18 @@
                                             (FunctionCall
                                                 2 max@__lpython_overloaded_0__max
                                                 2 max
-                                                [((IntegerConstant 1 (Integer 4 [])))
-                                                ((IntegerConstant 6 (Integer 4 [])))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 6 (Integer 4 []))
+                                                [((IntegerConstant 1 (Integer 4)))
+                                                ((IntegerConstant 6 (Integer 4)))]
+                                                (Integer 4)
+                                                (IntegerConstant 6 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 6 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -490,7 +490,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -506,7 +506,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -522,7 +522,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -583,7 +583,7 @@
                                         (Var 5 d)
                                         (RealConstant
                                             23.233000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -591,7 +591,7 @@
                                         (Var 5 e)
                                         (RealConstant
                                             23.223300
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -599,7 +599,7 @@
                                         (Var 5 f)
                                         (RealConstant
                                             21.230000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -611,13 +611,13 @@
                                                 [((Var 5 d))
                                                 ((Var 5 e))
                                                 ((Var 5 f))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 5 f)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -629,13 +629,13 @@
                                                 5 min
                                                 [((Var 5 e))
                                                 ((Var 5 f))]
-                                                (Real 8 [])
+                                                (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 5 f)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -660,7 +660,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -676,7 +676,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -692,7 +692,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -751,17 +751,17 @@
                                     []
                                     [(=
                                         (Var 4 a)
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 4 b)
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 4 c)
-                                        (IntegerConstant 3 (Integer 4 []))
+                                        (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (Assert
@@ -771,13 +771,13 @@
                                                 4 min
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 4 a)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -790,13 +790,13 @@
                                                 [((Var 4 a))
                                                 ((Var 4 b))
                                                 ((Var 4 c))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Var 4 a)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -806,19 +806,19 @@
                                             (FunctionCall
                                                 4 min@__lpython_overloaded_1__min
                                                 4 min
-                                                [((IntegerConstant 1 (Integer 4 [])))
-                                                ((IntegerConstant 2 (Integer 4 [])))
-                                                ((IntegerConstant 3 (Integer 4 [])))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                [((IntegerConstant 1 (Integer 4)))
+                                                ((IntegerConstant 2 (Integer 4)))
+                                                ((IntegerConstant 3 (Integer 4)))]
+                                                (Integer 4)
+                                                (IntegerConstant 1 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -828,18 +828,18 @@
                                             (FunctionCall
                                                 4 min@__lpython_overloaded_0__min
                                                 4 min
-                                                [((IntegerConstant 1 (Integer 4 [])))
-                                                ((IntegerConstant 6 (Integer 4 [])))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                [((IntegerConstant 1 (Integer 4)))
+                                                ((IntegerConstant 6 (Integer 4)))]
+                                                (Integer 4)
+                                                (IntegerConstant 1 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -861,13 +861,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        122
+                        130
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    122
+                                    130
                                     _lpython_main_program
-                                    124 _lpython_main_program
+                                    132 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -877,7 +877,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        122 _lpython_main_program
+                        130 _lpython_main_program
                         ()
                         []
                         ()

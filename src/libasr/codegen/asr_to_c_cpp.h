@@ -503,6 +503,86 @@ R"(#include <stdio.h>
         return "\ntemplate <" + template_for_Kokkos + ">\n" + func;
     }
 
+    std::string get_arg_conv_bind_python(const ASR::Function_t &x) {
+
+        std::string arg_conv = R"(
+    pArgs = PyTuple_New()" + std::to_string(x.n_args) + R"();
+)";
+        for (size_t i = 0; i < x.n_args; ++i) {
+            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
+            arg_conv += R"(
+    pValue = )" + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type) + "("
+    + std::string(arg->m_name) + R"();
+    if (!pValue) {
+        Py_DECREF(pArgs);
+        Py_DECREF(pModule);
+        fprintf(stderr, "Cannot convert argument\n");
+        exit(1);
+    }
+    /* pValue reference stolen here: */
+    PyTuple_SetItem(pArgs, )" + std::to_string(i) +  R"(, pValue);
+)";
+        }
+        return arg_conv;
+    }
+
+    std::string get_return_value_conv_bind_python(const ASR::Function_t &x) {
+        if (!x.m_return_var) return "";
+        ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
+        std::string indent = "\n    ";
+        std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
+        std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
+        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
+        std::string ret_stmt = indent + "return " + std::string(r_v->m_name) + ";";
+        std::string clear_pValue = "";
+        if (!ASRUtils::is_aggregate_type(r_v->m_type)) {
+            clear_pValue = indent + "Py_DECREF(pValue);";
+        }
+        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
+    }
+
+    std::string get_func_body_bind_python(const ASR::Function_t &x) {
+        user_headers.insert("Python.h");
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string var_decls = "PyObject *pName, *pModule, *pFunc; PyObject *pArgs, *pValue;\n";
+        std::string func_body = R"(
+    pName = PyUnicode_FromString(")" + std::string(x.m_module_file) + R"(");
+    if (pName == NULL) {
+        PyErr_Print();
+        fprintf(stderr, "Failed to convert to unicode string )" + std::string(x.m_module_file) + R"(\n");
+        exit(1);
+    }
+
+    pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+    if (pModule == NULL) {
+        PyErr_Print();
+        fprintf(stderr, "Failed to load python module )" + std::string(x.m_module_file) + R"(\n");
+        exit(1);
+    }
+
+    pFunc = PyObject_GetAttrString(pModule, ")" + std::string(x.m_name) + R"(");
+    if (!pFunc || !PyCallable_Check(pFunc)) {
+        if (PyErr_Occurred()) PyErr_Print();
+        fprintf(stderr, "Cannot find function )" + std::string(x.m_name) + R"(\n");
+        Py_XDECREF(pFunc);
+        Py_DECREF(pModule);
+        exit(1);
+    }
+)" + get_arg_conv_bind_python(x) + R"(
+    pValue = PyObject_CallObject(pFunc, pArgs);
+    Py_DECREF(pArgs);
+    if (pValue == NULL) {
+        Py_DECREF(pFunc);
+        Py_DECREF(pModule);
+        PyErr_Print();
+        fprintf(stderr,"Call failed\n");
+        exit(1);
+    }
+)" + get_return_value_conv_bind_python(x);
+        return "{\n" + indent + var_decls + func_body + "}\n";
+    }
+
     std::string declare_all_functions(const SymbolTable &scope) {
         std::string code, t;
         for (auto &item : scope.get_scope()) {
@@ -552,14 +632,19 @@ R"(#include <stdio.h>
             return;
         }
         ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
-        if (f_type->m_abi == ASR::abiType::BindC
-            && f_type->m_deftype == ASR::deftypeType::Interface) {
-            if (x.m_c_header) {
-                user_headers.insert(std::string(x.m_c_header));
-                src = "";
-                return;
-            } else {
-                sub += ";\n";
+        if (f_type->m_deftype == ASR::deftypeType::Interface) {
+            if (f_type->m_abi == ASR::abiType::BindC) {
+                if (x.m_module_file) {
+                    user_headers.insert(std::string(x.m_module_file));
+                    src = "";
+                    return;
+                } else {
+                    sub += ";\n";
+                }
+            } else if (f_type->m_abi == ASR::abiType::BindPython) {
+                indentation_level += 1;
+                sub += "\n" + get_func_body_bind_python(x);
+                indentation_level -= 1;
             }
         } else {
             sub += "\n";
@@ -625,8 +710,8 @@ R"(#include <stdio.h>
         src = sub;
         if (f_type->m_abi == ASR::abiType::BindC
             && f_type->m_deftype == ASR::deftypeType::Implementation) {
-            if (x.m_c_header) {
-                std::string header_name = std::string(x.m_c_header);
+            if (x.m_module_file) {
+                std::string header_name = std::string(x.m_module_file);
                 user_headers.insert(header_name);
                 emit_headers[header_name]+= "\n" + src;
                 src = "";
@@ -1406,6 +1491,12 @@ R"(#include <stdio.h>
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                src = "(int" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
+                last_expr_precedence = 2;
+                break;
+            }
             case (ASR::cast_kindType::ComplexToComplex) : {
                 break;
             }
@@ -1869,7 +1960,9 @@ R"(#include <stdio.h>
                     out += indent + sym + "->dims[" + std::to_string(j) + "].length = ";
                     out += l + ";\n";
                 }
-                std::string ty = CUtils::get_c_type_from_ttype_t(type);
+                std::string ty = CUtils::get_c_type_from_ttype_t(
+                    ASRUtils::type_get_past_array(
+                        ASRUtils::type_get_past_allocatable(type)));
                 size_str += "*sizeof(" + ty + ")";
                 out += indent + sym + "->data = (" + ty + "*) _lfortran_malloc(" + size_str + ")";
                 out += ";\n";

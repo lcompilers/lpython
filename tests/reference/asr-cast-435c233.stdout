@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        120 f
+                                        128 f
                                         ()
                                         []
                                         ()
@@ -68,7 +68,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -85,7 +85,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 () [])
+                                                        (Character 1 -2 ())
                                                     )
                                                     ()
                                                     Source
@@ -103,7 +103,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 () [])
+                                                        (Character 1 -2 ())
                                                     )
                                                     ()
                                                     Source
@@ -134,7 +134,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "lpython"
-                                            (Character 1 7 () [])
+                                            (Character 1 7 ())
                                         )
                                         ()
                                     )
@@ -145,7 +145,7 @@
                                             ()
                                             [((Var 2 s))]
                                             (List
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                             )
                                             ()
                                             ()
@@ -157,18 +157,18 @@
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             (List
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                         )
                                         ()
@@ -180,7 +180,7 @@
                                             ()
                                             [((Var 2 y))]
                                             (List
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                             )
                                             ()
                                             ()
@@ -194,42 +194,42 @@
                                             ()
                                             [((StringConstant
                                                 "lpython"
-                                                (Character 1 7 () [])
+                                                (Character 1 7 ())
                                             ))]
                                             (List
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                             )
                                             (ListConstant
                                                 [(StringConstant
                                                     "l"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "p"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "y"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "t"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "h"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "o"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "n"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )]
                                                 (List
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                             )
                                             ()
@@ -253,13 +253,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -269,7 +269,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()

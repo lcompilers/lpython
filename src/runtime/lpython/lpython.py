@@ -457,6 +457,14 @@ def ccall(f):
         return f
     return CTypes(f)
 
+def pythoncall(*args, **kwargs):
+    def inner(fn):
+        import importlib
+        module = importlib.import_module(kwargs["module"])
+        fn_new = getattr(module, fn.__name__)
+        return fn_new
+    return inner
+
 def union(f):
     fields = []
     for name in f.__annotations__:

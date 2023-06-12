@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [test_oct]
                                     []
                                     [(SubroutineCall
-                                        120 test_oct
+                                        128 test_oct
                                         ()
                                         []
                                         ()
@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -96,7 +96,7 @@
                                     []
                                     [(=
                                         (Var 2 i)
-                                        (IntegerConstant 34 (Integer 4 []))
+                                        (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (Assert
@@ -105,16 +105,16 @@
                                                 2 oct
                                                 ()
                                                 [((Var 2 i))]
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "0o42"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -122,9 +122,9 @@
                                     (=
                                         (Var 2 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 4235 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -4235 (Integer 4 []))
+                                            (IntegerConstant 4235 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -4235 (Integer 4))
                                         )
                                         ()
                                     )
@@ -134,16 +134,16 @@
                                                 2 oct
                                                 ()
                                                 [((Var 2 i))]
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "-0o10213"
-                                                (Character 1 8 () [])
+                                                (Character 1 8 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -153,23 +153,23 @@
                                             (FunctionCall
                                                 2 oct
                                                 ()
-                                                [((IntegerConstant 34 (Integer 4 [])))]
-                                                (Character 1 -2 () [])
+                                                [((IntegerConstant 34 (Integer 4)))]
+                                                (Character 1 -2 ())
                                                 (StringConstant
                                                     "0o42"
-                                                    (Character 1 4 () [])
+                                                    (Character 1 4 ())
                                                 )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "0o42"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -180,26 +180,26 @@
                                                 2 oct
                                                 ()
                                                 [((IntegerUnaryMinus
-                                                    (IntegerConstant 4235 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -4235 (Integer 4 []))
+                                                    (IntegerConstant 4235 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -4235 (Integer 4))
                                                 ))]
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 (StringConstant
                                                     "-0o10213"
-                                                    (Character 1 8 () [])
+                                                    (Character 1 8 ())
                                                 )
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "-0o10213"
-                                                (Character 1 8 () [])
+                                                (Character 1 8 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -221,13 +221,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -237,7 +237,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()

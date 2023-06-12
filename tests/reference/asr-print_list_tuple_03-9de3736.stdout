@@ -1,0 +1,246 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            _global_symbols:
+                (Module
+                    (SymbolTable
+                        5
+                        {
+                            _lpython_main_program:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            
+                                        })
+                                    _lpython_main_program
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [f]
+                                    []
+                                    [(SubroutineCall
+                                        5 f
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        2
+                                        {
+                                            x:
+                                                (Variable
+                                                    2
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Dict
+                                                        (Integer 4)
+                                                        (Tuple
+                                                            [(Integer 4)
+                                                            (Integer 4)]
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            y:
+                                                (Variable
+                                                    2
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Dict
+                                                        (Integer 4)
+                                                        (List
+                                                            (Integer 4)
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 2 x)
+                                        (DictConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
+                                            [(TupleConstant
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                            )
+                                            (TupleConstant
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                            )]
+                                            (Dict
+                                                (Integer 4)
+                                                (Tuple
+                                                    [(Integer 4)
+                                                    (Integer 4)]
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 2 y)
+                                        (DictConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
+                                            [(ListConstant
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (ListConstant
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )]
+                                            (Dict
+                                                (Integer 4)
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(DictItem
+                                            (Var 2 x)
+                                            (IntegerConstant 1 (Integer 4))
+                                            ()
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                            ()
+                                        )
+                                        (DictItem
+                                            (Var 2 x)
+                                            (IntegerConstant 2 (Integer 4))
+                                            ()
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                            ()
+                                        )
+                                        (DictItem
+                                            (Var 2 y)
+                                            (IntegerConstant 1 (Integer 4))
+                                            ()
+                                            (List
+                                                (Integer 4)
+                                            )
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    _global_symbols
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        3
+                        {
+                            _lpython_main_program:
+                                (ExternalSymbol
+                                    3
+                                    _lpython_main_program
+                                    5 _lpython_main_program
+                                    _global_symbols
+                                    []
+                                    _lpython_main_program
+                                    Public
+                                )
+                        })
+                    main_program
+                    [_global_symbols]
+                    [(SubroutineCall
+                        3 _lpython_main_program
+                        ()
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

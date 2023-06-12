@@ -64,6 +64,7 @@ enum class IntrinsicFunctions : int64_t {
     Partition,
     ListReverse,
     SymbolicSymbol,
+    ListPop,
     Sum,
     // ...
 };
@@ -82,7 +83,7 @@ class ASRBuilder {
 
     #define make_ConstantWithKind(Constructor, TypeConstructor, value, kind, loc) ASRUtils::EXPR( \
         ASR::Constructor( al, loc, value, \
-            ASRUtils::TYPE(ASR::TypeConstructor(al, loc, 4, nullptr, 0)))) \
+            ASRUtils::TYPE(ASR::TypeConstructor(al, loc, 4)))) \
 
     #define make_ConstantWithType(Constructor, value, type, loc) ASRUtils::EXPR( \
         ASR::Constructor(al, loc, value, type)) \
@@ -131,10 +132,9 @@ class ASRBuilder {
         false, nullptr, 0, nullptr, 0, false, false, false));
 
     // Types -------------------------------------------------------------------
-    #define int32        TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))
-    #define logical      TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0))
-    #define character(x) TYPE(ASR::make_Character_t(al, loc, 1, x, nullptr,    \
-        nullptr, 0))
+    #define int32        TYPE(ASR::make_Integer_t(al, loc, 4))
+    #define logical      TYPE(ASR::make_Logical_t(al, loc, 4))
+    #define character(x) TYPE(ASR::make_Character_t(al, loc, 1, x, nullptr))
     #define List(x)      TYPE(ASR::make_List_t(al, loc, x))
     ASR::ttype_t *Tuple(std::vector<ASR::ttype_t*> tuple_type) {
         Vec<ASR::ttype_t*> m_tuple_type; m_tuple_type.reserve(al, 3);
@@ -215,7 +215,7 @@ class ASRBuilder {
     #define make_Compare(Constructor, left, op, right, loc) ASRUtils::EXPR(ASR::Constructor( \
         al, loc, left, op, right, \
         ASRUtils::TYPE(ASR::make_Logical_t( \
-            al, loc, 4, nullptr, 0)), nullptr)); \
+            al, loc, 4)), nullptr)); \
 
     #define create_ElementalBinOp(OpType, BinOpName, OpName, value) case ASR::ttypeType::OpType: { \
         return ASRUtils::EXPR(ASR::BinOpName(al, loc, \
@@ -265,6 +265,20 @@ class ASRBuilder {
         }
     }
 
+    ASR::expr_t* ElementalMul(ASR::expr_t* left, ASR::expr_t* right,
+        const Location& loc, ASR::expr_t* value=nullptr) {
+        switch (ASRUtils::expr_type(left)->type) {
+            create_ElementalBinOp(Real, make_RealBinOp_t, Mul, value)
+            create_ElementalBinOp(Integer, make_IntegerBinOp_t, Mul, value)
+            create_ElementalBinOp(Complex, make_ComplexBinOp_t, Mul, value)
+            default: {
+                throw LCompilersException("Expression type, " +
+                                          std::to_string(left->type) +
+                                          " not yet supported");
+            }
+        }
+    }
+
     ASR::expr_t* ElementalPow(ASR::expr_t* left, ASR::expr_t* right,
         const Location& loc, ASR::expr_t* value=nullptr) {
         switch (ASRUtils::expr_type(left)->type) {
@@ -283,8 +297,7 @@ class ASRBuilder {
         const Location& loc) {
         return ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, loc,
             left, ASR::Or, right,
-            ASRUtils::TYPE(ASR::make_Logical_t( al, loc, 4,
-                nullptr, 0)), nullptr));
+            ASRUtils::TYPE(ASR::make_Logical_t( al, loc, 4)), nullptr));
     }
 
     ASR::expr_t* Or(ASR::expr_t* left, ASR::expr_t* right,
@@ -795,7 +808,7 @@ namespace Abs {
         }
         if (is_complex(*type)) {
             type = TYPE(ASR::make_Real_t(al, type->base.loc,
-                ASRUtils::extract_kind_from_ttype_t(type), nullptr, 0));
+                ASRUtils::extract_kind_from_ttype_t(type)));
         }
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Abs,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs), 0, type);
@@ -850,8 +863,7 @@ namespace Abs {
         } else {
             // * Complex type: `r = (real(x)**2 + aimag(x)**2)**0.5`
             ASR::ttype_t *real_type = TYPE(ASR::make_Real_t(al, loc,
-                                        ASRUtils::extract_kind_from_ttype_t(arg_types[0]),
-                                        nullptr, 0));
+                                        ASRUtils::extract_kind_from_ttype_t(arg_types[0])));
             ASR::symbol_t *sym_result = ASR::down_cast<ASR::Var_t>(result)->m_v;
             ASR::Variable_t *r_var = ASR::down_cast<ASR::Variable_t>(sym_result);
             r_var->m_type = return_type = real_type;
@@ -885,6 +897,7 @@ namespace Abs {
                 {
                     call_args.reserve(al, 1);
                     ASR::call_arg_t arg;
+                    arg.loc = args[0]->base.loc;
                     arg.m_value = args[0];
                     call_args.push_back(al, arg);
                 }
@@ -998,8 +1011,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
     ASR::expr_t* compile_time_value = eval_list_index(al, loc, arg_values);
-    ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                            4, nullptr, 0));
+    ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
     return ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             args.p, args.size(), 0, to_type, compile_time_value);
@@ -1047,18 +1059,77 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 
 } // namespace ListReverse
 
+namespace ListPop {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args <= 2, "Call to list.pop must have at most one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "Argument to list.pop must be of list type",
+        x.base.base.loc, diagnostics);
+    switch(x.m_overload_id) {
+        case 0:
+            break;
+        case 1:
+            ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[1])),
+            "Argument to list.pop must be an integer",
+            x.base.base.loc, diagnostics);
+            break;
+    }
+    ASRUtils::require_impl(ASRUtils::check_equal_type(x.m_type,
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Return type of list.pop must be of same type as list's element type",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_list_pop(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() > 2) {
+        err("Call to list.pop must have at most one argument", loc);
+    }
+    if (args.size() == 2 &&
+        !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(args[1]))) {
+        err("Argument to list.pop must be an integer", loc);
+    }
+
+    ASR::expr_t* list_expr = args[0];
+    ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
+    ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_pop(al, loc, arg_values);
+    ASR::ttype_t *to_type = list_type;
+    int64_t overload_id = (args.size() == 2);
+    return ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            args.p, args.size(), overload_id, to_type, compile_time_value);
+}
+
+} // namespace ListPop
+
 namespace Any {
 
 static inline void verify_array(ASR::expr_t* array, ASR::ttype_t* return_type,
     const Location& loc, diag::Diagnostics& diagnostics) {
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
-    ASRUtils::require_impl(ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(array_type)),
+    ASRUtils::require_impl(ASRUtils::is_logical(*array_type),
         "Input to Any intrinsic must be of logical type, found: " + ASRUtils::get_type_code(array_type),
         loc, diagnostics);
     int array_n_dims = ASRUtils::extract_n_dims_from_ttype(array_type);
     ASRUtils::require_impl(array_n_dims > 0, "Input to Any intrinsic must always be an array",
         loc, diagnostics);
-    ASRUtils::require_impl(ASR::is_a<ASR::Logical_t>(*return_type),
+    ASRUtils::require_impl(ASRUtils::is_logical(*return_type),
         "Any intrinsic must return a logical output", loc, diagnostics);
     int return_n_dims = ASRUtils::extract_n_dims_from_ttype(return_type);
     ASRUtils::require_impl(return_n_dims == 0,
@@ -1069,7 +1140,7 @@ static inline void verify_array(ASR::expr_t* array, ASR::ttype_t* return_type,
 static inline void verify_array_dim(ASR::expr_t* array, ASR::expr_t* dim,
     ASR::ttype_t* return_type, const Location& loc, diag::Diagnostics& diagnostics) {
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
-    ASRUtils::require_impl(ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(array_type)),
+    ASRUtils::require_impl(ASRUtils::is_logical(*ASRUtils::type_get_past_pointer(array_type)),
         "Input to Any intrinsic must be of logical type, found: " + ASRUtils::get_type_code(array_type),
         loc, diagnostics);
     int array_n_dims = ASRUtils::extract_n_dims_from_ttype(array_type);
@@ -1079,7 +1150,7 @@ static inline void verify_array_dim(ASR::expr_t* array, ASR::expr_t* dim,
     ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(ASRUtils::expr_type(dim))),
         "dim argument must be an integer", loc, diagnostics);
 
-    ASRUtils::require_impl(ASR::is_a<ASR::Logical_t>(*return_type),
+    ASRUtils::require_impl(ASRUtils::is_logical(*return_type),
         "Any intrinsic must return a logical output", loc, diagnostics);
     int return_n_dims = ASRUtils::extract_n_dims_from_ttype(return_type);
     ASRUtils::require_impl(array_n_dims == return_n_dims + 1,
@@ -1152,7 +1223,7 @@ static inline ASR::asr_t* create_Any(
     if( axis == nullptr ) {
         overload_id = 0;
         logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
-                                al, loc, 4, nullptr, 0));
+                                al, loc, 4));
     } else {
         overload_id = 1;
         Vec<ASR::dimension_t> dims;
@@ -1165,7 +1236,12 @@ static inline ASR::asr_t* create_Any(
             dim.m_start = nullptr;
             dims.push_back(al, dim);
         }
-        logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, dims.p, dims.size()));
+        if( dims.size() > 0 ) {
+            logical_return_type = ASRUtils::make_Array_t_util(al, loc,
+                ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), dims.p, dims.size());
+        } else {
+            logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+        }
     }
 
     any_args.push_back(al, array);
@@ -1266,7 +1342,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
     SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
 
     ASR::ttype_t* logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
-                                            al, loc, 4, nullptr, 0));
+                                            al, loc, 4));
     Vec<ASR::expr_t*> args;
     int result_dims = 0;
     {
@@ -1276,7 +1352,7 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
         if( overload_id == 1 ) {
             ASR::ttype_t* dim_type = ASRUtils::expr_type(new_args[1].m_value);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Integer_t>(*dim_type));
-            int kind = ASRUtils::extract_kind_from_ttype_t(dim_type);
+            [[maybe_unused]] int kind = ASRUtils::extract_kind_from_ttype_t(dim_type);
             LCOMPILERS_ASSERT(kind == 4);
             fill_func_arg("dim", dim_type);
 
@@ -1291,8 +1367,14 @@ static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
                 dims.push_back(al, dim);
             }
             result_dims = dims.size();
-            logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
-                                    al, loc, 4, dims.p, dims.size()));
+            if( result_dims > 0 ) {
+                logical_return_type = ASRUtils::make_Array_t_util(al, loc,
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)),
+                        dims.p, dims.size());
+            } else {
+                logical_return_type = ASRUtils::TYPE(ASR::make_Logical_t(
+                                        al, loc, 4));
+            }
             if( result_dims > 0 ) {
                 fill_func_arg("result", logical_return_type);
             }
@@ -1339,16 +1421,16 @@ namespace Sum {
 static inline void verify_array(ASR::expr_t* array, ASR::ttype_t* return_type,
     const Location& loc, diag::Diagnostics& diagnostics) {
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
-    ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(array_type)) ||
-        ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(array_type)) ||
-        ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(array_type)),
+    ASRUtils::require_impl(ASRUtils::is_integer(*array_type) ||
+        ASRUtils::is_real(*array_type) ||
+        ASRUtils::is_complex(*array_type),
         "Input to Sum intrinsic must be of integer, real or complex type, found: " +
         ASRUtils::get_type_code(array_type), loc, diagnostics);
     int array_n_dims = ASRUtils::extract_n_dims_from_ttype(array_type);
     ASRUtils::require_impl(array_n_dims > 0, "Input to Sum intrinsic must always be an array",
         loc, diagnostics);
     ASRUtils::require_impl(ASRUtils::check_equal_type(
-        return_type, ASRUtils::type_get_past_pointer(array_type), false),
+        return_type, array_type, false),
         "Sum intrinsic must return an output of the same type as input", loc, diagnostics);
     int return_n_dims = ASRUtils::extract_n_dims_from_ttype(return_type);
     ASRUtils::require_impl(return_n_dims == 0,
@@ -1359,20 +1441,20 @@ static inline void verify_array(ASR::expr_t* array, ASR::ttype_t* return_type,
 static inline void verify_array_dim(ASR::expr_t* array, ASR::expr_t* dim,
     ASR::ttype_t* return_type, const Location& loc, diag::Diagnostics& diagnostics) {
     ASR::ttype_t* array_type = ASRUtils::expr_type(array);
-    ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(array_type)) ||
-        ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(array_type)) ||
-        ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(array_type)),
+    ASRUtils::require_impl(ASRUtils::is_integer(*array_type) ||
+        ASRUtils::is_real(*array_type) ||
+        ASRUtils::is_complex(*array_type),
         "Input to Sum intrinsic must be of integer, real or complex type, found: " +
         ASRUtils::get_type_code(array_type), loc, diagnostics);
     int array_n_dims = ASRUtils::extract_n_dims_from_ttype(array_type);
     ASRUtils::require_impl(array_n_dims > 0, "Input to Sum intrinsic must always be an array",
         loc, diagnostics);
 
-    ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(ASRUtils::expr_type(dim))),
+    ASRUtils::require_impl(ASRUtils::is_integer(*ASRUtils::expr_type(dim)),
         "dim argument must be an integer", loc, diagnostics);
 
     ASRUtils::require_impl(ASRUtils::check_equal_type(
-        return_type, ASRUtils::type_get_past_pointer(array_type), false),
+        return_type, array_type, false),
         "Sum intrinsic must return an output of the same type as input", loc, diagnostics);
     int return_n_dims = ASRUtils::extract_n_dims_from_ttype(return_type);
     ASRUtils::require_impl(array_n_dims == return_n_dims + 1,
@@ -1424,8 +1506,8 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
             mask = x.m_args[2];
         }
         ASR::dimension_t *array_dims, *mask_dims;
-        ASR::ttype_t* array_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(x.m_args[0]));
-        ASR::ttype_t* mask_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(mask));
+        ASR::ttype_t* array_type = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t* mask_type = ASRUtils::expr_type(mask);
         size_t array_n_dims = ASRUtils::extract_dimensions_from_ttype(array_type, array_dims);
         size_t mask_n_dims = ASRUtils::extract_dimensions_from_ttype(mask_type, mask_dims);
         ASRUtils::require_impl(ASRUtils::dimensions_equal(array_dims, array_n_dims, mask_dims, mask_n_dims),
@@ -1703,7 +1785,7 @@ static inline ASR::expr_t* instantiate_Sum(Allocator &al, const Location &loc,
     if( overload_id == id_array_dim ||
         overload_id == id_array_dim_mask ) {
         ASR::ttype_t* dim_type = ASRUtils::TYPE(ASR::make_Integer_t(
-                                    al, arg_type->base.loc, 4, nullptr, 0));
+                                    al, arg_type->base.loc, 4));
         fill_func_arg("dim", dim_type)
     }
     if( overload_id == id_array_mask ||
@@ -1718,8 +1800,12 @@ static inline ASR::expr_t* instantiate_Sum(Allocator &al, const Location &loc,
             mask_dims.push_back(al, mask_dim);
         }
         ASR::ttype_t* mask_type = ASRUtils::TYPE(ASR::make_Logical_t(
-                        al, arg_type->base.loc,
-                        4, mask_dims.p, mask_dims.size()));
+                                    al, arg_type->base.loc, 4));
+        if( mask_dims.size() > 0 ) {
+            mask_type = ASRUtils::make_Array_t_util(
+                            al, arg_type->base.loc, mask_type,
+                            mask_dims.p, mask_dims.size());
+        }
         fill_func_arg("mask", mask_type)
     }
 
@@ -1991,6 +2077,8 @@ namespace IntrinsicFunctionRegistry {
             {&Partition::instantiate_Partition, &Partition::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
             {nullptr, &ListIndex::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            {nullptr, &ListPop::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             {nullptr, &ListReverse::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
@@ -2033,6 +2121,8 @@ namespace IntrinsicFunctionRegistry {
             "list.reverse"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
             "Symbol"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+            "list.pop"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2062,6 +2152,7 @@ namespace IntrinsicFunctionRegistry {
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
+                {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}}
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2109,6 +2200,9 @@ namespace IntrinsicFunctionRegistry {
     }
 
     static inline verify_function get_verify_function(int64_t id) {
+        if( intrinsic_function_by_id_db.find(id) == intrinsic_function_by_id_db.end() ) {
+            return nullptr;
+        }
         return std::get<1>(intrinsic_function_by_id_db.at(id));
     }
 
@@ -2165,6 +2259,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
         INTRINSIC_NAME_CASE(SymbolicSymbol)
+        INTRINSIC_NAME_CASE(ListPop)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");

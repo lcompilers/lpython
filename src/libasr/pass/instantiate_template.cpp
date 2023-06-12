@@ -175,7 +175,8 @@ public:
 
         ASR::ttype_t *type = substitute_type(x->m_type);
 
-        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, x->m_storage_format, m_value);
+        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args,
+            ASRUtils::type_get_past_allocatable(type), x->m_storage_format, m_value);
     }
 
     ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {
@@ -293,38 +294,49 @@ public:
             return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc,
                 substitute_type(tlist->m_type)));
         }
-        if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
-            ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
+        ASR::ttype_t* param_type_ = ASRUtils::type_get_past_array(param_type);
+        ASR::dimension_t* m_dims = nullptr;
+        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(param_type, m_dims);
+        if (ASR::is_a<ASR::TypeParameter_t>(*param_type_)) {
+            ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type_);
             Vec<ASR::dimension_t> new_dims;
-            new_dims.reserve(al, param->n_dims);
-            for (size_t i=0; i<param->n_dims; i++) {
-                ASR::dimension_t old_dim = param->m_dims[i];
+            new_dims.reserve(al, n_dims);
+            for (size_t i = 0; i < n_dims; i++) {
+                ASR::dimension_t old_dim = m_dims[i];
                 ASR::dimension_t new_dim;
                 new_dim.loc = old_dim.loc;
                 new_dim.m_start = duplicate_expr(old_dim.m_start);
                 new_dim.m_length = duplicate_expr(old_dim.m_length);
                 new_dims.push_back(al, new_dim);
             }
-            ASR::ttype_t *t = subs[param->m_param];
+            ASR::ttype_t *t = ASRUtils::type_get_past_array(subs[param->m_param]);
+            ASR::ttype_t *t_ = nullptr;
             switch (t->type) {
                 case ASR::ttypeType::Integer: {
                     ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
-                    return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
-                            tnew->m_kind, new_dims.p, new_dims.size()));
+                    t_ = ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc, tnew->m_kind));
+                    break;
                 }
                 case ASR::ttypeType::Real: {
                     ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
-                    return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
-                            tnew->m_kind, new_dims.p, new_dims.size()));
+                    t_ = ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc, tnew->m_kind));
+                    break;
                 }
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
-                    return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
-                                tnew->m_kind, tnew->m_len, tnew->m_len_expr,
-                                new_dims.p, new_dims.size()));
+                    t_ = ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                                tnew->m_kind, tnew->m_len, tnew->m_len_expr));
+                    break;
                 }
-                default: return subs[param->m_param];
+                default: {
+                    return subs[param->m_param];
+                }
             }
+            if( new_dims.size() > 0 ) {
+                t_ = ASRUtils::make_Array_t_util(al, t->base.loc,
+                    t_, new_dims.p, new_dims.size());
+            }
+            return t_;
         }
         return param_type;
     }
@@ -337,7 +349,7 @@ public:
         ASR::expr_t *value = nullptr;
 
         if (op == ASR::binopType::Div) {
-            dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+            dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8));
             if (ASRUtils::is_integer(*left_type)) {
                 left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
@@ -376,7 +388,7 @@ public:
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    default: { LCOMPILERS_ASSERT(false); } // should never happen
+                    default: { LCOMPILERS_ASSERT(false); result=0; } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, dest_type));
             }
@@ -391,7 +403,7 @@ public:
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    default: { LCOMPILERS_ASSERT(false); }
+                    default: { LCOMPILERS_ASSERT(false); result = 0; }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, dest_type));
             }

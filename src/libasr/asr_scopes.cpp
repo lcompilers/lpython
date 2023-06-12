@@ -152,8 +152,7 @@ void SymbolTable::move_symbols_from_global_scope(Allocator &al,
                 ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(a.second);
                 mod_dependencies.push_back(al, es->m_module_name);
                 es->m_parent_symtab = module_scope;
-                ASR::symbol_t *s = ASRUtils::symbol_get_past_external(a.second);
-                LCOMPILERS_ASSERT(s);
+                LCOMPILERS_ASSERT(ASRUtils::symbol_get_past_external(a.second));
                 module_scope->add_symbol(a.first, (ASR::symbol_t *) es);
                 syms.push_back(al, s2c(al, a.first));
                 break;

@@ -1246,6 +1246,11 @@ int link_executable(const std::vector<std::string> &infiles,
         cmd += " -I " + rtlib_header_dir;
         cmd += " -L" + base_path
             + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+        if (compiler_options.enable_cpython) {
+            std::string py_version = "3.10";
+            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
+            cmd += " " + py_flags;
+        }
         int err = system(cmd.c_str());
         if (err) {
             std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -1556,6 +1561,7 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
+        app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");

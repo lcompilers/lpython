@@ -1,0 +1,13 @@
+{
+    "basename": "asr-print_list_tuple_03-9de3736",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/print_list_tuple_03.py",
+    "infile_hash": "5131d7b6049e22c278ad41494969ff1f70c1dc811313032a9fcf58f3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-print_list_tuple_03-9de3736.stdout",
+    "stdout_hash": "0916c494736d1a8eca962e273ce8cfdce090ab032387c20a6ce8eba1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

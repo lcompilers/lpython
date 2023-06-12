@@ -85,7 +85,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -114,21 +114,21 @@
                                     [(DoLoop
                                         ()
                                         ((Var 10 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (IntegerConstant 10 (Integer 4 []))
+                                            (IntegerConstant 10 (Integer 4))
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant 9 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9 (Integer 4))
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(If
                                             (IntegerCompare
                                                 (Var 10 i)
                                                 Eq
-                                                (IntegerConstant 0 (Integer 4 []))
-                                                (Logical 4 [])
+                                                (IntegerConstant 0 (Integer 4))
+                                                (Logical 4)
                                                 ()
                                             )
                                             [(Cycle
@@ -140,8 +140,8 @@
                                             (IntegerCompare
                                                 (Var 10 i)
                                                 Gt
-                                                (IntegerConstant 5 (Integer 4 []))
-                                                (Logical 4 [])
+                                                (IntegerConstant 5 (Integer 4))
+                                                (Logical 4)
                                                 ()
                                             )
                                             [(Exit
@@ -153,8 +153,8 @@
                                             (IntegerCompare
                                                 (Var 10 i)
                                                 Eq
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Logical 4 [])
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Logical 4)
                                                 ()
                                             )
                                             [(Stop
@@ -166,7 +166,7 @@
                                     (SubroutineCall
                                         14 exit
                                         ()
-                                        [((IntegerConstant 2 (Integer 4 [])))]
+                                        [((IntegerConstant 2 (Integer 4)))]
                                         ()
                                     )]
                                     ()
@@ -226,7 +226,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 () [])
+                                                        (Character 1 -2 ())
                                                     )
                                                     ()
                                                     Source
@@ -243,7 +243,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -260,7 +260,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Character 1 -2 () [])
+                                                        (Character 1 -2 ())
                                                     )
                                                     ()
                                                     Source
@@ -277,7 +277,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -289,7 +289,7 @@
                                     (FunctionType
                                         []
                                         (List
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                         )
                                         Source
                                         Implementation
@@ -312,7 +312,7 @@
                                             3 _lpython_get_argc
                                             ()
                                             []
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -323,7 +323,7 @@
                                         (ListConstant
                                             []
                                             (List
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                             )
                                         )
                                         ()
@@ -331,22 +331,22 @@
                                     (DoLoop
                                         ()
                                         ((Var 7 i)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (Var 7 argc)
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(ListAppend
                                             (Var 7 argv)
                                             (FunctionCall
                                                 3 _lpython_get_argv
                                                 ()
                                                 [((Var 7 i))]
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 ()
                                                 ()
                                             )
@@ -378,7 +378,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -389,7 +389,7 @@
                                     _lpython_get_argc
                                     (FunctionType
                                         []
-                                        (Integer 4 [])
+                                        (Integer 4)
                                         BindC
                                         Interface
                                         ()
@@ -425,7 +425,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     BindC
                                                     Public
@@ -441,7 +441,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     BindC
                                                     Public
@@ -451,8 +451,8 @@
                                         })
                                     _lpython_get_argv
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Character 1 -2 () [])
+                                        [(Integer 4)]
+                                        (Character 1 -2 ())
                                         BindC
                                         Interface
                                         ()
@@ -484,7 +484,7 @@
                                     ()
                                     Default
                                     (List
-                                        (Character 1 -2 () [])
+                                        (Character 1 -2 ())
                                     )
                                     ()
                                     Source
@@ -506,7 +506,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -516,7 +516,7 @@
                                         })
                                     exit
                                     (FunctionType
-                                        [(Integer 4 [])]
+                                        [(Integer 4)]
                                         ()
                                         Source
                                         Implementation
@@ -573,7 +573,7 @@
                                             ()
                                             []
                                             (List
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                             )
                                             ()
                                             ()

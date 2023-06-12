@@ -89,7 +89,7 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
         void transform_functions_with_optional_arguments(ASR::Function_t* s) {
             Vec<ASR::expr_t*> new_args;
             new_args.reserve(al, s->n_args);
-            ASR::ttype_t* logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, s->base.base.loc, 4, nullptr, 0));
+            ASR::ttype_t* logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, s->base.base.loc, 4));
             for( size_t i = 0; i < s->n_args; i++ ) {
                 ASR::symbol_t* arg_sym = ASR::down_cast<ASR::Var_t>(s->m_args[i])->m_v;
                 new_args.push_back(al, s->m_args[i]);
@@ -257,23 +257,15 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al, const T& x) {
     }
 
     new_args.reserve(al, func->n_args);
-    for( size_t i = 0, j = 0; j < func->n_args; i++, j++ ) {
-        if( i < x.n_args ) {
-            new_args.push_back(al, x.m_args[i]);
-        } else {
-            ASR::call_arg_t empty_arg;
-            Location loc;
-            loc.first = 1, loc.last = 1;
-            empty_arg.loc = loc;
-            empty_arg.m_value = nullptr;
-            new_args.push_back(al, empty_arg);
-        }
+    for( size_t i = 0, j = 0; j < func->n_args; j++, i++ ) {
+        LCOMPILERS_ASSERT(i < x.n_args);
+        new_args.push_back(al, x.m_args[i]);
         if( ASR::is_a<ASR::Variable_t>(
                 *ASR::down_cast<ASR::Var_t>(func->m_args[j])->m_v) &&
             ASRUtils::EXPR2VAR(func->m_args[j])->m_presence ==
             ASR::presenceType::Optional ) {
             ASR::ttype_t* logical_t = ASRUtils::TYPE(ASR::make_Logical_t(al,
-                                        x.m_args[i].loc, 4, nullptr, 0));
+                                        x.m_args[i].loc, 4));
             ASR::expr_t* is_present = ASRUtils::EXPR(
                 ASR::make_LogicalConstant_t(al, x.m_args[i].loc,
                     x.m_args[i].m_value != nullptr, logical_t));

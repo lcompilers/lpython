@@ -177,21 +177,23 @@ public:
 
             // Generate a sequence of if-blocks to determine the type, using the type list defined above
             #define _X(ASR_TYPE, KIND, CTYPE_STR) \
-            if ( is_a<ASR_TYPE>(*arg->m_type) && (down_cast<ASR_TYPE>(arg->m_type)->m_kind == KIND) ) { \
+            if ( is_a<ASR_TYPE>(*ASRUtils::type_get_past_array(arg->m_type)) && \
+                (down_cast<ASR_TYPE>(arg->m_type)->m_kind == KIND) ) { \
+                ASR::dimension_t* m_dims = nullptr; \
+                size_t n_dims = ASRUtils::extract_dimensions_from_ttype(arg->m_type, m_dims); \
                 this_arg_info.asr_obj = arg;                                                       \
                 this_arg_info.ctype   = CTYPE_STR;                                                 \
-                auto tmp_arg          = down_cast<ASR_TYPE>(arg->m_type);                          \
-                this_arg_info.ndims   = tmp_arg->n_dims;                                           \
+                this_arg_info.ndims   = n_dims;                                                    \
                 for (int j = 0; j < this_arg_info.ndims; j++) {                                    \
-                    auto lbound_ptr = tmp_arg->m_dims[j].m_start;                                  \
+                    auto lbound_ptr = m_dims[j].m_start;                                           \
                     if (!is_a<ASR::IntegerConstant_t>(*lbound_ptr)) {                              \
                         throw CodeGenError(errmsg1);                                               \
                     }                                                                              \
                     if (down_cast<ASR::IntegerConstant_t>(lbound_ptr)->m_n != 1) {                 \
                         throw CodeGenError(errmsg1);                                               \
                     }                                                                              \
-                    if (is_a<ASR::Var_t>(*tmp_arg->m_dims[j].m_length)) {                             \
-                        ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(tmp_arg->m_dims[j].m_length);    \
+                    if (is_a<ASR::Var_t>(*m_dims[j].m_length)) {                                   \
+                        ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(m_dims[j].m_length);          \
                         this_arg_info.ubound_varnames.push_back(dimvar->m_name);                   \
                     } else if (!is_a<ASR::IntegerConstant_t>(*lbound_ptr)) {                       \
                         throw CodeGenError(errmsg2);                                               \

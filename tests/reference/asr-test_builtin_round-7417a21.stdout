@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [test_round]
                                     []
                                     [(SubroutineCall
-                                        120 test_round
+                                        128 test_round
                                         ()
                                         []
                                         ()
@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -90,7 +90,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -106,7 +106,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -122,7 +122,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 1 [])
+                                                    (Integer 1)
                                                     ()
                                                     Source
                                                     Public
@@ -138,7 +138,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 2 [])
+                                                    (Integer 2)
                                                     ()
                                                     Source
                                                     Public
@@ -154,7 +154,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -270,7 +270,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             5.678000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -280,13 +280,13 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 6 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -296,12 +296,12 @@
                                         (RealUnaryMinus
                                             (RealConstant
                                                 183745.230000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 -183745.230000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -312,17 +312,17 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 183745 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -183745 (Integer 4 []))
+                                                (IntegerConstant 183745 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -183745 (Integer 4))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -331,7 +331,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             44.340000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -341,13 +341,13 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 44 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 44 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -356,7 +356,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             0.500000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -366,13 +366,13 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -382,12 +382,12 @@
                                         (RealUnaryMinus
                                             (RealConstant
                                                 50.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 -50.500000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -398,17 +398,17 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 50 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -50 (Integer 4 []))
+                                                (IntegerConstant 50 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -50 (Integer 4))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -417,7 +417,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             1.500000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -427,13 +427,13 @@
                                                 2 round@__lpython_overloaded_0__round
                                                 2 round
                                                 [((Var 2 f))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -445,18 +445,18 @@
                                                 2 round
                                                 [((RealConstant
                                                     13.001000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 13 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 13 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 13 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 13 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -469,28 +469,28 @@
                                                 [((RealUnaryMinus
                                                     (RealConstant
                                                         40.499990
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -40.499990
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant -40 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant -40 (Integer 4))
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 40 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -40 (Integer 4 []))
+                                                (IntegerConstant 40 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -40 (Integer 4))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -502,18 +502,18 @@
                                                 2 round
                                                 [((RealConstant
                                                     0.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 0 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -526,24 +526,24 @@
                                                 [((RealUnaryMinus
                                                     (RealConstant
                                                         0.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -0.500000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 0 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -555,18 +555,18 @@
                                                 2 round
                                                 [((RealConstant
                                                     1.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 2 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 2 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -578,18 +578,18 @@
                                                 2 round
                                                 [((RealConstant
                                                     50.500000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 50 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 50 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 50 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 50 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -601,18 +601,18 @@
                                                 2 round
                                                 [((RealConstant
                                                     56.780000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 57 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 57 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 57 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 57 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -622,13 +622,13 @@
                                         (Cast
                                             (RealConstant
                                                 5.678000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 5.678000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -639,13 +639,13 @@
                                                 2 round@__lpython_overloaded_1__round
                                                 2 round
                                                 [((Var 2 f2))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 6 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -653,9 +653,9 @@
                                     (=
                                         (Var 2 i)
                                         (IntegerUnaryMinus
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant -5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -5 (Integer 4))
                                         )
                                         ()
                                     )
@@ -665,17 +665,17 @@
                                                 2 round@__lpython_overloaded_2__round
                                                 2 round
                                                 [((Var 2 i))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 5 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -5 (Integer 4 []))
+                                                (IntegerConstant 5 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -5 (Integer 4))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -685,17 +685,17 @@
                                             (FunctionCall
                                                 2 round@__lpython_overloaded_2__round
                                                 2 round
-                                                [((IntegerConstant 4 (Integer 4 [])))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 4 (Integer 4 []))
+                                                [((IntegerConstant 4 (Integer 4)))]
+                                                (Integer 4)
+                                                (IntegerConstant 4 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 4 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 4 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -703,10 +703,10 @@
                                     (=
                                         (Var 2 i2)
                                         (Cast
-                                            (IntegerConstant 7 (Integer 4 []))
+                                            (IntegerConstant 7 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 1 [])
-                                            (IntegerConstant 7 (Integer 1 []))
+                                            (Integer 1)
+                                            (IntegerConstant 7 (Integer 1))
                                         )
                                         ()
                                     )
@@ -716,18 +716,18 @@
                                                 2 round@__lpython_overloaded_4__round
                                                 2 round
                                                 [((Var 2 i2))]
-                                                (Integer 1 [])
+                                                (Integer 1)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 7 (Integer 4 []))
+                                                (IntegerConstant 7 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 1 [])
-                                                (IntegerConstant 7 (Integer 1 []))
+                                                (Integer 1)
+                                                (IntegerConstant 7 (Integer 1))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -736,13 +736,13 @@
                                         (Var 2 i3)
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 8 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -8 (Integer 4 []))
+                                                (IntegerConstant 8 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -8 (Integer 4))
                                             )
                                             IntegerToInteger
-                                            (Integer 2 [])
-                                            (IntegerConstant -8 (Integer 2 []))
+                                            (Integer 2)
+                                            (IntegerConstant -8 (Integer 2))
                                         )
                                         ()
                                     )
@@ -752,22 +752,22 @@
                                                 2 round@__lpython_overloaded_5__round
                                                 2 round
                                                 [((Var 2 i3))]
-                                                (Integer 2 [])
+                                                (Integer 2)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Cast
                                                 (IntegerUnaryMinus
-                                                    (IntegerConstant 8 (Integer 4 []))
-                                                    (Integer 4 [])
-                                                    (IntegerConstant -8 (Integer 4 []))
+                                                    (IntegerConstant 8 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant -8 (Integer 4))
                                                 )
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant -8 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant -8 (Integer 2))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -775,10 +775,10 @@
                                     (=
                                         (Var 2 i4)
                                         (Cast
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 0 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 0 (Integer 8))
                                         )
                                         ()
                                     )
@@ -788,18 +788,18 @@
                                                 2 round@__lpython_overloaded_3__round
                                                 2 round
                                                 [((Var 2 i4))]
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 8 [])
-                                                (IntegerConstant 0 (Integer 8 []))
+                                                (Integer 8)
+                                                (IntegerConstant 0 (Integer 8))
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -808,7 +808,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -818,13 +818,13 @@
                                                 2 round@__lpython_overloaded_6__round
                                                 2 round
                                                 [((Var 2 b))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -833,7 +833,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -843,13 +843,13 @@
                                                 2 round@__lpython_overloaded_6__round
                                                 2 round
                                                 [((Var 2 b))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -861,18 +861,18 @@
                                                 2 round
                                                 [((LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 ))]
-                                                (Integer 4 [])
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 0 (Integer 4))
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -894,13 +894,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -910,7 +910,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()

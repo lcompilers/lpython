@@ -86,7 +86,7 @@ symbol
         bool loaded_from_mod, bool intrinsic)
     | Function(symbol_table symtab, identifier name, ttype function_signature,
         identifier* dependencies, expr* args, stmt* body, expr? return_var,
-        access access, bool deterministic, bool side_effect_free,  string? c_header)
+        access access, bool deterministic, bool side_effect_free,  string? module_file)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -111,8 +111,10 @@ symbol
         identifier proc_name, symbol proc, abi abi, bool is_deferred)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
+    | Requirement(symbol_table symtab, identifier name, identifier* args)
+    | Template(symbol_table symtab, identifier name, identifier* args)
 
-storage_type = Default | Save | Parameter | Allocatable
+storage_type = Default | Save | Parameter
 access = Public | Private
 intent = Local | In | Out | InOut | ReturnVar | Unspecified
 deftype = Implementation | Interface
@@ -137,6 +139,12 @@ presence = Required | Optional
 -- An interface that uses `iso_c_binding` and `bind(c)` is represented using
 -- abi=BindC.
 
+-- abi=BindPython: the symbol's implementation is
+-- stored in text format in the user source code file.
+-- The symbol is executed using the CPython interpreter.
+-- LPython manages the conversion of arguments to be passed to such symbols
+-- and also converts the return values from such symbols.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -153,6 +161,7 @@ abi                   -- External     ABI
     | LFortranModule  --   Yes        LFortran
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
+    | BindPython      --   Yes        Python
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 
@@ -268,6 +277,7 @@ expr
     | TupleConstant(expr* elements, ttype type)
     | TupleLen(expr arg, ttype type, expr value)
     | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | TupleConcat(expr left, expr right, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
@@ -309,6 +319,7 @@ expr
     | EnumValue(expr v, ttype enum_type, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
+    | OverloadedUnaryMinus(expr arg, ttype type, expr? value, expr overloaded)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
@@ -319,7 +330,6 @@ expr
     | ListItem(expr a, expr pos, ttype type, expr? value)
     | TupleItem(expr a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
-    | ListPop(expr a, expr? index, ttype type, expr? value)
     | DictPop(expr a, expr key, ttype type, expr? value)
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
@@ -354,25 +364,27 @@ expr
 --     integer, so we also use kind=4 for the default logical.)
 
 ttype
-    = Integer(int kind, dimension* dims)
-    | UnsignedInteger(int kind, dimension* dims)
-    | Real(int kind, dimension* dims)
-    | Complex(int kind, dimension* dims)
-    | Character(int kind, int len, expr? len_expr, dimension* dims)
-    | Logical(int kind, dimension* dims)
+    = Integer(int kind)
+    | UnsignedInteger(int kind)
+    | Real(int kind)
+    | Complex(int kind)
+    | Character(int kind, int len, expr? len_expr)
+    | Logical(int kind)
     | Set(ttype type)
     | List(ttype type)
     | Tuple(ttype* type)
-    | Struct(symbol derived_type, dimension* dims)
-    | Enum(symbol enum_type, dimension *dims)
-    | Union(symbol union_type, dimension *dims)
-    | Class(symbol class_type, dimension* dims)
+    | Struct(symbol derived_type)
+    | Enum(symbol enum_type)
+    | Union(symbol union_type)
+    | Class(symbol class_type)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | Allocatable(ttype type)
     | Const(ttype type)
     | CPtr()
-    | TypeParameter(identifier param, dimension* dims)
     | SymbolicExpression()
+    | TypeParameter(identifier param)
+    | Array(ttype type, dimension* dims)
     | FunctionType(ttype* arg_types, ttype? return_var_type,
         abi abi, deftype deftype, string? bindc_name, bool elemental,
         bool pure, bool module, bool inline, bool static, ttype* type_params,

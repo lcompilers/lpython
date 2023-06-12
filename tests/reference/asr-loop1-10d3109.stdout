@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -107,8 +107,8 @@
                                         (FunctionCall
                                             9 test_factorial_1
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))]
-                                            (Integer 4 [])
+                                            [((IntegerConstant 4 (Integer 4)))]
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -119,8 +119,8 @@
                                         (FunctionCall
                                             9 test_factorial_2
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))]
-                                            (Integer 4 [])
+                                            [((IntegerConstant 4 (Integer 4)))]
+                                            (Integer 4)
                                             ()
                                             ()
                                         )
@@ -131,8 +131,8 @@
                                         (FunctionCall
                                             9 test_factorial_3
                                             ()
-                                            [((IntegerConstant 5 (Integer 4 [])))]
-                                            (Integer 8 [])
+                                            [((IntegerConstant 5 (Integer 4)))]
+                                            (Integer 8)
                                             ()
                                             ()
                                         )
@@ -158,7 +158,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -174,7 +174,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -190,7 +190,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -200,8 +200,8 @@
                                         })
                                     test_factorial_1
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -220,13 +220,13 @@
                                         (IntegerCompare
                                             (Var 2 x)
                                             Lt
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
                                             (Var 2 _lpython_return_variable)
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             ()
                                         )
                                         (Return)]
@@ -234,7 +234,7 @@
                                     )
                                     (=
                                         (Var 2 result)
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (WhileLoop
@@ -242,8 +242,8 @@
                                         (IntegerCompare
                                             (Var 2 x)
                                             Gt
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -252,7 +252,7 @@
                                                 (Var 2 result)
                                                 Mul
                                                 (Var 2 x)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             ()
@@ -262,8 +262,8 @@
                                             (IntegerBinOp
                                                 (Var 2 x)
                                                 Sub
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
                                             ()
@@ -295,7 +295,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -311,7 +311,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -327,7 +327,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -343,7 +343,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -353,8 +353,8 @@
                                         })
                                     test_factorial_2
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -371,34 +371,34 @@
                                     [(Var 3 x)]
                                     [(=
                                         (Var 3 result)
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (DoLoop
                                         ()
                                         ((Var 3 i)
-                                        (IntegerConstant 1 (Integer 4 []))
+                                        (IntegerConstant 1 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerBinOp
                                                 (Var 3 x)
                                                 Add
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
                                             Sub
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
-                                        (IntegerConstant 1 (Integer 4 [])))
+                                        (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (Var 3 result)
                                             (IntegerBinOp
                                                 (Var 3 result)
                                                 Mul
                                                 (Var 3 i)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             ()
@@ -430,7 +430,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -446,7 +446,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -462,7 +462,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -472,8 +472,8 @@
                                         })
                                     test_factorial_3
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 8 [])
+                                        [(Integer 4)]
+                                        (Integer 8)
                                         Source
                                         Implementation
                                         ()
@@ -491,10 +491,10 @@
                                     [(=
                                         (Var 4 result)
                                         (Cast
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 0 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 0 (Integer 8))
                                         )
                                         ()
                                     )
@@ -502,8 +502,8 @@
                                         (IntegerCompare
                                             (Var 4 x)
                                             Lt
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -517,10 +517,10 @@
                                     (=
                                         (Var 4 result)
                                         (Cast
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 1 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 1 (Integer 8))
                                         )
                                         ()
                                     )
@@ -529,8 +529,8 @@
                                         (IntegerCompare
                                             (Var 4 x)
                                             Gt
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         [(=
@@ -541,10 +541,10 @@
                                                 (Cast
                                                     (Var 4 x)
                                                     IntegerToInteger
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                 )
-                                                (Integer 8 [])
+                                                (Integer 8)
                                                 ()
                                             )
                                             ()
@@ -554,8 +554,8 @@
                                             (IntegerBinOp
                                                 (Var 4 x)
                                                 Sub
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
                                             ()

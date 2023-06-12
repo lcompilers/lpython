@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        120
+                        128
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        119
+                                        127
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [test_bool]
                                     []
                                     [(SubroutineCall
-                                        120 test_bool
+                                        128 test_bool
                                         ()
                                         []
                                         ()
@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -90,7 +90,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 1 [])
+                                                    (Integer 1)
                                                     ()
                                                     Source
                                                     Public
@@ -106,7 +106,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 2 [])
+                                                    (Integer 2)
                                                     ()
                                                     Source
                                                     Public
@@ -122,7 +122,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -138,7 +138,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 4 [])
+                                                    (Complex 4)
                                                     ()
                                                     Source
                                                     Public
@@ -154,7 +154,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     ()
                                                     Source
                                                     Public
@@ -200,7 +200,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -216,7 +216,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -232,7 +232,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -261,21 +261,21 @@
                                     []
                                     [(=
                                         (Var 2 a)
-                                        (IntegerConstant 34 (Integer 4 []))
+                                        (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (Cast
                                             (Var 2 a)
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 2 a)
-                                        (IntegerConstant 0 (Integer 4 []))
+                                        (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (Assert
@@ -283,10 +283,10 @@
                                             (Cast
                                                 (Var 2 a)
                                                 IntegerToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -294,15 +294,15 @@
                                     (Assert
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -310,18 +310,18 @@
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (IntegerConstant 0 (Integer 4 []))
+                                                (IntegerConstant 0 (Integer 4))
                                                 IntegerToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -329,10 +329,10 @@
                                     (=
                                         (Var 2 a2)
                                         (Cast
-                                            (IntegerConstant 34 (Integer 4 []))
+                                            (IntegerConstant 34 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 34 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 34 (Integer 8))
                                         )
                                         ()
                                     )
@@ -340,7 +340,7 @@
                                         (Cast
                                             (Var 2 a2)
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -348,10 +348,10 @@
                                     (=
                                         (Var 2 a3)
                                         (Cast
-                                            (IntegerConstant 34 (Integer 4 []))
+                                            (IntegerConstant 34 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 1 [])
-                                            (IntegerConstant 34 (Integer 1 []))
+                                            (Integer 1)
+                                            (IntegerConstant 34 (Integer 1))
                                         )
                                         ()
                                     )
@@ -359,7 +359,7 @@
                                         (Cast
                                             (Var 2 a3)
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -368,13 +368,13 @@
                                         (Var 2 a4)
                                         (IntegerUnaryMinus
                                             (Cast
-                                                (IntegerConstant 1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
                                                 IntegerToInteger
-                                                (Integer 2 [])
-                                                (IntegerConstant 1 (Integer 2 []))
+                                                (Integer 2)
+                                                (IntegerConstant 1 (Integer 2))
                                             )
-                                            (Integer 2 [])
-                                            (IntegerConstant -1 (Integer 2 []))
+                                            (Integer 2)
+                                            (IntegerConstant -1 (Integer 2))
                                         )
                                         ()
                                     )
@@ -382,7 +382,7 @@
                                         (Cast
                                             (Var 2 a4)
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -391,7 +391,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -400,10 +400,10 @@
                                             (Cast
                                                 (Var 2 f)
                                                 RealToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -412,7 +412,7 @@
                                         (Var 2 f)
                                         (RealConstant
                                             1.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -420,7 +420,7 @@
                                         (Cast
                                             (Var 2 f)
                                             RealToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -429,13 +429,13 @@
                                         (Cast
                                             (RealConstant
                                                 56.786866
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -445,19 +445,19 @@
                                             (Cast
                                                 (RealConstant
                                                     0.000000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -468,19 +468,19 @@
                                             (Cast
                                                 (RealConstant
                                                     235.600000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                                 RealToReal
-                                                (Real 4 [])
+                                                (Real 4)
                                                 (RealConstant
                                                     235.600000
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                 )
                                             )
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 -235.600000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -489,7 +489,7 @@
                                         (Cast
                                             (Var 2 f2)
                                             RealToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -499,13 +499,13 @@
                                         (Cast
                                             (RealConstant
                                                 0.000053
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 0.000053
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -514,7 +514,7 @@
                                         (Cast
                                             (Var 2 f2)
                                             RealToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -523,7 +523,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         ()
                                     )
@@ -532,10 +532,10 @@
                                             (Cast
                                                 (Var 2 s)
                                                 CharacterToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -544,7 +544,7 @@
                                         (Var 2 s)
                                         (StringConstant
                                             "str"
-                                            (Character 1 3 () [])
+                                            (Character 1 3 ())
                                         )
                                         ()
                                     )
@@ -552,7 +552,7 @@
                                         (Cast
                                             (Var 2 s)
                                             CharacterToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -562,19 +562,19 @@
                                             (Cast
                                                 (StringConstant
                                                     ""
-                                                    (Character 1 0 () [])
+                                                    (Character 1 0 ())
                                                 )
                                                 CharacterToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -583,13 +583,13 @@
                                         (Cast
                                             (StringConstant
                                                 "str"
-                                                (Character 1 3 () [])
+                                                (Character 1 3 ())
                                             )
                                             CharacterToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -598,7 +598,7 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -610,14 +610,14 @@
                                         (Var 2 b)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
                                     (Assert
                                         (LogicalNot
                                             (Var 2 b)
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -625,7 +625,7 @@
                                     (Assert
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -633,12 +633,12 @@
                                         (LogicalNot
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -649,22 +649,22 @@
                                             (FunctionCall
                                                 2 complex@__lpython_overloaded_9__complex
                                                 2 complex
-                                                [((IntegerConstant 2 (Integer 4 [])))
-                                                ((IntegerConstant 3 (Integer 4 [])))]
-                                                (Complex 8 [])
+                                                [((IntegerConstant 2 (Integer 4)))
+                                                ((IntegerConstant 3 (Integer 4)))]
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     2.000000
                                                     3.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 2.000000
                                                 3.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -673,7 +673,7 @@
                                         (Cast
                                             (Var 2 c)
                                             ComplexToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -684,22 +684,22 @@
                                             (FunctionCall
                                                 2 complex@__lpython_overloaded_9__complex
                                                 2 complex
-                                                [((IntegerConstant 0 (Integer 4 [])))
-                                                ((IntegerConstant 0 (Integer 4 [])))]
-                                                (Complex 8 [])
+                                                [((IntegerConstant 0 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4)))]
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     0.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToComplex
-                                            (Complex 4 [])
+                                            (Complex 4)
                                             (ComplexConstant
                                                 0.000000
                                                 0.000000
-                                                (Complex 4 [])
+                                                (Complex 4)
                                             )
                                         )
                                         ()
@@ -709,10 +709,10 @@
                                             (Cast
                                                 (Var 2 c)
                                                 ComplexToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 ()
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -722,39 +722,39 @@
                                             (Cast
                                                 (ComplexBinOp
                                                     (Cast
-                                                        (IntegerConstant 0 (Integer 4 []))
+                                                        (IntegerConstant 0 (Integer 4))
                                                         IntegerToComplex
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                         (ComplexConstant
                                                             0.000000
                                                             0.000000
-                                                            (Complex 8 [])
+                                                            (Complex 8)
                                                         )
                                                     )
                                                     Add
                                                     (ComplexConstant
                                                         0.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         0.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                 )
                                                 ComplexToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -764,16 +764,16 @@
                                         (FunctionCall
                                             2 complex@__lpython_overloaded_13__complex
                                             2 complex
-                                            [((IntegerConstant 0 (Integer 4 [])))
+                                            [((IntegerConstant 0 (Integer 4)))
                                             ((RealConstant
                                                 0.100202
-                                                (Real 8 [])
+                                                (Real 8)
                                             ))]
-                                            (Complex 8 [])
+                                            (Complex 8)
                                             (ComplexConstant
                                                 0.000000
                                                 0.100202
-                                                (Complex 8 [])
+                                                (Complex 8)
                                             )
                                             ()
                                         )
@@ -783,7 +783,7 @@
                                         (Cast
                                             (Var 2 c1)
                                             ComplexToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -794,27 +794,27 @@
                                                 (FunctionCall
                                                     2 complex@__lpython_overloaded_9__complex
                                                     2 complex
-                                                    [((IntegerConstant 0 (Integer 4 [])))
-                                                    ((IntegerConstant 0 (Integer 4 [])))]
-                                                    (Complex 8 [])
+                                                    [((IntegerConstant 0 (Integer 4)))
+                                                    ((IntegerConstant 0 (Integer 4)))]
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         0.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                     ()
                                                 )
                                                 ComplexToLogical
-                                                (Logical 4 [])
+                                                (Logical 4)
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -823,33 +823,33 @@
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
-                                                    (IntegerConstant 3 (Integer 4 []))
+                                                    (IntegerConstant 3 (Integer 4))
                                                     IntegerToComplex
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         3.000000
                                                         0.000000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                 )
                                                 Add
                                                 (ComplexConstant
                                                     0.000000
                                                     5.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
-                                                (Complex 8 [])
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     3.000000
                                                     5.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             ComplexToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -871,13 +871,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        118
+                        126
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    118
+                                    126
                                     _lpython_main_program
-                                    120 _lpython_main_program
+                                    128 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -887,7 +887,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        118 _lpython_main_program
+                        126 _lpython_main_program
                         ()
                         []
                         ()

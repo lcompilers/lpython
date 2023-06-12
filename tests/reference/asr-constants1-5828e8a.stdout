@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        128
+                        136
                         {
                             test_abs:
                                 (Function
@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -87,10 +87,10 @@
                                         (Var 4 a)
                                         (IntrinsicFunction
                                             Abs
-                                            [(IntegerConstant 5 (Integer 4 []))]
+                                            [(IntegerConstant 5 (Integer 4))]
                                             0
-                                            (Integer 4 [])
-                                            (IntegerConstant 5 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 5 (Integer 4))
                                         )
                                         ()
                                     )
@@ -99,13 +99,13 @@
                                         (IntrinsicFunction
                                             Abs
                                             [(IntegerUnaryMinus
-                                                (IntegerConstant 500 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -500 (Integer 4 []))
+                                                (IntegerConstant 500 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -500 (Integer 4))
                                             )]
                                             0
-                                            (Integer 4 [])
-                                            (IntegerConstant 500 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 500 (Integer 4))
                                         )
                                         ()
                                     )
@@ -116,14 +116,14 @@
                                             [(Cast
                                                 (LogicalConstant
                                                     .false.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )]
                                             0
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -135,14 +135,14 @@
                                             [(Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToInteger
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )]
                                             0
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -154,20 +154,20 @@
                                                 Abs
                                                 [(RealConstant
                                                     3.450000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     3.450000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 3.450000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -180,26 +180,26 @@
                                                 [(RealUnaryMinus
                                                     (RealConstant
                                                         5346.340000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     (RealConstant
                                                         -5346.340000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     5346.340000
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 5346.340000
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -214,32 +214,32 @@
                                                     4 complex
                                                     [((RealConstant
                                                         3.450000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     ))
                                                     ((RealConstant
                                                         5.600000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     ))]
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                     (ComplexConstant
                                                         3.450000
                                                         5.600000
-                                                        (Complex 8 [])
+                                                        (Complex 8)
                                                     )
                                                     ()
                                                 )]
                                                 0
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     6.577424
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                             )
                                             RealToReal
-                                            (Real 4 [])
+                                            (Real 4)
                                             (RealConstant
                                                 6.577424
-                                                (Real 4 [])
+                                                (Real 4)
                                             )
                                         )
                                         ()
@@ -264,7 +264,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -313,12 +313,12 @@
                                     [(=
                                         (Var 6 a)
                                         (Cast
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (IntegerConstant 0 (Integer 4))
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -327,15 +327,15 @@
                                         (Var 6 a)
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             IntegerToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -345,13 +345,13 @@
                                         (Cast
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 () [])
+                                                (Character 1 0 ())
                                             )
                                             CharacterToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -362,21 +362,21 @@
                                             (FunctionCall
                                                 6 complex@__lpython_overloaded_9__complex
                                                 6 complex
-                                                [((IntegerConstant 0 (Integer 4 [])))
-                                                ((IntegerConstant 0 (Integer 4 [])))]
-                                                (Complex 8 [])
+                                                [((IntegerConstant 0 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4)))]
+                                                (Complex 8)
                                                 (ComplexConstant
                                                     0.000000
                                                     0.000000
-                                                    (Complex 8 [])
+                                                    (Complex 8)
                                                 )
                                                 ()
                                             )
                                             ComplexToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -387,9 +387,9 @@
                                             Eq
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -399,13 +399,13 @@
                                         (Cast
                                             (StringConstant
                                                 "t"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             CharacterToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -415,13 +415,13 @@
                                         (Cast
                                             (RealConstant
                                                 2.300000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToLogical
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -432,9 +432,9 @@
                                             Eq
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -459,7 +459,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -522,11 +522,11 @@
                                         (FunctionCall
                                             2 bin
                                             ()
-                                            [((IntegerConstant 5 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 5 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0b101"
-                                                (Character 1 5 () [])
+                                                (Character 1 5 ())
                                             )
                                             ()
                                         )
@@ -537,11 +537,11 @@
                                         (FunctionCall
                                             2 bin
                                             ()
-                                            [((IntegerConstant 64 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 64 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0b1000000"
-                                                (Character 1 9 () [])
+                                                (Character 1 9 ())
                                             )
                                             ()
                                         )
@@ -553,14 +553,14 @@
                                             2 bin
                                             ()
                                             [((IntegerUnaryMinus
-                                                (IntegerConstant 534 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -534 (Integer 4 []))
+                                                (IntegerConstant 534 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -534 (Integer 4))
                                             ))]
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "-0b1000010110"
-                                                (Character 1 13 () [])
+                                                (Character 1 13 ())
                                             )
                                             ()
                                         )
@@ -571,11 +571,11 @@
                                         (FunctionCall
                                             2 oct
                                             ()
-                                            [((IntegerConstant 8 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 8 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0o10"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
                                             ()
                                         )
@@ -586,11 +586,11 @@
                                         (FunctionCall
                                             2 oct
                                             ()
-                                            [((IntegerConstant 56 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 56 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0o70"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
                                             ()
                                         )
@@ -602,14 +602,14 @@
                                             2 oct
                                             ()
                                             [((IntegerUnaryMinus
-                                                (IntegerConstant 534 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -534 (Integer 4 []))
+                                                (IntegerConstant 534 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -534 (Integer 4))
                                             ))]
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "-0o1026"
-                                                (Character 1 7 () [])
+                                                (Character 1 7 ())
                                             )
                                             ()
                                         )
@@ -620,11 +620,11 @@
                                         (FunctionCall
                                             2 hex
                                             ()
-                                            [((IntegerConstant 42 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 42 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0x2a"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
                                             ()
                                         )
@@ -635,11 +635,11 @@
                                         (FunctionCall
                                             2 hex
                                             ()
-                                            [((IntegerConstant 12648430 (Integer 4 [])))]
-                                            (Character 1 -2 () [])
+                                            [((IntegerConstant 12648430 (Integer 4)))]
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "0xc0ffee"
-                                                (Character 1 8 () [])
+                                                (Character 1 8 ())
                                             )
                                             ()
                                         )
@@ -651,14 +651,14 @@
                                             2 hex
                                             ()
                                             [((IntegerUnaryMinus
-                                                (IntegerConstant 534 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -534 (Integer 4 []))
+                                                (IntegerConstant 534 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -534 (Integer 4))
                                             ))]
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "-0x216"
-                                                (Character 1 6 () [])
+                                                (Character 1 6 ())
                                             )
                                             ()
                                         )
@@ -684,7 +684,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -700,7 +700,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -728,14 +728,14 @@
                                     []
                                     [(=
                                         (Var 8 b)
-                                        (IntegerConstant 2 (Integer 4 []))
+                                        (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 8 a)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -745,9 +745,9 @@
                                             Eq
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -756,7 +756,7 @@
                                         (Var 8 a)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -766,9 +766,9 @@
                                             Eq
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -777,7 +777,7 @@
                                         (Var 8 a)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -787,9 +787,9 @@
                                             Eq
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -815,8 +815,8 @@
                                                     ()
                                                     Default
                                                     (Tuple
-                                                        [(Integer 4 [])
-                                                        (Integer 4 [])]
+                                                        [(Integer 4)
+                                                        (Integer 4)]
                                                     )
                                                     ()
                                                     Source
@@ -858,18 +858,18 @@
                                         (FunctionCall
                                             11 divmod
                                             ()
-                                            [((IntegerConstant 9 (Integer 4 [])))
-                                            ((IntegerConstant 3 (Integer 4 [])))]
+                                            [((IntegerConstant 9 (Integer 4)))
+                                            ((IntegerConstant 3 (Integer 4)))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4 []))
-                                                (IntegerConstant 0 (Integer 4 []))]
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             ()
@@ -881,22 +881,22 @@
                                         (FunctionCall
                                             11 divmod
                                             ()
-                                            [((IntegerConstant 9 (Integer 4 [])))
+                                            [((IntegerConstant 9 (Integer 4)))
                                             ((IntegerUnaryMinus
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -3 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
                                             ))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant -3 (Integer 4 []))
-                                                (IntegerConstant 0 (Integer 4 []))]
+                                                [(IntegerConstant -3 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             ()
@@ -908,18 +908,18 @@
                                         (FunctionCall
                                             11 divmod
                                             ()
-                                            [((IntegerConstant 3 (Integer 4 [])))
-                                            ((IntegerConstant 3 (Integer 4 [])))]
+                                            [((IntegerConstant 3 (Integer 4)))
+                                            ((IntegerConstant 3 (Integer 4)))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 0 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             ()
@@ -931,18 +931,18 @@
                                         (FunctionCall
                                             11 divmod
                                             ()
-                                            [((IntegerConstant 4 (Integer 4 [])))
-                                            ((IntegerConstant 5 (Integer 4 [])))]
+                                            [((IntegerConstant 4 (Integer 4)))
+                                            ((IntegerConstant 5 (Integer 4)))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 0 (Integer 4 []))
-                                                (IntegerConstant 4 (Integer 4 []))]
+                                                [(IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             ()
@@ -954,18 +954,18 @@
                                         (FunctionCall
                                             11 divmod
                                             ()
-                                            [((IntegerConstant 0 (Integer 4 [])))
-                                            ((IntegerConstant 5 (Integer 4 [])))]
+                                            [((IntegerConstant 0 (Integer 4)))
+                                            ((IntegerConstant 5 (Integer 4)))]
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 0 (Integer 4 []))
-                                                (IntegerConstant 0 (Integer 4 []))]
+                                                [(IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 0 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             ()
@@ -992,7 +992,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1022,7 +1022,7 @@
                                         (Var 10 a)
                                         (RealConstant
                                             0.000000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
@@ -1030,19 +1030,19 @@
                                         (Var 10 a)
                                         (RealConstant
                                             4.560000
-                                            (Real 8 [])
+                                            (Real 8)
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 10 a)
                                         (Cast
-                                            (IntegerConstant 5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
                                             IntegerToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 5.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -1051,15 +1051,15 @@
                                         (Var 10 a)
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -1 (Integer 4 []))
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
                                             )
                                             IntegerToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 -1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -1069,13 +1069,13 @@
                                         (Cast
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 1.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -1085,13 +1085,13 @@
                                         (Cast
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToReal
-                                            (Real 8 [])
+                                            (Real 8)
                                             (RealConstant
                                                 0.000000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                         )
                                         ()
@@ -1116,7 +1116,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1144,7 +1144,7 @@
                                     []
                                     [(=
                                         (Var 9 a)
-                                        (IntegerConstant 0 (Integer 8 []))
+                                        (IntegerConstant 0 (Integer 8))
                                         ()
                                     )
                                     (=
@@ -1152,21 +1152,21 @@
                                         (Cast
                                             (RealConstant
                                                 4.560000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 4 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 4 (Integer 8))
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 9 a)
                                         (Cast
-                                            (IntegerConstant 5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
                                             IntegerToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 5 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 5 (Integer 8))
                                         )
                                         ()
                                     )
@@ -1176,17 +1176,17 @@
                                             (RealUnaryMinus
                                                 (RealConstant
                                                     5.000010
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
-                                                (Real 8 [])
+                                                (Real 8)
                                                 (RealConstant
                                                     -5.000010
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                 )
                                             )
                                             RealToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant -5 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant -5 (Integer 8))
                                         )
                                         ()
                                     )
@@ -1195,11 +1195,11 @@
                                         (Cast
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 1 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 1 (Integer 8))
                                         )
                                         ()
                                     )
@@ -1208,17 +1208,17 @@
                                         (Cast
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToInteger
-                                            (Integer 8 [])
-                                            (IntegerConstant 0 (Integer 8 []))
+                                            (Integer 8)
+                                            (IntegerConstant 0 (Integer 8))
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 9 a)
-                                        (IntegerConstant 5346 (Integer 8 []))
+                                        (IntegerConstant 5346 (Integer 8))
                                         ()
                                     )]
                                     ()
@@ -1241,7 +1241,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1258,7 +1258,7 @@
                                                     ()
                                                     Default
                                                     (List
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -1290,10 +1290,10 @@
                                         (StringLen
                                             (StringConstant
                                                 ""
-                                                (Character 1 0 () [])
+                                                (Character 1 0 ())
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 0 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 0 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1302,10 +1302,10 @@
                                         (StringLen
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 4 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 4 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1314,10 +1314,10 @@
                                         (StringLen
                                             (StringConstant
                                                 "this is a test"
-                                                (Character 1 14 () [])
+                                                (Character 1 14 ())
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 14 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 14 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1325,17 +1325,17 @@
                                         (Var 5 a)
                                         (TupleLen
                                             (TupleConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 3 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 3 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1346,53 +1346,53 @@
                                                 [(TupleConstant
                                                     [(StringConstant
                                                         "c"
-                                                        (Character 1 1 () [])
+                                                        (Character 1 1 ())
                                                     )
                                                     (StringConstant
                                                         "b"
-                                                        (Character 1 1 () [])
+                                                        (Character 1 1 ())
                                                     )
                                                     (RealConstant
                                                         3.400000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )]
                                                     (Tuple
-                                                        [(Character 1 1 () [])
-                                                        (Character 1 1 () [])
-                                                        (Real 8 [])]
+                                                        [(Character 1 1 ())
+                                                        (Character 1 1 ())
+                                                        (Real 8)]
                                                     )
                                                 )
                                                 (TupleConstant
                                                     [(StringConstant
                                                         "c"
-                                                        (Character 1 1 () [])
+                                                        (Character 1 1 ())
                                                     )
-                                                    (IntegerConstant 3 (Integer 4 []))
+                                                    (IntegerConstant 3 (Integer 4))
                                                     (RealConstant
                                                         5.600000
-                                                        (Real 8 [])
+                                                        (Real 8)
                                                     )]
                                                     (Tuple
-                                                        [(Character 1 1 () [])
-                                                        (Integer 4 [])
-                                                        (Real 8 [])]
+                                                        [(Character 1 1 ())
+                                                        (Integer 4)
+                                                        (Real 8)]
                                                     )
                                                 )]
                                                 (Tuple
                                                     [(Tuple
-                                                        [(Character 1 1 () [])
-                                                        (Character 1 1 () [])
-                                                        (Real 8 [])]
+                                                        [(Character 1 1 ())
+                                                        (Character 1 1 ())
+                                                        (Real 8)]
                                                     )
                                                     (Tuple
-                                                        [(Character 1 1 () [])
-                                                        (Integer 4 [])
-                                                        (Real 8 [])]
+                                                        [(Character 1 1 ())
+                                                        (Integer 4)
+                                                        (Real 8)]
                                                     )]
                                                 )
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 2 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1400,15 +1400,15 @@
                                         (Var 5 a)
                                         (ListLen
                                             (ListConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 3 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 3 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1418,52 +1418,52 @@
                                             (ListConstant
                                                 [(ListConstant
                                                     [(IntegerUnaryMinus
-                                                        (IntegerConstant 4 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -4 (Integer 4 []))
+                                                        (IntegerConstant 4 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -4 (Integer 4))
                                                     )
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 5 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -5 (Integer 4 []))
+                                                        (IntegerConstant 5 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -5 (Integer 4))
                                                     )
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 6 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -6 (Integer 4 []))
+                                                        (IntegerConstant 6 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -6 (Integer 4))
                                                     )]
                                                     (List
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                 )
                                                 (ListConstant
                                                     [(IntegerUnaryMinus
-                                                        (IntegerConstant 1 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -1 (Integer 4 []))
+                                                        (IntegerConstant 1 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -1 (Integer 4))
                                                     )
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 2 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -2 (Integer 4 []))
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -2 (Integer 4))
                                                     )
                                                     (IntegerUnaryMinus
-                                                        (IntegerConstant 3 (Integer 4 []))
-                                                        (Integer 4 [])
-                                                        (IntegerConstant -3 (Integer 4 []))
+                                                        (IntegerConstant 3 (Integer 4))
+                                                        (Integer 4)
+                                                        (IntegerConstant -3 (Integer 4))
                                                     )]
                                                     (List
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                 )]
                                                 (List
                                                     (List
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                 )
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 2 (Integer 4))
                                         )
                                         ()
                                     )
@@ -1471,14 +1471,14 @@
                                         (Var 5 a)
                                         (SetLen
                                             (SetConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 (Set
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1487,27 +1487,27 @@
                                         (Var 5 a)
                                         (DictLen
                                             (DictConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))
-                                                (IntegerConstant 3 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
                                                 [(StringConstant
                                                     "c"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "b"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
                                                 (StringConstant
                                                     "c"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )]
                                                 (Dict
-                                                    (Integer 4 [])
-                                                    (Character 1 1 () [])
+                                                    (Integer 4)
+                                                    (Character 1 1 ())
                                                 )
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1515,12 +1515,12 @@
                                     (=
                                         (Var 5 l)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (IntegerConstant 4 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4))]
                                             (List
-                                                (Integer 4 [])
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -1529,20 +1529,20 @@
                                         (Var 5 a)
                                         (ListLen
                                             (Var 5 l)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (ListAppend
                                         (Var 5 l)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                     )
                                     (=
                                         (Var 5 a)
                                         (ListLen
                                             (Var 5 l)
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -1567,7 +1567,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -1583,7 +1583,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1614,21 +1614,21 @@
                                         (StringOrd
                                             (StringConstant
                                                 "5"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Integer 4 [])
-                                            (IntegerConstant 53 (Integer 4 []))
+                                            (Integer 4)
+                                            (IntegerConstant 53 (Integer 4))
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 3 s)
                                         (StringChr
-                                            (IntegerConstant 43 (Integer 4 []))
-                                            (Character 1 1 () [])
+                                            (IntegerConstant 43 (Integer 4))
+                                            (Character 1 1 ())
                                             (StringConstant
                                                 "+"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                         )
                                         ()
@@ -1653,7 +1653,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -1683,19 +1683,19 @@
                                         (Var 7 s)
                                         (StringConstant
                                             ""
-                                            (Character 1 0 () [])
+                                            (Character 1 0 ())
                                         )
                                         ()
                                     )
                                     (=
                                         (Var 7 s)
                                         (Cast
-                                            (IntegerConstant 5 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
                                             IntegerToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "5"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                         )
                                         ()
@@ -1704,15 +1704,15 @@
                                         (Var 7 s)
                                         (Cast
                                             (IntegerUnaryMinus
-                                                (IntegerConstant 4 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant -4 (Integer 4 []))
+                                                (IntegerConstant 4 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -4 (Integer 4))
                                             )
                                             IntegerToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "-4"
-                                                (Character 1 2 () [])
+                                                (Character 1 2 ())
                                             )
                                         )
                                         ()
@@ -1722,13 +1722,13 @@
                                         (Cast
                                             (RealConstant
                                                 5.600000
-                                                (Real 8 [])
+                                                (Real 8)
                                             )
                                             RealToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "5.6"
-                                                (Character 1 3 () [])
+                                                (Character 1 3 ())
                                             )
                                         )
                                         ()
@@ -1738,13 +1738,13 @@
                                         (Cast
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
                                         )
                                         ()
@@ -1754,13 +1754,13 @@
                                         (Cast
                                             (LogicalConstant
                                                 .false.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "False"
-                                                (Character 1 5 () [])
+                                                (Character 1 5 ())
                                             )
                                         )
                                         ()
@@ -1769,7 +1769,7 @@
                                         (Var 7 s)
                                         (StringConstant
                                             "5346"
-                                            (Character 1 4 () [])
+                                            (Character 1 4 ())
                                         )
                                         ()
                                     )]
@@ -1790,7 +1790,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        135
                         {
                             
                         })

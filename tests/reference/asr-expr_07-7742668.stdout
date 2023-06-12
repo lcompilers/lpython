@@ -65,7 +65,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                     ()
                                                     Source
                                                     Public
@@ -95,7 +95,7 @@
                                         (Var 4 var)
                                         (LogicalConstant
                                             .true.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -104,13 +104,13 @@
                                         [(Cast
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                             LogicalToCharacter
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
                                         )]
                                         ()
@@ -121,15 +121,15 @@
                                             (Cast
                                                 (Var 4 var)
                                                 LogicalToCharacter
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -138,7 +138,7 @@
                                         (Var 4 var)
                                         (LogicalConstant
                                             .false.
-                                            (Logical 4 [])
+                                            (Logical 4)
                                         )
                                         ()
                                     )
@@ -147,15 +147,15 @@
                                             (Cast
                                                 (Var 4 var)
                                                 LogicalToCharacter
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 ()
                                             )
                                             Eq
                                             (StringConstant
                                                 "False"
-                                                (Character 1 5 () [])
+                                                (Character 1 5 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -165,24 +165,24 @@
                                             (Cast
                                                 (LogicalConstant
                                                     .true.
-                                                    (Logical 4 [])
+                                                    (Logical 4)
                                                 )
                                                 LogicalToCharacter
-                                                (Character 1 -2 () [])
+                                                (Character 1 -2 ())
                                                 (StringConstant
                                                     "True"
-                                                    (Character 1 4 () [])
+                                                    (Character 1 4 ())
                                                 )
                                             )
                                             Eq
                                             (StringConstant
                                                 "True"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Logical 4 [])
+                                            (Logical 4)
                                             (LogicalConstant
                                                 .true.
-                                                (Logical 4 [])
+                                                (Logical 4)
                                             )
                                         )
                                         ()
@@ -207,7 +207,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -223,7 +223,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -239,7 +239,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -267,17 +267,17 @@
                                     []
                                     [(=
                                         (Var 3 a)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 x)
-                                        (IntegerConstant 3 (Integer 4 []))
+                                        (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 3 x)
-                                        (IntegerConstant 5 (Integer 4 []))
+                                        (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
@@ -285,8 +285,8 @@
                                         (IntegerBinOp
                                             (Var 3 x)
                                             Add
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -302,8 +302,8 @@
                                         (IntegerCompare
                                             (Var 3 b)
                                             Eq
-                                            (IntegerConstant 6 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -316,12 +316,12 @@
                                                 (Var 3 a)
                                                 Mul
                                                 (Var 3 b)
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                             )
                                             Add
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         ))]
                                         ()
@@ -346,7 +346,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -356,7 +356,7 @@
                                         })
                                     g
                                     (FunctionType
-                                        [(Integer 4 [])]
+                                        [(Integer 4)]
                                         ()
                                         Source
                                         Implementation
@@ -390,10 +390,10 @@
                                     x
                                     []
                                     Local
-                                    (IntegerConstant 7 (Integer 4 []))
-                                    (IntegerConstant 7 (Integer 4 []))
+                                    (IntegerConstant 7 (Integer 4))
+                                    (IntegerConstant 7 (Integer 4))
                                     Default
-                                    (Integer 4 [])
+                                    (Integer 4)
                                     ()
                                     Source
                                     Public

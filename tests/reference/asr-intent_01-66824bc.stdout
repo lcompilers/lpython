@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -53,10 +53,12 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Struct
-                                                        5 Foo
-                                                        [((IntegerConstant 0 (Integer 4 []))
-                                                        (IntegerConstant 5 (Integer 4 [])))]
+                                                    (Array
+                                                        (Struct
+                                                            5 Foo
+                                                        )
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 5 (Integer 4)))]
                                                     )
                                                     ()
                                                     Source
@@ -73,7 +75,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -89,7 +91,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -108,7 +110,6 @@
                                                     (List
                                                         (UnsignedInteger
                                                             4
-                                                            []
                                                         )
                                                     )
                                                     ()
@@ -120,18 +121,19 @@
                                         })
                                     f
                                     (FunctionType
-                                        [(Integer 4 [])
-                                        (Real 8 [])
+                                        [(Integer 4)
+                                        (Real 8)
                                         (List
                                             (UnsignedInteger
                                                 4
-                                                []
                                             )
                                         )
-                                        (Struct
-                                            5 Foo
-                                            [((IntegerConstant 0 (Integer 4 []))
-                                            (IntegerConstant 5 (Integer 4 [])))]
+                                        (Array
+                                            (Struct
+                                                5 Foo
+                                            )
+                                            [((IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4)))]
                                         )]
                                         ()
                                         Source

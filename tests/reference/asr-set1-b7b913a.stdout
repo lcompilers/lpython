@@ -22,7 +22,7 @@
                                                     ()
                                                     Default
                                                     (Set
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                     )
                                                     ()
                                                     Source
@@ -40,7 +40,7 @@
                                                     ()
                                                     Default
                                                     (Set
-                                                        (Character 1 -2 () [])
+                                                        (Character 1 -2 ())
                                                     )
                                                     ()
                                                     Source
@@ -57,7 +57,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -86,11 +86,11 @@
                                     [(=
                                         (Var 2 a)
                                         (SetConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
                                             (Set
-                                                (Integer 4 [])
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -98,42 +98,42 @@
                                     (=
                                         (Var 2 a)
                                         (SetConstant
-                                            [(IntegerConstant 2 (Integer 4 []))
-                                            (IntegerConstant 3 (Integer 4 []))
-                                            (IntegerConstant 4 (Integer 4 []))
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (IntegerConstant 5 (Integer 4 []))]
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4))]
                                             (Set
-                                                (Integer 4 [])
+                                                (Integer 4)
                                             )
                                         )
                                         ()
                                     )
                                     (SetInsert
                                         (Var 2 a)
-                                        (IntegerConstant 9 (Integer 4 []))
+                                        (IntegerConstant 9 (Integer 4))
                                     )
                                     (SetRemove
                                         (Var 2 a)
-                                        (IntegerConstant 4 (Integer 4 []))
+                                        (IntegerConstant 4 (Integer 4))
                                     )
                                     (=
                                         (Var 2 b)
                                         (SetConstant
                                             [(StringConstant
                                                 "a"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "b"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "c"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )]
                                             (Set
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                         )
                                         ()
@@ -142,7 +142,7 @@
                                         (Var 2 s)
                                         (SetPop
                                             (Var 2 b)
-                                            (Character 1 -2 () [])
+                                            (Character 1 -2 ())
                                             ()
                                         )
                                         ()

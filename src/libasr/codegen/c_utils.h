@@ -106,7 +106,7 @@ namespace CUtils {
                 util_funcs += body;
             }
 
-            void array_deepcopy(ASR::ttype_t* array_type_asr, std::string array_type_name,
+            void array_deepcopy([[maybe_unused]] ASR::ttype_t* array_type_asr, std::string array_type_name,
                                 std::string array_encoded_type_name, std::string array_type_str) {
                 LCOMPILERS_ASSERT(!is_non_primitive_DT(array_type_asr));
                 std::string indent(indentation_level * indentation_spaces, ' ');
@@ -279,6 +279,11 @@ namespace CUtils {
                 type_src = "char*";
                 break;
             }
+            case ASR::ttypeType::Array: {
+                ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(t);
+                type_src = get_c_type_from_ttype_t(array_t->m_type);
+                break;
+            }
             case ASR::ttypeType::Pointer: {
                 ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(t);
                 type_src = get_c_type_from_ttype_t(ptr_type->m_type) + "*";
@@ -330,6 +335,87 @@ namespace CUtils {
         return type_src;
     }
 
+    static inline std::string get_py_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromLong"; break;
+                    case 8: type_src = "PyLong_FromLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromUnsignedLong"; break;
+                    case 8: type_src = "PyLong_FromUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_src = "PyBool_FromLong";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_FromDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "PyUnicode_FromString";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
+    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsLong"; break;
+                    case 8: type_src = "PyLong_AsLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsUnsignedLong"; break;
+                    case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_AsDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "(char*)PyUnicode_AsUTF8";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
 } // namespace CUtils
 
 
@@ -451,6 +537,7 @@ class CCPPDSUtils {
                 return get_tuple_type(tup_type);
             }
             LCOMPILERS_ASSERT(false);
+            return ""; // To silence a warning
         }
 
         std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
@@ -529,7 +616,7 @@ class CCPPDSUtils {
 
         std::string get_array_type(std::string type_name, std::string encoded_type_name,
                                std::string& array_types_decls, bool make_ptr=true,
-                               bool create_if_not_present=true) {
+                               [[maybe_unused]] bool create_if_not_present=true) {
             if( eltypedims2arraytype.find(encoded_type_name) != eltypedims2arraytype.end() ) {
                 if( make_ptr ) {
                     return eltypedims2arraytype[encoded_type_name] + "*";

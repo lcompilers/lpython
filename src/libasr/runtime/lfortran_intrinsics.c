@@ -1309,7 +1309,9 @@ LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
     return (int64_t)fd;
 }
 
-FILE* unit_to_file[100];
+#define MAXUNITS 100
+
+FILE* unit_to_file[MAXUNITS];
 bool is_unit_to_file_init = false;
 
 LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status)
@@ -1323,7 +1325,7 @@ LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status
     }
 
     // Presently we just consider write append mode.
-    status = "r+";
+    status = "a+";
     FILE *fd;
     fd = fopen(f_name, status);
     if (!fd)
@@ -1336,6 +1338,15 @@ LFORTRAN_API int64_t _lfortran_open(int32_t unit_num, char *f_name, char *status
     return (int64_t)fd;
 }
 
+LFORTRAN_API void _lfortran_flush(int32_t unit_num)
+{
+    if( !is_unit_to_file_init || unit_to_file[unit_num] == NULL ) {
+        printf("Specified UNIT %d in FLUSH is not connected.\n", unit_num);
+        exit(1);
+    }
+    fflush(unit_to_file[unit_num]);
+}
+
 LFORTRAN_API void _lfortran_inquire(char *f_name, bool *exists) {
     FILE *fp = fopen(f_name, "r");
     if (fp != NULL) {
@@ -1345,6 +1356,16 @@ LFORTRAN_API void _lfortran_inquire(char *f_name, bool *exists) {
     }
     *exists = false;
 }
+
+LFORTRAN_API void _lfortran_rewind(int32_t unit_num)
+{
+    if( !is_unit_to_file_init || unit_to_file[unit_num] == NULL ) {
+        printf("Specified UNIT %d in REWIND is not created or connected.\n", unit_num);
+        exit(1);
+    }
+    rewind(unit_to_file[unit_num]);
+}
+
 
 LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
 {

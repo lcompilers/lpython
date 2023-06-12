@@ -217,33 +217,37 @@ public:
                         v.m_intent == ASRUtils::intent_inout);
         bool is_array = ASRUtils::is_array(v.m_type);
         bool dummy = ASRUtils::is_arg_dummy(v.m_intent);
+        ASR::dimension_t* m_dims = nullptr;
+        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(v.m_type, m_dims);
         ASR::ttype_t* v_m_type = v.m_type;
         if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
             if( is_array ) {
                 v_m_type = ASR::down_cast<ASR::Const_t>(v_m_type)->m_type;
             }
         }
+        v_m_type = ASRUtils::type_get_past_array(ASRUtils::type_get_past_allocatable(v_m_type));
         if (ASRUtils::is_pointer(v_m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v_m_type)->m_type;
+            t2 = ASRUtils::type_get_past_array(t2);
             if (ASRUtils::is_integer(*t2)) {
-                ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(t2);
+                ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(ASRUtils::type_get_past_array(t2));
                 std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 if( !ASRUtils::is_array(v_m_type) ) {
                     type_name.append(" *");
                 }
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
-                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
                                         v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
                 } else {
                     bool is_fixed_size = true;
-                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_real(*t2)) {
@@ -264,17 +268,17 @@ public:
                 }
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "f" + std::to_string(t->m_kind * 8);
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
-                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
                                         v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
                 } else {
                     bool is_fixed_size = true;
-                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
                 }
             } else if(ASR::is_a<ASR::Struct_t>(*t2)) {
@@ -282,11 +286,11 @@ public:
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "x" + der_type_name;
                     std::string type_name = std::string("struct ") + der_type_name;
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
-                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout,
@@ -303,7 +307,7 @@ public:
                 sub = format_type_c("", "void**", v.m_name, false, false);
             } else {
                 diag.codegen_error_label("Type number '"
-                    + std::to_string(v_m_type->type)
+                    + std::to_string(t2->type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
@@ -316,7 +320,7 @@ public:
                 std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
                             *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     if( is_fixed_size && is_struct_type_member ) {
@@ -330,7 +334,7 @@ public:
                             force_declare_name = std::string(v.m_name);
                         }
                         generate_array_decl(sub, force_declare_name, type_name, dims,
-                                            encoded_type_name, t->m_dims, t->n_dims,
+                                            encoded_type_name, m_dims, n_dims,
                                             use_ref, dummy,
                                             (v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
@@ -345,7 +349,7 @@ public:
                         type_name = "const " + type_name;
                         v_m_name = const_name;
                     }
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_unsigned_integer(*v_m_type)) {
@@ -354,7 +358,7 @@ public:
                 std::string type_name = "uint" + std::to_string(t->m_kind * 8) + "_t";
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
                             *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     if( is_fixed_size && is_struct_type_member ) {
@@ -368,7 +372,7 @@ public:
                             force_declare_name = std::string(v.m_name);
                         }
                         generate_array_decl(sub, force_declare_name, type_name, dims,
-                                            encoded_type_name, t->m_dims, t->n_dims,
+                                            encoded_type_name, m_dims, n_dims,
                                             use_ref, dummy,
                                             (v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
@@ -383,7 +387,7 @@ public:
                         type_name = "const " + type_name;
                         v_m_name = const_name;
                     }
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_real(*v_m_type)) {
@@ -392,7 +396,7 @@ public:
                 if (t->m_kind == 8) type_name = "double";
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
                             *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     if( is_fixed_size && is_struct_type_member ) {
@@ -406,7 +410,7 @@ public:
                             force_declare_name = std::string(v.m_name);
                         }
                         generate_array_decl(sub, force_declare_name, type_name, dims,
-                                            encoded_type_name, t->m_dims, t->n_dims,
+                                            encoded_type_name, m_dims, n_dims,
                                             use_ref, dummy,
                                             (v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
@@ -420,7 +424,7 @@ public:
                         type_name = "const " + type_name;
                         v_m_name = const_name;
                     }
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_complex(*v_m_type)) {
@@ -430,7 +434,7 @@ public:
                 if (t->m_kind == 8) type_name = "double complex";
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
                             *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     if( is_fixed_size && is_struct_type_member ) {
@@ -444,7 +448,7 @@ public:
                             force_declare_name = std::string(v.m_name);
                         }
                         generate_array_decl(sub, force_declare_name, type_name, dims,
-                                            encoded_type_name, t->m_dims, t->n_dims,
+                                            encoded_type_name, m_dims, n_dims,
                                             use_ref, dummy,
                                             (v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
@@ -458,18 +462,16 @@ public:
                         type_name = "const " + type_name;
                         v_m_name = const_name;
                     }
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_logical(*v_m_type)) {
-                ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v_m_type);
                 bool is_fixed_size = true;
-                dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                 sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v_m_type)) {
-                ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v_m_type);
                 bool is_fixed_size = true;
-                dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
                 if(v.m_intent == ASRUtils::intent_local &&
                     !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
@@ -485,18 +487,18 @@ public:
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                  if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "x" + der_type_name;
                     std::string type_name = std::string("struct ") + der_type_name;
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
-                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout,
                                         is_fixed_size);
                 } else if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     std::string value_var_name = v.m_parent_symtab->get_unique_name(std::string(v.m_name) + "_value");
                     sub = format_type_c(dims, "struct " + der_type_name,
                                         value_var_name, use_ref, dummy);
@@ -511,7 +513,7 @@ public:
                         ptr_char.clear();
                     }
                     sub += indent + format_type_c("", "struct " + der_type_name + ptr_char, v.m_name, use_ref, dummy);
-                    if( t->n_dims != 0 ) {
+                    if( n_dims != 0 ) {
                         sub += " = " + value_var_name;
                     } else {
                         sub += " = &" + value_var_name + ";\n";
@@ -524,7 +526,7 @@ public:
                     return sub;
                 } else {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     if( v.m_intent == ASRUtils::intent_in ||
                         v.m_intent == ASRUtils::intent_inout ||
                         v.m_intent == ASRUtils::intent_out ) {
@@ -545,17 +547,17 @@ public:
                     ASRUtils::symbol_get_past_external(t->m_union_type));
                 if( is_array ) {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size, true);
                     std::string encoded_type_name = "x" + der_type_name;
                     std::string type_name = std::string("union ") + der_type_name;
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
-                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout, is_fixed_size);
                 } else {
                     bool is_fixed_size = true;
-                    dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
+                    dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     if( v.m_intent == ASRUtils::intent_in ||
                         v.m_intent == ASRUtils::intent_inout ) {
                         use_ref = false;
@@ -890,10 +892,31 @@ R"(
         }
 
         std::string body;
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    Py_Initialize();
+    wchar_t* argv1 = Py_DecodeLocale("", NULL);
+    wchar_t** argv_ = {&argv1};
+    PySys_SetArgv(1, argv_);
+)";
+            body += "\n";
+        }
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
+
+        if (compiler_options.enable_cpython) {
+            body += R"(
+    if (Py_FinalizeEx() < 0) {
+        fprintf(stderr,"BindPython: Unknown Error\n");
+        exit(1);
+    }
+)";
+            body += "\n";
+        }
+
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
                 + indent1 + "_lpython_set_argv(argc, argv);\n"

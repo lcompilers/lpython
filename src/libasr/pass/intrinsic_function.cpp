@@ -49,6 +49,7 @@ class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFun
                 current_expr = &(x->m_args[i]);
                 replace_expr(x->m_args[i]);
                 ASR::call_arg_t arg0;
+                arg0.loc = (*current_expr)->base.loc;
                 arg0.m_value = *current_expr; // Use the converted arg
                 new_args.push_back(al, arg0);
                 current_expr = current_expr_copy_;
@@ -128,10 +129,11 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
     ASR::expr_t* get_result_var_for_runtime_dim(ASR::expr_t* dim, int n_dims,
         std::string m_name, const Location& loc, ASR::ttype_t* m_type,
         ASR::expr_t* input_array) {
+        m_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc,
+            ASRUtils::type_get_past_allocatable(m_type)));
         ASR::expr_t* result_var_ = PassUtils::create_var(result_counter,
                                     m_name + "_res",
-                                    loc, m_type, al, current_scope,
-                                    ASR::storage_typeType::Allocatable);
+                                    loc, m_type, al, current_scope);
         ASR::stmt_t** else_ = nullptr;
         size_t else_n = 0;
         const Location& loc_ = dim->base.loc;
@@ -141,7 +143,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
             ASR::expr_t* test_expr = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
                                         al, loc_, dim, ASR::cmpopType::Eq,
                                         current_dim, ASRUtils::TYPE(ASR::make_Logical_t(
-                                            al, loc_, 4, nullptr, 0)), nullptr));
+                                            al, loc_, 4)), nullptr));
 
             ASR::alloc_arg_t alloc_arg;
             alloc_arg.loc = loc_;
@@ -194,8 +196,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
             ASR::dimension_t m_dim;
             m_dim.loc = loc;
             m_dim.m_start = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
-                            al, loc, 1,
-                            ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0)) ));
+                            al, loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)) ));
             // Assuming that first argument is the array
             m_dim.m_length = ASRUtils::get_size(input_array, j, al);
             result_dims.push_back(al, m_dim);
@@ -237,10 +238,13 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                 throw LCompilersException("Runtime values for dim argument is not supported yet.");
             } else {
                 int constant_dim;
-                ASRUtils::extract_value(ASRUtils::expr_value(dim), constant_dim);
-                result_var_ = get_result_var_for_constant_dim(constant_dim, n_dims,
-                                ASRUtils::symbol_name(x->m_name), x->base.base.loc,
-                                x->m_type, x->m_args[0].m_value);
+                if (ASRUtils::extract_value(ASRUtils::expr_value(dim), constant_dim)) {
+                    result_var_ = get_result_var_for_constant_dim(constant_dim, n_dims,
+                                    ASRUtils::symbol_name(x->m_name), x->base.base.loc,
+                                    x->m_type, x->m_args[0].m_value);
+                } else {
+                    throw LCompilersException("Constant dimension cannot be extracted.");
+                }
             }
         }
         result_counter += 1;

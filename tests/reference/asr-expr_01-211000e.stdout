@@ -58,7 +58,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -74,7 +74,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 8 [])
+                                                    (Integer 8)
                                                     ()
                                                     Source
                                                     Public
@@ -90,7 +90,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 4 [])
+                                                    (Real 4)
                                                     ()
                                                     Source
                                                     Public
@@ -106,7 +106,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Real 8 [])
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -136,16 +136,16 @@
                                         (Var 2 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
-                                                (IntegerConstant 2 (Integer 4 []))
+                                                (IntegerConstant 2 (Integer 4))
                                                 Add
-                                                (IntegerConstant 3 (Integer 4 []))
-                                                (Integer 4 [])
-                                                (IntegerConstant 5 (Integer 4 []))
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant 5 (Integer 4))
                                             )
                                             Mul
-                                            (IntegerConstant 5 (Integer 4 []))
-                                            (Integer 4 [])
-                                            (IntegerConstant 25 (Integer 4 []))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 25 (Integer 4))
                                         )
                                         ()
                                     )
