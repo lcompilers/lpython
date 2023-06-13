@@ -637,7 +637,8 @@ class lpython:
 
         def get_type_info(arg):
             # return_type -> (`type_format`, `variable type`, `array struct name`)
-            # See: https://docs.python.org/3/c-api/arg.html for more info on type_format
+            # See: https://docs.python.org/3/c-api/arg.html for more info on `type_format`
+            # `array struct name`: used by the C backend
             if arg == f64:
                 return ('d', "double", 'r64')
             elif arg == f32:
@@ -652,7 +653,10 @@ class lpython:
                 t = get_type_info(arg._type)
                 if t[2] == '':
                     raise NotImplementedError("Type %r not implemented" % arg)
-                return ('O', ["PyArrayObject *", "struct "+t[2]+" *", t[1]+" *"], '')
+                n = ''
+                if not isinstance(arg._dims, slice):
+                    n = arg._dims._name
+                return ('O', ["PyArrayObject *", "struct "+t[2]+" *", t[1]+" *", n], '')
             else:
                 raise NotImplementedError("Type %r not implemented" % arg)
 
@@ -684,7 +688,6 @@ class lpython:
         self.return_type_format = ""
         self.array_as_return_type = ()
         self.arg_types = {}
-        counter = 1
         for t in types.keys():
             if t == "return":
                 type = get_type_info(types[t])
@@ -697,18 +700,19 @@ class lpython:
             else:
                 type = get_type_info(types[t])
                 self.arg_type_formats += type[0]
-                self.arg_types[counter] = type[1]
-                counter += 1
+                self.arg_types[t] = type[1]
         # ----------------------------------------------------------------------
-        # `arg_0` is used as the return variable
-        # arguments are declared as `arg_1`, `arg_2`, ...
+        # `_<fn_name>_return_value`: used as the return variables
         variables_decl = "// Declare return variables and arguments\n"
         if self.return_type != "":
-            variables_decl += "    " + get_data_type(self.return_type) + "arg_" \
-                + str(0) + ";\n"
+            variables_decl += "    " + get_data_type(self.return_type)  \
+                + "_" + self.fn_name + "_return_value;\n"
         elif self.array_as_return_type:
             variables_decl += "    " + get_data_type( \
-                self.array_as_return_type[1][1][:-2]) + "arg_" + str(0) + ";\n"
+                self.array_as_return_type[1][1][:-2]) + "_" + self.fn_name \
+                + "_return_value;\n"
+        else:
+            variables_decl = ""
         # ----------------------------------------------------------------------
         # `PyArray_AsCArray` is used to convert NumPy Arrays to C Arrays
         # `fill_array_details` contains array operations to be
@@ -719,16 +723,18 @@ class lpython:
         parse_args = ""
         pass_args = ""
         numpy_init = ""
+        prefix_comma = False
         for i, t in self.arg_types.items():
-            if i > 1:
+            if prefix_comma:
                 parse_args += ", "
                 pass_args += ", "
+            prefix_comma = True
             if isinstance(t, list):
                 if numpy_init == "":
                     numpy_init = "// Initialize NumPy\n    import_array();\n\n    "
                 fill_array_details += f"""\n
-    // fill array details for args[{i-1}]
-    if (PyArray_NDIM(arg_{i}) != 1) {{
+    // fill array details for {i}
+    if (PyArray_NDIM({i}) != 1) {{
         PyErr_SetString(PyExc_TypeError,
             "Only 1 dimension is implemented for now.");
         return NULL;
@@ -738,9 +744,9 @@ class lpython:
     {{
         {t[2]}array;
         // Create C arrays from numpy objects:
-        PyArray_Descr *descr = PyArray_DescrFromType(PyArray_TYPE(arg_{i}));
+        PyArray_Descr *descr = PyArray_DescrFromType(PyArray_TYPE({i}));
         npy_intp dims[1];
-        if (PyArray_AsCArray((PyObject **)&arg_{i}, (void *)&array, dims, 1, descr) < 0) {{
+        if (PyArray_AsCArray((PyObject **)&{i}, (void *)&array, dims, 1, descr) < 0) {{
             PyErr_SetString(PyExc_TypeError, "error converting to c array");
             return NULL;
         }}
@@ -751,11 +757,11 @@ class lpython:
         s_array_{i}->dims[0].length = dims[0];
         s_array_{i}->is_allocated = false;
     }}"""
-                pass_args += "s_array_" + str(i)
+                pass_args += "s_array_" + i
             else:
-                pass_args += "arg_" + str(i)
-            variables_decl += "    " + get_data_type(t) + "arg_" + str(i) + ";\n"
-            parse_args += "&arg_" + str(i)
+                pass_args += i
+            variables_decl += "    " + get_data_type(t) + i + ";\n"
+            parse_args += "&" + i
 
         if parse_args != "":
             parse_args = f"""\n    // Parse the arguments from Python
@@ -768,24 +774,24 @@ class lpython:
         fill_return_details = ""
         if self.return_type != "":
             fill_return_details = f"""\n\n    // Call the C function
-    arg_0 = {self.fn_name}({pass_args});
+    _{self.fn_name}_return_value = {self.fn_name}({pass_args});
 
     // Build and return the result as a Python object
-    return Py_BuildValue("{self.return_type_format}", arg_0);"""
+    return Py_BuildValue("{self.return_type_format}", _{self.fn_name}_return_value);"""
         else:
             if self.array_as_return_type:
                 fill_return_details = f"""
-    arg_0.data = malloc(sizeof({self.array_as_return_type[1][2][:-2]}));
-    arg_0.n_dims = 1;
-    arg_0.dims[0].lower_bound = 0;
-    arg_0.dims[0].length = arg_1;
-    arg_0.is_allocated = false;
-    {self.fn_name}({pass_args}, &arg_0);
+    _{self.fn_name}_return_value.data = malloc(sizeof({self.array_as_return_type[1][2][:-2]}));
+    _{self.fn_name}_return_value.n_dims = 1;
+    _{self.fn_name}_return_value.dims[0].lower_bound = 0;
+    _{self.fn_name}_return_value.dims[0].length = {self.array_as_return_type[1][3]};
+    _{self.fn_name}_return_value.is_allocated = false;
+    {self.fn_name}({pass_args}, &_{self.fn_name}_return_value);
 
     // Build and return the result as a Python object
-    PyObject* list_obj = PyList_New(arg_1);
-    for (int i = 0; i < arg_1; i++) {{
-        PyObject* element = PyFloat_FromDouble(arg_0.data[i]);
+    PyObject* list_obj = PyList_New({self.array_as_return_type[1][3]});
+    for (int i = 0; i < {self.array_as_return_type[1][3]}; i++) {{
+        PyObject* element = PyFloat_FromDouble(_{self.fn_name}_return_value.data[i]);
         PyList_SetItem(list_obj, i, element);
     }}
     return list_obj;"""
