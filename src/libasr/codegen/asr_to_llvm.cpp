@@ -7195,19 +7195,19 @@ public:
             } else if (ASRUtils::is_unsigned_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
-                        fmt.push_back("%hhi");
+                        fmt.push_back("%hhu");
                         break;
                     }
                     case 2 : {
-                        fmt.push_back("%hi");
+                        fmt.push_back("%hu");
                         break;
                     }
                     case 4 : {
-                        fmt.push_back("%d");
+                        fmt.push_back("%u");
                         break;
                     }
                     case 8 : {
-                        fmt.push_back("%lld");
+                        fmt.push_back("%llu");
                         break;
                     }
                     default: {
