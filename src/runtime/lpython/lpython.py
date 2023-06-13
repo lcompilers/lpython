@@ -666,6 +666,18 @@ class lpython:
             else:
                 return t + " "
 
+        def get_typenum(t):
+            if t == "int":
+                return "NPY_INT"
+            elif t == "long int":
+                return "NPY_LONG"
+            elif t == "float":
+                return "NPY_FLOAT"
+            elif t == "double":
+                return "NPY_DOUBLE"
+            else:
+                raise NotImplementedError("Type %s not implemented" % t)
+
         self.fn_name = function.__name__
         # Get the source code of the function
         source_code = getsource(function)
@@ -793,12 +805,17 @@ class lpython:
     {self.fn_name}({pass_args}, &_{self.fn_name}_return_value[0]);
 
     // Build and return the result as a Python object
-    PyObject* list_obj = PyList_New({self.array_as_return_type[1][3]});
-    for (int i = 0; i < {self.array_as_return_type[1][3]}; i++) {{
-        PyObject* element = PyFloat_FromDouble(_{self.fn_name}_return_value->data[i]);
-        PyList_SetItem(list_obj, i, element);
-    }}
-    return list_obj;"""
+    {{
+        npy_intp dims[] = {{{self.array_as_return_type[1][3]}}};
+        PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, {
+            get_typenum(self.array_as_return_type[1][2][:-2])},
+            _{self.fn_name}_return_value->data);
+        if (numpy_array == NULL) {{
+            PyErr_SetString(PyExc_TypeError, "error creating an array");
+            return NULL;
+        }}
+        return numpy_array;
+    }}"""
             else:
                 fill_return_details = f"""{self.fn_name}({pass_args});
     Py_RETURN_NONE;"""
@@ -890,8 +907,4 @@ PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
         # import the symbol from the shared library
         function = getattr(__import__("lpython_module_" + self.fn_name),
             self.fn_name)
-        if self.array_as_return_type:
-            from numpy import array
-            return array(function(*args, **kwargs))
-        else:
-            return function(*args, **kwargs)
+        return function(*args, **kwargs)
