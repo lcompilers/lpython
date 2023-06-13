@@ -708,9 +708,9 @@ class lpython:
             variables_decl += "    " + get_data_type(self.return_type)  \
                 + "_" + self.fn_name + "_return_value;\n"
         elif self.array_as_return_type:
-            variables_decl += "    " + get_data_type( \
-                self.array_as_return_type[1][1][:-2]) + "_" + self.fn_name \
-                + "_return_value;\n"
+            variables_decl += "    " + self.array_as_return_type[1][1] + "_" \
+                + self.fn_name + "_return_value = malloc(sizeof(" \
+                + self.array_as_return_type[1][1][:-2] + "));\n"
         else:
             variables_decl = ""
         # ----------------------------------------------------------------------
@@ -780,18 +780,22 @@ class lpython:
     return Py_BuildValue("{self.return_type_format}", _{self.fn_name}_return_value);"""
         else:
             if self.array_as_return_type:
-                fill_return_details = f"""
-    _{self.fn_name}_return_value.data = malloc(sizeof({self.array_as_return_type[1][2][:-2]}));
-    _{self.fn_name}_return_value.n_dims = 1;
-    _{self.fn_name}_return_value.dims[0].lower_bound = 0;
-    _{self.fn_name}_return_value.dims[0].length = {self.array_as_return_type[1][3]};
-    _{self.fn_name}_return_value.is_allocated = false;
-    {self.fn_name}({pass_args}, &_{self.fn_name}_return_value);
+                fill_return_details = f"""\n
+    _{self.fn_name}_return_value->data = malloc({self.array_as_return_type[1][3]
+        } * sizeof({self.array_as_return_type[1][2][:-2]}));
+    _{self.fn_name}_return_value->n_dims = 1;
+    _{self.fn_name}_return_value->dims[0].lower_bound = 0;
+    _{self.fn_name}_return_value->dims[0].length = {
+        self.array_as_return_type[1][3]};
+    _{self.fn_name}_return_value->is_allocated = false;
+
+    // Call the C function
+    {self.fn_name}({pass_args}, &_{self.fn_name}_return_value[0]);
 
     // Build and return the result as a Python object
     PyObject* list_obj = PyList_New({self.array_as_return_type[1][3]});
     for (int i = 0; i < {self.array_as_return_type[1][3]}; i++) {{
-        PyObject* element = PyFloat_FromDouble(_{self.fn_name}_return_value.data[i]);
+        PyObject* element = PyFloat_FromDouble(_{self.fn_name}_return_value->data[i]);
         PyList_SetItem(list_obj, i, element);
     }}
     return list_obj;"""
