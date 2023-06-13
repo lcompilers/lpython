@@ -2193,6 +2193,26 @@ public:
                                         tuple_type_vec.p, tuple_type_vec.n));
             tmp = ASR::make_TupleConcat_t(al, loc, left, right, tuple_type, value);
             return;
+        } else if (ASR::is_a<ASR::SymbolicExpression_t>(*left_type)
+                   && ASR::is_a<ASR::SymbolicExpression_t>(*right_type)) {
+            switch (op) {
+                case ASR::binopType::Add: {
+                    Vec<ASR::expr_t*> args_with_symbolic;
+                    args_with_symbolic.reserve(al, 2);
+                    args_with_symbolic.push_back(al, left);
+                    args_with_symbolic.push_back(al, right);
+                    ASRUtils::create_intrinsic_function create_function =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
+                    tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
+                        throw SemanticError(msg, loc);
+                    });
+                    return;
+                }
+                default: {
+                    throw SemanticError("Not implemented: The following symbolic binary operator has not been implemented", loc);
+                    break;
+                }
+            }
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));

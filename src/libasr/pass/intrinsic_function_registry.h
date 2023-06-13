@@ -65,6 +65,7 @@ enum class IntrinsicFunctions : int64_t {
     ListReverse,
     SymbolicSymbol,
     ListPop,
+    SymbolicAdd,
     Sum,
     // ...
 };
@@ -2035,6 +2036,48 @@ namespace SymbolicSymbol {
 
 } // namespace SymbolicSymbol
 
+namespace SymbolicAdd {
+
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2, "SymbolicAdd must have exactly two arguments",
+            x.base.base.loc, diagnostics);
+
+        ASR::ttype_t* left_type = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t* right_type = ASRUtils::expr_type(x.m_args[1]);
+
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*left_type) &&
+            ASR::is_a<ASR::SymbolicExpression_t>(*right_type),
+            "Both arguments of SymbolicAdd must be of type SymbolicExpression",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t *eval_SymbolicAdd(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        // TODO
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicAdd(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Intrinsic Symbol Add operator accepts exactly 2 arguments", loc);
+        }
+
+        Vec<ASR::expr_t*> arg_values;
+        arg_values.reserve(al, args.size());
+        for( size_t i = 0; i < args.size(); i++ ) {
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+        }
+        ASR::expr_t* compile_time_value = eval_SymbolicAdd(al, loc, arg_values);
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return ASR::make_IntrinsicFunction_t(al, loc,
+                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
+                args.p, args.size(), 0, to_type, compile_time_value);
+    }
+
+} // namespace SymbolicAdd
+
 namespace IntrinsicFunctionRegistry {
 
     static const std::map<int64_t,
@@ -2083,6 +2126,8 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &ListReverse::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
             {nullptr, &SymbolicSymbol::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
+            {nullptr, &SymbolicAdd::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -2123,6 +2168,8 @@ namespace IntrinsicFunctionRegistry {
             "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             "list.pop"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
+            "SymbolicAdd"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2152,7 +2199,8 @@ namespace IntrinsicFunctionRegistry {
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
-                {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}}
+                {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
+                {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2260,6 +2308,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListReverse)
         INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(ListPop)
+        INTRINSIC_NAME_CASE(SymbolicAdd)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
