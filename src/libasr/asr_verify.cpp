@@ -1015,6 +1015,22 @@ public:
         BaseWalkVisitor<VerifyVisitor>::visit_ArrayConstant(x);
     }
 
+    void visit_dimension(const dimension_t &x) {
+        if (x.m_start) {
+            require_with_loc(ASR::is_a<ASR::Integer_t>(
+                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_start))),
+                "Start dimension must be a signed integer", x.loc);
+            visit_expr(*x.m_start);
+        }
+
+        if (x.m_length) {
+            require_with_loc(ASR::is_a<ASR::Integer_t>(
+                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_length))),
+                "Length dimension must be a signed integer", x.loc);
+            visit_expr(*x.m_length);
+        }
+    }
+
     void visit_Array(const Array_t& x) {
         visit_ttype(*x.m_type);
         require(x.n_dims != 0, "Array type cannot have 0 dimensions.")

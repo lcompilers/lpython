@@ -115,6 +115,17 @@ static inline ASR::ttype_t *type_get_past_array(ASR::ttype_t *f)
     }
 }
 
+static inline ASR::ttype_t *type_get_past_const(ASR::ttype_t *f)
+{
+    if (ASR::is_a<ASR::Const_t>(*f)) {
+        ASR::Const_t *e = ASR::down_cast<ASR::Const_t>(f);
+        LCOMPILERS_ASSERT(!ASR::is_a<ASR::Const_t>(*e->m_type));
+        return e->m_type;
+    } else {
+        return f;
+    }
+}
+
 static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
 {
     return ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(
