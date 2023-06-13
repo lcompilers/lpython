@@ -798,8 +798,8 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape_string(p.m_a, x), nullptr)
-#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), unescape_string(p.m_a, y), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, str_unescape_c(p.m_a, x), nullptr)
+#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), str_unescape_c(p.m_a, y), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
@@ -864,7 +864,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     } else if (strcmp(prefix, "b") == 0) {
         LCompilers::Str s_;
         s_.from_str(al, std::string(s));
-        std::string str = std::string(unescape_string(al, s_));
+        std::string str = std::string(str_unescape_c(al, s_));
         str = "b'" + str + "'";
         tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str), nullptr);
     } else if ( strcmp(prefix, "br") == 0 || strcmp(prefix, "rb") == 0) {

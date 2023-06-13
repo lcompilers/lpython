@@ -825,7 +825,7 @@ std::string pickle_token(int token, const YYSTYPE &yystype)
     } else if (token == yytokentype::TK_IMAG_NUM) {
         t += " " + std::to_string(yystype.f) + "j";
     } else if (token == yytokentype::TK_STRING) {
-        t = t + " " + "\"" + yystype.string.str() + "\"";
+        t = t + " " + "\"" + str_escape_c(yystype.string.str()) + "\"";
     } else if (token == yytokentype::TK_TYPE_COMMENT) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     } else if (token == yytokentype::TK_TYPE_IGNORE) {

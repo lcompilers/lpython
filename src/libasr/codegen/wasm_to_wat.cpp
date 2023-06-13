@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include <libasr/assert.h>
+#include <libasr/string_utils.h>
 #include <libasr/codegen/wasm_decoder.h>
 #include <libasr/codegen/wasm_to_wat.h>
 
@@ -292,16 +293,15 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
                " align=" + std::to_string(1U << mem_align);
     }
 
-    std::string get_escaped_str(const std::string &s, bool is_iov) {
+    std::string str_escape_wat(const std::string &s, bool is_iov) {
+        if (!is_iov) {
+            return str_escape_c(s);
+        }
         std::string escaped_str = "";
         for (auto ch:s) {
-            if (!is_iov && ch >= 32) {
-                escaped_str += ch;
-            } else {
-                std::string byte(2, ' ');
-                snprintf(byte.data(), 3, "%02x", uint8_t(ch));
-                escaped_str += "\\" + byte;
-            }
+            std::string byte(2, ' ');
+            snprintf(byte.data(), 3, "%02x", uint8_t(ch));
+            escaped_str += "\\" + byte;
         }
         return escaped_str;
     }
@@ -417,7 +417,7 @@ class WATVisitor : public WASMDecoder<WATVisitor>,
             }
             result += indent + "(data (;" + std::to_string(i) + ";) (" +
                       date_segment_insts + ") \"" +
-                      get_escaped_str(data_segments[i].text, (i % 2 == 0)) + "\")";
+                      str_escape_wat(data_segments[i].text, (i % 2 == 0)) + "\")";
         }
 
         result += "\n)\n";
