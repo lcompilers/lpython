@@ -595,28 +595,28 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
             //docstring { RET(TK_DOCSTRING) }
 
-            string1 { token_str(al, yylval.string); RET(TK_STRING) }
-            string2 { token_str(al, yylval.string); RET(TK_STRING) }
-            string3 { token_str3(al, yylval.string); RET(TK_STRING) }
-            string4 { token_str3(al, yylval.string); RET(TK_STRING) }
+            string1 { token_str(al, yylval.string, 1, 0); RET(TK_STRING) }
+            string2 { token_str(al, yylval.string, 1, 0); RET(TK_STRING) }
+            string3 { token_str(al, yylval.string, 3, 0); RET(TK_STRING) }
+            string4 { token_str(al, yylval.string, 3, 0); RET(TK_STRING) }
 
-            raw_str1 { token_raw_str(yylval.string); RET(TK_RAW_STRING) }
-            raw_str2 { token_raw_str3(yylval.string); RET(TK_RAW_STRING) }
+            raw_str1 { token_raw_str(yylval.string, 1, 1); RET(TK_RAW_STRING) }
+            raw_str2 { token_raw_str(yylval.string, 3, 1); RET(TK_RAW_STRING) }
 
-            unicode_str1 { token_unicode_str(al, yylval.string); RET(TK_UNI_STRING) }
-            unicode_str2 { token_unicode_str3(al, yylval.string); RET(TK_UNI_STRING) }
+            unicode_str1 { token_str(al, yylval.string, 1, 1); RET(TK_UNI_STRING) }
+            unicode_str2 { token_str(al, yylval.string, 3, 1); RET(TK_UNI_STRING) }
 
-            fmt_str1 { token_fmt_str(al, yylval.string); RET(TK_FMT_STRING) }
-            fmt_str2 { token_fmt_str3(al, yylval.string); RET(TK_FMT_STRING) }
+            fmt_str1 { token_str(al, yylval.string, 1, 1); RET(TK_FMT_STRING) }
+            fmt_str2 { token_str(al, yylval.string, 3, 1); RET(TK_FMT_STRING) }
 
-            raw_fmt_str1 { token_raw_fmt_str(yylval.string); RET(TK_RAW_FMT_STRING) }
-            raw_fmt_str2 { token_raw_fmt_str3(yylval.string); RET(TK_RAW_FMT_STRING) }
+            raw_fmt_str1 { token_raw_str(yylval.string, 1, 2); RET(TK_RAW_FMT_STRING) }
+            raw_fmt_str2 { token_raw_str(yylval.string, 3, 2); RET(TK_RAW_FMT_STRING) }
 
-            bytes1 { token_bytes(al, yylval.string); RET(TK_BYTES) }
-            bytes2 { token_bytes3(al, yylval.string); RET(TK_BYTES) }
+            bytes1 { token_bytes(al, yylval.string, 1, 1); RET(TK_BYTES) }
+            bytes2 { token_bytes(al, yylval.string, 3, 1); RET(TK_BYTES) }
 
-            raw_bytes1 { token_raw_bytes(yylval.string); RET(TK_RAW_BYTES) }
-            raw_bytes2 { token_raw_bytes3(yylval.string); RET(TK_RAW_BYTES) }
+            raw_bytes1 { token_raw_bytes(yylval.string, 1, 2); RET(TK_RAW_BYTES) }
+            raw_bytes2 { token_raw_bytes(yylval.string, 3, 2); RET(TK_RAW_BYTES) }
 
             name { token(yylval.string); RET(TK_NAME) }
         */

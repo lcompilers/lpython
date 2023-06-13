@@ -54,127 +54,41 @@ public:
         s.n = cur-tok;
     }
 
-    // Return the current token as YYSTYPE::Str, strips first and last character
-    void token_str(Allocator &al, Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropirately
+    // based on the quotes it uses and unescape the string
+    void token_str(Allocator &al, Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 1;
-        s.n = cur-tok-2;
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
         s.p = str_unescape_c(al, s);
         s.n = strlen(s.p);
     }
 
-    // Return the current token as YYSTYPE::Str, strips the first 3 and the last
-    // 3 characters
-    void token_str3(Allocator &al, Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropirately
+    // based on the quotes it uses. It does not unescape the string
+    void token_raw_str(Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 3;
-        s.n = cur-tok-6;
-        s.p = str_unescape_c(al, s);
-        s.n = strlen(s.p);
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
     }
 
-    // Return the current token as YYSTYPE::Str, strips first 2 characters and last character
-    void token_raw_str(Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropriately,
+    // unescape the string and prepend 'b'
+    void token_bytes(Allocator &al, Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 2;
-        s.n = cur-tok-3;
-    }
-
-    // Return the current token as YYSTYPE::Str, strips the first 4 and the last
-    // 3 characters
-    void token_raw_str3(Str &s) const
-    {
-        s.p = (char*) tok + 4;
-        s.n = cur-tok-7;
-    }
-
-    // Return the current token as YYSTYPE::Str, strips first 2 and last character
-    void token_unicode_str(Allocator &al, Str &s) const
-    {
-        s.p = (char*) tok + 2;
-        s.n = cur-tok-3;
-        s.p = str_unescape_c(al, s);
-        s.n = strlen(s.p);
-    }
-
-    // Return the current token as YYSTYPE::Str, strips the first 4 and the last 3 chars
-    void token_unicode_str3(Allocator &al, Str &s) const
-    {
-        s.p = (char*) tok + 4;
-        s.n = cur-tok-7;
-        s.p = str_unescape_c(al, s);
-        s.n = strlen(s.p);
-    }
-
-    // Return the current token as YYSTYPE::Str, strips first 2 and last character
-    void token_fmt_str(Allocator &al, Str &s) const
-    {
-        s.p = (char*) tok + 2;
-        s.n = cur-tok-3;
-        s.p = str_unescape_c(al, s);
-        s.n = strlen(s.p);
-    }
-
-    // Return the current token as YYSTYPE::Str, strips the first 4 and the last 3 chars
-    void token_fmt_str3(Allocator &al, Str &s) const
-    {
-        s.p = (char*) tok + 4;
-        s.n = cur-tok-7;
-        s.p = str_unescape_c(al, s);
-        s.n = strlen(s.p);
-    }
-
-    // Return the current token as YYSTYPE::Str, strips first 3 and last character
-    void token_raw_fmt_str(Str &s) const
-    {
-        s.p = (char*) tok + 3;
-        s.n = cur-tok-4;
-    }
-
-    // Return the current token as YYSTYPE::Str, strips the first 5 and last 3 chars
-    void token_raw_fmt_str3(Str &s) const
-    {
-        s.p = (char*) tok + 5;
-        s.n = cur-tok-8;
-    }
-
-    // Return the current token as YYSTYPE::Str, replaces `"` with `'` and prepends 'b'
-    void token_bytes(Allocator &al, Str &s) const
-    {
-        s.p = (char*) tok + 2;
-        s.n = cur-tok-3;
-        std::string s_ = str_unescape_c(al, s);
-        s_ = "b'" + s_ + "'";
+        s.p = (char*) tok + (prefix_len + quote_len);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len);
+        std::string s_ = "b'" + str_unescape_c0(s) +  "'";
         s.p = s2c(al, s_);
         s.n = strlen(s.p);
     }
 
-    // Return the current token as YYSTYPE::Str, replaces `"""` or `'''` with `'` and prepends 'b'
-    void token_bytes3(Allocator &al, Str &s) const
+    // Return the current token as YYSTYPE::Str, strip the string appropriately
+    // and prepend 'b'. It does not unescape the string.
+    void token_raw_bytes(Str &s, int quote_len, int prefix_len) const
     {
-        s.p = (char*) tok + 4;
-        s.n = cur-tok-7;
-        std::string s_ = str_unescape_c(al, s);
-        s_ = "b'" + s_ + "'";
-        s.p = s2c(al, s_);
-        s.n = strlen(s.p);
-    }
-
-    // Return the current token as YYSTYPE::Str, transforms the string to b'string'
-    void token_raw_bytes(Str &s) const
-    {
-        s.p = (char*) tok + 1;
-        s.n = cur-tok-1;
-        s.p[0] = 'b';
-        s.p[1] = '\'';
-        s.p[s.n - 1] = '\'';
-    }
-
-    // Return the current token as YYSTYPE::Str, transforms the string to b'string'
-    void token_raw_bytes3(Str &s) const
-    {
-        s.p = (char*) tok + 3;
-        s.n = cur-tok-5;
+        s.p = (char*) tok + (prefix_len + quote_len - 2);
+        s.n = cur-tok-(prefix_len + quote_len + quote_len - 3);
         s.p[0] = 'b';
         s.p[1] = '\'';
         s.p[s.n - 1] = '\'';
