@@ -130,7 +130,6 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name : Remove existing node
@@ -201,7 +200,6 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Setup Platform (Linux)
@@ -211,6 +209,8 @@ jobs:
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
             echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
+            echo "CMAKE_C_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
+            echo "CMAKE_CXX_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
 
       - name: Build Linux
         shell: bash -l {0}
@@ -263,7 +263,6 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build Linux
@@ -278,8 +277,8 @@ jobs:
               -DWITH_RUNTIME_STACKTRACE=yes \
               -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
               -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
             cmake --build . -j16 --target install
 
