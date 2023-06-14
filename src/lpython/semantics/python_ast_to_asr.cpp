@@ -4245,14 +4245,28 @@ public:
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        int i=-1;
         for (auto &remote_sym : mod_symbols) {
+            i++;
             if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
                 continue ;
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, new_sym_name, x.base.base.loc, true);
-            current_scope->add_or_overwrite_symbol(new_sym_name, t);
+            if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
+                ASR::symbol_t *old_sym = current_scope->get_scope().find(new_sym_name)->second;
+                diag.add(diag::Diagnostic(
+                    "The symbol '" + new_sym_name + "' imported from " + std::string(m->m_name) +" will shadow the existing symbol '" + new_sym_name + "'",
+                    diag::Level::Warning, diag::Stage::Semantic, {
+                        diag::Label("new symbol", {x.m_names[i].loc}),
+                        diag::Label("old symbol implementation", {old_sym->base.loc}),
+                    })
+                );
+                current_scope->overwrite_symbol(new_sym_name, t);
+            } else {
+                current_scope->add_symbol(new_sym_name, t);
+            }
         }
 
         tmp = nullptr;
