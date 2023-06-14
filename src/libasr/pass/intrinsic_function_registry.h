@@ -67,6 +67,7 @@ enum class IntrinsicFunctions : int64_t {
     ListPop,
     SymbolicAdd,
     Sum,
+    SymbolicPi,
     // ...
 };
 
@@ -2078,6 +2079,30 @@ namespace SymbolicAdd {
 
 } // namespace SymbolicAdd
 
+namespace SymbolicPi {
+
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        return;
+    }
+
+    static inline ASR::expr_t *eval_SymbolicPi(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        // TODO
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicPi(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        ASR::expr_t* compile_time_value = eval_SymbolicPi(al, loc, args);
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return ASR::make_IntrinsicFunction_t(al, loc,
+                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+                nullptr, 0, 0, to_type, compile_time_value);
+    }
+
+} // namespace SymbolicPi
+
 namespace IntrinsicFunctionRegistry {
 
     static const std::map<int64_t,
@@ -2128,6 +2153,8 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &SymbolicSymbol::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
             {nullptr, &SymbolicAdd::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+            {nullptr, &SymbolicPi::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -2170,6 +2197,8 @@ namespace IntrinsicFunctionRegistry {
             "list.pop"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
             "SymbolicAdd"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+            "pi"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2201,6 +2230,7 @@ namespace IntrinsicFunctionRegistry {
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
                 {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
+                {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2309,6 +2339,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(ListPop)
         INTRINSIC_NAME_CASE(SymbolicAdd)
+        INTRINSIC_NAME_CASE(SymbolicPi)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");

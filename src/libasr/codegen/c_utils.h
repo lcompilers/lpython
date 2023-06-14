@@ -547,6 +547,10 @@ class CCPPDSUtils {
                         result = "basic_add(" + target + ", " + leftPart + ", " + rightPart + ");";
                         break;
                     }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                        result = "basic_const_pi(" + target + ");";
+                        break;
+                    }
                     default: {
                         throw LCompilersException("IntrinsicFunction: `"
                             + LCompilers::ASRUtils::get_intrinsic_name(intrinsic_id)

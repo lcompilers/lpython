@@ -585,6 +585,8 @@ public:
     std::vector<ASR::symbol_t*> rt_vec;
     SetChar dependencies;
     bool allow_implicit_casting;
+    // Stores the name of imported functions and the modules they are imported from
+    std::map<std::string, std::string> imported_functions;
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -3066,6 +3068,8 @@ public:
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
+        std::set<std::string> not_cpython_builtin = {
+            "pi"};
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
@@ -3089,6 +3093,14 @@ public:
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LCOMPILERS_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(name) &&
+                   (not_cpython_builtin.find(name) == not_cpython_builtin.end() ||
+                   imported_functions.find(name) != imported_functions.end() )) {
+                    ASRUtils::create_intrinsic_function create_func =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function(name);
+                    Vec<ASR::expr_t*> args_;
+                    tmp = create_func(al, x.base.base.loc, args_, [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
@@ -4423,9 +4435,6 @@ private:
 public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
-    // Stores the name of imported functions and the modules they are imported from
-    std::map<std::string, std::string> imported_functions;
-
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,

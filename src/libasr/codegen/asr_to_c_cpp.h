@@ -2383,6 +2383,7 @@ R"(#include <stdio.h>
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(SymbolicSymbol, "Symbol");
+            SET_INTRINSIC_NAME(SymbolicPi, "pi");
             case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)): {
                 LCOMPILERS_ASSERT(x.n_args == 2);
                 this->visit_expr(*x.m_args[0]);
@@ -2400,7 +2401,9 @@ R"(#include <stdio.h>
             }
         }
         headers.insert("math.h");
-        if (x.n_args == 1) {
+        if (x.n_args == 0){
+            src = out;
+        } else if (x.n_args == 1) {
             this->visit_expr(*x.m_args[0]);
             if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
                 out = "(" + src + ")";
