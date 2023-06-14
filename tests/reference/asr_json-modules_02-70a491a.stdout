@@ -100,14 +100,14 @@
                                         "access": "Public"
                                     },
                                     "loc": {
-                                        "first": 157,
-                                        "last": 189,
-                                        "first_filename": "tests/../integration_tests/modules_02b.py",
-                                        "first_line": 3,
-                                        "first_column": 1,
-                                        "last_filename": "tests/../integration_tests/modules_02b.py",
-                                        "last_line": 5,
-                                        "last_column": 16
+                                        "first": 27,
+                                        "last": 27,
+                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                        "first_line": 1,
+                                        "first_column": 28,
+                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                        "last_line": 1,
+                                        "last_column": 28
                                     }
                                 },
                                 "main0": {
@@ -822,14 +822,14 @@
                                         "access": "Public"
                                     },
                                     "loc": {
-                                        "first": 191,
-                                        "last": 215,
-                                        "first_filename": "tests/../integration_tests/modules_02c.py",
+                                        "first": 154,
+                                        "last": 154,
+                                        "first_filename": "tests/../integration_tests/modules_02b.py",
                                         "first_line": 1,
-                                        "first_column": 1,
-                                        "last_filename": "tests/../integration_tests/modules_02c.py",
-                                        "last_line": 2,
-                                        "last_column": 16
+                                        "first_column": 25,
+                                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                                        "last_line": 1,
+                                        "last_column": 25
                                     }
                                 }
                             }
