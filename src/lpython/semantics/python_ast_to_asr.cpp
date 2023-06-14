@@ -445,7 +445,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, mfn->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)mfn,
@@ -461,7 +461,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, st->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)st,
@@ -475,7 +475,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, et->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)et,
@@ -491,7 +491,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, mv->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)mv,
@@ -505,7 +505,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, gt->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)gt,
@@ -4253,14 +4253,14 @@ public:
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
-                                remote_sym, new_sym_name, x.base.base.loc, true);
+                                remote_sym, new_sym_name, x.m_names[i].loc, true);
             if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
                 ASR::symbol_t *old_sym = current_scope->get_scope().find(new_sym_name)->second;
                 diag.add(diag::Diagnostic(
                     "The symbol '" + new_sym_name + "' imported from " + std::string(m->m_name) +" will shadow the existing symbol '" + new_sym_name + "'",
                     diag::Level::Warning, diag::Stage::Semantic, {
-                        diag::Label("new symbol", {x.m_names[i].loc}),
-                        diag::Label("old symbol implementation", {old_sym->base.loc}),
+                        diag::Label("old symbol", {old_sym->base.loc}),
+                        diag::Label("new symbol", {t->base.loc}),
                     })
                 );
                 current_scope->overwrite_symbol(new_sym_name, t);
