@@ -1244,8 +1244,10 @@ int link_executable(const std::vector<std::string> &infiles,
             cmd += s + " ";
         }
         cmd += " -I " + rtlib_header_dir;
+        cmd += " -I${CONDA_PREFIX}/include";
         cmd += " -L" + base_path
             + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+        cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
         if (compiler_options.enable_cpython) {
             std::string py_version = "3.10";
             std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
