@@ -4252,7 +4252,7 @@ public:
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, new_sym_name, x.base.base.loc, true);
-            current_scope->add_symbol(new_sym_name, t);
+            current_scope->add_or_overwrite_symbol(new_sym_name, t);
         }
 
         tmp = nullptr;
