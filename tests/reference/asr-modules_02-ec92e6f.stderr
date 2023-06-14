@@ -1,0 +1,14 @@
+warning: The symbol 'f' imported from modules_02b will shadow the existing symbol 'f'
+ --> tests/../integration_tests/modules_02.py:1:28
+  |
+1 | from modules_02b import f, f
+  |                            ^ new symbol
+
+ --> tests/../integration_tests/modules_02b.py:3:1 - 5:16
+  |
+3 |    def f():
+  |    ^^^^^^^^...
+...
+  |
+5 |        print("f()")
+  | ...^^^^^^^^^^^^^^^^ old symbol implementation

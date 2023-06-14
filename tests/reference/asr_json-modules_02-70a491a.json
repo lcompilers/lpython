@@ -2,12 +2,12 @@
     "basename": "asr_json-modules_02-70a491a",
     "cmd": "lpython --show-asr --json {infile} -o {outfile}",
     "infile": "tests/../integration_tests/modules_02.py",
-    "infile_hash": "dcb00ac27cbbcdec61d81f1df9e852ba81a2197e7804ec89cab76e44",
+    "infile_hash": "c3ce0b2b9780f27f787297f75e5477e990481b962dcee420809540e0",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr_json-modules_02-70a491a.stdout",
-    "stdout_hash": "f01c2568a6bbb12f504e47ab4ca342362c2b277b186ea8a6d02f8ba9",
-    "stderr": null,
-    "stderr_hash": null,
+    "stdout_hash": "baae33b908a2ae0da9c7dd50b6307a768b0360e514987d70d3e37dc4",
+    "stderr": "asr_json-modules_02-70a491a.stderr",
+    "stderr_hash": "67b8bf471b878cb687ed200fe5d207b6b4acb9d1e1096a930576fba9",
     "returncode": 0
 }
