@@ -117,14 +117,14 @@ jobs:
     name: Build LPython to WASM
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/provision-with-micromamba@main
+      - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: ci/environment.yml
-          extra-specs: |
+          create-args: >-
             python=3.10
             bison=3.4
 
@@ -193,10 +193,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/provision-with-micromamba@v15
+      - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: ci/environment.yml
-          extra-specs: |
+          create-args: >-
             bison=3.4
 
       - uses: hendrikmuhs/ccache-action@main
@@ -254,10 +254,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: mamba-org/provision-with-micromamba@v16
+      - uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: ci/environment.yml
-          extra-specs: |
+          create-args: >-
             python=3.10
             bison=3.4
 
