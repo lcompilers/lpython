@@ -2405,7 +2405,7 @@ R"(#include <stdio.h>
         } else if (x.n_args == 1) {
             this->visit_expr(*x.m_args[0]);
             if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
-                out = "(" + src + ")";
+                out += "(" + src + ")";
                 src = out;
             }
         }
