@@ -446,6 +446,10 @@ public:
                     el_type = getIntType(a_kind, true);
                     break;
                 }
+                case ASR::ttypeType::UnsignedInteger: {
+                    el_type = getIntType(a_kind, true);
+                    break;
+                }
                 case ASR::ttypeType::Real: {
                     el_type = getFPType(a_kind, true);
                     break;
@@ -6467,6 +6471,7 @@ public:
                     ASRUtils::type_get_past_pointer(x->m_type));
                 switch (t2->type) {
                     case ASR::ttypeType::Integer:
+                    case ASR::ttypeType::UnsignedInteger:
                     case ASR::ttypeType::Real:
                     case ASR::ttypeType::Complex:
                     case ASR::ttypeType::Struct:
@@ -6641,12 +6646,24 @@ public:
                 tmp = builder->CreateSIToFP(tmp, getFPType(a_kind, false));
 		        break;
             }
+            case (ASR::cast_kindType::UnsignedIntegerToReal) : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                tmp = builder->CreateSIToFP(tmp, getFPType(a_kind, false));
+		        break;
+            }
             case (ASR::cast_kindType::LogicalToReal) : {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 tmp = builder->CreateUIToFP(tmp, getFPType(a_kind, false));
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
+                llvm::Type *target_type;
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                target_type = getIntType(a_kind);
+                tmp = builder->CreateFPToSI(tmp, target_type);
+                break;
+            }
+            case (ASR::cast_kindType::RealToUnsignedInteger) : {
                 llvm::Type *target_type;
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 target_type = getIntType(a_kind);
@@ -6803,6 +6820,7 @@ public:
             case (ASR::cast_kindType::IntegerToUnsignedInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
+                LCOMPILERS_ASSERT(arg_kind != -1 && dest_kind != -1)
                 if( arg_kind > 0 && dest_kind > 0 &&
                     arg_kind != dest_kind )
                 {
@@ -6815,7 +6833,18 @@ public:
                 break;
             }
             case (ASR::cast_kindType::UnsignedIntegerToInteger) : {
-                // tmp = tmp
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                LCOMPILERS_ASSERT(arg_kind != -1 && dest_kind != -1)
+                if( arg_kind > 0 && dest_kind > 0 &&
+                    arg_kind != dest_kind )
+                {
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateSExt(tmp, getIntType(dest_kind));
+                    } else {
+                        tmp = builder->CreateTrunc(tmp, getIntType(dest_kind));
+                    }
+                }
                 break;
             }
             case (ASR::cast_kindType::CPtrToUnsignedInteger) : {
@@ -7223,19 +7252,19 @@ public:
             } else if (ASRUtils::is_unsigned_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
-                        fmt.push_back("%hhi");
+                        fmt.push_back("%hhu");
                         break;
                     }
                     case 2 : {
-                        fmt.push_back("%hi");
+                        fmt.push_back("%hu");
                         break;
                     }
                     case 4 : {
-                        fmt.push_back("%d");
+                        fmt.push_back("%u");
                         break;
                     }
                     case 8 : {
-                        fmt.push_back("%lld");
+                        fmt.push_back("%llu");
                         break;
                     }
                     default: {

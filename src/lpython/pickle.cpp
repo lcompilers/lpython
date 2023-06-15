@@ -72,14 +72,15 @@ public:
         s.append(")");
     }
     void visit_Module(const ASR::Module_t &x) {
+        // hide intrinsic modules and numpy module by default
         if (!show_intrinsic_modules &&
-                    (x.m_intrinsic || startswith(x.m_name, "lfortran_intrinsic_"))) {
+            (x.m_intrinsic || startswith(x.m_name, "numpy"))) {
             s.append("(");
             if (use_colors) {
                 s.append(color(style::bold));
                 s.append(color(fg::magenta));
             }
-            s.append("IntrinsicModule");
+            s.append(x.m_intrinsic ? "IntrinsicModule" : "Module");
             if (use_colors) {
                 s.append(color(fg::reset));
                 s.append(color(style::reset));
@@ -202,7 +203,9 @@ public:
     }
 
     void visit_Module(const ASR::Module_t &x) {
-        if (x.m_intrinsic && !show_intrinsic_modules) { // do not show intrinsic modules by default
+        // hide intrinsic modules and numpy module by default
+        if (!show_intrinsic_modules &&
+            (x.m_intrinsic || startswith(x.m_name, "numpy"))) {
             s.append("{");
             inc_indent(); s.append("\n" + indtd);
             s.append("\"node\": \"Module\"");

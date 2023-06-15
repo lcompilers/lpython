@@ -278,6 +278,10 @@ struct Str {
     size_t size() const {
         return n;
     }
+
+    char back() const {
+        return p[n - 1];
+    }
 };
 
 static_assert(std::is_standard_layout<Str>::value);

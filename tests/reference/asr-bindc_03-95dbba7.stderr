@@ -1,5 +1,5 @@
-semantic error: Only those local variables which can be reduced to compile time constant should be used in dimensions of an array.
- --> tests/errors/bindc_03.py:6:20
+semantic error: Target type specified in c_p_pointer must have deferred shape.
+ --> tests/errors/bindc_03.py:6:5
   |
-6 |     A: Pointer[i16[nk]] = c_p_pointer(b, i16[k * n])
-  |                    ^^ 
+6 |     A: Pointer[i16[:]] = c_p_pointer(b, i16[n * k], array([k * n]))
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 

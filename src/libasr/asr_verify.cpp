@@ -1009,6 +1009,28 @@ public:
             symbol_owner);
     }
 
+    void visit_ArrayConstant(const ArrayConstant_t& x) {
+        require(ASR::is_a<ASR::Array_t>(*x.m_type),
+            "Type of ArrayConstant must be an array");
+        BaseWalkVisitor<VerifyVisitor>::visit_ArrayConstant(x);
+    }
+
+    void visit_dimension(const dimension_t &x) {
+        if (x.m_start) {
+            require_with_loc(ASR::is_a<ASR::Integer_t>(
+                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_start))),
+                "Start dimension must be a signed integer", x.loc);
+            visit_expr(*x.m_start);
+        }
+
+        if (x.m_length) {
+            require_with_loc(ASR::is_a<ASR::Integer_t>(
+                *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_length))),
+                "Length dimension must be a signed integer", x.loc);
+            visit_expr(*x.m_length);
+        }
+    }
+
     void visit_Array(const Array_t& x) {
         visit_ttype(*x.m_type);
         require(x.n_dims != 0, "Array type cannot have 0 dimensions.")
@@ -1021,6 +1043,14 @@ public:
     void visit_Pointer(const Pointer_t &x) {
         require(!ASR::is_a<ASR::Allocatable_t>(*x.m_type),
             "Pointer type conflicts with Allocatable type");
+        if( ASR::is_a<ASR::Array_t>(*x.m_type) ) {
+            ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(x.m_type);
+            for (size_t i = 0; i < array_t->n_dims; i++) {
+                require(array_t->m_dims[i].m_start == nullptr &&
+                        array_t->m_dims[i].m_length == nullptr,
+                        "Array type in pointer must have deferred shape");
+            }
+        }
         visit_ttype(*x.m_type);
     }
 

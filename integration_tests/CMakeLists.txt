@@ -619,5 +619,6 @@ RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)
+RUN(NAME lpython_decorator_02    LABELS cpython)
 
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any

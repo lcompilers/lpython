@@ -1,0 +1,8 @@
+[0;33;1mwarning[0;0m[0;1m: The symbol 'f' imported from modules_02b will shadow the existing symbol 'f'[0;0m
+ [0;34;1m-->[0;0m tests/../integration_tests/modules_02.py:1:25
+  [0;34;1m|[0;0m
+[0;34;1m1 |[0;0m from modules_02b import f, f
+  [0;34;1m|[0;0m                         [0;33;1m^ old symbol[0;0m
+  [0;34;1m|[0;0m
+[0;34;1m1 |[0;0m from modules_02b import f, f
+  [0;34;1m|[0;0m                            [0;33;1m^ new symbol[0;0m
