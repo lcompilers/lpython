@@ -1042,8 +1042,6 @@ public:
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
         } else if (var_annotation == "CPtr") {
             type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
-        } else if (var_annotation == "S") {
-            type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         } else if (var_annotation == "pointer") {
             LCOMPILERS_ASSERT(n_args == 1);
             AST::expr_t* underlying_type = m_args[0];
@@ -1075,6 +1073,9 @@ public:
                         }
                     }
                 }
+            } else if (var_annotation == "S") {
+                type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+                return type;
             }
             if( raise_error ) {
                 throw SemanticError("Unsupported type annotation: " + var_annotation, loc);

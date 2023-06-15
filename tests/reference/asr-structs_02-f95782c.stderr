@@ -1,5 +1,5 @@
-semantic error: S not supported yet in Attribute.
- --> tests/errors/structs_02.py:9:5
+semantic error: struct S s must be initialized a value
+ --> tests/errors/structs_02.py:8:5
   |
-9 |     s.x = 2
-  |     ^^^ 
+8 |     s: S
+  |     ^^^^ 
