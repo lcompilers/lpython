@@ -2011,8 +2011,8 @@ namespace SymbolicSymbol {
             loc, diagnostics);
     }
 
-    static inline ASR::expr_t *eval_SymbolicSymbol(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+    static inline ASR::expr_t *eval_SymbolicSymbol(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
         // TODO
         return nullptr;
     }
@@ -2052,8 +2052,8 @@ namespace SymbolicAdd {
             x.base.base.loc, diagnostics);
     }
 
-    static inline ASR::expr_t *eval_SymbolicAdd(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+    static inline ASR::expr_t *eval_SymbolicAdd(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
         // TODO
         return nullptr;
     }
@@ -2081,19 +2081,19 @@ namespace SymbolicAdd {
 
 namespace SymbolicPi {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicFunction_t& /*x*/, diag::Diagnostics& /*diagnostics*/) {
         return;
     }
 
-    static inline ASR::expr_t *eval_SymbolicPi(Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+    static inline ASR::expr_t *eval_SymbolicPi(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
         // TODO
         return nullptr;
     }
 
     static inline ASR::asr_t* create_SymbolicPi(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> err) {
+            const std::function<void (const std::string &, const Location &)> /*err*/) {
         ASR::expr_t* compile_time_value = eval_SymbolicPi(al, loc, args);
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         return ASR::make_IntrinsicFunction_t(al, loc,

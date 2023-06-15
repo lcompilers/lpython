@@ -170,8 +170,6 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
-    llvm::StructType *symbolic_expr_type;
-    llvm::StructType *symbolic_expr_type_ptr;
     llvm::PointerType *character_type;
     llvm::PointerType *list_type;
     std::vector<std::string> struct_type_stack;
@@ -458,10 +456,6 @@ public:
                     el_type = getComplexType(a_kind, true);
                     break;
                 }
-                case ASR::ttypeType::SymbolicExpression: {
-                    el_type = getSymbolicExpressionType(true);
-                    break;
-                }
                 case ASR::ttypeType::Logical: {
                     el_type = llvm::Type::getInt1Ty(context);
                     break;
@@ -498,10 +492,6 @@ public:
                 }
                 case ASR::ttypeType::Complex: {
                     el_type = getComplexType(a_kind);
-                    break;
-                }
-                case ASR::ttypeType::SymbolicExpression: {
-                    el_type = getSymbolicExpressionType();
                     break;
                 }
                 case ASR::ttypeType::Logical: {
@@ -671,15 +661,6 @@ public:
         return nullptr;
     }
 
-    inline llvm::Type* getSymbolicExpressionType(bool get_pointer=false) {
-        llvm::Type* type = symbolic_expr_type;
-        if( get_pointer ){
-            return type->getPointerTo();
-        } else {
-            return type;
-        }
-    }
-
     llvm::Type* getMemberType(ASR::ttype_t* mem_type, ASR::Variable_t* member) {
         llvm::Type* llvm_mem_type = nullptr;
         switch( mem_type->type ) {
@@ -713,10 +694,6 @@ public:
             case ASR::ttypeType::Complex: {
                 int a_kind = down_cast<ASR::Complex_t>(mem_type)->m_kind;
                 llvm_mem_type = getComplexType(a_kind);
-                break;
-            }
-            case ASR::ttypeType::SymbolicExpression: {
-                llvm_mem_type = getSymbolicExpressionType();
                 break;
             }
             case ASR::ttypeType::Character: {
@@ -884,10 +861,6 @@ public:
                     case ASR::ttypeType::Complex: {
                         int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
                         mem_type = getComplexType(a_kind);
-                        break;
-                    }
-                    case ASR::ttypeType::SymbolicExpression: {
-                        mem_type = getSymbolicExpressionType();
                         break;
                     }
                     default:
@@ -1331,16 +1304,10 @@ public:
         std::vector<llvm::Type*> els_8_ptr = {
             llvm::Type::getDoublePtrTy(context),
             llvm::Type::getDoublePtrTy(context)};
-        std::vector<llvm::Type*> els_symbolic = {
-            llvm::Type::getInt8PtrTy(context)};
-        std::vector<llvm::Type*> els_symbolic_ptr = {
-            llvm::Type::getInt8PtrTy(context)->getPointerTo()};
         complex_type_4 = llvm::StructType::create(context, els_4, "complex_4");
         complex_type_8 = llvm::StructType::create(context, els_8, "complex_8");
         complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
         complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
-        symbolic_expr_type = llvm::StructType::create(context, els_symbolic, "symbolic_expr");
-        symbolic_expr_type_ptr = llvm::StructType::create(context, els_symbolic_ptr, "symbolic_expr_ptr");
         character_type = llvm::Type::getInt8PtrTy(context);
         list_type = llvm::Type::getInt8PtrTy(context);
 
@@ -2083,10 +2050,6 @@ public:
         llvm::Value *pos = tmp;
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
-    
-    void generate_SymbolicSymbol(ASR::expr_t* m_arg) {
-        // TODO
-    }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
@@ -2161,10 +2124,6 @@ public:
                     }
                 }
                 break ;
-            }
-            case ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                generate_SymbolicSymbol(x.m_args[0]);
-                break;
             }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::
@@ -3215,10 +3174,6 @@ public:
                                 m_dims, n_dims, a_kind, m_abi);
                 break;
             }
-            case (ASR::ttypeType::SymbolicExpression) : {
-                llvm_type = getSymbolicExpressionType();
-                break;
-            }
             case (ASR::ttypeType::FunctionType) : {
                 ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
                     symbol_get_past_external(type_declaration));
@@ -3688,14 +3643,6 @@ public:
                 }
                 break;
             }
-            case (ASR::ttypeType::SymbolicExpression) : {
-                if (arg_m_abi == ASR::abiType::BindC) {
-                    type = getSymbolicExpressionType();
-                } else {
-                    type = getSymbolicExpressionType(true);
-                }
-                break;
-            }
             case (ASR::ttypeType::Character) : {
                 ASR::Character_t* v_type = down_cast<ASR::Character_t>(asr_type);
                 a_kind = v_type->m_kind;
@@ -4053,10 +4000,6 @@ public:
                     return_type = getFPType(a_kind);
                     break;
                 }
-                case (ASR::ttypeType::SymbolicExpression) : {
-                    return_type = getSymbolicExpressionType();
-                    break;
-                }
                 case (ASR::ttypeType::Complex) : {
                     int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                     if (a_kind == 4) {
@@ -4284,6 +4227,7 @@ public:
 
             if (!prototype_only) {
                 define_function_entry(x);
+
                 for (size_t i=0; i<x.n_body; i++) {
                     this->visit_stmt(*x.m_body[i]);
                 }
@@ -7168,7 +7112,6 @@ public:
         std::vector<std::string> fmt;
         llvm::Value *sep = nullptr;
         llvm::Value *end = nullptr;
-        bool is_symbolic_expr = false;
         if (x.m_separator) {
             this->visit_expr_wrapper(x.m_separator, true);
             sep = tmp;
@@ -7346,10 +7289,6 @@ public:
                 // TODO: Use recursion to generalise for any underlying type in enum
                 fmt.push_back("%d");
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::SymbolicExpression) {
-                fmt.push_back("%s");
-                args.push_back(tmp);
-                is_symbolic_expr = true;
             } else {
                 throw LCompilersException("Printing support is not available for " +
                     ASRUtils::type_to_str(t) + " type.");
@@ -7365,11 +7304,7 @@ public:
         std::vector<llvm::Value *> printf_args;
         printf_args.push_back(fmt_ptr);
         printf_args.insert(printf_args.end(), args.begin(), args.end());
-        if (is_symbolic_expr) {
-            symengine_str(context, *module, *builder, printf_args);
-        } else {
-            printf(context, *module, *builder, printf_args);
-        }
+        printf(context, *module, *builder, printf_args);
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
@@ -7713,10 +7648,6 @@ public:
                     case (ASR::ttypeType::Complex) : {
                         int a_kind = down_cast<ASR::Complex_t>(arg_type_)->m_kind;
                         target_type = getComplexType(a_kind);
-                        break;
-                    }
-                    case (ASR::ttypeType::SymbolicExpression) : {
-                        target_type = getSymbolicExpressionType();
                         break;
                     }
                     case (ASR::ttypeType::Character) : {
