@@ -9,7 +9,7 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
-        "Allocatable"]
+        "Allocatable", "S"]
 
 # data-types
 
@@ -31,6 +31,7 @@ type_to_convert_func = {
     "Callable": lambda x: x,
     "Allocatable": lambda x: x,
     "Pointer": lambda x: x,
+    "S": lambda x: x,
 }
 
 class Type:
@@ -91,6 +92,7 @@ Callable = Type("Callable")
 Allocatable = Type("Allocatable")
 Union = ctypes.Union
 Pointer = PointerType("Pointer")
+S = Type("S")
 
 
 class Intent:
