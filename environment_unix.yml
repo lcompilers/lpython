@@ -15,4 +15,3 @@ dependencies:
   - toml
   - zlib
   - git
-  - symengine
