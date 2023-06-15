@@ -483,6 +483,20 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(est);
+    } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
+        ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)ut,
+            m->m_name, nullptr, 0, ut->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
     } else if (ASR::is_a<ASR::Variable_t>(*t)) {
         ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
         // `mv` is the Variable in a module. Now we construct
