@@ -561,6 +561,8 @@ RUN(NAME enum_07             IMPORT_PATH ..
 RUN(NAME union_01            LABELS cpython llvm c)
 RUN(NAME union_02            LABELS llvm c)
 RUN(NAME union_03            LABELS cpython llvm c)
+RUN(NAME union_04            IMPORT_PATH ..
+                             LABELS cpython llvm c)
 RUN(NAME test_str_to_int     LABELS cpython llvm c)
 RUN(NAME test_platform       LABELS cpython llvm c)
 RUN(NAME test_vars_01        LABELS cpython llvm)
