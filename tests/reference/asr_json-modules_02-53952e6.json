@@ -1,0 +1,13 @@
+{
+    "basename": "asr_json-modules_02-53952e6",
+    "cmd": "lpython --show-asr --json --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/modules_02.py",
+    "infile_hash": "c3ce0b2b9780f27f787297f75e5477e990481b962dcee420809540e0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr_json-modules_02-53952e6.stdout",
+    "stdout_hash": "a2e97444a1e8cb6a623037d104f24628adeea2d3af9cae5d680a5423",
+    "stderr": "asr_json-modules_02-53952e6.stderr",
+    "stderr_hash": "132af04271d3bfd523848990e734bfa3c0aed6e4b85ec4eb87e66720",
+    "returncode": 0
+}

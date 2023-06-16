@@ -1,5 +1,0 @@
-semantic error: For now pop() takes no arguments
-  --> tests/list1.py:25:9
-   |
-25 |     d = a.pop(2)
-   |         ^^^^^^^^ 

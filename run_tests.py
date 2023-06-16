@@ -85,7 +85,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
         run_test(
             filename,
             "asr_json",
-            "lpython --show-asr --json {infile} -o {outfile}",
+            "lpython --show-asr --json --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)
