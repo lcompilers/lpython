@@ -534,11 +534,14 @@ R"(#include <stdio.h>
         std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
         std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
         std::string ret_stmt = indent + "return " + std::string(r_v->m_name) + ";";
-        std::string clear_pValue = "";
-        if (!ASRUtils::is_aggregate_type(r_v->m_type)) {
-            clear_pValue = indent + "Py_DECREF(pValue);";
+        std::string clear_pValue = indent + "Py_DECREF(pValue);";
+        std::string copy_result = "";
+        if (ASRUtils::is_aggregate_type(r_v->m_type)) {
+            if (ASRUtils::is_character(*r_v->m_type)) {
+                copy_result = indent + std::string(r_v->m_name) + " = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
+            }
         }
-        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
+        return ret_var_decl + ret_assign + copy_result + clear_pValue + ret_stmt + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {
