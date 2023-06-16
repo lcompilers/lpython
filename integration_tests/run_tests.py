@@ -6,7 +6,7 @@ import os
 
 # Initialization
 DEFAULT_THREADS_TO_USE = 8 # default no of threads is 8
-SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython', 'x86', 'wasm_x86', 'wasm_x64']
+SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython', 'x86', 'wasm_x86', 'wasm_x64', 'sympy']
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LPYTHON_PATH = f"{BASE_DIR}/../src/bin"
 

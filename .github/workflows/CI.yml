@@ -290,3 +290,52 @@ jobs:
             cd integration_tests
             ./run_tests.py -b llvm
             ./run_tests.py -b c
+
+  sympy:
+    name: Run SymPy tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-file: ci/environment.yml
+          create-args: >-
+            python=3.10
+            bison=3.4
+            symengine=0.9.0
+            sympy=1.11.1
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Build
+        shell: bash -l {0}
+        run: |
+            ./build0.sh
+            cmake . -G"Unix Makefiles" \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DWITH_LLVM=yes \
+              -DLPYTHON_BUILD_ALL=yes \
+              -DWITH_STACKTRACE=no \
+              -DWITH_RUNTIME_STACKTRACE=no \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+            cmake --build . -j16 --target install
+
+      - name: Debug failure
+        shell: bash -l {0}
+        run: |
+            ls /home/runner/micromamba/envs/lp/lib
+
+      - name: Test
+        shell: bash -l {0}
+        run: |
+            cd integration_tests
+            ./run_tests.py -b sympy

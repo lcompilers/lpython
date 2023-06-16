@@ -137,6 +137,30 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "sympy")
+            add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND ${LPYTHON} ${extra_args} --show-c
+                        ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            add_executable(${name} ${name}.c ${extra_files})
+            target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR}
+                "${Python_INCLUDE_DIRS}/..")
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            if (APPLE)
+                set(SYMPY_LIB "${Python_LIBRARY_DIRS}/libsymengine.dylib")
+            else()
+                set(SYMPY_LIB "${Python_LIBRARY_DIRS}/libsymengine.so")
+            endif()
+            target_link_libraries(${name} lpython_rtlib ${SYMPY_LIB})
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         elseif(KIND STREQUAL "cpython")
             # CPython test
             if (extra_files)
@@ -253,7 +277,7 @@ macro(RUN)
     if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
-        list(REMOVE_ITEM RUN_LABELS cpython) # remove cpython from --fast test
+        list(REMOVE_ITEM RUN_LABELS cpython sympy) # remove cpython from --fast test
         RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
@@ -546,7 +570,7 @@ RUN(NAME structs_22          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_23          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_24          LABELS cpython llvm c)
 RUN(NAME structs_25          LABELS cpython llvm c)
-RUN(NAME symbolics_01        LABELS cpython c)
+RUN(NAME symbolics_01        LABELS cpython sympy)
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME sizeof_02           LABELS cpython llvm c)
