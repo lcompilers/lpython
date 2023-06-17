@@ -1,4 +1,5 @@
 from lpython import i32, i16, i64, CPtr, dataclass, ccall, Pointer, c_p_pointer, sizeof
+from numpy import array
 
 @dataclass
 class A:
@@ -23,7 +24,7 @@ def add_Aptr_members(Ax: i32, Ay: i16) -> i32:
 def test_A_member_passing():
     array_cptr: CPtr = cmalloc(sizeof(A) * i64(10))
     assert not bool(is_null(array_cptr)), "Failed to allocate array on memory"
-    array_ptr: Pointer[A[:]] = c_p_pointer(array_cptr, A[:])
+    array_ptr: Pointer[A[:]] = c_p_pointer(array_cptr, A[:], array([10]))
     i: i32; sum_A_members: i32
     for i in range(10):
         array_ptr[i] = A(i, i16(i + 1))

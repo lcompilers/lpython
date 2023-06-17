@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Character 1 -2 () [])
+                                                    (Character 1 -2 ())
                                                     ()
                                                     Source
                                                     Public
@@ -52,16 +52,16 @@
                                         (StringConcat
                                             (StringConstant
                                                 "3"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
                                             (StringConstant
                                                 "4"
-                                                (Character 1 1 () [])
+                                                (Character 1 1 ())
                                             )
-                                            (Character 1 2 () [])
+                                            (Character 1 2 ())
                                             (StringConstant
                                                 "34"
-                                                (Character 1 2 () [])
+                                                (Character 1 2 ())
                                             )
                                         )
                                         ()
@@ -71,16 +71,16 @@
                                         (StringConcat
                                             (StringConstant
                                                 "a "
-                                                (Character 1 2 () [])
+                                                (Character 1 2 ())
                                             )
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Character 1 6 () [])
+                                            (Character 1 6 ())
                                             (StringConstant
                                                 "a test"
-                                                (Character 1 6 () [])
+                                                (Character 1 6 ())
                                             )
                                         )
                                         ()
@@ -91,26 +91,26 @@
                                             (StringConcat
                                                 (StringConstant
                                                     "test"
-                                                    (Character 1 4 () [])
+                                                    (Character 1 4 ())
                                                 )
                                                 (StringConstant
                                                     "test"
-                                                    (Character 1 4 () [])
+                                                    (Character 1 4 ())
                                                 )
-                                                (Character 1 8 () [])
+                                                (Character 1 8 ())
                                                 (StringConstant
                                                     "testtest"
-                                                    (Character 1 8 () [])
+                                                    (Character 1 8 ())
                                                 )
                                             )
                                             (StringConstant
                                                 "test"
-                                                (Character 1 4 () [])
+                                                (Character 1 4 ())
                                             )
-                                            (Character 1 12 () [])
+                                            (Character 1 12 ())
                                             (StringConstant
                                                 "testtesttest"
-                                                (Character 1 12 () [])
+                                                (Character 1 12 ())
                                             )
                                         )
                                         ()

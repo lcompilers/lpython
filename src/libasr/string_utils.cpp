@@ -87,29 +87,6 @@ std::string replace(const std::string &s,
     return std::regex_replace(s, std::regex(regex), replace);
 }
 
-std::string get_escaped_str(const std::string &s) {
-    std::ostringstream o;
-    for (auto c = s.cbegin(); c != s.cend(); c++) {
-        switch (*c) {
-        case '"': o << "\\\""; break;
-        case '\\': o << "\\\\"; break;
-        case '\b': o << "\\b"; break;
-        case '\f': o << "\\f"; break;
-        case '\n': o << "\\n"; break;
-        case '\r': o << "\\r"; break;
-        case '\t': o << "\\t"; break;
-        default:
-            if ('\x00' <= *c && *c <= '\x1f') {
-                o << "\\u"
-                  << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(*c);
-            } else {
-                o << *c;
-            }
-        }
-    }
-    return o.str();
-}
-
 std::string read_file(const std::string &filename)
 {
     std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
@@ -154,9 +131,33 @@ std::string join_paths(const std::vector<std::string> &paths) {
     return p;
 }
 
-char* unescape_string(Allocator &al, LCompilers::Str &s) {
-    std::string x;
-    for (size_t idx=0; idx < s.size(); idx++) {
+std::string str_escape_c(const std::string &s) {
+    std::ostringstream o;
+    for (auto c = s.cbegin(); c != s.cend(); c++) {
+        switch (*c) {
+            case '"': o << "\\\""; break;
+            case '\\': o << "\\\\"; break;
+            case '\b': o << "\\b"; break;
+            case '\f': o << "\\f"; break;
+            case '\n': o << "\\n"; break;
+            case '\r': o << "\\r"; break;
+            case '\t': o << "\\t"; break;
+            default:
+                if ('\x00' <= *c && *c <= '\x1f') {
+                    o << "\\u"
+                    << std::hex << std::setw(4) << std::setfill('0') << static_cast<int>(*c);
+                } else {
+                    o << *c;
+                }
+        }
+    }
+    return o.str();
+}
+
+char* str_unescape_c(Allocator &al, LCompilers::Str &s) {
+    std::string x = "";
+    size_t idx = 0;
+    for (; idx + 1 < s.size(); idx++) {
         if (s[idx] == '\\' && s[idx+1] == '\n') { // continuation character
             idx++;
         } else if (s[idx] == '\\' && s[idx+1] == 'n') {
@@ -186,6 +187,36 @@ char* unescape_string(Allocator &al, LCompilers::Str &s) {
         } else {
             x += s[idx];
         }
+    }
+    if (idx < s.size()) {
+        x += s[idx];
+    }
+    return LCompilers::s2c(al, x);
+}
+
+std::string str_escape_fortran_double_quote(const std::string &s) {
+    std::ostringstream o;
+    for (auto c = s.cbegin(); c != s.cend(); c++) {
+        switch (*c) {
+            case '"': o << "\"\""; break;
+        }
+    }
+    return o.str();
+}
+
+char* str_unescape_fortran(Allocator &al, LCompilers::Str &s, char ch) {
+    std::string x = "";
+    size_t idx = 0;
+    for (; idx + 1 < s.size(); idx++) {
+        if (s[idx] == ch && s[idx + 1] == ch) {
+            x += s[idx];
+            idx++;
+        } else {
+            x += s[idx];
+        }
+    }
+    if (idx < s.size()) {
+        x += s[idx];
     }
     return LCompilers::s2c(al, x);
 }

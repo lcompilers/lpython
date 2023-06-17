@@ -4,12 +4,13 @@ import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
 
+
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
-        "Allocatable"]
+        "Allocatable", "In", "Out", "InOut", "dataclass"]
 
 # data-types
 
@@ -89,9 +90,18 @@ CPtr = Type("c_ptr")
 Const = ConstType("Const")
 Callable = Type("Callable")
 Allocatable = Type("Allocatable")
-Union = ctypes.Union
 Pointer = PointerType("Pointer")
 
+
+class Union:
+    def __init__(self):
+        pass
+
+    def __setattr__(self, name: str, value):
+        self.__dict__[name] = value
+
+    def __getattr__(self, name: str):
+        return self.__dict__[name]
 
 class Intent:
     def __init__(self, type):
@@ -381,7 +391,6 @@ def convert_to_ctypes_Union(f):
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
         fields.append((name, convert_type_to_ctype(ltype_)))
-
     f._fields_ = fields
     f.__annotations__ = {}
 
@@ -467,12 +476,16 @@ def pythoncall(*args, **kwargs):
 
 def union(f):
     fields = []
+    fa = {}
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
-        fields.append((name, convert_type_to_ctype(ltype_)))
+        ltype_ = convert_type_to_ctype(ltype_)
+        fa[name] = ltype_
+
+        fields.append((name, ltype_))
 
     f._fields_ = fields
-    f.__annotations__ = {}
+    f.__annotations__ = fa
     return f
 
 def pointer(x, type_=None):
@@ -560,9 +573,13 @@ class PointerToStruct:
             value = value.value
         self.ctypes_ptr.contents.__setattr__(name, value)
 
-def c_p_pointer(cptr, targettype):
+def c_p_pointer(cptr, targettype, targetshape=None):
     targettype_ptr = convert_type_to_ctype(targettype)
     if isinstance(targettype, Array):
+        if targetshape is None:
+            raise ValueError("target shape must be "
+                             "provided if target type is an array.")
+        # TODO: Add support for multi-dimensional shape of target variable
         if py_is_dataclass(targettype._type):
             return ctypes.cast(cptr.value, ctypes.py_object).value
         newa = ctypes.cast(cptr, targettype_ptr)
@@ -633,7 +650,8 @@ class lpython:
 
         def get_type_info(arg):
             # return_type -> (`type_format`, `variable type`, `array struct name`)
-            # See: https://docs.python.org/3/c-api/arg.html for more info on type_format
+            # See: https://docs.python.org/3/c-api/arg.html for more info on `type_format`
+            # `array struct name`: used by the C backend
             if arg == f64:
                 return ('d', "double", 'r64')
             elif arg == f32:
@@ -648,7 +666,10 @@ class lpython:
                 t = get_type_info(arg._type)
                 if t[2] == '':
                     raise NotImplementedError("Type %r not implemented" % arg)
-                return ('O', ["PyArrayObject *", "struct "+t[2]+" *", t[1]+" *"], '')
+                n = ''
+                if not isinstance(arg._dims, slice):
+                    n = arg._dims._name
+                return ('O', ["PyArrayObject *", "struct "+t[2]+" *", t[1]+" *", n], '')
             else:
                 raise NotImplementedError("Type %r not implemented" % arg)
 
@@ -657,6 +678,18 @@ class lpython:
                 return t[0]
             else:
                 return t + " "
+
+        def get_typenum(t):
+            if t == "int":
+                return "NPY_INT"
+            elif t == "long int":
+                return "NPY_LONG"
+            elif t == "float":
+                return "NPY_FLOAT"
+            elif t == "double":
+                return "NPY_DOUBLE"
+            else:
+                raise NotImplementedError("Type %s not implemented" % t)
 
         self.fn_name = function.__name__
         # Get the source code of the function
@@ -678,29 +711,36 @@ class lpython:
         self.arg_type_formats = ""
         self.return_type = ""
         self.return_type_format = ""
+        self.array_as_return_type = ()
         self.arg_types = {}
-        counter = 1
         for t in types.keys():
             if t == "return":
                 type = get_type_info(types[t])
-                self.return_type_format = type[0]
-                self.return_type = type[1]
+                if type[0] == 'O':
+                    self.array_as_return_type = type
+                    continue
+                else:
+                    self.return_type_format = type[0]
+                    self.return_type = type[1]
             else:
                 type = get_type_info(types[t])
                 self.arg_type_formats += type[0]
-                self.arg_types[counter] = type[1]
-                counter += 1
+                self.arg_types[t] = type[1]
         # ----------------------------------------------------------------------
-        # `arg_0`: used as the return variables
-        # arguments are declared as `arg_1`, `arg_2`, ...
-        variables_decl = ""
+        # `_<fn_name>_return_value`: used as the return variables
+        variables_decl = "// Declare return variables and arguments\n"
         if self.return_type != "":
-            variables_decl = "// Declare return variables and arguments\n"
-            variables_decl += "    " + get_data_type(self.return_type) + "arg_" \
-                + str(0) + ";\n"
+            variables_decl += "    " + get_data_type(self.return_type)  \
+                + "_" + self.fn_name + "_return_value;\n"
+        elif self.array_as_return_type:
+            variables_decl += "    " + self.array_as_return_type[1][1] + "_" \
+                + self.fn_name + "_return_value = malloc(sizeof(" \
+                + self.array_as_return_type[1][1][:-2] + "));\n"
+        else:
+            variables_decl = ""
         # ----------------------------------------------------------------------
         # `PyArray_AsCArray` is used to convert NumPy Arrays to C Arrays
-        # `fill_array_details` contains arrays operations to be
+        # `fill_array_details` contains array operations to be
         # performed on the arguments
         # `parse_args` are used to capture the args from CPython
         # `pass_args` are the args that are passed to the shared library function
@@ -708,16 +748,18 @@ class lpython:
         parse_args = ""
         pass_args = ""
         numpy_init = ""
+        prefix_comma = False
         for i, t in self.arg_types.items():
-            if i > 1:
+            if prefix_comma:
                 parse_args += ", "
                 pass_args += ", "
+            prefix_comma = True
             if isinstance(t, list):
                 if numpy_init == "":
                     numpy_init = "// Initialize NumPy\n    import_array();\n\n    "
                 fill_array_details += f"""\n
-    // fill array details for args[{i-1}]
-    if (PyArray_NDIM(arg_{i}) != 1) {{
+    // fill array details for {i}
+    if (PyArray_NDIM({i}) != 1) {{
         PyErr_SetString(PyExc_TypeError,
             "Only 1 dimension is implemented for now.");
         return NULL;
@@ -727,9 +769,9 @@ class lpython:
     {{
         {t[2]}array;
         // Create C arrays from numpy objects:
-        PyArray_Descr *descr = PyArray_DescrFromType(PyArray_TYPE(arg_{i}));
+        PyArray_Descr *descr = PyArray_DescrFromType(PyArray_TYPE({i}));
         npy_intp dims[1];
-        if (PyArray_AsCArray((PyObject **)&arg_{i}, (void *)&array, dims, 1, descr) < 0) {{
+        if (PyArray_AsCArray((PyObject **)&{i}, (void *)&array, dims, 1, descr) < 0) {{
             PyErr_SetString(PyExc_TypeError, "error converting to c array");
             return NULL;
         }}
@@ -740,11 +782,11 @@ class lpython:
         s_array_{i}->dims[0].length = dims[0];
         s_array_{i}->is_allocated = false;
     }}"""
-                pass_args += "s_array_" + str(i)
+                pass_args += "s_array_" + i
             else:
-                pass_args += "arg_" + str(i)
-            variables_decl += "    " + get_data_type(t) + "arg_" + str(i) + ";\n"
-            parse_args += "&arg_" + str(i)
+                pass_args += i
+            variables_decl += "    " + get_data_type(t) + i + ";\n"
+            parse_args += "&" + i
 
         if parse_args != "":
             parse_args = f"""\n    // Parse the arguments from Python
@@ -757,12 +799,38 @@ class lpython:
         fill_return_details = ""
         if self.return_type != "":
             fill_return_details = f"""\n\n    // Call the C function
-    arg_0 = {self.fn_name}({pass_args});
+    _{self.fn_name}_return_value = {self.fn_name}({pass_args});
 
     // Build and return the result as a Python object
-    return Py_BuildValue("{self.return_type_format}", arg_0);"""
+    return Py_BuildValue("{self.return_type_format}", _{self.fn_name}_return_value);"""
         else:
-            fill_return_details = f"""{self.fn_name}({pass_args});
+            if self.array_as_return_type:
+                fill_return_details = f"""\n
+    _{self.fn_name}_return_value->data = malloc({self.array_as_return_type[1][3]
+        } * sizeof({self.array_as_return_type[1][2][:-2]}));
+    _{self.fn_name}_return_value->n_dims = 1;
+    _{self.fn_name}_return_value->dims[0].lower_bound = 0;
+    _{self.fn_name}_return_value->dims[0].length = {
+        self.array_as_return_type[1][3]};
+    _{self.fn_name}_return_value->is_allocated = false;
+
+    // Call the C function
+    {self.fn_name}({pass_args}, &_{self.fn_name}_return_value[0]);
+
+    // Build and return the result as a Python object
+    {{
+        npy_intp dims[] = {{{self.array_as_return_type[1][3]}}};
+        PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, {
+            get_typenum(self.array_as_return_type[1][2][:-2])},
+            _{self.fn_name}_return_value->data);
+        if (numpy_array == NULL) {{
+            PyErr_SetString(PyExc_TypeError, "error creating an array");
+            return NULL;
+        }}
+        return numpy_array;
+    }}"""
+            else:
+                fill_return_details = f"""{self.fn_name}({pass_args});
     Py_RETURN_NONE;"""
 
         # ----------------------------------------------------------------------
@@ -832,13 +900,15 @@ PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
             raise NotImplementedError("Platform not implemented")
 
         from numpy import get_include
-        from distutils.sysconfig import get_python_inc, get_python_lib
+        from distutils.sysconfig import get_python_inc, get_python_lib, \
+            get_python_version
         python_path = "-I" + get_python_inc() + " "
         numpy_path = "-I" + get_include() + " "
         rt_path_01 = "-I" + get_rtlib_dir() + "/../libasr/runtime "
         rt_path_02 = "-L" + get_rtlib_dir() + " -Wl,-rpath " \
             + get_rtlib_dir() + " -llpython_runtime "
-        python_lib = "-L" + get_python_lib() + "/../.. -lpython3.10 -lm"
+        python_lib = "-L" + get_python_lib() + "/../.. -lpython" + \
+            get_python_version() + " -lm"
 
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
             filename + ".c -o lpython_module_" + self.fn_name + ".so " +

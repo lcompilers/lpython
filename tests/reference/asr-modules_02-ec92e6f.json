@@ -2,12 +2,12 @@
     "basename": "asr-modules_02-ec92e6f",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/modules_02.py",
-    "infile_hash": "dcb00ac27cbbcdec61d81f1df9e852ba81a2197e7804ec89cab76e44",
+    "infile_hash": "c3ce0b2b9780f27f787297f75e5477e990481b962dcee420809540e0",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-modules_02-ec92e6f.stdout",
-    "stdout_hash": "430e0c79b0666ed943ae7bc28e47bf4b9402c8dacb47254f7f539e13",
-    "stderr": null,
-    "stderr_hash": null,
+    "stdout_hash": "2b9767d477601b562ca13e1d770d84bafad8f2647fb778d52fc20d0d",
+    "stderr": "asr-modules_02-ec92e6f.stderr",
+    "stderr_hash": "132af04271d3bfd523848990e734bfa3c0aed6e4b85ec4eb87e66720",
     "returncode": 0
 }

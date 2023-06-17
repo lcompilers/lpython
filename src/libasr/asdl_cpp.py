@@ -417,7 +417,7 @@ class ASRPassWalkVisitorVisitor(ASDLVisitor):
         self.emit("private:")
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("public:")
-        self.emit("    SymbolTable* current_scope;")
+        self.emit("    SymbolTable* current_scope=nullptr;")
         self.emit("    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {")
         self.emit("    for (size_t i = 0; i < n_body; i++) {", 1)
         self.emit("        self().visit_stmt(*m_body[i]);", 1)
@@ -527,7 +527,7 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("public:")
         self.emit("    ASR::expr_t** current_expr;")
-        self.emit("    SymbolTable* current_scope;")
+        self.emit("    SymbolTable* current_scope=nullptr;")
         self.emit("")
         self.emit("    void call_replacer() {}")
         self.emit("    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {")
@@ -1295,6 +1295,11 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
                     self.emit("    current_expr = &(x->m_%s[i].m_start);" % (field.name), level)
                     self.emit("    self().replace_expr(x->m_%s[i].m_start);"%(field.name), level)
                     self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                elif field.type == "expr":
+                    self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
+                    self.emit("    current_expr = &(x->m_%s[i]);" % (field.name), level)
+                    self.emit("    self().replace_expr(x->m_%s[i]);"%(field.name), level)
+                    self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
                     self.current_expr_copy_variable_count += 1
                 self.emit("}", level)
             else:
@@ -1657,12 +1662,12 @@ class PickleVisitorVisitor(ASDLVisitor):
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
-                    self.emit(    's.append("\\"" + get_escaped_str(x.m_%s) + "\\"");' % field.name, 3)
+                    self.emit(    's.append("\\"" + str_escape_c(x.m_%s) + "\\"");' % field.name, 3)
                     self.emit("} else {", 2)
                     self.emit(    's.append("()");', 3)
                     self.emit("}", 2)
                 else:
-                    self.emit('s.append("\\"" + get_escaped_str(x.m_%s) + "\\"");' % field.name, 2)
+                    self.emit('s.append("\\"" + str_escape_c(x.m_%s) + "\\"");' % field.name, 2)
             elif field.type == "int" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
@@ -1929,12 +1934,12 @@ class JsonVisitorVisitor(ASDLVisitor):
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)
-                    self.emit(    's.append("\\"" + get_escaped_str(x.m_%s) + "\\"");' % field.name, 3)
+                    self.emit(    's.append("\\"" + str_escape_c(x.m_%s) + "\\"");' % field.name, 3)
                     self.emit("} else {", 2)
                     self.emit(    's.append("[]");', 3)
                     self.emit("}", 2)
                 else:
-                    self.emit('s.append("\\"" + get_escaped_str(x.m_%s) + "\\"");' % field.name, 2)
+                    self.emit('s.append("\\"" + str_escape_c(x.m_%s) + "\\"");' % field.name, 2)
             elif field.type == "int" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)

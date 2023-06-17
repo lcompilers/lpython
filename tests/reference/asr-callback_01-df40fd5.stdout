@@ -75,14 +75,14 @@
                                                 10 g
                                                 ()
                                                 [((Var 10 f))
-                                                ((IntegerConstant 10 (Integer 4 [])))]
-                                                (Integer 4 [])
+                                                ((IntegerConstant 10 (Integer 4)))]
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 11 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 11 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -93,14 +93,14 @@
                                                 10 g
                                                 ()
                                                 [((Var 10 f2))
-                                                ((IntegerConstant 20 (Integer 4 [])))]
-                                                (Integer 4 [])
+                                                ((IntegerConstant 20 (Integer 4)))]
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 30 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 30 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -111,14 +111,14 @@
                                                 10 g
                                                 ()
                                                 [((Var 10 f3))
-                                                ((IntegerConstant 5 (Integer 4 [])))]
-                                                (Integer 4 [])
+                                                ((IntegerConstant 5 (Integer 4)))]
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 21 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 21 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -143,7 +143,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -159,7 +159,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -169,8 +169,8 @@
                                         })
                                     f
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -190,8 +190,8 @@
                                         (IntegerBinOp
                                             (Var 2 x)
                                             Add
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -217,7 +217,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -233,7 +233,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -243,8 +243,8 @@
                                         })
                                     f2
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -264,8 +264,8 @@
                                         (IntegerBinOp
                                             (Var 3 x)
                                             Add
-                                            (IntegerConstant 10 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 10 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -291,7 +291,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -307,7 +307,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -317,8 +317,8 @@
                                         })
                                     f3
                                     (FunctionType
-                                        [(Integer 4 [])]
-                                        (Integer 4 [])
+                                        [(Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -341,7 +341,7 @@
                                                 10 f
                                                 ()
                                                 [((Var 4 x))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
@@ -350,11 +350,11 @@
                                                 10 f2
                                                 ()
                                                 [((Var 4 x))]
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 ()
                                                 ()
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -380,7 +380,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -396,7 +396,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -417,7 +417,7 @@
                                                                     ()
                                                                     ()
                                                                     Default
-                                                                    (Integer 4 [])
+                                                                    (Integer 4)
                                                                     ()
                                                                     Source
                                                                     Public
@@ -433,7 +433,7 @@
                                                                     ()
                                                                     ()
                                                                     Default
-                                                                    (Integer 4 [])
+                                                                    (Integer 4)
                                                                     ()
                                                                     Source
                                                                     Public
@@ -443,8 +443,8 @@
                                                         })
                                                     func
                                                     (FunctionType
-                                                        [(Integer 4 [])]
-                                                        (Integer 4 [])
+                                                        [(Integer 4)]
+                                                        (Integer 4)
                                                         BindC
                                                         Interface
                                                         ()
@@ -475,7 +475,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -486,8 +486,8 @@
                                     g
                                     (FunctionType
                                         [(FunctionType
-                                            [(Integer 4 [])]
-                                            (Integer 4 [])
+                                            [(Integer 4)]
+                                            (Integer 4)
                                             BindC
                                             Interface
                                             ()
@@ -500,8 +500,8 @@
                                             []
                                             .false.
                                         )
-                                        (Integer 4 [])]
-                                        (Integer 4 [])
+                                        (Integer 4)]
+                                        (Integer 4)
                                         Source
                                         Implementation
                                         ()
@@ -523,7 +523,7 @@
                                             5 func
                                             ()
                                             [((Var 5 arg))]
-                                            (Integer 4 [])
+                                            (Integer 4)
                                             ()
                                             ()
                                         )

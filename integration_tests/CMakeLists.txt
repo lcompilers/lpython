@@ -422,6 +422,8 @@ RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
 RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
+RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
+RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)
@@ -558,8 +560,10 @@ RUN(NAME enum_06             LABELS cpython llvm c)
 RUN(NAME enum_07             IMPORT_PATH ..
                              LABELS cpython llvm c)
 RUN(NAME union_01            LABELS cpython llvm c)
-RUN(NAME union_02            LABELS llvm c)
+RUN(NAME union_02            LABELS cpython llvm c)
 RUN(NAME union_03            LABELS cpython llvm c)
+RUN(NAME union_04            IMPORT_PATH ..
+                             LABELS cpython llvm c)
 RUN(NAME test_str_to_int     LABELS cpython llvm c)
 RUN(NAME test_platform       LABELS cpython llvm c)
 RUN(NAME test_vars_01        LABELS cpython llvm)
@@ -618,5 +622,6 @@ RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)
+RUN(NAME lpython_decorator_02    LABELS cpython)
 
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any

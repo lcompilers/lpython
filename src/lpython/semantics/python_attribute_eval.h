@@ -27,9 +27,9 @@ struct AttributeHandler {
             {"list@count", &eval_list_count},
             {"list@index", &eval_list_index},
             {"list@reverse", &eval_list_reverse},
+            {"list@pop", &eval_list_pop},
             {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
-            {"list@pop", &eval_list_pop},
             {"set@pop", &eval_set_pop},
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
@@ -88,8 +88,7 @@ struct AttributeHandler {
             throw SemanticError("int.bit_length() takes no arguments", loc);
         }
         int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        int_kind, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, int_kind));
         return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
     }
 
@@ -98,7 +97,7 @@ struct AttributeHandler {
         if (args.size() != 0) {
             throw SemanticError("array.size() takes no arguments", loc);
         }
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         return ASR::make_ArraySize_t(al, loc, s, nullptr, int_type, nullptr);
     }
 
@@ -171,8 +170,7 @@ struct AttributeHandler {
             );
             throw SemanticAbort();
         }
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         return make_ListCount_t(al, loc, s, args[0], to_type, nullptr);
     }
 
@@ -204,6 +202,20 @@ struct AttributeHandler {
                                 { throw SemanticError(msg, loc); });
     }
 
+    static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.pop");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
+    }
+
     static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
             if (args.size() != 2) {
@@ -211,8 +223,7 @@ struct AttributeHandler {
                         loc);
             }
             ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
             if (!ASRUtils::check_equal_type(pos_type, int_type)) {
                 throw SemanticError("List index should be of integer type",
                                     args[0]->base.loc);
@@ -234,40 +245,6 @@ struct AttributeHandler {
                 throw SemanticAbort();
             }
             return make_ListInsert_t(al, loc, s, args[0], args[1]);
-    }
-
-    static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-            if (args.size() > 1) {
-                throw SemanticError("pop() takes atmost one argument",
-                        loc);
-            }
-            ASR::expr_t *idx = nullptr;
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
-            ASR::ttype_t *type = ASRUtils::expr_type(s);
-            ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
-            if (args.size() == 1) {
-                ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
-                if (!ASRUtils::check_equal_type(pos_type, int_type)) {
-                    std::string fnd = ASRUtils::type_to_str_python(pos_type);
-                    std::string org = ASRUtils::type_to_str_python(int_type);
-                    diag.add(diag::Diagnostic(
-                        "Type mismatch in 'pop', List index should be of integer type",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
-                                    {args[0]->base.loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
-                idx = args[0];
-            } else {
-                // default is last index
-                idx = (ASR::expr_t*)ASR::make_IntegerConstant_t(al, loc, -1, int_type);
-            }
-
-            return make_ListPop_t(al, loc, s, idx, list_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_clear(ASR::expr_t *s, Allocator &al,

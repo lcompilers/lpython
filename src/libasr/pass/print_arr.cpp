@@ -61,9 +61,9 @@ public:
         ASR::stmt_t* empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, loc,
                                             nullptr, nullptr, 0, nullptr, nullptr));
         ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
-        al, loc, 1, 1, nullptr, nullptr, 0));
+            al, loc, 1, 1, nullptr));
         ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
-        al, loc, s2c(al, " "), str_type_len_1));
+            al, loc, s2c(al, " "), str_type_len_1));
         for( int i = n_dims - 1; i >= 0; i-- ) {
             ASR::do_loop_head_t head;
             head.m_v = idx_vars[i];
@@ -95,7 +95,7 @@ public:
         ASR::stmt_t* empty_print_endl;
         ASR::stmt_t* print_stmt;
         ASR::ttype_t *str_type_len_1 = ASRUtils::TYPE(ASR::make_Character_t(
-        al, x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+            al, x.base.base.loc, 1, 1, nullptr));
         ASR::expr_t *space = ASRUtils::EXPR(ASR::make_StringConstant_t(
         al, x.base.base.loc, s2c(al, " "), str_type_len_1));
         ASR::expr_t *backspace = ASRUtils::EXPR(ASR::make_StringConstant_t(

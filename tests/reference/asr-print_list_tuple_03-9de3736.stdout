@@ -59,10 +59,10 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         (Tuple
-                                                            [(Integer 4 [])
-                                                            (Integer 4 [])]
+                                                            [(Integer 4)
+                                                            (Integer 4)]
                                                         )
                                                     )
                                                     ()
@@ -81,9 +81,9 @@
                                                     ()
                                                     Default
                                                     (Dict
-                                                        (Integer 4 [])
+                                                        (Integer 4)
                                                         (List
-                                                            (Integer 4 [])
+                                                            (Integer 4)
                                                         )
                                                     )
                                                     ()
@@ -114,29 +114,29 @@
                                     [(=
                                         (Var 2 x)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             [(TupleConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                             (TupleConstant
-                                                [(IntegerConstant 3 (Integer 4 []))
-                                                (IntegerConstant 4 (Integer 4 []))]
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )]
                                             (Dict
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 (Tuple
-                                                    [(Integer 4 [])
-                                                    (Integer 4 [])]
+                                                    [(Integer 4)
+                                                    (Integer 4)]
                                                 )
                                             )
                                         )
@@ -145,26 +145,26 @@
                                     (=
                                         (Var 2 y)
                                         (DictConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             [(ListConstant
-                                                [(IntegerConstant 1 (Integer 4 []))
-                                                (IntegerConstant 2 (Integer 4 []))]
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
                                             (ListConstant
-                                                [(IntegerConstant 3 (Integer 4 []))
-                                                (IntegerConstant 4 (Integer 4 []))]
+                                                [(IntegerConstant 3 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4))]
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )]
                                             (Dict
-                                                (Integer 4 [])
+                                                (Integer 4)
                                                 (List
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                 )
                                             )
                                         )
@@ -174,30 +174,30 @@
                                         ()
                                         [(DictItem
                                             (Var 2 x)
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ()
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             ()
                                         )
                                         (DictItem
                                             (Var 2 x)
-                                            (IntegerConstant 2 (Integer 4 []))
+                                            (IntegerConstant 2 (Integer 4))
                                             ()
                                             (Tuple
-                                                [(Integer 4 [])
-                                                (Integer 4 [])]
+                                                [(Integer 4)
+                                                (Integer 4)]
                                             )
                                             ()
                                         )
                                         (DictItem
                                             (Var 2 y)
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ()
                                             (List
-                                                (Integer 4 [])
+                                                (Integer 4)
                                             )
                                             ()
                                         )]

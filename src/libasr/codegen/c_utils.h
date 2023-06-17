@@ -106,7 +106,7 @@ namespace CUtils {
                 util_funcs += body;
             }
 
-            void array_deepcopy(ASR::ttype_t* array_type_asr, std::string array_type_name,
+            void array_deepcopy([[maybe_unused]] ASR::ttype_t* array_type_asr, std::string array_type_name,
                                 std::string array_encoded_type_name, std::string array_type_str) {
                 LCOMPILERS_ASSERT(!is_non_primitive_DT(array_type_asr));
                 std::string indent(indentation_level * indentation_spaces, ' ');
@@ -277,6 +277,11 @@ namespace CUtils {
             }
             case ASR::ttypeType::Character: {
                 type_src = "char*";
+                break;
+            }
+            case ASR::ttypeType::Array: {
+                ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(t);
+                type_src = get_c_type_from_ttype_t(array_t->m_type);
                 break;
             }
             case ASR::ttypeType::Pointer: {
@@ -532,6 +537,7 @@ class CCPPDSUtils {
                 return get_tuple_type(tup_type);
             }
             LCOMPILERS_ASSERT(false);
+            return ""; // To silence a warning
         }
 
         std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
@@ -610,7 +616,7 @@ class CCPPDSUtils {
 
         std::string get_array_type(std::string type_name, std::string encoded_type_name,
                                std::string& array_types_decls, bool make_ptr=true,
-                               bool create_if_not_present=true) {
+                               [[maybe_unused]] bool create_if_not_present=true) {
             if( eltypedims2arraytype.find(encoded_type_name) != eltypedims2arraytype.end() ) {
                 if( make_ptr ) {
                     return eltypedims2arraytype[encoded_type_name] + "*";

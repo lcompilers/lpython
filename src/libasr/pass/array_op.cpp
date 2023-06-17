@@ -117,7 +117,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         ASR::stmt_t* doloop = nullptr;
         LCOMPILERS_ASSERT(result_rank >= var_rank);
         // LCOMPILERS_ASSERT(var_rank == (int) loop_vars.size());
-        ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int32_type));
         if (var_rank == (int) loop_vars.size()) {
             for( int i = var_rank - 1; i >= 0; i-- ) {
@@ -321,56 +321,57 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
     template <typename T>
     ASR::expr_t* generate_element_wise_operation(const Location& loc, ASR::expr_t* left, ASR::expr_t* right, T* x) {
+        ASR::ttype_t* x_m_type = ASRUtils::type_get_past_array(x->m_type);
         switch( x->class_type ) {
             case ASR::exprType::IntegerBinOp:
                 return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
                             al, loc, left, (ASR::binopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::UnsignedIntegerBinOp:
                 return ASRUtils::EXPR(ASR::make_UnsignedIntegerBinOp_t(
                             al, loc, left, (ASR::binopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::RealBinOp:
                 return ASRUtils::EXPR(ASR::make_RealBinOp_t(
                             al, loc, left, (ASR::binopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::ComplexBinOp:
                 return ASRUtils::EXPR(ASR::make_ComplexBinOp_t(
                             al, loc, left, (ASR::binopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::LogicalBinOp:
                 return ASRUtils::EXPR(ASR::make_LogicalBinOp_t(
                             al, loc, left, (ASR::logicalbinopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::IntegerCompare:
                 return ASRUtils::EXPR(ASR::make_IntegerCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::UnsignedIntegerCompare:
                 return ASRUtils::EXPR(ASR::make_UnsignedIntegerCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::RealCompare:
                 return ASRUtils::EXPR(ASR::make_RealCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::ComplexCompare:
                 return ASRUtils::EXPR(ASR::make_ComplexCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             case ASR::exprType::LogicalCompare:
                 return ASRUtils::EXPR(ASR::make_LogicalCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
-                            right, x->m_type, nullptr));
+                            right, x_m_type, nullptr));
 
             default:
                 throw LCompilersException("The desired operation is not supported yet for arrays.");
@@ -406,8 +407,13 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             case ASR::exprType::ComplexCompare:
             case ASR::exprType::LogicalCompare:
             case ASR::exprType::IntegerCompare: {
-                return ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-                            4, result_dims.p, result_dims.size()));
+                ASR::ttype_t* logical_type_t = ASRUtils::TYPE(
+                    ASR::make_Logical_t(al, loc, 4));
+                if( result_dims.size() > 0 ) {
+                    logical_type_t = ASRUtils::make_Array_t_util(al, loc,
+                        logical_type_t, result_dims.p, result_dims.size());
+                }
+                return logical_type_t;
             }
             default: {
                 if( allocate || is_fixed_size_array ) {
@@ -424,7 +430,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         const Location& loc = x->base.base.loc;
         ASRUtils::ASRBuilder builder(al, loc);
         ASR::expr_t* i32_one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
-            al, loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))));
+            al, loc, 1, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
         Vec<ASR::dimension_t> empty_dims;
         empty_dims.reserve(al, x->n_args);
         for( size_t i = 0; i < x->n_args; i++ ) {
@@ -473,8 +479,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         }
 
         ASR::ttype_t* x_m_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc,
-            ASRUtils::duplicate_type(al,
-            ASRUtils::type_get_past_pointer(x->m_type), &empty_dims)));
+            ASRUtils::type_get_past_allocatable(ASRUtils::duplicate_type(al,
+            ASRUtils::type_get_past_pointer(x->m_type), &empty_dims))));
 
         ASR::expr_t* array_section_pointer = PassUtils::create_var(
             result_counter, "_array_section_pointer_", loc,
@@ -585,12 +591,12 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 bool allocate = false;
                 ASR::ttype_t* result_var_type = get_result_type(ASRUtils::expr_type(left),
                     left_dims, rank_left, loc, x->class_type, allocate);
-                ASR::storage_typeType result_storage = ASR::storage_typeType::Default;
                 if( allocate ) {
-                    result_storage = ASR::storage_typeType::Allocatable;
+                    result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc,
+                       ASRUtils::type_get_past_allocatable(result_var_type)));
                 }
                 result_var = PassUtils::create_var(result_counter, res_prefix, loc,
-                                result_var_type, al, current_scope, result_storage);
+                                result_var_type, al, current_scope);
                 result_counter += 1;
                 if( allocate ) {
                     allocate_result_var(left, left_dims, rank_left);
@@ -635,12 +641,12 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 bool allocate = false;
                 ASR::ttype_t* result_var_type = get_result_type(ASRUtils::expr_type(arr_expr),
                     arr_expr_dims, arr_expr_n_dims, loc, x->class_type, allocate);
-                ASR::storage_typeType result_storage = ASR::storage_typeType::Default;
                 if( allocate ) {
-                    result_storage = ASR::storage_typeType::Allocatable;
+                    result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc,
+                       ASRUtils::type_get_past_allocatable(result_var_type)));
                 }
                 result_var = PassUtils::create_var(result_counter, res_prefix, loc,
-                                result_var_type, al, current_scope, result_storage);
+                                result_var_type, al, current_scope);
                 result_counter += 1;
                 if( allocate ) {
                     allocate_result_var(arr_expr, arr_expr_dims, arr_expr_n_dims);
@@ -801,21 +807,22 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
                 ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                 ASR::expr_t* op_el_wise = nullptr;
+                ASR::ttype_t* x_m_type = ASRUtils::type_get_past_array(x->m_type);
                 if (unary_type == 0) {
                     op_el_wise = ASRUtils::EXPR(ASR::make_IntegerUnaryMinus_t(al, loc,
-                        ref, x->m_type, nullptr));
+                        ref, x_m_type, nullptr));
                 } else if (unary_type == 1) {
                     op_el_wise = ASRUtils::EXPR(ASR::make_RealUnaryMinus_t(al, loc,
-                        ref, x->m_type, nullptr));
+                        ref, x_m_type, nullptr));
                 } else if (unary_type == 2) {
                     op_el_wise = ASRUtils::EXPR(ASR::make_ComplexUnaryMinus_t(al, loc,
-                        ref, x->m_type, nullptr));
+                        ref, x_m_type, nullptr));
                 } else if (unary_type == 3) {
                     op_el_wise = ASRUtils::EXPR(ASR::make_IntegerBitNot_t(al, loc,
-                        ref, x->m_type, nullptr));
+                        ref, x_m_type, nullptr));
                 } else if (unary_type == 4) {
                     op_el_wise = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
-                        ref, x->m_type, nullptr));
+                        ref, x_m_type, nullptr));
                 }
                 ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res,
                                         op_el_wise, nullptr));
@@ -940,6 +947,11 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             result_var = PassUtils::create_var(result_counter, res_prefix,
                             loc, operand, al, current_scope);
             result_counter += 1;
+            operand = operands[0];
+            ASR::dimension_t* m_dims;
+            int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                ASRUtils::expr_type(operand), m_dims);
+            allocate_result_var(operand, m_dims, n_dims);
         }
         *current_expr = result_var;
         if( op_expr == &(x->base) ) {
@@ -1011,18 +1023,20 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             }
             bool is_allocatable = false;
             {
-                ASR::storage_typeType storage = ASR::storage_typeType::Default;
                 ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(fn_name);
                 // Assuming the `m_return_var` is appended to the `args`.
                 ASR::symbol_t *v_sym = ASR::down_cast<ASR::Var_t>(
                     fn->m_args[fn->n_args-1])->m_v;
                 if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(v_sym);
-                    storage = v->m_storage;
-                    is_allocatable = v->m_storage == ASR::storage_typeType::Allocatable;
+                    is_allocatable = ASR::is_a<ASR::Allocatable_t>(*v->m_type);
+                    if( is_allocatable ) {
+                        result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(
+                            al, loc, ASRUtils::type_get_past_allocatable(result_var_type)));
+                    }
                 }
                 ASR::expr_t* result_var_ = PassUtils::create_var(result_counter,
-                    "_func_call_res", loc, result_var_type, al, current_scope, storage);
+                    "_func_call_res", loc, result_var_type, al, current_scope);
                 result_counter += 1;
                 if( result_var == nullptr ) {
                     result_var = result_var_;
@@ -1060,7 +1074,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 ASR::dimension_t dim;
                 dim.loc = loc;
                 dim.m_start = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1,
-                    ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0))));
+                    ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4))));
                 dim.m_length = PassUtils::get_bound(*current_expr, 1, "ubound", al);
                 vec_dims.push_back(al, dim);
 
@@ -1076,8 +1090,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             std::vector<bool> array_mask(x->n_args, false);
             bool at_least_one_array = false;
             for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
-                array_mask[iarg] = ASRUtils::is_array(
-                    ASRUtils::expr_type(x->m_args[iarg].m_value));
+                array_mask[iarg] = (x->m_args[iarg].m_value != nullptr &&
+                    ASRUtils::is_array(ASRUtils::expr_type(x->m_args[iarg].m_value)));
                 at_least_one_array = at_least_one_array || array_mask[iarg];
             }
             if (!at_least_one_array) {

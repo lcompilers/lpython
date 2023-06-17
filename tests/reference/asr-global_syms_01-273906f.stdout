@@ -35,10 +35,10 @@
                                     [(=
                                         (Var 5 x)
                                         (ListConstant
-                                            [(IntegerConstant 1 (Integer 4 []))
-                                            (IntegerConstant 2 (Integer 4 []))]
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
                                             (List
-                                                (Integer 4 [])
+                                                (Integer 4)
                                             )
                                         )
                                         ()
@@ -47,8 +47,8 @@
                                         (Var 5 i)
                                         (ListItem
                                             (Var 5 x)
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                             ()
                                         )
                                         ()
@@ -74,7 +74,7 @@
                                     ()
                                     ()
                                     Default
-                                    (Integer 4 [])
+                                    (Integer 4)
                                     ()
                                     Source
                                     Public
@@ -110,8 +110,8 @@
                                         (IntegerCompare
                                             (Var 5 i)
                                             Eq
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -120,13 +120,13 @@
                                         (IntegerCompare
                                             (ListItem
                                                 (Var 5 x)
-                                                (IntegerConstant 1 (Integer 4 []))
-                                                (Integer 4 [])
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
                                                 ()
                                             )
                                             Eq
-                                            (IntegerConstant 2 (Integer 4 []))
-                                            (Logical 4 [])
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
                                             ()
                                         )
                                         ()
@@ -147,7 +147,7 @@
                                     ()
                                     Default
                                     (List
-                                        (Integer 4 [])
+                                        (Integer 4)
                                     )
                                     ()
                                     Source

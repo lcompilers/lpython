@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -53,7 +53,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -83,8 +83,8 @@
                                         (Var 2 x)
                                         (NamedExpr
                                             (Var 2 y)
-                                            (IntegerConstant 0 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
                                         )
                                         ()
                                     )
@@ -94,16 +94,16 @@
                                             (StringOrd
                                                 (StringConstant
                                                     "3"
-                                                    (Character 1 1 () [])
+                                                    (Character 1 1 ())
                                                 )
-                                                (Integer 4 [])
-                                                (IntegerConstant 51 (Integer 4 []))
+                                                (Integer 4)
+                                                (IntegerConstant 51 (Integer 4))
                                             )
-                                            (Integer 4 [])
+                                            (Integer 4)
                                         )
                                         [(=
                                             (Var 2 x)
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ()
                                         )]
                                         []
@@ -112,12 +112,12 @@
                                         ()
                                         (NamedExpr
                                             (Var 2 a)
-                                            (IntegerConstant 1 (Integer 4 []))
-                                            (Integer 4 [])
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
                                         )
                                         [(=
                                             (Var 2 y)
-                                            (IntegerConstant 1 (Integer 4 []))
+                                            (IntegerConstant 1 (Integer 4))
                                             ()
                                         )]
                                     )]

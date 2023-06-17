@@ -21,7 +21,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -37,7 +37,7 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Integer 4 [])
+                                                    (Integer 4)
                                                     ()
                                                     Source
                                                     Public
@@ -65,12 +65,12 @@
                                     []
                                     [(=
                                         (Var 2 a)
-                                        (IntegerConstant 4 (Integer 4 []))
+                                        (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
                                         (Var 2 b)
-                                        (IntegerConstant 20 (Integer 4 []))
+                                        (IntegerConstant 20 (Integer 4))
                                         ()
                                     )
                                     (ExplicitDeallocate
