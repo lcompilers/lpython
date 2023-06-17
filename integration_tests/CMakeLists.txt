@@ -516,6 +516,7 @@ RUN(NAME bindc_05   LABELS llvm c
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
 RUN(NAME bindpy_01           LABELS cpython c ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython c ENABLE_CPYTHON ENABLE_CNUMPY EXTRAFILES bindpy_02_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
