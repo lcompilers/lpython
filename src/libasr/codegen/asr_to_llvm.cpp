@@ -1626,8 +1626,13 @@ public:
         llvm::Value* const_tuple = builder->CreateAlloca(const_tuple_type, nullptr, "const_tuple");
         std::vector<llvm::Value*> init_values;
         int64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 2;
         for( size_t i = 0; i < x.n_elements; i++ ) {
+            if(!LLVM::is_llvm_struct(tuple_type->m_type[i])) {
+                ptr_loads = 2;
+            }
+            else {
+                ptr_loads = ptr_loads_copy;
+            }
             this->visit_expr(*x.m_elements[i]);
             init_values.push_back(tmp);
         }

@@ -12,7 +12,7 @@ def test_tuple_concat():
     l1: list[tuple[i32, f64]] = []
     start: i32
     i:i32
-    t9: tuple[tuple[i32, i32], tuple[f64, str, i32]]
+    t9: tuple[tuple[tuple[i32, i32], tuple[i32, f64]], tuple[f64, str, i32]]
 
     t1 = (1, 2)
     t2 = (3.0, "abc", -10)
@@ -36,7 +36,7 @@ def test_tuple_concat():
     assert t7 == t6 + l1[1]
     assert t8 == t7 + l1[2]
 
-    t9 = (t1,) + (t2,)
-    assert t9[0] == t1 and t9[1] == t2
+    t9 = ((t1, t5),) + (t2,)
+    assert t9[0][0] == t1 and t9[0][1] == t5 and t9[1] == t2
 
 test_tuple_concat()
