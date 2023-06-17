@@ -1632,7 +1632,8 @@ public:
             init_values.push_back(tmp);
         }
         ptr_loads = ptr_loads_copy;
-        tuple_api->tuple_init(const_tuple, init_values);
+        tuple_api->tuple_init(const_tuple, init_values, tuple_type,
+                              module.get(), name2memidx);
         tmp = const_tuple;
     }
 
@@ -2191,6 +2192,10 @@ public:
         ASR::Tuple_t* tuple_type_right = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_right));
         std::string type_code_right = ASRUtils::get_type_code(tuple_type_right->m_type,
                                                         tuple_type_right->n_type);
+        ASR::Tuple_t* tuple_type = new ASR::Tuple_t();
+        tuple_type->n_type = tuple_type_left->n_type + tuple_type_right->n_type;
+        tuple_type->m_type = new ASR::ttype_t*[tuple_type->n_type];
+
         std::string type_code = type_code_left + type_code_right;
         std::vector<llvm::Type*> llvm_el_types;
         ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
@@ -2203,6 +2208,7 @@ public:
                                     nullptr,
                                     m_storage, is_array_type, is_malloc_array_type,
                                     is_list, m_dims, n_dims, a_kind));
+            tuple_type->m_type[i] = tuple_type_left->m_type[i];
         }
         is_array_type = false; is_malloc_array_type = false;
         is_list = false;
@@ -2213,10 +2219,14 @@ public:
                                     nullptr,
                                     m_storage, is_array_type, is_malloc_array_type,
                                     is_list, m_dims, n_dims, a_kind));
+            tuple_type->m_type[tuple_type_left->n_type + i] = tuple_type_right->m_type[i];
         }
         llvm::Type* concat_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
         llvm::Value* concat_tuple = builder->CreateAlloca(concat_tuple_type, nullptr, "concat_tuple");
-        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple, *module);
+        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple,
+                          tuple_type, *module, name2memidx);
+        delete[] tuple_type->m_type;
+        delete tuple_type;
         tmp = concat_tuple;
     }
 

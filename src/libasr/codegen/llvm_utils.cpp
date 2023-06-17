@@ -3123,17 +3123,23 @@ namespace LCompilers {
         return read_item(llvm_tuple, llvm_pos, get_pointer);
     }
 
-    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple,
-                               std::vector<llvm::Value*>& values) {
+    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values,
+        ASR::Tuple_t* tuple_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         for( size_t i = 0; i < values.size(); i++ ) {
             llvm::Value* item_ptr = read_item(llvm_tuple, i, true);
-            builder->CreateStore(values[i], item_ptr);
+            // builder->CreateStore(values[i], item_ptr);
+            llvm_utils->deepcopy(values[i], item_ptr,
+                                 tuple_type->m_type[i], module,
+                                 name2memidx);
         }
     }
 
     void LLVMTuple::tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
         ASR::Tuple_t* tuple_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        std::cout << "src->getType "; std::cout.flush(); src->getType()->print(llvm::outs()); std::cout << std::endl;
+        std::cout << "dest->getType "; std::cout.flush(); dest->getType()->print(llvm::outs()); std::cout << std::endl;
         LCOMPILERS_ASSERT(src->getType() == dest->getType());
         for( size_t i = 0; i < tuple_type->n_type; i++ ) {
             llvm::Value* src_item = read_item(src, i, LLVM::is_llvm_struct(
@@ -3163,10 +3169,10 @@ namespace LCompilers {
         return is_equal;
     }
 
-    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2,
-                           ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
-                           llvm::Value* concat_tuple,
-                           llvm::Module& module) {
+    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
+                           ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
+                           ASR::Tuple_t* concat_tuple_type, llvm::Module& module,
+                           std::map<std::string, std::map<std::string, int>>& name2memidx) {
         std::vector<llvm::Value*> values;
         for( size_t i = 0; i < tuple_type_1->n_type; i++ ) {
             values.push_back(llvm_utils->tuple_api->read_item(t1, i, false));
@@ -3174,7 +3180,8 @@ namespace LCompilers {
         for( size_t i = 0; i < tuple_type_2->n_type; i++ ) {
             values.push_back(llvm_utils->tuple_api->read_item(t2, i, false));
         }
-        tuple_init(concat_tuple, values);
+        tuple_init(concat_tuple, values, concat_tuple_type,
+                   &module, name2memidx);
     }
 
 } // namespace LCompilers

@@ -303,7 +303,9 @@ namespace LCompilers {
             llvm::Type* get_tuple_type(std::string& type_code,
                                        std::vector<llvm::Type*>& el_types);
 
-            void tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values);
+            void tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values,
+                            ASR::Tuple_t* tuple_type, llvm::Module* module,
+                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* llvm_tuple, llvm::Value* pos,
                                    bool get_pointer=false);
@@ -319,10 +321,10 @@ namespace LCompilers {
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
 
-            void concat(llvm::Value* t1, llvm::Value* t2,
-                        ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
-                        llvm::Value* concat_tuple,
-                        llvm::Module& module);
+            void concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
+                        ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
+                        ASR::Tuple_t* concat_tuple_type, llvm::Module& module,
+                        std::map<std::string, std::map<std::string, int>>& name2memidx);
     };
 
     class LLVMDictInterface {
