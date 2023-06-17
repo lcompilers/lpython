@@ -2092,6 +2092,16 @@ public:
             if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
                 dest_type = ASRUtils::get_contained_type(dest_type);
             }
+        } else if (ASR::is_a<ASR::List_t>(*left_type) && ASRUtils::is_integer(*right_type)
+                   && op == ASR::binopType::Mul) {
+            dest_type = left_type;
+            tmp = ASR::make_ListRepeat_t(al, loc, left, right, dest_type, value);
+            return;
+        } else if (ASRUtils::is_integer(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
+                   && op == ASR::binopType::Mul) {
+            dest_type = right_type;
+            tmp = ASR::make_ListRepeat_t(al, loc, right, left, dest_type, value);
+            return;
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;

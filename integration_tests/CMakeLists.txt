@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(lpython_tests C)
 
@@ -37,7 +37,13 @@ set_property(TARGET lpython_rtlib PROPERTY INTERFACE_LINK_LIBRARIES
     ${LPYTHON_RTLIB_LIBRARY})
 target_link_libraries(lpython_rtlib INTERFACE m)
 
-find_package(Python COMPONENTS Development)
+find_package(Python COMPONENTS Interpreter Development)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}"
+  -c "import numpy; print(numpy.get_include())"
+  OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 message("\n")
 message("System has the Python development artifacts: ${Python_Development_FOUND}")
 message("The Python include directories: ${Python_INCLUDE_DIRS}")
@@ -45,6 +51,7 @@ message("The Python libraries: ${Python_LIBRARIES}")
 message("The Python library directories: ${Python_LIBRARY_DIRS}")
 message("The Python runtime library directories: ${Python_RUNTIME_LIBRARY_DIRS}")
 message("Python version: ${Python_VERSION}")
+message("Numpy Include Directory: ${NUMPY_INCLUDE_DIR}")
 
 enable_testing()
 
@@ -125,6 +132,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
             if (run_enable_cpython)
+                target_include_directories(${name} PRIVATE ${NUMPY_INCLUDE_DIR})
                 target_link_libraries(${name} Python::Python)
                 if (extra_files)
                     file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -235,7 +243,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
 endmacro(RUN_UTIL)
 
 macro(RUN)
-    set(options FAIL NOFAST ENABLE_CPYTHON)
+    set(options FAIL NOFAST ENABLE_CPYTHON ENABLE_CNUMPY)
     set(oneValueArgs NAME IMPORT_PATH)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -246,6 +254,10 @@ macro(RUN)
 
     if (RUN_ENABLE_CPYTHON)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
+    endif()
+
+    if (RUN_ENABLE_CNUMPY)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cnumpy)
     endif()
 
     RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
@@ -420,6 +432,7 @@ RUN(NAME test_list_11        LABELS cpython llvm c)
 RUN(NAME test_list_section   LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
+RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
@@ -504,6 +517,7 @@ RUN(NAME bindc_05   LABELS llvm c
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
 RUN(NAME bindpy_01           LABELS cpython c ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython c ENABLE_CPYTHON ENABLE_CNUMPY EXTRAFILES bindpy_02_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)

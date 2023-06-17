@@ -2647,7 +2647,7 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
-    void LLVMList::reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
+    void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
 
         /* Equivalent in C++:
          *
@@ -3090,6 +3090,77 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)), is_equal);
         llvm_utils->start_new_block(mergeBB);
         return LLVM::CreateLoad(*builder, is_equal);
+    }
+
+    void LLVMList::list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
+                                    llvm::Value* num_times, llvm::Value* init_list_len,
+                                    llvm::Module* module) {
+
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);       // i = 0
+        llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
+        llvm::Value* tmp = nullptr;
+        
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(num_times,
+                                                       LLVM::CreateLoad(*builder, i));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                        context, llvm::APInt(32, 0)), j);       // j = 0
+
+            llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
+            llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
+            llvm::BasicBlock *loop2end = llvm::BasicBlock::Create(context, "loop2.end");
+
+            // head
+            llvm_utils->start_new_block(loop2head);
+            {
+                llvm::Value *cond2 = builder->CreateICmpSGT(init_list_len,
+                                                            LLVM::CreateLoad(*builder, j));
+                builder->CreateCondBr(cond2, loop2body, loop2end);
+            }
+
+            // body
+            llvm_utils->start_new_block(loop2body);
+            {
+                tmp = builder->CreateMul(init_list_len, LLVM::CreateLoad(*builder, i));
+                tmp = builder->CreateAdd(tmp, LLVM::CreateLoad(*builder, j));
+                write_item(repeat_list, tmp,
+                           read_item(init_list, LLVM::CreateLoad(*builder, j),
+                                     false, *module, false),
+                           false, *module);
+                tmp = builder->CreateAdd(
+                            LLVM::CreateLoad(*builder, j),
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, j);
+            }
+            builder->CreateBr(loop2head);
+
+            // end
+            llvm_utils->start_new_block(loop2end);
+
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
     }
 
     LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,

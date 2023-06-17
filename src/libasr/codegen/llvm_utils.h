@@ -267,7 +267,7 @@ namespace LCompilers {
 
             void list_clear(llvm::Value* list);
 
-            void reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
+            void reverse(llvm::Value* list, llvm::Module& module);
 
             llvm::Value* find_item_position(llvm::Value* list,
                 llvm::Value* item, ASR::ttype_t* item_type,
@@ -283,6 +283,10 @@ namespace LCompilers {
 
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
+            
+            void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
+                                  llvm::Value* num_times, llvm::Value* init_list_len,
+                                  llvm::Module* module);
     };
 
     class LLVMTuple {
