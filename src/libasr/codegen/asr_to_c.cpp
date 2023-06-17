@@ -670,7 +670,8 @@ public:
         c_utils_functions->set_indentation(indentation_level, indentation_spaces);
         c_utils_functions->set_global_scope(global_scope);
         c_ds_api->set_c_utils_functions(c_utils_functions.get());
-
+        bind_py_utils_functions->set_indentation(indentation_level, indentation_spaces);
+        bind_py_utils_functions->set_global_scope(global_scope);
         std::string head =
 R"(
 #include <stdlib.h>
@@ -783,6 +784,9 @@ R"(
             }
         }
         std::string to_include = "";
+        for (auto &s: user_defines) {
+            to_include += "#define " + s + "\n";
+        }
         for (auto &s: headers) {
             to_include += "#include <" + s + ">\n";
         }
@@ -802,6 +806,12 @@ R"(
         std::string util_funcs_defined = "";
         if( c_utils_functions->get_generated_code().size() > 0 ) {
             util_funcs_defined =  "\n" + c_utils_functions->get_generated_code() + "\n";
+        }
+        if( bind_py_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + bind_py_utils_functions->get_util_func_decls() + "\n";
+        }
+        if( bind_py_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + bind_py_utils_functions->get_generated_code() + "\n";
         }
         if( is_string_concat_present ) {
             head += strcat_def;
@@ -914,11 +924,27 @@ R"(
 
         std::string body;
         if (compiler_options.enable_cpython) {
+            headers.insert("Python.h");
             body += R"(
     Py_Initialize();
     wchar_t* argv1 = Py_DecodeLocale("", NULL);
     wchar_t** argv_ = {&argv1};
     PySys_SetArgv(1, argv_);
+)";
+            body += "\n";
+        }
+
+        if (compiler_options.enable_cnumpy) {
+            user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
+            headers.insert("numpy/arrayobject.h");
+            body +=
+R"(    // Initialise Numpy
+    if (_import_array() < 0) {
+        PyErr_Print();
+        PyErr_SetString(PyExc_ImportError, "numpy.core.multiarray failed to import");
+        fprintf(stderr, "Failed to import numpy Python module(s)\n");
+        return -1;
+    }
 )";
             body += "\n";
         }
