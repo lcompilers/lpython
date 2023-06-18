@@ -2830,6 +2830,15 @@ public:
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
+            if (AST::is_a<AST::Expr_t>(*x.m_body[i])) {
+                AST::Expr_t* expr = AST::down_cast<AST::Expr_t>(x.m_body[i]);
+                if (AST::is_a<AST::ConstantStr_t>(*expr->m_value)) {
+                    // It is a doc string. Skip doc strings for now.
+                    continue;
+                } else {
+                    throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
+                }
+            }
             if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;

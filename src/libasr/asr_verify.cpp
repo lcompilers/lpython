@@ -613,14 +613,18 @@ public:
                 + std::string(x.m_name) + ")");
 
         ASR::asr_t* asr_owner = symtab->asr_owner;
-        bool is_module = false;
-        if( ASR::is_a<ASR::symbol_t>(*asr_owner) &&
-            ASR::is_a<ASR::Module_t>(
-                *ASR::down_cast<ASR::symbol_t>(asr_owner)) ) {
-            is_module = true;
+        bool is_module = false, is_struct = false;
+        if( ASR::is_a<ASR::symbol_t>(*asr_owner)) {
+            ASR::symbol_t* asr_owner_sym = ASR::down_cast<ASR::symbol_t>(asr_owner);
+            if (ASR::is_a<ASR::Module_t>(*asr_owner_sym)) {
+                is_module = true;
+            }
+            if (ASR::is_a<ASR::StructType_t>(*asr_owner_sym)) {
+                is_struct = true;
+            }
         }
         if( symtab->parent != nullptr &&
-            !is_module) {
+            !is_module && !is_struct) {
             // For now restrict this check only to variables which are present
             // inside symbols which have a body.
             require( (x.m_symbolic_value == nullptr && x.m_value == nullptr) ||
