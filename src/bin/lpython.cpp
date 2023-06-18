@@ -1250,7 +1250,7 @@ int link_executable(const std::vector<std::string> &infiles,
         cmd += " -L" + base_path
             + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
         if (compiler_options.enable_symengine) {
-            cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath, $CONDA_PREFIX/lib -lsymengine";
+            cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
         }
         if (compiler_options.enable_cpython) {
             std::string py_version = "3.10";
