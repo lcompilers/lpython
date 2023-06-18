@@ -445,7 +445,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, mfn->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)mfn,
@@ -461,7 +461,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, st->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)st,
@@ -475,11 +475,25 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, et->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)et,
             m->m_name, nullptr, 0, et->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(est);
+    } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
+        ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+            al, loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)ut,
+            m->m_name, nullptr, 0, ut->m_name,
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(est);
@@ -491,7 +505,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, mv->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)mv,
@@ -505,7 +519,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         name.from_str(al, new_sym_name);
         char *cname = name.c_str(al);
         ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, gt->base.base.loc,
+            al, loc,
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             (ASR::symbol_t*)gt,
@@ -2078,6 +2092,16 @@ public:
             if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
                 dest_type = ASRUtils::get_contained_type(dest_type);
             }
+        } else if (ASR::is_a<ASR::List_t>(*left_type) && ASRUtils::is_integer(*right_type)
+                   && op == ASR::binopType::Mul) {
+            dest_type = left_type;
+            tmp = ASR::make_ListRepeat_t(al, loc, left, right, dest_type, value);
+            return;
+        } else if (ASRUtils::is_integer(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
+                   && op == ASR::binopType::Mul) {
+            dest_type = right_type;
+            tmp = ASR::make_ListRepeat_t(al, loc, right, left, dest_type, value);
+            return;
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
@@ -2776,6 +2800,15 @@ public:
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
+            if (AST::is_a<AST::Expr_t>(*x.m_body[i])) {
+                AST::Expr_t* expr = AST::down_cast<AST::Expr_t>(x.m_body[i]);
+                if (AST::is_a<AST::ConstantStr_t>(*expr->m_value)) {
+                    // It is a doc string. Skip doc strings for now.
+                    continue;
+                } else {
+                    throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
+                }
+            }
             if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
@@ -4245,14 +4278,28 @@ public:
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        int i=-1;
         for (auto &remote_sym : mod_symbols) {
+            i++;
             if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
                 continue ;
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
-                                remote_sym, new_sym_name, x.base.base.loc, true);
-            current_scope->add_symbol(new_sym_name, t);
+                                remote_sym, new_sym_name, x.m_names[i].loc, true);
+            if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
+                ASR::symbol_t *old_sym = current_scope->get_scope().find(new_sym_name)->second;
+                diag.add(diag::Diagnostic(
+                    "The symbol '" + new_sym_name + "' imported from " + std::string(m->m_name) +" will shadow the existing symbol '" + new_sym_name + "'",
+                    diag::Level::Warning, diag::Stage::Semantic, {
+                        diag::Label("old symbol", {old_sym->base.loc}),
+                        diag::Label("new symbol", {t->base.loc}),
+                    })
+                );
+                current_scope->overwrite_symbol(new_sym_name, t);
+            } else {
+                current_scope->add_symbol(new_sym_name, t);
+            }
         }
 
         tmp = nullptr;
@@ -4763,8 +4810,15 @@ public:
             }
             ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
             if (v->m_intent == ASR::intentType::In) {
-                throw SemanticError("Assignment to an input function parameter `"
-                    + std::string(v->m_name) + "` is not allowed", x->base.loc);
+                diag.add(diag::Diagnostic(
+                    "Assignment to an input function parameter `"
+                    + std::string(v->m_name) + "` is not allowed",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("Use InOut[" + std::string(v->m_name) + "] to allow assignment",
+                                {x->base.loc})
+                    })
+                );
+                throw SemanticAbort();
             }
             return true;
         } else if (AST::is_a<AST::Subscript_t>(*x)) {

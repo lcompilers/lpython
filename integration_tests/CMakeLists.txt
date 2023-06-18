@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 
 project(lpython_tests C)
 
@@ -37,7 +37,13 @@ set_property(TARGET lpython_rtlib PROPERTY INTERFACE_LINK_LIBRARIES
     ${LPYTHON_RTLIB_LIBRARY})
 target_link_libraries(lpython_rtlib INTERFACE m)
 
-find_package(Python COMPONENTS Development)
+find_package(Python COMPONENTS Interpreter Development)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}"
+  -c "import numpy; print(numpy.get_include())"
+  OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 message("\n")
 message("System has the Python development artifacts: ${Python_Development_FOUND}")
 message("The Python include directories: ${Python_INCLUDE_DIRS}")
@@ -45,6 +51,7 @@ message("The Python libraries: ${Python_LIBRARIES}")
 message("The Python library directories: ${Python_LIBRARY_DIRS}")
 message("The Python runtime library directories: ${Python_RUNTIME_LIBRARY_DIRS}")
 message("Python version: ${Python_VERSION}")
+message("Numpy Include Directory: ${NUMPY_INCLUDE_DIR}")
 
 enable_testing()
 
@@ -66,11 +73,10 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
-    set(import_path ${${RUN_IMPORT_PATH}})
     set(labels ${${RUN_LABELS}})
     set(run_enable_cpython ${${RUN_ENABLE_CPYTHON}})
     set(extra_files ${${RUN_EXTRAFILES}})
@@ -82,19 +88,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
 
     if (${KIND} IN_LIST labels)
         if (KIND STREQUAL "llvm")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            endif()
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
             add_executable(${name} ${name}.o ${extra_files})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
@@ -106,29 +104,34 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${extra_args} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
             add_executable(${name} ${name}.c ${extra_files})
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
-            if (run_enable_cpython)
-                target_link_libraries(${name} Python::Python)
-                if (extra_files)
-                    file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-                endif()
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif(KIND STREQUAL "c_py")
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.c ${extra_files})
+            target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${NUMPY_INCLUDE_DIR})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib Python::Python)
+            if (extra_files)
+                file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
             endif()
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (labels)
@@ -137,7 +140,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-        elseif(KIND STREQUAL "cpython")
+        elseif((KIND STREQUAL "cpython") OR (KIND STREQUAL "cpython_py"))
             # CPython test
             if (extra_files)
                 set(PY_MOD "${name}_mod")
@@ -235,7 +238,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
 endmacro(RUN_UTIL)
 
 macro(RUN)
-    set(options FAIL NOFAST ENABLE_CPYTHON)
+    set(options FAIL NOFAST ENABLE_CPYTHON LINK_NUMPY)
     set(oneValueArgs NAME IMPORT_PATH)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -244,17 +247,28 @@ macro(RUN)
     set(RUN_EXTRA_ARGS "")
     set(RUN_FILE_NAME ${RUN_NAME})
 
+    if (RUN_LINK_NUMPY)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --link-numpy)
+        set(RUN_ENABLE_CPYTHON TRUE)
+    endif()
+
     if (RUN_ENABLE_CPYTHON)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
     endif()
 
-    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    if (RUN_IMPORT_PATH)
+        # Only one import path supported for now
+        # Later add support for multiple import paths by looping over and appending to extra args
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
+    endif()
+
+    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
 
     if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
-        list(REMOVE_ITEM RUN_LABELS cpython) # remove cpython from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        list(REMOVE_ITEM RUN_LABELS cpython cpython_py) # remove cpython, cpython_py from --fast test
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
 
@@ -268,43 +282,31 @@ macro(COMPILE)
     cmake_parse_arguments(COMPILE "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
     set(name ${COMPILE_NAME})
-    set(import_path ${COMPILE_IMPORT_PATH})
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
     endif()
 
+    set(extra_args "")
+    if (COMPILE_IMPORT_PATH)
+        # Only one import path supported for now
+        # Later add support for multiple import paths by looping over and appending to extra args
+        set(extra_args ${extra_args} -I${CMAKE_CURRENT_SOURCE_DIR}/${COMPILE_IMPORT_PATH})
+    endif()
+
     if (${KIND} IN_LIST COMPILE_LABELS)
         if (KIND STREQUAL "llvm")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} ${extra_args} --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
             add_library(${name} OBJECT ${name}.o)
         elseif(KIND STREQUAL "c")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
             add_library(${name} OBJECT ${name}.c)
             target_link_libraries(${name} lpython_rtlib)
         elseif(KIND STREQUAL "cpython")
@@ -420,6 +422,7 @@ RUN(NAME test_list_11        LABELS cpython llvm c)
 RUN(NAME test_list_section   LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
+RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
@@ -502,7 +505,8 @@ RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
-RUN(NAME bindpy_01           LABELS cpython c ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
+RUN(NAME bindpy_01           LABELS cpython_py c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython_py c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
@@ -546,6 +550,7 @@ RUN(NAME structs_22          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_23          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_24          LABELS cpython llvm c)
 RUN(NAME structs_25          LABELS cpython llvm c)
+RUN(NAME structs_26          LABELS cpython llvm c)
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME sizeof_02           LABELS cpython llvm c)
@@ -559,8 +564,10 @@ RUN(NAME enum_06             LABELS cpython llvm c)
 RUN(NAME enum_07             IMPORT_PATH ..
                              LABELS cpython llvm c)
 RUN(NAME union_01            LABELS cpython llvm c)
-RUN(NAME union_02            LABELS llvm c)
+RUN(NAME union_02            LABELS cpython llvm c)
 RUN(NAME union_03            LABELS cpython llvm c)
+RUN(NAME union_04            IMPORT_PATH ..
+                             LABELS cpython llvm c)
 RUN(NAME test_str_to_int     LABELS cpython llvm c)
 RUN(NAME test_platform       LABELS cpython llvm c)
 RUN(NAME test_vars_01        LABELS cpython llvm)

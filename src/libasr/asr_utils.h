@@ -3363,8 +3363,9 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
     // BindC interfaces already pass array by data pointer so we don't need to track
     // them and use extra variables for their dimensional information. Only those functions
     // need to be tracked which by default pass arrays by using descriptors.
-    if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
-        ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
+    if ((ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
+         || ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindPython)
+        && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
         return false;
     }
 

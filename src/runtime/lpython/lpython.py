@@ -4,12 +4,13 @@ import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
 
+
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
-        "Allocatable"]
+        "Allocatable", "In", "Out", "InOut", "dataclass"]
 
 # data-types
 
@@ -89,9 +90,18 @@ CPtr = Type("c_ptr")
 Const = ConstType("Const")
 Callable = Type("Callable")
 Allocatable = Type("Allocatable")
-Union = ctypes.Union
 Pointer = PointerType("Pointer")
 
+
+class Union:
+    def __init__(self):
+        pass
+
+    def __setattr__(self, name: str, value):
+        self.__dict__[name] = value
+
+    def __getattr__(self, name: str):
+        return self.__dict__[name]
 
 class Intent:
     def __init__(self, type):
@@ -381,7 +391,6 @@ def convert_to_ctypes_Union(f):
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
         fields.append((name, convert_type_to_ctype(ltype_)))
-
     f._fields_ = fields
     f.__annotations__ = {}
 
@@ -467,12 +476,16 @@ def pythoncall(*args, **kwargs):
 
 def union(f):
     fields = []
+    fa = {}
     for name in f.__annotations__:
         ltype_ = f.__annotations__[name]
-        fields.append((name, convert_type_to_ctype(ltype_)))
+        ltype_ = convert_type_to_ctype(ltype_)
+        fa[name] = ltype_
+
+        fields.append((name, ltype_))
 
     f._fields_ = fields
-    f.__annotations__ = {}
+    f.__annotations__ = fa
     return f
 
 def pointer(x, type_=None):
