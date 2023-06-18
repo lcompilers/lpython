@@ -112,7 +112,7 @@ public:
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
     bool is_c;
-    std::set<std::string> headers, user_headers;
+    std::set<std::string> headers, user_headers, user_defines;
     std::vector<std::string> tmp_buffer_src;
 
     SymbolTable* global_scope;
@@ -123,6 +123,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
+    std::unique_ptr<CUtils::BindPyUtilFunctions> bind_py_utils_functions;
     std::string const_name;
     size_t const_vars_count;
     size_t loop_end_count;
@@ -149,6 +150,7 @@ public:
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
+        bind_py_utils_functions{std::make_unique<CUtils::BindPyUtilFunctions>()},
         const_name{"constname"},
         const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
@@ -506,15 +508,23 @@ R"(#include <stdio.h>
     }
 
     std::string get_arg_conv_bind_python(const ASR::Function_t &x) {
-
         std::string arg_conv = R"(
     pArgs = PyTuple_New()" + std::to_string(x.n_args) + R"();
 )";
         for (size_t i = 0; i < x.n_args; ++i) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
+            std::string arg_name = std::string(arg->m_name);
+            std::string indent = "\n    ";
+            if (ASRUtils::is_array(arg->m_type)) {
+                arg_conv += indent + bind_py_utils_functions->get_conv_dims_to_1D_arr() + "(" + arg_name + "->n_dims, " + arg_name + "->dims, __new_dims);";
+                std::string func_call = CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type);
+                arg_conv += indent + "pValue = " + func_call + "(" + arg_name + "->n_dims, __new_dims, "
+                    + CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arg->m_type) + ", " + arg_name + "->data);";
+            } else {
+                arg_conv += indent + "pValue = " + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type)
+                    + "(" + arg_name + ");";
+            }
             arg_conv += R"(
-    pValue = )" + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type) + "("
-    + std::string(arg->m_name) + R"();
     if (!pValue) {
         Py_DECREF(pArgs);
         Py_DECREF(pModule);
@@ -536,15 +546,17 @@ R"(#include <stdio.h>
         std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
         std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
         std::string ret_stmt = indent + "return " + std::string(r_v->m_name) + ";";
-        std::string clear_pValue = "";
-        if (!ASRUtils::is_aggregate_type(r_v->m_type)) {
-            clear_pValue = indent + "Py_DECREF(pValue);";
+        std::string clear_pValue = indent + "Py_DECREF(pValue);";
+        std::string copy_result = "";
+        if (ASRUtils::is_aggregate_type(r_v->m_type)) {
+            if (ASRUtils::is_character(*r_v->m_type)) {
+                copy_result = indent + std::string(r_v->m_name) + " = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
+            }
         }
-        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
+        return ret_var_decl + ret_assign + copy_result + clear_pValue + ret_stmt + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {
-        user_headers.insert("Python.h");
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string var_decls = "PyObject *pName, *pModule, *pFunc; PyObject *pArgs, *pValue;\n";
         std::string func_body = R"(

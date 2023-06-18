@@ -1254,7 +1254,10 @@ int link_executable(const std::vector<std::string> &infiles,
         }
         if (compiler_options.enable_cpython) {
             std::string py_version = "3.10";
-            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath, $CONDA_PREFIX/lib -lpython)" + py_version + R"()";
+            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
+            if (compiler_options.link_numpy) {
+                py_flags += R"( -I$CONDA_PREFIX/lib/python)" + py_version + R"(/site-packages/numpy/core/include)";
+            }
             cmd += " " + py_flags;
         }
         int err = system(cmd.c_str());
@@ -1569,6 +1572,7 @@ int main(int argc, char *argv[])
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
+        app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
@@ -1614,6 +1618,10 @@ int main(int argc, char *argv[])
         } else {
         // Debug Mode
             compiler_options.enable_bounds_checking = true;
+        }
+
+        if (compiler_options.link_numpy) {
+            compiler_options.enable_cpython = true;
         }
 
         if (arg_version) {

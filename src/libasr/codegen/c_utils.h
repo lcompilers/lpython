@@ -234,6 +234,68 @@ namespace CUtils {
             }
     };
 
+    class BindPyUtilFunctions {
+
+        private:
+
+            SymbolTable* global_scope;
+            std::map<std::string, std::string> util2func;
+
+            int indentation_level, indentation_spaces;
+
+        public:
+
+            std::string util_func_decls;
+            std::string util_funcs;
+
+            BindPyUtilFunctions() {
+                util2func.clear();
+                util_func_decls.clear();
+                util_funcs.clear();
+            }
+
+            void set_indentation(int indendation_level_, int indendation_space_) {
+                indentation_level = indendation_level_;
+                indentation_spaces = indendation_space_;
+            }
+
+            void set_global_scope(SymbolTable* global_scope_) {
+                global_scope = global_scope_;
+            }
+
+            std::string get_generated_code() {
+                return util_funcs;
+            }
+
+            std::string get_util_func_decls() {
+                return util_func_decls;
+            }
+
+            void conv_dims_to_1D_arr() {
+                if( util2func.find("conv_dims_to_1D_arr") != util2func.end() ) {
+                    return;
+                }
+                util_func_decls += "long __new_dims[32];\n";
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                util2func["conv_dims_to_1D_arr"] = global_scope->get_unique_name("conv_dims_to_1D_arr");
+                std::string conv_dims_to_1D_arr_func = util2func["conv_dims_to_1D_arr"];
+                std::string signature = "static inline void " + conv_dims_to_1D_arr_func + "(int n_dims, struct dimension_descriptor *dims, long* new_dims)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "for (int i = 0; i < n_dims; i++) {\n";
+                body += indent + tab + tab + "new_dims[i] = dims[i].length;\n";
+                body += indent + tab + "}\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_conv_dims_to_1D_arr() {
+                conv_dims_to_1D_arr();
+                return util2func["conv_dims_to_1D_arr"];
+            }
+    };
+
     static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
         std::string result = "tuple_";
         for (size_t i = 0; i < tup->n_type; i++) {
@@ -336,6 +398,44 @@ namespace CUtils {
         return type_src;
     }
 
+    static inline std::string get_numpy_c_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        t = ASRUtils::type_get_past_array(t);
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                type_src = "NPY_INT" + std::to_string(kind * 8);
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                type_src = "NPY_UINT" + std::to_string(kind * 8);
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_src = "NPY_BOOL";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch (kind)
+                {
+                    case 4: type_src = "NPY_FLOAT"; break;
+                    case 8: type_src = "NPY_DOUBLE"; break;
+                    default:
+                        throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Unsupported kind in real type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "NPY_STRING";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
     static inline std::string get_py_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
         int kind = ASRUtils::extract_kind_from_ttype_t(t);
         std::string type_src = "";
@@ -370,6 +470,10 @@ namespace CUtils {
             }
             case ASR::ttypeType::Character: {
                 type_src = "PyUnicode_FromString";
+                break;
+            }
+            case ASR::ttypeType::Array: {
+                type_src = "PyArray_SimpleNewFromData";
                 break;
             }
             default: {
