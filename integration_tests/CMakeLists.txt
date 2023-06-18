@@ -73,11 +73,10 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
-    set(import_path ${${RUN_IMPORT_PATH}})
     set(labels ${${RUN_LABELS}})
     set(run_enable_cpython ${${RUN_ENABLE_CPYTHON}})
     set(extra_files ${${RUN_EXTRAFILES}})
@@ -89,19 +88,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
 
     if (${KIND} IN_LIST labels)
         if (KIND STREQUAL "llvm")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            endif()
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
             add_executable(${name} ${name}.o ${extra_files})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
@@ -113,20 +104,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${extra_args} -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
             add_executable(${name} ${name}.c ${extra_files})
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
@@ -261,13 +243,19 @@ macro(RUN)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
     endif()
 
-    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    if (RUN_IMPORT_PATH)
+        # Only one import path supported for now
+        # Later add support for multiple import paths by looping over and appending to extra args
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
+    endif()
+
+    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
 
     if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython) # remove cpython from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
 
@@ -281,43 +269,31 @@ macro(COMPILE)
     cmake_parse_arguments(COMPILE "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
     set(name ${COMPILE_NAME})
-    set(import_path ${COMPILE_IMPORT_PATH})
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
     endif()
 
+    set(extra_args "")
+    if (COMPILE_IMPORT_PATH)
+        # Only one import path supported for now
+        # Later add support for multiple import paths by looping over and appending to extra args
+        set(extra_args ${extra_args} -I${CMAKE_CURRENT_SOURCE_DIR}/${COMPILE_IMPORT_PATH})
+    endif()
+
     if (${KIND} IN_LIST COMPILE_LABELS)
         if (KIND STREQUAL "llvm")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} --disable-main -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND ${LPYTHON} --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} ${extra_args} --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
             add_library(${name} OBJECT ${name}.o)
         elseif(KIND STREQUAL "c")
-            if (import_path)
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} --disable-main -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            else ()
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-            endif()
-
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --disable-main --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
             add_library(${name} OBJECT ${name}.c)
             target_link_libraries(${name} lpython_rtlib)
         elseif(KIND STREQUAL "cpython")
