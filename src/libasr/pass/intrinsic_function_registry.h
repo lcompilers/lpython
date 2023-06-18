@@ -63,11 +63,11 @@ enum class IntrinsicFunctions : int64_t {
     ListIndex,
     Partition,
     ListReverse,
-    SymbolicSymbol,
     ListPop,
+    SymbolicSymbol,
     SymbolicAdd,
-    Sum,
     SymbolicPi,
+    Sum,
     // ...
 };
 
@@ -2191,10 +2191,10 @@ namespace IntrinsicFunctionRegistry {
             "list.index"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
             "list.reverse"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
-            "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             "list.pop"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+            "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
             "SymbolicAdd"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
@@ -2227,8 +2227,8 @@ namespace IntrinsicFunctionRegistry {
                 {"sum", {&Sum::create_Sum, &Sum::eval_Sum}},
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
-                {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
+                {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
     };
@@ -2336,8 +2336,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
-        INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(ListPop)
+        INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(SymbolicAdd)
         INTRINSIC_NAME_CASE(SymbolicPi)
         INTRINSIC_NAME_CASE(Sum)
