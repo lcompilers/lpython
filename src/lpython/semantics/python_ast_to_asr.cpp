@@ -4810,8 +4810,15 @@ public:
             }
             ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
             if (v->m_intent == ASR::intentType::In) {
-                throw SemanticError("Assignment to an input function parameter `"
-                    + std::string(v->m_name) + "` is not allowed", x->base.loc);
+                diag.add(diag::Diagnostic(
+                    "Assignment to an input function parameter `"
+                    + std::string(v->m_name) + "` is not allowed",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("Use InOut[" + std::string(v->m_name) + "] to allow assignment",
+                                {x->base.loc})
+                    })
+                );
+                throw SemanticAbort();
             }
             return true;
         } else if (AST::is_a<AST::Subscript_t>(*x)) {
