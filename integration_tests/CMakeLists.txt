@@ -140,13 +140,12 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-        elseif(KIND STREQUAL "sympy")
+        elseif(KIND STREQUAL "c_sym")
             add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND ${LPYTHON} ${extra_args} --show-c
-                        ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
+                OUTPUT ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
             add_executable(${name} ${name}.c ${extra_files})
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR}
                 "${Python_INCLUDE_DIRS}/..")
@@ -164,7 +163,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-        elseif((KIND STREQUAL "cpython") OR (KIND STREQUAL "cpython_py"))
+        elseif((KIND STREQUAL "cpython") OR (KIND STREQUAL "cpython_py") OR (KIND STREQUAL "cpython_sym"))
             # CPython test
             if (extra_files)
                 set(PY_MOD "${name}_mod")
@@ -292,7 +291,7 @@ macro(RUN)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython sympy cpython_py) # remove cpython, sympy, cpython_py from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
 
@@ -575,7 +574,7 @@ RUN(NAME structs_23          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_24          LABELS cpython llvm c)
 RUN(NAME structs_25          LABELS cpython llvm c)
 RUN(NAME structs_26          LABELS cpython llvm c)
-RUN(NAME symbolics_01        LABELS cpython sympy)
+RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME sizeof_02           LABELS cpython llvm c)
