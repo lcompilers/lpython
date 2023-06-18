@@ -1254,7 +1254,7 @@ int link_executable(const std::vector<std::string> &infiles,
         }
         if (compiler_options.enable_cpython) {
             std::string py_version = "3.10";
-            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath, $CONDA_PREFIX/lib -lpython)" + py_version + R"()";
+            std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
             if (compiler_options.link_numpy) {
                 py_flags += R"( -I$CONDA_PREFIX/lib/python)" + py_version + R"(/site-packages/numpy/core/include)";
             }
