@@ -2,4 +2,4 @@ semantic error: Assignment to an input function parameter `x` is not allowed
  --> tests/errors/test_assign9.py:2:5
   |
 2 |     x = 2
-  |     ^ 
+  |     ^ Use InOut[x] to allow assignment
