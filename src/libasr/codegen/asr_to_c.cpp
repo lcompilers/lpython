@@ -934,7 +934,7 @@ R"(
             body += "\n";
         }
 
-        if (compiler_options.enable_cnumpy) {
+        if (compiler_options.link_numpy) {
             user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
             headers.insert("numpy/arrayobject.h");
             body +=

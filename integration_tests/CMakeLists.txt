@@ -243,7 +243,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_EN
 endmacro(RUN_UTIL)
 
 macro(RUN)
-    set(options FAIL NOFAST ENABLE_CPYTHON ENABLE_CNUMPY)
+    set(options FAIL NOFAST ENABLE_CPYTHON LINK_NUMPY)
     set(oneValueArgs NAME IMPORT_PATH)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -252,12 +252,13 @@ macro(RUN)
     set(RUN_EXTRA_ARGS "")
     set(RUN_FILE_NAME ${RUN_NAME})
 
-    if (RUN_ENABLE_CPYTHON)
-        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
+    if (RUN_LINK_NUMPY)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --link-numpy)
+        set(RUN_ENABLE_CPYTHON TRUE)
     endif()
 
-    if (RUN_ENABLE_CNUMPY)
-        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cnumpy)
+    if (RUN_ENABLE_CPYTHON)
+        set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --enable-cpython)
     endif()
 
     RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_IMPORT_PATH RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
@@ -516,7 +517,7 @@ RUN(NAME bindc_05   LABELS llvm c
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
 RUN(NAME bindpy_01           LABELS cpython c ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
-RUN(NAME bindpy_02           LABELS cpython c ENABLE_CPYTHON ENABLE_CNUMPY EXTRAFILES bindpy_02_module.py)
+RUN(NAME bindpy_02           LABELS cpython c LINK_NUMPY EXTRAFILES bindpy_02_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
