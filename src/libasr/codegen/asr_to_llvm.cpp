@@ -1985,7 +1985,8 @@ public:
         tmp = list_api->count(plist, item, asr_el_type, *module);
     }
 
-    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele,
+            ASR::expr_t* m_start=nullptr, ASR::expr_t* m_end=nullptr) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1994,9 +1995,23 @@ public:
 
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         this->visit_expr_wrapper(m_ele, true);
-        ptr_loads = ptr_loads_copy;
         llvm::Value *item = tmp;
-        tmp = list_api->index(plist, item, asr_el_type, *module);
+
+        llvm::Value* start = nullptr;
+        llvm::Value* end = nullptr;
+        if(m_start) {
+            ptr_loads = 2;
+            this->visit_expr_wrapper(m_start, true);
+            start = tmp;
+        }
+        if(m_end) {
+            ptr_loads = 2;
+            this->visit_expr_wrapper(m_end, true);
+            end = tmp;
+        }
+
+        ptr_loads = ptr_loads_copy;
+        tmp = list_api->index(plist, item, start, end, asr_el_type, *module);
     }
 
     void generate_Exp(ASR::expr_t* m_arg) {
@@ -2060,18 +2075,29 @@ public:
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
+                ASR::expr_t* m_arg = x.m_args[0];
+                ASR::expr_t* m_ele = x.m_args[1];
+                ASR::expr_t* m_start = nullptr;
+                ASR::expr_t* m_end = nullptr;
                 switch (x.m_overload_id) {
                     case 0: {
-                        ASR::expr_t* m_arg = x.m_args[0];
-                        ASR::expr_t* m_ele = x.m_args[1];
-                        generate_ListIndex(m_arg, m_ele);
+                        break ;
+                    }
+                    case 1: {
+                        m_start = x.m_args[2];
+                        break ;
+                    }
+                    case 2: {
+                        m_start = x.m_args[2];
+                        m_end = x.m_args[3];
                         break ;
                     }
                     default: {
-                        throw CodeGenError("list.index only accepts one argument",
+                        throw CodeGenError("list.index accepts at most four arguments",
                                             x.base.base.loc);
                     }
                 }
+                generate_ListIndex(m_arg, m_ele, m_start, m_end);
                 break ;
             }
             case ASRUtils::IntrinsicFunctions::ListReverse: {
