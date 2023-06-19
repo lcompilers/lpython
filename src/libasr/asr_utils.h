@@ -398,6 +398,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             return tp->m_param;
         }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "symbolic expression";
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
@@ -1151,6 +1154,9 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             return "Const[" + get_type_code(p->m_type, use_underscore_sep,
                                             encode_dimensions_, set_dimensional_hint) + "]";
         }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
+        }
         default: {
             throw LCompilersException("Type encoding not implemented for "
                                       + std::to_string(t->type));
@@ -1285,6 +1291,9 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
+        }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1648,6 +1657,7 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Const_t>(x)->m_type, m_dims);
             break;
         }
+        case ASR::ttypeType::SymbolicExpression:
         case ASR::ttypeType::Integer:
         case ASR::ttypeType::UnsignedInteger:
         case ASR::ttypeType::Real:
@@ -2277,6 +2287,9 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
                 return (a2->m_kind == b2->m_kind);
             }
             case ASR::ttypeType::CPtr: {
+                return true;
+            }
+            case ASR::ttypeType::SymbolicExpression: {
                 return true;
             }
             case (ASR::ttypeType::Real) : {

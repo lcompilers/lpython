@@ -383,6 +383,7 @@ ttype
     | Allocatable(ttype type)
     | Const(ttype type)
     | CPtr()
+    | SymbolicExpression()
     | TypeParameter(identifier param)
     | Array(ttype type, dimension* dims)
     | FunctionType(ttype* arg_types, ttype? return_var_type,

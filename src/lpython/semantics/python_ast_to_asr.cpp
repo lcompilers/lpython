@@ -305,14 +305,19 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &lpython, bool& enum_py, bool& copy,
+                            bool &lpython, bool& enum_py, bool& copy, bool& sympy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
     lpython = false;
     enum_py = false;
     copy = false;
+    sympy = false;
     if( module_name == "copy" ) {
         copy = true;
+        return nullptr;
+    }
+    if (module_name == "sympy") {
+        sympy = true;
         return nullptr;
     }
     LCOMPILERS_ASSERT(symtab);
@@ -596,6 +601,8 @@ public:
     std::vector<ASR::symbol_t*> rt_vec;
     SetChar dependencies;
     bool allow_implicit_casting;
+    // Stores the name of imported functions and the modules they are imported from
+    std::map<std::string, std::string> imported_functions;
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -628,10 +635,10 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool lpython, enum_py, copy;
+        bool lpython, enum_py, copy, sympy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                lpython, enum_py, copy,
+                lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
         LCOMPILERS_ASSERT(!lpython && !enum_py)
@@ -1080,6 +1087,9 @@ public:
                         }
                     }
                 }
+            } else if (var_annotation == "S") {
+                type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+                return type;
             }
             if( raise_error ) {
                 throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
@@ -2221,6 +2231,26 @@ public:
                                         tuple_type_vec.p, tuple_type_vec.n));
             tmp = ASR::make_TupleConcat_t(al, loc, left, right, tuple_type, value);
             return;
+        } else if (ASR::is_a<ASR::SymbolicExpression_t>(*left_type)
+                   && ASR::is_a<ASR::SymbolicExpression_t>(*right_type)) {
+            switch (op) {
+                case ASR::binopType::Add: {
+                    Vec<ASR::expr_t*> args_with_symbolic;
+                    args_with_symbolic.reserve(al, 2);
+                    args_with_symbolic.push_back(al, left);
+                    args_with_symbolic.push_back(al, right);
+                    ASRUtils::create_intrinsic_function create_function =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
+                    tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
+                        throw SemanticError(msg, loc);
+                    });
+                    return;
+                }
+                default: {
+                    throw SemanticError("Not implemented: The following symbolic binary operator has not been implemented", loc);
+                    break;
+                }
+            }
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -3112,6 +3142,8 @@ public:
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
+        std::set<std::string> not_cpython_builtin = {
+            "pi"};
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
@@ -3135,6 +3167,14 @@ public:
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LCOMPILERS_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(name) &&
+                   (not_cpython_builtin.find(name) == not_cpython_builtin.end() ||
+                   imported_functions.find(name) != imported_functions.end() )) {
+                    ASRUtils::create_intrinsic_function create_func =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function(name);
+                    Vec<ASR::expr_t*> args_;
+                    tmp = create_func(al, x.base.base.loc, args_, [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
@@ -4257,13 +4297,13 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -4332,13 +4372,13 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -4483,9 +4523,6 @@ private:
 public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
-    // Stores the name of imported functions and the modules they are imported from
-    std::map<std::string, std::string> imported_functions;
-
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
@@ -7153,7 +7190,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol",
                 "sum" // For sum called over lists
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
