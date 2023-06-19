@@ -7024,6 +7024,40 @@ public:
         tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
     }
 
+    ASR::symbol_t* get_struct_member(ASR::symbol_t* struct_type_sym, std::string &call_name, const Location &loc) {
+        ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(struct_type_sym);
+        std::string struct_var_name = struct_type->m_name;
+        std::string struct_member_name = call_name;
+        ASR::symbol_t* struct_member = struct_type->m_symtab->resolve_symbol(struct_member_name);
+        ASR::symbol_t* struct_mem_asr_owner = ASRUtils::get_asr_owner(struct_member);
+        if( !struct_member || !struct_mem_asr_owner ||
+            !ASR::is_a<ASR::StructType_t>(*struct_mem_asr_owner) ) {
+            throw SemanticError(struct_member_name + " not present in " +
+                                struct_var_name + " dataclass", loc);
+        }
+        std::string import_name = struct_var_name + "_" + struct_member_name;
+        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
+        bool import_from_struct = true;
+        if( import_struct_member ) {
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
+                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
+                if( ext_sym->m_external == struct_member &&
+                    std::string(ext_sym->m_module_name) == struct_var_name ) {
+                    import_from_struct = false;
+                }
+            }
+        }
+        if( import_from_struct ) {
+            import_name = current_scope->get_unique_name(import_name);
+            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
+                                        loc, current_scope, s2c(al, import_name),
+                                        struct_member, s2c(al, struct_var_name), nullptr, 0,
+                                        s2c(al, struct_member_name), ASR::accessType::Public));
+            current_scope->add_symbol(import_name, import_struct_member);
+        }
+        return import_struct_member;
+    }
+
     void parse_args(const AST::Call_t &x, Vec<ASR::call_arg_t> &args) {
         // Keyword arguments handled in make_call_helper()
         if( x.n_keywords == 0 ) {
@@ -7058,10 +7092,25 @@ public:
                 if (current_scope->resolve_symbol(call_name_store) != nullptr) {
                     st = current_scope->get_symbol(call_name_store);
                 } else {
-                    SymbolTable *symtab = current_scope;
-                    while (symtab->parent != nullptr) symtab = symtab->parent;
-                    if (symtab->resolve_symbol(mod_name) == nullptr) {
-                        if (current_scope->resolve_symbol(mod_name) != nullptr) {
+                    st = current_scope->resolve_symbol(mod_name);
+                    if (!st) {
+                        throw SemanticError("NameError: '" + mod_name + "' is not defined", n->base.base.loc);
+                    }
+                    if( ASR::is_a<ASR::Module_t>(*st) ) {
+                        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(st);
+                        call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
+                        st = import_from_module(al, m, current_scope, mod_name,
+                                            call_name, call_name_store, x.base.base.loc);
+                        current_scope->add_symbol(call_name_store, st);
+                    } else if( ASR::is_a<ASR::StructType_t>(*st) ) {
+                        st = get_struct_member(st, call_name, x.base.base.loc);
+                    } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
+                        ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
+                        if (ASR::is_a<ASR::Struct_t>(*var->m_type)) {
+                            // call to struct member function
+                            ASR::Struct_t* var_struct = ASR::down_cast<ASR::Struct_t>(var->m_type);
+                            st = get_struct_member(var_struct->m_derived_type, call_name, x.base.base.loc);
+                        } else {
                             // this case when we have variable and attribute
                             st = current_scope->resolve_symbol(mod_name);
                             Vec<ASR::expr_t*> eles;
@@ -7078,47 +7127,6 @@ public:
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
                             return;
                         }
-                        throw SemanticError("module '" + mod_name + "' is not imported",
-                            x.base.base.loc);
-                    }
-                    ASR::symbol_t *mt = symtab->get_symbol(mod_name);
-                    if( ASR::is_a<ASR::Module_t>(*mt) ) {
-                        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
-                        call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
-                        st = import_from_module(al, m, current_scope, mod_name,
-                                            call_name, call_name_store, x.base.base.loc);
-                        current_scope->add_symbol(call_name_store, st);
-                    } else if( ASR::is_a<ASR::StructType_t>(*mt) ) {
-                        ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(mt);
-                        std::string struct_var_name = struct_type->m_name;
-                        std::string struct_member_name = call_name;
-                        ASR::symbol_t* struct_member = struct_type->m_symtab->resolve_symbol(struct_member_name);
-                        if( !struct_member ) {
-                            throw SemanticError(struct_member_name + " not present in " +
-                                                struct_var_name + " dataclass.",
-                                                 x.base.base.loc);
-                        }
-                        std::string import_name = struct_var_name + "_" + struct_member_name;
-                        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
-                        bool import_from_struct = true;
-                        if( import_struct_member ) {
-                            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
-                                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
-                                if( ext_sym->m_external == struct_member &&
-                                    std::string(ext_sym->m_module_name) == struct_var_name ) {
-                                    import_from_struct = false;
-                                }
-                            }
-                        }
-                        if( import_from_struct ) {
-                            import_name = current_scope->get_unique_name(import_name);
-                            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
-                                                                    x.base.base.loc, current_scope, s2c(al, import_name),
-                                                                    struct_member, s2c(al, struct_var_name), nullptr, 0,
-                                                                    s2c(al, struct_member_name), ASR::accessType::Public));
-                            current_scope->add_symbol(import_name, import_struct_member);
-                        }
-                        st = import_struct_member;
                     }
                 }
                 tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
