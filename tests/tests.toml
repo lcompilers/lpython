@@ -660,7 +660,7 @@ filename = "errors/structs_04.py"
 asr = true
 
 [[test]]
-filename = "errors/structs_05.py"
+filename = "structs_01.py"
 asr = true
 
 [[test]]
@@ -669,6 +669,10 @@ asr = true
 
 [[test]]
 filename = "errors/structs_07.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_08.py"
 asr = true
 
 [[test]]
