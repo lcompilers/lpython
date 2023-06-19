@@ -143,7 +143,8 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN
         elseif(KIND STREQUAL "c_sym")
             add_custom_command(
                 OUTPUT ${name}.c
-                COMMAND ${LPYTHON} ${extra_args} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
+                COMMAND ${LPYTHON} ${extra_args} --show-c
+                    ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py > ${name}.c
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
                 VERBATIM)
             add_executable(${name} ${name}.c ${extra_files})
@@ -151,11 +152,11 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN
                 "${Python_INCLUDE_DIRS}/..")
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             if (APPLE)
-                set(SYMPY_LIB "${Python_LIBRARY_DIRS}/libsymengine.dylib")
+                set(SYMENGINE_LIB "${Python_LIBRARY_DIRS}/libsymengine.dylib")
             else()
-                set(SYMPY_LIB "${Python_LIBRARY_DIRS}/libsymengine.so")
+                set(SYMENGINE_LIB "${Python_LIBRARY_DIRS}/libsymengine.so")
             endif()
-            target_link_libraries(${name} lpython_rtlib ${SYMPY_LIB})
+            target_link_libraries(${name} lpython_rtlib ${SYMENGINE_LIB})
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")

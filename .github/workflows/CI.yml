@@ -372,11 +372,6 @@ jobs:
 
             cmake --build . -j16 --target install
 
-      - name: Debug failure
-        shell: bash -l {0}
-        run: |
-            ls /home/runner/micromamba/envs/lp/lib
-
       - name: Test
         shell: bash -l {0}
         run: |
