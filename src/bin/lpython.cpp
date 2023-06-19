@@ -1835,6 +1835,7 @@ int main(int argc, char *argv[])
                 std::string emit_file_name = basename + "__tmp__generated__.c";
                 err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir,
                                         lpython_pass_manager, compiler_options);
+                if (err != 0) return err;
                 err = link_executable({emit_file_name}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options, rtlib_header_dir);
             } else if (backend == Backend::llvm) {

@@ -575,7 +575,10 @@ RUN(NAME structs_23          LABELS cpython llvm c NOFAST)
 RUN(NAME structs_24          LABELS cpython llvm c)
 RUN(NAME structs_25          LABELS cpython llvm c)
 RUN(NAME structs_26          LABELS cpython llvm c)
+RUN(NAME structs_27          LABELS cpython llvm c)
+
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
+
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME sizeof_02           LABELS cpython llvm c)

@@ -1296,8 +1296,8 @@ public:
                                          args, StructType, loc);
             }
 
-            if (args.size() > 0 && args.size() !=  StructType->n_members) {
-                throw SemanticError("StructConstructor arguments do not match the number of struct members", loc);
+            if (args.size() > 0 && args.size() >  StructType->n_members) {
+                throw SemanticError("StructConstructor arguments are greater the number of struct members", loc);
             }
 
             for( size_t i = 0; i < args.size(); i++ ) {
@@ -1321,6 +1321,15 @@ public:
                     throw SemanticAbort();
                 }
                 args.p[i].m_value = arg_new_i;
+            }
+            for (size_t i=args.size(); i<StructType->n_members; i++) {
+                std::string member_name = StructType->m_members[i];
+                ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
+                                                StructType->m_symtab->resolve_symbol(member_name));
+                ASR::call_arg_t arg;
+                arg.loc = loc;
+                arg.m_value = member_var->m_value;
+                args.push_back(al, arg);
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, stemp));
             return ASR::make_StructTypeConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
