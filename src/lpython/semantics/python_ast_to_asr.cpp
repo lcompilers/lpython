@@ -3610,7 +3610,7 @@ public:
                 throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
         } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
-                  !ASR::is_a<ASR::Dict_t>(*type)) {
+                    ASRUtils::is_array(type)) {
             bool final_result = true;
             AST::Tuple_t* indices = AST::down_cast<AST::Tuple_t>(m_slice);
             for( size_t i = 0; i < indices->n_elts; i++ ) {
