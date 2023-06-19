@@ -2081,8 +2081,9 @@ namespace SymbolicAdd {
 
 namespace SymbolicPi {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& /*x*/, diag::Diagnostics& /*diagnostics*/) {
-        return;
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 0, "SymbolicPi does not take arguments",
+            x.base.base.loc, diagnostics);
     }
 
     static inline ASR::expr_t *eval_SymbolicPi(Allocator &/*al*/,
