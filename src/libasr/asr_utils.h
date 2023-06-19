@@ -1657,11 +1657,7 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Const_t>(x)->m_type, m_dims);
             break;
         }
-        case ASR::ttypeType::SymbolicExpression: {
-            n_dims = 0;
-            m_dims = nullptr;
-            break;
-        }
+        case ASR::ttypeType::SymbolicExpression:
         case ASR::ttypeType::Integer:
         case ASR::ttypeType::UnsignedInteger:
         case ASR::ttypeType::Real:
