@@ -288,8 +288,7 @@ jobs:
             ctest
             ./run_tests.py -s
             cd integration_tests
-            ./run_tests.py -b llvm
-            ./run_tests.py -b c
+            ./run_tests.py -b llvm c
 
   cpython_interop:
     name: Test CPython Interop (@pythoncall)
@@ -332,7 +331,7 @@ jobs:
         shell: bash -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b cpython_py c_py
+            ./run_tests.py -b cpython c_py
 
   sympy:
     name: Run SymPy tests
