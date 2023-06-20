@@ -306,11 +306,7 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                std::string d = self().convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
-                    d += ";\n";
-                }
+                std::string d = self().convert_variable_decl(*v) + ";\n";
                 decl += check_tmp_buffer() + d;
             }
         }
@@ -354,11 +350,7 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = block->m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                std::string d = indent + self().convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
-                    d += ";\n";
-                }
+                std::string d = indent + self().convert_variable_decl(*v) + ";\n";
                 decl += check_tmp_buffer() + d;
             }
         }
@@ -435,6 +427,8 @@ R"(#include <stdio.h>
                         sub = "double complex ";
                     }
                 }
+            } else if (ASR::is_a<ASR::SymbolicExpression_t>(*return_var->m_type)) {
+                sub = "basic ";
             } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
                 sub = "void* ";
             } else if (ASR::is_a<ASR::List_t>(*return_var->m_type)) {
@@ -671,10 +665,10 @@ R"(#include <stdio.h>
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                     if (v->m_intent == ASRUtils::intent_local ||
                         v->m_intent == ASRUtils::intent_return_var) {
-                        std::string d = indent + self().convert_variable_decl(*v);
-                        if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                            v->m_intent == ASRUtils::intent_return_var ) {
-                            d += ";\n";
+                        std::string d = indent + self().convert_variable_decl(*v) + ";\n";
+                        if (ASR::is_a<ASR::SymbolicExpression_t>(*v->m_type)) {
+                            std::string v_m_name = v->m_name;
+                            d += indent + "basic_new_stack(" + v_m_name + ");\n";
                         }
                         decl += check_tmp_buffer() + d;
                     }
@@ -1026,7 +1020,12 @@ R"(#include <stdio.h>
                         src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
                     }
                 } else {
-                    src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                    if (m_target_type->type == ASR::ttypeType::SymbolicExpression){
+                        ASR::expr_t* m_value_expr = x.m_value;
+                        src += alloc + indent + c_ds_api->get_deepcopy_symbolic(m_value_expr, value, target) + "\n";
+                    } else {
+                        src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                    }
                 }
             } else {
                 src += indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
@@ -2367,7 +2366,6 @@ R"(#include <stdio.h>
         }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t &x) {
-        LCOMPILERS_ASSERT(x.n_args == 1)
         std::string out;
         switch (x.m_intrinsic_id) {
             SET_INTRINSIC_NAME(Sin, "sin");
@@ -2383,6 +2381,18 @@ R"(#include <stdio.h>
             SET_INTRINSIC_NAME(Exp, "exp");
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
+            SET_INTRINSIC_NAME(SymbolicSymbol, "Symbol");
+            SET_INTRINSIC_NAME(SymbolicPi, "pi");
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)): {
+                LCOMPILERS_ASSERT(x.n_args == 2);
+                this->visit_expr(*x.m_args[0]);
+                std::string arg1 = src;
+                this->visit_expr(*x.m_args[1]);
+                std::string arg2 = src;
+                out = arg1 + "," + arg2;
+                src = out;
+                break;
+            }
             default : {
                 throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
@@ -2390,9 +2400,15 @@ R"(#include <stdio.h>
             }
         }
         headers.insert("math.h");
-        this->visit_expr(*x.m_args[0]);
-        out += "(" + src + ")";
-        src = out;
+        if (x.n_args == 0){
+            src = out;
+        } else if (x.n_args == 1) {
+            this->visit_expr(*x.m_args[0]);
+            if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
+                out += "(" + src + ")";
+                src = out;
+            }
+        }
     }
 };
 

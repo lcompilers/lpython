@@ -1244,12 +1244,18 @@ int link_executable(const std::vector<std::string> &infiles,
             cmd += s + " ";
         }
         cmd += " -I " + rtlib_header_dir;
+        if (compiler_options.enable_symengine) {
+            cmd += " -I${CONDA_PREFIX}/include";
+        }
         cmd += " -L" + base_path
             + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+        if (compiler_options.enable_symengine) {
+            cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
+        }
         if (compiler_options.enable_cpython) {
             std::string py_version = "3.10";
             std::string py_flags = R"(-I $CONDA_PREFIX/include/python)" + py_version + R"( -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lpython)" + py_version + R"()";
-            if (compiler_options.enable_cnumpy) {
+            if (compiler_options.link_numpy) {
                 py_flags += R"( -I$CONDA_PREFIX/lib/python)" + py_version + R"(/site-packages/numpy/core/include)";
             }
             cmd += " " + py_flags;
@@ -1565,7 +1571,8 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
-        app.add_flag("--enable-cnumpy", compiler_options.enable_cnumpy, "Enable C-Numpy runtime");
+        app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
+        app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
@@ -1611,6 +1618,10 @@ int main(int argc, char *argv[])
         } else {
         // Debug Mode
             compiler_options.enable_bounds_checking = true;
+        }
+
+        if (compiler_options.link_numpy) {
+            compiler_options.enable_cpython = true;
         }
 
         if (arg_version) {
@@ -1824,6 +1835,7 @@ int main(int argc, char *argv[])
                 std::string emit_file_name = basename + "__tmp__generated__.c";
                 err = emit_c_to_file(arg_file, emit_file_name, runtime_library_dir,
                                         lpython_pass_manager, compiler_options);
+                if (err != 0) return err;
                 err = link_executable({emit_file_name}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options, rtlib_header_dir);
             } else if (backend == Backend::llvm) {

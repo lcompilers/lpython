@@ -59,7 +59,8 @@ struct CompilerOptions {
     bool verbose = false;
     bool pass_cumulative = false;
     bool enable_cpython = false;
-    bool enable_cnumpy = false;
+    bool enable_symengine = false;
+    bool link_numpy = false;
     std::vector<std::string> import_paths;
     Platform platform;
 

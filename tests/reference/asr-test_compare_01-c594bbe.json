@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_compare_01-c594bbe",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_compare_01.py",
+    "infile_hash": "8608b530e3b0ed2d0bff0ce0e137537fff92259ffded965d5f03d5dc",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_compare_01-c594bbe.stderr",
+    "stderr_hash": "65fb5b04ca1f56cae946ed2db3cde1380d0d9976114c340acfbbcf7b",
+    "returncode": 2
+}

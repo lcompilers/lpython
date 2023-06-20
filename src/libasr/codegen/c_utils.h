@@ -3,6 +3,7 @@
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 namespace LCompilers {
 
@@ -631,6 +632,39 @@ class CCPPDSUtils {
             return result;
         }
 
+        std::string get_deepcopy_symbolic(ASR::expr_t *value_expr, std::string value, std::string target) {
+            std::string result;
+            if (ASR::is_a<ASR::Var_t>(*value_expr)) {
+                result = "basic_assign(" + target + ", " + value + ");";
+            } else if (ASR::is_a<ASR::IntrinsicFunction_t>(*value_expr)) {
+                ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(value_expr);
+                int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
+                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
+                        result = "symbol_set(" + target + ", " + value + ");";
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
+                        size_t delimiterPos = value.find(",");
+                        std::string leftPart = value.substr(0, delimiterPos);
+                        std::string rightPart = value.substr(delimiterPos + 1);
+                        result = "basic_add(" + target + ", " + leftPart + ", " + rightPart + ");";
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                        result = "basic_const_pi(" + target + ");";
+                        break;
+                    }
+                    default: {
+                        throw LCompilersException("IntrinsicFunction: `"
+                            + LCompilers::ASRUtils::get_intrinsic_name(intrinsic_id)
+                            + "` is not implemented");
+                    }
+                }
+            }
+            return result;
+        }
+
         std::string get_type(ASR::ttype_t *t) {
             LCOMPILERS_ASSERT(CUtils::is_non_primitive_DT(t));
             if (ASR::is_a<ASR::List_t>(*t)) {
@@ -697,6 +731,9 @@ class CCPPDSUtils {
                 }
                 case ASR::ttypeType::Complex: {
                     return "(%f, %f)";
+                }
+                case ASR::ttypeType::SymbolicExpression: {
+                    return "%s";
                 }
                 case ASR::ttypeType::Pointer: {
                     if( !deref_ptr ) {

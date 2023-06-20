@@ -6,11 +6,6 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
 double _lcompilers_abs_f64(double x)
 {

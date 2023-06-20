@@ -305,14 +305,19 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &lpython, bool& enum_py, bool& copy,
+                            bool &lpython, bool& enum_py, bool& copy, bool& sympy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
     lpython = false;
     enum_py = false;
     copy = false;
+    sympy = false;
     if( module_name == "copy" ) {
         copy = true;
+        return nullptr;
+    }
+    if (module_name == "sympy") {
+        sympy = true;
         return nullptr;
     }
     LCOMPILERS_ASSERT(symtab);
@@ -596,6 +601,8 @@ public:
     std::vector<ASR::symbol_t*> rt_vec;
     SetChar dependencies;
     bool allow_implicit_casting;
+    // Stores the name of imported functions and the modules they are imported from
+    std::map<std::string, std::string> imported_functions;
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -628,10 +635,10 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool lpython, enum_py, copy;
+        bool lpython, enum_py, copy, sympy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                lpython, enum_py, copy,
+                lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
         LCOMPILERS_ASSERT(!lpython && !enum_py)
@@ -1080,6 +1087,9 @@ public:
                         }
                     }
                 }
+            } else if (var_annotation == "S") {
+                type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+                return type;
             }
             if( raise_error ) {
                 throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
@@ -1286,8 +1296,8 @@ public:
                                          args, StructType, loc);
             }
 
-            if (args.size() > 0 && args.size() !=  StructType->n_members) {
-                throw SemanticError("StructConstructor arguments do not match the number of struct members", loc);
+            if (args.size() > 0 && args.size() >  StructType->n_members) {
+                throw SemanticError("StructConstructor arguments are greater the number of struct members", loc);
             }
 
             for( size_t i = 0; i < args.size(); i++ ) {
@@ -1311,6 +1321,15 @@ public:
                     throw SemanticAbort();
                 }
                 args.p[i].m_value = arg_new_i;
+            }
+            for (size_t i=args.size(); i<StructType->n_members; i++) {
+                std::string member_name = StructType->m_members[i];
+                ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
+                                                StructType->m_symtab->resolve_symbol(member_name));
+                ASR::call_arg_t arg;
+                arg.loc = loc;
+                arg.m_value = member_var->m_value;
+                args.push_back(al, arg);
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, stemp));
             return ASR::make_StructTypeConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
@@ -2212,6 +2231,26 @@ public:
                                         tuple_type_vec.p, tuple_type_vec.n));
             tmp = ASR::make_TupleConcat_t(al, loc, left, right, tuple_type, value);
             return;
+        } else if (ASR::is_a<ASR::SymbolicExpression_t>(*left_type)
+                   && ASR::is_a<ASR::SymbolicExpression_t>(*right_type)) {
+            switch (op) {
+                case ASR::binopType::Add: {
+                    Vec<ASR::expr_t*> args_with_symbolic;
+                    args_with_symbolic.reserve(al, 2);
+                    args_with_symbolic.push_back(al, left);
+                    args_with_symbolic.push_back(al, right);
+                    ASRUtils::create_intrinsic_function create_function =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
+                    tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
+                        throw SemanticError(msg, loc);
+                    });
+                    return;
+                }
+                default: {
+                    throw SemanticError("Not implemented: The following symbolic binary operator has not been implemented", loc);
+                    break;
+                }
+            }
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -2800,6 +2839,15 @@ public:
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
+            if (AST::is_a<AST::Expr_t>(*x.m_body[i])) {
+                AST::Expr_t* expr = AST::down_cast<AST::Expr_t>(x.m_body[i]);
+                if (AST::is_a<AST::ConstantStr_t>(*expr->m_value)) {
+                    // It is a doc string. Skip doc strings for now.
+                    continue;
+                } else {
+                    throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
+                }
+            }
             if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
@@ -3094,6 +3142,8 @@ public:
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
+        std::set<std::string> not_cpython_builtin = {
+            "pi"};
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
@@ -3117,6 +3167,14 @@ public:
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LCOMPILERS_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(name) &&
+                   (not_cpython_builtin.find(name) == not_cpython_builtin.end() ||
+                   imported_functions.find(name) != imported_functions.end() )) {
+                    ASRUtils::create_intrinsic_function create_func =
+                        ASRUtils::IntrinsicFunctionRegistry::get_create_function(name);
+                    Vec<ASR::expr_t*> args_;
+                    tmp = create_func(al, x.base.base.loc, args_, [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
@@ -4239,13 +4297,13 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -4314,13 +4372,13 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool lpython, enum_py, copy;
+            bool lpython, enum_py, copy, sympy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (lpython || enum_py || copy) {
+            if (lpython || enum_py || copy || sympy) {
                 // TODO: For now we skip lpython import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -4465,9 +4523,6 @@ private:
 public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
-    // Stores the name of imported functions and the modules they are imported from
-    std::map<std::string, std::string> imported_functions;
-
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
@@ -4801,8 +4856,15 @@ public:
             }
             ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
             if (v->m_intent == ASR::intentType::In) {
-                throw SemanticError("Assignment to an input function parameter `"
-                    + std::string(v->m_name) + "` is not allowed", x->base.loc);
+                diag.add(diag::Diagnostic(
+                    "Assignment to an input function parameter `"
+                    + std::string(v->m_name) + "` is not allowed",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("Use InOut[" + std::string(v->m_name) + "] to allow assignment",
+                                {x->base.loc})
+                    })
+                );
+                throw SemanticAbort();
             }
             return true;
         } else if (AST::is_a<AST::Subscript_t>(*x)) {
@@ -5906,22 +5968,6 @@ public:
             right_type = ASRUtils::get_contained_type(right_type);
         }
         ASR::expr_t *overloaded = nullptr;
-        if (((left_type->type != ASR::ttypeType::Real &&
-            left_type->type != ASR::ttypeType::Integer) &&
-            (right_type->type != ASR::ttypeType::Real &&
-            right_type->type != ASR::ttypeType::Integer) &&
-            ((left_type->type != ASR::ttypeType::Complex ||
-            right_type->type != ASR::ttypeType::Complex) &&
-            x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
-            (left_type->type != ASR::ttypeType::Character ||
-            right_type->type != ASR::ttypeType::Character)) &&
-            (left_type->type != ASR::ttypeType::Logical ||
-            right_type->type != ASR::ttypeType::Logical)) {
-        throw SemanticError(
-            "Compare: only Integer, Real, Logical, or String can be on the LHS and RHS."
-            "If operator is Eq or NotEq then Complex type is also acceptable",
-            x.base.base.loc);
-        }
 
         if (!ASRUtils::is_logical(*left_type) || !ASRUtils::is_logical(*right_type)) {
             cast_helper(left, right, false);
@@ -7128,7 +7174,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol",
                 "sum" // For sum called over lists
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&

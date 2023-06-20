@@ -39,8 +39,7 @@ public:
     ASRToCVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, co.platform, co, false, false, true, default_lower_bound),
-           array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                         "{\n    int32_t lower_bound, length;\n};\n")),
+           array_types_decls(std::string("")),
            c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
            counter{0} {
            }
@@ -486,6 +485,11 @@ public:
                     dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
+            } else if (ASR::is_a<ASR::SymbolicExpression_t>(*v_m_type)) {
+                headers.insert("symengine/cwrapper.h");
+                std::string type_name = "basic";
+                std::string v_m_name = v.m_name;
+                sub = format_type_c("", type_name, v_m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v_m_type)) {
                 bool is_fixed_size = true;
                 dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
@@ -609,17 +613,10 @@ public:
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
                 sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
             } else if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
-                if( v.m_intent == ASRUtils::intent_local ) {
-                    LCOMPILERS_ASSERT(v.m_symbolic_value);
-                    visit_expr(*v.m_symbolic_value);
-                    sub = "#define " + std::string(v.m_name) + " " + src + "\n";
-                    return sub;
-                } else {
-                    std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
-                        ASR::down_cast<ASR::Const_t>(v_m_type)->m_type);
-                    sub = format_type_c("", "const " + const_underlying_type + " ",
-                                        v.m_name, false, false);
-                }
+                std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
+                    ASRUtils::type_get_past_const(v_m_type));
+                sub = format_type_c("", "const " + const_underlying_type,
+                                    v.m_name, false, false);
             } else if (ASR::is_a<ASR::TypeParameter_t>(*v_m_type)) {
                 // Ignore type variables
                 return "";
@@ -697,8 +694,7 @@ R"(
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 unit_src_tmp = convert_variable_decl(*v);
                 unit_src += unit_src_tmp;
-                if(unit_src_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var )) {
+                if(unit_src_tmp.size() > 0) {
                     unit_src += ";\n";
                 }
             }
@@ -816,6 +812,13 @@ R"(
         if( is_string_concat_present ) {
             head += strcat_def;
         }
+
+        // Include dimension_descriptor definition that is used by array types
+        if (array_types_decls.size() != 0) {
+            array_types_decls.insert(0, "struct dimension_descriptor\n"
+                "{\n    int32_t lower_bound, length;\n};\n");
+        }
+
         src = to_include + head + array_types_decls + unit_src +
               ds_funcs_defined + util_funcs_defined;
         if (!emit_headers.empty()) {
@@ -847,9 +850,7 @@ R"(
                     item.second);
                 unit_src_tmp = convert_variable_decl(*v);
                 unit_src += unit_src_tmp;
-                if(unit_src_tmp.size() > 0 &&
-                        (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                        v->m_intent == ASRUtils::intent_return_var )) {
+                if(unit_src_tmp.size() > 0) {
                     unit_src += ";\n";
                 }
             }
@@ -915,8 +916,7 @@ R"(
                 decl += indent1;
                 decl_tmp = convert_variable_decl(*v);
                 decl += decl_tmp;
-                if(decl_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var )) {
+                if(decl_tmp.size() > 0) {
                     decl += ";\n";
                 }
             }
@@ -934,7 +934,7 @@ R"(
             body += "\n";
         }
 
-        if (compiler_options.enable_cnumpy) {
+        if (compiler_options.link_numpy) {
             user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
             headers.insert("numpy/arrayobject.h");
             body +=
@@ -1002,10 +1002,7 @@ R"(    // Initialise Numpy
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
                         &c_decl_options_);
-            if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
-                ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
-                body += ";\n";
-            }
+            body += ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
@@ -1261,6 +1258,9 @@ R"(    // Initialise Numpy
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
+            } else if(value_type->type == ASR::ttypeType::SymbolicExpression){
+                v.pop_back();
+                v.push_back("basic_str(" + src + ")");
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";
