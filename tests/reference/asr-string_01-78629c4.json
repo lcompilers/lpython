@@ -1,0 +1,13 @@
+{
+    "basename": "asr-string_01-78629c4",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/string_01.py",
+    "infile_hash": "92496679f4475e3351686f6556f0e68411437beed22a447f9a65bfdf",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-string_01-78629c4.stderr",
+    "stderr_hash": "75e4a7ee6e09c7fa5b22705531b37c4cecc5e1294a7180b11613c9fc",
+    "returncode": 2
+}
