@@ -37,21 +37,23 @@ set_property(TARGET lpython_rtlib PROPERTY INTERFACE_LINK_LIBRARIES
     ${LPYTHON_RTLIB_LIBRARY})
 target_link_libraries(lpython_rtlib INTERFACE m)
 
-find_package(Python COMPONENTS Interpreter Development)
-execute_process(
-  COMMAND "${Python_EXECUTABLE}"
-  -c "import numpy; print(numpy.get_include())"
-  OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-message("\n")
-message("System has the Python development artifacts: ${Python_Development_FOUND}")
-message("The Python include directories: ${Python_INCLUDE_DIRS}")
-message("The Python libraries: ${Python_LIBRARIES}")
-message("The Python library directories: ${Python_LIBRARY_DIRS}")
-message("The Python runtime library directories: ${Python_RUNTIME_LIBRARY_DIRS}")
-message("Python version: ${Python_VERSION}")
-message("Numpy Include Directory: ${NUMPY_INCLUDE_DIR}")
+if (PYTHON_LIBS_REQ)
+    find_package(Python COMPONENTS Interpreter Development)
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}"
+        -c "import numpy; print(numpy.get_include())"
+        OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    message("\n")
+    message("System has the Python development artifacts: ${Python_Development_FOUND}")
+    message("The Python include directories: ${Python_INCLUDE_DIRS}")
+    message("The Python libraries: ${Python_LIBRARIES}")
+    message("The Python library directories: ${Python_LIBRARY_DIRS}")
+    message("The Python runtime library directories: ${Python_RUNTIME_LIBRARY_DIRS}")
+    message("Python version: ${Python_VERSION}")
+    message("Numpy Include Directory: ${NUMPY_INCLUDE_DIR}")
+endif()
 
 enable_testing()
 
@@ -68,17 +70,17 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("KIND: ${KIND}")
 message("DISABLE_FAST: ${DISABLE_FAST}")
+message("PYTHON_LIBS_REQ: ${PYTHON_LIBS_REQ}")
 message("LPYTHON: ${LPYTHON}")
 message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
     set(labels ${${RUN_LABELS}})
-    set(run_enable_cpython ${${RUN_ENABLE_CPYTHON}})
     set(extra_files ${${RUN_EXTRAFILES}})
     set(extra_args ${${RUN_EXTRA_ARGS}})
 
@@ -273,7 +275,6 @@ macro(RUN)
 
     if (RUN_LINK_NUMPY)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --link-numpy)
-        set(RUN_ENABLE_CPYTHON TRUE)
     endif()
 
     if (RUN_ENABLE_CPYTHON)
@@ -286,13 +287,13 @@ macro(RUN)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
     endif()
 
-    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
 
     if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
 
