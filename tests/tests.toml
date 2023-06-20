@@ -684,6 +684,14 @@ filename = "errors/const_02.py"
 asr = true
 
 [[test]]
+filename = "errors/test_compare_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_compare_02.py"
+asr = true
+
+[[test]]
 filename = "parser/type_comment1.py"
 ast_new = true
 
