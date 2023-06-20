@@ -115,7 +115,7 @@ jobs:
 
   build_to_wasm:
     name: Build LPython to WASM
-    runs-on: "ubuntu-latest"
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -130,6 +130,7 @@ jobs:
 
       - uses: hendrikmuhs/ccache-action@main
         with:
+          variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name : Remove existing node
@@ -149,11 +150,8 @@ jobs:
             cd emsdk
 
             ./emsdk install 3.1.35
-
             ./emsdk activate 3.1.35
-
             ./emsdk install node-14.18.2-64bit
-
             ./emsdk activate node-14.18.2-64bit
 
       - name: Show Emscripten and Node Info
@@ -173,7 +171,20 @@ jobs:
             set -ex
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
             ./build0.sh
-            ./build_to_wasm.sh
+            emcmake cmake . -GNinja \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DCMAKE_CXX_FLAGS_DEBUG="-Wall -Wextra -fexceptions" \
+              -DWITH_LLVM=no \
+              -DLPYTHON_BUILD_TO_WASM=yes \
+              -DLFORTRAN_BUILD_ALL=yes \
+              -DWITH_STACKTRACE=no \
+              -DWITH_RUNTIME_STACKTRACE=no \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+
+            cmake --build . -j16 --target install
 
       - name: Test built lpython.wasm
         shell: bash -l {0}
@@ -196,26 +207,30 @@ jobs:
         with:
           environment-file: ci/environment.yml
           create-args: >-
+            python=3.10
             bison=3.4
 
       - uses: hendrikmuhs/ccache-action@main
         with:
+          variant: sccache
           key: ${{ github.job }}-${{ matrix.os }}
-
-      - name: Setup Platform (Linux)
-        shell: bash -l {0}
-        run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
-            echo "WIN=0" >> $GITHUB_ENV
-            echo "MACOS=0" >> $GITHUB_ENV
-            echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
-            echo "CMAKE_C_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
-            echo "CMAKE_CXX_COMPILER_LAUNCHER=ccache" >> $GITHUB_ENV
 
       - name: Build Linux
         shell: bash -l {0}
         run: |
-            xonsh ci/build.xsh
+            ./build0.sh
+            cmake . -GNinja \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DWITH_LLVM=yes \
+              -DLFORTRAN_BUILD_ALL=yes \
+              -DWITH_STACKTRACE=no \
+              -DWITH_RUNTIME_STACKTRACE=yes \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
+              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+
+            cmake --build . -j16 --target install
 
       - name: PIP show version
         shell: bash -l {0}
