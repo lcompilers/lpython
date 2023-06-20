@@ -39,8 +39,7 @@ public:
     ASRToCVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, co.platform, co, false, false, true, default_lower_bound),
-           array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                         "{\n    int32_t lower_bound, length;\n};\n")),
+           array_types_decls(std::string("")),
            c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
            counter{0} {
            }
@@ -813,6 +812,13 @@ R"(
         if( is_string_concat_present ) {
             head += strcat_def;
         }
+
+        // Include dimension_descriptor definition that is used by array types
+        if (array_types_decls.size() != 0) {
+            array_types_decls.insert(0, "struct dimension_descriptor\n"
+                "{\n    int32_t lower_bound, length;\n};\n");
+        }
+
         src = to_include + head + array_types_decls + unit_src +
               ds_funcs_defined + util_funcs_defined;
         if (!emit_headers.empty()) {
