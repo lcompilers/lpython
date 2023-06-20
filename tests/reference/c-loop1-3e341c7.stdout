@@ -7,11 +7,6 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
 int32_t test_factorial_1(int32_t x)
 {
