@@ -2852,6 +2852,9 @@ public:
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
             }
+            if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
+                throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
+            }
             LCOMPILERS_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
             AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
             LCOMPILERS_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
