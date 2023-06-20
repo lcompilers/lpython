@@ -3624,7 +3624,7 @@ public:
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
                 diag.add(diag::Diagnostic(
-                    "Type mismatch in index, Index should be of integer type",
+                    "Type mismatch in index, expected a single integer",
                     diag::Level::Error, diag::Stage::Semantic, {
                         diag::Label("type mismatch (found: '" + fnd + "', expected: 'i32')",
                                 {tmp->loc})
