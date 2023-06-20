@@ -63,7 +63,8 @@ namespace CastingUtil {
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Real), ASR::cast_kindType::LogicalToReal},
         {std::make_pair(ASR::ttypeType::Logical, ASR::ttypeType::Integer), ASR::cast_kindType::LogicalToInteger},
         {std::make_pair(ASR::ttypeType::UnsignedInteger, ASR::ttypeType::Integer), ASR::cast_kindType::UnsignedIntegerToInteger},
-        {std::make_pair(ASR::ttypeType::UnsignedInteger, ASR::ttypeType::Real), ASR::cast_kindType::UnsignedIntegerToReal}
+        {std::make_pair(ASR::ttypeType::UnsignedInteger, ASR::ttypeType::Real), ASR::cast_kindType::UnsignedIntegerToReal},
+        {std::make_pair(ASR::ttypeType::Integer, ASR::ttypeType::SymbolicExpression), ASR::cast_kindType::IntegerToSymbolicExpression}
     };
 
     // Data structure which contains casting rules for equal intrinsic
@@ -1012,7 +1013,31 @@ public:
         AST::expr_t** m_args=nullptr, size_t n_args=0,
         bool raise_error=true) {
         ASR::ttype_t* type = nullptr;
-        if (var_annotation == "i8") {
+        ASR::symbol_t *s = current_scope->resolve_symbol(var_annotation);
+        if (s) {
+            if (ASR::is_a<ASR::Variable_t>(*s)) {
+                ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
+                if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
+                    ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
+                    type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, type_param->m_param));
+                    return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                }
+            } else {
+                ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
+                if( der_sym ) {
+                    if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
+                        type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s));
+                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                    } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
+                        type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
+                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                    } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
+                        type = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s));
+                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                    }
+                }
+            }
+        } else if (var_annotation == "i8") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 1));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
         } else if (var_annotation == "i16") {
@@ -1062,35 +1087,9 @@ public:
             bool is_allocatable = false;
             type = ast_expr_to_asr_type(underlying_type->base.loc, *underlying_type, is_allocatable);
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
+        } else if (var_annotation == "S") {
+            type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         } else {
-            ASR::symbol_t *s = current_scope->resolve_symbol(var_annotation);
-            if (s) {
-                if (ASR::is_a<ASR::Variable_t>(*s)) {
-                    ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
-                    if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
-                        ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
-                        type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, type_param->m_param));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
-                    }
-                } else {
-                    ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
-                    if( der_sym ) {
-                        if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
-                            type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
-                        } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
-                            type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
-                        } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
-                            type = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
-                        }
-                    }
-                }
-            } else if (var_annotation == "S") {
-                type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
-                return type;
-            }
             if( raise_error ) {
                 throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
             }
@@ -1954,7 +1953,8 @@ public:
         bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);
 
         // Handle normal division in python with reals
-        if (op == ASR::binopType::Div) {
+        if (op == ASR::binopType::Div && ((!ASR::is_a<ASR::SymbolicExpression_t>(*left_type)) ||
+            (!ASR::is_a<ASR::SymbolicExpression_t>(*right_type)))) {
             if (ASRUtils::is_character(*left_type) || ASRUtils::is_character(*right_type)) {
                 diag.add(diag::Diagnostic(
                     "Division is not supported for string type",
@@ -2035,7 +2035,6 @@ public:
                 args.push_back(al, arg2);
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
                 return;
-
             } else { // real division in python using (`/`)
                 ASR::ttype_t* left_type = ASRUtils::expr_type(left);
                 ASR::ttype_t* right_type = ASRUtils::expr_type(right);
@@ -2233,24 +2232,41 @@ public:
             return;
         } else if (ASR::is_a<ASR::SymbolicExpression_t>(*left_type)
                    && ASR::is_a<ASR::SymbolicExpression_t>(*right_type)) {
+            Vec<ASR::expr_t*> args_with_symbolic;
+            args_with_symbolic.reserve(al, 2);
+            args_with_symbolic.push_back(al, left);
+            args_with_symbolic.push_back(al, right);
+            ASRUtils::create_intrinsic_function create_function;
             switch (op) {
-                case ASR::binopType::Add: {
-                    Vec<ASR::expr_t*> args_with_symbolic;
-                    args_with_symbolic.reserve(al, 2);
-                    args_with_symbolic.push_back(al, left);
-                    args_with_symbolic.push_back(al, right);
-                    ASRUtils::create_intrinsic_function create_function =
-                        ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
-                    tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
-                        throw SemanticError(msg, loc);
-                    });
-                    return;
+                case (ASR::binopType::Add): {
+                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
+                    break;
+                }
+                case (ASR::binopType::Sub): {
+                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicSub");
+                    break;
+                }
+                case (ASR::binopType::Mul): {
+                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicMul");
+                    break;
+                }
+                case (ASR::binopType::Div): {
+                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicDiv");
+                    break;
+                }
+                case (ASR::binopType::Pow): {
+                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicPow");
+                    break;
                 }
                 default: {
                     throw SemanticError("Not implemented: The following symbolic binary operator has not been implemented", loc);
                     break;
                 }
             }
+            tmp = create_function(al, loc, args_with_symbolic, [&](const std::string& msg, const Location& loc) {
+                throw SemanticError(msg, loc);
+                });
+            return;
         } else {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
@@ -7414,7 +7430,8 @@ public:
                         call_name == "u16" ||
                         call_name == "u8"  ||
                         call_name == "c32" ||
-                        call_name == "c64"
+                        call_name == "c64" ||
+                        call_name == "S"
                     ) {
                 parse_args(x, args);
                 ASR::ttype_t* target_type = nullptr;
@@ -7442,6 +7459,8 @@ public:
                     target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4));
                 } else if( call_name == "c64" ) {
                     target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 8));
+                } else if( call_name == "S" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
                 }
                 ASR::expr_t* arg = args[0].m_value;
                 cast_helper(target_type, arg, x.base.base.loc, true);

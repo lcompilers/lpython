@@ -632,6 +632,14 @@ class CCPPDSUtils {
             return result;
         }
 
+        std::string generate_binary_operator_code(std::string value, std::string target, std::string operatorName) {
+            size_t delimiterPos = value.find(",");
+            std::string leftPart = value.substr(0, delimiterPos);
+            std::string rightPart = value.substr(delimiterPos + 1);
+            std::string result = operatorName + "(" + target + ", " + leftPart + ", " + rightPart + ");";
+            return result;
+        }
+
         std::string get_deepcopy_symbolic(ASR::expr_t *value_expr, std::string value, std::string target) {
             std::string result;
             if (ASR::is_a<ASR::Var_t>(*value_expr)) {
@@ -645,14 +653,31 @@ class CCPPDSUtils {
                         break;
                     }
                     case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                        size_t delimiterPos = value.find(",");
-                        std::string leftPart = value.substr(0, delimiterPos);
-                        std::string rightPart = value.substr(delimiterPos + 1);
-                        result = "basic_add(" + target + ", " + leftPart + ", " + rightPart + ");";
+                        result = generate_binary_operator_code(value, target, "basic_add");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
+                        result = generate_binary_operator_code(value, target, "basic_sub");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
+                        result = generate_binary_operator_code(value, target, "basic_mul");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
+                        result = generate_binary_operator_code(value, target, "basic_div");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
+                        result = generate_binary_operator_code(value, target, "basic_pow");
                         break;
                     }
                     case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
                         result = "basic_const_pi(" + target + ");";
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicInteger: {
+                        result = "integer_set_si(" + target + ", " + value + ");";
                         break;
                     }
                     default: {
@@ -661,6 +686,10 @@ class CCPPDSUtils {
                             + "` is not implemented");
                     }
                 }
+            } else if (ASR::is_a<ASR::Cast_t>(*value_expr)) {
+                ASR::Cast_t* cast_expr = ASR::down_cast<ASR::Cast_t>(value_expr);
+                std::string cast_value_expr = get_deepcopy_symbolic(cast_expr->m_value, value, target);
+                return cast_value_expr;
             }
             return result;
         }

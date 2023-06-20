@@ -66,7 +66,12 @@ enum class IntrinsicFunctions : int64_t {
     ListPop,
     SymbolicSymbol,
     SymbolicAdd,
+    SymbolicSub,
+    SymbolicMul,
+    SymbolicDiv,
+    SymbolicPow,
     SymbolicPi,
+    SymbolicInteger,
     Sum,
     // ...
 };
@@ -2037,47 +2042,62 @@ namespace SymbolicSymbol {
 
 } // namespace SymbolicSymbol
 
-namespace SymbolicAdd {
+#define create_symbolic_binop_macro(X)                                                     \
+namespace X{                                                                               \
+                                                                                           \
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x,                      \
+            diag::Diagnostics& diagnostics) {                                              \
+        ASRUtils::require_impl(x.n_args == 2, "Intrinsic function `"#X"` accepts           \
+            exactly 2 arguments", x.base.base.loc, diagnostics);                           \
+                                                                                           \
+        ASR::ttype_t* left_type = ASRUtils::expr_type(x.m_args[0]);                        \
+        ASR::ttype_t* right_type = ASRUtils::expr_type(x.m_args[1]);                       \
+                                                                                           \
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*left_type) &&         \
+            ASR::is_a<ASR::SymbolicExpression_t>(*right_type),                             \
+            "Both arguments of `"#X"` must be of type SymbolicExpression",                 \
+            x.base.base.loc, diagnostics);                                                 \
+    }                                                                                      \
+                                                                                           \
+    static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,        \
+            Vec<ASR::expr_t*> &/*args*/) {                                                 \
+        /*TODO*/                                                                           \
+        return nullptr;                                                                    \
+    }                                                                                      \
+                                                                                           \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,               \
+            Vec<ASR::expr_t*>& args,                                                       \
+            const std::function<void (const std::string &, const Location &)> err) {       \
+        if (args.size() != 2) {                                                            \
+            err("Intrinsic function `"#X"` accepts exactly 2 arguments", loc);             \
+        }                                                                                  \
+                                                                                           \
+        for (size_t i = 0; i < args.size(); i++) {                                         \
+            ASR::ttype_t* argtype = ASRUtils::expr_type(args[i]);                          \
+            if(!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {                          \
+                err("Arguments of `"#X"` function must be of type SymbolicExpression",     \
+                args[i]->base.loc);                                                        \
+            }                                                                              \
+        }                                                                                  \
+                                                                                           \
+        Vec<ASR::expr_t*> arg_values;                                                      \
+        arg_values.reserve(al, args.size());                                               \
+        for( size_t i = 0; i < args.size(); i++ ) {                                        \
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));                       \
+        }                                                                                  \
+        ASR::expr_t* compile_time_value = eval_##X(al, loc, arg_values);                   \
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));   \
+        return ASR::make_IntrinsicFunction_t(al, loc,                                      \
+                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X),                     \
+                args.p, args.size(), 0, to_type, compile_time_value);                      \
+    }                                                                                      \
+} // namespace X
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
-        ASRUtils::require_impl(x.n_args == 2, "SymbolicAdd must have exactly two arguments",
-            x.base.base.loc, diagnostics);
-
-        ASR::ttype_t* left_type = ASRUtils::expr_type(x.m_args[0]);
-        ASR::ttype_t* right_type = ASRUtils::expr_type(x.m_args[1]);
-
-        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*left_type) &&
-            ASR::is_a<ASR::SymbolicExpression_t>(*right_type),
-            "Both arguments of SymbolicAdd must be of type SymbolicExpression",
-            x.base.base.loc, diagnostics);
-    }
-
-    static inline ASR::expr_t *eval_SymbolicAdd(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
-        // TODO
-        return nullptr;
-    }
-
-    static inline ASR::asr_t* create_SymbolicAdd(Allocator& al, const Location& loc,
-            Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> err) {
-        if (args.size() != 2) {
-            err("Intrinsic Symbol Add operator accepts exactly 2 arguments", loc);
-        }
-
-        Vec<ASR::expr_t*> arg_values;
-        arg_values.reserve(al, args.size());
-        for( size_t i = 0; i < args.size(); i++ ) {
-            arg_values.push_back(al, ASRUtils::expr_value(args[i]));
-        }
-        ASR::expr_t* compile_time_value = eval_SymbolicAdd(al, loc, arg_values);
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
-        return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
-                args.p, args.size(), 0, to_type, compile_time_value);
-    }
-
-} // namespace SymbolicAdd
+create_symbolic_binop_macro(SymbolicAdd)
+create_symbolic_binop_macro(SymbolicSub)
+create_symbolic_binop_macro(SymbolicMul)
+create_symbolic_binop_macro(SymbolicDiv)
+create_symbolic_binop_macro(SymbolicPow)
 
 namespace SymbolicPi {
 
@@ -2103,6 +2123,44 @@ namespace SymbolicPi {
     }
 
 } // namespace SymbolicPi
+
+namespace SymbolicInteger {
+
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 1,
+            "SymbolicInteger intrinsic must have exactly 1 input argument",
+            x.base.base.loc, diagnostics);
+
+        ASR::ttype_t* input_type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*input_type),
+            "SymbolicInteger intrinsic expects an integer input argument",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t* eval_SymbolicInteger(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+        // TODO
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicInteger(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> /*err*/) {
+        // if (args.size() != 1) {
+        //     err("Intrinsic SymbolicInteger function accepts exactly 1 argument", loc);
+        // }
+
+        // ASR::ttype_t* type = ASRUtils::expr_type(args[0]);
+        // if (!ASRUtils::is_integer(*type)) {
+        //     err("Argument of the SymbolicInteger function must be an Integer",
+        //         args[0]->base.loc);
+        // }
+
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicInteger,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger), 0, to_type);
+    }
+} // namespace SymbolicInteger
 
 namespace IntrinsicFunctionRegistry {
 
@@ -2154,8 +2212,18 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &SymbolicSymbol::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
             {nullptr, &SymbolicAdd::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub),
+            {nullptr, &SymbolicSub::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul),
+            {nullptr, &SymbolicMul::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv),
+            {nullptr, &SymbolicDiv::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow),
+            {nullptr, &SymbolicPow::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
             {nullptr, &SymbolicPi::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
+            {nullptr, &SymbolicInteger::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -2198,8 +2266,18 @@ namespace IntrinsicFunctionRegistry {
             "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
             "SymbolicAdd"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub),
+            "SymbolicSub"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul),
+            "SymbolicMul"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv),
+            "SymbolicDiv"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow),
+            "SymbolicPow"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
             "pi"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
+            "SymbolicInteger"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2231,7 +2309,12 @@ namespace IntrinsicFunctionRegistry {
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
+                {"SymbolicSub", {&SymbolicSub::create_SymbolicSub, &SymbolicSub::eval_SymbolicSub}},
+                {"SymbolicMul", {&SymbolicMul::create_SymbolicMul, &SymbolicMul::eval_SymbolicMul}},
+                {"SymbolicDiv", {&SymbolicDiv::create_SymbolicDiv, &SymbolicDiv::eval_SymbolicDiv}},
+                {"SymbolicPow", {&SymbolicPow::create_SymbolicPow, &SymbolicPow::eval_SymbolicPow}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
+                {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2340,7 +2423,12 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListPop)
         INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(SymbolicAdd)
+        INTRINSIC_NAME_CASE(SymbolicSub)
+        INTRINSIC_NAME_CASE(SymbolicMul)
+        INTRINSIC_NAME_CASE(SymbolicDiv)
+        INTRINSIC_NAME_CASE(SymbolicPow)
         INTRINSIC_NAME_CASE(SymbolicPi)
+        INTRINSIC_NAME_CASE(SymbolicInteger)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
