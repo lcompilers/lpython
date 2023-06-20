@@ -695,7 +695,7 @@ public:
         return v;
     }
 
-    void handle_attribute(ASR::expr_t *s, std::string attr_name,
+    void handle_builtin_attribute(ASR::expr_t *s, std::string attr_name,
                 const Location &loc, Vec<ASR::expr_t*> &args) {
         tmp = attr_handler.get_attribute(s, attr_name, al, loc, args, diag);
         return;
@@ -5622,7 +5622,7 @@ public:
             ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
             Vec<ASR::expr_t*> args;
             args.reserve(al, 0);
-            handle_attribute(se, attr, loc, args);
+            handle_builtin_attribute(se, attr, loc, args);
         } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             if (attr == "imag") {
@@ -6350,7 +6350,7 @@ public:
                     }
                     ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(
                                         ASR::make_Var_t(al, x.base.base.loc, t));
-                    handle_attribute(te, at->m_attr, x.base.base.loc, elements);
+                    handle_builtin_attribute(te, at->m_attr, x.base.base.loc, elements);
                     return;
                 }
             } else {
@@ -7124,7 +7124,7 @@ public:
                                 handle_string_attributes(se, args, at->m_attr, x.base.base.loc);
                                 return;
                             }
-                            handle_attribute(se, at->m_attr, x.base.base.loc, eles);
+                            handle_builtin_attribute(se, at->m_attr, x.base.base.loc, eles);
                             return;
                         }
                     }
@@ -7140,7 +7140,7 @@ public:
                     eles.push_back(al, args[i].m_value);
                 }
                 ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
-                handle_attribute(expr, at->m_attr, x.base.base.loc, eles);
+                handle_builtin_attribute(expr, at->m_attr, x.base.base.loc, eles);
                 return;
             } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
                 if (std::string(at->m_attr) == std::string("bit_length")) {
