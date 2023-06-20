@@ -614,17 +614,10 @@ public:
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
                 sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
             } else if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
-                if( v.m_intent == ASRUtils::intent_local ) {
-                    LCOMPILERS_ASSERT(v.m_symbolic_value);
-                    visit_expr(*v.m_symbolic_value);
-                    sub = "#define " + std::string(v.m_name) + " " + src + "\n";
-                    return sub;
-                } else {
-                    std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
-                        ASR::down_cast<ASR::Const_t>(v_m_type)->m_type);
-                    sub = format_type_c("", "const " + const_underlying_type + " ",
-                                        v.m_name, false, false);
-                }
+                std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
+                    ASRUtils::type_get_past_const(v_m_type));
+                sub = format_type_c("", "const " + const_underlying_type,
+                                    v.m_name, false, false);
             } else if (ASR::is_a<ASR::TypeParameter_t>(*v_m_type)) {
                 // Ignore type variables
                 return "";
@@ -702,8 +695,7 @@ R"(
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 unit_src_tmp = convert_variable_decl(*v);
                 unit_src += unit_src_tmp;
-                if(unit_src_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var )) {
+                if(unit_src_tmp.size() > 0) {
                     unit_src += ";\n";
                 }
             }
@@ -852,9 +844,7 @@ R"(
                     item.second);
                 unit_src_tmp = convert_variable_decl(*v);
                 unit_src += unit_src_tmp;
-                if(unit_src_tmp.size() > 0 &&
-                        (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                        v->m_intent == ASRUtils::intent_return_var )) {
+                if(unit_src_tmp.size() > 0) {
                     unit_src += ";\n";
                 }
             }
@@ -920,8 +910,7 @@ R"(
                 decl += indent1;
                 decl_tmp = convert_variable_decl(*v);
                 decl += decl_tmp;
-                if(decl_tmp.size() > 0 && (!ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var )) {
+                if(decl_tmp.size() > 0) {
                     decl += ";\n";
                 }
             }
@@ -1007,10 +996,7 @@ R"(    // Initialise Numpy
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
                         &c_decl_options_);
-            if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
-                ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
-                body += ";\n";
-            }
+            body += ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
