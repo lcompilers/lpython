@@ -164,7 +164,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-        elseif((KIND STREQUAL "cpython") OR (KIND STREQUAL "cpython_py") OR (KIND STREQUAL "cpython_sym"))
+        elseif((KIND STREQUAL "cpython") OR (KIND STREQUAL "cpython_sym"))
             # CPython test
             if (extra_files)
                 set(PY_MOD "${name}_mod")
@@ -291,7 +291,7 @@ macro(RUN)
     if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
-        list(REMOVE_ITEM RUN_LABELS cpython cpython_sym cpython_py) # remove cpython, cpython_sym, cpython_py from --fast test
+        list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
         RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_ENABLE_CPYTHON RUN_EXTRAFILES RUN_EXTRA_ARGS)
     endif()
 endmacro(RUN)
@@ -529,8 +529,8 @@ RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
-RUN(NAME bindpy_01           LABELS cpython_py c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
-RUN(NAME bindpy_02           LABELS cpython_py c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
+RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
