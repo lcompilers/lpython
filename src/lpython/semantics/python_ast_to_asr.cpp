@@ -5968,22 +5968,6 @@ public:
             right_type = ASRUtils::get_contained_type(right_type);
         }
         ASR::expr_t *overloaded = nullptr;
-        if (((left_type->type != ASR::ttypeType::Real &&
-            left_type->type != ASR::ttypeType::Integer) &&
-            (right_type->type != ASR::ttypeType::Real &&
-            right_type->type != ASR::ttypeType::Integer) &&
-            ((left_type->type != ASR::ttypeType::Complex ||
-            right_type->type != ASR::ttypeType::Complex) &&
-            x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
-            (left_type->type != ASR::ttypeType::Character ||
-            right_type->type != ASR::ttypeType::Character)) &&
-            (left_type->type != ASR::ttypeType::Logical ||
-            right_type->type != ASR::ttypeType::Logical)) {
-        throw SemanticError(
-            "Compare: only Integer, Real, Logical, or String can be on the LHS and RHS."
-            "If operator is Eq or NotEq then Complex type is also acceptable",
-            x.base.base.loc);
-        }
 
         if (!ASRUtils::is_logical(*left_type) || !ASRUtils::is_logical(*right_type)) {
             cast_helper(left, right, false);
