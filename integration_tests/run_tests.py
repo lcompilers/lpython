@@ -41,7 +41,7 @@ def get_args():
     parser.add_argument("-j", "-n", "--no_of_threads", type=int,
                 help="Parallel testing on given number of threads")
     parser.add_argument("-b", "--backends", nargs="*", default=["llvm", "cpython"],
-                type=str, help="Test the requested backends (%s)" % \
+                type=str, help="Test the requested backends (%s), default: llvm, cpython" % \
                         ", ".join(SUPPORTED_BACKENDS))
     parser.add_argument("-nf", "--no_fast", action='store_true',
                 help="Disable --fast testing of integration tests")
