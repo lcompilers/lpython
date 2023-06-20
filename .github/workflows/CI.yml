@@ -288,8 +288,7 @@ jobs:
             ctest
             ./run_tests.py -s
             cd integration_tests
-            ./run_tests.py -b llvm
-            ./run_tests.py -b c
+            ./run_tests.py -b llvm c
 
   cpython_interop:
     name: Test CPython Interop (@pythoncall)
