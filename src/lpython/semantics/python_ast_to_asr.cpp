@@ -1775,6 +1775,8 @@ public:
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
+                ASR::ttype_t* type = get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+
                 if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
                     ASR::dimension_t dim;
                     dim.loc = loc;
@@ -1797,6 +1799,12 @@ public:
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
                     fill_dims_for_asr_type(dims, value, loc);
                 }
+
+                if (ASRUtils::ttype_set_dimensions(&type, dims.p, dims.size(), al)) {
+                    return type;
+                }
+
+                throw SemanticError("ICE: Unable to set dimensions for: " + var_annotation, loc);
             }
         } else if (AST::is_a<AST::Attribute_t>(annotation)) {
             AST::Attribute_t* attr_annotation = AST::down_cast<AST::Attribute_t>(&annotation);
