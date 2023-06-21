@@ -5138,11 +5138,6 @@ public:
         if( x == nullptr ) {
             throw CodeGenError("Internal error: x is nullptr");
         }
-
-        // Check if the type of *x is expr_t or not.
-        if( !ASR::is_a<ASR::expr_t>(*x) ) {
-            throw CodeGenError("Internal error: x is not of type expr_t");
-        }
         
         this->visit_expr(*x);
         if( x->type == ASR::exprType::ArrayItem ||
