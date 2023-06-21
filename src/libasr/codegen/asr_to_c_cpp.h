@@ -1634,6 +1634,9 @@ R"(#include <stdio.h>
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::IntegerToSymbolicExpression): {
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
@@ -2382,8 +2385,13 @@ R"(#include <stdio.h>
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(SymbolicSymbol, "Symbol");
+            SET_INTRINSIC_NAME(SymbolicInteger, "Integer");
             SET_INTRINSIC_NAME(SymbolicPi, "pi");
-            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)): {
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow)): {
                 LCOMPILERS_ASSERT(x.n_args == 2);
                 this->visit_expr(*x.m_args[0]);
                 std::string arg1 = src;
@@ -2404,7 +2412,8 @@ R"(#include <stdio.h>
             src = out;
         } else if (x.n_args == 1) {
             this->visit_expr(*x.m_args[0]);
-            if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
+            if ((x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) &&
+                (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger))) {
                 out += "(" + src + ")";
                 src = out;
             }

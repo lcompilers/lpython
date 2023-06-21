@@ -8,6 +8,7 @@
 #include <libasr/utils.h>
 #include <libasr/modfile.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 namespace LCompilers {
 
@@ -1196,6 +1197,15 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
             double real = value_complex->m_re;
             value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_RealConstant_t(al, a_loc, real, a_type));
+        } else if (a_kind == ASR::cast_kindType::IntegerToSymbolicExpression) {
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            args.push_back(al, a_arg);
+            LCompilers::ASRUtils::create_intrinsic_function create_function =
+                LCompilers::ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicInteger");
+            value = ASR::down_cast<ASR::expr_t>(create_function(al, a_loc, args,
+                [](const std::string&, const Location&) {
+            }));
         }
     }
 
