@@ -1070,30 +1070,30 @@ public:
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                         ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                         type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, type_param->m_param));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if( der_sym ) {
                         if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
                             type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                            type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                             type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                            type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
                         } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
                             type = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s));
-                            return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
+                            type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
                         }
                     }
                 }
             } else if (var_annotation == "S") {
                 type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
-                return type;
             }
-            if( raise_error ) {
-                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
-            }
+        }
+
+        if( !type && raise_error ) {
+            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
         }
 
         return type;
@@ -1669,7 +1669,10 @@ public:
         if (AST::is_a<AST::Name_t>(annotation)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(&annotation);
             var_annotation = n->m_id;
-        } else if (AST::is_a<AST::Subscript_t>(annotation)) {
+            return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+        }
+
+        if (AST::is_a<AST::Subscript_t>(annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(&annotation);
             if (AST::is_a<AST::Name_t>(*s->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(s->m_value);
@@ -1677,6 +1680,10 @@ public:
             } else {
                 throw SemanticError("Only Name in Subscript supported for now in annotation",
                     loc);
+            }
+
+            if (var_annotation == "In" || var_annotation == "InOut" || var_annotation == "Out") {
+                throw SemanticError("Intent annotation '" + var_annotation + "' cannot be used here", s->base.base.loc);
             }
 
             if (var_annotation == "tuple") {
@@ -1771,6 +1778,8 @@ public:
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
+                ASR::ttype_t* type = get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+
                 if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
                     ASR::dimension_t dim;
                     dim.loc = loc;
@@ -1793,6 +1802,12 @@ public:
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
                     fill_dims_for_asr_type(dims, value, loc);
                 }
+
+                if (ASRUtils::ttype_set_dimensions(&type, dims.p, dims.size(), al)) {
+                    return type;
+                }
+
+                throw SemanticError("ICE: Unable to set dimensions for: " + var_annotation, loc);
             }
         } else if (AST::is_a<AST::Attribute_t>(annotation)) {
             AST::Attribute_t* attr_annotation = AST::down_cast<AST::Attribute_t>(&annotation);
@@ -1835,12 +1850,9 @@ public:
                 current_scope->add_symbol(import_name, import_struct_member);
             }
             return ASRUtils::TYPE(ASR::make_Union_t(al, attr_annotation->base.base.loc, import_struct_member));
-        } else {
-            throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.",
-                loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+        throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {

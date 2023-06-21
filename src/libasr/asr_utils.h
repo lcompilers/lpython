@@ -1760,7 +1760,11 @@ inline bool ttype_set_dimensions(ASR::ttype_t** x,
         case ASR::ttypeType::Real:
         case ASR::ttypeType::Complex:
         case ASR::ttypeType::Character:
-        case ASR::ttypeType::Logical: {
+        case ASR::ttypeType::Logical:
+        case ASR::ttypeType::Struct:
+        case ASR::ttypeType::Enum:
+        case ASR::ttypeType::Union:
+        case ASR::ttypeType::TypeParameter: {
             *x = ASRUtils::make_Array_t_util(al, (*x)->base.loc, *x, m_dims, n_dims);
             return true;
         }
