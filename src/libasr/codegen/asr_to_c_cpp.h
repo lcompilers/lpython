@@ -749,8 +749,7 @@ R"(#include <stdio.h>
                 src = "";
             } else if (f_type->m_abi == ASR::abiType::BindPython) {
                 headers.insert("Python.h");
-                std::string variables_decl = "\n\n    "
-                    "// Declare arguments and return variable\n";
+                std::string variables_decl = "";
                 std::string fill_parse_args_details = "";
                 std::string type_format = "";
                 std::string fn_args = "";
@@ -800,8 +799,7 @@ R"(#include <stdio.h>
         s_array_)" + arg_name + R"(->dims[0].lower_bound = 0;
         s_array_)" + arg_name + R"(->dims[0].length = dims[0];
         s_array_)" + arg_name + R"(->is_allocated = false;
-    }
-)";
+    })";
                     } else {
                         fn_args += arg_name;
                         variables_decl += "    " + self().convert_variable_decl(*arg)
@@ -813,37 +811,44 @@ R"(#include <stdio.h>
                     }
                 }
 
-                fill_parse_args_details = R"(
+                if (fill_parse_args_details.size() > 0) {
+                    fill_parse_args_details = R"(
     // Parse the arguments from Python
     if (!PyArg_ParseTuple(args, ")" + type_format + R"(", )" + fill_parse_args_details + R"()) {
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
             "Failed to parse or receive arguments from Python");
         return NULL;
     })";
+                }
 
+                std::string fn_name = x.m_name;
                 std::string fill_return_details;
+                if (variables_decl.size() > 0) {
+                    variables_decl.insert(0, "\n\n    "
+                    "// Declare arguments and return variable\n");
+                }
                 if(x.m_return_var) {
                     ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
                     variables_decl += "    " + self().convert_variable_decl(*return_var)
                         + ";\n";
                     fill_return_details = R"(
+    // Call the C function
+    _lpython_return_variable = )" + fn_name + "(" + fn_args + ");\n" + R"(
     // Build and return the result as a Python object
     return Py_BuildValue(")" + get_type_format(return_var->m_type)
                         + R"(", _lpython_return_variable);)";
                 } else {
                     fill_return_details = R"(
+    // Call the C function
+    )" + fn_name + "(" + fn_args + ");\n" + R"(
     // Return None
     Py_RETURN_NONE;)";
                 }
-                std::string fn_name = x.m_name;
                 src = sub;
                 src += R"(// Define the Python module and method mappings
 static PyObject* )" + fn_name + R"(_define_module(PyObject* self, PyObject* args) {)"
     + numpy_init + variables_decl + fill_parse_args_details
-    + fill_array_details + R"(
-    // Call the C function
-    _lpython_return_variable = )" + fn_name + "(" + fn_args + ");\n"
-    + fill_return_details + R"(
+    + fill_array_details + fill_return_details + R"(
 }
 
 // Define the module's method table
