@@ -1669,7 +1669,10 @@ public:
         if (AST::is_a<AST::Name_t>(annotation)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(&annotation);
             var_annotation = n->m_id;
-        } else if (AST::is_a<AST::Subscript_t>(annotation)) {
+            return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+        }
+
+        if (AST::is_a<AST::Subscript_t>(annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(&annotation);
             if (AST::is_a<AST::Name_t>(*s->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(s->m_value);
@@ -1847,12 +1850,9 @@ public:
                 current_scope->add_symbol(import_name, import_struct_member);
             }
             return ASRUtils::TYPE(ASR::make_Union_t(al, attr_annotation->base.base.loc, import_struct_member));
-        } else {
-            throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.",
-                loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args, raise_error);
+        throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.", loc);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
