@@ -1,0 +1,5 @@
+warning: `List` is a deprecated alias to `list`
+ --> tests/../integration_tests/test_list_12.py:4:20
+  |
+4 |     WHITESPACE   : List[str] = [" ", ",", "ok", "\r", "\t"]
+  |                    ^^^^ Hint: Use `list` here

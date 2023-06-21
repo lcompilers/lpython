@@ -1,0 +1,217 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            _global_symbols:
+                (Module
+                    (SymbolTable
+                        5
+                        {
+                            _lpython_main_program:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            
+                                        })
+                                    _lpython_main_program
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [test_issue_1944]
+                                    []
+                                    [(SubroutineCall
+                                        5 test_issue_1944
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_issue_1944:
+                                (Function
+                                    (SymbolTable
+                                        2
+                                        {
+                                            WHITESPACE:
+                                                (Variable
+                                                    2
+                                                    WHITESPACE
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_issue_1944
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 2 WHITESPACE)
+                                        (ListConstant
+                                            [(StringConstant
+                                                " "
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                ","
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "ok"
+                                                (Character 1 2 ())
+                                            )
+                                            (StringConstant
+                                                "\r"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "\t"
+                                                (Character 1 1 ())
+                                            )]
+                                            (List
+                                                (Character 1 1 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (ListLen
+                                                (Var 2 WHITESPACE)
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 5 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (ListItem
+                                                (Var 2 WHITESPACE)
+                                                (IntegerConstant 0 (Integer 4))
+                                                (Character 1 -2 ())
+                                                ()
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                " "
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (ListItem
+                                                (Var 2 WHITESPACE)
+                                                (IntegerBinOp
+                                                    (ListLen
+                                                        (Var 2 WHITESPACE)
+                                                        (Integer 4)
+                                                        ()
+                                                    )
+                                                    Add
+                                                    (IntegerConstant -1 (Integer 4))
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                (Character 1 -2 ())
+                                                ()
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "\t"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    _global_symbols
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        3
+                        {
+                            _lpython_main_program:
+                                (ExternalSymbol
+                                    3
+                                    _lpython_main_program
+                                    5 _lpython_main_program
+                                    _global_symbols
+                                    []
+                                    _lpython_main_program
+                                    Public
+                                )
+                        })
+                    main_program
+                    [_global_symbols]
+                    [(SubroutineCall
+                        3 _lpython_main_program
+                        ()
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

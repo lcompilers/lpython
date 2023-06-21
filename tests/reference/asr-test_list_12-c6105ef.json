@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_list_12-c6105ef",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_list_12.py",
+    "infile_hash": "2d4c3d12a0c8bada168530947680b4a61b0d9bfd30ce0ca474127aa3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_list_12-c6105ef.stdout",
+    "stdout_hash": "fc7ff2108d8b8df461598be74603cf0c4c9854972b33a0f62131de3d",
+    "stderr": "asr-test_list_12-c6105ef.stderr",
+    "stderr_hash": "d213c8a5c229f3851ceea0907fe60125b96fc321a5739726166c577b",
+    "returncode": 0
+}
