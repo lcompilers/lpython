@@ -714,13 +714,136 @@ R"(#include <stdio.h>
         }
         sub += "\n";
         src = sub;
-        if (f_type->m_abi == ASR::abiType::BindC
-            && f_type->m_deftype == ASR::deftypeType::Implementation) {
-            if (x.m_module_file) {
+        if (f_type->m_deftype == ASR::deftypeType::Implementation) {
+            if (f_type->m_abi == ASR::abiType::BindC && x.m_module_file) {
                 std::string header_name = std::string(x.m_module_file);
                 user_headers.insert(header_name);
                 emit_headers[header_name]+= "\n" + src;
                 src = "";
+            } else if (f_type->m_abi == ASR::abiType::BindPython) {
+                headers.insert("Python.h");
+                std::string variables_decl = "\n\n    "
+                    "// Declare arguments and return variable\n";
+                std::string fill_parse_args_details = "";
+                std::string fn_args = "";
+                std::string fill_array_details = "";
+                std::string numpy_init = "";
+
+                for (size_t i = 0; i < x.n_args; i++) {
+                    ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
+                    std::string arg_name = arg->m_name;
+                    fill_parse_args_details += "&" + arg_name;
+
+                    if (ASR::is_a<ASR::Array_t>(*arg->m_type)) {
+                        if (numpy_init.size() == 0) {
+                            numpy_init = R"(
+    // Initialize NumPy
+    import_array();)";
+                            headers.insert("numpy/ndarrayobject.h");
+                            user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
+                        }
+                        fn_args += "s_array_" + arg_name;
+                        variables_decl += "    PyArrayObject *" + arg_name + ";\n";
+                        std::string c_array_type = self().convert_variable_decl(*arg);
+                        c_array_type = c_array_type.substr(0,
+                            c_array_type.size() - arg_name.size() - 2);
+                        fill_array_details += "\n\n    // fill array details for " + arg_name
+    + "\n    if (PyArray_NDIM(" + arg_name + R"() != 1) {
+        PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
+            "Only 1 dimension array is supported for now.");
+        return NULL;
+    }
+
+    )" + c_array_type + R"( *s_array_)" + arg_name + R"( = malloc(sizeof()" + c_array_type + R"());
+    {
+        )" + CUtils::get_c_type_from_ttype_t(arg->m_type) + R"( *array;
+        // Create C arrays from numpy objects:
+        PyArray_Descr *descr = PyArray_DescrFromType(PyArray_TYPE()" + arg_name + R"());
+        npy_intp dims[1];
+        if (PyArray_AsCArray((PyObject **)&)" + arg_name + R"(, (void *)&array, dims, 1, descr) < 0) {
+            PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
+                "Failed to create a C array");
+            return NULL;
+        }
+
+        s_array_)" + arg_name + R"(->data = array;
+        s_array_)" + arg_name + R"(->n_dims = 1;
+        s_array_)" + arg_name + R"(->dims[0].lower_bound = 0;
+        s_array_)" + arg_name + R"(->dims[0].length = dims[0];
+        s_array_)" + arg_name + R"(->is_allocated = false;
+    }
+)";
+                    } else {
+                        fn_args += arg_name;
+                        variables_decl += "    " + self().convert_variable_decl(*arg)
+                            + ";\n";
+                    }
+                    if (i < x.n_args - 1) {
+                        fill_parse_args_details += ", ";
+                        fn_args += ", ";
+                    }
+                }
+
+                fill_parse_args_details = R"(
+    // Parse the arguments from Python
+    if (!PyArg_ParseTuple(args, "iO", )" + fill_parse_args_details + R"()) {
+        PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
+            "Failed to parse or receive arguments from Python");
+        return NULL;
+    })";
+
+                std::string fill_return_details;
+                if(x.m_return_var) {
+                    variables_decl += "    " + self().convert_variable_decl(
+                        *ASRUtils::EXPR2VAR(x.m_return_var)) + ";\n";
+                    fill_return_details = R"(
+    // Build and return the result as a Python object
+    return Py_BuildValue("d", _lpython_return_variable);)";
+                } else {
+                    fill_return_details = R"(
+    // Return None
+    Py_RETURN_NONE;)";
+                }
+                std::string fn_name = x.m_name;
+                src = sub;
+                src += R"(// Define the Python module and method mappings
+static PyObject* )" + fn_name + R"(_define_module(PyObject* self, PyObject* args) {)"
+    + numpy_init + variables_decl + fill_parse_args_details
+    + fill_array_details + R"(
+    // Call the C function
+    _lpython_return_variable = )" + fn_name + "(" + fn_args + ");\n"
+    + fill_return_details + R"(
+}
+
+// Define the module's method table
+static PyMethodDef )" + fn_name + R"(_module_methods[] = {
+    {")" + fn_name + R"(", )" + fn_name + R"(_define_module, METH_VARARGS,
+        "Handle arguments & return variable and call the function"},
+    {NULL, NULL, 0, NULL}
+};
+
+// Define the module initialization function
+static struct PyModuleDef )" + fn_name + R"(_module_def = {
+    PyModuleDef_HEAD_INIT,
+    "lpython_module_)" + fn_name + R"(",
+    "Shared library to use LPython generated functions",
+    -1,
+    )" + fn_name + R"(_module_methods
+};
+
+PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
+    PyObject* module;
+
+    // Create the module object
+    module = PyModule_Create(&)" + fn_name + R"(_module_def);
+    if (!module) {
+        return NULL;
+    }
+
+    return module;
+}
+
+)";
             }
         }
         current_scope = current_scope_copy;

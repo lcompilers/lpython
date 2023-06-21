@@ -837,7 +837,7 @@ class lpython:
 
         # ----------------------------------------------------------------------
         # Python wrapper for the Shared library
-        template = f"""// Python headers
+        template = f"""// Python C/API headers
 #include <Python.h>
 
 // NumPy C/API headers
@@ -914,6 +914,67 @@ PyMODINIT_FUNC PyInit_lpython_module_{self.fn_name}(void) {{
 
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
             filename + ".c -o lpython_module_" + self.fn_name + ".so " +
+            rt_path_01 + rt_path_02 + python_lib)
+        assert r == 0, "Failed to create the shared library"
+
+    def __call__(self, *args, **kwargs):
+        import sys; sys.path.append('.')
+        # import the symbol from the shared library
+        function = getattr(__import__("lpython_module_" + self.fn_name),
+            self.fn_name)
+        return function(*args, **kwargs)
+
+
+class temp_lpython:
+    def __init__(self, function):
+        def get_rtlib_dir():
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            return os.path.join(current_dir, "..")
+
+        self.fn_name = function.__name__
+        # Get the source code of the function
+        source_code = getsource(function)
+        source_code = source_code[source_code.find('\n'):]
+
+        dir_name = '.' # "./lpython_decorator_" + self.fn_name
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
+        filename = dir_name + "/" + self.fn_name
+
+        # Open the file for writing
+        with open(filename + ".py", "w") as file:
+            # Write the Python source code to the file
+            file.write("@pythoncallable")
+            file.write(source_code)
+        # ----------------------------------------------------------------------
+
+        r = os.system("lpython --show-c --disable-main "
+            + self.fn_name + ".py > " + self.fn_name + ".c")
+        assert r == 0, "Failed to create C file"
+
+        gcc_flags = ""
+        if platform.system() == "Linux":
+            gcc_flags = " -shared -fPIC "
+        elif platform.system() == "Darwin":
+            gcc_flags = " -bundle -flat_namespace -undefined suppress "
+        else:
+            raise NotImplementedError("Platform not implemented")
+
+        from numpy import get_include
+        from distutils.sysconfig import get_python_inc, get_python_lib, \
+            get_python_version
+        python_path = "-I" + get_python_inc() + " "
+        numpy_path = "-I" + get_include() + " "
+        rt_path_01 = "-I" + get_rtlib_dir() + "/../libasr/runtime "
+        rt_path_02 = "-L" + get_rtlib_dir() + " -Wl,-rpath " \
+            + get_rtlib_dir() + " -llpython_runtime "
+        python_lib = "-L" + get_python_lib() + "/../.. -lpython" + \
+            get_python_version() + " -lm"
+
+
+        # r = os.system("cat x.c")
+        r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
+            self.fn_name + ".c -o lpython_module_" + self.fn_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
 
