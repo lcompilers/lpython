@@ -2146,16 +2146,6 @@ namespace SymbolicInteger {
     static inline ASR::asr_t* create_SymbolicInteger(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
             const std::function<void (const std::string &, const Location &)> /*err*/) {
-        // if (args.size() != 1) {
-        //     err("Intrinsic SymbolicInteger function accepts exactly 1 argument", loc);
-        // }
-
-        // ASR::ttype_t* type = ASRUtils::expr_type(args[0]);
-        // if (!ASRUtils::is_integer(*type)) {
-        //     err("Argument of the SymbolicInteger function must be an Integer",
-        //         args[0]->base.loc);
-        // }
-
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicInteger,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger), 0, to_type);
