@@ -936,7 +936,7 @@ class temp_lpython:
         source_code = getsource(function)
         source_code = source_code[source_code.find('\n'):]
 
-        dir_name = '.' # "./lpython_decorator_" + self.fn_name
+        dir_name = "./lpython_decorator_" + self.fn_name
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)
         filename = dir_name + "/" + self.fn_name
@@ -949,7 +949,7 @@ class temp_lpython:
         # ----------------------------------------------------------------------
 
         r = os.system("lpython --show-c --disable-main "
-            + self.fn_name + ".py > " + self.fn_name + ".c")
+            + filename + ".py > " + filename + ".c")
         assert r == 0, "Failed to create C file"
 
         gcc_flags = ""
@@ -972,9 +972,8 @@ class temp_lpython:
             get_python_version() + " -lm"
 
 
-        # r = os.system("cat x.c")
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            self.fn_name + ".c -o lpython_module_" + self.fn_name + ".so " +
+            filename + ".c -o lpython_module_" + self.fn_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
 
