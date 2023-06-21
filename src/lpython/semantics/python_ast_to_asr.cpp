@@ -1296,8 +1296,9 @@ public:
                                          args, StructType, loc);
             }
 
-            if (args.size() > 0 && args.size() >  StructType->n_members) {
-                throw SemanticError("StructConstructor arguments are greater the number of struct members", loc);
+            if (args.size() > 0 && args.size() > StructType->n_members) {
+                throw SemanticError("Struct constructor has more arguments than the number of struct members",
+                                    loc);
             }
 
             for( size_t i = 0; i < args.size(); i++ ) {
@@ -1322,7 +1323,7 @@ public:
                 }
                 args.p[i].m_value = arg_new_i;
             }
-            for (size_t i=args.size(); i<StructType->n_members; i++) {
+            for (size_t i = args.size(); i < StructType->n_members; i++) {
                 std::string member_name = StructType->m_members[i];
                 ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
                                                 StructType->m_symtab->resolve_symbol(member_name));
@@ -2770,8 +2771,9 @@ public:
                 this->visit_expr(*x.m_value);
             } else {
                 if (ASR::is_a<ASR::Struct_t>(*type)) {
-                    throw SemanticError(ASRUtils::type_to_str_python(type) + " " + var_name
-                            +  " must be initialized a value", x.base.base.loc);
+                    //`s` must be initialized with an instance of S
+                    throw  SemanticError("`" + var_name + "` must be initialized with an instance of " +
+                            ASRUtils::type_to_str_python(type), x.base.base.loc);
                 }
             }
             if( is_c_p_pointer_call ) {
@@ -4859,12 +4861,15 @@ public:
             }
             ASR::Variable_t* v =  ASR::down_cast<ASR::Variable_t>(s);
             if (v->m_intent == ASR::intentType::In) {
+                std::string msg = "Hint: create a new local variable with a different name";
+                if (ASRUtils::is_aggregate_type(v->m_type)) {
+                    msg = "Use InOut[" + ASRUtils::type_to_str_python(v->m_type) + "] to allow assignment";
+                }
                 diag.add(diag::Diagnostic(
                     "Assignment to an input function parameter `"
                     + std::string(v->m_name) + "` is not allowed",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("Use InOut[" + std::string(v->m_name) + "] to allow assignment",
-                                {x->base.loc})
+                        diag::Label(msg, {x->base.loc})
                     })
                 );
                 throw SemanticAbort();
