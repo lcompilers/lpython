@@ -1729,7 +1729,15 @@ public:
                     throw SemanticError("Only Name in Subscript supported for now in `set`"
                         " annotation", loc);
                 }
-            } else if (var_annotation == "list") {
+            } else if (var_annotation == "list" || var_annotation == "List") {
+                if (var_annotation == "List") {
+                    diag.add(diag::Diagnostic(
+                        "`List` is a deprecated alias to `list`",
+                        diag::Level::Warning, diag::Stage::Semantic, {
+                            diag::Label("Hint: Use `list` here", {s->m_value->base.loc})
+                        })
+                    );
+                }
                 ASR::ttype_t *type = nullptr;
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     type = ast_expr_to_asr_type(loc, *s->m_slice, is_allocatable);
