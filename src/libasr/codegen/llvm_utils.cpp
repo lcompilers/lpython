@@ -3194,11 +3194,14 @@ namespace LCompilers {
         return read_item(llvm_tuple, llvm_pos, get_pointer);
     }
 
-    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple,
-                               std::vector<llvm::Value*>& values) {
+    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values,
+        ASR::Tuple_t* tuple_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         for( size_t i = 0; i < values.size(); i++ ) {
             llvm::Value* item_ptr = read_item(llvm_tuple, i, true);
-            builder->CreateStore(values[i], item_ptr);
+            llvm_utils->deepcopy(values[i], item_ptr,
+                                 tuple_type->m_type[i], module,
+                                 name2memidx);
         }
     }
 
@@ -3234,17 +3237,21 @@ namespace LCompilers {
         return is_equal;
     }
 
-    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2,
-                           ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
-                           llvm::Value* concat_tuple) {
+    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
+                           ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
+                           ASR::Tuple_t* concat_tuple_type, llvm::Module& module,
+                           std::map<std::string, std::map<std::string, int>>& name2memidx) {
         std::vector<llvm::Value*> values;
         for( size_t i = 0; i < tuple_type_1->n_type; i++ ) {
-            values.push_back(llvm_utils->tuple_api->read_item(t1, i, false));
+            values.push_back(llvm_utils->tuple_api->read_item(t1, i,
+                LLVM::is_llvm_struct(tuple_type_1->m_type[i])));
         }
         for( size_t i = 0; i < tuple_type_2->n_type; i++ ) {
-            values.push_back(llvm_utils->tuple_api->read_item(t2, i, false));
+            values.push_back(llvm_utils->tuple_api->read_item(t2, i,
+                LLVM::is_llvm_struct(tuple_type_2->m_type[i])));
         }
-        tuple_init(concat_tuple, values);
+        tuple_init(concat_tuple, values, concat_tuple_type,
+                   &module, name2memidx);
     }
 
 } // namespace LCompilers

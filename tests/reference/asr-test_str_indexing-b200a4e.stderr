@@ -1,4 +1,4 @@
-semantic error: Type mismatch in index, Index should be of integer type
+semantic error: Type mismatch in index, expected a single integer
  --> tests/errors/test_str_indexing.py:4:13
   |
 4 |     print(s[1.2])

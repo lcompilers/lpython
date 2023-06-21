@@ -7,11 +7,6 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
 const double μ =   1.45136923488338110e+00;
 int32_t add(int32_t x, int32_t y)

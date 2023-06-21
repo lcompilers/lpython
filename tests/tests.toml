@@ -644,6 +644,10 @@ filename = "errors/test_bit_length.py"
 asr = true
 
 [[test]]
+filename = "errors/string_01.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_01.py"
 asr = true
 
@@ -673,6 +677,14 @@ asr = true
 
 [[test]]
 filename = "errors/structs_08.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_09.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_10.py"
 asr = true
 
 [[test]]

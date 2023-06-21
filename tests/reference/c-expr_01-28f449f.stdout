@@ -7,11 +7,6 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
 inline __attribute__((always_inline)) int32_t add(int32_t x, int32_t y)
 {
