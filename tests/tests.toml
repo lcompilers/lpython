@@ -746,6 +746,18 @@ filename = "errors/test_list_slicing.py"
 asr = true
 
 [[test]]
+filename = "errors/test_annassign_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_02.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_03.py"
+asr = true
+
+[[test]]
 filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 
@@ -1145,6 +1157,10 @@ asr = true
 
 [[test]]
 filename = "errors/func_07.py"
+asr = true
+
+[[test]]
+filename = "errors/func_08.py"
 asr = true
 
 # tests/runtime_errors
