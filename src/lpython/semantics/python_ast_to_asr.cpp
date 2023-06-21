@@ -3629,9 +3629,9 @@ public:
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
                 diag.add(diag::Diagnostic(
-                    "Type mismatch in index, expected a single integer",
+                    "Type mismatch in index, expected a single integer or slice",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (found: '" + fnd + "', expected: 'i32')",
+                        diag::Label("type mismatch (found: '" + fnd + "', expected: 'i32' or slice)",
                                 {tmp->loc})
                     })
                 );
