@@ -602,6 +602,33 @@ R"(#include <stdio.h>
         return code;
     }
 
+    std::string get_type_format(ASR::ttype_t *type) {
+        // See: https://docs.python.org/3/c-api/arg.html for more info on `type format`
+        switch (type->type) {
+            case ASR::ttypeType::Integer: {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(type);
+                if (a_kind == 4) {
+                    return "i";
+                } else {
+                    return "l";
+                }
+            } case ASR::ttypeType::Real : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(type);
+                if (a_kind == 4) {
+                    return "f";
+                } else {
+                    return "d";
+                }
+            } case ASR::ttypeType::Logical : {
+                return "p";
+            } case ASR::ttypeType::Array : {
+                return "O";
+            } default: {
+                throw CodeGenError("CPython type format not supported yet");
+            }
+        }
+    }
+
     void visit_Function(const ASR::Function_t &x) {
         current_body = "";
         SymbolTable* current_scope_copy = current_scope;
@@ -725,6 +752,7 @@ R"(#include <stdio.h>
                 std::string variables_decl = "\n\n    "
                     "// Declare arguments and return variable\n";
                 std::string fill_parse_args_details = "";
+                std::string type_format = "";
                 std::string fn_args = "";
                 std::string fill_array_details = "";
                 std::string numpy_init = "";
@@ -733,6 +761,7 @@ R"(#include <stdio.h>
                     ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
                     std::string arg_name = arg->m_name;
                     fill_parse_args_details += "&" + arg_name;
+                    type_format += get_type_format(arg->m_type);
 
                     if (ASR::is_a<ASR::Array_t>(*arg->m_type)) {
                         if (numpy_init.size() == 0) {
@@ -786,7 +815,7 @@ R"(#include <stdio.h>
 
                 fill_parse_args_details = R"(
     // Parse the arguments from Python
-    if (!PyArg_ParseTuple(args, "iO", )" + fill_parse_args_details + R"()) {
+    if (!PyArg_ParseTuple(args, ")" + type_format + R"(", )" + fill_parse_args_details + R"()) {
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
             "Failed to parse or receive arguments from Python");
         return NULL;
@@ -794,11 +823,13 @@ R"(#include <stdio.h>
 
                 std::string fill_return_details;
                 if(x.m_return_var) {
-                    variables_decl += "    " + self().convert_variable_decl(
-                        *ASRUtils::EXPR2VAR(x.m_return_var)) + ";\n";
+                    ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
+                    variables_decl += "    " + self().convert_variable_decl(*return_var)
+                        + ";\n";
                     fill_return_details = R"(
     // Build and return the result as a Python object
-    return Py_BuildValue("d", _lpython_return_variable);)";
+    return Py_BuildValue(")" + get_type_format(return_var->m_type)
+                        + R"(", _lpython_return_variable);)";
                 } else {
                     fill_return_details = R"(
     // Return None
