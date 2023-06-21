@@ -2397,6 +2397,7 @@ R"(#include <stdio.h>
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(SymbolicSymbol, "Symbol");
+            SET_INTRINSIC_NAME(SymbolicInteger, "Integer");
             SET_INTRINSIC_NAME(SymbolicPi, "pi");
             case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)):
             case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub)):
@@ -2423,7 +2424,8 @@ R"(#include <stdio.h>
             src = out;
         } else if (x.n_args == 1) {
             this->visit_expr(*x.m_args[0]);
-            if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
+            if ((x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) &&
+                (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger))) {
                 out += "(" + src + ")";
                 src = out;
             }
