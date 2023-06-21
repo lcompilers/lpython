@@ -766,7 +766,8 @@ R"(#include <stdio.h>
                         if (numpy_init.size() == 0) {
                             numpy_init = R"(
     // Initialize NumPy
-    import_array();)";
+    import_array();
+)";
                             headers.insert("numpy/ndarrayobject.h");
                             user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
                         }
@@ -775,7 +776,7 @@ R"(#include <stdio.h>
                         std::string c_array_type = self().convert_variable_decl(*arg);
                         c_array_type = c_array_type.substr(0,
                             c_array_type.size() - arg_name.size() - 2);
-                        fill_array_details += "\n\n    // fill array details for " + arg_name
+                        fill_array_details += "\n    // fill array details for " + arg_name
     + "\n    if (PyArray_NDIM(" + arg_name + R"() != 1) {
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
             "Only 1 dimension array is supported for now.");
@@ -799,7 +800,8 @@ R"(#include <stdio.h>
         s_array_)" + arg_name + R"(->dims[0].lower_bound = 0;
         s_array_)" + arg_name + R"(->dims[0].length = dims[0];
         s_array_)" + arg_name + R"(->is_allocated = false;
-    })";
+    }
+)";
                     } else {
                         fn_args += arg_name;
                         variables_decl += "    " + self().convert_variable_decl(*arg)
@@ -818,13 +820,14 @@ R"(#include <stdio.h>
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
             "Failed to parse or receive arguments from Python");
         return NULL;
-    })";
+    }
+)";
                 }
 
                 std::string fn_name = x.m_name;
                 std::string fill_return_details;
                 if (variables_decl.size() > 0) {
-                    variables_decl.insert(0, "\n\n    "
+                    variables_decl.insert(0, "\n    "
                     "// Declare arguments and return variable\n");
                 }
                 if(x.m_return_var) {
