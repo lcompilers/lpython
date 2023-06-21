@@ -9,11 +9,6 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
 double __lpython_overloaded_0__pow(int32_t x, int32_t y)
 {

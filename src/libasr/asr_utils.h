@@ -1266,15 +1266,15 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
-            return "struct " + std::string(symbol_name(d->m_derived_type));
+            return std::string(symbol_name(d->m_derived_type));
         }
         case ASR::ttypeType::Enum: {
             ASR::Enum_t* d = ASR::down_cast<ASR::Enum_t>(t);
-            return "enum " + std::string(symbol_name(d->m_enum_type));
+            return std::string(symbol_name(d->m_enum_type));
         }
         case ASR::ttypeType::Union: {
             ASR::Union_t* d = ASR::down_cast<ASR::Union_t>(t);
-            return "union " + std::string(symbol_name(d->m_union_type));
+            return std::string(symbol_name(d->m_union_type));
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
@@ -1760,7 +1760,11 @@ inline bool ttype_set_dimensions(ASR::ttype_t** x,
         case ASR::ttypeType::Real:
         case ASR::ttypeType::Complex:
         case ASR::ttypeType::Character:
-        case ASR::ttypeType::Logical: {
+        case ASR::ttypeType::Logical:
+        case ASR::ttypeType::Struct:
+        case ASR::ttypeType::Enum:
+        case ASR::ttypeType::Union:
+        case ASR::ttypeType::TypeParameter: {
             *x = ASRUtils::make_Array_t_util(al, (*x)->base.loc, *x, m_dims, n_dims);
             return true;
         }

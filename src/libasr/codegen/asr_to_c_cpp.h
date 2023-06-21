@@ -306,11 +306,7 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                std::string d = self().convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
-                    d += ";\n";
-                }
+                std::string d = self().convert_variable_decl(*v) + ";\n";
                 decl += check_tmp_buffer() + d;
             }
         }
@@ -354,11 +350,7 @@ R"(#include <stdio.h>
             ASR::symbol_t* var_sym = block->m_symtab->get_symbol(item);
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
-                std::string d = indent + self().convert_variable_decl(*v);
-                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                    v->m_intent == ASRUtils::intent_return_var ) {
-                    d += ";\n";
-                }
+                std::string d = indent + self().convert_variable_decl(*v) + ";\n";
                 decl += check_tmp_buffer() + d;
             }
         }
@@ -673,11 +665,7 @@ R"(#include <stdio.h>
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                     if (v->m_intent == ASRUtils::intent_local ||
                         v->m_intent == ASRUtils::intent_return_var) {
-                        std::string d = indent + self().convert_variable_decl(*v);
-                        if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
-                            v->m_intent == ASRUtils::intent_return_var ) {
-                            d += ";\n";
-                        }
+                        std::string d = indent + self().convert_variable_decl(*v) + ";\n";
                         if (ASR::is_a<ASR::SymbolicExpression_t>(*v->m_type)) {
                             std::string v_m_name = v->m_name;
                             d += indent + "basic_new_stack(" + v_m_name + ");\n";

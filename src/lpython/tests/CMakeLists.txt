@@ -32,6 +32,14 @@ endif()
 # Add one main test suite for LPython, composed of many individual cpp files:
 add_executable(test_lpython ${SRC})
 target_link_libraries(test_lpython lpython_lib p::doctest)
+if (HAVE_BUILD_TO_WASM)
+    set(WASM_COMPILE_FLAGS "-g0 -fexceptions")
+    set(WASM_LINK_FLAGS
+      "-Oz -g0 -fexceptions -Wall -Wextra -s ASSERTIONS -s ALLOW_MEMORY_GROWTH=1 -s WASM_BIGINT"
+    )
+    set_target_properties(test_lpython PROPERTIES COMPILE_FLAGS ${WASM_COMPILE_FLAGS})
+    set_target_properties(test_lpython PROPERTIES LINK_FLAGS ${WASM_LINK_FLAGS})
+endif()
 add_test(test_lpython ${PROJECT_BINARY_DIR}/test_lpython)
 
 set_target_properties(test_lpython PROPERTIES
