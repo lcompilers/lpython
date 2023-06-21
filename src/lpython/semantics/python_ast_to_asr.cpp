@@ -1679,6 +1679,10 @@ public:
                     loc);
             }
 
+            if (var_annotation == "In" || var_annotation == "InOut" || var_annotation == "Out") {
+                throw SemanticError("Intent annotation '" + var_annotation + "' cannot be used here", s->base.base.loc);
+            }
+
             if (var_annotation == "tuple") {
                 Vec<ASR::ttype_t*> types;
                 types.reserve(al, 4);
