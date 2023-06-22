@@ -760,12 +760,16 @@ R"(#include <stdio.h>
                 std::string fn_args = "";
                 std::string fill_array_details = "";
                 std::string numpy_init = "";
+                std::string return_array_size = "";
 
                 for (size_t i = 0; i < x.n_args; i++) {
                     ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
                     std::string arg_name = arg->m_name;
-                    fill_parse_args_details += "&" + arg_name;
-                    type_format += get_type_format(arg->m_type);
+                    if (arg_name != "_lpython_return_variable") {
+                        if (i > 0) fill_parse_args_details += ", ";
+                        fill_parse_args_details += "&" + arg_name;
+                        type_format += get_type_format(arg->m_type);
+                    }
 
                     if (ASR::is_a<ASR::Array_t>(*arg->m_type)) {
                         if (numpy_init.size() == 0) {
@@ -782,19 +786,40 @@ R"(#include <stdio.h>
     // `fill_array_details` contains array operations to be performed on the arguments
     // `fill_parse_args_details` are used to capture the args from CPython
     // `fn_args` are the arguments that are passed to the shared library function
-                        fn_args += "s_array_" + arg_name;
-                        variables_decl += "    PyArrayObject *" + arg_name + ";\n";
                         std::string c_array_type = self().convert_variable_decl(*arg);
                         c_array_type = c_array_type.substr(0,
                             c_array_type.size() - arg_name.size() - 2);
-                        fill_array_details += "\n    // fill array details for " + arg_name
+                        if (arg_name == "_lpython_return_variable") {
+                            ASR::Array_t *arr = ASR::down_cast<ASR::Array_t>(arg->m_type);
+                            if(arr->m_dims[0].m_length &&
+                                    ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
+                                return_array_size = ASRUtils::EXPR2VAR(
+                                    arr->m_dims[0].m_length)->m_name;
+                            }
+                            variables_decl += "    " + c_array_type + " *" + arg_name
+                                + " = malloc(sizeof(" + c_array_type + "));\n";
+                            fn_args += arg_name;
+                            fill_array_details += R"(
+    // Fill _lpython_return_variable
+    _lpython_return_variable->data = malloc(n * sizeof(double));
+    _lpython_return_variable->n_dims = 1;
+    _lpython_return_variable->dims[0].lower_bound = 0;
+    _lpython_return_variable->dims[0].length = n;
+    _lpython_return_variable->is_allocated = false;
+)";
+                            continue;
+                        } else {
+                            fn_args += "s_array_" + arg_name;
+                            variables_decl += "    PyArrayObject *" + arg_name + ";\n";
+                        }
+                        fill_array_details += "\n    // Fill array details for " + arg_name
     + "\n    if (PyArray_NDIM(" + arg_name + R"() != 1) {
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
             "Only 1 dimension array is supported for now.");
         return NULL;
     }
 
-    )" + c_array_type + R"( *s_array_)" + arg_name + R"( = malloc(sizeof()" + c_array_type + R"());
+    )" + c_array_type + " *s_array_" + arg_name + " = malloc(sizeof(" + c_array_type + R"());
     {
         )" + CUtils::get_c_type_from_ttype_t(arg->m_type) + R"( *array;
         // Create C arrays from numpy objects:
@@ -819,7 +844,6 @@ R"(#include <stdio.h>
                             + ";\n";
                     }
                     if (i < x.n_args - 1) {
-                        fill_parse_args_details += ", ";
                         fn_args += ", ";
                     }
                 }
@@ -836,7 +860,7 @@ R"(#include <stdio.h>
                 }
 
                 std::string fn_name = x.m_name;
-                std::string fill_return_details;
+                std::string fill_return_details = "\n    // Call the C function";
                 if (variables_decl.size() > 0) {
                     variables_decl.insert(0, "\n    "
                     "// Declare arguments and return variable\n");
@@ -847,7 +871,6 @@ R"(#include <stdio.h>
                     variables_decl += "    " + self().convert_variable_decl(*return_var)
                         + ";\n";
                     fill_return_details = R"(
-    // Call the C function
     _lpython_return_variable = _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n" + R"(
     // Build and return the result as a Python object
     return Py_BuildValue(")" + get_type_format(return_var->m_type)
@@ -855,9 +878,26 @@ R"(#include <stdio.h>
                 } else {
                     fill_return_details = R"(
     // Call the C function
-    )" + fn_name + "(" + fn_args + ");\n" + R"(
+    _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n";
+                    if (return_array_size.size() > 0) {
+                        fill_return_details += R"(
+    // Build and return the result as a Python object
+    {
+        npy_intp dims[] = {)" + return_array_size + R"(};
+        PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE,
+            _lpython_return_variable->data);
+        if (numpy_array == NULL) {
+            PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
+                "Failed to create an array that was used as a return variable");
+            return NULL;
+        }
+        return numpy_array;
+    })";
+                    } else {
+                        fill_return_details += R"(
     // Return None
     Py_RETURN_NONE;)";
+                    }
                 }
                 // `sub` contains the function to be called
                 src = sub;
