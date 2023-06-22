@@ -761,6 +761,7 @@ R"(#include <stdio.h>
                 std::string fill_array_details = "";
                 std::string numpy_init = "";
                 std::string return_array_size = "";
+                std::string array_type = "";
 
                 for (size_t i = 0; i < x.n_args; i++) {
                     ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
@@ -795,6 +796,7 @@ R"(#include <stdio.h>
                                     ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
                                 return_array_size = ASRUtils::EXPR2VAR(
                                     arr->m_dims[0].m_length)->m_name;
+                                array_type = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
                             }
                             variables_decl += "    " + c_array_type + " *" + arg_name
                                 + " = malloc(sizeof(" + c_array_type + "));\n";
@@ -884,7 +886,7 @@ R"(#include <stdio.h>
     // Build and return the result as a Python object
     {
         npy_intp dims[] = {)" + return_array_size + R"(};
-        PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, NPY_DOUBLE,
+        PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, )" + array_type + R"(,
             _lpython_return_variable->data);
         if (numpy_array == NULL) {
             PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
