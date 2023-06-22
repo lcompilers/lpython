@@ -665,8 +665,10 @@ class lpython:
             # Write the Python source code to the file
             file.write("@pythoncallable")
             file.write(source_code)
-        # ----------------------------------------------------------------------
 
+        # ----------------------------------------------------------------------
+        # Generate the shared library
+        # TODO: Use LLVM instead of C backend
         r = os.system("lpython --show-c --disable-main "
             + filename + ".py > " + filename + ".c")
         assert r == 0, "Failed to create C file"
@@ -690,7 +692,8 @@ class lpython:
         python_lib = "-L" + get_python_lib() + "/../.. -lpython" + \
             get_python_version() + " -lm"
 
-
+        # ----------------------------------------------------------------------
+        # Compile the C file and create a shared library
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
             filename + ".c -o lpython_module_" + self.fn_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)

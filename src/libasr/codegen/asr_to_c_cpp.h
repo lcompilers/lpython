@@ -754,7 +754,7 @@ R"(#include <stdio.h>
                 src = "";
             } else if (f_type->m_abi == ASR::abiType::BindPython) {
                 headers.insert("Python.h");
-                std::string variables_decl = "";
+                std::string variables_decl = ""; // Stores the argument declarations
                 std::string fill_parse_args_details = "";
                 std::string type_format = "";
                 std::string fn_args = "";
@@ -773,9 +773,15 @@ R"(#include <stdio.h>
     // Initialize NumPy
     import_array();
 )";
+                            // Insert the headers for array handling
                             headers.insert("numpy/ndarrayobject.h");
                             user_defines.insert("NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION");
                         }
+    // -------------------------------------------------------------------------
+    // `PyArray_AsCArray` is used to convert NumPy Arrays to C Arrays
+    // `fill_array_details` contains array operations to be performed on the arguments
+    // `fill_parse_args_details` are used to capture the args from CPython
+    // `fn_args` are the arguments that are passed to the shared library function
                         fn_args += "s_array_" + arg_name;
                         variables_decl += "    PyArrayObject *" + arg_name + ";\n";
                         std::string c_array_type = self().convert_variable_decl(*arg);
@@ -835,6 +841,7 @@ R"(#include <stdio.h>
                     variables_decl.insert(0, "\n    "
                     "// Declare arguments and return variable\n");
                 }
+                // Handle the return variable if any; otherwise, return None
                 if(x.m_return_var) {
                     ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
                     variables_decl += "    " + self().convert_variable_decl(*return_var)
@@ -852,7 +859,11 @@ R"(#include <stdio.h>
     // Return None
     Py_RETURN_NONE;)";
                 }
+                // `sub` contains the function to be called
                 src = sub;
+// Python wrapper for the Shared library
+// TODO: Instead of a function call replace it with the function body
+// Basically, inlining the function by hand
                 src += R"(// Define the Python module and method mappings
 static PyObject* )" + fn_name + R"((PyObject* self, PyObject* args) {)"
     + numpy_init + variables_decl + fill_parse_args_details
