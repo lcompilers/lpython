@@ -4982,6 +4982,11 @@ public:
             tmp = LLVM::CreateLoad(*builder, tmp);
         }
         value = tmp;
+        if (ASR::is_a<ASR::Struct_t>(*target_type)) {
+            if (value->getType()->isPointerTy()) {
+                value = LLVM::CreateLoad(*builder, value);
+            }
+        }
         if ( is_a<ASR::Character_t>(*ASRUtils::type_get_past_array(expr_type(x.m_value))) ) {
             int n_dims = ASRUtils::extract_n_dims_from_ttype(expr_type(x.m_value));
             if (n_dims == 0) {
