@@ -381,18 +381,32 @@ R"(#include <stdio.h>
         }
         if (x.m_return_var) {
             ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
+            bool is_array = ASRUtils::is_array(return_var->m_type);
             if (ASRUtils::is_integer(*return_var->m_type)) {
-                int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind;
-                sub = "int" + std::to_string(kind * 8) + "_t ";
-            } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
-                int kind = ASR::down_cast<ASR::UnsignedInteger_t>(return_var->m_type)->m_kind;
-                sub = "uint" + std::to_string(kind * 8) + "_t ";
-            } else if (ASRUtils::is_real(*return_var->m_type)) {
-                bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
-                if (is_float) {
-                    sub = "float ";
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                if (is_array) {
+                    sub = "struct i" + std::to_string(kind * 8) + "* ";
                 } else {
-                    sub = "double ";
+                    sub = "int" + std::to_string(kind * 8) + "_t ";
+                }
+            } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                if (is_array) {
+                    sub = "struct u" + std::to_string(kind * 8) + "* ";
+                } else {
+                    sub = "uint" + std::to_string(kind * 8) + "_t ";
+                }
+            } else if (ASRUtils::is_real(*return_var->m_type)) {
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                bool is_float = (kind == 4);
+                if (is_array) {
+                    sub = "struct r" + std::to_string(kind * 8) + "* ";
+                } else {
+                    if (is_float) {
+                        sub = "float ";
+                    } else {
+                        sub = "double ";
+                    }
                 }
             } else if (ASRUtils::is_logical(*return_var->m_type)) {
                 sub = "bool ";
