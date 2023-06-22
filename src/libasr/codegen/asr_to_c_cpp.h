@@ -760,8 +760,9 @@ R"(#include <stdio.h>
                 std::string fn_args = "";
                 std::string fill_array_details = "";
                 std::string numpy_init = "";
+                // Use for return variable
                 std::string return_array_size = "";
-                std::string array_type = "";
+                std::string array_type = ""; // Array type used for `PyArray_SimpleNewFromData`
 
                 for (size_t i = 0; i < x.n_args; i++) {
                     ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
@@ -792,15 +793,16 @@ R"(#include <stdio.h>
                             c_array_type.size() - arg_name.size() - 2);
                         if (arg_name == "_lpython_return_variable") {
                             ASR::Array_t *arr = ASR::down_cast<ASR::Array_t>(arg->m_type);
+                            fn_args += arg_name;
+                            variables_decl += "    " + c_array_type + " *" + arg_name
+                                + " = malloc(sizeof(" + c_array_type + "));\n";
                             if(arr->m_dims[0].m_length &&
                                     ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
+                            // name() -> f64[n]: Extract `array_type` and `n`
                                 return_array_size = ASRUtils::EXPR2VAR(
                                     arr->m_dims[0].m_length)->m_name;
                                 array_type = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
                             }
-                            variables_decl += "    " + c_array_type + " *" + arg_name
-                                + " = malloc(sizeof(" + c_array_type + "));\n";
-                            fn_args += arg_name;
                             fill_array_details += R"(
     // Fill _lpython_return_variable
     _lpython_return_variable->data = malloc(n * sizeof(double));
@@ -872,18 +874,17 @@ R"(#include <stdio.h>
                     ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
                     variables_decl += "    " + self().convert_variable_decl(*return_var)
                         + ";\n";
-                    fill_return_details = R"(
+                    fill_return_details += R"(
     _lpython_return_variable = _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n" + R"(
     // Build and return the result as a Python object
     return Py_BuildValue(")" + get_type_format(return_var->m_type)
                         + R"(", _lpython_return_variable);)";
                 } else {
-                    fill_return_details = R"(
-    // Call the C function
+                    fill_return_details += R"(
     _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n";
                     if (return_array_size.size() > 0) {
                         fill_return_details += R"(
-    // Build and return the result as a Python object
+    // Copy the array elements and return the result as a Python object
     {
         npy_intp dims[] = {)" + return_array_size + R"(};
         PyObject* numpy_array = PyArray_SimpleNewFromData(1, dims, )" + array_type + R"(,
