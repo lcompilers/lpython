@@ -2874,18 +2874,14 @@ public:
                 if (AST::is_a<AST::ConstantStr_t>(*expr->m_value)) {
                     // It is a doc string. Skip doc strings for now.
                     continue;
-                } else {
-                    throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
                 }
-            }
-            if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
+                throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
+            } else if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
-            }
-            if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
+            } else if ( AST::is_a<AST::FunctionDef_t>(*x.m_body[i]) ) {
                 throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
-            }
-            if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
+            } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
             }
 
