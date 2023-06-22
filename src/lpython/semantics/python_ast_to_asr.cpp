@@ -2883,11 +2883,13 @@ public:
                 throw SemanticError("Struct member functions are not supported", x.m_body[i]->base.loc);
             } else if (AST::is_a<AST::Pass_t>(*x.m_body[i])) {
                 continue;
+            } else if (!AST::is_a<AST::AnnAssign_t>(*x.m_body[i])) {
+                throw SemanticError("AnnAssign expected inside struct", x.m_body[i]->base.loc);
             }
-
-            LCOMPILERS_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
             AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
-            LCOMPILERS_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
+            if (!AST::is_a<AST::Name_t>(*ann_assign->m_target)) {
+                throw SemanticError("Only Name supported as target in AnnAssign inside struct", x.m_body[i]->base.loc);
+            }
             AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
             std::string var_name = n->m_id;
             ASR::expr_t* init_expr = nullptr;
