@@ -1,7 +1,7 @@
 from numpy import array
-from lpython import i32, f64, temp_lpython
+from lpython import i32, f64, lpython
 
-@temp_lpython
+@lpython
 def fast_sum(n: i32, x: f64[:]) -> f64:
     s: f64 = 0.0
     i: i32
