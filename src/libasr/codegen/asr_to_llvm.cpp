@@ -5134,6 +5134,11 @@ public:
     }
 
     inline void visit_expr_wrapper(ASR::expr_t* x, bool load_ref=false) {
+        // Check if *x is nullptr.
+        if( x == nullptr ) {
+            throw CodeGenError("Internal error: x is nullptr");
+        }
+        
         this->visit_expr(*x);
         if( x->type == ASR::exprType::ArrayItem ||
             x->type == ASR::exprType::ArraySection ||
