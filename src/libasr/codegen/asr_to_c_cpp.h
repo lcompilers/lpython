@@ -466,6 +466,11 @@ R"(#include <stdio.h>
         if (sym_name == "exit") {
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
+        ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
+        if (f_type->m_abi == ASR::abiType::BindPython &&
+                f_type->m_deftype == ASR::deftypeType::Implementation) {
+            sym_name = "_xx_internal_" + sym_name + "_xx";
+        }
         std::string func = static_attr + inl + sub + sym_name + "(";
         bracket_open++;
         for (size_t i=0; i<x.n_args; i++) {
@@ -836,7 +841,7 @@ R"(#include <stdio.h>
                         + ";\n";
                     fill_return_details = R"(
     // Call the C function
-    _lpython_return_variable = )" + fn_name + "(" + fn_args + ");\n" + R"(
+    _lpython_return_variable = _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n" + R"(
     // Build and return the result as a Python object
     return Py_BuildValue(")" + get_type_format(return_var->m_type)
                         + R"(", _lpython_return_variable);)";
@@ -849,14 +854,14 @@ R"(#include <stdio.h>
                 }
                 src = sub;
                 src += R"(// Define the Python module and method mappings
-static PyObject* )" + fn_name + R"(_define_module(PyObject* self, PyObject* args) {)"
+static PyObject* )" + fn_name + R"((PyObject* self, PyObject* args) {)"
     + numpy_init + variables_decl + fill_parse_args_details
     + fill_array_details + fill_return_details + R"(
 }
 
 // Define the module's method table
 static PyMethodDef )" + fn_name + R"(_module_methods[] = {
-    {")" + fn_name + R"(", )" + fn_name + R"(_define_module, METH_VARARGS,
+    {")" + fn_name + R"(", )" + fn_name + R"(, METH_VARARGS,
         "Handle arguments & return variable and call the function"},
     {NULL, NULL, 0, NULL}
 };
