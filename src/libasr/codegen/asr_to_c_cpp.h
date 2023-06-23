@@ -124,7 +124,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
-    std::unique_ptr<CUtils::BindPyUtilFunctions> bind_py_utils_functions;
+    std::unique_ptr<BindPyUtils::BindPyUtilFunctions> bind_py_utils_functions;
     std::string const_name;
     size_t const_vars_count;
     size_t loop_end_count;
@@ -151,7 +151,7 @@ public:
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
-        bind_py_utils_functions{std::make_unique<CUtils::BindPyUtilFunctions>()},
+        bind_py_utils_functions{std::make_unique<BindPyUtils::BindPyUtilFunctions>()},
         const_name{"constname"},
         const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
@@ -365,6 +365,91 @@ R"(#include <stdio.h>
         current_scope = current_scope_copy;
     }
 
+    std::string get_return_var_type(ASR::Variable_t* return_var) {
+        std::string sub;
+        bool is_array = ASRUtils::is_array(return_var->m_type);
+        if (ASRUtils::is_integer(*return_var->m_type)) {
+            int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+            if (is_array) {
+                sub = "struct i" + std::to_string(kind * 8) + "* ";
+            } else {
+                sub = "int" + std::to_string(kind * 8) + "_t ";
+            }
+        } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
+            int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+            if (is_array) {
+                sub = "struct u" + std::to_string(kind * 8) + "* ";
+            } else {
+                sub = "uint" + std::to_string(kind * 8) + "_t ";
+            }
+        } else if (ASRUtils::is_real(*return_var->m_type)) {
+            int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+            bool is_float = (kind == 4);
+            if (is_array) {
+                sub = "struct r" + std::to_string(kind * 8) + "* ";
+            } else {
+                if (is_float) {
+                    sub = "float ";
+                } else {
+                    sub = "double ";
+                }
+            }
+        } else if (ASRUtils::is_logical(*return_var->m_type)) {
+            sub = "bool ";
+        } else if (ASRUtils::is_character(*return_var->m_type)) {
+            if (gen_stdstring) {
+                sub = "std::string ";
+            } else {
+                sub = "char* ";
+            }
+        } else if (ASRUtils::is_complex(*return_var->m_type)) {
+            bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
+            if (is_float) {
+                if (gen_stdcomplex) {
+                    sub = "std::complex<float> ";
+                } else {
+                    sub = "float complex ";
+                }
+            } else {
+                if (gen_stdcomplex) {
+                    sub = "std::complex<double> ";
+                } else {
+                    sub = "double complex ";
+                }
+            }
+        } else if (ASR::is_a<ASR::SymbolicExpression_t>(*return_var->m_type)) {
+            sub = "basic ";
+        } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
+            sub = "void* ";
+        } else if (ASR::is_a<ASR::List_t>(*return_var->m_type)) {
+            ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(return_var->m_type);
+            sub = c_ds_api->get_list_type(list_type) + " ";
+        } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
+            ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
+            sub = c_ds_api->get_tuple_type(tup_type) + " ";
+        } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
+            ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
+            std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
+            sub = "const " + const_type_str + " ";
+        } else if (ASR::is_a<ASR::Pointer_t>(*return_var->m_type)) {
+            ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
+            std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
+            sub = pointer_type_str + "*";
+        } else if (ASR::is_a<ASR::TypeParameter_t>(*return_var->m_type)) {
+            return "";
+        } else if (ASR::is_a<ASR::Dict_t>(*return_var->m_type)) {
+            ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(return_var->m_type);
+            sub = c_ds_api->get_dict_type(dict_type) + " ";
+        } else {
+            throw CodeGenError("Return type not supported in function '" +
+                std::string(ASRUtils::symbol_name(ASR::down_cast<ASR::symbol_t>(
+                    return_var->m_parent_symtab->asr_owner))) +
+                    + "'", return_var->base.base.loc);
+        }
+
+        return sub;
+    }
+
     // Returns the declaration, no semi colon at the end
     std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar) {
         template_for_Kokkos.clear();
@@ -382,85 +467,8 @@ R"(#include <stdio.h>
         }
         if (x.m_return_var) {
             ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
-            bool is_array = ASRUtils::is_array(return_var->m_type);
-            if (ASRUtils::is_integer(*return_var->m_type)) {
-                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
-                if (is_array) {
-                    sub = "struct i" + std::to_string(kind * 8) + "* ";
-                } else {
-                    sub = "int" + std::to_string(kind * 8) + "_t ";
-                }
-            } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
-                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
-                if (is_array) {
-                    sub = "struct u" + std::to_string(kind * 8) + "* ";
-                } else {
-                    sub = "uint" + std::to_string(kind * 8) + "_t ";
-                }
-            } else if (ASRUtils::is_real(*return_var->m_type)) {
-                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
-                bool is_float = (kind == 4);
-                if (is_array) {
-                    sub = "struct r" + std::to_string(kind * 8) + "* ";
-                } else {
-                    if (is_float) {
-                        sub = "float ";
-                    } else {
-                        sub = "double ";
-                    }
-                }
-            } else if (ASRUtils::is_logical(*return_var->m_type)) {
-                sub = "bool ";
-            } else if (ASRUtils::is_character(*return_var->m_type)) {
-                if (gen_stdstring) {
-                    sub = "std::string ";
-                } else {
-                    sub = "char* ";
-                }
-            } else if (ASRUtils::is_complex(*return_var->m_type)) {
-                bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
-                if (is_float) {
-                    if (gen_stdcomplex) {
-                        sub = "std::complex<float> ";
-                    } else {
-                        sub = "float complex ";
-                    }
-                } else {
-                    if (gen_stdcomplex) {
-                        sub = "std::complex<double> ";
-                    } else {
-                        sub = "double complex ";
-                    }
-                }
-            } else if (ASR::is_a<ASR::SymbolicExpression_t>(*return_var->m_type)) {
-                sub = "basic ";
-            } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
-                sub = "void* ";
-            } else if (ASR::is_a<ASR::List_t>(*return_var->m_type)) {
-                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(return_var->m_type);
-                sub = c_ds_api->get_list_type(list_type) + " ";
-            } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
-                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
-                sub = c_ds_api->get_tuple_type(tup_type) + " ";
-            } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
-                ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
-                std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
-                sub = "const " + const_type_str + " ";
-            } else if (ASR::is_a<ASR::Pointer_t>(*return_var->m_type)) {
-                ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
-                std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
-                sub = pointer_type_str + "*";
-            } else if (ASR::is_a<ASR::TypeParameter_t>(*return_var->m_type)) {
-                has_typevar = true;
-                return "";
-            } else if (ASR::is_a<ASR::Dict_t>(*return_var->m_type)) {
-                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(return_var->m_type);
-                sub = c_ds_api->get_dict_type(dict_type) + " ";
-            } else {
-                throw CodeGenError("Return type not supported in function '" +
-                    std::string(x.m_name) +
-                    + "'", return_var->base.base.loc);
-            }
+            has_typevar = ASR::is_a<ASR::TypeParameter_t>(*return_var->m_type);
+            sub = get_return_var_type(return_var);
         } else {
             sub = "void ";
         }
@@ -519,11 +527,11 @@ R"(#include <stdio.h>
             std::string indent = "\n    ";
             if (ASRUtils::is_array(arg->m_type)) {
                 arg_conv += indent + bind_py_utils_functions->get_conv_dims_to_1D_arr() + "(" + arg_name + "->n_dims, " + arg_name + "->dims, __new_dims);";
-                std::string func_call = CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type);
+                std::string func_call = BindPyUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type);
                 arg_conv += indent + "pValue = " + func_call + "(" + arg_name + "->n_dims, __new_dims, "
-                    + CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arg->m_type) + ", " + arg_name + "->data);";
+                    + BindPyUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arg->m_type) + ", " + arg_name + "->data);";
             } else {
-                arg_conv += indent + "pValue = " + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type)
+                arg_conv += indent + "pValue = " + BindPyUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type)
                     + "(" + arg_name + ");";
             }
             arg_conv += R"(
@@ -544,31 +552,13 @@ R"(#include <stdio.h>
         if (!x.m_return_var) return "";
         ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string indent = "\n    ";
-        std::string py_val_cnvrt, ret_var_decl, copy_result;
-        if (ASRUtils::is_aggregate_type(r_v->m_type)) {
-            if (ASRUtils::is_array(r_v->m_type)) {
-                ASR::ttype_t* array_type_asr = ASRUtils::type_get_past_array(r_v->m_type);
-                std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
-                std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
-                std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name, array_types_decls, true);
-                py_val_cnvrt = bind_py_utils_functions->get_conv_py_arr_to_c(return_type, array_type_name,
-                    array_encoded_type_name) + "(pValue)";
-                ret_var_decl = indent + return_type + " _lpython_return_variable;";
-            } else {
-                if (ASRUtils::is_character(*r_v->m_type)) {
-                    py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
-                    ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-                    copy_result = indent + "_lpython_return_variable = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
-                }
-            }
-        } else {
-            py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
-            ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-        }
-        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
-        std::string ret_stmt = indent + "return _lpython_return_variable;";
+        std::string ret_var_decl = indent + get_return_var_type(r_v) + " _lpython_return_variable;";
+        std::string py_val_cnvrt = BindPyUtils::get_py_obj_ret_type_conv_fn_from_ttype(r_v->m_type,
+            array_types_decls, c_ds_api, bind_py_utils_functions);
+        std::string ret_assign = indent + "_lpython_return_variable = " + py_val_cnvrt + "(pValue);";
         std::string clear_pValue = indent + "Py_DECREF(pValue);";
-        return ret_var_decl + ret_assign + copy_result + clear_pValue + ret_stmt + "\n";
+        std::string ret_stmt = indent + "return _lpython_return_variable;";
+        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {
