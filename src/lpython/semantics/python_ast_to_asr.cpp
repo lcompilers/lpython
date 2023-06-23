@@ -3980,9 +3980,9 @@ public:
                         current_procedure_interface = true;
                     } else if (name == "ccallback" || name == "ccallable") {
                         current_procedure_abi_type = ASR::abiType::BindC;
-                    } else if (name == "pythoncall") {
+                    } else if (name == "pythoncall" || name == "pythoncallable") {
                         current_procedure_abi_type = ASR::abiType::BindPython;
-                        current_procedure_interface = true;
+                        current_procedure_interface = (name == "pythoncall");
                     } else if (name == "overload") {
                         overload = true;
                     } else if (name == "interface") {
