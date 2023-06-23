@@ -783,12 +783,11 @@ namespace LCompilers {
 
     void LLVMDictSeparateChaining::deepcopy_key_value_pair_linked_list(
         llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_key_value_pairs,
-        llvm::Value* src_capacity, ASR::Dict_t* dict_type, llvm::Module* module,
+        ASR::Dict_t* dict_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( !are_iterators_set ) {
             src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
             dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
         llvm::Type* key_value_pair_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo();
         LLVM::CreateStore(*builder,
@@ -797,7 +796,6 @@ namespace LCompilers {
         LLVM::CreateStore(*builder,
             builder->CreateBitCast(desti, llvm::Type::getInt8PtrTy(context)),
             dest_itr);
-        LLVM::CreateStore(*builder, src_capacity, next_ptr);
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -958,9 +956,11 @@ namespace LCompilers {
             get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo());
         if( !are_iterators_set ) {
             copy_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+            next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
         llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
         LLVM::CreateStore(*builder, llvm_zero, copy_itr);
+        LLVM::CreateStore(*builder, src_capacity, next_ptr);
 
         llvm::Value* src_key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(src));
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -991,7 +991,7 @@ namespace LCompilers {
                 llvm::Value* srci = llvm_utils->create_ptr_gep(src_key_value_pairs, itr);
                 llvm::Value* desti = llvm_utils->create_ptr_gep(dest_key_value_pairs, itr);
                 deepcopy_key_value_pair_linked_list(srci, desti, dest_key_value_pairs,
-                    src_capacity, dict_type, module, name2memidx);
+                    dict_type, module, name2memidx);
             }, [=]() {
             });
             llvm::Value* tmp = builder->CreateAdd(
@@ -3102,7 +3102,7 @@ namespace LCompilers {
                                     context, llvm::APInt(32, 0)), i);       // i = 0
         llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
         llvm::Value* tmp = nullptr;
-        
+
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");

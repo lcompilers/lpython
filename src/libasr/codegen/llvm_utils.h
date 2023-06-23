@@ -283,7 +283,7 @@ namespace LCompilers {
 
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
-            
+
             void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                   llvm::Value* num_times, llvm::Value* init_list_len,
                                   llvm::Module* module);
@@ -605,7 +605,7 @@ namespace LCompilers {
             llvm::Value* get_pointer_to_rehash_flag(llvm::Value* dict);
 
             void deepcopy_key_value_pair_linked_list(llvm::Value* srci, llvm::Value* desti,
-                llvm::Value* dest_key_value_pairs, llvm::Value* src_capacity, ASR::Dict_t* dict_type,
+                llvm::Value* dest_key_value_pairs, ASR::Dict_t* dict_type,
                 llvm::Module* module, std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_key_value_pair_linked_list(llvm::Value* kv_ll, llvm::Value* dict,
