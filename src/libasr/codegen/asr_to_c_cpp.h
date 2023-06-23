@@ -395,7 +395,11 @@ R"(#include <stdio.h>
                 }
             }
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
-            sub = "bool ";
+            if (is_array) {
+                sub = "struct i1* ";
+            } else {
+                sub = "bool ";
+            }
         } else if (ASRUtils::is_character(*return_var->m_type)) {
             if (gen_stdstring) {
                 sub = "std::string ";
@@ -403,18 +407,23 @@ R"(#include <stdio.h>
                 sub = "char* ";
             }
         } else if (ASRUtils::is_complex(*return_var->m_type)) {
-            bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
-            if (is_float) {
-                if (gen_stdcomplex) {
-                    sub = "std::complex<float> ";
-                } else {
-                    sub = "float complex ";
-                }
+            int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+            if (is_array) {
+                sub = "struct c" + std::to_string(kind * 8) + "* ";
             } else {
-                if (gen_stdcomplex) {
-                    sub = "std::complex<double> ";
+                bool is_float = kind == 4;
+                if (is_float) {
+                    if (gen_stdcomplex) {
+                        sub = "std::complex<float> ";
+                    } else {
+                        sub = "float complex ";
+                    }
                 } else {
-                    sub = "double complex ";
+                    if (gen_stdcomplex) {
+                        sub = "std::complex<double> ";
+                    } else {
+                        sub = "double complex ";
+                    }
                 }
             }
         } else if (ASR::is_a<ASR::SymbolicExpression_t>(*return_var->m_type)) {
@@ -863,7 +872,7 @@ R"(#include <stdio.h>
                                 ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
                             // name() -> f64[n]: Extract `array_type` and `n`
                             std::string array_type
-                                = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
+                                = BindPyUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
                             std::string return_array_size = ASRUtils::EXPR2VAR(
                                 arr->m_dims[0].m_length)->m_name;
                             fill_return_details += R"(
