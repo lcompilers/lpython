@@ -1589,15 +1589,15 @@ public:
         std::string key_type_code = ASRUtils::get_type_code(x_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(x_dict->m_value_type);
         llvm_utils->dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
-        int64_t ptr_loads_key = LLVM::is_llvm_struct(x_dict->m_key_type) ? 0 : 2;
-        int64_t ptr_loads_value = LLVM::is_llvm_struct(x_dict->m_value_type) ? 0 : 2;
+        int64_t ptr_loads_key = !LLVM::is_llvm_struct(x_dict->m_key_type);
+        int64_t ptr_loads_value = !LLVM::is_llvm_struct(x_dict->m_value_type);
         int64_t ptr_loads_copy = ptr_loads;
         for( size_t i = 0; i < x.n_keys; i++ ) {
             ptr_loads = ptr_loads_key;
-            visit_expr(*x.m_keys[i]);
+            visit_expr_wrapper(x.m_keys[i], true);
             llvm::Value* key = tmp;
             ptr_loads = ptr_loads_value;
-            visit_expr(*x.m_values[i]);
+            visit_expr_wrapper(x.m_values[i], true);
             llvm::Value* value = tmp;
             llvm_utils->dict_api->write_item(const_dict, key, value, module.get(),
                                  x_dict->m_key_type, x_dict->m_value_type, name2memidx);
@@ -5138,7 +5138,7 @@ public:
         if( x == nullptr ) {
             throw CodeGenError("Internal error: x is nullptr");
         }
-        
+
         this->visit_expr(*x);
         if( x->type == ASR::exprType::ArrayItem ||
             x->type == ASR::exprType::ArraySection ||
