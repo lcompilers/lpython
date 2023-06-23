@@ -582,6 +582,7 @@ RUN(NAME structs_25          LABELS cpython llvm c)
 RUN(NAME structs_26          LABELS cpython llvm c)
 RUN(NAME structs_27          LABELS cpython llvm c)
 RUN(NAME structs_28          LABELS cpython llvm c)
+RUN(NAME structs_29          LABELS cpython llvm)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
