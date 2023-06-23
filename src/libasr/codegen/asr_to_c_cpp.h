@@ -771,6 +771,7 @@ R"(#include <stdio.h>
                 emit_headers[header_name]+= "\n" + src;
                 src = "";
             } else if (f_type->m_abi == ASR::abiType::BindPython) {
+                indentation_level += 1;
                 headers.insert("Python.h");
                 std::string variables_decl = ""; // Stores the argument declarations
                 std::string fill_parse_args_details = "";
@@ -778,19 +779,12 @@ R"(#include <stdio.h>
                 std::string fn_args = "";
                 std::string fill_array_details = "";
                 std::string numpy_init = "";
-                // Use for return variable
-                std::string return_array_size = "";
-                std::string array_type = ""; // Array type used for `PyArray_SimpleNewFromData`
 
                 for (size_t i = 0; i < x.n_args; i++) {
                     ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
                     std::string arg_name = arg->m_name;
-                    if (arg_name != "_lpython_return_variable") {
-                        if (i > 0) fill_parse_args_details += ", ";
-                        fill_parse_args_details += "&" + arg_name;
-                        type_format += get_type_format(arg->m_type);
-                    }
-
+                    fill_parse_args_details += "&" + arg_name;
+                    type_format += get_type_format(arg->m_type);
                     if (ASR::is_a<ASR::Array_t>(*arg->m_type)) {
                         if (numpy_init.size() == 0) {
                             numpy_init = R"(
@@ -809,31 +803,9 @@ R"(#include <stdio.h>
                         std::string c_array_type = self().convert_variable_decl(*arg);
                         c_array_type = c_array_type.substr(0,
                             c_array_type.size() - arg_name.size() - 2);
-                        if (arg_name == "_lpython_return_variable") {
-                            ASR::Array_t *arr = ASR::down_cast<ASR::Array_t>(arg->m_type);
-                            fn_args += arg_name;
-                            variables_decl += "    " + c_array_type + " *" + arg_name
-                                + " = malloc(sizeof(" + c_array_type + "));\n";
-                            if(arr->m_dims[0].m_length &&
-                                    ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
-                            // name() -> f64[n]: Extract `array_type` and `n`
-                                return_array_size = ASRUtils::EXPR2VAR(
-                                    arr->m_dims[0].m_length)->m_name;
-                                array_type = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
-                            }
-                            fill_array_details += R"(
-    // Fill _lpython_return_variable
-    _lpython_return_variable->data = malloc(n * sizeof(double));
-    _lpython_return_variable->n_dims = 1;
-    _lpython_return_variable->dims[0].lower_bound = 0;
-    _lpython_return_variable->dims[0].length = n;
-    _lpython_return_variable->is_allocated = false;
-)";
-                            continue;
-                        } else {
-                            fn_args += "s_array_" + arg_name;
-                            variables_decl += "    PyArrayObject *" + arg_name + ";\n";
-                        }
+                        fn_args += "s_array_" + arg_name;
+                        variables_decl += "    PyArrayObject *" + arg_name + ";\n";
+
                         fill_array_details += "\n    // Fill array details for " + arg_name
     + "\n    if (PyArray_NDIM(" + arg_name + R"() != 1) {
         PyErr_SetString(PyExc_TypeError, "An error occurred in the `lpython` decorator: "
@@ -866,6 +838,7 @@ R"(#include <stdio.h>
                             + ";\n";
                     }
                     if (i < x.n_args - 1) {
+                        fill_parse_args_details += ", ";
                         fn_args += ", ";
                     }
                 }
@@ -892,16 +865,18 @@ R"(#include <stdio.h>
                     ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
                     variables_decl += "    " + self().convert_variable_decl(*return_var)
                         + ";\n";
-                    fill_return_details += R"(
-    _lpython_return_variable = _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n" + R"(
-    // Build and return the result as a Python object
-    return Py_BuildValue(")" + get_type_format(return_var->m_type)
-                        + R"(", _lpython_return_variable);)";
-                } else {
-                    fill_return_details += R"(
-    _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n";
-                    if (return_array_size.size() > 0) {
-                        fill_return_details += R"(
+                    fill_return_details += "\n    _lpython_return_variable = _xx_internal_"
+                        + fn_name + "_xx(" + fn_args + ");\n";
+                    if (ASR::is_a<ASR::Array_t>(*return_var->m_type)) {
+                        ASR::Array_t *arr = ASR::down_cast<ASR::Array_t>(return_var->m_type);
+                        if(arr->m_dims[0].m_length &&
+                                ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
+                            // name() -> f64[n]: Extract `array_type` and `n`
+                            std::string array_type
+                                = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
+                            std::string return_array_size = ASRUtils::EXPR2VAR(
+                                arr->m_dims[0].m_length)->m_name;
+                            fill_return_details += R"(
     // Copy the array elements and return the result as a Python object
     {
         npy_intp dims[] = {)" + return_array_size + R"(};
@@ -914,11 +889,20 @@ R"(#include <stdio.h>
         }
         return numpy_array;
     })";
+                        } else {
+                            throw CodeGenError("Array return type without a length is not supported yet");
+                        }
                     } else {
                         fill_return_details += R"(
+    // Build and return the result as a Python object
+    return Py_BuildValue(")" + get_type_format(return_var->m_type)
+                            + "\", _lpython_return_variable);";
+                    }
+                } else {
+                    fill_return_details += R"(
+    _xx_internal_)" + fn_name + "_xx(" + fn_args + ");\n" + R"(
     // Return None
     Py_RETURN_NONE;)";
-                    }
                 }
                 // `sub` contains the function to be called
                 src = sub;
@@ -960,6 +944,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 }
 
 )";
+            indentation_level -= 1;
             }
         }
         current_scope = current_scope_copy;
