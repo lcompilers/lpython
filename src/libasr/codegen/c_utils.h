@@ -1782,6 +1782,16 @@ namespace BindPyUtils {
                 type_src = "NPY_STRING";
                 break;
             }
+            case ASR::ttypeType::Complex: {
+                switch (kind)
+                {
+                    case 4: type_src = "NPY_COMPLEX64"; break;
+                    case 8: type_src = "NPY_COMPLEX128"; break;
+                    default:
+                        throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Unsupported kind in complex type");
+                }
+                break;
+            }
             default: {
                 throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
             }
