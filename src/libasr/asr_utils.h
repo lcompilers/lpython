@@ -1049,7 +1049,7 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             break;
         }
         case ASR::ttypeType::Logical: {
-            res = "bool";
+            res = "i1";
             break;
         }
         case ASR::ttypeType::Character: {

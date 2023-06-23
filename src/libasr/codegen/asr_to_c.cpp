@@ -394,9 +394,8 @@ public:
                 std::string v_m_name = v.m_name;
                 sub = format_type_c("", type_name, v_m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v_m_type)) {
-                bool is_fixed_size = true;
-                dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
-                sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
+                convert_variable_decl_util(v, is_array, declare_as_constant, use_ref, dummy,
+                    force_declare, force_declare_name, n_dims, m_dims, v_m_type, dims, sub);
             } else if (ASRUtils::is_character(*v_m_type)) {
                 bool is_fixed_size = true;
                 dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);

@@ -410,7 +410,11 @@ R"(#include <stdio.h>
                     }
                 }
             } else if (ASRUtils::is_logical(*return_var->m_type)) {
-                sub = "bool ";
+                if (is_array) {
+                    sub = "struct i1* ";
+                } else {
+                    sub = "bool ";
+                }
             } else if (ASRUtils::is_character(*return_var->m_type)) {
                 if (gen_stdstring) {
                     sub = "std::string ";
