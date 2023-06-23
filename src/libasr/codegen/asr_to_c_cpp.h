@@ -124,7 +124,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
-    std::unique_ptr<CUtils::BindPyUtilFunctions> bind_py_utils_functions;
+    std::unique_ptr<BindPyUtils::BindPyUtilFunctions> bind_py_utils_functions;
     std::string const_name;
     size_t const_vars_count;
     size_t loop_end_count;
@@ -151,7 +151,7 @@ public:
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
-        bind_py_utils_functions{std::make_unique<CUtils::BindPyUtilFunctions>()},
+        bind_py_utils_functions{std::make_unique<BindPyUtils::BindPyUtilFunctions>()},
         const_name{"constname"},
         const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
@@ -514,11 +514,11 @@ R"(#include <stdio.h>
             std::string indent = "\n    ";
             if (ASRUtils::is_array(arg->m_type)) {
                 arg_conv += indent + bind_py_utils_functions->get_conv_dims_to_1D_arr() + "(" + arg_name + "->n_dims, " + arg_name + "->dims, __new_dims);";
-                std::string func_call = CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type);
+                std::string func_call = BindPyUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type);
                 arg_conv += indent + "pValue = " + func_call + "(" + arg_name + "->n_dims, __new_dims, "
-                    + CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arg->m_type) + ", " + arg_name + "->data);";
+                    + BindPyUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arg->m_type) + ", " + arg_name + "->data);";
             } else {
-                arg_conv += indent + "pValue = " + CUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type)
+                arg_conv += indent + "pValue = " + BindPyUtils::get_py_obj_type_conv_func_from_ttype_t(arg->m_type)
                     + "(" + arg_name + ");";
             }
             arg_conv += R"(
@@ -540,7 +540,7 @@ R"(#include <stdio.h>
         ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string indent = "\n    ";
         std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-        std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type,
+        std::string py_val_cnvrt = BindPyUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type,
             array_types_decls, c_ds_api, bind_py_utils_functions);
         std::string ret_assign = indent + "_lpython_return_variable = " + py_val_cnvrt + "(pValue);";
         std::string clear_pValue = indent + "Py_DECREF(pValue);";
