@@ -1098,6 +1098,971 @@ public:
         return type;
     }
 
+    void handle_constant_string_attributes(std::string &s_var,
+                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
+        if (attr_name == "capitalize") {
+            if (args.size() != 0) {
+                throw SemanticError("str.capitalize() takes no arguments",
+                    loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
+            }
+            if (s_var.length() > 0) {
+                s_var[0] = toupper(s_var[0]);
+            }
+        } else if (attr_name == "lower") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lower() takes no arguments",
+                        loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
+            }
+        } else if (attr_name == "upper") {
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                        loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'a' && i<= 'z') {
+                    i = toupper(i);
+                }
+            }
+        } else if (attr_name == "find") {
+            if (args.size() != 1) {
+                throw SemanticError("str.find() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.find() takes one arguments of type: str",
+                    arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                int res = ASRUtils::KMP_string_match(s_var, sub);
+                tmp = ASR::make_IntegerConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_find");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", loc);
+            }
+            return;
+        } else if (attr_name == "rstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.rstrip() takes no arguments",
+                    loc);
+            }
+            int ind = (int)s_var.size() - 1;
+            while (ind >= 0 && s_var[ind] == ' '){
+                ind--;
+            }
+            s_var = std::string(s_var.begin(), s_var.begin() + ind + 1);
+        } else if (attr_name == "lstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lstrip() takes no arguments",
+                        loc);
+            }
+            size_t ind = 0;
+            while (ind < s_var.size() && s_var[ind] == ' ') {
+                ind++;
+            }
+            s_var = std::string(s_var.begin() + ind, s_var.end());
+        } else if (attr_name == "strip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.strip() takes no arguments",
+                        loc);
+            }
+            size_t l = 0;
+            int r = (int)s_var.size() - 1;
+            while (l < s_var.size() && (int)r >= 0 && (s_var[l] == ' ' || s_var[r] == ' ')) {
+                l += s_var[l] == ' ';
+                r -= s_var[r] == ' ';
+            }
+            s_var = std::string(s_var.begin() + l, s_var.begin() + r + 1);
+        } else if (attr_name == "swapcase") {
+            if (args.size() != 0) {
+                throw SemanticError("str.swapcase() takes no arguments",
+                        loc);
+            }
+            for (size_t i = 0; i < s_var.size(); i++)  {
+                char &cur = s_var[i];
+                if(cur >= 'a' && cur <= 'z') {
+                    cur = cur -'a' + 'A';
+                } else if(cur >= 'A' && cur <= 'Z') {
+                    cur = cur - 'A' + 'a';
+                }
+            }
+        } else if (attr_name == "startswith") {
+            if (args.size() != 1) {
+                throw SemanticError("str.startswith() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.startwith() takes one arguments of type: str",
+                    arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                size_t ind1 = 0, ind2 = 0;
+                bool res = !(s_var.size() == 0 && sub.size());
+                while ((ind1 < s_var.size()) && (ind2 < sub.size()) && res) {
+                    res &= s_var[ind1] == sub[ind2];
+                    ind1++;
+                    ind2++;
+                }
+                res &= res ? (ind2 == sub.size()): true;
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_startswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args,
+                        "_lpython_str_startswith", loc);
+            }
+            return;
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->
+                Return True if the string ends with the specified suffix, otherwise return False.
+            */
+
+            if (args.size() != 1) {
+                throw SemanticError("str.endswith() takes one arguments", loc);
+            }
+
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
+            }
+
+            if (ASRUtils::expr_value(arg_suffix) != nullptr) {
+                /*
+                    Invoked when Suffix argument is provided as a constant string
+                */
+                ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
+                std::string suffix = suffix_constant->m_s;
+
+                bool res = true;
+                if (suffix.size() > s_var.size())
+                    res = false;
+                else
+                    res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
+
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+
+            } else {
+                /*
+                    Invoked when Suffix argument is provided as a variable
+                    b: str = "ple"
+                    Eg: "apple".endswith(b)
+                */
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_endswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg_suffix;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
+            }
+            return;
+        } else if (attr_name == "partition") {
+            /*
+                str.partition(seperator)        ---->
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
+                by two empty strings.
+            */
+            Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
+            ASRUtils::visit_expr_list(al, args, args_);
+            if(s_var.size() == 0) {
+                throw SemanticError("String to undergo partition cannot be empty",
+                    loc);
+            }
+            ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, s_var.size(), nullptr));
+            ASR::expr_t *str = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
+                loc, s2c(al, s_var), char_type));
+            tmp = ASRUtils::Partition::create_partition(al, loc, args_, str,
+                [&](const std::string &msg, const Location &loc) {
+                throw SemanticError(msg, loc); });
+            return;
+        } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                * Specification -
+
+                Return True if all cased characters [lowercase, uppercase, titlecase] in the string
+                are lowercase and there is at least one cased character, False otherwise.
+
+                * islower() method is limited to English Alphabets currently
+                * TODO: We can support other characters from Unicode Library
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+
+            if(attr_name == "islower") {
+                /*
+                    * Specification:
+                    Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'a' && i <= 'z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if(attr_name == "isupper") {
+                /*
+                    * Specification:
+                    Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
+                */
+                bool is_cased_present = false;
+                bool is_lower = true;
+                for (auto &i : s_var) {
+                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
+                        is_cased_present = true;
+                        if(!(i >= 'A' && i <= 'Z')) {
+                            is_lower = false;
+                            break;
+                        }
+                    }
+                }
+                is_lower = is_lower && is_cased_present;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if(attr_name == "isdecimal") {
+                /*
+                    * Specification:
+                    Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
+                */
+                bool is_decimal = (s_var.size() != 0);
+                for(auto &i: s_var) {
+                    if(i < '0' || i > '9') {
+                        is_decimal = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_decimal,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if(attr_name == "isascii") {
+                /*
+                    * Specification -
+                    Return True if the string is empty or all characters in the string are ASCII, False otherwise.
+                    ASCII characters have code points in the range U+0000-U+007F.
+                */
+                bool is_ascii = true;
+                for(char i: s_var) {
+                    if (static_cast<unsigned int>(i) > 127) {
+                        is_ascii = false;
+                        break;
+                    }
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_ascii,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else {
+                throw SemanticError("'str' object has no attribute '" + attr_name + "'", loc);
+            }
+        } else {
+            throw SemanticError("'str' object has no attribute '" + attr_name + "'",
+                    loc);
+        }
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, s_var.size(), nullptr));
+        tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
+    }
+
+    ASR::symbol_t* get_struct_member(ASR::symbol_t* struct_type_sym, std::string &call_name, const Location &loc) {
+        ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(struct_type_sym);
+        std::string struct_var_name = struct_type->m_name;
+        std::string struct_member_name = call_name;
+        ASR::symbol_t* struct_member = struct_type->m_symtab->resolve_symbol(struct_member_name);
+        ASR::symbol_t* struct_mem_asr_owner = ASRUtils::get_asr_owner(struct_member);
+        if( !struct_member || !struct_mem_asr_owner ||
+            !ASR::is_a<ASR::StructType_t>(*struct_mem_asr_owner) ) {
+            throw SemanticError(struct_member_name + " not present in " +
+                                struct_var_name + " dataclass", loc);
+        }
+        std::string import_name = struct_var_name + "_" + struct_member_name;
+        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
+        bool import_from_struct = true;
+        if( import_struct_member ) {
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
+                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
+                if( ext_sym->m_external == struct_member &&
+                    std::string(ext_sym->m_module_name) == struct_var_name ) {
+                    import_from_struct = false;
+                }
+            }
+        }
+        if( import_from_struct ) {
+            import_name = current_scope->get_unique_name(import_name);
+            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
+                                        loc, current_scope, s2c(al, import_name),
+                                        struct_member, s2c(al, struct_var_name), nullptr, 0,
+                                        s2c(al, struct_member_name), ASR::accessType::Public));
+            current_scope->add_symbol(import_name, import_struct_member);
+        }
+        return import_struct_member;
+    }
+
+    void handle_string_attributes(ASR::expr_t *s_var,
+                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
+        std::string fn_call_name = "";
+        Vec<ASR::call_arg_t> fn_args;
+        fn_args.reserve(al, 1);
+        if (attr_name == "capitalize") {
+            if (args.size() != 0) {
+                throw SemanticError("str.capitalize() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_capitalize";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "lower") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lower() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_lower";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "upper") {
+            if (args.size() != 0) {
+                throw SemanticError("str.upper() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_upper";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "find") {
+            if (args.size() != 1) {
+                throw SemanticError("str.find() takes one argument",
+                    loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_character(*arg_sub_type)) {
+                throw SemanticError("str.find() takes one argument of type: str",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_find";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t sub;
+            sub.loc = loc;
+            sub.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, sub);
+        } else if (attr_name == "rstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.rstrip() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_rstrip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "lstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lstrip() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_lstrip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "strip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.strip() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_strip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "swapcase") {
+            if (args.size() != 0) {
+                throw SemanticError("str.swapcase() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_swapcase";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "startswith") {
+            if(args.size() != 1) {
+                throw SemanticError("str.startswith() takes one argument",
+                        loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_character(*arg_sub_type)) {
+                throw SemanticError("str.startswith() takes one argument of type: str",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_startswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t sub;
+            sub.loc = loc;
+            sub.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, sub);
+        } else if (attr_name == "endswith") {
+            /*
+                str.endswith(suffix)     ---->
+                Return True if the string ends with the specified suffix, otherwise return False.
+
+                arg_sub: Substring argument provided inside endswith() function
+                arg_sub_type: Type of Substring argument
+                fn_call_name: Name of the Function that has logic/implementation of endswith() function
+                str: Associates with string on which endswith() function will act on
+                suffix: Associates with the suffix string which is provided as an argument to endswith() function
+            */
+            if(args.size() != 1) {
+                throw SemanticError("str.endswith() takes only one argument", loc);
+            }
+            ASR::expr_t *arg_suffix = args[0].m_value;
+            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
+            if (!ASRUtils::is_character(*arg_suffix_type)) {
+                throw SemanticError("str.endswith() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_endswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t suffix;
+            suffix.loc = loc;
+            suffix.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, suffix);
+        } else if (attr_name == "partition") {
+            /*
+                str.partition(seperator)        ---->
+
+                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
+                before the separator, the separator itself, and the part after the separator.
+                If the separator is not found, return a 3-tuple containing the string itself, followed
+                by two empty strings.
+            */
+            Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
+            ASRUtils::visit_expr_list(al, args, args_);
+            tmp = ASRUtils::Partition::create_partition(al, loc, args_, s_var,
+                [&](const std::string &msg, const Location &loc) {
+                throw SemanticError(msg, loc); });
+            return;
+        } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
+            /*
+                String Validation Methods i.e all "is" based functions are handled here
+            */
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
+            std::string method_name = attr_name.substr(2);
+
+            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
+                throw SemanticError("String method not implemented: " + attr_name, loc);
+            }
+            if (args.size() != 0) {
+                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
+            }
+            fn_call_name = "_lpython_str_" + attr_name;
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else {
+            throw SemanticError("String method not implemented: " + attr_name,
+                    loc);
+        }
+        ASR::symbol_t *fn_call = resolve_intrinsic_function(loc, fn_call_name);
+        tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
+    }
+
+    void handle_attribute(AST::Attribute_t* at, Vec<ASR::call_arg_t> &args, const Location &loc) {
+        if (AST::is_a<AST::Name_t>(*at->m_value)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
+            std::string mod_name = n->m_id;
+            std::string call_name = at->m_attr;
+            std::string call_name_store = "__" + mod_name + "_" + call_name;
+            ASR::symbol_t *st = nullptr;
+            if (current_scope->resolve_symbol(call_name_store) != nullptr) {
+                st = current_scope->get_symbol(call_name_store);
+            } else {
+                st = current_scope->resolve_symbol(mod_name);
+                if (!st) {
+                    throw SemanticError("NameError: '" + mod_name + "' is not defined", n->base.base.loc);
+                }
+                if( ASR::is_a<ASR::Module_t>(*st) ) {
+                    ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(st);
+                    call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
+                    st = import_from_module(al, m, current_scope, mod_name,
+                                        call_name, call_name_store, loc);
+                    current_scope->add_symbol(call_name_store, st);
+                } else if( ASR::is_a<ASR::StructType_t>(*st) ) {
+                    st = get_struct_member(st, call_name, loc);
+                } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
+                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
+                    if (ASR::is_a<ASR::Struct_t>(*var->m_type)) {
+                        // call to struct member function
+                        ASR::Struct_t* var_struct = ASR::down_cast<ASR::Struct_t>(var->m_type);
+                        st = get_struct_member(var_struct->m_derived_type, call_name, loc);
+                    } else {
+                        // this case when we have variable and attribute
+                        st = current_scope->resolve_symbol(mod_name);
+                        Vec<ASR::expr_t*> eles;
+                        eles.reserve(al, args.size());
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
+                                        ASR::make_Var_t(al, loc, st));
+                        if (ASR::is_a<ASR::Character_t>(*(ASRUtils::expr_type(se)))) {
+                            handle_string_attributes(se, args, at->m_attr, loc);
+                            return;
+                        }
+                        handle_builtin_attribute(se, at->m_attr, loc, eles);
+                        return;
+                    }
+                }
+            }
+            tmp = make_call_helper(al, st, current_scope, args, call_name, loc);
+            return;
+        } else if (AST::is_a<AST::UnaryOp_t>(*at->m_value)) {
+            AST::UnaryOp_t* uop = AST::down_cast<AST::UnaryOp_t>(at->m_value);
+            visit_UnaryOp(*uop);
+            Vec<ASR::expr_t*> eles;
+            eles.reserve(al, args.size());
+            for (size_t i=0; i<args.size(); i++) {
+                eles.push_back(al, args[i].m_value);
+            }
+            ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
+            handle_builtin_attribute(expr, at->m_attr, loc, eles);
+            return;
+        } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
+            if (std::string(at->m_attr) == std::string("bit_length")) {
+                //bit_length() attribute:
+                if(args.size() != 0) {
+                    throw SemanticError("int.bit_length() takes no arguments", loc);
+                }
+                AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
+                int64_t int_val = std::abs(n->m_value);
+                int32_t res = 0;
+                for(; int_val; int_val >>= 1, res++);
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+                tmp = ASR::make_IntegerConstant_t(al, loc, res, int_type);
+                return;
+            } else {
+                throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'", loc);
+            }
+        } else if (AST::is_a<AST::ConstantStr_t>(*at->m_value)) {
+            AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+            std::string res = n->m_value;
+            handle_constant_string_attributes(res, args, at->m_attr, loc);
+            return;
+        } else {
+            throw SemanticError("Only Name type and constant integers supported in Call", loc);
+        }
+    }
+
+
+    void parse_args(const AST::Call_t &x, Vec<ASR::call_arg_t> &args) {
+        // Keyword arguments handled in make_call_helper()
+        if( x.n_keywords == 0 ) {
+            args.reserve(al, x.n_args);
+            visit_expr_list(x.m_args, x.n_args, args);
+        }
+    }
+
+    void visit_Call(const AST::Call_t &x) {
+        std::string call_name = "";
+        Vec<ASR::call_arg_t> args;
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        }
+        if (call_name == "c_p_pointer" &&
+            !current_scope->resolve_symbol(call_name)) {
+            is_c_p_pointer_call = true;
+            tmp = nullptr;
+            return ;
+        }
+
+        if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+            parse_args(x, args);
+            AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
+            handle_attribute(at, args, x.base.base.loc);
+            return;
+        } else if( call_name == "" ) {
+            throw SemanticError("Only Name or Attribute type supported in Call",
+                x.base.base.loc);
+        }
+
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+        if( s && ASR::is_a<ASR::Module_t>(*s) ) {
+            std::string mangled_name = ASRUtils::get_mangled_name(ASR::down_cast<ASR::Module_t>(s), call_name);
+            s = current_scope->resolve_symbol(mangled_name);
+        }
+
+        if (!s) {
+            std::set<std::string> not_cpython_builtin = {
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol",
+                "sum" // For sum called over lists
+            };
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
+                (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
+                imported_functions.find(call_name) != imported_functions.end() )) {
+                ASRUtils::create_intrinsic_function create_func =
+                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
+                Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
+                visit_expr_list(x.m_args, x.n_args, args_);
+                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
+                    imported_functions[call_name] == "math" ) {
+                    throw SemanticError("Function '" + call_name + "' does not accept vector values",
+                        x.base.base.loc);
+                }
+                tmp = create_func(al, x.base.base.loc, args_,
+                    [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
+                return ;
+            } else if (intrinsic_procedures.is_intrinsic(call_name)) {
+                s = resolve_intrinsic_function(x.base.base.loc, call_name);
+                if (call_name == "pow") {
+                    diag.add(diag::Diagnostic(
+                        "Could have used '**' instead of 'pow'",
+                        diag::Level::Style, diag::Stage::Semantic, {
+                            diag::Label("'**' could be used instead",
+                                    {x.base.base.loc}),
+                        })
+                    );
+                }
+            } else {
+                // TODO: We need to port all functions below to the intrinsic functions file
+                // Then we can uncomment this error message:
+                /*
+                throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
+                    x.base.base.loc);
+            }
+            if (false) {
+                */
+                // This will all be removed once we port it to intrinsic functions
+            // Intrinsic functions
+            if (call_name == "size") {
+                parse_args(x, args);
+                if( args.size() < 1 || args.size() > 2 ) {
+                    throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
+                }
+                const Location &loc = x.base.base.loc;
+                ASR::expr_t *var = args[0].m_value;
+                ASR::expr_t *dim = nullptr;
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+                if (args.size() == 2) {
+                    ASR::expr_t* const_one = ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type));
+                    dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
+                        args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
+                }
+                tmp = ASR::make_ArraySize_t(al, loc, var, dim, int_type, nullptr);
+                return;
+            } else if (call_name == "empty") {
+                // TODO: check that the `empty` arguments are compatible
+                // with the type
+                tmp = nullptr;
+                return;
+            } else if (call_name == "empty_c_void_p") {
+                // TODO: check that `empty_c_void_p uses` has arguments that are compatible
+                // with the type
+                ASR::ttype_t* type;
+                if (ann_assign_target_type) {
+                    type = ann_assign_target_type;
+                } else {
+                    type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                }
+                tmp = ASR::make_PointerNullConstant_t(al, x.base.base.loc, type);
+                return;
+            } else if (call_name == "cptr_to_u64") {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError("cptr_to_u64 accpets exactly 1 argument",
+                                        x.base.base.loc);
+                }
+
+                ASR::expr_t *var = args[0].m_value;
+                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
+                if (!ASR::is_a<ASR::CPtr_t>(*a_type)) {
+                    throw SemanticError("Argument of type `CPtr` is expected in cptr_to_u64",
+                                        x.base.base.loc);
+                }
+                ASR::ttype_t *u_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al,
+                                x.base.base.loc, 8));
+
+                tmp = ASR::make_Cast_t(al, x.base.base.loc,
+                    var, ASR::cast_kindType::CPtrToUnsignedInteger, u_type, nullptr);
+                return;
+            } else if (call_name == "u64_to_cptr") {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError("u64_to_cptr accpets exactly 1 argument",
+                                        x.base.base.loc);
+                }
+
+                ASR::expr_t *var = args[0].m_value;
+                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
+                if (!ASR::is_a<ASR::UnsignedInteger_t>(*a_type)) {
+                    throw SemanticError("Argument of type `u64` is expected in u64_to_cptr",
+                                        x.base.base.loc);
+                }
+                ASR::ttype_t *c_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+
+                tmp = ASR::make_Cast_t(al, x.base.base.loc,
+                    var, ASR::cast_kindType::UnsignedIntegerToCPtr, c_type, nullptr);
+                return;
+            } else if (call_name == "TypeVar") {
+                // Ignore TypeVar for now, we handle it based on the identifier itself
+                tmp = nullptr;
+                return;
+            } else if (call_name == "callable") {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4));
+                ASR::expr_t *arg = args[0].m_value;
+                bool result = false;
+                if (ASR::is_a<ASR::Var_t>(*arg)) {
+                    ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
+                    result = ASR::is_a<ASR::Function_t>(*t);
+                }
+                tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
+                return;
+            } else if( call_name == "pointer" ) {
+                parse_args(x, args);
+                ASR::ttype_t* type_ = ASRUtils::duplicate_type_with_empty_dims(
+                    al, ASRUtils::expr_type(args[0].m_value));
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc, type_));
+                tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
+                return ;
+            } else if( call_name == "array" ) {
+                parse_args(x, args);
+                if( args.size() != 1 ) {
+                    throw SemanticError("array accepts only 1 argument for now, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
+                }
+                ASR::expr_t *arg = args[0].m_value;
+                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                if(ASR::is_a<ASR::ListConstant_t>(*arg)) {
+                    type = ASR::down_cast<ASR::List_t>(type)->m_type;
+                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
+                    ASR::expr_t **m_args = list->m_args;
+                    size_t n_args = list->n_args;
+                    Vec<ASR::dimension_t> dims;
+                    dims.reserve(al, 1);
+                    ASR::dimension_t dim;
+                    dim.loc = x.base.base.loc;
+                    dim.m_length = nullptr;
+                    dim.m_start = nullptr;
+                    dims.push_back(al, dim);
+                    type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size());
+                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
+                } else {
+                    throw SemanticError("array accepts only list for now, got " +
+                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
+                }
+                return;
+            } else if( call_name == "deepcopy" ) {
+                parse_args(x, args);
+                if( args.size() != 1 ) {
+                    throw SemanticError("deepcopy only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                tmp = (ASR::asr_t*) args[0].m_value;
+                return ;
+            } else if( call_name == "sizeof" ) {
+
+                if( x.n_args + x.n_keywords != 1 ) {
+                    throw SemanticError("sizeof only accepts one argument, found " +
+                                        std::to_string(x.n_args + x.n_keywords) + " instead.",
+                                        x.base.base.loc);
+                }
+                bool is_allocatable = false;
+                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0],
+                                is_allocatable, false);
+                ASR::expr_t* arg = nullptr;
+                if( !arg_type ) {
+                    this->visit_expr(*x.m_args[0]);
+                    arg = ASRUtils::EXPR(tmp);
+                }
+                if( arg ) {
+                    if( ASR::is_a<ASR::Var_t>(*arg) ) {
+                        ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(arg);
+                        ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
+                        if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
+                            // TODO: Import the underlying struct if arg_type is of Struct type
+                            // Ideally if a variable of struct type is being imported then its underlying type
+                            // should also be imported automatically. However, the naming of the
+                            // underlying struct type might lead to collisions, so importing the type
+                            // here seems like a better choice. Should be done later when the case arises.
+                            arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
+                        } else {
+                            throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
+                                                " is not yet supported in sizeof.",
+                                                x.base.base.loc);
+                        }
+                    }
+                }
+                ASR::ttype_t* size_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
+                tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
+                                             arg_type, size_type, nullptr);
+                return ;
+            } else if(
+                        call_name == "f64" ||
+                        call_name == "f32" ||
+                        call_name == "i64" ||
+                        call_name == "i32" ||
+                        call_name == "i16" ||
+                        call_name == "i8"  ||
+                        call_name == "u64" ||
+                        call_name == "u32" ||
+                        call_name == "u16" ||
+                        call_name == "u8"  ||
+                        call_name == "c32" ||
+                        call_name == "c64" ||
+                        call_name == "S"
+                    ) {
+                parse_args(x, args);
+                ASR::ttype_t* target_type = nullptr;
+                if( call_name == "i8" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 1));
+                } else if( call_name == "i16" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 2));
+                } else if( call_name == "i32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
+                } else if( call_name == "i64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
+                } else if( call_name == "u8" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 1));
+                } else if( call_name == "u16" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 2));
+                } else if( call_name == "u32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 4));
+                } else if( call_name == "u64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 8));
+                } else if( call_name == "f32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4));
+                } else if( call_name == "f64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 8));
+                } else if( call_name == "c32" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4));
+                } else if( call_name == "c64" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 8));
+                } else if( call_name == "S" ) {
+                    target_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
+                }
+                ASR::expr_t* arg = args[0].m_value;
+                cast_helper(target_type, arg, x.base.base.loc, true);
+                tmp = (ASR::asr_t*) arg;
+                return ;
+            } else if (intrinsic_node_handler.is_present(call_name)) {
+                parse_args(x, args);
+                tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
+                                        x.base.base.loc, args);
+                return;
+            } else {
+                // The function was not found and it is not intrinsic
+                throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
+                    x.base.base.loc);
+            }
+            } // end of "comment"
+        }
+
+        parse_args(x, args);
+        tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
+                               false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
+    }
+
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -4528,9 +5493,9 @@ public:
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
 
-    void visit_Call(const AST::Call_t &/*x*/) {
-        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
-    }
+    // void visit_Call(const AST::Call_t &/*x*/) {
+    //     // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    // }
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm, const AST::Module_t &ast,
@@ -6508,970 +7473,6 @@ public:
                                          ASRUtils::expr_type(cptr), nullptr);
         return ASR::make_Assignment_t(al, x.base.base.loc,
             cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr);
-    }
-
-    void handle_string_attributes(ASR::expr_t *s_var,
-                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
-        std::string fn_call_name = "";
-        Vec<ASR::call_arg_t> fn_args;
-        fn_args.reserve(al, 1);
-        if (attr_name == "capitalize") {
-            if (args.size() != 0) {
-                throw SemanticError("str.capitalize() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_capitalize";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "lower") {
-            if (args.size() != 0) {
-                throw SemanticError("str.lower() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_lower";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "upper") {
-            if (args.size() != 0) {
-                throw SemanticError("str.upper() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_upper";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "find") {
-            if (args.size() != 1) {
-                throw SemanticError("str.find() takes one argument",
-                    loc);
-            }
-            ASR::expr_t *arg_sub = args[0].m_value;
-            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
-            if (!ASRUtils::is_character(*arg_sub_type)) {
-                throw SemanticError("str.find() takes one argument of type: str",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_find";
-            ASR::call_arg_t str;
-            str.loc = loc;
-            str.m_value = s_var;
-            ASR::call_arg_t sub;
-            sub.loc = loc;
-            sub.m_value = args[0].m_value;
-            fn_args.push_back(al, str);
-            fn_args.push_back(al, sub);
-        } else if (attr_name == "rstrip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.rstrip() takes no arguments",
-                        loc);
-            }
-            fn_call_name = "_lpython_str_rstrip";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "lstrip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.lstrip() takes no arguments",
-                        loc);
-            }
-            fn_call_name = "_lpython_str_lstrip";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "strip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.strip() takes no arguments",
-                    loc);
-            }
-            fn_call_name = "_lpython_str_strip";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "swapcase") {
-            if (args.size() != 0) {
-                throw SemanticError("str.swapcase() takes no arguments",
-                        loc);
-            }
-            fn_call_name = "_lpython_str_swapcase";
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else if (attr_name == "startswith") {
-            if(args.size() != 1) {
-                throw SemanticError("str.startswith() takes one argument",
-                        loc);
-            }
-            ASR::expr_t *arg_sub = args[0].m_value;
-            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
-            if (!ASRUtils::is_character(*arg_sub_type)) {
-                throw SemanticError("str.startswith() takes one argument of type: str",
-                        loc);
-            }
-            fn_call_name = "_lpython_str_startswith";
-            ASR::call_arg_t str;
-            str.loc = loc;
-            str.m_value = s_var;
-            ASR::call_arg_t sub;
-            sub.loc = loc;
-            sub.m_value = args[0].m_value;
-            fn_args.push_back(al, str);
-            fn_args.push_back(al, sub);
-        } else if (attr_name == "endswith") {
-            /*
-                str.endswith(suffix)     ---->
-                Return True if the string ends with the specified suffix, otherwise return False.
-
-                arg_sub: Substring argument provided inside endswith() function
-                arg_sub_type: Type of Substring argument
-                fn_call_name: Name of the Function that has logic/implementation of endswith() function
-                str: Associates with string on which endswith() function will act on
-                suffix: Associates with the suffix string which is provided as an argument to endswith() function
-            */
-            if(args.size() != 1) {
-                throw SemanticError("str.endswith() takes only one argument", loc);
-            }
-            ASR::expr_t *arg_suffix = args[0].m_value;
-            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
-            if (!ASRUtils::is_character(*arg_suffix_type)) {
-                throw SemanticError("str.endswith() takes one argument of type: str", loc);
-            }
-
-            fn_call_name = "_lpython_str_endswith";
-            ASR::call_arg_t str;
-            str.loc = loc;
-            str.m_value = s_var;
-
-            ASR::call_arg_t suffix;
-            suffix.loc = loc;
-            suffix.m_value = args[0].m_value;
-
-            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
-            fn_args.push_back(al, str);
-            fn_args.push_back(al, suffix);
-        } else if (attr_name == "partition") {
-            /*
-                str.partition(seperator)        ---->
-
-                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
-                before the separator, the separator itself, and the part after the separator.
-                If the separator is not found, return a 3-tuple containing the string itself, followed
-                by two empty strings.
-            */
-            Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
-            ASRUtils::visit_expr_list(al, args, args_);
-            tmp = ASRUtils::Partition::create_partition(al, loc, args_, s_var,
-                [&](const std::string &msg, const Location &loc) {
-                throw SemanticError(msg, loc); });
-            return;
-        } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
-            /*
-                String Validation Methods i.e all "is" based functions are handled here
-            */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
-            std::string method_name = attr_name.substr(2);
-
-            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
-                throw SemanticError("String method not implemented: " + attr_name, loc);
-            }
-            if (args.size() != 0) {
-                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
-            }
-            fn_call_name = "_lpython_str_" + attr_name;
-            ASR::call_arg_t arg;
-            arg.loc = loc;
-            arg.m_value = s_var;
-            fn_args.push_back(al, arg);
-        } else {
-            throw SemanticError("String method not implemented: " + attr_name,
-                    loc);
-        }
-        ASR::symbol_t *fn_call = resolve_intrinsic_function(loc, fn_call_name);
-        tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
-    }
-
-    void handle_constant_string_attributes(std::string &s_var,
-                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
-        if (attr_name == "capitalize") {
-            if (args.size() != 0) {
-                throw SemanticError("str.capitalize() takes no arguments",
-                    loc);
-            }
-            for (auto &i : s_var) {
-                if (i >= 'A' && i<= 'Z') {
-                    i = tolower(i);
-                }
-            }
-            if (s_var.length() > 0) {
-                s_var[0] = toupper(s_var[0]);
-            }
-        } else if (attr_name == "lower") {
-            if (args.size() != 0) {
-                throw SemanticError("str.lower() takes no arguments",
-                        loc);
-            }
-            for (auto &i : s_var) {
-                if (i >= 'A' && i<= 'Z') {
-                    i = tolower(i);
-                }
-            }
-        } else if (attr_name == "upper") {
-            if (args.size() != 0) {
-                throw SemanticError("str.upper() takes no arguments",
-                        loc);
-            }
-            for (auto &i : s_var) {
-                if (i >= 'a' && i<= 'z') {
-                    i = toupper(i);
-                }
-            }
-        } else if (attr_name == "find") {
-            if (args.size() != 1) {
-                throw SemanticError("str.find() takes one arguments",
-                        loc);
-            }
-            ASR::expr_t *arg = args[0].m_value;
-            ASR::ttype_t *type = ASRUtils::expr_type(arg);
-            if (!ASRUtils::is_character(*type)) {
-                throw SemanticError("str.find() takes one arguments of type: str",
-                    arg->base.loc);
-            }
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
-                std::string sub = sub_str_con->m_s;
-                int res = ASRUtils::KMP_string_match(s_var, sub);
-                tmp = ASR::make_IntegerConstant_t(al, loc, res,
-                    ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4)));
-            } else {
-                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_find");
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
-                ASR::call_arg_t str_arg;
-                str_arg.loc = loc;
-                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                        1, s_var.size(), nullptr));
-                str_arg.m_value = ASRUtils::EXPR(
-                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
-                ASR::call_arg_t sub_arg;
-                sub_arg.loc = loc;
-                sub_arg.m_value = arg;
-                args.push_back(al, str_arg);
-                args.push_back(al, sub_arg);
-                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", loc);
-            }
-            return;
-        } else if (attr_name == "rstrip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.rstrip() takes no arguments",
-                    loc);
-            }
-            int ind = (int)s_var.size() - 1;
-            while (ind >= 0 && s_var[ind] == ' '){
-                ind--;
-            }
-            s_var = std::string(s_var.begin(), s_var.begin() + ind + 1);
-        } else if (attr_name == "lstrip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.lstrip() takes no arguments",
-                        loc);
-            }
-            size_t ind = 0;
-            while (ind < s_var.size() && s_var[ind] == ' ') {
-                ind++;
-            }
-            s_var = std::string(s_var.begin() + ind, s_var.end());
-        } else if (attr_name == "strip") {
-            if (args.size() != 0) {
-                throw SemanticError("str.strip() takes no arguments",
-                        loc);
-            }
-            size_t l = 0;
-            int r = (int)s_var.size() - 1;
-            while (l < s_var.size() && (int)r >= 0 && (s_var[l] == ' ' || s_var[r] == ' ')) {
-                l += s_var[l] == ' ';
-                r -= s_var[r] == ' ';
-            }
-            s_var = std::string(s_var.begin() + l, s_var.begin() + r + 1);
-        } else if (attr_name == "swapcase") {
-            if (args.size() != 0) {
-                throw SemanticError("str.swapcase() takes no arguments",
-                        loc);
-            }
-            for (size_t i = 0; i < s_var.size(); i++)  {
-                char &cur = s_var[i];
-                if(cur >= 'a' && cur <= 'z') {
-                    cur = cur -'a' + 'A';
-                } else if(cur >= 'A' && cur <= 'Z') {
-                    cur = cur - 'A' + 'a';
-                }
-            }
-        } else if (attr_name == "startswith") {
-            if (args.size() != 1) {
-                throw SemanticError("str.startswith() takes one arguments",
-                        loc);
-            }
-            ASR::expr_t *arg = args[0].m_value;
-            ASR::ttype_t *type = ASRUtils::expr_type(arg);
-            if (!ASRUtils::is_character(*type)) {
-                throw SemanticError("str.startwith() takes one arguments of type: str",
-                    arg->base.loc);
-            }
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
-                std::string sub = sub_str_con->m_s;
-                size_t ind1 = 0, ind2 = 0;
-                bool res = !(s_var.size() == 0 && sub.size());
-                while ((ind1 < s_var.size()) && (ind2 < sub.size()) && res) {
-                    res &= s_var[ind1] == sub[ind2];
-                    ind1++;
-                    ind2++;
-                }
-                res &= res ? (ind2 == sub.size()): true;
-                tmp = ASR::make_LogicalConstant_t(al, loc, res,
-                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-            } else {
-                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_startswith");
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
-                ASR::call_arg_t str_arg;
-                str_arg.loc = loc;
-                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                        1, s_var.size(), nullptr));
-                str_arg.m_value = ASRUtils::EXPR(
-                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
-                ASR::call_arg_t sub_arg;
-                sub_arg.loc = loc;
-                sub_arg.m_value = arg;
-                args.push_back(al, str_arg);
-                args.push_back(al, sub_arg);
-                tmp = make_call_helper(al, fn_div, current_scope, args,
-                        "_lpython_str_startswith", loc);
-            }
-            return;
-        } else if (attr_name == "endswith") {
-            /*
-                str.endswith(suffix)     ---->
-                Return True if the string ends with the specified suffix, otherwise return False.
-            */
-
-            if (args.size() != 1) {
-                throw SemanticError("str.endswith() takes one arguments", loc);
-            }
-
-            ASR::expr_t *arg_suffix = args[0].m_value;
-            ASR::ttype_t *arg_suffix_type = ASRUtils::expr_type(arg_suffix);
-            if (!ASRUtils::is_character(*arg_suffix_type)) {
-                throw SemanticError("str.endswith() takes one arguments of type: str", arg_suffix->base.loc);
-            }
-
-            if (ASRUtils::expr_value(arg_suffix) != nullptr) {
-                /*
-                    Invoked when Suffix argument is provided as a constant string
-                */
-                ASR::StringConstant_t* suffix_constant = ASR::down_cast<ASR::StringConstant_t>(arg_suffix);
-                std::string suffix = suffix_constant->m_s;
-
-                bool res = true;
-                if (suffix.size() > s_var.size())
-                    res = false;
-                else
-                    res = std::equal(suffix.rbegin(), suffix.rend(), s_var.rbegin());
-
-                tmp = ASR::make_LogicalConstant_t(al, loc, res,
-                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-
-            } else {
-                /*
-                    Invoked when Suffix argument is provided as a variable
-                    b: str = "ple"
-                    Eg: "apple".endswith(b)
-                */
-                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_endswith");
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
-                ASR::call_arg_t str_arg;
-                str_arg.loc = loc;
-                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                        1, s_var.size(), nullptr));
-                str_arg.m_value = ASRUtils::EXPR(
-                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
-                ASR::call_arg_t sub_arg;
-                sub_arg.loc = loc;
-                sub_arg.m_value = arg_suffix;
-                args.push_back(al, str_arg);
-                args.push_back(al, sub_arg);
-
-                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_endswith", loc);
-            }
-            return;
-        } else if (attr_name == "partition") {
-            /*
-                str.partition(seperator)        ---->
-                Split the string at the first occurrence of sep, and return a 3-tuple containing the part
-                before the separator, the separator itself, and the part after the separator.
-                If the separator is not found, return a 3-tuple containing the string itself, followed
-                by two empty strings.
-            */
-            Vec<ASR::expr_t*> args_; args_.reserve(al, args.n);
-            ASRUtils::visit_expr_list(al, args, args_);
-            if(s_var.size() == 0) {
-                throw SemanticError("String to undergo partition cannot be empty",
-                    loc);
-            }
-            ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                loc, 1, s_var.size(), nullptr));
-            ASR::expr_t *str = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
-                loc, s2c(al, s_var), char_type));
-            tmp = ASRUtils::Partition::create_partition(al, loc, args_, str,
-                [&](const std::string &msg, const Location &loc) {
-                throw SemanticError(msg, loc); });
-            return;
-        } else if (attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
-            /*
-                * Specification -
-
-                Return True if all cased characters [lowercase, uppercase, titlecase] in the string
-                are lowercase and there is at least one cased character, False otherwise.
-
-                * islower() method is limited to English Alphabets currently
-                * TODO: We can support other characters from Unicode Library
-            */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii"};  // Database of validation methods supported
-            std::string method_name = attr_name.substr(2);
-            if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
-                throw SemanticError("String method not implemented: " + attr_name, loc);
-            }
-            if (args.size() != 0) {
-                throw SemanticError("str." + attr_name + "() takes no arguments", loc);
-            }
-
-            if(attr_name == "islower") {
-                /*
-                    * Specification:
-                    Return True if all cased characters in the string are lowercase and there is at least one cased character, False otherwise.
-                */
-                bool is_cased_present = false;
-                bool is_lower = true;
-                for (auto &i : s_var) {
-                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
-                        is_cased_present = true;
-                        if(!(i >= 'a' && i <= 'z')) {
-                            is_lower = false;
-                            break;
-                        }
-                    }
-                }
-                is_lower = is_lower && is_cased_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else if(attr_name == "isupper") {
-                /*
-                    * Specification:
-                    Return True if all cased characters in the string are uppercase and there is at least one cased character, False otherwise.
-                */
-                bool is_cased_present = false;
-                bool is_lower = true;
-                for (auto &i : s_var) {
-                    if ((i >= 'A' && i <= 'Z') || (i >= 'a' && i <= 'z')) {
-                        is_cased_present = true;
-                        if(!(i >= 'A' && i <= 'Z')) {
-                            is_lower = false;
-                            break;
-                        }
-                    }
-                }
-                is_lower = is_lower && is_cased_present;
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else if(attr_name == "isdecimal") {
-                /*
-                    * Specification:
-                    Return True if all characters in the string are decimal characters and there is at least one character, False otherwise.
-                */
-                bool is_decimal = (s_var.size() != 0);
-                for(auto &i: s_var) {
-                    if(i < '0' || i > '9') {
-                        is_decimal = false;
-                        break;
-                    }
-                }
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_decimal,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else if(attr_name == "isascii") {
-                /*
-                    * Specification -
-                    Return True if the string is empty or all characters in the string are ASCII, False otherwise.
-                    ASCII characters have code points in the range U+0000-U+007F.
-                */
-                bool is_ascii = true;
-                for(char i: s_var) {
-                    if (static_cast<unsigned int>(i) > 127) {
-                        is_ascii = false;
-                        break;
-                    }
-                }
-                tmp = ASR::make_LogicalConstant_t(al, loc, is_ascii,
-                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
-                return;
-            } else {
-                throw SemanticError("'str' object has no attribute '" + attr_name + "'", loc);
-            }
-        } else {
-            throw SemanticError("'str' object has no attribute '" + attr_name + "'",
-                    loc);
-        }
-        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                1, s_var.size(), nullptr));
-        tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
-    }
-
-    void handle_attribute(AST::Attribute_t* at, Vec<ASR::call_arg_t> &args, const Location &loc) {
-        if (AST::is_a<AST::Name_t>(*at->m_value)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
-            std::string mod_name = n->m_id;
-            std::string call_name = at->m_attr;
-            std::string call_name_store = "__" + mod_name + "_" + call_name;
-            ASR::symbol_t *st = nullptr;
-            if (current_scope->resolve_symbol(call_name_store) != nullptr) {
-                st = current_scope->get_symbol(call_name_store);
-            } else {
-                st = current_scope->resolve_symbol(mod_name);
-                if (!st) {
-                    throw SemanticError("NameError: '" + mod_name + "' is not defined", n->base.base.loc);
-                }
-                if( ASR::is_a<ASR::Module_t>(*st) ) {
-                    ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(st);
-                    call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
-                    st = import_from_module(al, m, current_scope, mod_name,
-                                        call_name, call_name_store, loc);
-                    current_scope->add_symbol(call_name_store, st);
-                } else if( ASR::is_a<ASR::StructType_t>(*st) ) {
-                    st = get_struct_member(st, call_name, loc);
-                } else if ( ASR::is_a<ASR::Variable_t>(*st)) {
-                    ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(st);
-                    if (ASR::is_a<ASR::Struct_t>(*var->m_type)) {
-                        // call to struct member function
-                        ASR::Struct_t* var_struct = ASR::down_cast<ASR::Struct_t>(var->m_type);
-                        st = get_struct_member(var_struct->m_derived_type, call_name, loc);
-                    } else {
-                        // this case when we have variable and attribute
-                        st = current_scope->resolve_symbol(mod_name);
-                        Vec<ASR::expr_t*> eles;
-                        eles.reserve(al, args.size());
-                        for (size_t i=0; i<args.size(); i++) {
-                            eles.push_back(al, args[i].m_value);
-                        }
-                        ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
-                                        ASR::make_Var_t(al, loc, st));
-                        if (ASR::is_a<ASR::Character_t>(*(ASRUtils::expr_type(se)))) {
-                            handle_string_attributes(se, args, at->m_attr, loc);
-                            return;
-                        }
-                        handle_builtin_attribute(se, at->m_attr, loc, eles);
-                        return;
-                    }
-                }
-            }
-            tmp = make_call_helper(al, st, current_scope, args, call_name, loc);
-            return;
-        } else if (AST::is_a<AST::UnaryOp_t>(*at->m_value)) {
-            AST::UnaryOp_t* uop = AST::down_cast<AST::UnaryOp_t>(at->m_value);
-            visit_UnaryOp(*uop);
-            Vec<ASR::expr_t*> eles;
-            eles.reserve(al, args.size());
-            for (size_t i=0; i<args.size(); i++) {
-                eles.push_back(al, args[i].m_value);
-            }
-            ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
-            handle_builtin_attribute(expr, at->m_attr, loc, eles);
-            return;
-        } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
-            if (std::string(at->m_attr) == std::string("bit_length")) {
-                //bit_length() attribute:
-                if(args.size() != 0) {
-                    throw SemanticError("int.bit_length() takes no arguments", loc);
-                }
-                AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
-                int64_t int_val = std::abs(n->m_value);
-                int32_t res = 0;
-                for(; int_val; int_val >>= 1, res++);
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-                tmp = ASR::make_IntegerConstant_t(al, loc, res, int_type);
-                return;
-            } else {
-                throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'", loc);
-            }
-        } else if (AST::is_a<AST::ConstantStr_t>(*at->m_value)) {
-            AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-            std::string res = n->m_value;
-            handle_constant_string_attributes(res, args, at->m_attr, loc);
-            return;
-        } else {
-            throw SemanticError("Only Name type and constant integers supported in Call", loc);
-        }
-    }
-
-    ASR::symbol_t* get_struct_member(ASR::symbol_t* struct_type_sym, std::string &call_name, const Location &loc) {
-        ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(struct_type_sym);
-        std::string struct_var_name = struct_type->m_name;
-        std::string struct_member_name = call_name;
-        ASR::symbol_t* struct_member = struct_type->m_symtab->resolve_symbol(struct_member_name);
-        ASR::symbol_t* struct_mem_asr_owner = ASRUtils::get_asr_owner(struct_member);
-        if( !struct_member || !struct_mem_asr_owner ||
-            !ASR::is_a<ASR::StructType_t>(*struct_mem_asr_owner) ) {
-            throw SemanticError(struct_member_name + " not present in " +
-                                struct_var_name + " dataclass", loc);
-        }
-        std::string import_name = struct_var_name + "_" + struct_member_name;
-        ASR::symbol_t* import_struct_member = current_scope->resolve_symbol(import_name);
-        bool import_from_struct = true;
-        if( import_struct_member ) {
-            if( ASR::is_a<ASR::ExternalSymbol_t>(*import_struct_member) ) {
-                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(import_struct_member);
-                if( ext_sym->m_external == struct_member &&
-                    std::string(ext_sym->m_module_name) == struct_var_name ) {
-                    import_from_struct = false;
-                }
-            }
-        }
-        if( import_from_struct ) {
-            import_name = current_scope->get_unique_name(import_name);
-            import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
-                                        loc, current_scope, s2c(al, import_name),
-                                        struct_member, s2c(al, struct_var_name), nullptr, 0,
-                                        s2c(al, struct_member_name), ASR::accessType::Public));
-            current_scope->add_symbol(import_name, import_struct_member);
-        }
-        return import_struct_member;
-    }
-
-    void parse_args(const AST::Call_t &x, Vec<ASR::call_arg_t> &args) {
-        // Keyword arguments handled in make_call_helper()
-        if( x.n_keywords == 0 ) {
-            args.reserve(al, x.n_args);
-            visit_expr_list(x.m_args, x.n_args, args);
-        }
-    }
-
-    void visit_Call(const AST::Call_t &x) {
-        std::string call_name = "";
-        Vec<ASR::call_arg_t> args;
-        if (AST::is_a<AST::Name_t>(*x.m_func)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
-            call_name = n->m_id;
-        }
-        if (call_name == "c_p_pointer" &&
-            !current_scope->resolve_symbol(call_name)) {
-            is_c_p_pointer_call = true;
-            tmp = nullptr;
-            return ;
-        }
-
-        if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
-            parse_args(x, args);
-            AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
-            handle_attribute(at, args, x.base.base.loc);
-            return;
-        } else if( call_name == "" ) {
-            throw SemanticError("Only Name or Attribute type supported in Call",
-                x.base.base.loc);
-        }
-
-        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
-        if( s && ASR::is_a<ASR::Module_t>(*s) ) {
-            std::string mangled_name = ASRUtils::get_mangled_name(ASR::down_cast<ASR::Module_t>(s), call_name);
-            s = current_scope->resolve_symbol(mangled_name);
-        }
-
-        if (!s) {
-            std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol",
-                "sum" // For sum called over lists
-            };
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
-                (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
-                imported_functions.find(call_name) != imported_functions.end() )) {
-                ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
-                Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
-                visit_expr_list(x.m_args, x.n_args, args_);
-                if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
-                    imported_functions[call_name] == "math" ) {
-                    throw SemanticError("Function '" + call_name + "' does not accept vector values",
-                        x.base.base.loc);
-                }
-                tmp = create_func(al, x.base.base.loc, args_,
-                    [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); });
-                return ;
-            } else if (intrinsic_procedures.is_intrinsic(call_name)) {
-                s = resolve_intrinsic_function(x.base.base.loc, call_name);
-                if (call_name == "pow") {
-                    diag.add(diag::Diagnostic(
-                        "Could have used '**' instead of 'pow'",
-                        diag::Level::Style, diag::Stage::Semantic, {
-                            diag::Label("'**' could be used instead",
-                                    {x.base.base.loc}),
-                        })
-                    );
-                }
-            } else {
-                // TODO: We need to port all functions below to the intrinsic functions file
-                // Then we can uncomment this error message:
-                /*
-                throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
-                    x.base.base.loc);
-            }
-            if (false) {
-                */
-                // This will all be removed once we port it to intrinsic functions
-            // Intrinsic functions
-            if (call_name == "size") {
-                parse_args(x, args);
-                if( args.size() < 1 || args.size() > 2 ) {
-                    throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
-                                        std::to_string(args.size()) + " arguments instead.",
-                                        x.base.base.loc);
-                }
-                const Location &loc = x.base.base.loc;
-                ASR::expr_t *var = args[0].m_value;
-                ASR::expr_t *dim = nullptr;
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-                if (args.size() == 2) {
-                    ASR::expr_t* const_one = ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type));
-                    dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
-                        args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
-                }
-                tmp = ASR::make_ArraySize_t(al, loc, var, dim, int_type, nullptr);
-                return;
-            } else if (call_name == "empty") {
-                // TODO: check that the `empty` arguments are compatible
-                // with the type
-                tmp = nullptr;
-                return;
-            } else if (call_name == "empty_c_void_p") {
-                // TODO: check that `empty_c_void_p uses` has arguments that are compatible
-                // with the type
-                ASR::ttype_t* type;
-                if (ann_assign_target_type) {
-                    type = ann_assign_target_type;
-                } else {
-                    type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
-                }
-                tmp = ASR::make_PointerNullConstant_t(al, x.base.base.loc, type);
-                return;
-            } else if (call_name == "cptr_to_u64") {
-                parse_args(x, args);
-                if (args.size() != 1) {
-                    throw SemanticError("cptr_to_u64 accpets exactly 1 argument",
-                                        x.base.base.loc);
-                }
-
-                ASR::expr_t *var = args[0].m_value;
-                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
-                if (!ASR::is_a<ASR::CPtr_t>(*a_type)) {
-                    throw SemanticError("Argument of type `CPtr` is expected in cptr_to_u64",
-                                        x.base.base.loc);
-                }
-                ASR::ttype_t *u_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al,
-                                x.base.base.loc, 8));
-
-                tmp = ASR::make_Cast_t(al, x.base.base.loc,
-                    var, ASR::cast_kindType::CPtrToUnsignedInteger, u_type, nullptr);
-                return;
-            } else if (call_name == "u64_to_cptr") {
-                parse_args(x, args);
-                if (args.size() != 1) {
-                    throw SemanticError("u64_to_cptr accpets exactly 1 argument",
-                                        x.base.base.loc);
-                }
-
-                ASR::expr_t *var = args[0].m_value;
-                ASR::ttype_t *a_type = ASRUtils::expr_type(var);
-                if (!ASR::is_a<ASR::UnsignedInteger_t>(*a_type)) {
-                    throw SemanticError("Argument of type `u64` is expected in u64_to_cptr",
-                                        x.base.base.loc);
-                }
-                ASR::ttype_t *c_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
-
-                tmp = ASR::make_Cast_t(al, x.base.base.loc,
-                    var, ASR::cast_kindType::UnsignedIntegerToCPtr, c_type, nullptr);
-                return;
-            } else if (call_name == "TypeVar") {
-                // Ignore TypeVar for now, we handle it based on the identifier itself
-                tmp = nullptr;
-                return;
-            } else if (call_name == "callable") {
-                parse_args(x, args);
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4));
-                ASR::expr_t *arg = args[0].m_value;
-                bool result = false;
-                if (ASR::is_a<ASR::Var_t>(*arg)) {
-                    ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
-                    result = ASR::is_a<ASR::Function_t>(*t);
-                }
-                tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
-                return;
-            } else if( call_name == "pointer" ) {
-                parse_args(x, args);
-                ASR::ttype_t* type_ = ASRUtils::duplicate_type_with_empty_dims(
-                    al, ASRUtils::expr_type(args[0].m_value));
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc, type_));
-                tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
-                return ;
-            } else if( call_name == "array" ) {
-                parse_args(x, args);
-                if( args.size() != 1 ) {
-                    throw SemanticError("array accepts only 1 argument for now, got " +
-                                        std::to_string(args.size()) + " arguments instead.",
-                                        x.base.base.loc);
-                }
-                ASR::expr_t *arg = args[0].m_value;
-                ASR::ttype_t *type = ASRUtils::expr_type(arg);
-                if(ASR::is_a<ASR::ListConstant_t>(*arg)) {
-                    type = ASR::down_cast<ASR::List_t>(type)->m_type;
-                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
-                    ASR::expr_t **m_args = list->m_args;
-                    size_t n_args = list->n_args;
-                    Vec<ASR::dimension_t> dims;
-                    dims.reserve(al, 1);
-                    ASR::dimension_t dim;
-                    dim.loc = x.base.base.loc;
-                    dim.m_length = nullptr;
-                    dim.m_start = nullptr;
-                    dims.push_back(al, dim);
-                    type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size());
-                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
-                } else {
-                    throw SemanticError("array accepts only list for now, got " +
-                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
-                }
-                return;
-            } else if( call_name == "deepcopy" ) {
-                parse_args(x, args);
-                if( args.size() != 1 ) {
-                    throw SemanticError("deepcopy only accepts one argument, found " +
-                                        std::to_string(args.size()) + " instead.",
-                                        x.base.base.loc);
-                }
-                tmp = (ASR::asr_t*) args[0].m_value;
-                return ;
-            } else if( call_name == "sizeof" ) {
-
-                if( x.n_args + x.n_keywords != 1 ) {
-                    throw SemanticError("sizeof only accepts one argument, found " +
-                                        std::to_string(x.n_args + x.n_keywords) + " instead.",
-                                        x.base.base.loc);
-                }
-                bool is_allocatable = false;
-                ASR::ttype_t* arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args[0],
-                                is_allocatable, false);
-                ASR::expr_t* arg = nullptr;
-                if( !arg_type ) {
-                    visit_expr(*x.m_args[0]);
-                    arg = ASRUtils::EXPR(tmp);
-                }
-                if( arg ) {
-                    if( ASR::is_a<ASR::Var_t>(*arg) ) {
-                        ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(arg);
-                        ASR::symbol_t* arg_Var_m_v = ASRUtils::symbol_get_past_external(arg_Var->m_v);
-                        if( ASR::is_a<ASR::Variable_t>(*arg_Var_m_v) ) {
-                            // TODO: Import the underlying struct if arg_type is of Struct type
-                            // Ideally if a variable of struct type is being imported then its underlying type
-                            // should also be imported automatically. However, the naming of the
-                            // underlying struct type might lead to collisions, so importing the type
-                            // here seems like a better choice. Should be done later when the case arises.
-                            arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var_m_v)->m_type;
-                        } else {
-                            throw SemanticError("Symbol " + std::to_string(arg_Var_m_v->type) +
-                                                " is not yet supported in sizeof.",
-                                                x.base.base.loc);
-                        }
-                    }
-                }
-                ASR::ttype_t* size_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
-                tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
-                                             arg_type, size_type, nullptr);
-                return ;
-            } else if(
-                        call_name == "f64" ||
-                        call_name == "f32" ||
-                        call_name == "i64" ||
-                        call_name == "i32" ||
-                        call_name == "i16" ||
-                        call_name == "i8"  ||
-                        call_name == "u64" ||
-                        call_name == "u32" ||
-                        call_name == "u16" ||
-                        call_name == "u8"  ||
-                        call_name == "c32" ||
-                        call_name == "c64" ||
-                        call_name == "S"
-                    ) {
-                parse_args(x, args);
-                ASR::ttype_t* target_type = nullptr;
-                if( call_name == "i8" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 1));
-                } else if( call_name == "i16" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 2));
-                } else if( call_name == "i32" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
-                } else if( call_name == "i64" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
-                } else if( call_name == "u8" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 1));
-                } else if( call_name == "u16" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 2));
-                } else if( call_name == "u32" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 4));
-                } else if( call_name == "u64" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_UnsignedInteger_t(al, x.base.base.loc, 8));
-                } else if( call_name == "f32" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 4));
-                } else if( call_name == "f64" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 8));
-                } else if( call_name == "c32" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 4));
-                } else if( call_name == "c64" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, 8));
-                } else if( call_name == "S" ) {
-                    target_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
-                }
-                ASR::expr_t* arg = args[0].m_value;
-                cast_helper(target_type, arg, x.base.base.loc, true);
-                tmp = (ASR::asr_t*) arg;
-                return ;
-            } else if (intrinsic_node_handler.is_present(call_name)) {
-                parse_args(x, args);
-                tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
-                                        x.base.base.loc, args);
-                return;
-            } else {
-                // The function was not found and it is not intrinsic
-                throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
-                    x.base.base.loc);
-            }
-            } // end of "comment"
-        }
-
-        parse_args(x, args);
-        tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
-                               false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
 
     void visit_Global(const AST::Global_t &/*x*/) {
