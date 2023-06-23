@@ -282,7 +282,7 @@ namespace CUtils {
             }
             case ASR::ttypeType::Array: {
                 ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(t);
-                type_src = get_c_type_from_ttype_t(array_t->m_type);
+                type_src = "struct " + ASRUtils::get_type_code(array_t->m_type) + "*";
                 break;
             }
             case ASR::ttypeType::Pointer: {
