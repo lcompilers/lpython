@@ -15,6 +15,7 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 # data-types
 
 type_to_convert_func = {
+    "i1": bool,
     "i8": int,
     "i16": int,
     "i32": int,
@@ -75,6 +76,7 @@ class Array:
         self._type = type
         self._dims = dims
 
+i1 = Type("i1")
 i8 = Type("i8")
 i16 = Type("i16")
 i32 = Type("i32")

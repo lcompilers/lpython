@@ -1076,7 +1076,7 @@ public:
         } else if (var_annotation == "str") {
             type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
-        } else if (var_annotation == "bool") {
+        } else if (var_annotation == "bool" || var_annotation == "i1") {
             type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
             type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size());
         } else if (var_annotation == "CPtr") {
@@ -4446,11 +4446,11 @@ public:
                     if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
-                        const char* type_list[14]
+                        const char* type_list[15]
                             = { "list", "set", "dict", "tuple",
                                 "i8", "i16", "i32", "i64", "f32",
-                                "f64", "c32", "c64", "str", "bool"};
-                        for (int i = 0; i < 14; i++) {
+                                "f64", "c32", "c64", "str", "bool", "i1"};
+                        for (int i = 0; i < 15; i++) {
                             if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
                                 throw SemanticError(tvar_name + " is a reserved type, consider a different type variable name",
                                     x.base.base.loc);
