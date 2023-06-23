@@ -533,6 +533,7 @@ RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
 RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
 RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
+RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST EXTRAFILES bindpy_03_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
@@ -578,8 +579,11 @@ RUN(NAME structs_24          LABELS cpython llvm c)
 RUN(NAME structs_25          LABELS cpython llvm c)
 RUN(NAME structs_26          LABELS cpython llvm c)
 RUN(NAME structs_27          LABELS cpython llvm c)
+RUN(NAME structs_28          LABELS cpython llvm c)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_03        LABELS cpython_sym c_sym)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)

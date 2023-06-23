@@ -1,0 +1,5 @@
+semantic error: Unsupported type annotation: Pattern
+ --> tests/errors/test_annassign_02.py:2:15
+  |
+2 |     hex_pat : Pattern[str] = r'-?0[xX]+'
+  |               ^^^^^^^^^^^^ 

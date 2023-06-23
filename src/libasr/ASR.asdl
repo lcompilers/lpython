@@ -432,6 +432,7 @@ cast_kind
     | RealToUnsignedInteger
     | CPtrToUnsignedInteger
     | UnsignedIntegerToCPtr
+    | IntegerToSymbolicExpression
 
 dimension = (expr? start, expr? length)
 

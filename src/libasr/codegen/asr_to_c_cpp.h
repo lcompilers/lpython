@@ -105,6 +105,7 @@ public:
     std::map<uint64_t, std::string> const_var_names;
     std::map<int32_t, std::string> gotoid2name;
     std::map<std::string, std::string> emit_headers;
+    std::string array_types_decls;
 
     // Output configuration:
     // Use std::string or char*
@@ -146,7 +147,7 @@ public:
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             CompilerOptions &_compiler_options, bool gen_stdstring, bool gen_stdcomplex, bool is_c,
             int64_t default_lower_bound) : diag{diag},
-            platform{platform}, compiler_options{_compiler_options},
+            platform{platform}, compiler_options{_compiler_options}, array_types_decls{std::string("")},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
@@ -381,28 +382,32 @@ R"(#include <stdio.h>
         }
         if (x.m_return_var) {
             ASR::Variable_t *return_var = ASRUtils::EXPR2VAR(x.m_return_var);
+            bool is_array = ASRUtils::is_array(return_var->m_type);
             if (ASRUtils::is_integer(*return_var->m_type)) {
-                int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind;
-                switch (kind) {
-                    case (1) : sub = "int8_t "; break;
-                    case (2) : sub = "int16_t "; break;
-                    case (4) : sub = "int32_t "; break;
-                    case (8) : sub = "int64_t "; break;
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                if (is_array) {
+                    sub = "struct i" + std::to_string(kind * 8) + "* ";
+                } else {
+                    sub = "int" + std::to_string(kind * 8) + "_t ";
                 }
             } else if (ASRUtils::is_unsigned_integer(*return_var->m_type)) {
-                int kind = ASR::down_cast<ASR::UnsignedInteger_t>(return_var->m_type)->m_kind;
-                switch (kind) {
-                    case (1) : sub = "uint8_t "; break;
-                    case (2) : sub = "uint16_t "; break;
-                    case (4) : sub = "uint32_t "; break;
-                    case (8) : sub = "uint64_t "; break;
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                if (is_array) {
+                    sub = "struct u" + std::to_string(kind * 8) + "* ";
+                } else {
+                    sub = "uint" + std::to_string(kind * 8) + "_t ";
                 }
             } else if (ASRUtils::is_real(*return_var->m_type)) {
-                bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
-                if (is_float) {
-                    sub = "float ";
+                int kind = ASRUtils::extract_kind_from_ttype_t(return_var->m_type);
+                bool is_float = (kind == 4);
+                if (is_array) {
+                    sub = "struct r" + std::to_string(kind * 8) + "* ";
                 } else {
-                    sub = "double ";
+                    if (is_float) {
+                        sub = "float ";
+                    } else {
+                        sub = "double ";
+                    }
                 }
             } else if (ASRUtils::is_logical(*return_var->m_type)) {
                 sub = "bool ";
@@ -539,17 +544,30 @@ R"(#include <stdio.h>
         if (!x.m_return_var) return "";
         ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string indent = "\n    ";
-        std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
-        std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " " + std::string(r_v->m_name) + ";";
-        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
-        std::string ret_stmt = indent + "return " + std::string(r_v->m_name) + ";";
-        std::string clear_pValue = indent + "Py_DECREF(pValue);";
-        std::string copy_result = "";
+        std::string py_val_cnvrt, ret_var_decl, copy_result;
         if (ASRUtils::is_aggregate_type(r_v->m_type)) {
-            if (ASRUtils::is_character(*r_v->m_type)) {
-                copy_result = indent + std::string(r_v->m_name) + " = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
+            if (ASRUtils::is_array(r_v->m_type)) {
+                ASR::ttype_t* array_type_asr = ASRUtils::type_get_past_array(r_v->m_type);
+                std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
+                std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
+                std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name, array_types_decls, true);
+                py_val_cnvrt = bind_py_utils_functions->get_conv_py_arr_to_c(return_type, array_type_name,
+                    array_encoded_type_name) + "(pValue)";
+                ret_var_decl = indent + return_type + " _lpython_return_variable;";
+            } else {
+                if (ASRUtils::is_character(*r_v->m_type)) {
+                    py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
+                    ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
+                    copy_result = indent + "_lpython_return_variable = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
+                }
             }
+        } else {
+            py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
+            ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
         }
+        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
+        std::string ret_stmt = indent + "return _lpython_return_variable;";
+        std::string clear_pValue = indent + "Py_DECREF(pValue);";
         return ret_var_decl + ret_assign + copy_result + clear_pValue + ret_stmt + "\n";
     }
 
@@ -1855,6 +1873,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 last_expr_precedence = 2;
                 break;
             }
+            case (ASR::cast_kindType::IntegerToSymbolicExpression): {
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
@@ -2603,8 +2624,13 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(SymbolicSymbol, "Symbol");
+            SET_INTRINSIC_NAME(SymbolicInteger, "Integer");
             SET_INTRINSIC_NAME(SymbolicPi, "pi");
-            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)): {
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv)):
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow)): {
                 LCOMPILERS_ASSERT(x.n_args == 2);
                 this->visit_expr(*x.m_args[0]);
                 std::string arg1 = src;
@@ -2625,7 +2651,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             src = out;
         } else if (x.n_args == 1) {
             this->visit_expr(*x.m_args[0]);
-            if (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) {
+            if ((x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol)) &&
+                (x.m_intrinsic_id != static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger))) {
                 out += "(" + src + ")";
                 src = out;
             }

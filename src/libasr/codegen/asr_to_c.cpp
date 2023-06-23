@@ -30,8 +30,6 @@ class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 {
 public:
 
-    std::string array_types_decls;
-
     std::unique_ptr<CUtils::CUtilFunctions> c_utils_functions;
 
     int counter;
@@ -39,7 +37,6 @@ public:
     ASRToCVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, co.platform, co, false, false, true, default_lower_bound),
-           array_types_decls(std::string("")),
            c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
            counter{0} {
            }
