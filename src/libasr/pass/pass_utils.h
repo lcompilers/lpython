@@ -667,6 +667,9 @@ namespace LCompilers {
 
     static inline void handle_fn_return_var(Allocator &al, ASR::Function_t *x,
             bool (*is_array_or_struct)(ASR::expr_t*)) {
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindPython) {
+            return;
+        }
         if (x->m_return_var) {
             /*
             * The `return_var` of the function, which is either an array or

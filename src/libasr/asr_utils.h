@@ -612,6 +612,9 @@ static inline ASR::symbol_t *get_asr_owner(const ASR::expr_t *expr) {
         case ASR::exprType::GetPointer: {
             return ASRUtils::get_asr_owner(ASR::down_cast<ASR::GetPointer_t>(expr)->m_arg);
         }
+        case ASR::exprType::FunctionCall: {
+            return ASRUtils::get_asr_owner(ASR::down_cast<ASR::FunctionCall_t>(expr)->m_name);
+        }
         default: {
             throw LCompilersException("Cannot find the ASR owner of underlying symbol of expression "
                                         + std::to_string(expr->type));
