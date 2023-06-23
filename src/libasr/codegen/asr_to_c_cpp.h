@@ -539,31 +539,13 @@ R"(#include <stdio.h>
         if (!x.m_return_var) return "";
         ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string indent = "\n    ";
-        std::string py_val_cnvrt, ret_var_decl, copy_result;
-        if (ASRUtils::is_aggregate_type(r_v->m_type)) {
-            if (ASRUtils::is_array(r_v->m_type)) {
-                ASR::ttype_t* array_type_asr = ASRUtils::type_get_past_array(r_v->m_type);
-                std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
-                std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
-                std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name, array_types_decls, true);
-                py_val_cnvrt = bind_py_utils_functions->get_conv_py_arr_to_c(return_type, array_type_name,
-                    array_encoded_type_name) + "(pValue)";
-                ret_var_decl = indent + return_type + " _lpython_return_variable;";
-            } else {
-                if (ASRUtils::is_character(*r_v->m_type)) {
-                    py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
-                    ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-                    copy_result = indent + "_lpython_return_variable = _lfortran_str_copy(" + std::string(r_v->m_name) + ", 1, 0);";
-                }
-            }
-        } else {
-            py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type) + "(pValue)";
-            ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-        }
-        std::string ret_assign = indent + std::string(r_v->m_name) + " = " + py_val_cnvrt + ";";
-        std::string ret_stmt = indent + "return _lpython_return_variable;";
+        std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
+        std::string py_val_cnvrt = CUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type,
+            array_types_decls, c_ds_api, bind_py_utils_functions);
+        std::string ret_assign = indent + "_lpython_return_variable = " + py_val_cnvrt + "(pValue);";
         std::string clear_pValue = indent + "Py_DECREF(pValue);";
-        return ret_var_decl + ret_assign + copy_result + clear_pValue + ret_stmt + "\n";
+        std::string ret_stmt = indent + "return _lpython_return_variable;";
+        return ret_var_decl + ret_assign + clear_pValue + ret_stmt + "\n";
     }
 
     std::string get_func_body_bind_python(const ASR::Function_t &x) {

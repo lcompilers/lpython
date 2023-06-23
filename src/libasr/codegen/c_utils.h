@@ -334,6 +334,28 @@ namespace CUtils {
                 conv_py_arr_to_c(return_type, element_type, encoded_type);
                 return util2func["conv_py_arr_to_c_" + encoded_type];
             }
+
+            void conv_py_str_to_c() {
+                if( util2func.find("conv_py_str_to_c") != util2func.end() ) {
+                    return;
+                }
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                util2func["conv_py_str_to_c"] = global_scope->get_unique_name("conv_py_str_to_c");
+                std::string conv_py_arr_to_c_func = util2func["conv_py_str_to_c"];
+                std::string signature = "static inline char* " + conv_py_arr_to_c_func + "(PyObject* pValue)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "char *s = (char*)PyUnicode_AsUTF8(pValue);\n";
+                body += indent + tab + "return _lfortran_str_copy(s, 1, 0);\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_conv_py_str_to_c() {
+                conv_py_str_to_c();
+                return util2func["conv_py_str_to_c"];
+            }
     };
 
     static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
@@ -523,19 +545,19 @@ namespace CUtils {
         return type_src;
     }
 
-    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t,
+        std::string &array_types_decls, std::unique_ptr<CCPPDSUtils> &c_ds_api,
+        std::unique_ptr<CUtils::BindPyUtilFunctions> &bind_py_utils_functions) {
         int kind = ASRUtils::extract_kind_from_ttype_t(t);
         std::string type_src = "";
         switch( t->type ) {
             case ASR::ttypeType::Array: {
-                ASR::ttype_t* arr_type = ASR::down_cast<ASR::Array_t>(t)->m_type;
-                if (arr_type->type == ASR::ttypeType::Integer) {
-                    type_src = ""; // we convert the array while copying it
-                } else if (arr_type->type == ASR::ttypeType::Real) {
-                    type_src = ""; // we convert the array while copying it
-                } else {
-                    throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Unsupported array type for return variable");
-                }
+                ASR::ttype_t* array_t = ASR::down_cast<ASR::Array_t>(t)->m_type;
+                std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_t);
+                std::string array_encoded_type_name = ASRUtils::get_type_code(array_t, true, false);
+                std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name, array_types_decls, true);
+                type_src = bind_py_utils_functions->get_conv_py_arr_to_c(return_type, array_type_name,
+                    array_encoded_type_name);
                 break;
             }
             case ASR::ttypeType::Integer: {
@@ -563,7 +585,7 @@ namespace CUtils {
                 break;
             }
             case ASR::ttypeType::Character: {
-                type_src = "(char*)PyUnicode_AsUTF8";
+                type_src = bind_py_utils_functions->get_conv_py_str_to_c();
                 break;
             }
             default: {
