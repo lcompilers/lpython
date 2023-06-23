@@ -540,7 +540,7 @@ R"(#include <stdio.h>
         ASR::Variable_t* r_v = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string indent = "\n    ";
         std::string ret_var_decl = indent + CUtils::get_c_type_from_ttype_t(r_v->m_type) + " _lpython_return_variable;";
-        std::string py_val_cnvrt = BindPyUtils::get_py_obj_return_type_conv_func_from_ttype_t(r_v->m_type,
+        std::string py_val_cnvrt = BindPyUtils::get_py_obj_ret_type_conv_fn_from_ttype(r_v->m_type,
             array_types_decls, c_ds_api, bind_py_utils_functions);
         std::string ret_assign = indent + "_lpython_return_variable = " + py_val_cnvrt + "(pValue);";
         std::string clear_pValue = indent + "Py_DECREF(pValue);";

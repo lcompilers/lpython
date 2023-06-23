@@ -1836,7 +1836,7 @@ namespace BindPyUtils {
         return type_src;
     }
 
-    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t,
+    static inline std::string get_py_obj_ret_type_conv_fn_from_ttype(ASR::ttype_t* t,
         std::string &array_types_decls, std::unique_ptr<CCPPDSUtils> &c_ds_api,
         std::unique_ptr<BindPyUtilFunctions> &bind_py_utils_functions) {
         int kind = ASRUtils::extract_kind_from_ttype_t(t);
@@ -1857,7 +1857,7 @@ namespace BindPyUtils {
                     case 4: type_src = "PyLong_AsLong"; break;
                     case 8: type_src = "PyLong_AsLongLong"; break;
                     default:
-                        throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Unsupported kind in int type");
+                        throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Unsupported kind in int type");
                 }
                 break;
             }
@@ -1867,7 +1867,7 @@ namespace BindPyUtils {
                     case 4: type_src = "PyLong_AsUnsignedLong"; break;
                     case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
                     default:
-                        throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Unsupported kind in unsigned int type");
+                        throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Unsupported kind in unsigned int type");
                 }
                 break;
             }
@@ -1880,7 +1880,7 @@ namespace BindPyUtils {
                 break;
             }
             default: {
-                throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+                throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
             }
         }
         return type_src;
