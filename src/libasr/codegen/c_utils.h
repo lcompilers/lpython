@@ -477,7 +477,7 @@ namespace CUtils {
                 break;
             }
             default: {
-                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+                throw CodeGenError("get_py_obj_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
             }
         }
         return type_src;
@@ -493,7 +493,7 @@ namespace CUtils {
                     case 4: type_src = "PyLong_AsLong"; break;
                     case 8: type_src = "PyLong_AsLongLong"; break;
                     default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                        throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Unsupported kind in int type");
                 }
                 break;
             }
@@ -503,7 +503,7 @@ namespace CUtils {
                     case 4: type_src = "PyLong_AsUnsignedLong"; break;
                     case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
                     default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                        throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Unsupported kind in unsigned int type");
                 }
                 break;
             }
@@ -516,7 +516,7 @@ namespace CUtils {
                 break;
             }
             default: {
-                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+                throw CodeGenError("get_py_obj_return_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
             }
         }
         return type_src;
