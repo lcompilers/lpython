@@ -872,7 +872,7 @@ R"(#include <stdio.h>
                                 ASR::is_a<ASR::Var_t>(*arr->m_dims[0].m_length)) {
                             // name() -> f64[n]: Extract `array_type` and `n`
                             std::string array_type
-                                = CUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
+                                = BindPyUtils::get_numpy_c_obj_type_conv_func_from_ttype_t(arr->m_type);
                             std::string return_array_size = ASRUtils::EXPR2VAR(
                                 arr->m_dims[0].m_length)->m_name;
                             fill_return_details += R"(
