@@ -267,13 +267,15 @@ namespace LCompilers {
 
             void list_clear(llvm::Value* list);
 
-            void reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module);
+            void reverse(llvm::Value* list, llvm::Module& module);
 
             llvm::Value* find_item_position(llvm::Value* list,
                 llvm::Value* item, ASR::ttype_t* item_type,
-                llvm::Module& module);
+                llvm::Module& module, llvm::Value* start=nullptr,
+                llvm::Value* end=nullptr);
 
             llvm::Value* index(llvm::Value* list, llvm::Value* item,
+                                llvm::Value* start, llvm::Value* end,
                                 ASR::ttype_t* item_type, llvm::Module& module);
 
             llvm::Value* count(llvm::Value* list, llvm::Value* item,
@@ -283,6 +285,10 @@ namespace LCompilers {
 
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
+
+            void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
+                                  llvm::Value* num_times, llvm::Value* init_list_len,
+                                  llvm::Module* module);
     };
 
     class LLVMTuple {
@@ -303,7 +309,9 @@ namespace LCompilers {
             llvm::Type* get_tuple_type(std::string& type_code,
                                        std::vector<llvm::Type*>& el_types);
 
-            void tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values);
+            void tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values,
+                            ASR::Tuple_t* tuple_type, llvm::Module* module,
+                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* llvm_tuple, llvm::Value* pos,
                                    bool get_pointer=false);
@@ -319,10 +327,10 @@ namespace LCompilers {
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
 
-            void concat(llvm::Value* t1, llvm::Value* t2,
-                        ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
-                        llvm::Value* concat_tuple,
-                        llvm::Module& module);
+            void concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
+                        ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
+                        ASR::Tuple_t* concat_tuple_type, llvm::Module& module,
+                        std::map<std::string, std::map<std::string, int>>& name2memidx);
     };
 
     class LLVMDictInterface {
@@ -599,7 +607,7 @@ namespace LCompilers {
             llvm::Value* get_pointer_to_rehash_flag(llvm::Value* dict);
 
             void deepcopy_key_value_pair_linked_list(llvm::Value* srci, llvm::Value* desti,
-                llvm::Value* dest_key_value_pairs, llvm::Value* src_capacity, ASR::Dict_t* dict_type,
+                llvm::Value* dest_key_value_pairs, ASR::Dict_t* dict_type,
                 llvm::Module* module, std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_key_value_pair_linked_list(llvm::Value* kv_ll, llvm::Value* dict,

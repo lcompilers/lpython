@@ -644,6 +644,10 @@ filename = "errors/test_bit_length.py"
 asr = true
 
 [[test]]
+filename = "errors/string_01.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_01.py"
 asr = true
 
@@ -660,7 +664,7 @@ filename = "errors/structs_04.py"
 asr = true
 
 [[test]]
-filename = "errors/structs_05.py"
+filename = "structs_01.py"
 asr = true
 
 [[test]]
@@ -672,11 +676,31 @@ filename = "errors/structs_07.py"
 asr = true
 
 [[test]]
+filename = "errors/structs_08.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_09.py"
+asr = true
+
+[[test]]
+filename = "errors/structs_10.py"
+asr = true
+
+[[test]]
 filename = "errors/const_01.py"
 asr = true
 
 [[test]]
 filename = "errors/const_02.py"
+asr = true
+
+[[test]]
+filename = "errors/test_compare_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_compare_02.py"
 asr = true
 
 [[test]]
@@ -722,6 +746,18 @@ filename = "errors/test_list_slicing.py"
 asr = true
 
 [[test]]
+filename = "errors/test_annassign_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_02.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_03.py"
+asr = true
+
+[[test]]
 filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 
@@ -743,6 +779,14 @@ asr = true
 
 [[test]]
 filename = "errors/test_list_index.py"
+run = true
+
+[[test]]
+filename = "errors/test_list_index2.py"
+run = true
+
+[[test]]
+filename = "errors/test_list_index3.py"
 run = true
 
 [[test]]
@@ -1117,6 +1161,14 @@ asr = true
 
 [[test]]
 filename = "errors/func_06.py"
+asr = true
+
+[[test]]
+filename = "errors/func_07.py"
+asr = true
+
+[[test]]
+filename = "errors/func_08.py"
 asr = true
 
 # tests/runtime_errors

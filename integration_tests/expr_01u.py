@@ -1,4 +1,4 @@
-from lpython import inline, u32, u64, i64
+from lpython import inline, u32, u64, i64, i32, u16
 
 @inline
 def uadd(x: u32, y: u32) -> u32:
@@ -27,6 +27,11 @@ def main1():
     num_iters: i64 = i64(4)
     cycles_count = u64((end_cycle - start_cycle) / num_iters)
     assert cycles_count == u64(24)
+
+    # test issue 1949
+    x1: i32 = 20
+    y1: i32 = 10
+    assert u16(x1) > u16(y1)
 
 
 main1()

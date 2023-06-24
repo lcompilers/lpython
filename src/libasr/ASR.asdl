@@ -330,6 +330,7 @@ expr
     | ListItem(expr a, expr pos, ttype type, expr? value)
     | TupleItem(expr a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
+    | ListRepeat(expr left, expr right, ttype type, expr? value)
     | DictPop(expr a, expr key, ttype type, expr? value)
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
@@ -382,6 +383,7 @@ ttype
     | Allocatable(ttype type)
     | Const(ttype type)
     | CPtr()
+    | SymbolicExpression()
     | TypeParameter(identifier param)
     | Array(ttype type, dimension* dims)
     | FunctionType(ttype* arg_types, ttype? return_var_type,
@@ -430,6 +432,7 @@ cast_kind
     | RealToUnsignedInteger
     | CPtrToUnsignedInteger
     | UnsignedIntegerToCPtr
+    | IntegerToSymbolicExpression
 
 dimension = (expr? start, expr? length)
 

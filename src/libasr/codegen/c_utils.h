@@ -3,6 +3,7 @@
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 namespace LCompilers {
 
@@ -334,90 +335,7 @@ namespace CUtils {
         }
         return type_src;
     }
-
-    static inline std::string get_py_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
-        int kind = ASRUtils::extract_kind_from_ttype_t(t);
-        std::string type_src = "";
-        switch( t->type ) {
-            case ASR::ttypeType::Integer: {
-                switch (kind)
-                {
-                    case 4: type_src = "PyLong_FromLong"; break;
-                    case 8: type_src = "PyLong_FromLongLong"; break;
-                    default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
-                }
-                break;
-            }
-            case ASR::ttypeType::UnsignedInteger: {
-                switch (kind)
-                {
-                    case 4: type_src = "PyLong_FromUnsignedLong"; break;
-                    case 8: type_src = "PyLong_FromUnsignedLongLong"; break;
-                    default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
-                }
-                break;
-            }
-            case ASR::ttypeType::Logical: {
-                type_src = "PyBool_FromLong";
-                break;
-            }
-            case ASR::ttypeType::Real: {
-                type_src = "PyFloat_FromDouble";
-                break;
-            }
-            case ASR::ttypeType::Character: {
-                type_src = "PyUnicode_FromString";
-                break;
-            }
-            default: {
-                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
-            }
-        }
-        return type_src;
-    }
-
-    static inline std::string get_py_obj_return_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
-        int kind = ASRUtils::extract_kind_from_ttype_t(t);
-        std::string type_src = "";
-        switch( t->type ) {
-            case ASR::ttypeType::Integer: {
-                switch (kind)
-                {
-                    case 4: type_src = "PyLong_AsLong"; break;
-                    case 8: type_src = "PyLong_AsLongLong"; break;
-                    default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
-                }
-                break;
-            }
-            case ASR::ttypeType::UnsignedInteger: {
-                switch (kind)
-                {
-                    case 4: type_src = "PyLong_AsUnsignedLong"; break;
-                    case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
-                    default:
-                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
-                }
-                break;
-            }
-            case ASR::ttypeType::Real: {
-                type_src = "PyFloat_AsDouble";
-                break;
-            }
-            case ASR::ttypeType::Character: {
-                type_src = "(char*)PyUnicode_AsUTF8";
-                break;
-            }
-            default: {
-                throw CodeGenError("get_py_object_type_conv_func: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
-            }
-        }
-        return type_src;
-    }
 } // namespace CUtils
-
 
 class CCPPDSUtils {
     private:
@@ -527,6 +445,68 @@ class CCPPDSUtils {
             return result;
         }
 
+        std::string generate_binary_operator_code(std::string value, std::string target, std::string operatorName) {
+            size_t delimiterPos = value.find(",");
+            std::string leftPart = value.substr(0, delimiterPos);
+            std::string rightPart = value.substr(delimiterPos + 1);
+            std::string result = operatorName + "(" + target + ", " + leftPart + ", " + rightPart + ");";
+            return result;
+        }
+
+        std::string get_deepcopy_symbolic(ASR::expr_t *value_expr, std::string value, std::string target) {
+            std::string result;
+            if (ASR::is_a<ASR::Var_t>(*value_expr)) {
+                result = "basic_assign(" + target + ", " + value + ");";
+            } else if (ASR::is_a<ASR::IntrinsicFunction_t>(*value_expr)) {
+                ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(value_expr);
+                int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
+                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
+                        result = "symbol_set(" + target + ", " + value + ");";
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
+                        result = generate_binary_operator_code(value, target, "basic_add");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
+                        result = generate_binary_operator_code(value, target, "basic_sub");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
+                        result = generate_binary_operator_code(value, target, "basic_mul");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
+                        result = generate_binary_operator_code(value, target, "basic_div");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
+                        result = generate_binary_operator_code(value, target, "basic_pow");
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                        result = "basic_const_pi(" + target + ");";
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicInteger: {
+                        result = "integer_set_si(" + target + ", " + value + ");";
+                        break;
+                    }
+                    default: {
+                        throw LCompilersException("IntrinsicFunction: `"
+                            + LCompilers::ASRUtils::get_intrinsic_name(intrinsic_id)
+                            + "` is not implemented");
+                    }
+                }
+            } else if (ASR::is_a<ASR::Cast_t>(*value_expr)) {
+                ASR::Cast_t* cast_expr = ASR::down_cast<ASR::Cast_t>(value_expr);
+                std::string cast_value_expr = get_deepcopy_symbolic(cast_expr->m_value, value, target);
+                return cast_value_expr;
+            }
+            return result;
+        }
+
         std::string get_type(ASR::ttype_t *t) {
             LCOMPILERS_ASSERT(CUtils::is_non_primitive_DT(t));
             if (ASR::is_a<ASR::List_t>(*t)) {
@@ -593,6 +573,9 @@ class CCPPDSUtils {
                 }
                 case ASR::ttypeType::Complex: {
                     return "(%f, %f)";
+                }
+                case ASR::ttypeType::SymbolicExpression: {
+                    return "%s";
                 }
                 case ASR::ttypeType::Pointer: {
                     if( !deref_ptr ) {
@@ -1642,6 +1625,277 @@ class CCPPDSUtils {
             compareTwoDS.clear();
         }
 };
+
+namespace BindPyUtils {
+    class BindPyUtilFunctions {
+
+        private:
+
+            SymbolTable* global_scope;
+            std::map<std::string, std::string> util2func;
+
+            int indentation_level, indentation_spaces;
+
+        public:
+
+            std::string util_func_decls;
+            std::string util_funcs;
+
+            BindPyUtilFunctions() {
+                util2func.clear();
+                util_func_decls.clear();
+                util_funcs.clear();
+            }
+
+            void set_indentation(int indendation_level_, int indendation_space_) {
+                indentation_level = indendation_level_;
+                indentation_spaces = indendation_space_;
+            }
+
+            void set_global_scope(SymbolTable* global_scope_) {
+                global_scope = global_scope_;
+            }
+
+            std::string get_generated_code() {
+                return util_funcs;
+            }
+
+            std::string get_util_func_decls() {
+                return util_func_decls;
+            }
+
+            void conv_dims_to_1D_arr() {
+                if( util2func.find("conv_dims_to_1D_arr") != util2func.end() ) {
+                    return;
+                }
+                util_func_decls += "long __new_dims[32];\n";
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                util2func["conv_dims_to_1D_arr"] = global_scope->get_unique_name("conv_dims_to_1D_arr");
+                std::string conv_dims_to_1D_arr_func = util2func["conv_dims_to_1D_arr"];
+                std::string signature = "static inline void " + conv_dims_to_1D_arr_func + "(int n_dims, struct dimension_descriptor *dims, long* new_dims)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "for (int i = 0; i < n_dims; i++) {\n";
+                body += indent + tab + tab + "new_dims[i] = dims[i].length;\n";
+                body += indent + tab + "}\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_conv_dims_to_1D_arr() {
+                conv_dims_to_1D_arr();
+                return util2func["conv_dims_to_1D_arr"];
+            }
+
+            void conv_py_arr_to_c(std::string return_type,
+                std::string element_type, std::string encoded_type) {
+                if( util2func.find("conv_py_arr_to_c_" + encoded_type) != util2func.end() ) {
+                    return;
+                }
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                util2func["conv_py_arr_to_c_" + encoded_type] = global_scope->get_unique_name("conv_py_arr_to_c_" + encoded_type);
+                std::string conv_py_arr_to_c_func = util2func["conv_py_arr_to_c_" + encoded_type];
+                std::string signature = "static inline " + return_type + " " + conv_py_arr_to_c_func + "(PyObject* pValue)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "if (!PyArray_Check(pValue)) {\n";
+                body += indent + tab + tab + R"(fprintf(stderr, "Return value is not an array\n");)" + "\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "PyArrayObject *np_arr = (PyArrayObject *)pValue;\n";
+                body += indent + tab + return_type + " ret_var  = (" + return_type + ") malloc(sizeof(struct " + encoded_type + "));\n";
+                body += indent + tab + "ret_var->n_dims = PyArray_NDIM(np_arr);\n";
+                body += indent + tab + "long* m_dims = PyArray_SHAPE(np_arr);\n";
+                body += indent + tab + "for (long i = 0; i < ret_var->n_dims; i++) {\n";
+                body += indent + tab + tab + "ret_var->dims[i].length = m_dims[i];\n";
+                body += indent + tab + tab + "ret_var->dims[i].lower_bound = 0;\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "long arr_size = PyArray_SIZE(np_arr);\n";
+                body += indent + tab + element_type + "* data = (" + element_type + "*) PyArray_DATA(np_arr);\n";
+                body += indent + tab + "ret_var->data = (" + element_type + "*) malloc(arr_size * sizeof(" + element_type + "));\n";
+                body += indent + tab + "for (long i = 0; i < arr_size; i++) {\n";
+                body += indent + tab + tab + "ret_var->data[i] = data[i];\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "return ret_var;\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_conv_py_arr_to_c(std::string return_type,
+                std::string element_type, std::string encoded_type) {
+                conv_py_arr_to_c(return_type, element_type, encoded_type);
+                return util2func["conv_py_arr_to_c_" + encoded_type];
+            }
+
+            void conv_py_str_to_c() {
+                if( util2func.find("conv_py_str_to_c") != util2func.end() ) {
+                    return;
+                }
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                util2func["conv_py_str_to_c"] = global_scope->get_unique_name("conv_py_str_to_c");
+                std::string conv_py_arr_to_c_func = util2func["conv_py_str_to_c"];
+                std::string signature = "static inline char* " + conv_py_arr_to_c_func + "(PyObject* pValue)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "char *s = (char*)PyUnicode_AsUTF8(pValue);\n";
+                body += indent + tab + "return _lfortran_str_copy(s, 1, 0);\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_conv_py_str_to_c() {
+                conv_py_str_to_c();
+                return util2func["conv_py_str_to_c"];
+            }
+    };
+
+    static inline std::string get_numpy_c_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        t = ASRUtils::type_get_past_array(t);
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                type_src = "NPY_INT" + std::to_string(kind * 8);
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                type_src = "NPY_UINT" + std::to_string(kind * 8);
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_src = "NPY_BOOL";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                switch (kind)
+                {
+                    case 4: type_src = "NPY_FLOAT"; break;
+                    case 8: type_src = "NPY_DOUBLE"; break;
+                    default:
+                        throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Unsupported kind in real type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "NPY_STRING";
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                switch (kind)
+                {
+                    case 4: type_src = "NPY_COMPLEX64"; break;
+                    case 8: type_src = "NPY_COMPLEX128"; break;
+                    default:
+                        throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Unsupported kind in complex type");
+                }
+                break;
+            }
+            default: {
+                throw CodeGenError("get_numpy_c_obj_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
+    static inline std::string get_py_obj_type_conv_func_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromLong"; break;
+                    case 8: type_src = "PyLong_FromLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_FromUnsignedLong"; break;
+                    case 8: type_src = "PyLong_FromUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_type_conv_func: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_src = "PyBool_FromLong";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_FromDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "PyUnicode_FromString";
+                break;
+            }
+            case ASR::ttypeType::Array: {
+                type_src = "PyArray_SimpleNewFromData";
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_obj_type_conv_func_from_ttype_t: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
+    static inline std::string get_py_obj_ret_type_conv_fn_from_ttype(ASR::ttype_t* t,
+        std::string &array_types_decls, std::unique_ptr<CCPPDSUtils> &c_ds_api,
+        std::unique_ptr<BindPyUtilFunctions> &bind_py_utils_functions) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Array: {
+                ASR::ttype_t* array_t = ASR::down_cast<ASR::Array_t>(t)->m_type;
+                std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_t);
+                std::string array_encoded_type_name = ASRUtils::get_type_code(array_t, true, false);
+                std::string return_type = c_ds_api->get_array_type(array_type_name, array_encoded_type_name, array_types_decls, true);
+                type_src = bind_py_utils_functions->get_conv_py_arr_to_c(return_type, array_type_name,
+                    array_encoded_type_name);
+                break;
+            }
+            case ASR::ttypeType::Integer: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsLong"; break;
+                    case 8: type_src = "PyLong_AsLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Unsupported kind in int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::UnsignedInteger: {
+                switch (kind)
+                {
+                    case 4: type_src = "PyLong_AsUnsignedLong"; break;
+                    case 8: type_src = "PyLong_AsUnsignedLongLong"; break;
+                    default:
+                        throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Unsupported kind in unsigned int type");
+                }
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                type_src = "PyFloat_AsDouble";
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = bind_py_utils_functions->get_conv_py_str_to_c();
+                break;
+            }
+            default: {
+                throw CodeGenError("get_py_obj_ret_type_conv_fn_from_ttype: Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+}
 
 } // namespace LCompilers
 

@@ -398,6 +398,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             return tp->m_param;
         }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "symbolic expression";
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
@@ -608,6 +611,9 @@ static inline ASR::symbol_t *get_asr_owner(const ASR::expr_t *expr) {
         }
         case ASR::exprType::GetPointer: {
             return ASRUtils::get_asr_owner(ASR::down_cast<ASR::GetPointer_t>(expr)->m_arg);
+        }
+        case ASR::exprType::FunctionCall: {
+            return ASRUtils::get_asr_owner(ASR::down_cast<ASR::FunctionCall_t>(expr)->m_name);
         }
         default: {
             throw LCompilersException("Cannot find the ASR owner of underlying symbol of expression "
@@ -1043,7 +1049,7 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             break;
         }
         case ASR::ttypeType::Logical: {
-            res = "bool";
+            res = "i1";
             break;
         }
         case ASR::ttypeType::Character: {
@@ -1150,6 +1156,9 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             }
             return "Const[" + get_type_code(p->m_type, use_underscore_sep,
                                             encode_dimensions_, set_dimensional_hint) + "]";
+        }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "
@@ -1260,15 +1269,15 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
-            return "struct " + std::string(symbol_name(d->m_derived_type));
+            return std::string(symbol_name(d->m_derived_type));
         }
         case ASR::ttypeType::Enum: {
             ASR::Enum_t* d = ASR::down_cast<ASR::Enum_t>(t);
-            return "enum " + std::string(symbol_name(d->m_enum_type));
+            return std::string(symbol_name(d->m_enum_type));
         }
         case ASR::ttypeType::Union: {
             ASR::Union_t* d = ASR::down_cast<ASR::Union_t>(t);
-            return "union " + std::string(symbol_name(d->m_union_type));
+            return std::string(symbol_name(d->m_union_type));
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
@@ -1285,6 +1294,9 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
+        }
+        case ASR::ttypeType::SymbolicExpression: {
+            return "S";
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1648,6 +1660,7 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Const_t>(x)->m_type, m_dims);
             break;
         }
+        case ASR::ttypeType::SymbolicExpression:
         case ASR::ttypeType::Integer:
         case ASR::ttypeType::UnsignedInteger:
         case ASR::ttypeType::Real:
@@ -1750,7 +1763,11 @@ inline bool ttype_set_dimensions(ASR::ttype_t** x,
         case ASR::ttypeType::Real:
         case ASR::ttypeType::Complex:
         case ASR::ttypeType::Character:
-        case ASR::ttypeType::Logical: {
+        case ASR::ttypeType::Logical:
+        case ASR::ttypeType::Struct:
+        case ASR::ttypeType::Enum:
+        case ASR::ttypeType::Union:
+        case ASR::ttypeType::TypeParameter: {
             *x = ASRUtils::make_Array_t_util(al, (*x)->base.loc, *x, m_dims, n_dims);
             return true;
         }
@@ -2277,6 +2294,9 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
                 return (a2->m_kind == b2->m_kind);
             }
             case ASR::ttypeType::CPtr: {
+                return true;
+            }
+            case ASR::ttypeType::SymbolicExpression: {
                 return true;
             }
             case (ASR::ttypeType::Real) : {
@@ -3363,8 +3383,9 @@ static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vecto
     // BindC interfaces already pass array by data pointer so we don't need to track
     // them and use extra variables for their dimensional information. Only those functions
     // need to be tracked which by default pass arrays by using descriptors.
-    if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
-        ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
+    if ((ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC
+         || ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindPython)
+        && ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
         return false;
     }
 

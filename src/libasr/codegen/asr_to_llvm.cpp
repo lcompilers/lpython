@@ -1589,15 +1589,15 @@ public:
         std::string key_type_code = ASRUtils::get_type_code(x_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(x_dict->m_value_type);
         llvm_utils->dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
-        int64_t ptr_loads_key = LLVM::is_llvm_struct(x_dict->m_key_type) ? 0 : 2;
-        int64_t ptr_loads_value = LLVM::is_llvm_struct(x_dict->m_value_type) ? 0 : 2;
+        int64_t ptr_loads_key = !LLVM::is_llvm_struct(x_dict->m_key_type);
+        int64_t ptr_loads_value = !LLVM::is_llvm_struct(x_dict->m_value_type);
         int64_t ptr_loads_copy = ptr_loads;
         for( size_t i = 0; i < x.n_keys; i++ ) {
             ptr_loads = ptr_loads_key;
-            visit_expr(*x.m_keys[i]);
+            visit_expr_wrapper(x.m_keys[i], true);
             llvm::Value* key = tmp;
             ptr_loads = ptr_loads_value;
-            visit_expr(*x.m_values[i]);
+            visit_expr_wrapper(x.m_values[i], true);
             llvm::Value* value = tmp;
             llvm_utils->dict_api->write_item(const_dict, key, value, module.get(),
                                  x_dict->m_key_type, x_dict->m_value_type, name2memidx);
@@ -1626,13 +1626,19 @@ public:
         llvm::Value* const_tuple = builder->CreateAlloca(const_tuple_type, nullptr, "const_tuple");
         std::vector<llvm::Value*> init_values;
         int64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 2;
         for( size_t i = 0; i < x.n_elements; i++ ) {
+            if(!LLVM::is_llvm_struct(tuple_type->m_type[i])) {
+                ptr_loads = 2;
+            }
+            else {
+                ptr_loads = ptr_loads_copy;
+            }
             this->visit_expr(*x.m_elements[i]);
             init_values.push_back(tmp);
         }
         ptr_loads = ptr_loads_copy;
-        tuple_api->tuple_init(const_tuple, init_values);
+        tuple_api->tuple_init(const_tuple, init_values, tuple_type,
+                              module.get(), name2memidx);
         tmp = const_tuple;
     }
 
@@ -1979,7 +1985,8 @@ public:
         tmp = list_api->count(plist, item, asr_el_type, *module);
     }
 
-    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+    void generate_ListIndex(ASR::expr_t* m_arg, ASR::expr_t* m_ele,
+            ASR::expr_t* m_start=nullptr, ASR::expr_t* m_end=nullptr) {
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1988,9 +1995,23 @@ public:
 
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         this->visit_expr_wrapper(m_ele, true);
-        ptr_loads = ptr_loads_copy;
         llvm::Value *item = tmp;
-        tmp = list_api->index(plist, item, asr_el_type, *module);
+
+        llvm::Value* start = nullptr;
+        llvm::Value* end = nullptr;
+        if(m_start) {
+            ptr_loads = 2;
+            this->visit_expr_wrapper(m_start, true);
+            start = tmp;
+        }
+        if(m_end) {
+            ptr_loads = 2;
+            this->visit_expr_wrapper(m_end, true);
+            end = tmp;
+        }
+
+        ptr_loads = ptr_loads_copy;
+        tmp = list_api->index(plist, item, start, end, asr_el_type, *module);
     }
 
     void generate_Exp(ASR::expr_t* m_arg) {
@@ -2022,7 +2043,7 @@ public:
 
         ptr_loads = !LLVM::is_llvm_struct(asr_el_type);
         ptr_loads = ptr_loads_copy;
-        list_api->reverse(plist, asr_el_type, *module);
+        list_api->reverse(plist, *module);
     }
 
     void generate_ListPop_0(ASR::expr_t* m_arg) {
@@ -2054,18 +2075,29 @@ public:
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
+                ASR::expr_t* m_arg = x.m_args[0];
+                ASR::expr_t* m_ele = x.m_args[1];
+                ASR::expr_t* m_start = nullptr;
+                ASR::expr_t* m_end = nullptr;
                 switch (x.m_overload_id) {
                     case 0: {
-                        ASR::expr_t* m_arg = x.m_args[0];
-                        ASR::expr_t* m_ele = x.m_args[1];
-                        generate_ListIndex(m_arg, m_ele);
+                        break ;
+                    }
+                    case 1: {
+                        m_start = x.m_args[2];
+                        break ;
+                    }
+                    case 2: {
+                        m_start = x.m_args[2];
+                        m_end = x.m_args[3];
                         break ;
                     }
                     default: {
-                        throw CodeGenError("list.index only accepts one argument",
+                        throw CodeGenError("list.index accepts at most four arguments",
                                             x.base.base.loc);
                     }
                 }
+                generate_ListIndex(m_arg, m_ele, m_start, m_end);
                 break ;
             }
             case ASRUtils::IntrinsicFunctions::ListReverse: {
@@ -2141,6 +2173,46 @@ public:
         ptr_loads = ptr_loads_copy;
 
         list_api->list_clear(plist);
+    }
+
+    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        ptr_loads = 2;      // right is int always
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+
+        ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
+        bool is_array_type_local = false, is_malloc_array_type_local = false;
+        bool is_list_local = false;
+        ASR::dimension_t* m_dims_local = nullptr;
+        int n_dims_local = -1, a_kind_local = -1;
+        llvm::Type* llvm_el_type = get_type_from_ttype_t(list_type->m_type,
+                                    nullptr,
+                                    ASR::storage_typeType::Default, is_array_type_local,
+                                    is_malloc_array_type_local, is_list_local, m_dims_local,
+                                    n_dims_local, a_kind_local);
+        std::string type_code = ASRUtils::get_type_code(list_type->m_type);
+        int32_t type_size = -1;
+        if( ASR::is_a<ASR::Character_t>(*list_type->m_type) ||
+            LLVM::is_llvm_struct(list_type->m_type) ||
+            ASR::is_a<ASR::Complex_t>(*list_type->m_type) ) {
+            llvm::DataLayout data_layout(module.get());
+            type_size = data_layout.getTypeAllocSize(llvm_el_type);
+        } else {
+            type_size = ASRUtils::extract_kind_from_ttype_t(list_type->m_type);
+        }
+        llvm::Type* repeat_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
+        llvm::Value* repeat_list = builder->CreateAlloca(repeat_list_type, nullptr, "repeat_list");
+        llvm::Value* left_len = list_api->len(left);
+        llvm::Value* capacity = builder->CreateMul(left_len, right);
+        list_api->list_init(type_code, repeat_list, *module,
+                            capacity, capacity);
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 1;
+        list_api->list_repeat_copy(repeat_list, left, right, left_len, module.get());
+        ptr_loads = ptr_loads_copy;
+        tmp = repeat_list;
     }
 
     void visit_TupleCompare(const ASR::TupleCompare_t& x) {
@@ -4934,6 +5006,11 @@ public:
             tmp = LLVM::CreateLoad(*builder, tmp);
         }
         value = tmp;
+        if (ASR::is_a<ASR::Struct_t>(*target_type)) {
+            if (value->getType()->isPointerTy()) {
+                value = LLVM::CreateLoad(*builder, value);
+            }
+        }
         if ( is_a<ASR::Character_t>(*ASRUtils::type_get_past_array(expr_type(x.m_value))) ) {
             int n_dims = ASRUtils::extract_n_dims_from_ttype(expr_type(x.m_value));
             if (n_dims == 0) {
@@ -5086,6 +5163,11 @@ public:
     }
 
     inline void visit_expr_wrapper(ASR::expr_t* x, bool load_ref=false) {
+        // Check if *x is nullptr.
+        if( x == nullptr ) {
+            throw CodeGenError("Internal error: x is nullptr");
+        }
+
         this->visit_expr(*x);
         if( x->type == ASR::exprType::ArrayItem ||
             x->type == ASR::exprType::ArraySection ||

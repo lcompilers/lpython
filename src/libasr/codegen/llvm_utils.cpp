@@ -783,12 +783,11 @@ namespace LCompilers {
 
     void LLVMDictSeparateChaining::deepcopy_key_value_pair_linked_list(
         llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_key_value_pairs,
-        llvm::Value* src_capacity, ASR::Dict_t* dict_type, llvm::Module* module,
+        ASR::Dict_t* dict_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( !are_iterators_set ) {
             src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
             dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
         llvm::Type* key_value_pair_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo();
         LLVM::CreateStore(*builder,
@@ -797,7 +796,6 @@ namespace LCompilers {
         LLVM::CreateStore(*builder,
             builder->CreateBitCast(desti, llvm::Type::getInt8PtrTy(context)),
             dest_itr);
-        LLVM::CreateStore(*builder, src_capacity, next_ptr);
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -958,9 +956,11 @@ namespace LCompilers {
             get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo());
         if( !are_iterators_set ) {
             copy_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+            next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
         llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
         LLVM::CreateStore(*builder, llvm_zero, copy_itr);
+        LLVM::CreateStore(*builder, src_capacity, next_ptr);
 
         llvm::Value* src_key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(src));
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -991,7 +991,7 @@ namespace LCompilers {
                 llvm::Value* srci = llvm_utils->create_ptr_gep(src_key_value_pairs, itr);
                 llvm::Value* desti = llvm_utils->create_ptr_gep(dest_key_value_pairs, itr);
                 deepcopy_key_value_pair_linked_list(srci, desti, dest_key_value_pairs,
-                    src_capacity, dict_type, module, name2memidx);
+                    dict_type, module, name2memidx);
             }, [=]() {
             });
             llvm::Value* tmp = builder->CreateAdd(
@@ -2647,7 +2647,7 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
-    void LLVMList::reverse(llvm::Value* list, ASR::ttype_t* list_type, llvm::Module& module) {
+    void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
 
         /* Equivalent in C++:
          *
@@ -2716,20 +2716,33 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMList::find_item_position(llvm::Value* list,
-        llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module) {
+        llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module,
+        llvm::Value* start, llvm::Value* end) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
-        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
-                                        get_pointer_to_current_end_point(list));
+
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
         llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
-                                    context, llvm::APInt(32, 0)), i);
+        if(start) {
+            LLVM::CreateStore(*builder, start, i);
+        }
+        else {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                context, llvm::APInt(32, 0)), i);
+        }
+        llvm::Value* end_point = nullptr;
+        if(end) {
+            end_point = end;
+        }
+        else {
+            end_point = LLVM::CreateLoad(*builder,
+                            get_pointer_to_current_end_point(list));
+        }
         llvm::Value* tmp = nullptr;
 
         /* Equivalent in C++:
-         * int i = 0;
+         * int i = start;
          * while(list[i] != item && end_point > i) {
          *     i++;
          * }
@@ -2754,7 +2767,7 @@ namespace LCompilers {
                                                     module, item_type)
                                             );
             llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
-                                                   builder->CreateICmpSGT(current_end_point,
+                                                   builder->CreateICmpSGT(end_point,
                                                     LLVM::CreateLoad(*builder, i)));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
@@ -2773,7 +2786,7 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
 
         llvm::Value* cond = builder->CreateICmpEQ(
-                              LLVM::CreateLoad(*builder, i), current_end_point);
+                              LLVM::CreateLoad(*builder, i), end_point);
         llvm_utils->create_if_else(cond, [&]() {
             std::string message = "The list does not contain the element: ";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
@@ -2789,8 +2802,9 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMList::index(llvm::Value* list, llvm::Value* item,
+                                llvm::Value* start, llvm::Value* end,
                                 ASR::ttype_t* item_type, llvm::Module& module) {
-        return LLVMList::find_item_position(list, item, item_type, module);
+        return LLVMList::find_item_position(list, item, item_type, module, start, end);
     }
 
     llvm::Value* LLVMList::count(llvm::Value* list, llvm::Value* item,
@@ -3092,6 +3106,77 @@ namespace LCompilers {
         return LLVM::CreateLoad(*builder, is_equal);
     }
 
+    void LLVMList::list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
+                                    llvm::Value* num_times, llvm::Value* init_list_len,
+                                    llvm::Module* module) {
+
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);       // i = 0
+        llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
+        llvm::Value* tmp = nullptr;
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(num_times,
+                                                       LLVM::CreateLoad(*builder, i));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                        context, llvm::APInt(32, 0)), j);       // j = 0
+
+            llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
+            llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
+            llvm::BasicBlock *loop2end = llvm::BasicBlock::Create(context, "loop2.end");
+
+            // head
+            llvm_utils->start_new_block(loop2head);
+            {
+                llvm::Value *cond2 = builder->CreateICmpSGT(init_list_len,
+                                                            LLVM::CreateLoad(*builder, j));
+                builder->CreateCondBr(cond2, loop2body, loop2end);
+            }
+
+            // body
+            llvm_utils->start_new_block(loop2body);
+            {
+                tmp = builder->CreateMul(init_list_len, LLVM::CreateLoad(*builder, i));
+                tmp = builder->CreateAdd(tmp, LLVM::CreateLoad(*builder, j));
+                write_item(repeat_list, tmp,
+                           read_item(init_list, LLVM::CreateLoad(*builder, j),
+                                     false, *module, false),
+                           false, *module);
+                tmp = builder->CreateAdd(
+                            LLVM::CreateLoad(*builder, j),
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, j);
+            }
+            builder->CreateBr(loop2head);
+
+            // end
+            llvm_utils->start_new_block(loop2end);
+
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
     LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,
                          LLVMUtils* llvm_utils_,
                          llvm::IRBuilder<>* builder_) :
@@ -3123,11 +3208,14 @@ namespace LCompilers {
         return read_item(llvm_tuple, llvm_pos, get_pointer);
     }
 
-    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple,
-                               std::vector<llvm::Value*>& values) {
+    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values,
+        ASR::Tuple_t* tuple_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         for( size_t i = 0; i < values.size(); i++ ) {
             llvm::Value* item_ptr = read_item(llvm_tuple, i, true);
-            builder->CreateStore(values[i], item_ptr);
+            llvm_utils->deepcopy(values[i], item_ptr,
+                                 tuple_type->m_type[i], module,
+                                 name2memidx);
         }
     }
 
@@ -3163,18 +3251,21 @@ namespace LCompilers {
         return is_equal;
     }
 
-    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2,
-                           ASR::Tuple_t* tuple_type_1, ASR::Tuple_t* tuple_type_2,
-                           llvm::Value* concat_tuple,
-                           llvm::Module& module) {
+    void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
+                           ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
+                           ASR::Tuple_t* concat_tuple_type, llvm::Module& module,
+                           std::map<std::string, std::map<std::string, int>>& name2memidx) {
         std::vector<llvm::Value*> values;
         for( size_t i = 0; i < tuple_type_1->n_type; i++ ) {
-            values.push_back(llvm_utils->tuple_api->read_item(t1, i, false));
+            values.push_back(llvm_utils->tuple_api->read_item(t1, i,
+                LLVM::is_llvm_struct(tuple_type_1->m_type[i])));
         }
         for( size_t i = 0; i < tuple_type_2->n_type; i++ ) {
-            values.push_back(llvm_utils->tuple_api->read_item(t2, i, false));
+            values.push_back(llvm_utils->tuple_api->read_item(t2, i,
+                LLVM::is_llvm_struct(tuple_type_2->m_type[i])));
         }
-        tuple_init(concat_tuple, values);
+        tuple_init(concat_tuple, values, concat_tuple_type,
+                   &module, name2memidx);
     }
 
 } // namespace LCompilers

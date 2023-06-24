@@ -7,13 +7,8 @@
 #include <lfortran_intrinsics.h>
 
 
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
-
 // Implementations
-#define μ   1.45136923488338110e+00
+const double μ =   1.45136923488338110e+00;
 int32_t add(int32_t x, int32_t y)
 {
     int32_t _lpython_return_variable;
@@ -21,7 +16,7 @@ int32_t add(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
-#define e   2.71828182845904509e+00
+const double e =   2.71828182845904509e+00;
 int32_t multiply(int32_t x, int32_t y)
 {
     int32_t _lpython_return_variable;

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-func_07-4a8c076",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/func_07.py",
+    "infile_hash": "1f03729509b64de761a779737f886f9c86e548a903cb875e8f9f15f0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-func_07-4a8c076.stderr",
+    "stderr_hash": "f318e29b96f7730e9ed5fd89ae43e851f22bf50a5c3b2bde415e24e2",
+    "returncode": 2
+}
