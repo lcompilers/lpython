@@ -2716,20 +2716,33 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMList::find_item_position(llvm::Value* list,
-        llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module) {
+        llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module,
+        llvm::Value* start, llvm::Value* end) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
-        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
-                                        get_pointer_to_current_end_point(list));
+
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
         llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
-                                    context, llvm::APInt(32, 0)), i);
+        if(start) {
+            LLVM::CreateStore(*builder, start, i);
+        }
+        else {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                context, llvm::APInt(32, 0)), i);
+        }
+        llvm::Value* end_point = nullptr;
+        if(end) {
+            end_point = end;
+        }
+        else {
+            end_point = LLVM::CreateLoad(*builder,
+                            get_pointer_to_current_end_point(list));
+        }
         llvm::Value* tmp = nullptr;
 
         /* Equivalent in C++:
-         * int i = 0;
+         * int i = start;
          * while(list[i] != item && end_point > i) {
          *     i++;
          * }
@@ -2754,7 +2767,7 @@ namespace LCompilers {
                                                     module, item_type)
                                             );
             llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
-                                                   builder->CreateICmpSGT(current_end_point,
+                                                   builder->CreateICmpSGT(end_point,
                                                     LLVM::CreateLoad(*builder, i)));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
@@ -2773,7 +2786,7 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
 
         llvm::Value* cond = builder->CreateICmpEQ(
-                              LLVM::CreateLoad(*builder, i), current_end_point);
+                              LLVM::CreateLoad(*builder, i), end_point);
         llvm_utils->create_if_else(cond, [&]() {
             std::string message = "The list does not contain the element: ";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
@@ -2789,8 +2802,9 @@ namespace LCompilers {
     }
 
     llvm::Value* LLVMList::index(llvm::Value* list, llvm::Value* item,
+                                llvm::Value* start, llvm::Value* end,
                                 ASR::ttype_t* item_type, llvm::Module& module) {
-        return LLVMList::find_item_position(list, item, item_type, module);
+        return LLVMList::find_item_position(list, item, item_type, module, start, end);
     }
 
     llvm::Value* LLVMList::count(llvm::Value* list, llvm::Value* item,

@@ -271,9 +271,11 @@ namespace LCompilers {
 
             llvm::Value* find_item_position(llvm::Value* list,
                 llvm::Value* item, ASR::ttype_t* item_type,
-                llvm::Module& module);
+                llvm::Module& module, llvm::Value* start=nullptr,
+                llvm::Value* end=nullptr);
 
             llvm::Value* index(llvm::Value* list, llvm::Value* item,
+                                llvm::Value* start, llvm::Value* end,
                                 ASR::ttype_t* item_type, llvm::Module& module);
 
             llvm::Value* count(llvm::Value* list, llvm::Value* item,

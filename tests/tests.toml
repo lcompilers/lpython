@@ -782,6 +782,14 @@ filename = "errors/test_list_index.py"
 run = true
 
 [[test]]
+filename = "errors/test_list_index2.py"
+run = true
+
+[[test]]
+filename = "errors/test_list_index3.py"
+run = true
+
+[[test]]
 filename = "errors/test_list1.py"
 asr = true
 
