@@ -5371,7 +5371,7 @@ public:
                 throw SemanticError("Only Name is supported for Subscript",
                     sbt->base.base.loc);
             }
-        } else if (AST::is_a<AST::List_t>(*x.m_iter)) {
+        } else if (AST::is_a<AST::List_t>(*x.m_iter) || AST::is_a<AST::ConstantStr_t>(*x.m_iter) ) {
             visit_expr(*x.m_iter);
             ASR::expr_t *target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *loop_src_var_ttype = ASRUtils::expr_type(target);
