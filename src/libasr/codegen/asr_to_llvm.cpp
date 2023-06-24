@@ -2191,6 +2191,8 @@ public:
         ASR::Tuple_t* tuple_type_right = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_right));
         std::string type_code_right = ASRUtils::get_type_code(tuple_type_right->m_type,
                                                         tuple_type_right->n_type);
+        Vec<ASR::ttype_t*> v_type;
+        v_type.reserve(al, tuple_type_left->n_type + tuple_type_right->n_type);
         std::string type_code = type_code_left + type_code_right;
         std::vector<llvm::Type*> llvm_el_types;
         ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
@@ -2203,6 +2205,7 @@ public:
                                     nullptr,
                                     m_storage, is_array_type, is_malloc_array_type,
                                     is_list, m_dims, n_dims, a_kind));
+            v_type.push_back(al, tuple_type_left->m_type[i]);
         }
         is_array_type = false; is_malloc_array_type = false;
         is_list = false;
@@ -2213,10 +2216,14 @@ public:
                                     nullptr,
                                     m_storage, is_array_type, is_malloc_array_type,
                                     is_list, m_dims, n_dims, a_kind));
+            v_type.push_back(al, tuple_type_right->m_type[i]);
         }
         llvm::Type* concat_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
         llvm::Value* concat_tuple = builder->CreateAlloca(concat_tuple_type, nullptr, "concat_tuple");
-        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple, *module);
+        ASR::Tuple_t* tuple_type = (ASR::Tuple_t*)(ASR::make_Tuple_t(
+                                    al, x.base.base.loc, v_type.p, v_type.n));
+        tuple_api->concat(left, right, tuple_type_left, tuple_type_right, concat_tuple,
+                          tuple_type, *module, name2memidx);
         tmp = concat_tuple;
     }
 
