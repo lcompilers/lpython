@@ -1002,17 +1002,6 @@ static inline ASR::expr_t *eval_list_index(Allocator &/*al*/,
 static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     Vec<ASR::expr_t*>& args,
     const std::function<void (const std::string &, const Location &)> err) {
-    // if (args.size() != 2) {
-    //     // Support start and end arguments by overloading ListIndex
-    //     // intrinsic. We need 3 overload IDs,
-    //     // 0 - only list and element
-    //     // 1 - list, element and start
-    //     // 2 - list, element, start and end
-    //     // list, element and end case is not possible as list.index
-    //     // doesn't accept keyword arguments
-    //     err("For now index() takes exactly one argument", loc);
-    // }
-
     int64_t overload_id = 0;
     ASR::expr_t* list_expr = args[0];
     ASR::ttype_t *type = ASRUtils::expr_type(list_expr);
