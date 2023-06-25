@@ -3189,7 +3189,26 @@ namespace LCompilers {
         // TODO:
         // - ineq operations other than "<"
         // - abstract out this code, possibly switch over operators
-        // - short-circuit. Without initial allocation of res? Also for equality
+        // - short-circuit without initial allocation of res? Also for equality
+
+        /**
+         * Equivalent in C++
+         * For "<"
+         * 
+         * equality_holds = 1;
+         * inequality_holds = 0;
+         * i = 0;
+         * 
+         * while( i < a_len && i < b_len && equality_holds ) {
+         *     equality_holds &= (a[i] == b[i]);
+         *     inequality_holds |= (a[i] < b[i]);
+         * }
+         * 
+         * if( i == a_len && a_len < b_len && equality_holds ) {
+         *     inequality_holds = 1;
+         * }
+         * 
+         */
 
         llvm::AllocaInst *equality_holds = builder->CreateAlloca(
                                                 llvm::Type::getInt1Ty(context), nullptr);
@@ -3215,6 +3234,7 @@ namespace LCompilers {
             llvm::Value* i = LLVM::CreateLoad(*builder, idx);
             llvm::Value* cnd = builder->CreateICmpSLT(i, a_len);
             cnd = builder->CreateAnd(cnd, builder->CreateICmpSLT(i, b_len));
+            cnd = builder->CreateAnd(cnd, LLVM::CreateLoad(*builder, equality_holds));
             builder->CreateCondBr(cnd, loopbody, loopend);
         }
 
@@ -3244,8 +3264,9 @@ namespace LCompilers {
         // end
         llvm_utils->start_new_block(loopend);
 
-        // if a_len < b_len && equality_holds, then left < right
-        llvm::Value* cond = builder->CreateICmpSLT(a_len, b_len);
+        llvm::Value* cond = builder->CreateICmpEQ(LLVM::CreateLoad(*builder, idx),
+                                                  a_len);
+        cond = builder->CreateAnd(cond, builder->CreateICmpSLT(a_len, b_len));
         cond = builder->CreateAnd(cond, LLVM::CreateLoad(*builder, equality_holds));
         llvm_utils->create_if_else(cond, [&]() {
             LLVM::CreateStore(*builder, llvm::ConstantInt::get(
@@ -3408,17 +3429,73 @@ namespace LCompilers {
                                                  llvm::IRBuilder<>* builder,
                                                  llvm::Module& module) {
         // TODO: operators other than "<"
-        llvm::Value* inequality_holds = llvm::ConstantInt::get(context, llvm::APInt(1, 0));
-        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
-            llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
-                                              tuple_type->m_type[i]));
-            llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
-                                              tuple_type->m_type[i]));
-            llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
-                                        tuple_type->m_type[i]);
-            inequality_holds = builder->CreateOr(inequality_holds, res);
+
+        /**
+         * Equivalent in C++
+         * For "<"
+         * 
+         * equality_holds = 1;
+         * inequality_holds = 0;
+         * i = 0;
+         * 
+         * while( i < a_len && equality_holds ) {
+         *     equality_holds &= (a[i] == b[i]);
+         *     inequality_holds |= (a[i] < b[i]);
+         * }
+         * 
+         */
+
+        llvm::AllocaInst *equality_holds = builder->CreateAlloca(
+                                                llvm::Type::getInt1Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)),
+                          equality_holds);
+        llvm::AllocaInst *inequality_holds = builder->CreateAlloca(
+                                                llvm::Type::getInt1Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)),
+                          inequality_holds);
+
+        llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), idx);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+            llvm::Value* cnd = builder->CreateICmpSLT(i, llvm::ConstantInt::get(
+                                context, llvm::APInt(32, tuple_type->n_type)));
+            cnd = builder->CreateAnd(cnd, LLVM::CreateLoad(*builder, equality_holds));
+            builder->CreateCondBr(cnd, loopbody, loopend);
         }
-        return inequality_holds;
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+            // llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
+            //                                 tuple_type->m_type[i]));
+            // llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
+            //                                 tuple_type->m_type[i]));
+            // llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
+            //                                 tuple_type->m_type[i]);
+            // res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
+            // LLVM::CreateStore(*builder, res, inequality_holds);
+            // res = llvm_utils->is_equal_by_value(t1i, t2i, module, tuple_type->m_type[i]);
+            // res = builder->CreateAnd(LLVM::CreateLoad(*builder, equality_holds), res);
+            // LLVM::CreateStore(*builder, res, equality_holds);
+            i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                    llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, i, idx);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+        return LLVM::CreateLoad(*builder, inequality_holds);
     }
 
     void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,

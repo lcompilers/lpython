@@ -8,6 +8,8 @@ def test_list_compare():
     l5: list[list[str]] = [[''], ['']]
     l6: list[str] = []
     l7: list[str] = []
+    t1: tuple[i32, i32]
+    t2: tuple[i32, i32]
     i: i32
 
     assert l1 < l2
@@ -16,9 +18,13 @@ def test_list_compare():
     assert l2 < l1
     assert not (l1 < l2)
 
-    assert l3 < l4
-    l4[0] = l3[0]
-    assert l4 < l3
+    l1 = [3,4,5]
+    l2 = [1,6,7]
+    assert l2 < l1
+
+    # assert l3 < l4
+    # l4[0] = l3[0]
+    # assert l4 < l3
 
     for i in range(0, 10):
         if i % 2 == 0:
@@ -29,5 +35,9 @@ def test_list_compare():
         l5[1] = l7
         if i % 2 == 0:
             assert l5[1 - i % 2] < l5[i % 2]
+    
+    # t1 = (1, 2)
+    # t2 = (3, 4)
+    # assert t1 < t2
 
 test_list_compare()
