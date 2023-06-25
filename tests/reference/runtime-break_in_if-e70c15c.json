@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-break_in_if-e70c15c",
+    "cmd": "lpython {infile}",
+    "infile": "tests/for_else/break_in_if.py",
+    "infile_hash": "48b6f27dc6d584ec9765483a80f3f0a705bbbdae1afddf31bab19305",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "runtime-break_in_if-e70c15c.stdout",
+    "stdout_hash": "32abcb5e52daed49078b31f00c8096aca4e2bcef16f75512188bc328",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
