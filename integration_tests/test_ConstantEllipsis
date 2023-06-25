@@ -1,0 +1,13 @@
+from lpython import i32
+
+def test_Ellipsis_Function():
+    ...
+
+def test_Ellipsis_For():
+    i:i32
+    for i in range(5):
+        ...
+
+def main0():
+    test_Ellipsis_Function()
+    test_Ellipsis_For()

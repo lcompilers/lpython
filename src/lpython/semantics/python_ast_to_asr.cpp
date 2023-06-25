@@ -6236,6 +6236,10 @@ public:
         }
     }
 
+    void visit_ConstantEllipsis(const AST::ConstantEllipsis_t &/*x*/) {
+        tmp = nullptr;
+    }
+
     void visit_Pass(const AST::Pass_t &/*x*/) {
         tmp = nullptr;
     }
@@ -6443,7 +6447,7 @@ public:
         // If tmp is a statement and not an expression
         // never cast into expression using ASRUtils::EXPR
         // Just ignore and exit the function naturally.
-        if( !ASR::is_a<ASR::stmt_t>(*tmp) ) {
+        if( tmp && !ASR::is_a<ASR::stmt_t>(*tmp) ) {
             LCOMPILERS_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
             tmp = nullptr;
         }
