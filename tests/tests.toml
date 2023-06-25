@@ -790,6 +790,10 @@ filename = "errors/test_list_index3.py"
 run = true
 
 [[test]]
+filename = "errors/test_list_index4.py"
+run = true
+
+[[test]]
 filename = "errors/test_list1.py"
 asr = true
 
