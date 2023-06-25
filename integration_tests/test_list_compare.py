@@ -1,0 +1,33 @@
+from lpython import i32, f64
+
+def test_list_compare():
+    l1: list[i32] = [1, 2, 3]
+    l2: list[i32] = [1, 2, 3, 4]
+    l3: list[tuple[i32, f64, str]] = [(1, 2.0, 'a'), (3, 4.0, 'b')]
+    l4: list[tuple[i32, f64, str]] = [(1, 3.0, 'a')]
+    l5: list[list[str]] = [[''], ['']]
+    l6: list[str] = []
+    l7: list[str] = []
+    i: i32
+
+    assert l1 < l2
+    i = l2.pop()
+    i = l2.pop()
+    assert l2 < l1
+    assert not (l1 < l2)
+
+    assert l3 < l4
+    l4[0] = l3[0]
+    assert l4 < l3
+
+    for i in range(0, 10):
+        if i % 2 == 0:
+            l6.append('a')
+        else:
+            l7.append('a')
+        l5[0] = l6
+        l5[1] = l7
+        if i % 2 == 0:
+            assert l5[1 - i % 2] < l5[i % 2]
+
+test_list_compare()
