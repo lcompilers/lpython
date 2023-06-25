@@ -143,6 +143,9 @@ namespace LCompilers {
             llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                            llvm::Module& module, ASR::ttype_t* asr_type);
 
+            llvm::Value* is_less_by_value(llvm::Value* left, llvm::Value* right,
+                                          llvm::Module& module, ASR::ttype_t* asr_type);
+
             void set_iterators();
 
             void reset_iterators();
@@ -286,6 +289,9 @@ namespace LCompilers {
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
 
+            llvm::Value* check_list_inequality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
+                llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
+
             void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                   llvm::Value* num_times, llvm::Value* init_list_len,
                                   llvm::Module* module);
@@ -324,6 +330,10 @@ namespace LCompilers {
                                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
+                ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module);
+
+            llvm::Value* check_tuple_inequality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
 

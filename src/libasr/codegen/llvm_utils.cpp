@@ -310,6 +310,81 @@ namespace LCompilers {
         }
     }
 
+    llvm::Value* LLVMUtils::is_less_by_value(llvm::Value* left, llvm::Value* right,
+                                             llvm::Module& module, ASR::ttype_t* asr_type) {
+        switch( asr_type->type ) {
+            case ASR::ttypeType::Integer: {
+                return builder->CreateICmpSLT(left, right);
+            }
+            case ASR::ttypeType::Logical: {
+                return builder->CreateICmpSLT(left, right);     // signed?
+            }
+            case ASR::ttypeType::Real: {
+                return builder->CreateFCmpOLT(left, right);
+            }
+            case ASR::ttypeType::Character: {
+                if( !are_iterators_set ) {
+                    str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+                }
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                            llvm::APInt(8, '\0'));
+                llvm::Value* idx = str_cmp_itr;
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)),
+                    idx);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                    llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                    llvm::Value *cond = builder->CreateAnd(
+                        builder->CreateICmpNE(l, null_char),
+                        builder->CreateICmpNE(r, null_char)
+                    );
+                    cond = builder->CreateAnd(cond, builder->CreateICmpULT(l, r));      // unsigned?
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                start_new_block(loopbody);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, 1)));
+                    LLVM::CreateStore(*builder, i, idx);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                start_new_block(loopend);
+                llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                return builder->CreateICmpULT(l, r);
+            }
+            case ASR::ttypeType::Tuple: {
+                ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
+                return tuple_api->check_tuple_inequality(left, right, tuple_type, context,
+                                                       builder, module);
+            }
+            case ASR::ttypeType::List: {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
+                return list_api->check_list_inequality(left, right, list_type->m_type,
+                                                     context, builder, module);
+            }
+            default: {
+                throw LCompilersException("LLVMUtils::is_equal_by_value isn't implemented for " +
+                                          ASRUtils::type_to_str_python(asr_type));
+            }
+        }
+    }
+
     void LLVMUtils::deepcopy(llvm::Value* src, llvm::Value* dest,
                              ASR::ttype_t* asr_type, llvm::Module* module,
                              std::map<std::string, std::map<std::string, int>>& name2memidx) {
@@ -3106,6 +3181,82 @@ namespace LCompilers {
         return LLVM::CreateLoad(*builder, is_equal);
     }
 
+    llvm::Value* LLVMList::check_list_inequality(llvm::Value* l1, llvm::Value* l2,
+                                                 ASR::ttype_t* item_type,
+                                                 llvm::LLVMContext& context,
+                                                 llvm::IRBuilder<>* builder,
+                                                 llvm::Module& module) {
+        // TODO:
+        // - ineq operations other than "<"
+        // - abstract out this code, possibly switch over operators
+        // - short-circuit. Without initial allocation of res? Also for equality
+
+        llvm::AllocaInst *equality_holds = builder->CreateAlloca(
+                                                llvm::Type::getInt1Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)),
+                          equality_holds);
+        llvm::AllocaInst *inequality_holds = builder->CreateAlloca(
+                                                llvm::Type::getInt1Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)),
+                          inequality_holds);
+
+        llvm::Value *a_len = llvm_utils->list_api->len(l1);
+        llvm::Value *b_len = llvm_utils->list_api->len(l2);
+        llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), idx);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+            llvm::Value* cnd = builder->CreateICmpSLT(i, a_len);
+            cnd = builder->CreateAnd(cnd, builder->CreateICmpSLT(i, b_len));
+            builder->CreateCondBr(cnd, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+            llvm::Value* left_arg = llvm_utils->list_api->read_item(l1, i,
+                    false, module, LLVM::is_llvm_struct(item_type));
+            llvm::Value* right_arg = llvm_utils->list_api->read_item(l2, i,
+                    false, module, LLVM::is_llvm_struct(item_type));
+            llvm::Value* res = llvm_utils->is_less_by_value(left_arg, right_arg, module,
+                                    item_type);
+            res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
+            LLVM::CreateStore(*builder, res, inequality_holds);
+            res = llvm_utils->is_equal_by_value(left_arg, right_arg, module,
+                                    item_type);
+            res = builder->CreateAnd(LLVM::CreateLoad(*builder, equality_holds), res);
+            LLVM::CreateStore(*builder, res, equality_holds);
+            i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                    llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, i, idx);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        // if a_len < b_len && equality_holds, then left < right
+        llvm::Value* cond = builder->CreateICmpSLT(a_len, b_len);
+        cond = builder->CreateAnd(cond, LLVM::CreateLoad(*builder, equality_holds));
+        llvm_utils->create_if_else(cond, [&]() {
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                context, llvm::APInt(1, 1)), inequality_holds);
+        }, [=]() {
+            // will be already 0 from the loop
+        });
+
+        return LLVM::CreateLoad(*builder, inequality_holds);
+    }
+
     void LLVMList::list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                     llvm::Value* num_times, llvm::Value* init_list_len,
                                     llvm::Module* module) {
@@ -3249,6 +3400,25 @@ namespace LCompilers {
             is_equal = builder->CreateAnd(is_equal, is_t1_eq_t2);
         }
         return is_equal;
+    }
+
+    llvm::Value* LLVMTuple::check_tuple_inequality(llvm::Value* t1, llvm::Value* t2,
+                                                 ASR::Tuple_t* tuple_type,
+                                                 llvm::LLVMContext& context,
+                                                 llvm::IRBuilder<>* builder,
+                                                 llvm::Module& module) {
+        // TODO: operators other than "<"
+        llvm::Value* inequality_holds = llvm::ConstantInt::get(context, llvm::APInt(1, 0));
+        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
+            llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
+                                              tuple_type->m_type[i]));
+            llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
+                                              tuple_type->m_type[i]));
+            llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
+                                        tuple_type->m_type[i]);
+            inequality_holds = builder->CreateOr(inequality_holds, res);
+        }
+        return inequality_holds;
     }
 
     void LLVMTuple::concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
