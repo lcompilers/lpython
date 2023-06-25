@@ -2787,7 +2787,10 @@ namespace LCompilers {
 
         llvm::Value* cond = builder->CreateICmpEQ(
                               LLVM::CreateLoad(*builder, i), end_point);
-        llvm_utils->create_if_else(cond, [&]() {
+        llvm::Value* start_greater_than_end = builder->CreateICmpSGE(
+                                                LLVM::CreateLoad(*builder, i), end_point);
+        llvm::Value* condition = builder->CreateOr(cond, start_greater_than_end);
+        llvm_utils->create_if_else(condition, [&]() {
             std::string message = "The list does not contain the element: ";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
