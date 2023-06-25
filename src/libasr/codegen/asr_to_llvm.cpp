@@ -2072,6 +2072,20 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
+    void generate_DictKeys(ASR::expr_t* m_arg) {
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(m_arg));
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pdict = tmp;
+
+        set_dict_api(dict_type);
+        ptr_loads = ptr_loads_copy;
+        tmp = llvm_utils->dict_api->get_key_list(pdict);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -2113,6 +2127,10 @@ public:
                         generate_ListPop_1(x.m_args[0], x.m_args[1]);
                         break;
                 }
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::DictKeys: {
+                generate_DictKeys(x.m_args[0]);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {
