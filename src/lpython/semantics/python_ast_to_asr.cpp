@@ -2874,8 +2874,10 @@ public:
                 if (AST::is_a<AST::ConstantStr_t>(*expr->m_value)) {
                     // It is a doc string. Skip doc strings for now.
                     continue;
+                } else if (AST::is_a<AST::ConstantEllipsis_t>(*expr->m_value)) {
+                    continue;
                 }
-                throw SemanticError("Only doc strings allowed as expressions inside class", expr->base.base.loc);
+                throw SemanticError("Only doc strings and const ellipsis allowed as expressions inside class", expr->base.base.loc);
             } else if( AST::is_a<AST::ClassDef_t>(*x.m_body[i]) ) {
                 visit_ClassDef(*AST::down_cast<AST::ClassDef_t>(x.m_body[i]));
                 continue;
