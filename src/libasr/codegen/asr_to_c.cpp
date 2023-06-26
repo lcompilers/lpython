@@ -1138,6 +1138,10 @@ R"(    // Initialise Numpy
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
+            if (value_type->type == ASR::ttypeType::SymbolicExpression) {
+                out += symengine_src;
+                symengine_src = "";
+            }
             if (value_type->type == ASR::ttypeType::List ||
                 value_type->type == ASR::ttypeType::Tuple) {
                 tmp_gen += "\"";
