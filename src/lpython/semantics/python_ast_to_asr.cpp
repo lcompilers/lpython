@@ -4761,6 +4761,12 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
+
+        if (t == nullptr) {
+            // Throw Not implemented error.
+            throw SemanticError("Internal FunctionDef: Not implemented", x.base.base.loc);
+        }        
+
         if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
             if (!ASRUtils::get_FunctionType(f)->m_is_restriction) {
