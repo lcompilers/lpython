@@ -1167,6 +1167,9 @@ R"(    // Initialise Numpy
             } else if(value_type->type == ASR::ttypeType::SymbolicExpression){
                 v.pop_back();
                 v.push_back("basic_str(" + src + ")");
+                if(ASR::is_a<ASR::Var_t>(*x.m_values[i])) {
+                    symengine_queue.pop();
+                }
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";
