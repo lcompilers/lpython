@@ -2063,6 +2063,37 @@ public:
                                false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
 
+    void visit_List(const AST::List_t &x) {
+        Vec<ASR::expr_t*> list;
+        list.reserve(al, x.n_elts + 1);
+        ASR::ttype_t *type = nullptr;
+        ASR::expr_t *expr = nullptr;
+        if( x.n_elts > 0 ) {
+            this->visit_expr(*x.m_elts[0]);
+            expr = ASRUtils::EXPR(tmp);
+            type = ASRUtils::expr_type(expr);
+            list.push_back(al, expr);
+            for (size_t i = 1; i < x.n_elts; i++) {
+                this->visit_expr(*x.m_elts[i]);
+                expr = ASRUtils::EXPR(tmp);
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
+                    throw SemanticError("All List elements must be of the same type for now",
+                        x.base.base.loc);
+                }
+                list.push_back(al, expr);
+            }
+        } else {
+            if( ann_assign_target_type == nullptr ) {
+                tmp = nullptr;
+                return ;
+            }
+            type = ASRUtils::get_contained_type(ann_assign_target_type);
+        }
+        ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+        tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
+            list.size(), list_type);
+    }
+
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -6081,37 +6112,6 @@ public:
             msg = ASRUtils::EXPR(tmp);
         }
         tmp = ASR::make_Assert_t(al, x.base.base.loc, test, msg);
-    }
-
-    void visit_List(const AST::List_t &x) {
-        Vec<ASR::expr_t*> list;
-        list.reserve(al, x.n_elts + 1);
-        ASR::ttype_t *type = nullptr;
-        ASR::expr_t *expr = nullptr;
-        if( x.n_elts > 0 ) {
-            this->visit_expr(*x.m_elts[0]);
-            expr = ASRUtils::EXPR(tmp);
-            type = ASRUtils::expr_type(expr);
-            list.push_back(al, expr);
-            for (size_t i = 1; i < x.n_elts; i++) {
-                this->visit_expr(*x.m_elts[i]);
-                expr = ASRUtils::EXPR(tmp);
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
-                    throw SemanticError("All List elements must be of the same type for now",
-                        x.base.base.loc);
-                }
-                list.push_back(al, expr);
-            }
-        } else {
-            if( ann_assign_target_type == nullptr ) {
-                tmp = nullptr;
-                return ;
-            }
-            type = ASRUtils::get_contained_type(ann_assign_target_type);
-        }
-        ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
-        tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
-            list.size(), list_type);
     }
 
     ASR::expr_t* for_iterable_helper(std::string var_name, const Location& loc) {
