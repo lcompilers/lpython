@@ -13,7 +13,7 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
 endif ()
 
 set(KIND no CACHE STRING "Type of Test")
-set(DISABLE_FAST no CACHE BOOL "Disable --fast testing of integration tests")
+set(FAST no CACHE BOOL "Run supported tests with --fast")
 
 find_program(LPYTHON NAMES lpython)
 
@@ -69,7 +69,7 @@ else ()
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("KIND: ${KIND}")
-message("DISABLE_FAST: ${DISABLE_FAST}")
+message("FAST: ${FAST}")
 message("PYTHON_LIBS_REQ: ${PYTHON_LIBS_REQ}")
 message("LPYTHON: ${LPYTHON}")
 message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
@@ -287,9 +287,11 @@ macro(RUN)
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
     endif()
 
-    RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    if (NOT FAST)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+    endif()
 
-    if ((NOT DISABLE_FAST) AND (NOT RUN_NOFAST))
+    if ((FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
