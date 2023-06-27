@@ -10,7 +10,7 @@ SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython', 'x86', 'wasm_x86', 'wasm_x
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LPYTHON_PATH = f"{BASE_DIR}/../src/bin"
 
-disable_fast = "no"
+fast_tests = "no"
 python_libs_req = "no"
 
 def run_cmd(cmd, cwd=None):
@@ -24,7 +24,7 @@ def run_cmd(cmd, cwd=None):
 def run_test(backend):
     run_cmd(f"mkdir {BASE_DIR}/_lpython-tmp-test-{backend}", cwd=BASE_DIR)
     cwd = f"{BASE_DIR}/_lpython-tmp-test-{backend}"
-    run_cmd(f"cmake -DKIND={backend} -DDISABLE_FAST={disable_fast} -DPYTHON_LIBS_REQ={python_libs_req} ..", cwd=cwd)
+    run_cmd(f"cmake -DKIND={backend} -DFAST={fast_tests} -DPYTHON_LIBS_REQ={python_libs_req} ..", cwd=cwd)
     run_cmd(f"make -j{DEFAULT_THREADS_TO_USE}", cwd=cwd)
     run_cmd(f"ctest -j{DEFAULT_THREADS_TO_USE} --output-on-failure",
             cwd=cwd)
@@ -44,8 +44,8 @@ def get_args():
     parser.add_argument("-b", "--backends", nargs="*", default=["llvm", "cpython"],
                 type=str, help="Test the requested backends (%s), default: llvm, cpython" % \
                         ", ".join(SUPPORTED_BACKENDS))
-    parser.add_argument("-nf", "--no_fast", action='store_true',
-                help="Disable --fast testing of integration tests")
+    parser.add_argument("-f", "--fast", action='store_true',
+                help="Run supported tests with --fast")
     return parser.parse_args()
 
 
@@ -53,14 +53,14 @@ def main():
     args = get_args()
 
     # Setup
-    global DEFAULT_THREADS_TO_USE, disable_fast, python_libs_req
+    global DEFAULT_THREADS_TO_USE, fast_tests, python_libs_req
     os.environ["PATH"] = LPYTHON_PATH + os.pathsep + os.environ["PATH"]
     # delete previously created directories (if any)
     for backend in SUPPORTED_BACKENDS:
         run_cmd(f"rm -rf {BASE_DIR}/_lpython-tmp-test-{backend}")
 
     DEFAULT_THREADS_TO_USE = args.no_of_threads or DEFAULT_THREADS_TO_USE
-    disable_fast = "yes" if args.no_fast else "no"
+    fast_tests = "yes" if args.fast else "no"
     for backend in args.backends:
         python_libs_req = "yes" if backend in ["c_py", "c_sym"] else "no"
         test_backend(backend)
