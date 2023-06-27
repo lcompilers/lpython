@@ -3308,14 +3308,15 @@ public:
             ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
         std::string struct_type_name = struct_type_t->m_name;
         for( auto item: struct_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
-                ASR::is_a<ASR::GenericProcedure_t>(*item.second) ||
-                ASR::is_a<ASR::UnionType_t>(*item.second) ||
-                ASR::is_a<ASR::StructType_t>(*item.second) ||
-                ASR::is_a<ASR::CustomOperator_t>(*item.second) ) {
+            ASR::symbol_t *sym_type = ASRUtils::symbol_get_past_external(item.second);
+            if( ASR::is_a<ASR::ClassProcedure_t>(*sym_type) ||
+                ASR::is_a<ASR::GenericProcedure_t>(*sym_type) ||
+                ASR::is_a<ASR::UnionType_t>(*sym_type) ||
+                ASR::is_a<ASR::StructType_t>(*sym_type) ||
+                ASR::is_a<ASR::CustomOperator_t>(*sym_type) ) {
                 continue ;
             }
-            ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
+            ASR::ttype_t* symbol_type = ASRUtils::symbol_type(sym_type);
             int idx = name2memidx[struct_type_name][item.first];
             llvm::Value* ptr_member = llvm_utils->create_gep(ptr, idx);
             ASR::Variable_t* v = nullptr;
