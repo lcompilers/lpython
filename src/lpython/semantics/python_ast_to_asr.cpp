@@ -301,6 +301,8 @@ void fill_module_dependencies(SymbolTable* symtab, SetChar& mod_deps,
     }
 }
 
+std::map<std::string, ASR::TranslationUnit_t*> prev_loaded_modules;
+
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, diag::Diagnostics &diagnostics,
@@ -363,6 +365,11 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     }
     if (lpython) return nullptr;
 
+    if (prev_loaded_modules.find(infile) != prev_loaded_modules.end()) {
+        mod1 = prev_loaded_modules[infile];
+        compile_module = false;
+    }
+
     if( compile_module ) {
         diagnostics.add(diag::Diagnostic(
             "The module '" + module_name + "' located in " + infile +" cannot be loaded",
@@ -372,6 +379,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         );
         mod1 = compile_module_till_asr(al, rl_path, infile, loc, diagnostics,
             lm, err, allow_implicit_casting);
+        prev_loaded_modules[infile] = mod1;
         if (mod1 == nullptr) {
             throw SemanticAbort();
         } else {
