@@ -247,7 +247,8 @@ bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
     return false;
 }
 
-ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
+ASR::TranslationUnit_t* compile_module_till_asr(
+        Allocator& al, SymbolTable* symtab, std::string module_name,
         std::vector<std::string> &rl_path, std::string infile,
         const Location &loc, diag::Diagnostics &diagnostics, LocationManager &lm,
         const std::function<void (const std::string &, const Location &)> err,
@@ -271,8 +272,8 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     CompilerOptions compiler_options;
     compiler_options.disable_main = true;
     compiler_options.symtab_only = false;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, lm, *ast,
-        diagnostics, compiler_options, false, infile, allow_implicit_casting);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, lm, symtab, *ast,
+        diagnostics, compiler_options, false, module_name, infile, allow_implicit_casting);
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
@@ -339,7 +340,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     bool compile_module = true;
     ASR::TranslationUnit_t* mod1 = nullptr;
     std::string input;
-    std::string module_dir_name = "";
+    std::string mod1_name = "";
     bool found = set_module_path(infile0c, rl_path, infile,
                                  path_used, input, lpython, enum_py);
     if( !found ) {
@@ -370,7 +371,15 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                 diag::Label("imported here", {loc})
             })
         );
-        mod1 = compile_module_till_asr(al, rl_path, infile, loc, diagnostics,
+
+        if (module_name == "__init__") {
+            std::string module_dir_name = infile.substr(0, infile.find_last_of('/'));
+            // assign module directory name
+            mod1_name = module_dir_name.substr(module_dir_name.find_last_of('/') + 1);
+        } else {
+            mod1_name = module_name;
+        }
+        mod1 = compile_module_till_asr(al, symtab, mod1_name, rl_path, infile, loc, diagnostics,
             lm, err, allow_implicit_casting);
         if (mod1 == nullptr) {
             throw SemanticAbort();
@@ -379,38 +388,17 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         }
     }
 
-    // insert into `symtab`
-    std::vector<std::pair<std::string, ASR::Module_t*>> children_modules;
-    if (module_name == "__init__") {
-        // remove `__init__.py`
-        module_dir_name = infile.substr(0, infile.find_last_of('/'));
-        // assign module directory name
-        module_dir_name = module_dir_name.substr(module_dir_name.find_last_of('/') + 1);
-        ASRUtils::extract_module_python(*mod1, children_modules, module_dir_name);
-    } else {
-        ASRUtils::extract_module_python(*mod1, children_modules, module_name);
+    ASR::symbol_t* mod1_sym = symtab->resolve_symbol(mod1_name);
+    if (!mod1_sym) {
+        throw SemanticError("Module `" + module_name + "` not found", loc);
     }
-    ASR::Module_t* mod2 = nullptr;
-    for( auto& a: children_modules ) {
-        std::string a_name = a.first;
-        ASR::Module_t* a_mod = a.second;
-        if( a_name == module_name ) {
-            a_mod->m_name = s2c(al, module_name);
-            a_mod->m_intrinsic = intrinsic;
-            mod2 = a_mod;
-        } else if (a_name == module_dir_name) {
-            a_mod->m_name = s2c(al, module_dir_name);
-            a_mod->m_intrinsic = intrinsic;
-            mod2 = a_mod;
-        }
-        symtab->add_or_overwrite_symbol(a_name, (ASR::symbol_t*)a_mod);
-        a_mod->m_symtab->parent = symtab;
-    }
+    ASR::Module_t* mod1_mod = ASR::down_cast<ASR::Module_t>(mod1_sym);
+
     if (intrinsic) {
         // TODO: I think we should just store intrinsic once, in the module
         // itself
         // Mark each function as intrinsic also
-        for (auto &item : mod2->m_symtab->get_scope()) {
+        for (auto &item : mod1_mod->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 if (ASRUtils::get_FunctionType(s)->m_abi == ASR::abiType::Source) {
@@ -427,7 +415,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     }
 
     // and return it
-    return mod2;
+    return mod1_mod;
 }
 
 ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
@@ -585,6 +573,7 @@ public:
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
+    std::string module_name;
     PythonIntrinsicProcedures intrinsic_procedures;
     ProceduresDatabase procedures_db;
     AttributeHandler attr_handler;
@@ -606,10 +595,10 @@ public:
     std::map<std::string, std::string> imported_functions;
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
-            diag::Diagnostics &diagnostics, bool main_module,
+            diag::Diagnostics &diagnostics, bool main_module, std::string module_name,
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
             std::vector<std::string> import_paths, bool allow_implicit_casting_)
-        : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
+        : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module}, module_name{module_name},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
             current_body{nullptr}, ann_assign_target_type{nullptr},
             assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
@@ -3113,8 +3102,7 @@ public:
         if (main_module) {
             var_value = "__main__";
         } else {
-            // TODO: put the actual module name here
-            var_value = "__non_main__";
+            var_value = module_name;
         }
         size_t s_size = var_value.size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
@@ -3810,10 +3798,10 @@ public:
 
 
     SymbolTableVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
-        diag::Diagnostics &diagnostics, bool main_module,
+        diag::Diagnostics &diagnostics, bool main_module, std::string module_name,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
         std::vector<std::string> import_paths, bool allow_implicit_casting_)
-      : CommonVisitor(al, lm, symbol_table, diagnostics, main_module, ast_overload,
+      : CommonVisitor(al, lm, symbol_table, diagnostics, main_module, module_name, ast_overload,
             parent_dir, import_paths, allow_implicit_casting_), is_derived_type{false} {}
 
 
@@ -3827,28 +3815,27 @@ public:
     }
 
     void visit_Module(const AST::Module_t &x) {
-        if (!current_scope) {
+        ASR::asr_t *tmp0 = nullptr;
+        if (current_scope) {
+            tmp0 = current_scope->asr_owner;
+        } else {
             current_scope = al.make_new<SymbolTable>(nullptr);
+            // Create the TU early, so that asr_owner is set, so that
+            // ASRUtils::get_tu_symtab() can be used, which has an assert
+            // for asr_owner.
+            tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
+            current_scope, nullptr, 0);
         }
-        LCOMPILERS_ASSERT(current_scope != nullptr);
         global_scope = current_scope;
 
-        // Create the TU early, so that asr_owner is set, so that
-        // ASRUtils::get_tu_symtab() can be used, which has an assert
-        // for asr_owner.
-        ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
-            current_scope, nullptr, 0);
-
         ASR::Module_t* module_sym = nullptr;
-
         if (!main_module) {
             // Main module goes directly to TranslationUnit.
             // Every other module goes into a Module.
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
 
-
-            std::string mod_name = "__main__";
+            std::string mod_name = module_name;
             ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
                                         /* a_symtab */ current_scope,
                                         /* a_name */ s2c(al, mod_name),
@@ -4533,12 +4520,13 @@ public:
     }
 };
 
-Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm, const AST::Module_t &ast,
-        diag::Diagnostics &diagnostics, bool main_module,
+Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, LocationManager &lm,
+        SymbolTable* symtab, const AST::Module_t &ast,
+        diag::Diagnostics &diagnostics, bool main_module, std::string module_name,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
         std::vector<std::string> import_paths, bool allow_implicit_casting)
 {
-    SymbolTableVisitor v(al, lm, nullptr, diagnostics, main_module, ast_overload,
+    SymbolTableVisitor v(al, lm, symtab, diagnostics, main_module, module_name, ast_overload,
         parent_dir, import_paths, allow_implicit_casting);
     try {
         v.visit_Module(ast);
@@ -4562,9 +4550,9 @@ public:
     std::vector<ASR::symbol_t*> do_loop_variables;
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
-         bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
+         bool main_module, std::string module_name, std::map<int, ASR::symbol_t*> &ast_overload,
          bool allow_implicit_casting_)
-         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, ast_overload, "", {}, allow_implicit_casting_),
+         : CommonVisitor(al, lm, nullptr, diagnostics, main_module, module_name, ast_overload, "", {}, allow_implicit_casting_),
          asr{unit}
          {}
 
@@ -4603,7 +4591,7 @@ public:
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         LCOMPILERS_ASSERT(current_scope != nullptr);
-        ASR::symbol_t* main_module_sym = current_scope->get_symbol("__main__");
+        ASR::symbol_t* main_module_sym = current_scope->get_symbol(module_name);
         ASR::Module_t* mod = nullptr;
         if( main_module_sym ) {
             mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
@@ -7479,14 +7467,13 @@ public:
     }
 };
 
-Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm,
-        const AST::Module_t &ast,
+Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al, LocationManager &lm, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics,
-        ASR::asr_t *unit, bool main_module,
+        ASR::asr_t *unit, bool main_module, std::string module_name,
         std::map<int, ASR::symbol_t*> &ast_overload,
         bool allow_implicit_casting)
 {
-    BodyVisitor b(al, lm, unit, diagnostics, main_module, ast_overload, allow_implicit_casting);
+    BodyVisitor b(al, lm, unit, diagnostics, main_module, module_name, ast_overload, allow_implicit_casting);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -7510,16 +7497,16 @@ std::string get_parent_dir(const std::string &path) {
     return path.substr(0,idx);
 }
 
-Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm,
+Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm, SymbolTable* symtab,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
-    bool main_module, std::string file_path, bool allow_implicit_casting)
+    bool main_module, std::string module_name, std::string file_path, bool allow_implicit_casting)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, lm, *ast_m, diagnostics, main_module,
+    auto res = symbol_table_visitor(al, lm, symtab, *ast_m, diagnostics, main_module, module_name,
         ast_overload, parent_dir, compiler_options.import_paths, allow_implicit_casting);
     if (res.ok) {
         unit = res.result;
@@ -7535,7 +7522,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
 
     if (!compiler_options.symtab_only) {
-        auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module,
+        auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module, module_name,
             ast_overload, allow_implicit_casting);
         if (res2.ok) {
             tu = res2.result;

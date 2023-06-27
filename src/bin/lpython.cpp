@@ -226,8 +226,8 @@ int emit_asr(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics,
-            compiler_options, true, infile);
+        r = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics,
+            compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -281,7 +281,7 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -326,7 +326,7 @@ int emit_c(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -379,7 +379,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -435,7 +435,7 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -484,7 +484,7 @@ int get_symbols (const std::string &infile,
         if (r1.ok) {
            LCompilers::LPython::AST::ast_t* ast = r1.result;
            LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-               x = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+               x = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
            if (!x.ok) {
                std::cout << "{}\n";
                return 0;
@@ -585,7 +585,7 @@ int get_errors (const std::string &infile,
         if (r1.ok) {
             LCompilers::LPython::AST::ast_t* ast = r1.result;
             LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-                r = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+                r = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
         }
         std::vector<LCompilers::error_highlight> diag_lists;
         LCompilers::error_highlight h;
@@ -705,7 +705,7 @@ int emit_llvm(const std::string &infile,
     LCompilers::LPython::AST::ast_t* ast = r.result;
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -780,8 +780,8 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options,
-            !(arg_c && compiler_options.disable_main), infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
+            !(arg_c && compiler_options.disable_main), "", infile);
 
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
@@ -898,7 +898,7 @@ int compile_to_binary_wasm(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -971,7 +971,7 @@ int compile_to_binary_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1045,7 +1045,7 @@ int compile_to_binary_wasm_to_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1341,7 +1341,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             out += LCompilers::LPython::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
@@ -1359,7 +1359,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
@@ -1386,7 +1386,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             auto res = LCompilers::asr_to_cpp(al, *asr.result, diagnostics,
@@ -1424,7 +1424,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
