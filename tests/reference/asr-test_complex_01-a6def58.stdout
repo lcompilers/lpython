@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        132
+                        131
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        131
+                                        130
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        132 check
+                                        131 check
                                         ()
                                         []
                                         ()
@@ -73,25 +73,25 @@
                                     test_complex_not]
                                     []
                                     [(SubroutineCall
-                                        132 test_real_imag
+                                        131 test_real_imag
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_complex
+                                        131 test_complex
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_complex_unary_minus
+                                        131 test_complex_unary_minus
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_complex_not
+                                        131 test_complex_not
                                         ()
                                         []
                                         ()
@@ -159,7 +159,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex
-                                                    8 complex
+                                                    7 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -169,7 +169,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_10__complex
-                                                    8 __lpython_overloaded_10__complex
+                                                    7 __lpython_overloaded_10__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_10__complex
@@ -179,7 +179,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_11__complex
-                                                    8 __lpython_overloaded_11__complex
+                                                    7 __lpython_overloaded_11__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_11__complex
@@ -189,7 +189,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_12__complex
-                                                    8 __lpython_overloaded_12__complex
+                                                    7 __lpython_overloaded_12__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_12__complex
@@ -199,7 +199,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_13__complex
-                                                    8 __lpython_overloaded_13__complex
+                                                    7 __lpython_overloaded_13__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_13__complex
@@ -209,7 +209,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_14__complex
-                                                    8 __lpython_overloaded_14__complex
+                                                    7 __lpython_overloaded_14__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_14__complex
@@ -219,7 +219,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_5__complex
-                                                    8 __lpython_overloaded_5__complex
+                                                    7 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -229,7 +229,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_6__complex
-                                                    8 __lpython_overloaded_6__complex
+                                                    7 __lpython_overloaded_6__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_6__complex
@@ -239,7 +239,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_7__complex
-                                                    8 __lpython_overloaded_7__complex
+                                                    7 __lpython_overloaded_7__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_7__complex
@@ -249,7 +249,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_8__complex
-                                                    8 __lpython_overloaded_8__complex
+                                                    7 __lpython_overloaded_8__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_8__complex
@@ -259,7 +259,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     complex@__lpython_overloaded_9__complex
-                                                    8 __lpython_overloaded_9__complex
+                                                    7 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -1068,7 +1068,7 @@
                                                 (ExternalSymbol
                                                     5
                                                     complex
-                                                    8 complex
+                                                    7 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -1078,7 +1078,7 @@
                                                 (ExternalSymbol
                                                     5
                                                     complex@__lpython_overloaded_9__complex
-                                                    8 __lpython_overloaded_9__complex
+                                                    7 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -1249,7 +1249,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex
-                                                    8 complex
+                                                    7 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -1259,7 +1259,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex@__lpython_overloaded_13__complex
-                                                    8 __lpython_overloaded_13__complex
+                                                    7 __lpython_overloaded_13__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_13__complex
@@ -1269,7 +1269,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex@__lpython_overloaded_5__complex
-                                                    8 __lpython_overloaded_5__complex
+                                                    7 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -1279,7 +1279,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex@__lpython_overloaded_9__complex
-                                                    8 __lpython_overloaded_9__complex
+                                                    7 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -1992,13 +1992,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        130
+                        129
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    130
+                                    129
                                     _lpython_main_program
-                                    132 _lpython_main_program
+                                    131 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -2008,7 +2008,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        130 _lpython_main_program
+                        129 _lpython_main_program
                         ()
                         []
                         ()
