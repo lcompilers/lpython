@@ -11,8 +11,13 @@ class Vec:
 
 @dataclass
 class MatVec:
-    mat: Mat = Mat([f64(0.0), f64(0.0)])
-    vec: Vec = Vec([f64(0.0), f64(0.0)])
+    # TODO: this should ideally be the following:
+    # mat: Mat = Mat(empty((2, 2), dtype=float64))
+    # vec: Vec = Vec(empty(2, dtype=float64))
+    # But since lpython ignores empty, the following is just a workaround.
+    # Follow the discussions here: https://github.com/lcompilers/lpython/issues/1809
+    mat: Mat = Mat(2.0)
+    vec: Vec = Vec(2.0)
 
 def rotate(mat_vec: MatVec) -> f64[2]:
     rotated_vec: f64[2] = empty(2, dtype=float64)
