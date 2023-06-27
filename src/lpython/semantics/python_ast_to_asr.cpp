@@ -395,6 +395,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ASR::Module_t* mod1_mod = ASR::down_cast<ASR::Module_t>(mod1_sym);
 
     if (intrinsic) {
+        mod1_mod->m_intrinsic = true;
         // TODO: I think we should just store intrinsic once, in the module
         // itself
         // Mark each function as intrinsic also
