@@ -7379,8 +7379,8 @@ public:
                 fmt.push_back("%d");
                 args.push_back(tmp);
             } else {
-                throw LCompilersException("Printing support is not available for " +
-                    ASRUtils::type_to_str(t) + " type.");
+                throw CodeGenError("Printing support is not available for `" +
+                    ASRUtils::type_to_str(t) + "` type.", x.base.base.loc);
             }
         }
         fmt.push_back("%s");
