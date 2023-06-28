@@ -688,6 +688,10 @@ filename = "errors/structs_10.py"
 asr = true
 
 [[test]]
+filename = "errors/structs_11.py"
+llvm = true
+
+[[test]]
 filename = "errors/const_01.py"
 asr = true
 
