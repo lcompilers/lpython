@@ -4520,6 +4520,10 @@ public:
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
 
+    void visit_While(const AST::While_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
+
     void visit_Assert(const AST::Assert_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
