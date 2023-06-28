@@ -86,38 +86,26 @@ struct CPPDeclarationOptions: public DeclarationOptions {
 class SymEngineQueue {
 public:
     std::vector<std::string> queue;
-    int queue_front = -1; // Changed type to int
+    int queue_front = -1;
     std::string& symengine_src;
-    int var_count = 0;
 
     SymEngineQueue(std::string& symengine_src) : symengine_src(symengine_src) {}
 
     std::string push() {
         std::string indent(4, ' ');
         std::string var;
-        if (queue_front != -1 && queue_front < static_cast<int>(queue.size())) {
-            var = queue[queue_front++];
-        } else {
-            var = "queue" + std::to_string(var_count);
-            var_count++;
-            symengine_src = indent;
-            symengine_src += "basic " + var + ";\n";
+        if(queue_front == -1 || queue_front >= static_cast<int>(queue.size())) {
+            var = "queue" + std::to_string(queue.size());
+            queue.push_back(var);
+            symengine_src = indent + "basic " + var + ";\n";
             symengine_src += indent + "basic_new_stack(" + var + ");\n";
         }
-        if (queue_front == static_cast<int>(queue.size())) {
-            queue.clear();
-            queue_front = -1;
-        }
-        return var;
+        return queue[queue_front++];
     }
 
     void pop() {
         LCOMPILERS_ASSERT(queue_front != -1 && queue_front < static_cast<int>(queue.size()));
         queue_front++;
-        if (queue_front == static_cast<int>(queue.size())) {
-            queue.clear();
-            queue_front = -1;
-        }
     }
 };
 
