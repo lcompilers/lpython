@@ -574,6 +574,8 @@ public:
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
+    // This is the current module name that we are compiling from AST to ASR
+    // It is an empty string for main_module
     std::string module_name;
     PythonIntrinsicProcedures intrinsic_procedures;
     ProceduresDatabase procedures_db;
@@ -3818,6 +3820,7 @@ public:
     void visit_Module(const AST::Module_t &x) {
         ASR::asr_t *tmp0 = nullptr;
         if (current_scope) {
+            LCOMPILERS_ASSERT(current_scope->asr_owner);
             tmp0 = current_scope->asr_owner;
         } else {
             current_scope = al.make_new<SymbolTable>(nullptr);
@@ -3827,6 +3830,7 @@ public:
             tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
         }
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::TranslationUnit_t>(*tmp0));
         global_scope = current_scope;
 
         ASR::Module_t* module_sym = nullptr;
