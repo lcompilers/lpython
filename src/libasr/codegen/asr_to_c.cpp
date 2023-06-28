@@ -1138,8 +1138,12 @@ R"(    // Initialise Numpy
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
-            if (value_type->type == ASR::ttypeType::List ||
-                value_type->type == ASR::ttypeType::Tuple) {
+            if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                out += symengine_src;
+                symengine_src = "";
+            }
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
                 tmp_gen += "\"";
                 if (!v.empty()) {
                     for (auto &s: v) {
@@ -1156,13 +1160,16 @@ R"(    // Initialise Numpy
             }
             tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
-            if (value_type->type == ASR::ttypeType::Complex) {
+            if (ASR::is_a<ASR::Complex_t>(*value_type)) {
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
-            } else if(value_type->type == ASR::ttypeType::SymbolicExpression){
+            } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
                 v.pop_back();
                 v.push_back("basic_str(" + src + ")");
+                if(ASR::is_a<ASR::Var_t>(*x.m_values[i])) {
+                    symengine_queue.pop();
+                }
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";

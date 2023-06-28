@@ -593,6 +593,7 @@ RUN(NAME structs_30          LABELS cpython llvm c)
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_03        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_04        LABELS cpython_sym c_sym)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
