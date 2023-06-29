@@ -3830,7 +3830,8 @@ public:
             tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
         }
-        LCOMPILERS_ASSERT(ASR::is_a<ASR::TranslationUnit_t>(*tmp0));
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::unit_t>(*tmp0) &&
+            ASR::is_a<ASR::TranslationUnit_t>(*ASR::down_cast<ASR::unit_t>(tmp0)));
         global_scope = current_scope;
 
         ASR::Module_t* module_sym = nullptr;
