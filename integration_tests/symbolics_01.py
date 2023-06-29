@@ -6,6 +6,7 @@ def main0():
     y: S = Symbol('y')
     x = pi
     z: S = x + y
+    print(z)
     assert(z == pi + y)
     assert(z != S(2)*pi + y)
 
