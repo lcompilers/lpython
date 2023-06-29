@@ -13,6 +13,7 @@ def test_chained_operations():
     result: S = (w ** S(2) - pi) + S(3)
     
     # Print Statements
+    assert(result == S(3) + (a -b)**S(2)*(x + y)**S(2)/(z + pi)**S(2) - pi)
     print(result)
     # Expected: 3 + (a - b)**2*(x + y)**2/(z + pi)**2 - pi
     
@@ -29,13 +30,11 @@ def test_chained_operations():
     result = (z + e) * (a - b)
     
     # Print Statements
+    assert(result == (a - b)*(e + ((S(5) + pi)*(S(-10) + (e + c*d)/f))**(S(2)/(d + f))))
     print(result)
     # Expected: (a - b)*(e + ((5 + pi)*(-10 + (e + c*d)/f))**(2/(d + f)))
-    print(x)
-    # Expected: (e + c*d)/f
-    print(y)
-    # Expected: (5 + pi)*(-10 + (e + c*d)/f)
-    print(z)
-    # Expected: ((5 + pi)*(-10 + (e + c*d)/f))**(2/(d + f))
+    assert(x == (e + c*d)/f)
+    assert(y == (S(5) + pi)*(S(-10) + (e + c*d)/f))
+    assert(z == ((S(5) + pi)*(S(-10) + (e + c*d)/f))**(S(2)/(d + f)))
 
 test_chained_operations()
