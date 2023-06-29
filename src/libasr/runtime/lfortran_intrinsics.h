@@ -50,15 +50,16 @@ typedef double _Complex double_complex_t;
 #endif
 
 #ifndef ASSERT_MSG
-#define ASSERT_MSG(cond, msg)                                                  \
+#define ASSERT_MSG(cond, fmt, msg)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
             printf("%s%s", "ASSERT failed: ", __FILE__);                       \
             printf("%s%s", "\nfunction ", __func__);                           \
             printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
             printf("%s%s", #cond, "\n");                                       \
-            printf("%s", "ERROR MESSAGE:\n");                                  \
-            printf("%s%s", msg, "\n");                                         \
+            printf("%s", "ERROR MESSAGE: ");                                  \
+            printf(fmt, msg);                                                  \
+            printf("%s", "\n");                                                \
             exit(1);                                                           \
         }                                                                      \
     }

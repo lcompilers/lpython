@@ -1066,19 +1066,50 @@ R"(    // Initialise Numpy
         std::string out = indent;
         bracket_open++;
         visit_expr(*x.m_test);
+        std::string test_condition = src;
         if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)){
             out = symengine_src;
             symengine_src = "";
             out += indent;
         }
         if (x.m_msg) {
+            this->visit_expr(*x.m_msg);
+            std::string tmp_gen = "";
+            ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_msg);
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
+                std::string p_func = c_ds_api->get_print_func(value_type);
+                tmp_gen += indent + p_func + "(" + src + ");\n";
+            } else {
+                tmp_gen += "\"";
+                tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_msg));
+                tmp_gen += "\", ";
+                if( ASRUtils::is_array(value_type) ) {
+                    src += "->data";
+                }
+                if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                    src += symengine_src;
+                    symengine_src = "";
+                }
+                if (ASR::is_a<ASR::Complex_t>(*value_type)) {
+                    tmp_gen += "creal(" + src + ")";
+                    tmp_gen += ", ";
+                    tmp_gen += "cimag(" + src + ")";
+                } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
+                    tmp_gen += "basic_str(" + src + ")";
+                    if(ASR::is_a<ASR::Var_t>(*x.m_msg)) {
+                        symengine_queue.pop();
+                    }
+                } else {
+                    tmp_gen += src;
+                }
+            }
             out += "ASSERT_MSG(";
-            out += src + ", ";
-            visit_expr(*x.m_msg);
-            out += src + ");\n";
+            out += test_condition + ", ";
+            out += tmp_gen + ");\n";
         } else {
             out += "ASSERT(";
-            out += src + ");\n";
+            out += test_condition + ");\n";
         }
         bracket_open--;
         src = check_tmp_buffer() + out;
