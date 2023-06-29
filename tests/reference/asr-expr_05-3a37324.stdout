@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        130
+                        129
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        129
+                                        128
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        130 main0
+                                        129 main0
                                         ()
                                         []
                                         ()
@@ -53,7 +53,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _lpython_floordiv
-                                                    6 _lpython_floordiv
+                                                    5 _lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     _lpython_floordiv
@@ -63,7 +63,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
-                                                    6 __lpython_overloaded_5___lpython_floordiv
+                                                    5 __lpython_overloaded_5___lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5___lpython_floordiv
@@ -73,7 +73,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _mod
-                                                    6 _mod
+                                                    5 _mod
                                                     lpython_builtin
                                                     []
                                                     _mod
@@ -83,7 +83,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _mod@__lpython_overloaded_2___mod
-                                                    6 __lpython_overloaded_2___mod
+                                                    5 __lpython_overloaded_2___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_2___mod
@@ -93,7 +93,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _mod@__lpython_overloaded_4___mod
-                                                    6 __lpython_overloaded_4___mod
+                                                    5 __lpython_overloaded_4___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_4___mod
@@ -103,7 +103,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     _mod@__lpython_overloaded_9___mod
-                                                    6 __lpython_overloaded_9___mod
+                                                    5 __lpython_overloaded_9___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9___mod
@@ -340,7 +340,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                130 test_multiply
+                                                129 test_multiply
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -413,7 +413,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                130 test_mod
+                                                129 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -431,7 +431,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                130 test_mod
+                                                129 test_mod
                                                 ()
                                                 [((IntegerConstant 23 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))]
@@ -459,7 +459,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                130 test_mod
+                                                129 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -531,7 +531,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                130 test_mod
+                                                129 test_mod
                                                 ()
                                                 [((Var 4 a))
                                                 ((Var 4 b))]
@@ -1449,7 +1449,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     _mod
-                                                    6 _mod
+                                                    5 _mod
                                                     lpython_builtin
                                                     []
                                                     _mod
@@ -1459,7 +1459,7 @@
                                                 (ExternalSymbol
                                                     3
                                                     _mod@__lpython_overloaded_2___mod
-                                                    6 __lpython_overloaded_2___mod
+                                                    5 __lpython_overloaded_2___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_2___mod
@@ -1641,13 +1641,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        128
+                        127
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    128
+                                    127
                                     _lpython_main_program
-                                    130 _lpython_main_program
+                                    129 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1657,7 +1657,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        128 _lpython_main_program
+                        127 _lpython_main_program
                         ()
                         []
                         ()

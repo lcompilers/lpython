@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        128
+                        127
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        128 f
+                                        127 f
                                         ()
                                         []
                                         ()
@@ -53,7 +53,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     _lpython_floordiv
-                                                    4 _lpython_floordiv
+                                                    3 _lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     _lpython_floordiv
@@ -63,7 +63,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                    4 __lpython_overloaded_10___lpython_floordiv
+                                                    3 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_10___lpython_floordiv
@@ -441,13 +441,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        125
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    126
+                                    125
                                     _lpython_main_program
-                                    128 _lpython_main_program
+                                    127 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -457,7 +457,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        126 _lpython_main_program
+                        125 _lpython_main_program
                         ()
                         []
                         ()
