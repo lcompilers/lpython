@@ -2036,7 +2036,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         }
     }
 
-    void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+    template<typename T>
+    void handle_SU_IntegerBitNot(const T& x) {
         CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
@@ -2046,6 +2047,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         } else {
             src = "~(" + src + ")";
         }
+    }
+
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+        handle_SU_IntegerBitNot(x);
+    }
+
+    void visit_UnsignedIntegerBitNot(const ASR::UnsignedIntegerBitNot_t& x) {
+        handle_SU_IntegerBitNot(x);
     }
 
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {

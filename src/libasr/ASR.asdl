@@ -250,6 +250,7 @@ expr
     | IntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | UnsignedIntegerConstant(int n, ttype type)
     | UnsignedIntegerUnaryMinus(expr arg, ttype type, expr? value)
+    | UnsignedIntegerBitNot(expr arg, ttype type, expr? value)
     | UnsignedIntegerCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | UnsignedIntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | RealConstant(float r, ttype type)
