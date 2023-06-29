@@ -96,12 +96,12 @@ symbol
         identifier original_name, access access)
     | StructType(symbol_table symtab, identifier name, identifier* dependencies,
         identifier* members, abi abi, access access, bool is_packed, bool is_abstract,
-        expr? alignment, symbol? parent)
+        call_arg* initializers, expr? alignment, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* dependencies,
         identifier* members, abi abi, access access, enumtype enum_value_type,
         ttype type, symbol? parent)
     | UnionType(symbol_table symtab, identifier name, identifier* dependencies,
-        identifier* members, abi abi, access access, symbol? parent)
+        identifier* members, abi abi, access access, call_arg* initializers, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies,
         intent intent, expr? symbolic_value, expr? value, storage_type storage,
         ttype type, symbol? type_declaration,
