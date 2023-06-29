@@ -6371,10 +6371,22 @@ public:
                     {fmt_ptr, fmt_ptr1});
             }
             if (x.m_msg) {
-                char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
-                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(s);
-                print_error(context, *module, *builder, {fmt_ptr, fmt_ptr2});
+                std::vector<std::string> fmt;
+                std::vector<llvm::Value *> args;
+                fmt.push_back("%s");
+                args.push_back(builder->CreateGlobalStringPtr("AssertionError: "));
+                compute_fmt_specifier_and_arg(fmt, args, x.m_msg, x.base.base.loc);
+                fmt.push_back("%s");
+                args.push_back(builder->CreateGlobalStringPtr("\n"));
+                std::string fmt_str;
+                for (size_t i=0; i<fmt.size(); i++) {
+                    fmt_str += fmt[i];
+                }
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+                std::vector<llvm::Value *> print_error_args;
+                print_error_args.push_back(fmt_ptr);
+                print_error_args.insert(print_error_args.end(), args.begin(), args.end());
+                print_error(context, *module, *builder, print_error_args);
             } else {
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError\n");
                 print_error(context, *module, *builder, {fmt_ptr});
