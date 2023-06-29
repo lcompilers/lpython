@@ -1315,13 +1315,7 @@ public:
                 args.p[i].m_value = arg_new_i;
             }
             for (size_t i = args.size(); i < StructType->n_members; i++) {
-                std::string member_name = StructType->m_members[i];
-                ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
-                                                StructType->m_symtab->resolve_symbol(member_name));
-                ASR::call_arg_t arg;
-                arg.loc = loc;
-                arg.m_value = member_var->m_value;
-                args.push_back(al, arg);
+                args.push_back(al, StructType->m_initializers[i]);
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, stemp));
             return ASR::make_StructTypeConstructor_t(al, loc, stemp, args.p, args.size(), der_type, nullptr);
@@ -2767,8 +2761,10 @@ public:
     }
 
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
+                             ASR::expr_t* &init_expr,
                              bool wrap_derived_type_in_pointer=false,
-                             ASR::expr_t* init_expr=nullptr, ASR::abiType abi=ASR::abiType::Source) {
+                             ASR::abiType abi=ASR::abiType::Source,
+                             bool inside_struct=false) {
         bool is_allocatable = false;
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable);
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
@@ -2838,8 +2834,13 @@ public:
         }
 
         if( !is_c_p_pointer_call ) {
-            create_add_variable_to_scope(var_name, init_expr, type,
-                x.base.base.loc, abi, storage_type);
+            if (inside_struct && !ASR::is_a<ASR::Const_t>(*type)) {
+                create_add_variable_to_scope(var_name, nullptr, type,
+                    x.base.base.loc, abi, storage_type);
+            } else {
+                create_add_variable_to_scope(var_name, init_expr, type,
+                    x.base.base.loc, abi, storage_type);
+            }
         }
 
         if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
@@ -2858,6 +2859,7 @@ public:
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
         Vec<char*>& member_names, SetChar& struct_dependencies,
+        Vec<ASR::call_arg_t> &member_init,
         bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
@@ -2891,8 +2893,12 @@ public:
                 ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
                 init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
             }
-            visit_AnnAssignUtil(*ann_assign, var_name, false, init_expr, abi);
+            visit_AnnAssignUtil(*ann_assign, var_name, init_expr, false, abi, true);
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+            ASR::call_arg_t c_arg;
+            c_arg.loc = var_sym->base.loc;
+            c_arg.m_value = init_expr;
+            member_init.push_back(al, c_arg);
             if( is_enum_scope ) {
                 if( AST::is_a<AST::Call_t>(*ann_assign->m_value) ) {
                     AST::Call_t* auto_call_cand = AST::down_cast<AST::Call_t>(ann_assign->m_value);
@@ -2958,20 +2964,22 @@ public:
 
     void visit_ClassDef(const AST::ClassDef_t& x) {
         std::string x_m_name = x.m_name;
-        if( current_scope->resolve_symbol(x_m_name) ) {
-            return ;
-        }
         if( is_enum(x.m_bases, x.n_bases) ) {
+            if( current_scope->resolve_symbol(x_m_name) ) {
+                return ;
+            }
             ASR::abiType enum_abi = get_abi_from_decorators(x.m_decorator_list, x.n_decorator_list);
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
+            Vec<ASR::call_arg_t>  member_init;
             member_names.reserve(al, x.n_body);
+            member_init.reserve(al, 1);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
             SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
-            visit_ClassMembers(x, member_names, struct_dependencies, true, enum_abi);
+            visit_ClassMembers(x, member_names, struct_dependencies, member_init, true, enum_abi);
             current_body = current_body_copy;
             ASR::ttype_t* common_type = nullptr;
             for( auto sym: current_scope->get_scope() ) {
@@ -3050,18 +3058,28 @@ public:
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
+            Vec<ASR::call_arg_t> member_init;
             member_names.reserve(al, x.n_body);
+            member_init.reserve(al, x.n_body);
             SetChar struct_dependencies;
             struct_dependencies.reserve(al, 1);
-            visit_ClassMembers(x, member_names, struct_dependencies);
+            visit_ClassMembers(x, member_names, struct_dependencies, member_init);
+            LCOMPILERS_ASSERT(member_init.size() == member_names.size());
             ASR::symbol_t* union_type = ASR::down_cast<ASR::symbol_t>(ASR::make_UnionType_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
                                             struct_dependencies.p, struct_dependencies.size(),
                                             member_names.p, member_names.size(),
                                             ASR::abiType::Source, ASR::accessType::Public,
-                                            nullptr));
+                                            member_init.p, member_init.size(), nullptr));
             current_scope = parent_scope;
-            current_scope->add_symbol(std::string(x.m_name), union_type);
+            if (current_scope->resolve_symbol(x_m_name)) {
+                ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
+                ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(sym);
+                ut->m_initializers = member_init.p;
+                ut->n_initializers = member_init.size();
+            } else {
+                current_scope->add_symbol(x_m_name, union_type);
+            }
             return ;
         }
         ASR::expr_t* algined_expr = nullptr;
@@ -3080,23 +3098,33 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         Vec<char*> member_names;
+        Vec<ASR::call_arg_t> member_init;
         member_names.reserve(al, x.n_body);
+        member_init.reserve(al, x.n_body);
         SetChar struct_dependencies;
         struct_dependencies.reserve(al, 1);
         ASR::abiType class_abi = ASR::abiType::Source;
         if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
             class_abi = ASR::abiType::BindC;
         }
-        visit_ClassMembers(x, member_names, struct_dependencies, false, class_abi);
+        visit_ClassMembers(x, member_names, struct_dependencies, member_init, false, class_abi);
+        LCOMPILERS_ASSERT(member_init.size() == member_names.size());
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         struct_dependencies.p, struct_dependencies.size(),
                                         member_names.p, member_names.size(),
                                         class_abi, ASR::accessType::Public,
-                                        is_packed, false, algined_expr,
+                                        is_packed, false, member_init.p, member_init.size(), algined_expr,
                                         nullptr));
         current_scope = parent_scope;
-        current_scope->add_symbol(std::string(x.m_name), class_type);
+        if (current_scope->resolve_symbol(x_m_name)) {
+            ASR::symbol_t* sym = current_scope->resolve_symbol(x_m_name);
+            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
+            st->m_initializers = member_init.p;
+            st->n_initializers = member_init.size();
+        } else {
+            current_scope->add_symbol(x_m_name, class_type);
+        }
     }
 
     void add_name(const Location &loc) {
@@ -4845,8 +4873,8 @@ public:
                     }));
             }
         }
-
-        visit_AnnAssignUtil(x, var_name);
+        ASR::expr_t *init_expr = nullptr;
+        visit_AnnAssignUtil(x, var_name, init_expr);
         assign_ast_target = assign_ast_target_copy;
     }
 
