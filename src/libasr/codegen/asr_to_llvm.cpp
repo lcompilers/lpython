@@ -809,7 +809,7 @@ public:
             llvm::Type* max_sized_type = nullptr;
             size_t max_type_size = 0;
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
-                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
+                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(ASRUtils::symbol_get_past_external(itr->second));
                 llvm::Type* llvm_mem_type = getMemberType(member->m_type, member);
                 size_t type_size = data_layout.getTypeAllocSize(llvm_mem_type);
                 if( max_type_size < type_size ) {
@@ -3316,14 +3316,18 @@ public:
             ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
         std::string struct_type_name = struct_type_t->m_name;
         for( auto item: struct_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
-                ASR::is_a<ASR::GenericProcedure_t>(*item.second) ||
-                ASR::is_a<ASR::UnionType_t>(*item.second) ||
-                ASR::is_a<ASR::StructType_t>(*item.second) ||
-                ASR::is_a<ASR::CustomOperator_t>(*item.second) ) {
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(item.second);
+            if (name2memidx[struct_type_name].find(item.first) == name2memidx[struct_type_name].end()) {
+                continue;
+            }
+            if( ASR::is_a<ASR::ClassProcedure_t>(*sym) ||
+                ASR::is_a<ASR::GenericProcedure_t>(*sym) ||
+                ASR::is_a<ASR::UnionType_t>(*sym) ||
+                ASR::is_a<ASR::StructType_t>(*sym) ||
+                ASR::is_a<ASR::CustomOperator_t>(*sym) ) {
                 continue ;
             }
-            ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
+            ASR::ttype_t* symbol_type = ASRUtils::symbol_type(sym);
             int idx = name2memidx[struct_type_name][item.first];
             llvm::Value* ptr_member = llvm_utils->create_gep(ptr, idx);
             ASR::Variable_t* v = nullptr;
@@ -8569,7 +8573,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_manager.apply_passes(al, &asr, pass_options, diagnostics);
 
     // Uncomment for debugging the ASR after the transformation
-    // std::cout << LFortran::pickle(asr, false, false, false) << std::endl;
+    // std::cout << LCompilers::LPython::pickle(asr, true, true, false) << std::endl;
 
     try {
         v.visit_asr((ASR::asr_t&)asr);
