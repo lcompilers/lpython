@@ -6380,10 +6380,22 @@ public:
                     {fmt_ptr, fmt_ptr1});
             }
             if (x.m_msg) {
-                char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
-                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(s);
-                print_error(context, *module, *builder, {fmt_ptr, fmt_ptr2});
+                std::vector<std::string> fmt;
+                std::vector<llvm::Value *> args;
+                fmt.push_back("%s");
+                args.push_back(builder->CreateGlobalStringPtr("AssertionError: "));
+                compute_fmt_specifier_and_arg(fmt, args, x.m_msg, x.base.base.loc);
+                fmt.push_back("%s");
+                args.push_back(builder->CreateGlobalStringPtr("\n"));
+                std::string fmt_str;
+                for (size_t i=0; i<fmt.size(); i++) {
+                    fmt_str += fmt[i];
+                }
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
+                std::vector<llvm::Value *> print_error_args;
+                print_error_args.push_back(fmt_ptr);
+                print_error_args.insert(print_error_args.end(), args.begin(), args.end());
+                print_error(context, *module, *builder, print_error_args);
             } else {
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError\n");
                 print_error(context, *module, *builder, {fmt_ptr});
@@ -7216,6 +7228,171 @@ public:
         handle_print(x);
     }
 
+    // It appends the format specifier and arg based on the type of expression
+    void compute_fmt_specifier_and_arg(std::vector<std::string> &fmt,
+        std::vector<llvm::Value *> &args, ASR::expr_t *v, const Location &loc) {
+        int64_t ptr_loads_copy = ptr_loads;
+        int reduce_loads = 0;
+        ptr_loads = 2;
+        if( ASR::is_a<ASR::Var_t>(*v) ) {
+            ASR::Variable_t* var = ASRUtils::EXPR2VAR(v);
+            reduce_loads = var->m_intent == ASRUtils::intent_in;
+            if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
+                ptr_loads = 1;
+            }
+        }
+        ptr_loads = ptr_loads - reduce_loads;
+        lookup_enum_value_for_nonints = true;
+        this->visit_expr_wrapper(v, true);
+        lookup_enum_value_for_nonints = false;
+        ptr_loads = ptr_loads_copy;
+        ASR::ttype_t *t = ASRUtils::type_get_past_allocatable(ASRUtils::expr_type(v));
+        if( ASR::is_a<ASR::Const_t>(*t) ) {
+            t = ASRUtils::get_contained_type(t);
+        }
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
+        if( ASR::is_a<ASR::Pointer_t>(*t) && ASR::is_a<ASR::Var_t>(*v) ) {
+            if( ASRUtils::is_array(ASRUtils::type_get_past_pointer(t)) ) {
+                tmp = CreateLoad(arr_descr->get_pointer_to_data(tmp));
+            }
+            fmt.push_back("%lld");
+            llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+            args.push_back(d);
+        } else if (t->type == ASR::ttypeType::CPtr ||
+            (t->type == ASR::ttypeType::Pointer &&
+            (ASR::is_a<ASR::Var_t>(*v) || ASR::is_a<ASR::GetPointer_t>(*v)))
+            ) {
+            fmt.push_back("%lld");
+            llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+            args.push_back(d);
+        } else if (ASRUtils::is_integer(*t)) {
+            switch( a_kind ) {
+                case 1 : {
+                    fmt.push_back("%hhi");
+                    break;
+                }
+                case 2 : {
+                    fmt.push_back("%hi");
+                    break;
+                }
+                case 4 : {
+                    fmt.push_back("%d");
+                    break;
+                }
+                case 8 : {
+                    fmt.push_back("%lld");
+                    break;
+                }
+                default: {
+                    throw CodeGenError(R"""(Printing support is available only
+                                        for 8, 16, 32, and 64 bit integer kinds.)""",
+                                        loc);
+                }
+            }
+            args.push_back(tmp);
+        } else if (ASRUtils::is_unsigned_integer(*t)) {
+            switch( a_kind ) {
+                case 1 : {
+                    fmt.push_back("%hhu");
+                    break;
+                }
+                case 2 : {
+                    fmt.push_back("%hu");
+                    break;
+                }
+                case 4 : {
+                    fmt.push_back("%u");
+                    break;
+                }
+                case 8 : {
+                    fmt.push_back("%llu");
+                    break;
+                }
+                default: {
+                    throw CodeGenError(R"""(Printing support is available only
+                                        for 8, 16, 32, and 64 bit unsigned integer kinds.)""",
+                                        loc);
+                }
+            }
+            args.push_back(tmp);
+        } else if (ASRUtils::is_real(*t)) {
+            llvm::Value *d;
+            switch( a_kind ) {
+                case 4 : {
+                    // Cast float to double as a workaround for the fact that
+                    // vprintf() seems to cast to double even for %f, which
+                    // causes it to print 0.000000.
+                    fmt.push_back("%13.8e");
+                    d = builder->CreateFPExt(tmp,
+                    llvm::Type::getDoubleTy(context));
+                    break;
+                }
+                case 8 : {
+                    fmt.push_back("%23.17e");
+                    d = builder->CreateFPExt(tmp,
+                    llvm::Type::getDoubleTy(context));
+                    break;
+                }
+                default: {
+                    throw CodeGenError(R"""(Printing support is available only
+                                        for 32, and 64 bit real kinds.)""",
+                                        loc);
+                }
+            }
+            args.push_back(d);
+        } else if (t->type == ASR::ttypeType::Character) {
+            fmt.push_back("%s");
+            args.push_back(tmp);
+        } else if (ASRUtils::is_logical(*t)) {
+            llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
+            llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+            llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+            llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
+            fmt.push_back("%s");
+            args.push_back(str);
+        } else if (ASRUtils::is_complex(*t)) {
+            llvm::Type *type, *complex_type;
+            switch( a_kind ) {
+                case 4 : {
+                    // Cast float to double as a workaround for the fact that
+                    // vprintf() seems to cast to double even for %f, which
+                    // causes it to print 0.000000.
+                    fmt.push_back("(%f,%f)");
+                    type = llvm::Type::getDoubleTy(context);
+                    complex_type = complex_type_4;
+                    break;
+                }
+                case 8 : {
+                    fmt.push_back("(%lf,%lf)");
+                    type = llvm::Type::getDoubleTy(context);
+                    complex_type = complex_type_8;
+                    break;
+                }
+                default: {
+                    throw CodeGenError(R"""(Printing support is available only
+                                        for 32, and 64 bit complex kinds.)""",
+                                        loc);
+                }
+            }
+            llvm::Value *d;
+            d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
+            args.push_back(d);
+            d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
+            args.push_back(d);
+        } else if (t->type == ASR::ttypeType::CPtr) {
+            fmt.push_back("%lld");
+            llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+            args.push_back(d);
+        } else if (t->type == ASR::ttypeType::Enum) {
+            // TODO: Use recursion to generalise for any underlying type in enum
+            fmt.push_back("%d");
+            args.push_back(tmp);
+        } else {
+            throw CodeGenError("Printing support is not available for `" +
+                ASRUtils::type_to_str(t) + "` type.", loc);
+        }
+    }
+
     template <typename T>
     void handle_print(const T &x) {
         std::vector<llvm::Value *> args;
@@ -7235,174 +7412,11 @@ public:
             end = builder->CreateGlobalStringPtr("\n");
         }
         for (size_t i=0; i<x.n_values; i++) {
-            int64_t ptr_loads_copy = ptr_loads;
-            int reduce_loads = 0;
-            ptr_loads = 2;
-            if( ASR::is_a<ASR::Var_t>(*x.m_values[i]) ) {
-                ASR::Variable_t* var = ASRUtils::EXPR2VAR(x.m_values[i]);
-                reduce_loads = var->m_intent == ASRUtils::intent_in;
-                if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
-                    ptr_loads = 1;
-                }
-            }
             if (i != 0) {
                 fmt.push_back("%s");
                 args.push_back(sep);
             }
-            ptr_loads = ptr_loads - reduce_loads;
-            lookup_enum_value_for_nonints = true;
-            this->visit_expr_wrapper(x.m_values[i], true);
-            lookup_enum_value_for_nonints = false;
-            ptr_loads = ptr_loads_copy;
-            ASR::expr_t *v = x.m_values[i];
-            ASR::ttype_t *t = ASRUtils::type_get_past_allocatable(ASRUtils::expr_type(v));
-            if( ASR::is_a<ASR::Const_t>(*t) ) {
-                t = ASRUtils::get_contained_type(t);
-            }
-            t = ASRUtils::type_get_past_allocatable(t);
-            int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
-            if( ASR::is_a<ASR::Pointer_t>(*t) && ASR::is_a<ASR::Var_t>(*v) ) {
-                if( ASRUtils::is_array(ASRUtils::type_get_past_pointer(t)) ) {
-                    tmp = CreateLoad(arr_descr->get_pointer_to_data(tmp));
-                }
-                fmt.push_back("%lld");
-                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
-                args.push_back(d);
-                continue;
-            }
-            if (t->type == ASR::ttypeType::CPtr ||
-                (t->type == ASR::ttypeType::Pointer &&
-                (ASR::is_a<ASR::Var_t>(*v) || ASR::is_a<ASR::GetPointer_t>(*v)))
-               ) {
-                fmt.push_back("%lld");
-                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
-                args.push_back(d);
-            } else if (ASRUtils::is_integer(*t)) {
-                switch( a_kind ) {
-                    case 1 : {
-                        fmt.push_back("%hhi");
-                        break;
-                    }
-                    case 2 : {
-                        fmt.push_back("%hi");
-                        break;
-                    }
-                    case 4 : {
-                        fmt.push_back("%d");
-                        break;
-                    }
-                    case 8 : {
-                        fmt.push_back("%lld");
-                        break;
-                    }
-                    default: {
-                        throw CodeGenError(R"""(Printing support is available only
-                                            for 8, 16, 32, and 64 bit integer kinds.)""",
-                                            x.base.base.loc);
-                    }
-                }
-                args.push_back(tmp);
-            } else if (ASRUtils::is_unsigned_integer(*t)) {
-                switch( a_kind ) {
-                    case 1 : {
-                        fmt.push_back("%hhu");
-                        break;
-                    }
-                    case 2 : {
-                        fmt.push_back("%hu");
-                        break;
-                    }
-                    case 4 : {
-                        fmt.push_back("%u");
-                        break;
-                    }
-                    case 8 : {
-                        fmt.push_back("%llu");
-                        break;
-                    }
-                    default: {
-                        throw CodeGenError(R"""(Printing support is available only
-                                            for 8, 16, 32, and 64 bit unsigned integer kinds.)""",
-                                            x.base.base.loc);
-                    }
-                }
-                args.push_back(tmp);
-            } else if (ASRUtils::is_real(*t)) {
-                llvm::Value *d;
-                switch( a_kind ) {
-                    case 4 : {
-                        // Cast float to double as a workaround for the fact that
-                        // vprintf() seems to cast to double even for %f, which
-                        // causes it to print 0.000000.
-                        fmt.push_back("%13.8e");
-                        d = builder->CreateFPExt(tmp,
-                        llvm::Type::getDoubleTy(context));
-                        break;
-                    }
-                    case 8 : {
-                        fmt.push_back("%23.17e");
-                        d = builder->CreateFPExt(tmp,
-                        llvm::Type::getDoubleTy(context));
-                        break;
-                    }
-                    default: {
-                        throw CodeGenError(R"""(Printing support is available only
-                                            for 32, and 64 bit real kinds.)""",
-                                            x.base.base.loc);
-                    }
-                }
-                args.push_back(d);
-            } else if (t->type == ASR::ttypeType::Character) {
-                fmt.push_back("%s");
-                args.push_back(tmp);
-            } else if (ASRUtils::is_logical(*t)) {
-                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
-                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
-                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
-                llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
-                fmt.push_back("%s");
-                args.push_back(str);
-            } else if (ASRUtils::is_complex(*t)) {
-                llvm::Type *type, *complex_type;
-                switch( a_kind ) {
-                    case 4 : {
-                        // Cast float to double as a workaround for the fact that
-                        // vprintf() seems to cast to double even for %f, which
-                        // causes it to print 0.000000.
-                        fmt.push_back("(%f,%f)");
-                        type = llvm::Type::getDoubleTy(context);
-                        complex_type = complex_type_4;
-                        break;
-                    }
-                    case 8 : {
-                        fmt.push_back("(%lf,%lf)");
-                        type = llvm::Type::getDoubleTy(context);
-                        complex_type = complex_type_8;
-                        break;
-                    }
-                    default: {
-                        throw CodeGenError(R"""(Printing support is available only
-                                            for 32, and 64 bit complex kinds.)""",
-                                            x.base.base.loc);
-                    }
-                }
-                llvm::Value *d;
-                d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
-                args.push_back(d);
-                d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
-                args.push_back(d);
-            } else if (t->type == ASR::ttypeType::CPtr) {
-                fmt.push_back("%lld");
-                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
-                args.push_back(d);
-            } else if (t->type == ASR::ttypeType::Enum) {
-                // TODO: Use recursion to generalise for any underlying type in enum
-                fmt.push_back("%d");
-                args.push_back(tmp);
-            } else {
-                throw CodeGenError("Printing support is not available for `" +
-                    ASRUtils::type_to_str(t) + "` type.", x.base.base.loc);
-            }
+            compute_fmt_specifier_and_arg(fmt, args, x.m_values[i], x.base.base.loc);
         }
         fmt.push_back("%s");
         args.push_back(end);
