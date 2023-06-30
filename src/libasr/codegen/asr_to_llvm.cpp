@@ -6193,6 +6193,15 @@ public:
         tmp = builder->CreateNot(tmp);
     }
 
+    void visit_UnsignedIntegerBitNot(const ASR::UnsignedIntegerBitNot_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        tmp = builder->CreateNot(tmp);
+    }
+
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
