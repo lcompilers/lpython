@@ -146,11 +146,12 @@ public:
     void allocate_array_members_of_struct(ASR::StructType_t* der_type_t, std::string& sub,
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ||
-                ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(itr.second);
+            if( ASR::is_a<ASR::UnionType_t>(*sym) ||
+                ASR::is_a<ASR::StructType_t>(*sym) ) {
                 continue ;
             }
-            ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
+            ASR::ttype_t* mem_type = ASRUtils::symbol_type(sym);
             if( ASRUtils::is_character(*mem_type) ) {
                 sub += indent + name + "->" + itr.first + " = NULL;\n";
             } else if( ASRUtils::is_array(mem_type) &&
