@@ -1036,6 +1036,8 @@ public:
     }
 
     void visit_Array(const Array_t& x) {
+        require(!ASR::is_a<ASR::Allocatable_t>(*x.m_type),
+            "Allocatable cannot be inside array");
         visit_ttype(*x.m_type);
         require(x.n_dims != 0, "Array type cannot have 0 dimensions.")
         require(!ASR::is_a<ASR::Array_t>(*x.m_type), "Array type cannot be nested.")
