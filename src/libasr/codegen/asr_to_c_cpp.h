@@ -89,6 +89,7 @@ public:
     std::vector<std::string> queue;
     int queue_front = -1;
     std::string& symengine_src;
+    std::unordered_set<std::string> variables_to_free;
 
     SymEngineQueue(std::string& symengine_src) : symengine_src(symengine_src) {}
 
@@ -102,11 +103,13 @@ public:
             symengine_src = indent + "basic " + var + ";\n";
             symengine_src += indent + "basic_new_stack(" + var + ");\n";
         }
+        variables_to_free.insert(queue[queue_front]);
         return queue[queue_front++];
     }
 
     void pop() {
         LCOMPILERS_ASSERT(queue_front != -1 && queue_front < static_cast<int>(queue.size()));
+        variables_to_free.insert(queue[queue_front]);
         queue_front++;
     }
 };
@@ -783,6 +786,10 @@ R"(#include <stdio.h>
                     + ";\n";
             }
 
+            for (const auto& var : symengine_queue.variables_to_free) {
+                current_body += indent + "basic_free_stack(" + var + ");\n";
+            }
+            symengine_queue.variables_to_free.clear();
             if (decl.size() > 0 || current_body.size() > 0) {
                 sub += "{\n" + decl + current_body + "}\n";
             } else {
