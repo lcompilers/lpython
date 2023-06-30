@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        206
+                        207
                         {
                             A:
                                 (StructType
@@ -138,13 +138,20 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())
+                                    (())
+                                    (())
+                                    (())
+                                    (())
+                                    (())]
                                     ()
                                     ()
                                 ),
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        205
+                                        206
                                         {
                                             
                                         })
@@ -167,7 +174,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        206 g
+                                        207 g
                                         ()
                                         []
                                         ()
@@ -194,7 +201,7 @@
                                                     Default
                                                     (Array
                                                         (Struct
-                                                            206 A
+                                                            207 A
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 2 (Integer 4)))]
@@ -233,13 +240,13 @@
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             RowMajor
                                             ()
                                         )
                                         (StructTypeConstructor
-                                            206 A
+                                            207 A
                                             [((RealConstant
                                                 1.100000
                                                 (Real 8)
@@ -280,7 +287,7 @@
                                                 (Logical 4)
                                             ))]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             ()
                                         )
@@ -293,13 +300,13 @@
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             RowMajor
                                             ()
                                         )
                                         (StructTypeConstructor
-                                            206 A
+                                            207 A
                                             [((RealConstant
                                                 2.200000
                                                 (Real 8)
@@ -340,14 +347,14 @@
                                                 (Logical 4)
                                             ))]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (SubroutineCall
-                                        206 verify
+                                        207 verify
                                         ()
                                         [((Var 203 y))
                                         ((IntegerConstant 1 (Integer 4)))
@@ -363,7 +370,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        206 update_1
+                                        207 update_1
                                         ()
                                         [((ArrayItem
                                             (Var 203 y)
@@ -371,7 +378,7 @@
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             RowMajor
                                             ()
@@ -379,13 +386,13 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        206 update_2
+                                        207 update_2
                                         ()
                                         [((Var 203 y))]
                                         ()
                                     )
                                     (SubroutineCall
-                                        206 verify
+                                        207 verify
                                         ()
                                         [((Var 203 y))
                                         ((IntegerConstant 2 (Integer 4)))
@@ -421,7 +428,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        206 A
+                                                        207 A
                                                     )
                                                     ()
                                                     Source
@@ -433,7 +440,7 @@
                                     update_1
                                     (FunctionType
                                         [(Struct
-                                            206 A
+                                            207 A
                                         )]
                                         ()
                                         Source
@@ -561,7 +568,7 @@
                                                     Default
                                                     (Array
                                                         (Struct
-                                                            206 A
+                                                            207 A
                                                         )
                                                         [(()
                                                         ())]
@@ -577,7 +584,7 @@
                                     (FunctionType
                                         [(Array
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             [(()
                                             ())]
@@ -605,7 +612,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -625,7 +632,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -648,7 +655,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -673,7 +680,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -704,7 +711,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -729,7 +736,7 @@
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
                                                 (Struct
-                                                    206 A
+                                                    207 A
                                                 )
                                                 RowMajor
                                                 ()
@@ -784,7 +791,7 @@
                                                     Default
                                                     (Array
                                                         (Struct
-                                                            206 A
+                                                            207 A
                                                         )
                                                         [(()
                                                         ())]
@@ -805,7 +812,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        206 A
+                                                        207 A
                                                     )
                                                     ()
                                                     Source
@@ -823,7 +830,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        206 A
+                                                        207 A
                                                     )
                                                     ()
                                                     Source
@@ -900,7 +907,7 @@
                                     (FunctionType
                                         [(Array
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             [(()
                                             ())]
@@ -944,7 +951,7 @@
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             RowMajor
                                             ()
@@ -1160,7 +1167,7 @@
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
                                             (Struct
-                                                206 A
+                                                207 A
                                             )
                                             RowMajor
                                             ()
@@ -1385,13 +1392,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        204
+                        205
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    204
+                                    205
                                     _lpython_main_program
-                                    206 _lpython_main_program
+                                    207 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1401,7 +1408,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        204 _lpython_main_program
+                        205 _lpython_main_program
                         ()
                         []
                         ()

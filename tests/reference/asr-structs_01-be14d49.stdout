@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        8
+                        9
                         {
                             A:
                                 (StructType
@@ -53,13 +53,15 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())]
                                     ()
                                     ()
                                 ),
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        8
                                         {
                                             
                                         })
@@ -82,7 +84,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        8 g
+                                        9 g
                                         ()
                                         []
                                         ()
@@ -108,7 +110,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        9 A
                                                     )
                                                     ()
                                                     Source
@@ -120,7 +122,7 @@
                                     change_struct
                                     (FunctionType
                                         [(Struct
-                                            8 A
+                                            9 A
                                         )]
                                         ()
                                         Source
@@ -208,7 +210,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        9 A
                                                     )
                                                     ()
                                                     Source
@@ -220,7 +222,7 @@
                                     f
                                     (FunctionType
                                         [(Struct
-                                            8 A
+                                            9 A
                                         )]
                                         ()
                                         Source
@@ -280,7 +282,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        9 A
                                                     )
                                                     ()
                                                     Source
@@ -311,7 +313,7 @@
                                     [(=
                                         (Var 5 x)
                                         (StructTypeConstructor
-                                            8 A
+                                            9 A
                                             [((Cast
                                                 (RealConstant
                                                     3.250000
@@ -326,14 +328,14 @@
                                             ))
                                             ((IntegerConstant 3 (Integer 4)))]
                                             (Struct
-                                                8 A
+                                                9 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 f
+                                        9 f
                                         ()
                                         [((Var 5 x))]
                                         ()
@@ -408,7 +410,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 f
+                                        9 f
                                         ()
                                         [((Var 5 x))]
                                         ()
@@ -452,7 +454,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 change_struct
+                                        9 change_struct
                                         ()
                                         [((Var 5 x))]
                                         ()
@@ -510,13 +512,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        6
+                        7
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    6
+                                    7
                                     _lpython_main_program
-                                    8 _lpython_main_program
+                                    9 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -526,7 +528,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        6 _lpython_main_program
+                        7 _lpython_main_program
                         ()
                         []
                         ()

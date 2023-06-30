@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        8
+                        10
                         {
                             A:
                                 (StructType
@@ -53,6 +53,8 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())]
                                     ()
                                     ()
                                 ),
@@ -71,7 +73,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        10 A
                                                     )
                                                     ()
                                                     Source
@@ -104,13 +106,34 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    ((StructTypeConstructor
+                                        10 A
+                                        [((Cast
+                                            (RealConstant
+                                                0.000000
+                                                (Real 8)
+                                            )
+                                            RealToReal
+                                            (Real 4)
+                                            (RealConstant
+                                                0.000000
+                                                (Real 4)
+                                            )
+                                        ))
+                                        ((IntegerConstant 0 (Integer 4)))]
+                                        (Struct
+                                            10 A
+                                        )
+                                        ()
+                                    ))]
                                     ()
                                     ()
                                 ),
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        9
                                         {
                                             
                                         })
@@ -133,7 +156,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        8 g
+                                        10 g
                                         ()
                                         []
                                         ()
@@ -159,7 +182,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 B
+                                                        10 B
                                                     )
                                                     ()
                                                     Source
@@ -171,7 +194,7 @@
                                     f
                                     (FunctionType
                                         [(Struct
-                                            8 B
+                                            10 B
                                         )]
                                         ()
                                         Source
@@ -201,7 +224,7 @@
                                                 (Var 4 b)
                                                 3 a
                                                 (Struct
-                                                    8 A
+                                                    10 A
                                                 )
                                                 ()
                                             )
@@ -214,7 +237,7 @@
                                                 (Var 4 b)
                                                 3 a
                                                 (Struct
-                                                    8 A
+                                                    10 A
                                                 )
                                                 ()
                                             )
@@ -247,7 +270,7 @@
                                                     (Var 4 b)
                                                     3 a
                                                     (Struct
-                                                        8 A
+                                                        10 A
                                                     )
                                                     ()
                                                 )
@@ -270,7 +293,7 @@
                                                         (Var 4 b)
                                                         3 a
                                                         (Struct
-                                                            8 A
+                                                            10 A
                                                         )
                                                         ()
                                                     )
@@ -313,7 +336,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        10 A
                                                     )
                                                     ()
                                                     Source
@@ -331,7 +354,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        10 A
                                                     )
                                                     ()
                                                     Source
@@ -349,7 +372,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 B
+                                                        10 B
                                                     )
                                                     ()
                                                     Source
@@ -379,7 +402,7 @@
                                     [(=
                                         (Var 5 a1)
                                         (StructTypeConstructor
-                                            8 A
+                                            10 A
                                             [((Cast
                                                 (RealConstant
                                                     1.000000
@@ -394,7 +417,7 @@
                                             ))
                                             ((IntegerConstant 1 (Integer 4)))]
                                             (Struct
-                                                8 A
+                                                10 A
                                             )
                                             ()
                                         )
@@ -403,7 +426,7 @@
                                     (=
                                         (Var 5 a2)
                                         (StructTypeConstructor
-                                            8 A
+                                            10 A
                                             [((Cast
                                                 (RealConstant
                                                     2.000000
@@ -418,7 +441,7 @@
                                             ))
                                             ((IntegerConstant 2 (Integer 4)))]
                                             (Struct
-                                                8 A
+                                                10 A
                                             )
                                             ()
                                         )
@@ -427,11 +450,11 @@
                                     (=
                                         (Var 5 b)
                                         (StructTypeConstructor
-                                            8 B
+                                            10 B
                                             [((IntegerConstant 1 (Integer 4)))
                                             ((Var 5 a1))]
                                             (Struct
-                                                8 B
+                                                10 B
                                             )
                                             ()
                                         )
@@ -442,7 +465,7 @@
                                             (Var 5 b)
                                             3 a
                                             (Struct
-                                                8 A
+                                                10 A
                                             )
                                             ()
                                         )
@@ -465,7 +488,7 @@
                                                 (Var 5 b)
                                                 3 a
                                                 (Struct
-                                                    8 A
+                                                    10 A
                                                 )
                                                 ()
                                             )
@@ -482,7 +505,7 @@
                                                 (Var 5 b)
                                                 3 a
                                                 (Struct
-                                                    8 A
+                                                    10 A
                                                 )
                                                 ()
                                             )
@@ -581,7 +604,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 f
+                                        10 f
                                         ()
                                         [((Var 5 b))]
                                         ()
@@ -601,13 +624,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        6
+                        8
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    6
+                                    8
                                     _lpython_main_program
-                                    8 _lpython_main_program
+                                    10 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -617,7 +640,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        6 _lpython_main_program
+                        8 _lpython_main_program
                         ()
                         []
                         ()
