@@ -19,7 +19,7 @@
                                                     []
                                                     Local
                                                     (IntegerConstant 10 (Integer 4))
-                                                    (IntegerConstant -1 (Integer 8))
+                                                    ()
                                                     Default
                                                     (Integer 4)
                                                     ()
@@ -35,7 +35,7 @@
                                                     []
                                                     Local
                                                     (IntegerConstant 3 (Integer 4))
-                                                    (IntegerConstant -1 (Integer 8))
+                                                    ()
                                                     Default
                                                     (Integer 4)
                                                     ()

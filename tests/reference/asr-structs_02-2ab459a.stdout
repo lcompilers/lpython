@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        7
+                        8
                         {
                             A:
                                 (StructType
@@ -53,13 +53,15 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())]
                                     ()
                                     ()
                                 ),
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             
                                         })
@@ -82,7 +84,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        7 g
+                                        8 g
                                         ()
                                         []
                                         ()
@@ -124,7 +126,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        7 A
+                                                        8 A
                                                     )
                                                     ()
                                                     Source
@@ -143,7 +145,7 @@
                                                     Default
                                                     (Pointer
                                                         (Struct
-                                                            7 A
+                                                            8 A
                                                         )
                                                     )
                                                     ()
@@ -206,7 +208,7 @@
                                     [(=
                                         (Var 3 a1)
                                         (StructTypeConstructor
-                                            7 A
+                                            8 A
                                             [((IntegerConstant 3 (Integer 4)))
                                             ((Cast
                                                 (RealConstant
@@ -221,7 +223,7 @@
                                                 )
                                             ))]
                                             (Struct
-                                                7 A
+                                                8 A
                                             )
                                             ()
                                         )
@@ -233,7 +235,7 @@
                                             (Var 3 a1)
                                             (Pointer
                                                 (Struct
-                                                    7 A
+                                                    8 A
                                                 )
                                             )
                                             ()
@@ -247,7 +249,7 @@
                                             (Var 3 a1)
                                             (Pointer
                                                 (Struct
-                                                    7 A
+                                                    8 A
                                                 )
                                             )
                                             ()
@@ -317,7 +319,7 @@
                                             (Var 3 a1)
                                             (Pointer
                                                 (Struct
-                                                    7 A
+                                                    8 A
                                                 )
                                             )
                                             ()
@@ -379,7 +381,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 f
+                                        8 f
                                         ()
                                         [((Var 4 b))]
                                         ()
@@ -399,13 +401,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        6
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    5
+                                    6
                                     _lpython_main_program
-                                    7 _lpython_main_program
+                                    8 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -415,7 +417,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        5 _lpython_main_program
+                        6 _lpython_main_program
                         ()
                         []
                         ()

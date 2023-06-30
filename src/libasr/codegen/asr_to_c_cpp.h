@@ -1305,6 +1305,11 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         last_expr_precedence = 2;
     }
 
+    void visit_UnsignedIntegerConstant(const ASR::UnsignedIntegerConstant_t &x) {
+        src = std::to_string(x.m_n);
+        last_expr_precedence = 2;
+    }
+
     void visit_RealConstant(const ASR::RealConstant_t &x) {
         // TODO: remove extra spaces from the front of double_to_scientific result
         src = double_to_scientific(x.m_r);
