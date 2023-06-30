@@ -290,6 +290,7 @@ expr
     | StringChr(expr arg, ttype type, expr? value)
 
     | CPtrCompare(expr left, cmpop op, expr right, ttype type, expr? value)
+    | SymbolicCompare(expr left, cmpop op, expr right, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)

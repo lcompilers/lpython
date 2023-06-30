@@ -14,6 +14,7 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <unordered_set>
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
@@ -97,6 +98,7 @@ public:
         if(queue_front == -1 || queue_front >= static_cast<int>(queue.size())) {
             var = "queue" + std::to_string(queue.size());
             queue.push_back(var);
+            if(queue_front == -1) queue_front++;
             symengine_src = indent + "basic " + var + ";\n";
             symengine_src += indent + "basic_new_stack(" + var + ");\n";
         }
@@ -1950,6 +1952,40 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
     void visit_CPtrCompare(const ASR::CPtrCompare_t &x) {
         handle_Compare(x);
+    }
+
+    void visit_SymbolicCompare(const ASR::SymbolicCompare_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
+        self().visit_expr(*x.m_left);
+        std::string left_src = symengine_src;
+        if(ASR::is_a<ASR::Var_t>(*x.m_left)){
+            symengine_queue.pop();
+        }
+        std::string left = std::move(src);
+
+        self().visit_expr(*x.m_right);
+        std::string right_src = symengine_src;
+        if(ASR::is_a<ASR::Var_t>(*x.m_right)){
+            symengine_queue.pop();
+        }
+        std::string right = std::move(src);
+        std::string op_str = ASRUtils::cmpop_to_str(x.m_op);
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                src = "basic_eq(" + left + ", " + right + ") " + op_str + " 1";
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                src = "basic_neq(" + left + ", " + right + ") " + op_str + " 0";
+                break;
+            }
+            default : {
+                throw LCompilersException("Symbolic comparison operator: '"
+                    + op_str
+                    + "' is not implemented");
+            }
+        }
+        symengine_src = left_src + right_src;
     }
 
     template<typename T>

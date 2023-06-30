@@ -1064,15 +1064,19 @@ R"(    // Initialise Numpy
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
         bracket_open++;
+        visit_expr(*x.m_test);
+        if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)){
+            out = symengine_src;
+            symengine_src = "";
+            out += indent;
+        }
         if (x.m_msg) {
             out += "ASSERT_MSG(";
-            visit_expr(*x.m_test);
             out += src + ", ";
             visit_expr(*x.m_msg);
             out += src + ");\n";
         } else {
             out += "ASSERT(";
-            visit_expr(*x.m_test);
             out += src + ");\n";
         }
         bracket_open--;
