@@ -2755,6 +2755,10 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 src = performSymbolicOperation("basic_pow", x);
                 return;
             }
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiff)): {
+                src = performSymbolicOperation("basic_diff", x);
+                return;
+            }
             case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi)): {
                 headers.insert("symengine/cwrapper.h");
                 LCOMPILERS_ASSERT(x.n_args == 0);
@@ -2778,6 +2782,22 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 this->visit_expr(*x.m_args[0]);
                 std::string target = symengine_queue.push();
                 symengine_src += indent + "integer_set_si(" + target + ", " + src + ");\n";
+                src = target;
+                return;
+            }
+            case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand)): {
+                headers.insert("symengine/cwrapper.h");
+                LCOMPILERS_ASSERT(x.n_args == 1);
+                std::string target = symengine_queue.push();
+                std::string target_src = symengine_src;
+                this->visit_expr(*x.m_args[0]);
+                std::string arg1 = src;
+                std::string arg1_src = symengine_src;
+                if (ASR::is_a<ASR::Var_t>(*x.m_args[0])) {
+                    symengine_queue.pop();
+                }
+                symengine_src = target_src + arg1_src;
+                symengine_src += indent + "basic_expand(" + target + ", " + arg1 + ");\n";
                 src = target;
                 return;
             }

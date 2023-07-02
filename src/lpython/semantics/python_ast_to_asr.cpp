@@ -694,6 +694,11 @@ public:
         return;
     }
 
+    void handle_symbolic_attribute(ASR::expr_t *s, std::string attr_name,
+                const Location &loc, Vec<ASR::expr_t*> &args) {
+        tmp = attr_handler.get_symbolic_attribute(s, attr_name, al, loc, args, diag);
+        return;
+    }
 
     void fill_expr_in_ttype_t(std::vector<ASR::expr_t*>& exprs, ASR::dimension_t* dims, size_t n_dims) {
         for( size_t i = 0; i < n_dims; i++ ) {
@@ -7113,6 +7118,11 @@ public:
                             handle_string_attributes(se, args, at->m_attr, loc);
                             return;
                         }
+                        ASR::ttype_t *type = ASRUtils::expr_type(se);
+                        if (ASR::is_a<ASR::SymbolicExpression_t>(*type)) {
+                            handle_symbolic_attribute(se, at->m_attr, loc, eles);
+                            return;
+                        }
                         handle_builtin_attribute(se, at->m_attr, loc, eles);
                         return;
                     }
@@ -7231,7 +7241,7 @@ public:
 
         if (!s) {
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand",
                 "sum" // For sum called over lists
             };
             if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
