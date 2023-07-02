@@ -72,6 +72,8 @@ enum class IntrinsicFunctions : int64_t {
     SymbolicPow,
     SymbolicPi,
     SymbolicInteger,
+    SymbolicDiff,
+    SymbolicExpand,
     Sum,
     // ...
 };
@@ -2056,7 +2058,7 @@ namespace SymbolicSymbol {
 
 } // namespace SymbolicSymbol
 
-#define create_symbolic_binop_macro(X)                                                     \
+#define create_symbolic_binary_macro(X)                                                     \
 namespace X{                                                                               \
                                                                                            \
     static inline void verify_args(const ASR::IntrinsicFunction_t& x,                      \
@@ -2107,11 +2109,12 @@ namespace X{                                                                    
     }                                                                                      \
 } // namespace X
 
-create_symbolic_binop_macro(SymbolicAdd)
-create_symbolic_binop_macro(SymbolicSub)
-create_symbolic_binop_macro(SymbolicMul)
-create_symbolic_binop_macro(SymbolicDiv)
-create_symbolic_binop_macro(SymbolicPow)
+create_symbolic_binary_macro(SymbolicAdd)
+create_symbolic_binary_macro(SymbolicSub)
+create_symbolic_binary_macro(SymbolicMul)
+create_symbolic_binary_macro(SymbolicDiv)
+create_symbolic_binary_macro(SymbolicPow)
+create_symbolic_binary_macro(SymbolicDiff)
 
 namespace SymbolicPi {
 
@@ -2165,6 +2168,46 @@ namespace SymbolicInteger {
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger), 0, to_type);
     }
 } // namespace SymbolicInteger
+
+namespace SymbolicExpand {
+
+    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+        const Location& loc = x.base.base.loc;
+        ASRUtils::require_impl(x.n_args == 1,
+            "SymbolicExpand must have exactly 1 input argument",
+            loc, diagnostics);
+
+        ASR::ttype_t* input_type = ASRUtils::expr_type(x.m_args[0]);
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*input_type),
+            "SymbolicExpand expects an argument of type SymbolicExpression",
+            x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t *eval_SymbolicExpand(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+        // TODO
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicExpand(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 1) {
+            err("Intrinsic expand function accepts exactly 1 argument", loc);
+        }
+
+        ASR::ttype_t* argtype = ASRUtils::expr_type(args[0]);
+        if(!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {
+            err("Argument of SymbolicExpand function must be of type SymbolicExpression",
+            args[0]->base.loc);
+        }
+
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicExpand,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand), 0, to_type);
+    }
+
+} // namespace SymbolicExpand
 
 namespace IntrinsicFunctionRegistry {
 
@@ -2228,6 +2271,10 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &SymbolicPi::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
             {nullptr, &SymbolicInteger::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiff),
+            {nullptr, &SymbolicDiff::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand),
+            {nullptr, &SymbolicExpand::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -2282,6 +2329,10 @@ namespace IntrinsicFunctionRegistry {
             "pi"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
             "SymbolicInteger"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiff),
+            "SymbolicDiff"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand),
+            "SymbolicExpand"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -2319,6 +2370,8 @@ namespace IntrinsicFunctionRegistry {
                 {"SymbolicPow", {&SymbolicPow::create_SymbolicPow, &SymbolicPow::eval_SymbolicPow}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
                 {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
+                {"diff", {&SymbolicDiff::create_SymbolicDiff, &SymbolicDiff::eval_SymbolicDiff}},
+                {"expand", {&SymbolicExpand::create_SymbolicExpand, &SymbolicExpand::eval_SymbolicExpand}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
@@ -2433,6 +2486,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicPow)
         INTRINSIC_NAME_CASE(SymbolicPi)
         INTRINSIC_NAME_CASE(SymbolicInteger)
+        INTRINSIC_NAME_CASE(SymbolicDiff)
+        INTRINSIC_NAME_CASE(SymbolicExpand)
         INTRINSIC_NAME_CASE(Sum)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
