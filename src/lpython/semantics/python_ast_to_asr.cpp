@@ -1320,6 +1320,16 @@ public:
                 args.p[i].m_value = arg_new_i;
             }
             for (size_t i = args.size(); i < StructType->n_members; i++) {
+                if (!StructType->m_initializers[i].m_value) {
+                    diag.add(diag::Diagnostic(
+                        "Require initial value for uninitialized members",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("Insufficient number of arguments",
+                                    {loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
                 args.push_back(al, StructType->m_initializers[i]);
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, stemp));
@@ -4765,7 +4775,7 @@ public:
         if (t == nullptr) {
             // Throw Not implemented error.
             throw SemanticError("Internal FunctionDef: Not implemented", x.base.base.loc);
-        }        
+        }
 
         if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
