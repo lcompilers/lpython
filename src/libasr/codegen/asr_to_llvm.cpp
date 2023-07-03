@@ -6876,7 +6876,8 @@ public:
                 }
                 break;
             }
-            case (ASR::cast_kindType::IntegerToInteger) : {
+            case (ASR::cast_kindType::IntegerToInteger) :
+            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 if( arg_kind > 0 && dest_kind > 0 &&

@@ -1754,8 +1754,10 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 // src = src;
                 break;
             }
-            case (ASR::cast_kindType::IntegerToInteger) : {
+            case (ASR::cast_kindType::IntegerToInteger) :
+            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
                 // In C++, we do not need to cast int <-> long long explicitly:
+                // we also do not need to cast uint8_t <-> uint32_t explicitly:
                 // src = src;
                 break;
             }
