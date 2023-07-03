@@ -3404,7 +3404,6 @@ public:
         ASR::expr_t *value = nullptr;
 
         if (x.m_op == AST::unaryopType::Invert) {
-
             if (ASRUtils::is_integer(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
@@ -3414,8 +3413,7 @@ public:
                 }
                 tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
                 return;
-            }
-            else if (ASRUtils::is_unsigned_integer(*operand_type)) {
+            } else if (ASRUtils::is_unsigned_integer(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
                                             ASRUtils::expr_value(operand))->m_n;
@@ -3425,12 +3423,10 @@ public:
                 }
                 tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
                 return;
-            }
-            else if (ASRUtils::is_real(*operand_type)) {
+            } else if (ASRUtils::is_real(*operand_type)) {
                 throw SemanticError("Unary operator '~' not supported for floats",
                     x.base.base.loc);
-            }
-            else if (ASRUtils::is_logical(*operand_type)) {
+            } else if (ASRUtils::is_logical(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
@@ -3444,15 +3440,11 @@ public:
                             int_type, value));
                 tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, int_arg, int_type, value);
                 return;
-            }
-            else if (ASRUtils::is_complex(*operand_type)) {
+            } else if (ASRUtils::is_complex(*operand_type)) {
                 throw SemanticError("Unary operator '~' not supported for complex type",
                     x.base.base.loc);
             }
-
-        }
-        else if (x.m_op == AST::unaryopType::Not) {
-
+        } else if (x.m_op == AST::unaryopType::Not) {
             ASR::expr_t *logical_arg = operand;
             if (ASRUtils::is_integer(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
@@ -3466,8 +3458,7 @@ public:
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                             al, x.base.base.loc, operand, ASR::cast_kindType::IntegerToLogical,
                             logical_type, value));
-            }
-            else if (ASRUtils::is_real(*operand_type)) {
+            } else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(operand))->m_r;
@@ -3479,16 +3470,14 @@ public:
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                             al, x.base.base.loc, operand, ASR::cast_kindType::RealToLogical,
                             logical_type, value));
-            }
-            else if (ASRUtils::is_logical(*operand_type)) {
+            } else if (ASRUtils::is_logical(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, !op_value, logical_type));
                 }
-            }
-            else if (ASRUtils::is_complex(*operand_type)) {
+            } else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
                         ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
@@ -3509,25 +3498,20 @@ public:
 
             tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, logical_arg, logical_type, value);
             return;
-
-        }
-        else if (x.m_op == AST::unaryopType::UAdd) {
-
+        } else if (x.m_op == AST::unaryopType::UAdd) {
             if (ASRUtils::is_integer(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                             ASRUtils::expr_value(operand))->m_n;
                     tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, op_value, operand_type);
                 }
-            }
-            else if (ASRUtils::is_real(*operand_type)) {
+            } else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                             ASRUtils::expr_value(operand))->m_r;
                     tmp = ASR::make_RealConstant_t(al, x.base.base.loc, op_value, operand_type);
                 }
-            }
-            else if (ASRUtils::is_logical(*operand_type)) {
+            } else if (ASRUtils::is_logical(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
@@ -3536,8 +3520,7 @@ public:
                 }
                 tmp = ASR::make_Cast_t(al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
                         int_type, value);
-            }
-            else if (ASRUtils::is_complex(*operand_type)) {
+            } else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
                         ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
@@ -3551,10 +3534,7 @@ public:
                 }
             }
             return;
-
-        }
-        else if (x.m_op == AST::unaryopType::USub) {
-
+        } else if (x.m_op == AST::unaryopType::USub) {
             if (ASRUtils::is_integer(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
@@ -3565,8 +3545,7 @@ public:
                 tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, operand,
                                                     operand_type, value);
                 return;
-            }
-            else if (ASRUtils::is_real(*operand_type)) {
+            } else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                             ASRUtils::expr_value(operand))->m_r;
@@ -3576,8 +3555,7 @@ public:
                 tmp = ASR::make_RealUnaryMinus_t(al, x.base.base.loc, operand,
                                                  operand_type, value);
                 return;
-            }
-            else if (ASRUtils::is_logical(*operand_type)) {
+            } else if (ASRUtils::is_logical(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
@@ -3591,8 +3569,7 @@ public:
                 tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, int_arg,
                                                     int_type, value);
                 return;
-            }
-            else if (ASRUtils::is_complex(*operand_type)) {
+            } else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
@@ -4765,7 +4742,7 @@ public:
         if (t == nullptr) {
             // Throw Not implemented error.
             throw SemanticError("Internal FunctionDef: Not implemented", x.base.base.loc);
-        }        
+        }
 
         if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
