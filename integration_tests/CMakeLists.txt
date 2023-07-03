@@ -632,6 +632,7 @@ RUN(NAME vec_01              LABELS cpython llvm c NOFAST)
 RUN(NAME test_str_comparison LABELS cpython llvm c)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
+RUN(NAME cast_01             LABELS cpython llvm c)
 RUN(NAME test_sys_01         LABELS cpython llvm c NOFAST)
 RUN(NAME intent_01           LABELS cpython llvm)
 
