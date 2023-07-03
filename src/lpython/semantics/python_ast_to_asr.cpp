@@ -3461,6 +3461,18 @@ public:
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                             al, x.base.base.loc, operand, ASR::cast_kindType::IntegerToLogical,
                             logical_type, value));
+            } else if (ASRUtils::is_unsigned_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                        ASRUtils::expr_value(operand))->m_n;
+                    bool b = (op_value == 0);
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                        al, x.base.base.loc, b, logical_type));
+                }
+                // cast UnsignedInteger to Logical
+                logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::UnsignedIntegerToLogical,
+                            logical_type, value));
             } else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -3511,6 +3523,12 @@ public:
                                             ASRUtils::expr_value(operand))->m_n;
                     tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, op_value, operand_type);
                 }
+            } else if (ASRUtils::is_unsigned_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    tmp = ASR::make_UnsignedIntegerConstant_t(al, x.base.base.loc, op_value, operand_type);
+                }
             } else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -3552,6 +3570,17 @@ public:
                         al, x.base.base.loc, -op_value, operand_type));
                 }
                 tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, operand,
+                                                    operand_type, value);
+                return;
+            } else if (ASRUtils::is_unsigned_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    op_value = (~op_value) + 1; // compute 2's complement
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
+                        al, x.base.base.loc, op_value, operand_type));
+                }
+                tmp = ASR::make_UnsignedIntegerUnaryMinus_t(al, x.base.base.loc, operand,
                                                     operand_type, value);
                 return;
             } else if (ASRUtils::is_real(*operand_type)) {

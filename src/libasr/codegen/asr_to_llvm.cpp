@@ -6208,6 +6208,17 @@ public:
         tmp = builder->CreateSub(zero, tmp);
     }
 
+    void visit_UnsignedIntegerUnaryMinus(const ASR::UnsignedIntegerUnaryMinus_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
+        llvm::Value *one = llvm::ConstantInt::get(context, llvm::APInt(kind * 8, 1, true));
+        tmp = builder->CreateAdd(builder->CreateNot(tmp), one); // compute 2's complement
+    }
+
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
@@ -6777,7 +6788,8 @@ public:
                 tmp = complex_from_floats(tmp, zero, complex_type);
                 break;
             }
-            case (ASR::cast_kindType::IntegerToLogical) : {
+            case (ASR::cast_kindType::IntegerToLogical) :
+            case (ASR::cast_kindType::UnsignedIntegerToLogical) : {
                 ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
                 LCOMPILERS_ASSERT(curr_type != nullptr)
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);

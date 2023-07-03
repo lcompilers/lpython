@@ -26,6 +26,9 @@ class UnsignedInteger:
         self.bit_width = bit_width
         self.value = value
 
+    def __bool__(self):
+        return self.value != 0
+
     def __add__(self, other):
         if isinstance(other, self.__class__):
             return UnsignedInteger(self.bit_width, (self.value + other.value) % (2**self.bit_width))

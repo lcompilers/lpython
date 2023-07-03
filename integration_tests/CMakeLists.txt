@@ -552,12 +552,14 @@ RUN(NAME test_ConstantEllipsis  LABLES cpython llvm c)
 RUN(NAME test_max_min        LABELS cpython llvm c)
 RUN(NAME test_global         LABELS cpython llvm c)
 RUN(NAME test_global_decl    LABELS cpython llvm c)
-RUN(NAME test_integer_bitnot LABELS cpython llvm c wasm)
-RUN(NAME test_unsign_int_bitnot LABELS cpython llvm c)
 RUN(NAME test_ifexp_01          LABELS cpython llvm c)
 RUN(NAME test_ifexp_02          LABELS cpython llvm c)
-RUN(NAME test_unary_minus    LABELS cpython llvm c)
-RUN(NAME test_unary_plus     LABELS cpython llvm c)
+RUN(NAME test_unary_op_01    LABELS cpython llvm c) # unary minus
+RUN(NAME test_unary_op_02    LABELS cpython llvm c) # unary plus
+RUN(NAME test_unary_op_03    LABELS cpython llvm c wasm) # unary bitinvert
+RUN(NAME test_unary_op_04    LABELS cpython llvm c) # unary bitinvert
+RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
+RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
 RUN(NAME test_bool_binop     LABELS cpython llvm c)
 RUN(NAME test_issue_518      LABELS cpython llvm c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm c)
