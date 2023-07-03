@@ -430,6 +430,7 @@ cast_kind
     | LogicalToCharacter
     | UnsignedIntegerToInteger
     | UnsignedIntegerToReal
+    | UnsignedIntegerToLogical
     | IntegerToUnsignedInteger
     | RealToUnsignedInteger
     | CPtrToUnsignedInteger
