@@ -2062,6 +2062,12 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         handle_UnaryMinus(x);
     }
 
+    void visit_UnsignedIntegerUnaryMinus(const ASR::UnsignedIntegerUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+        int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
+        src = "(uint" + std::to_string(kind * 8) + "_t)" + src;
+    }
+
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
         handle_UnaryMinus(x);
     }
