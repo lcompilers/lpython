@@ -429,6 +429,7 @@ cast_kind
     | IntegerToCharacter
     | LogicalToCharacter
     | UnsignedIntegerToInteger
+    | UnsignedIntegerToUnsignedInteger
     | UnsignedIntegerToReal
     | UnsignedIntegerToLogical
     | IntegerToUnsignedInteger

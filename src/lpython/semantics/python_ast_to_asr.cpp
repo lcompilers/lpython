@@ -72,7 +72,8 @@ namespace CastingUtil {
     const std::map<ASR::ttypeType, ASR::cast_kindType>& kind_rules = {
         {ASR::ttypeType::Complex, ASR::cast_kindType::ComplexToComplex},
         {ASR::ttypeType::Real, ASR::cast_kindType::RealToReal},
-        {ASR::ttypeType::Integer, ASR::cast_kindType::IntegerToInteger}
+        {ASR::ttypeType::Integer, ASR::cast_kindType::IntegerToInteger},
+        {ASR::ttypeType::UnsignedInteger, ASR::cast_kindType::UnsignedIntegerToUnsignedInteger}
     };
 
     int get_type_priority(ASR::ttypeType type) {
