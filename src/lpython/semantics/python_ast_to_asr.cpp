@@ -3443,6 +3443,9 @@ public:
             } else if (ASRUtils::is_complex(*operand_type)) {
                 throw SemanticError("Unary operator '~' not supported for complex type",
                     x.base.base.loc);
+            } else {
+                throw SemanticError("Unary operator '~' not supported for type " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
             }
         } else if (x.m_op == AST::unaryopType::Not) {
             ASR::expr_t *logical_arg = operand;
@@ -3494,6 +3497,9 @@ public:
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                             al, x.base.base.loc, operand, ASR::cast_kindType::ComplexToLogical,
                             logical_type, value));
+            } else {
+                throw SemanticError("Unary operator '!' not supported for type " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
             }
 
             tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, logical_arg, logical_type, value);
@@ -3532,6 +3538,9 @@ public:
                     tmp = ASR::make_ComplexConstant_t(al, x.base.base.loc,
                         std::real(op_value), std::imag(op_value), operand_type);
                 }
+            } else {
+                throw SemanticError("Unary operator '+' not supported for type " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
             }
             return;
         } else if (x.m_op == AST::unaryopType::USub) {
@@ -3583,6 +3592,9 @@ public:
                 tmp = ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc, operand,
                                                     operand_type, value);
                 return;
+            } else {
+                throw SemanticError("Unary operator '-' not supported for type " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
             }
         }
     }
