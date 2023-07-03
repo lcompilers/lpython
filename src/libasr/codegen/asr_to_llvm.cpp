@@ -2229,10 +2229,16 @@ public:
         this->visit_expr(*x.m_right);
         llvm::Value* right = tmp;
         ptr_loads = ptr_loads_copy;
-        tmp = llvm_utils->is_equal_by_value(left, right, *module,
-                ASRUtils::expr_type(x.m_left));
-        if (x.m_op == ASR::cmpopType::NotEq) {
-            tmp = builder->CreateNot(tmp);
+        if(x.m_op == ASR::cmpopType::Eq || x.m_op == ASR::cmpopType::NotEq) {
+            tmp = llvm_utils->is_equal_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left));
+            if (x.m_op == ASR::cmpopType::NotEq) {
+                tmp = builder->CreateNot(tmp);
+            }
+        }
+        else if(x.m_op == ASR::cmpopType::Lt) {
+            tmp = llvm_utils->is_less_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left));
         }
     }
 

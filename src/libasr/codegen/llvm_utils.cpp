@@ -3202,6 +3202,7 @@ namespace LCompilers {
          * while( i < a_len && i < b_len && equality_holds ) {
          *     equality_holds &= (a[i] == b[i]);
          *     inequality_holds |= (a[i] < b[i]);
+         *     i++;
          * }
          * 
          * if( i == a_len && a_len < b_len && equality_holds ) {
@@ -3271,7 +3272,7 @@ namespace LCompilers {
         llvm_utils->create_if_else(cond, [&]() {
             LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                 context, llvm::APInt(1, 1)), inequality_holds);
-        }, [=]() {
+        }, []() {
             // will be already 0 from the loop
         });
 
@@ -3439,8 +3440,9 @@ namespace LCompilers {
          * i = 0;
          * 
          * while( i < a_len && equality_holds ) {
-         *     equality_holds &= (a[i] == b[i]);
          *     inequality_holds |= (a[i] < b[i]);
+         *     equality_holds &= (a[i] == b[i]);
+         *     i++;
          * }
          * 
          */
@@ -3454,47 +3456,22 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)),
                           inequality_holds);
 
-        llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
-                                    context, llvm::APInt(32, 0)), idx);
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
-        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-
-        // head
-        llvm_utils->start_new_block(loophead);
-        {
-            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
-            llvm::Value* cnd = builder->CreateICmpSLT(i, llvm::ConstantInt::get(
-                                context, llvm::APInt(32, tuple_type->n_type)));
-            cnd = builder->CreateAnd(cnd, LLVM::CreateLoad(*builder, equality_holds));
-            builder->CreateCondBr(cnd, loopbody, loopend);
+        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
+            llvm_utils->create_if_else(LLVM::CreateLoad(*builder, equality_holds), [&]() {
+                llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
+                                                tuple_type->m_type[i]));
+                llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
+                                                tuple_type->m_type[i]));
+                llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
+                                                tuple_type->m_type[i]);
+                res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
+                LLVM::CreateStore(*builder, res, inequality_holds);
+                res = llvm_utils->is_equal_by_value(t1i, t2i, module, tuple_type->m_type[i]);
+                res = builder->CreateAnd(LLVM::CreateLoad(*builder, equality_holds), res);
+                LLVM::CreateStore(*builder, res, equality_holds);
+            }, [](){});
         }
 
-        // body
-        llvm_utils->start_new_block(loopbody);
-        {
-            llvm::Value* i = LLVM::CreateLoad(*builder, idx);
-            // llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
-            //                                 tuple_type->m_type[i]));
-            // llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
-            //                                 tuple_type->m_type[i]));
-            // llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
-            //                                 tuple_type->m_type[i]);
-            // res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
-            // LLVM::CreateStore(*builder, res, inequality_holds);
-            // res = llvm_utils->is_equal_by_value(t1i, t2i, module, tuple_type->m_type[i]);
-            // res = builder->CreateAnd(LLVM::CreateLoad(*builder, equality_holds), res);
-            // LLVM::CreateStore(*builder, res, equality_holds);
-            i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                    llvm::APInt(32, 1)));
-            LLVM::CreateStore(*builder, i, idx);
-        }
-
-        builder->CreateBr(loophead);
-
-        // end
-        llvm_utils->start_new_block(loopend);
         return LLVM::CreateLoad(*builder, inequality_holds);
     }
 

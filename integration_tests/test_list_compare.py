@@ -22,9 +22,9 @@ def test_list_compare():
     l2 = [1,6,7]
     assert l2 < l1
 
-    # assert l3 < l4
-    # l4[0] = l3[0]
-    # assert l4 < l3
+    assert l3 < l4
+    l4[0] = l3[0]
+    assert l4 < l3
 
     for i in range(0, 10):
         if i % 2 == 0:
@@ -35,9 +35,9 @@ def test_list_compare():
         l5[1] = l7
         if i % 2 == 0:
             assert l5[1 - i % 2] < l5[i % 2]
-    
-    # t1 = (1, 2)
-    # t2 = (3, 4)
-    # assert t1 < t2
+
+    t1 = (1, 2)
+    t2 = (2, 3)
+    assert t1 < t2
 
 test_list_compare()
