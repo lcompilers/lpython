@@ -846,6 +846,10 @@ filename = "errors/test_pow4.py"
 asr = true
 
 [[test]]
+filename = "errors/test_operator_01.py"
+asr = true
+
+[[test]]
 filename = "errors/test_ord.py"
 asr = true
 
