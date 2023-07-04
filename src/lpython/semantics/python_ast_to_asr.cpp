@@ -7265,15 +7265,23 @@ public:
         }
 
         if (!s) {
+            std::string intrinsic_name = call_name;
             std::set<std::string> not_cpython_builtin = {
                 "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand",
                 "sum" // For sum called over lists
             };
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(call_name) &&
+            std::set<std::string> symbolic_functions = {
+                "sin", "cos", "log", "exp", "Abs"
+            };
+            if ((symbolic_functions.find(call_name) != symbolic_functions.end()) &&
+                imported_functions[call_name] == "sympy"){
+                intrinsic_name = "Symbolic" + std::string(1, std::toupper(call_name[0])) + call_name.substr(1);
+            }
+            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
                 imported_functions.find(call_name) != imported_functions.end() )) {
                 ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(call_name);
+                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(intrinsic_name);
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
                 if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&
