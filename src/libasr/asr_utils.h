@@ -1004,9 +1004,9 @@ static inline std::string type_python_1dim_helper(const std::string & res,
     }
 
     if( ASRUtils::expr_value(e->m_length) ) {
-        int64_t length_dim = -1;
+        int64_t length_dim = 0;
         ASRUtils::extract_value(ASRUtils::expr_value(e->m_length), length_dim);
-        return res + "[" + std::to_string(length_dim + 1) + "]";
+        return res + "[" + std::to_string(length_dim) + "]";
     }
 
     return res;
