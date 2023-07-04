@@ -122,6 +122,7 @@
                                                         (Real 8)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 3 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -165,8 +166,9 @@
                                             )]
                                             (Array
                                                 (Real 8)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
@@ -319,6 +321,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 3 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -353,8 +356,9 @@
                                             (IntegerConstant 3 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )

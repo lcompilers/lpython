@@ -212,6 +212,11 @@ public:
             }
         }
     }
+
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<ReplacerNestedVars>::replace_ArrayPhysicalCast(x);
+        x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
+    }
 };
 
 class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<ReplaceNestedVisitor> {
@@ -397,6 +402,8 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             if( x.m_dt )
             visit_expr(*x.m_dt);
         }
+        ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
+        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt);
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
@@ -414,6 +421,9 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             if( x.m_dt )
             visit_expr(*x.m_dt);
         }
+
+        ASR::SubroutineCall_t& xx = const_cast<ASR::SubroutineCall_t&>(x);
+        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt);
     }
 
 };
@@ -495,7 +505,7 @@ public:
                         ASR::expr_t *val = ASRUtils::EXPR(ASR::make_Var_t(al, t->base.loc, sym_));
                         if( ASRUtils::is_array(ASRUtils::symbol_type(sym)) ||
                             ASR::is_a<ASR::Pointer_t>(*ASRUtils::symbol_type(sym)) ) {
-                            ASR::stmt_t *associate = ASRUtils::STMT(ASR::make_Associate_t(al, t->base.loc,
+                            ASR::stmt_t *associate = ASRUtils::STMT(ASRUtils::make_Associate_t_util(al, t->base.loc,
                                                         target, val));
                             body.push_back(al, associate);
                         } else {

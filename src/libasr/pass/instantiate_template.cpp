@@ -175,7 +175,7 @@ public:
 
         ASR::ttype_t *type = substitute_type(x->m_type);
 
-        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args,
+        return ASRUtils::make_ArrayItem_t_util(al, x->base.base.loc, m_v, args.p, x->n_args,
             ASRUtils::type_get_past_allocatable(type), x->m_storage_format, m_value);
     }
 
@@ -256,7 +256,7 @@ public:
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
         dependencies.push_back(al, ASRUtils::symbol_name(name));
-        return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
+        return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
 
@@ -283,7 +283,7 @@ public:
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
         dependencies.push_back(al, ASRUtils::symbol_name(name));
-        return ASR::make_SubroutineCall_t(al, x->base.base.loc, name /* change this */,
+        return ASRUtils::make_SubroutineCall_t_util(al, x->base.base.loc, name /* change this */,
             x->m_original_name, args.p, args.size(), dt);
     }
 
