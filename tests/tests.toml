@@ -652,6 +652,10 @@ filename = "errors/structs_01.py"
 asr = true
 
 [[test]]
+filename = "errors/arrays_01.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_02.py"
 asr = true
 
