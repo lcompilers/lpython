@@ -605,6 +605,7 @@ RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_03        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_04        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_05        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_06        LABELS cpython_sym c_sym)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
