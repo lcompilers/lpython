@@ -2423,6 +2423,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
         for (int i = (int)vars_passed_by_refs.size() - 1; i >= 0; i--) {
             ASR::expr_t* return_expr = vars_passed_by_refs[i];
+            if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*return_expr) ) {
+                return_expr = ASR::down_cast<ASR::ArrayPhysicalCast_t>(return_expr)->m_arg;
+            }
             if (ASR::is_a<ASR::Var_t>(*return_expr)) {
                 ASR::Variable_t* return_var = ASRUtils::EXPR2VAR(return_expr);
                 emit_var_set(return_var);
@@ -2446,6 +2449,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         ASR::ttype_t *curr_type = extract_ttype_t_from_expr(x.m_arg);
         LCOMPILERS_ASSERT(curr_type != nullptr)
         arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+    }
+
+    void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
+        this->visit_expr(*x.m_arg);
     }
 
     void visit_Cast(const ASR::Cast_t &x) {

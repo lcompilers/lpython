@@ -46,7 +46,7 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
             fn_s, mod->m_name, nullptr, 0, s2c(al, program_fn_name),
             ASR::accessType::Public));
         current_scope->add_symbol(program_fn_name, fn_s);
-        ASR::asr_t *stmt = ASR::make_SubroutineCall_t(
+        ASR::asr_t *stmt = ASRUtils::make_SubroutineCall_t_util(
                 al, unit.base.base.loc,
                 fn_s, nullptr,
                 nullptr, 0,

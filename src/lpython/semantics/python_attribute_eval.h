@@ -116,7 +116,7 @@ struct AttributeHandler {
             throw SemanticError("array.size() takes no arguments", loc);
         }
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-        return ASR::make_ArraySize_t(al, loc, s, nullptr, int_type, nullptr);
+        return ASRUtils::make_ArraySize_t_util(al, loc, s, nullptr, int_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,

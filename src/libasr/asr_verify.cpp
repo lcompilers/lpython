@@ -457,6 +457,10 @@ public:
                     " but isn't found in its dependency list.");
         }
 
+        require(ASRUtils::get_FunctionType(x)->n_arg_types == x.n_args,
+            "Number of argument types in FunctionType must be exactly same as "
+            "number of arguments in the function");
+
         visit_ttype(*x.m_function_signature);
         current_symtab = parent_symtab;
         function_dependencies = function_dependencies_copy;
@@ -533,7 +537,7 @@ public:
         ASR::expr_t* aligned_expr_value = ASRUtils::expr_value(x.m_alignment);
         std::string msg = "Alignment should always evaluate to a constant expressions.";
         require(aligned_expr_value, msg);
-        int64_t alignment_int;
+        int64_t alignment_int = 0;
         require(ASRUtils::extract_value(aligned_expr_value, alignment_int), msg);
         require(alignment_int != 0 && (alignment_int & (alignment_int - 1)) == 0,
                 "Alignment " + std::to_string(alignment_int) +
@@ -834,6 +838,15 @@ public:
         }
     }
 
+    void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
+        BaseWalkVisitor<VerifyVisitor>::visit_ArrayPhysicalCast(x);
+        require(x.m_new == ASRUtils::extract_physical_type(x.m_type),
+            "Destination physical type conflicts with the physical type of target");
+        require(x.m_old == ASRUtils::extract_physical_type(ASRUtils::expr_type(x.m_arg)),
+            "Old physical type conflicts with the physical type of argument " + std::to_string(x.m_old)
+            + " " + std::to_string(ASRUtils::extract_physical_type(ASRUtils::expr_type(x.m_arg))));
+    }
+
     void visit_SubroutineCall(const SubroutineCall_t &x) {
         require(symtab_in_scope(current_symtab, x.m_name),
             "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' cannot point outside of its symbol table");
@@ -1064,6 +1077,15 @@ public:
         require(!ASR::is_a<ASR::Pointer_t>(*x.m_type),
             "Allocatable type conflicts with Pointer type");
         visit_ttype(*x.m_type);
+    }
+
+    void visit_Allocate(const Allocate_t &x) {
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            require(ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(x.m_args[i].m_a)) ||
+                    ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_args[i].m_a)),
+                "Allocate should only be called with  Allocatable or Pointer type inputs");
+        }
+        BaseWalkVisitor<VerifyVisitor>::visit_Allocate(x);
     }
 
 };

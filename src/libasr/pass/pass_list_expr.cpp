@@ -409,7 +409,7 @@ public:
                 unit.m_global_scope, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr));
     }
 
@@ -534,7 +534,7 @@ public:
                 unit.m_global_scope, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_concat_func_map[list_type_name];
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
     }
 

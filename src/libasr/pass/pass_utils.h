@@ -479,7 +479,7 @@ namespace LCompilers {
                 Vec<ASR::dimension_t> empty_dims;
                 empty_dims.reserve(al, 1);
                 array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
-                ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.loc,
+                ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al, arr_var->base.loc,
                                             arr_var, args.p, args.size(),
                                             ASRUtils::type_get_past_allocatable(array_ref_type),
                                             ASR::arraystorageType::RowMajor, nullptr));
@@ -646,7 +646,7 @@ namespace LCompilers {
                         empty_dims.reserve(replacer->al, 1);
                         array_ref_type = ASRUtils::duplicate_type(replacer->al, array_ref_type, &empty_dims);
 
-                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(replacer->al,
+                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(replacer->al,
                                                         target_section->base.base.loc,
                                                         target_section->m_v,
                                                         args.p, args.size(),

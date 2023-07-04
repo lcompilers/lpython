@@ -88,11 +88,14 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
 
         void transform_functions_with_optional_arguments(ASR::Function_t* s) {
             Vec<ASR::expr_t*> new_args;
+            Vec<ASR::ttype_t*> new_arg_types;
+            new_arg_types.reserve(al, s->n_args);
             new_args.reserve(al, s->n_args);
             ASR::ttype_t* logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, s->base.base.loc, 4));
             for( size_t i = 0; i < s->n_args; i++ ) {
                 ASR::symbol_t* arg_sym = ASR::down_cast<ASR::Var_t>(s->m_args[i])->m_v;
                 new_args.push_back(al, s->m_args[i]);
+                new_arg_types.push_back(al, ASRUtils::get_FunctionType(*s)->m_arg_types[i]);
                 if( is_presence_optional(arg_sym) ) {
                     std::string presence_bit_arg_name = "is_" + std::string(ASRUtils::symbol_name(arg_sym)) + "_present_";
                     presence_bit_arg_name = s->m_symtab->get_unique_name(presence_bit_arg_name);
@@ -100,8 +103,13 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
                                                         arg_sym->base.loc, presence_bit_arg_name,
                                                         al, s->m_symtab, logical_type, ASR::intentType::In);
                     new_args.push_back(al, presence_bit_arg);
+                    new_arg_types.push_back(al, logical_type);
                 }
             }
+
+            ASR::FunctionType_t* function_type = ASRUtils::get_FunctionType(*s);
+            function_type->m_arg_types = new_arg_types.p;
+            function_type->n_arg_types = new_arg_types.size();
             s->m_args = new_args.p;
             s->n_args = new_args.size();
             ReplacePresentCallsVisitor present_replacer(al, s);
@@ -234,7 +242,13 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
 };
 
 template <typename T>
-bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al, const T& x) {
+bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al, const T& x, SymbolTable* scope) {
+    ASR::Function_t* owning_function = nullptr;
+    if( scope->asr_owner && ASR::is_a<ASR::symbol_t>(*scope->asr_owner) &&
+        ASR::is_a<ASR::Function_t>(*ASR::down_cast<ASR::symbol_t>(scope->asr_owner)) ) {
+        owning_function = ASR::down_cast<ASR::Function_t>(
+            ASR::down_cast<ASR::symbol_t>(scope->asr_owner));
+    }
     ASR::symbol_t* func_sym = ASRUtils::symbol_get_past_external(x.m_name);
     if( !ASR::is_a<ASR::Function_t>(*func_sym) ) {
         return false;
@@ -266,9 +280,38 @@ bool fill_new_args(Vec<ASR::call_arg_t>& new_args, Allocator& al, const T& x) {
             ASR::presenceType::Optional ) {
             ASR::ttype_t* logical_t = ASRUtils::TYPE(ASR::make_Logical_t(al,
                                         x.m_args[i].loc, 4));
-            ASR::expr_t* is_present = ASRUtils::EXPR(
-                ASR::make_LogicalConstant_t(al, x.m_args[i].loc,
-                    x.m_args[i].m_value != nullptr, logical_t));
+            ASR::expr_t* is_present = nullptr;
+            if( x.m_args[i].m_value == nullptr ) {
+                is_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
+                    al, x.m_args[i].loc, false, logical_t));
+            } else {
+                if( ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value) &&
+                    ASR::is_a<ASR::Variable_t>(
+                        *ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v) &&
+                    ASRUtils::EXPR2VAR(x.m_args[i].m_value)->m_presence ==
+                        ASR::presenceType::Optional) {
+                    if( owning_function == nullptr ) {
+                        LCOMPILERS_ASSERT(false);
+                    }
+
+                    size_t k;
+                    bool k_found = false;
+                    for( k = 0; k < owning_function->n_args; k++ ) {
+                        if( ASR::down_cast<ASR::Var_t>(owning_function->m_args[k])->m_v ==
+                            ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v ) {
+                            k_found = true;
+                            break ;
+                        }
+                    }
+
+                    if( k_found ) {
+                        is_present = owning_function->m_args[k + 1];
+                    }
+                } else {
+                    is_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(
+                        al, x.m_args[i].loc, true, logical_t));
+                }
+            }
             ASR::call_arg_t present_arg;
             present_arg.loc = x.m_args[i].loc;
             present_arg.m_value = is_present;
@@ -288,15 +331,18 @@ class ReplaceFunctionCallsWithOptionalArguments: public ASR::BaseExprReplacer<Re
 
     public:
 
-    ReplaceFunctionCallsWithOptionalArguments(Allocator& al_) : al(al_)
+    SymbolTable* current_scope;
+
+    ReplaceFunctionCallsWithOptionalArguments(Allocator& al_) :
+        al(al_), current_scope(nullptr)
     {}
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
         Vec<ASR::call_arg_t> new_args;
-        if( !fill_new_args(new_args, al, *x) ) {
+        if( !fill_new_args(new_args, al, *x, current_scope) ) {
             return ;
         }
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al,
                             x->base.base.loc, x->m_name, x->m_original_name,
                             new_args.p, new_args.size(), x->m_type, x->m_value,
                             x->m_dt));
@@ -317,6 +363,7 @@ class ReplaceFunctionCallsWithOptionalArgumentsVisitor : public ASR::CallReplace
 
         void call_replacer() {
             replacer.current_expr = current_expr;
+            replacer.current_scope = current_scope;
             replacer.replace_expr(*current_expr);
         }
 
@@ -334,10 +381,10 @@ class ReplaceSubroutineCallsWithOptionalArgumentsVisitor : public PassUtils::Pas
 
         void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
             Vec<ASR::call_arg_t> new_args;
-            if( !fill_new_args(new_args, al, x) ) {
+            if( !fill_new_args(new_args, al, x, current_scope) ) {
                 return ;
             }
-            pass_result.push_back(al, ASRUtils::STMT(ASR::make_SubroutineCall_t(al,
+            pass_result.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al,
                                     x.base.base.loc, x.m_name, x.m_original_name,
                                     new_args.p, new_args.size(), x.m_dt)));
         }

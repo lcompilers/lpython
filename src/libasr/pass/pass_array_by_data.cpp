@@ -196,6 +196,9 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                 }
             }
 
+            ASR::FunctionType_t* func_type = ASRUtils::get_FunctionType(*x);
+            x->m_function_signature = ASRUtils::TYPE(ASRUtils::make_FunctionType_t_util(
+                al, func_type->base.base.loc, new_args.p, new_args.size(), x->m_return_var, func_type));
             x->m_args = new_args.p;
             x->n_args = new_args.size();
         }
@@ -260,69 +263,85 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
         }
 };
 
-class EditProcedureVisitor: public ASR::ASRPassBaseWalkVisitor<EditProcedureVisitor> {
+#define edit_symbol_reference(attr) ASR::symbol_t* x_sym = xx.m_##attr;    \
+    SymbolTable* x_sym_symtab = ASRUtils::symbol_parent_symtab(x_sym);    \
+    if( x_sym_symtab->get_counter() != current_scope->get_counter() &&    \
+        !ASRUtils::is_parent(x_sym_symtab, current_scope) ) {    \
+        std::string x_sym_name = std::string(ASRUtils::symbol_name(x_sym));    \
+        xx.m_##attr = current_scope->resolve_symbol(x_sym_name);    \
+        LCOMPILERS_ASSERT(xx.m_##attr != nullptr);    \
+    }    \
+
+#define edit_symbol_pointer(attr) ASR::symbol_t* x_sym = x->m_##attr;    \
+    SymbolTable* x_sym_symtab = ASRUtils::symbol_parent_symtab(x_sym);    \
+    if( x_sym_symtab->get_counter() != current_scope->get_counter() &&    \
+        !ASRUtils::is_parent(x_sym_symtab, current_scope) ) {    \
+        std::string x_sym_name = std::string(ASRUtils::symbol_name(x_sym));    \
+        x->m_##attr = current_scope->resolve_symbol(x_sym_name);    \
+        LCOMPILERS_ASSERT(x->m_##attr != nullptr);    \
+    }    \
+
+class EditProcedureReplacer: public ASR::BaseExprReplacer<EditProcedureReplacer> {
 
     public:
 
     PassArrayByDataProcedureVisitor& v;
+    SymbolTable* current_scope;
 
-    EditProcedureVisitor(PassArrayByDataProcedureVisitor& v_):
-    v(v_) {}
+    EditProcedureReplacer(PassArrayByDataProcedureVisitor& v_):
+     v(v_), current_scope(nullptr) {}
 
-    void visit_Function(const ASR::Function_t &x) {
-        ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
-        SymbolTable* current_scope_copy = current_scope;
-        current_scope = x.m_symtab;
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
-
-        visit_ttype(*x.m_function_signature);
-
-        for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
-        }
-        transform_stmts(xx.m_body, xx.n_body);
-        if (x.m_return_var)
-            visit_expr(*x.m_return_var);
-        current_scope = current_scope_copy;
-    }
-
-    #define edit_symbol(attr) ASR::symbol_t* x_sym = xx.m_##attr;    \
-        SymbolTable* x_sym_symtab = ASRUtils::symbol_parent_symtab(x_sym);    \
-        if( x_sym_symtab->get_counter() != current_scope->get_counter() &&    \
-            !ASRUtils::is_parent(x_sym_symtab, current_scope) ) {    \
-            std::string x_sym_name = std::string(ASRUtils::symbol_name(x_sym));    \
-            xx.m_##attr = current_scope->resolve_symbol(x_sym_name);    \
-            LCOMPILERS_ASSERT(xx.m_##attr != nullptr);    \
-        }    \
-
-    void visit_Var(const ASR::Var_t& x) {
-        ASR::Var_t& xx = const_cast<ASR::Var_t&>(x);
-        ASR::symbol_t* x_sym_ = xx.m_v;
+    void replace_Var(ASR::Var_t* x) {
+        ASR::symbol_t* x_sym_ = x->m_v;
         if ( v.proc2newproc.find(x_sym_) != v.proc2newproc.end() ) {
-            xx.m_v = v.proc2newproc[x_sym_].first;
+            x->m_v = v.proc2newproc[x_sym_].first;
             return ;
         }
 
-        edit_symbol(v)
+        edit_symbol_pointer(v)
+    }
+
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<EditProcedureReplacer>::replace_ArrayPhysicalCast(x);
+        x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
+        if( x->m_old == x->m_new) {
+            *current_expr = x->m_arg;
+        }
+    }
+
+    void replace_FunctionCall(ASR::FunctionCall_t* x) {
+        edit_symbol_pointer(name)
+        ASR::BaseExprReplacer<EditProcedureReplacer>::replace_FunctionCall(x);
+    }
+
+};
+
+class EditProcedureVisitor: public ASR::CallReplacerOnExpressionsVisitor<EditProcedureVisitor> {
+
+    public:
+
+    PassArrayByDataProcedureVisitor& v;
+    EditProcedureReplacer replacer;
+
+    EditProcedureVisitor(PassArrayByDataProcedureVisitor& v_):
+    v(v_), replacer(v) {}
+
+    void call_replacer() {
+        replacer.current_expr = current_expr;
+        replacer.current_scope = current_scope;
+        replacer.replace_expr(*current_expr);
     }
 
     void visit_BlockCall(const ASR::BlockCall_t& x) {
         ASR::BlockCall_t& xx = const_cast<ASR::BlockCall_t&>(x);
-        edit_symbol(m)
-    }
-
-    void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-        ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
-        edit_symbol(name)
-        ASR::ASRPassBaseWalkVisitor<EditProcedureVisitor>::visit_FunctionCall(x);
+        edit_symbol_reference(m)
+        ASR::CallReplacerOnExpressionsVisitor<EditProcedureVisitor>::visit_BlockCall(x);
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
         ASR::SubroutineCall_t& xx = const_cast<ASR::SubroutineCall_t&>(x);
-        edit_symbol(name)
-        ASR::ASRPassBaseWalkVisitor<EditProcedureVisitor>::visit_SubroutineCall(x);
+        edit_symbol_reference(name)
+        ASR::CallReplacerOnExpressionsVisitor<EditProcedureVisitor>::visit_SubroutineCall(x);
     }
 
 };
@@ -394,10 +413,30 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
             Vec<ASR::call_arg_t> new_args;
             new_args.reserve(al, n_args);
             for( size_t i = 0; i < n_args; i++ ) {
-                new_args.push_back(al, orig_args[i]);
                 if (orig_args[i].m_value == nullptr ||
                     std::find(indices.begin(), indices.end(), i) == indices.end()) {
+                    new_args.push_back(al, orig_args[i]);
                     continue;
+                }
+
+                ASR::ttype_t* orig_arg_type = ASRUtils::expr_type(orig_args[i].m_value);
+                if( ASRUtils::is_array(orig_arg_type) ) {
+                    ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(
+                        ASRUtils::type_get_past_allocatable(orig_arg_type));
+                    if( array_t->m_physical_type != ASR::array_physical_typeType::PointerToDataArray ) {
+                        ASR::expr_t* physical_cast = ASRUtils::EXPR(ASRUtils::make_ArrayPhysicalCast_t_util(
+                            al, orig_args[i].m_value->base.loc, orig_args[i].m_value, array_t->m_physical_type,
+                            ASR::array_physical_typeType::PointerToDataArray, ASRUtils::duplicate_type(al, orig_arg_type,
+                            nullptr, ASR::array_physical_typeType::PointerToDataArray, true), nullptr));
+                        ASR::call_arg_t physical_cast_arg;
+                        physical_cast_arg.loc = orig_args[i].m_value->base.loc;
+                        physical_cast_arg.m_value = physical_cast;
+                        new_args.push_back(al, physical_cast_arg);
+                    } else {
+                        new_args.push_back(al, orig_args[i]);
+                    }
+                } else {
+                    new_args.push_back(al, orig_args[i]);
                 }
 
                 Vec<ASR::expr_t*> dim_vars;

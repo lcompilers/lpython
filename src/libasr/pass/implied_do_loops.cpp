@@ -231,6 +231,14 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         result_var = result_var_copy;
     }
 
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<ReplaceArrayConstant>::replace_ArrayPhysicalCast(x);
+        x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
+        if( x->m_old == x->m_new ) {
+            *current_expr = x->m_arg;
+        }
+    }
+
 };
 
 class ArrayConstantVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayConstantVisitor>

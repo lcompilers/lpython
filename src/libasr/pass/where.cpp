@@ -62,6 +62,13 @@ public:
         }
     }
 
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<ReplaceVar>::replace_ArrayPhysicalCast(x);
+        if( !ASRUtils::is_array(ASRUtils::expr_type(x->m_arg)) ) {
+            *current_expr = x->m_arg;
+        }
+    }
+
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
         uint64_t h = get_hash((ASR::asr_t*) x->m_name);
         if (return_var_hash.find(h) != return_var_hash.end()) {
@@ -99,7 +106,7 @@ public:
             args.push_back(al, *current_expr);
         }
         ASR::ttype_t* type = ASRUtils::expr_type(args[0]);
-        ASR::expr_t* new_expr = ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, x->base.base.loc, x->m_intrinsic_id, args.p, x->n_args, x->m_overload_id, type, x->m_value));
+        ASR::expr_t* new_expr = ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, x->base.base.loc, x->m_intrinsic_id, args.p, x->n_args, x->m_overload_id, type, x->m_value));
         *current_expr = new_expr;
     }
 
