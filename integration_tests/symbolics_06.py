@@ -23,7 +23,7 @@ def test_elementary_functions():
     # test Abs
     assert(Abs(S(-10)) == S(10))
     assert(Abs(S(10)) == S(10))
-    assert(Abs(-x) == Abs(x))
+    assert(Abs(S(-1)*x) == Abs(x))
 
     # test composite functions
     a: S = exp(x)
