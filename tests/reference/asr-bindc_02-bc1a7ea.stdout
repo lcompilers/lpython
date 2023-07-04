@@ -39,8 +39,9 @@
                                             [(IntegerConstant 1 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
@@ -48,8 +49,9 @@
                                             [(IntegerConstant 0 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
@@ -91,6 +93,7 @@
                                                         (Integer 2)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 2 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -112,6 +115,7 @@
                                                             (Integer 2)
                                                             [(()
                                                             ())]
+                                                            DescriptorArray
                                                         )
                                                     )
                                                     ()
@@ -207,6 +211,7 @@
                                                     (Integer 2)
                                                     [(()
                                                     ())]
+                                                    DescriptorArray
                                                 )
                                             )
                                             ()
@@ -222,6 +227,7 @@
                                                     (Integer 2)
                                                     [(()
                                                     ())]
+                                                    DescriptorArray
                                                 )
                                             )
                                             ()
@@ -306,8 +312,9 @@
                                             [(IntegerConstant 2 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
@@ -315,8 +322,9 @@
                                             [(IntegerConstant 0 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
@@ -368,6 +376,7 @@
                                             (Integer 2)
                                             [(()
                                             ())]
+                                            DescriptorArray
                                         )
                                     )
                                     ()

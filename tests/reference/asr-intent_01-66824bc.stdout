@@ -60,6 +60,7 @@
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 5 (Integer 4)))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -135,6 +136,7 @@
                                             )
                                             [((IntegerConstant 0 (Integer 4))
                                             (IntegerConstant 5 (Integer 4)))]
+                                            PointerToDataArray
                                         )]
                                         ()
                                         Source

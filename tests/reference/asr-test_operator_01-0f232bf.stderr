@@ -1,4 +1,4 @@
-semantic error: Unary operator '-' not supported for type A
+semantic error: Unary operator '-' not supported for type struct A
  --> tests/errors/test_operator_01.py:9:11
   |
 9 |     print(-a)
