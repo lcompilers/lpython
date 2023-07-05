@@ -5345,7 +5345,8 @@ public:
         tmp = builder->CreateNot(tmp);
     }
 
-    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+    template <typename T>
+    void handle_SU_IntegerUnaryMinus(const T& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -5356,15 +5357,12 @@ public:
         tmp = builder->CreateSub(zero, tmp);
     }
 
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        handle_SU_IntegerUnaryMinus(x);
+    }
+
     void visit_UnsignedIntegerUnaryMinus(const ASR::UnsignedIntegerUnaryMinus_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        this->visit_expr_wrapper(x.m_arg, true);
-        int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg));
-        llvm::Value *one = llvm::ConstantInt::get(context, llvm::APInt(kind * 8, 1, true));
-        tmp = builder->CreateAdd(builder->CreateNot(tmp), one); // compute 2's complement
+        handle_SU_IntegerUnaryMinus(x);
     }
 
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
@@ -6025,8 +6023,7 @@ public:
                 }
                 break;
             }
-            case (ASR::cast_kindType::IntegerToInteger) :
-            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
+            case (ASR::cast_kindType::IntegerToInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 if( arg_kind > 0 && dest_kind > 0 &&
@@ -6034,6 +6031,20 @@ public:
                 {
                     if (dest_kind > arg_kind) {
                         tmp = builder->CreateSExt(tmp, llvm_utils->getIntType(dest_kind));
+                    } else {
+                        tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
+                    }
+                }
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 &&
+                    arg_kind != dest_kind )
+                {
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateZExt(tmp, llvm_utils->getIntType(dest_kind));
                     } else {
                         tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
                     }
