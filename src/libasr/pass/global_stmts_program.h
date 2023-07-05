@@ -6,8 +6,8 @@
 
 namespace LCompilers {
 
-    void pass_wrap_global_stmts_into_program(Allocator &al, ASR::TranslationUnit_t &unit,
-                                             const LCompilers::PassOptions& pass_options);
+    void pass_wrap_global_stmts_program(Allocator &al, ASR::TranslationUnit_t &unit,
+                                const PassOptions &pass_options);
 
 } // namespace LCompilers
 

@@ -7,7 +7,7 @@
 namespace LCompilers {
 
     void pass_replace_intrinsic_function(Allocator &al, ASR::TranslationUnit_t &unit,
-                                const PassOptions& pass_options);
+                                const PassOptions &pass_options);
 
 } // namespace LCompilers
 
