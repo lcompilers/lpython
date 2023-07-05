@@ -3384,7 +3384,8 @@ namespace LCompilers {
         are_iterators_set = false;
     }
 
-    llvm::Value* LLVMSetInterface::get_el_hash(llvm::Value* capacity, llvm::Value* el,
+    llvm::Value* LLVMSetInterface::get_el_hash(
+        llvm::Value* capacity, llvm::Value* el,
         ASR::ttype_t* el_asr_type, llvm::Module& module) {
         // Write specialised hash functions for intrinsic types
         // This is to avoid unnecessary calls to C-runtime and do
@@ -3489,10 +3490,11 @@ namespace LCompilers {
         }
     }
 
-    void LLVMSetLinearProbing::resolve_collision(llvm::Value* capacity, llvm::Value* el_hash,
-                                    llvm::Value* el, llvm::Value* el_list,
-                                    llvm::Value* el_mask, llvm::Module& module,
-                                    ASR::ttype_t* el_asr_type, bool for_read) {
+    void LLVMSetLinearProbing::resolve_collision(
+        llvm::Value* capacity, llvm::Value* el_hash,
+        llvm::Value* el, llvm::Value* el_list,
+        llvm::Value* el_mask, llvm::Module& module,
+        ASR::ttype_t* el_asr_type, bool for_read) {
 
         /**
          * C++ equivalent:
@@ -3603,5 +3605,263 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
     }
 
+    void LLVMSetLinearProbing::resolve_collision_for_write(
+        llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+        llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /**
+         * C++ equivalent:
+         * 
+         * resolve_collision();     // modifies pos
+         * el_list[pos] = el;
+         * el_mask_value = el_mask[pos];
+         * is_slot_empty = el_mask_value == 0;  // el_list[pos] wasn't set before
+         * occupancy += is_slot_empty;
+         * linear_prob_happened = (el_hash != pos) || (el_mask[el_hash] == 2);
+         * set_max_2 = linear_prob_happened ? 2 : 1;
+         * el_mask[el_hash] = set_max_2;
+         * el_mask[pos] = set_max_2;
+         * 
+         */
+
+        llvm::Value* el_list = get_el_list(set);
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        this->resolve_collision(capacity, el_hash, el, el_list, el_mask, *module, el_asr_type);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm_utils->list_api->write_item(el_list, pos, el,
+                                         el_asr_type, false, module, name2memidx);
+
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(el_mask, pos));
+        llvm::Value* is_slot_empty = builder->CreateICmpEQ(el_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+        is_slot_empty = builder->CreateZExt(is_slot_empty, llvm::Type::getInt32Ty(context));
+        llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+        LLVM::CreateStore(*builder, builder->CreateAdd(occupancy, is_slot_empty),
+                          occupancy_ptr);
+
+        llvm::Value* linear_prob_happened = builder->CreateICmpNE(el_hash, pos);
+        linear_prob_happened = builder->CreateOr(linear_prob_happened,
+            builder->CreateICmpEQ(
+                LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(el_mask, el_hash)),
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 2)
+            ))
+        );
+        llvm::Value* set_max_2 = builder->CreateSelect(linear_prob_happened,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 2)),
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        LLVM::CreateStore(*builder, set_max_2, llvm_utils->create_ptr_gep(el_mask, el_hash));
+        LLVM::CreateStore(*builder, set_max_2, llvm_utils->create_ptr_gep(el_mask, pos));
+    }
+
+    void LLVMSetLinearProbing::rehash(
+        llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /**
+         * C++ equivalent:
+         * 
+         * old_capacity = capacity;
+         * capacity = 2 * capacity + 1;
+         * 
+         * idx = 0;
+         * while( old_capacity > idx ) {
+         *     is_el_set = el_mask[idx] != 0;
+         *     if( is_el_set ) {
+         *         el = el_list[idx];
+         *         el_hash = get_el_hash(); // with new capacity
+         *         resolve_collision();     // with new_el_list; modifies pos
+         *         new_el_list[pos] = el;
+         *         linear_prob_happened = el_hash != pos;
+         *         set_max_2 = linear_prob_happened ? 2 : 1;
+         *         new_el_mask[el_hash] = set_max_2;
+         *         new_el_mask[pos] = set_max_2;
+         *     }
+         *     idx += 1;
+         * }
+         * 
+         * free(el_list);
+         * free(el_mask);
+         * el_list = new_el_list;
+         * el_mask = new_el_mask;
+         * 
+         */
+
+        llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
+        llvm::Value* old_capacity = LLVM::CreateLoad(*builder, capacity_ptr);
+        llvm::Value* capacity = builder->CreateMul(old_capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                                       llvm::APInt(32, 2)));
+        capacity = builder->CreateAdd(capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                                       llvm::APInt(32, 1)));
+        LLVM::CreateStore(*builder, capacity, capacity_ptr);
+
+        std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
+        llvm::Type* el_llvm_type = std::get<2>(typecode2settype[el_type_code]);
+        int32_t el_type_size = std::get<1>(typecode2settype[el_type_code]);
+
+        llvm::Value* el_list = get_el_list(set);
+        llvm::Value* new_el_list = builder->CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
+                                                          el_type_code, el_type_size), nullptr);
+        llvm_utils->list_api->list_init(el_type_code, new_el_list, *module, capacity, capacity);
+
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        llvm::DataLayout data_layout(module);
+        size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
+        llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, mask_size));
+        llvm::Value* new_el_mask = LLVM::lfortran_calloc(context, *module, *builder, capacity,
+                                                          llvm_mask_size);
+
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        if( !are_iterators_set ) {
+            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        }
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), idx_ptr);
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(old_capacity, LLVM::CreateLoad(*builder, idx_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* idx = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Function *fn = builder->GetInsertBlock()->getParent();
+            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+            llvm::Value* is_el_set = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(el_mask, idx));
+            is_el_set = builder->CreateICmpNE(is_el_set,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+            builder->CreateCondBr(is_el_set, thenBB, elseBB);
+            builder->SetInsertPoint(thenBB);
+            {
+                llvm::Value* el = llvm_utils->list_api->read_item(el_list, idx,
+                        false, *module, LLVM::is_llvm_struct(el_asr_type));
+                llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, *module);
+                this->resolve_collision(current_capacity, el_hash, el, new_el_list,
+                               new_el_mask, *module, el_asr_type);
+                llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+                llvm::Value* el_dest = llvm_utils->list_api->read_item(
+                                    new_el_list, pos, false, *module, true);
+                llvm_utils->deepcopy(el, el_dest, el_asr_type, module, name2memidx);
+
+                llvm::Value* linear_prob_happened = builder->CreateICmpNE(el_hash, pos);
+                llvm::Value* set_max_2 = builder->CreateSelect(linear_prob_happened,
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 2)),
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+                LLVM::CreateStore(*builder, set_max_2, llvm_utils->create_ptr_gep(new_el_mask, el_hash));
+                LLVM::CreateStore(*builder, set_max_2, llvm_utils->create_ptr_gep(new_el_mask, pos));
+            }
+            builder->CreateBr(mergeBB);
+
+            llvm_utils->start_new_block(elseBB);
+            llvm_utils->start_new_block(mergeBB);
+            idx = builder->CreateAdd(idx, llvm::ConstantInt::get(
+                    llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, idx, idx_ptr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        llvm_utils->list_api->free_data(el_list, *module);
+        LLVM::lfortran_free(context, *module, *builder, el_mask);
+        LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, new_el_list), el_list);
+        LLVM::CreateStore(*builder, new_el_mask, get_pointer_to_mask(set));
+    }
+
+    void LLVMSetLinearProbing::rehash_all_at_once_if_needed(
+        llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        
+        /**
+         * C++ equivalent:
+         * 
+         * occupancy += 1;
+         * load_factor = occupancy / capacity;
+         * load_factor_threshold = 0.6;
+         * rehash_condition = (capacity == 0) || (load_factor >= load_factor_threshold);
+         * if( rehash_condition ) {
+         *     rehash();
+         * }
+         * 
+         */
+
+        llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        llvm::Value* rehash_condition = builder->CreateICmpEQ(capacity,
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)));
+        occupancy = builder->CreateAdd(occupancy, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                                         llvm::APInt(32, 1)));
+        occupancy = builder->CreateSIToFP(occupancy, llvm::Type::getFloatTy(context));
+        capacity = builder->CreateSIToFP(capacity, llvm::Type::getFloatTy(context));
+        llvm::Value* load_factor = builder->CreateFDiv(occupancy, capacity);
+        // Threshold hash is chosen from https://en.wikipedia.org/wiki/Hash_table#Load_factor
+        llvm::Value* load_factor_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
+                                                                   llvm::APFloat((float) 0.6));
+        rehash_condition = builder->CreateOr(rehash_condition, builder->CreateFCmpOGE(load_factor, load_factor_threshold));
+        llvm_utils->create_if_else(rehash_condition, [&]() {
+            rehash(set, module, el_asr_type, name2memidx);
+        }, [=]() {
+        });
+    }
+
+    void LLVMSetLinearProbing::write_item(
+        llvm::Value* set, llvm::Value* el,
+        llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        rehash_all_at_once_if_needed(set, module, el_asr_type, name2memidx);
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, *module);
+        this->resolve_collision_for_write(set, el_hash, el, module,
+                                          el_asr_type, name2memidx);
+    }
+
+    void LLVMSetLinearProbing::set_deepcopy(
+        llvm::Value* src, llvm::Value* dest,
+        ASR::Set_t* set_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        LCOMPILERS_ASSERT(src->getType() == dest->getType());
+        llvm::Value* src_occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(src));
+        llvm::Value* dest_occupancy_ptr = get_pointer_to_occupancy(dest);
+        LLVM::CreateStore(*builder, src_occupancy, dest_occupancy_ptr);
+
+        llvm::Value* src_el_list = get_el_list(src);
+        llvm::Value* dest_el_list = get_el_list(dest);
+        llvm_utils->list_api->list_deepcopy(src_el_list, dest_el_list,
+                                            set_type->m_type, module,
+                                            name2memidx);
+
+        llvm::Value* src_el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(src));
+        llvm::Value* dest_el_mask_ptr = get_pointer_to_mask(dest);
+        llvm::DataLayout data_layout(module);
+        size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
+        llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, mask_size));
+        llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(src));
+        llvm::Value* dest_el_mask = LLVM::lfortran_calloc(context, *module, *builder, src_capacity,
+                                                      llvm_mask_size);
+        builder->CreateMemCpy(dest_el_mask, llvm::MaybeAlign(), src_el_mask,
+                              llvm::MaybeAlign(), builder->CreateMul(src_capacity, llvm_mask_size));
+        LLVM::CreateStore(*builder, dest_el_mask, dest_el_mask_ptr);
+    }
+
+    llvm::Value* LLVMSetLinearProbing::len(llvm::Value* set) {
+        return LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
+    }
 
 } // namespace LCompilers

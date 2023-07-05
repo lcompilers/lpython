@@ -103,6 +103,7 @@ namespace LCompilers {
     class LLVMList;
     class LLVMTuple;
     class LLVMDictInterface;
+    class LLVMSetInterface;
 
     class LLVMUtils {
 
@@ -119,6 +120,7 @@ namespace LCompilers {
             LLVMTuple* tuple_api;
             LLVMList* list_api;
             LLVMDictInterface* dict_api;
+            LLVMSetInterface* set_api;
             LLVMArrUtils::Descriptor* arr_api;
             llvm::Module* module;
 
@@ -755,6 +757,44 @@ namespace LCompilers {
             llvm::Value* get_el_hash(llvm::Value* capacity, llvm::Value* el,
                 ASR::ttype_t* el_asr_type, llvm::Module& module);
 
+            virtual
+            void resolve_collision(
+                llvm::Value* capacity, llvm::Value* el_hash,
+                llvm::Value* el, llvm::Value* el_list,
+                llvm::Value* el_mask, llvm::Module& module,
+                ASR::ttype_t* el_asr_type, bool for_read=false) = 0;
+
+            virtual
+            void resolve_collision_for_write(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+                llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+
+            virtual
+            void rehash(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+
+            virtual
+            void rehash_all_at_once_if_needed(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+
+            virtual
+            void write_item(
+                llvm::Value* set, llvm::Value* el,
+                llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+
+            virtual
+            void set_deepcopy(
+                llvm::Value* src, llvm::Value* dest,
+                ASR::Set_t* set_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+
+            virtual
+            llvm::Value* len(llvm::Value* set) = 0;
+
             virtual ~LLVMSetInterface() = 0;
 
     };
@@ -763,11 +803,13 @@ namespace LCompilers {
 
         public:
 
-            LLVMSetLinearProbing(llvm::LLVMContext& context_,
-                     LLVMUtils* llvm_utils,
-                     llvm::IRBuilder<>* builder);
+            LLVMSetLinearProbing(
+                llvm::LLVMContext& context_,
+                LLVMUtils* llvm_utils,
+                llvm::IRBuilder<>* builder);
 
-            llvm::Type* get_set_type(std::string type_code,
+            llvm::Type* get_set_type(
+                std::string type_code,
                 int32_t type_size, llvm::Type* el_type);
 
             void set_init(std::string type_code, llvm::Value* set,
@@ -781,10 +823,36 @@ namespace LCompilers {
 
             llvm::Value* get_pointer_to_mask(llvm::Value* set);
 
-            void resolve_collision(llvm::Value* capacity, llvm::Value* el_hash,
-                                llvm::Value* el, llvm::Value* el_list,
-                                llvm::Value* el_mask, llvm::Module& module,
-                                ASR::ttype_t* el_asr_type, bool for_read=false);
+            void resolve_collision(
+                llvm::Value* capacity, llvm::Value* el_hash,
+                llvm::Value* el, llvm::Value* el_list,
+                llvm::Value* el_mask, llvm::Module& module,
+                ASR::ttype_t* el_asr_type, bool for_read=false);
+
+            void resolve_collision_for_write(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+                llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void rehash(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void rehash_all_at_once_if_needed(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void write_item(
+                llvm::Value* set, llvm::Value* el,
+                llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void set_deepcopy(
+                llvm::Value* src, llvm::Value* dest,
+                ASR::Set_t* set_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            llvm::Value* len(llvm::Value* set);
 
             ~LLVMSetLinearProbing();
     };
