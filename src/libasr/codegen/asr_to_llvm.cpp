@@ -6025,8 +6025,7 @@ public:
                 }
                 break;
             }
-            case (ASR::cast_kindType::IntegerToInteger) :
-            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
+            case (ASR::cast_kindType::IntegerToInteger) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
                 if( arg_kind > 0 && dest_kind > 0 &&
@@ -6034,6 +6033,20 @@ public:
                 {
                     if (dest_kind > arg_kind) {
                         tmp = builder->CreateSExt(tmp, llvm_utils->getIntType(dest_kind));
+                    } else {
+                        tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
+                    }
+                }
+                break;
+            }
+            case (ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                if( arg_kind > 0 && dest_kind > 0 &&
+                    arg_kind != dest_kind )
+                {
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateZExt(tmp, llvm_utils->getIntType(dest_kind));
                     } else {
                         tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
                     }
