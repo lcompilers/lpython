@@ -600,6 +600,7 @@ RUN(NAME structs_29          LABELS cpython llvm)
 RUN(NAME structs_30          LABELS cpython llvm c)
 RUN(NAME structs_31          LABELS cpython llvm c)
 RUN(NAME structs_32          LABELS cpython llvm c)
+RUN(NAME structs_33          LABELS cpython llvm c)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
