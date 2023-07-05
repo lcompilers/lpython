@@ -1535,7 +1535,7 @@ public:
         std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, rt_subs,
+        t = pass_instantiate_template(al, subs, rt_subs,
             ASRUtils::symbol_parent_symtab(func), new_func_name, func);
         dependencies.erase(s2c(al, func_name));
         dependencies.push_back(al, s2c(al, new_func_name));
@@ -4733,7 +4733,7 @@ public:
             std::string func_name = "global_initializer";
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
-            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+            pass_wrap_global_stmts(al, *unit, pass_options);
 
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
             ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
@@ -4769,7 +4769,7 @@ public:
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
-            pass_wrap_global_stmts_into_function(al, *unit, pass_options);
+            pass_wrap_global_stmts(al, *unit, pass_options);
 
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
             ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
@@ -7684,7 +7684,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
             pass_options.run_fun = "_lpython_main_program";
             pass_options.runtime_library_dir = get_runtime_library_dir();
         }
-        pass_wrap_global_stmts_into_program(al, *tu, pass_options);
+        pass_wrap_global_stmts_program(al, *tu, pass_options);
         #if defined(WITH_LFORTRAN_ASSERT)
                     diag::Diagnostics diagnostics;
                     if (!asr_verify(*tu, true, diagnostics)) {

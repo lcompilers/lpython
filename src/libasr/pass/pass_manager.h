@@ -67,7 +67,7 @@ namespace LCompilers {
         std::vector<std::string> _skip_passes, _c_skip_passes;
         std::map<std::string, pass_function> _passes_db = {
             {"do_loops", &pass_replace_do_loops},
-            {"global_stmts", &pass_wrap_global_stmts_into_function},
+            {"global_stmts", &pass_wrap_global_stmts},
             {"implied_do_loops", &pass_replace_implied_do_loops},
             {"array_op", &pass_replace_array_op},
             {"intrinsic_function", &pass_replace_intrinsic_function},
@@ -83,7 +83,7 @@ namespace LCompilers {
             {"inline_function_calls", &pass_inline_function_calls},
             {"loop_unroll", &pass_loop_unroll},
             {"dead_code_removal", &pass_dead_code_removal},
-            {"forall", &pass_replace_forall},
+            {"forall", &pass_replace_for_all},
             {"select_case", &pass_replace_select_case},
             {"loop_vectorise", &pass_loop_vectorise},
             {"array_dim_intrinsics_update", &pass_update_array_dim_intrinsic_calls},
