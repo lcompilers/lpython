@@ -4512,6 +4512,10 @@ public:
         }
     }
 
+    void visit_AugAssign(const AST::AugAssign_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
+
     void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
