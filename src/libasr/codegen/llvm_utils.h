@@ -706,6 +706,89 @@ namespace LCompilers {
 
     };
 
+    class LLVMSetInterface {
+
+        protected:
+
+            llvm::LLVMContext& context;
+            LLVMUtils* llvm_utils;
+            llvm::IRBuilder<>* builder;
+            llvm::AllocaInst *pos_ptr, *is_el_matching_var;
+            llvm::AllocaInst *idx_ptr, *hash_iter, *hash_value;
+            llvm::AllocaInst *polynomial_powers;
+            bool are_iterators_set;
+
+            std::map<std::string, std::tuple<llvm::Type*, int32_t, llvm::Type*>> typecode2settype;
+
+        public:
+
+            bool is_set_present_;
+
+            LLVMSetInterface(
+                llvm::LLVMContext& context_,
+                LLVMUtils* llvm_utils,
+                llvm::IRBuilder<>* builder);
+
+            virtual
+            llvm::Type* get_set_type(std::string type_code,
+                int32_t type_size, llvm::Type* el_type) = 0;
+
+            virtual
+            void set_init(std::string type_code, llvm::Value* set,
+                llvm::Module* module, size_t initial_capacity) = 0;
+
+            virtual
+            llvm::Value* get_el_list(llvm::Value* set) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* set) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_capacity(llvm::Value* set) = 0;
+
+            virtual
+            void set_iterators();
+
+            virtual
+            void reset_iterators();
+
+            llvm::Value* get_el_hash(llvm::Value* capacity, llvm::Value* el,
+                ASR::ttype_t* el_asr_type, llvm::Module& module);
+
+            virtual ~LLVMSetInterface() = 0;
+
+    };
+
+    class LLVMSetLinearProbing: public LLVMSetInterface {
+
+        public:
+
+            LLVMSetLinearProbing(llvm::LLVMContext& context_,
+                     LLVMUtils* llvm_utils,
+                     llvm::IRBuilder<>* builder);
+
+            llvm::Type* get_set_type(std::string type_code,
+                int32_t type_size, llvm::Type* el_type);
+
+            void set_init(std::string type_code, llvm::Value* set,
+                llvm::Module* module, size_t initial_capacity);
+
+            llvm::Value* get_el_list(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_capacity(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_mask(llvm::Value* set);
+
+            void resolve_collision(llvm::Value* capacity, llvm::Value* el_hash,
+                                llvm::Value* el, llvm::Value* el_list,
+                                llvm::Value* el_mask, llvm::Module& module,
+                                ASR::ttype_t* el_asr_type, bool for_read=false);
+
+            ~LLVMSetLinearProbing();
+    };
+
 } // namespace LCompilers
 
 #endif // LFORTRAN_LLVM_UTILS_H
