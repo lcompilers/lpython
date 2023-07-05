@@ -52,8 +52,7 @@ for pass_name, prefix in passes:
     if pass_name == "instantiate_template":
         arguments = r"""Allocator &al,
         std::map<std::string, ASR::ttype_t*> subs, std::map<std::string, ASR::symbol_t*> rt_subs,
-        SymbolTable *current_scope, SymbolTable *template_scope,
-        std::string new_func_name, ASR::symbol_t *sym"""
+        SymbolTable *current_scope, std::string new_func_name, ASR::symbol_t *sym"""
         return_type = "ASR::symbol_t*"
 
 
