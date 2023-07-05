@@ -43,7 +43,7 @@ public:
     }
 };
 
-void pass_replace_forall(Allocator &al, ASR::TranslationUnit_t &unit,
+void pass_replace_for_all(Allocator &al, ASR::TranslationUnit_t &unit,
                          const LCompilers::PassOptions& /*pass_options*/) {
     ForAllVisitor v(al);
     v.visit_TranslationUnit(unit);

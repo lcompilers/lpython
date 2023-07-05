@@ -18,7 +18,7 @@ using ASRUtils::EXPR;
  * statements and expressions into a program.
  *
  */
-void pass_wrap_global_stmts_into_program(Allocator &al,
+void pass_wrap_global_stmts_program(Allocator &al,
             ASR::TranslationUnit_t &unit, const LCompilers::PassOptions& pass_options) {
     std::string program_fn_name = pass_options.run_fun;
     SymbolTable *current_scope = al.make_new<SymbolTable>(unit.m_global_scope);
@@ -28,8 +28,8 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     SetChar prog_dep;
     prog_dep.reserve(al, 1);
     bool call_main_program = unit.n_items > 0;
-    pass_wrap_global_stmts_into_function(al, unit, pass_options);
-    pass_wrap_global_syms_into_module(al, unit, pass_options);
+    pass_wrap_global_stmts(al, unit, pass_options);
+    pass_wrap_global_symbols(al, unit, pass_options);
     if( call_main_program && !pass_options.disable_main ) {
         // Call `_lpython_main_program` function
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(
