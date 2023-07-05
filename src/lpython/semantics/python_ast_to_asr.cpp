@@ -2591,7 +2591,8 @@ public:
 
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
         ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
-        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
+        ASR::storage_typeType storage_type=ASR::storage_typeType::Default,
+        bool skip_initialization=false) {
 
         ASR::expr_t* value = nullptr;
         if( init_expr ) {
@@ -2600,7 +2601,7 @@ public:
         bool is_runtime_expression = !ASRUtils::is_value_constant(value);
         bool is_variable_const = ASR::is_a<ASR::Const_t>(*type);
 
-        if( is_variable_const && !init_expr ) {
+        if( is_variable_const && !init_expr && !skip_initialization) {
             throw SemanticError("Constant variable " + var_name +
                 " is not initialised at declaration.", loc);
         }
@@ -2650,7 +2651,7 @@ public:
         // Restrict this check only to symbols which have a body.
         if( !((v_variable->m_symbolic_value == nullptr && v_variable->m_value == nullptr) ||
               (v_variable->m_symbolic_value != nullptr && v_variable->m_value != nullptr)) &&
-              current_body ) {
+              current_body && !skip_initialization) {
             throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
 
@@ -2786,44 +2787,12 @@ public:
         return nullptr;
     }
 
-    void visit_AnnAssign(const AST::AnnAssign_t &x) {
-        // We treat this as a declaration
-        std::string var_name;
-        std::string var_annotation;
-        AST::expr_t* assign_ast_target_copy = assign_ast_target;
-        assign_ast_target = x.m_target;
-        if (AST::is_a<AST::Name_t>(*x.m_target)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
-            var_name = n->m_id;
-        } else {
-            throw SemanticError("Only Name supported for now as LHS of annotated assignment",
-                x.base.base.loc);
-        }
-
-        if (current_scope->get_scope().find(var_name) !=
-                current_scope->get_scope().end()) {
-            if (current_scope->parent != nullptr) {
-                // Re-declaring a global scope variable is allowed,
-                // otherwise raise an error
-                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
-                throw SemanticError(diag::Diagnostic(
-                    "Symbol is already declared in the same scope",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("original declaration", {orig_decl->base.loc}, false),
-                        diag::Label("redeclaration", {x.base.base.loc}),
-                    }));
-            }
-        }
-        ASR::expr_t *init_expr = nullptr;
-        visit_AnnAssignUtil(x, var_name, init_expr);
-        assign_ast_target = assign_ast_target_copy;
-    }
-
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              ASR::expr_t* &init_expr,
                              bool wrap_derived_type_in_pointer=false,
                              ASR::abiType abi=ASR::abiType::Source,
-                             bool inside_struct=false) {
+                             bool inside_struct=false,
+                             bool skip_initialization=false) {
         bool is_allocatable = false;
         ASR::ttype_t *type = nullptr;
         if( inside_struct ) {
@@ -2847,10 +2816,10 @@ public:
         if( !init_expr ) {
             tmp = nullptr;
             is_c_p_pointer_call = false;
-            if (x.m_value) {
+            if (x.m_value && !skip_initialization) {
                 this->visit_expr(*x.m_value);
             } else {
-                if (ASR::is_a<ASR::Struct_t>(*type)) {
+                if (ASR::is_a<ASR::Struct_t>(*type) && !skip_initialization) {
                     //`s` must be initialized with an instance of S
                     throw  SemanticError("`" + var_name + "` must be initialized with an instance of " +
                             ASRUtils::type_to_str_python(type), x.base.base.loc);
@@ -2858,7 +2827,7 @@ public:
             }
             if( is_c_p_pointer_call ) {
                 create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
+                    x.base.base.loc, abi, storage_type, skip_initialization);
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
                 AST::expr_t* pptr = assign_ast_target;
@@ -2900,10 +2869,10 @@ public:
         if( !is_c_p_pointer_call ) {
             if (inside_struct && !ASR::is_a<ASR::Const_t>(*type)) {
                 create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
+                    x.base.base.loc, abi, storage_type, skip_initialization);
             } else {
                 create_add_variable_to_scope(var_name, init_expr, type,
-                    x.base.base.loc, abi, storage_type);
+                    x.base.base.loc, abi, storage_type, skip_initialization);
             }
         }
 
@@ -4068,6 +4037,43 @@ public:
             }
         }
         return nullptr;
+    }
+
+    void visit_AnnAssign(const AST::AnnAssign_t &x) {
+        // We treat this as a declaration
+        std::string var_name;
+        std::string var_annotation;
+        AST::expr_t* assign_ast_target_copy = assign_ast_target;
+        assign_ast_target = x.m_target;
+        if (AST::is_a<AST::Name_t>(*x.m_target)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
+            var_name = n->m_id;
+        } else {
+            throw SemanticError("Only Name supported for now as LHS of annotated assignment",
+                x.base.base.loc);
+        }
+
+        if (current_scope->get_scope().find(var_name) !=
+                current_scope->get_scope().end()) {
+            if (current_scope->parent != nullptr) {
+                // Re-declaring a global scope variable is allowed,
+                // otherwise raise an error
+                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
+                throw SemanticError(diag::Diagnostic(
+                    "Symbol is already declared in the same scope",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("original declaration", {orig_decl->base.loc}, false),
+                        diag::Label("redeclaration", {x.base.base.loc}),
+                    }));
+            }
+        }
+        ASR::expr_t *init_expr = nullptr;
+        // We skip initialization in Symbol table visitor and will
+        // revisit the value part in body visitor.
+        visit_AnnAssignUtil(x, var_name, init_expr, false,
+                            ASR::abiType::Source, false,
+                            /* skip_initialization */true);
+        assign_ast_target = assign_ast_target_copy;
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
