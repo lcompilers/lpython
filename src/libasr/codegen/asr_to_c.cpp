@@ -11,9 +11,9 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/replace_class_constructor.h>
+#include <libasr/pass/replace_array_op.h>
+#include <libasr/pass/create_subroutine_from_function.h>
 
 #include <map>
 #include <utility>

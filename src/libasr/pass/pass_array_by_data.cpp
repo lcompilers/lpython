@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/pass_array_by_data.h>
+#include <libasr/pass/array_by_data.h>
 
 #include <vector>
 #include <utility>

@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_list_expr.h>
+#include <libasr/pass/list_expr.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>

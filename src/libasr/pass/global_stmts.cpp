@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/pass_utils.h>
 
 

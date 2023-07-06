@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/arr_slice.h>
+#include <libasr/pass/replace_arr_slice.h>
 
 #include <vector>
 #include <utility>

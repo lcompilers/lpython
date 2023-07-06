@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/for_all.h>
+#include <libasr/pass/replace_for_all.h>
 #include <libasr/pass/stmt_walk_visitor.h>
 
 namespace LCompilers {
