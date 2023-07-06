@@ -1,5 +1,5 @@
-#ifndef LIBASR_PASS_WHERE_H
-#define LIBASR_PASS_WHERE_H
+#ifndef LIBASR_PASS_REPLACE_WHERE_H
+#define LIBASR_PASS_REPLACE_WHERE_H
 
 #include <libasr/asr.h>
 #include <libasr/utils.h>
@@ -11,4 +11,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LIBASR_PASS_WHERE_H
+#endif // LIBASR_PASS_REPLACE_WHERE_H
