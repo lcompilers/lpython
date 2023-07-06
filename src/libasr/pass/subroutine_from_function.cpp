@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/create_subroutine_from_function.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>

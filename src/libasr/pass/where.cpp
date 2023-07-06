@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/where.h>
+#include <libasr/pass/replace_where.h>
 
 
 namespace LCompilers {

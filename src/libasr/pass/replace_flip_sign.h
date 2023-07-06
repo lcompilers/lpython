@@ -1,5 +1,5 @@
-#ifndef LIBASR_PASS_FLIP_SIGN_H
-#define LIBASR_PASS_FLIP_SIGN_H
+#ifndef LIBASR_PASS_REPLACE_FLIP_SIGN_H
+#define LIBASR_PASS_REPLACE_FLIP_SIGN_H
 
 #include <libasr/asr.h>
 #include <libasr/utils.h>
@@ -11,4 +11,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LIBASR_PASS_FLIP_SIGN_H
+#endif // LIBASR_PASS_REPLACE_FLIP_SIGN_H

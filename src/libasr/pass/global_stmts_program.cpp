@@ -3,8 +3,8 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/global_stmts.h>
-#include <libasr/pass/global_symbols.h>
+#include <libasr/pass/wrap_global_stmts.h>
+#include <libasr/pass/wrap_global_symbols.h>
 
 
 namespace LCompilers {

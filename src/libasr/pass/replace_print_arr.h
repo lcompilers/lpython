@@ -1,5 +1,5 @@
-#ifndef LIBASR_PASS_PRINT_ARR_H
-#define LIBASR_PASS_PRINT_ARR_H
+#ifndef LIBASR_PASS_REPLACE_PRINT_ARR_H
+#define LIBASR_PASS_REPLACE_PRINT_ARR_H
 
 #include <libasr/asr.h>
 #include <libasr/utils.h>
@@ -11,4 +11,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LIBASR_PASS_PRINT_ARR_H
+#endif // LIBASR_PASS_REPLACE_PRINT_ARR_H

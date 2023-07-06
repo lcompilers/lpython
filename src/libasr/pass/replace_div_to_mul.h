@@ -1,5 +1,5 @@
-#ifndef LIBASR_PASS_DIV_TO_MUL_H
-#define LIBASR_PASS_DIV_TO_MUL_H
+#ifndef LIBASR_PASS_REPLACE_DIV_TO_MUL_H
+#define LIBASR_PASS_REPLACE_DIV_TO_MUL_H
 
 #include <libasr/asr.h>
 #include <libasr/utils.h>
@@ -11,4 +11,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LIBASR_PASS_DIV_TO_MUL_H
+#endif // LIBASR_PASS_REPLACE_DIV_TO_MUL_H

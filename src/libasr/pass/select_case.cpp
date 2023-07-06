@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/select_case.h>
+#include <libasr/pass/replace_select_case.h>
 
 
 namespace LCompilers {

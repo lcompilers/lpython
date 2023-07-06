@@ -17,9 +17,9 @@
 #include <libasr/config.h>
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
-#include <libasr/pass/global_stmts_program.h>
+#include <libasr/pass/wrap_global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
-#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/modfile.h>
 
