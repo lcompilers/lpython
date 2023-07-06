@@ -21,17 +21,14 @@ class LoopUnrollVisitor : public PassUtils::PassVisitor<LoopUnrollVisitor>
 {
 private:
 
-    std::string rl_path;
-
     int64_t unroll_factor;
 
     ASRUtils::ExprStmtDuplicator node_duplicator;
 
 public:
 
-    LoopUnrollVisitor(Allocator &al_, const std::string& rl_path_,
-                      size_t unroll_factor_) :
-    PassVisitor(al_, nullptr), rl_path(rl_path_),
+    LoopUnrollVisitor(Allocator &al_, size_t unroll_factor_) :
+    PassVisitor(al_, nullptr),
     unroll_factor(unroll_factor_), node_duplicator(al_)
     {
         pass_result.reserve(al, 1);
@@ -107,9 +104,7 @@ public:
 
 void pass_loop_unroll(Allocator &al, ASR::TranslationUnit_t &unit,
                       const LCompilers::PassOptions& pass_options) {
-    std::string rl_path = pass_options.runtime_library_dir;
-    int64_t unroll_factor = pass_options.unroll_factor;
-    LoopUnrollVisitor v(al, rl_path, unroll_factor);
+    LoopUnrollVisitor v(al, pass_options.unroll_factor);
     v.visit_TranslationUnit(unit);
 }
 
