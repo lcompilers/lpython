@@ -1366,7 +1366,9 @@
                                     ()
                                     ()
                                     Default
-                                    (Integer 4)
+                                    (TypeParameter
+                                        m
+                                    )
                                     ()
                                     Source
                                     Public
@@ -1727,7 +1729,9 @@
                                     ()
                                     ()
                                     Default
-                                    (Integer 4)
+                                    (TypeParameter
+                                        n
+                                    )
                                     ()
                                     Source
                                     Public

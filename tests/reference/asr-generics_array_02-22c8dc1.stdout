@@ -1254,7 +1254,9 @@
                                     ()
                                     ()
                                     Default
-                                    (Integer 4)
+                                    (TypeParameter
+                                        n
+                                    )
                                     ()
                                     Source
                                     Public
