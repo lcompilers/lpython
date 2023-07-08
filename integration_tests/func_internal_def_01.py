@@ -4,7 +4,7 @@ def main():
     print(x)
 
     def bar():
-        print("bar")
+        assert x == 25
         
     bar()
 
