@@ -2072,9 +2072,11 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
-    void generate_DictKeys(ASR::expr_t* m_arg) {
+    void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value, const Location &loc) {
         ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
                                     ASRUtils::expr_type(m_arg));
+        ASR::ttype_t* el_type = key_or_value == 0 ?
+                                    dict_type->m_key_type : dict_type->m_value_type;
 
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -2082,8 +2084,39 @@ public:
         llvm::Value* pdict = tmp;
 
         set_dict_api(dict_type);
+        if(llvm_utils->dict_api == dict_api_sc.get()) {
+            throw CodeGenError("dict.keys and dict.values are only implemented "
+                               "for linear probing for now", loc);
+        }
         ptr_loads = ptr_loads_copy;
-        tmp = llvm_utils->dict_api->get_key_list(pdict);
+
+        bool is_array_type_local = false, is_malloc_array_type_local = false;
+        bool is_list_local = false;
+        ASR::dimension_t* m_dims_local = nullptr;
+        int n_dims_local = -1, a_kind_local = -1;
+        llvm::Type* llvm_el_type = get_type_from_ttype_t(el_type,
+                                     nullptr,
+                                     ASR::storage_typeType::Default, is_array_type_local,
+                                     is_malloc_array_type_local, is_list_local, m_dims_local,
+                                     n_dims_local, a_kind_local);
+        std::string type_code = ASRUtils::get_type_code(el_type);
+        int32_t type_size = -1;
+        if( ASR::is_a<ASR::Character_t>(*el_type) ||
+            LLVM::is_llvm_struct(el_type) ||
+            ASR::is_a<ASR::Complex_t>(*el_type) ) {
+            llvm::DataLayout data_layout(module.get());
+            type_size = data_layout.getTypeAllocSize(llvm_el_type);
+        } else {
+            type_size = ASRUtils::extract_kind_from_ttype_t(el_type);
+        }
+        llvm::Type* el_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
+        llvm::Value* el_list = builder->CreateAlloca(el_list_type, nullptr, key_or_value == 0 ?
+                                                     "keys_list" : "values_list");
+        list_api->list_init(type_code, el_list, *module, 0, 0);
+
+        llvm_utils->dict_api->get_elements_list(pdict, el_list, el_type, *module,
+                                                name2memidx, key_or_value);
+        tmp = el_list;
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
@@ -2130,7 +2163,11 @@ public:
                 break;
             }
             case ASRUtils::IntrinsicFunctions::DictKeys: {
-                generate_DictKeys(x.m_args[0]);
+                generate_DictElems(x.m_args[0], 0, x.base.base.loc);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::DictValues: {
+                generate_DictElems(x.m_args[0], 1, x.base.base.loc);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {

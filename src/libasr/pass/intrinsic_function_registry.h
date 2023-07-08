@@ -65,6 +65,7 @@ enum class IntrinsicFunctions : int64_t {
     ListReverse,
     ListPop,
     DictKeys,
+    DictValues,
     SymbolicSymbol,
     SymbolicAdd,
     SymbolicSub,
@@ -1148,8 +1149,8 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
     ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
         "Argument to dict.keys must be of dict type",
         x.base.base.loc, diagnostics);
-    ASRUtils::require_impl(ASRUtils::check_equal_type(
-        ASRUtils::get_contained_type(x.m_type),
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*x.m_type) &&
+        ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
         ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]), 0)),
         "Return type of dict.keys must be of list of dict key element type",
         x.base.base.loc, diagnostics);
@@ -1185,6 +1186,52 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
 }
 
 } // namespace DictKeys
+
+namespace DictValues {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 1, "Call to dict.values must have no argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "Argument to dict.values must be of dict type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*x.m_type) &&
+        ASRUtils::check_equal_type(ASRUtils::get_contained_type(x.m_type),
+        ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]), 1)),
+        "Return type of dict.values must be of list of dict value element type",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_dict_values(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for DictConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 1) {
+        err("Call to dict.values must have no argument", loc);
+    }
+
+    ASR::expr_t* dict_expr = args[0];
+    ASR::ttype_t *type = ASRUtils::expr_type(dict_expr);
+    ASR::ttype_t *dict_values_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_dict_values(al, loc, arg_values);
+    ASR::ttype_t *to_type = List(dict_values_type);
+    return ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+            args.p, args.size(), 0, to_type, compile_time_value);
+}
+
+} // namespace DictValues
 
 namespace Any {
 
@@ -2261,6 +2308,8 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &ListReverse::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
             {nullptr, &DictKeys::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+            {nullptr, &DictValues::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
             {nullptr, &SymbolicSymbol::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
@@ -2317,6 +2366,8 @@ namespace IntrinsicFunctionRegistry {
             "list.pop"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
             "dict.keys"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+            "dict.values"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
             "Symbol"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
@@ -2363,6 +2414,7 @@ namespace IntrinsicFunctionRegistry {
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
                 {"dict.keys", {&DictKeys::create_DictKeys, &DictKeys::eval_dict_keys}},
+                {"dict.values", {&DictValues::create_DictValues, &DictValues::eval_dict_values}},
                 {"Symbol", {&SymbolicSymbol::create_SymbolicSymbol, &SymbolicSymbol::eval_SymbolicSymbol}},
                 {"SymbolicAdd", {&SymbolicAdd::create_SymbolicAdd, &SymbolicAdd::eval_SymbolicAdd}},
                 {"SymbolicSub", {&SymbolicSub::create_SymbolicSub, &SymbolicSub::eval_SymbolicSub}},
@@ -2478,6 +2530,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(ListReverse)
         INTRINSIC_NAME_CASE(ListPop)
         INTRINSIC_NAME_CASE(DictKeys)
+        INTRINSIC_NAME_CASE(DictValues)
         INTRINSIC_NAME_CASE(SymbolicSymbol)
         INTRINSIC_NAME_CASE(SymbolicAdd)
         INTRINSIC_NAME_CASE(SymbolicSub)

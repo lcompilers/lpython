@@ -341,6 +341,12 @@ namespace LCompilers {
                 list_api->list_deepcopy(src, dest, list_type, module, name2memidx);
                 break ;
             }
+            case ASR::ttypeType::Dict: {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(asr_type);
+                // set dict api here?
+                dict_api->dict_deepcopy(src, dest, dict_type, module, name2memidx);
+                break ;
+            }
             case ASR::ttypeType::Struct: {
                 ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
                 ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
@@ -2468,6 +2474,89 @@ namespace LCompilers {
 
         return LLVM::CreateLoad(*builder, value_ptr);
     }
+
+    void LLVMDict::get_elements_list(llvm::Value* dict,
+        llvm::Value* elements_list, ASR::ttype_t* el_asr_type, llvm::Module& module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx,
+        bool key_or_value) {
+
+        /**
+         * C++ equivalent:
+         * 
+         * idx = 0;
+         * 
+         * while( capacity > idx ) {
+         *     el = key_or_value_list[idx];
+         *     key_mask_value = key_mask[idx];
+         * 
+         *     is_key_skip = key_mask_value == 3;     // tombstone
+         *     is_key_set = key_mask_value != 0;
+         *     add_el = is_key_set && !is_key_skip;
+         *     if( add_el ) {
+         *         elements_list.append(el);
+         *     }
+         * 
+         *     idx++;
+         * }
+         * 
+         */
+
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* el_list = key_or_value == 0 ? get_key_list(dict) : get_value_list(dict);
+        if( !are_iterators_set ) {
+            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        }
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), idx_ptr);
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(capacity, LLVM::CreateLoad(*builder, idx_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* idx = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(key_mask, idx));
+            llvm::Value* is_key_skip = builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3)));
+            llvm::Value* is_key_set = builder->CreateICmpNE(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+
+            llvm::Value* add_el = builder->CreateAnd(is_key_set,
+                                            builder->CreateNot(is_key_skip));
+            llvm_utils->create_if_else(add_el, [&]() {
+                llvm::Value* el = llvm_utils->list_api->read_item(el_list, idx,
+                        false, module, LLVM::is_llvm_struct(el_asr_type));
+                llvm_utils->list_api->append(elements_list, el,
+                                             el_asr_type, &module, name2memidx);
+            }, [=]() {
+            });
+
+            idx = builder->CreateAdd(idx, llvm::ConstantInt::get(
+                    llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, idx, idx_ptr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
+    void LLVMDictSeparateChaining::get_elements_list(llvm::Value* /*dict*/,
+        llvm::Value* /*elements_list*/, ASR::ttype_t* /*el_asr_type*/, llvm::Module& /*module*/,
+        std::map<std::string, std::map<std::string, int>>& /*name2memidx*/,
+        bool /*key_or_value*/) {}
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
                                      bool enable_bounds_checking,
