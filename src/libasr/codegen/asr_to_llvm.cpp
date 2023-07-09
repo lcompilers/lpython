@@ -1427,10 +1427,31 @@ public:
         this->visit_expr(*x.m_right);
         llvm::Value* right = tmp;
         ptr_loads = ptr_loads_copy;
-        tmp = llvm_utils->is_equal_by_value(left, right, *module,
-                ASRUtils::expr_type(x.m_left));
-        if (x.m_op == ASR::cmpopType::NotEq) {
-            tmp = builder->CreateNot(tmp);
+
+        ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
+
+        if(x.m_op == ASR::cmpopType::Eq || x.m_op == ASR::cmpopType::NotEq) {
+            tmp = llvm_utils->is_equal_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left));
+            if (x.m_op == ASR::cmpopType::NotEq) {
+                tmp = builder->CreateNot(tmp);
+            }
+        }
+        else if(x.m_op == ASR::cmpopType::Lt) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 0, int32_type);
+        }
+        else if(x.m_op == ASR::cmpopType::LtE) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 1, int32_type);
+        }
+        else if(x.m_op == ASR::cmpopType::Gt) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 2, int32_type);
+        }
+        else if(x.m_op == ASR::cmpopType::GtE) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 3, int32_type);
         }
     }
 
@@ -1761,10 +1782,28 @@ public:
         this->visit_expr(*x.m_right);
         llvm::Value* right = tmp;
         ptr_loads = ptr_loads_copy;
-        tmp = llvm_utils->is_equal_by_value(left, right, *module,
-                ASRUtils::expr_type(x.m_left));
-        if (x.m_op == ASR::cmpopType::NotEq) {
-            tmp = builder->CreateNot(tmp);
+        if(x.m_op == ASR::cmpopType::Eq || x.m_op == ASR::cmpopType::NotEq) {
+            tmp = llvm_utils->is_equal_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left));
+            if (x.m_op == ASR::cmpopType::NotEq) {
+                tmp = builder->CreateNot(tmp);
+            }
+        }
+        else if(x.m_op == ASR::cmpopType::Lt) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 0);
+        }
+        else if(x.m_op == ASR::cmpopType::LtE) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 1);
+        }
+        else if(x.m_op == ASR::cmpopType::Gt) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 2);
+        }
+        else if(x.m_op == ASR::cmpopType::GtE) {
+            tmp = llvm_utils->is_ineq_by_value(left, right, *module,
+                    ASRUtils::expr_type(x.m_left), 3);
         }
     }
 

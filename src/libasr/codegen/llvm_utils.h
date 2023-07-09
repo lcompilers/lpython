@@ -220,6 +220,10 @@ namespace LCompilers {
             llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                            llvm::Module& module, ASR::ttype_t* asr_type);
 
+            llvm::Value* is_ineq_by_value(llvm::Value* left, llvm::Value* right,
+                                          llvm::Module& module, ASR::ttype_t* asr_type,
+                                          int8_t overload_id, ASR::ttype_t* int32_type=nullptr);
+
             void set_iterators();
 
             void reset_iterators();
@@ -413,6 +417,11 @@ namespace LCompilers {
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
 
+            llvm::Value* check_list_inequality(llvm::Value* l1, llvm::Value* l2,
+                ASR::ttype_t *item_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module,
+                int8_t overload_id, ASR::ttype_t* int32_type=nullptr);
+
             void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                   llvm::Value* num_times, llvm::Value* init_list_len,
                                   llvm::Module* module);
@@ -453,6 +462,10 @@ namespace LCompilers {
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
+
+            llvm::Value* check_tuple_inequality(llvm::Value* t1, llvm::Value* t2,
+                ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module, int8_t overload_id);
 
             void concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
                         ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,
