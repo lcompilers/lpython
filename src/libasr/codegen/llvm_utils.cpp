@@ -310,17 +310,67 @@ namespace LCompilers {
         }
     }
 
-    llvm::Value* LLVMUtils::is_less_by_value(llvm::Value* left, llvm::Value* right,
-                                             llvm::Module& module, ASR::ttype_t* asr_type) {
+    llvm::Value* LLVMUtils::is_ineq_by_value(llvm::Value* left, llvm::Value* right,
+                                             llvm::Module& module, ASR::ttype_t* asr_type,
+                                             int8_t overload_id, ASR::ttype_t* int32_type) {
+        /**
+         * overloads:
+         *  0    <
+         *  1    <=
+         *  2    >
+         *  3    >=
+         */
+        llvm::CmpInst::Predicate pred;
+
         switch( asr_type->type ) {
-            case ASR::ttypeType::Integer: {
-                return builder->CreateICmpSLT(left, right);
-            }
+            case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical: {
-                return builder->CreateICmpSLT(left, right);     // signed?
+                switch( overload_id ) {
+                    case 0: {
+                        pred = llvm::CmpInst::Predicate::ICMP_SLT;
+                        break;
+                    }
+                    case 1: {
+                        pred = llvm::CmpInst::Predicate::ICMP_SLE;
+                        break;
+                    }
+                    case 2: {
+                        pred = llvm::CmpInst::Predicate::ICMP_SGT;
+                        break;
+                    }
+                    case 3: {
+                        pred = llvm::CmpInst::Predicate::ICMP_SGE;
+                        break;
+                    }
+                    default: {
+                        // can exit with error
+                    }
+                }
+                return builder->CreateCmp(pred, left, right);
             }
             case ASR::ttypeType::Real: {
-                return builder->CreateFCmpOLT(left, right);
+                switch( overload_id ) {
+                    case 0: {
+                        pred = llvm::CmpInst::Predicate::FCMP_OLT;
+                        break;
+                    }
+                    case 1: {
+                        pred = llvm::CmpInst::Predicate::FCMP_OLE;
+                        break;
+                    }
+                    case 2: {
+                        pred = llvm::CmpInst::Predicate::FCMP_OGT;
+                        break;
+                    }
+                    case 3: {
+                        pred = llvm::CmpInst::Predicate::FCMP_OGE;
+                        break;
+                    }
+                    default: {
+                        // can exit with error
+                    }
+                }
+                return builder->CreateCmp(pred, left, right);
             }
             case ASR::ttypeType::Character: {
                 if( !are_iterators_set ) {
@@ -346,7 +396,28 @@ namespace LCompilers {
                         builder->CreateICmpNE(l, null_char),
                         builder->CreateICmpNE(r, null_char)
                     );
-                    cond = builder->CreateAnd(cond, builder->CreateICmpULT(l, r));      // unsigned?
+                    switch( overload_id ) {
+                        case 0: {
+                            pred = llvm::CmpInst::Predicate::ICMP_ULT;
+                            break;
+                        }
+                        case 1: {
+                            pred = llvm::CmpInst::Predicate::ICMP_ULE;
+                            break;
+                        }
+                        case 2: {
+                            pred = llvm::CmpInst::Predicate::ICMP_UGT;
+                            break;
+                        }
+                        case 3: {
+                            pred = llvm::CmpInst::Predicate::ICMP_UGE;
+                            break;
+                        }
+                        default: {
+                            // can exit with error
+                        }
+                    }
+                    cond = builder->CreateAnd(cond, builder->CreateCmp(pred, l, r));
                     builder->CreateCondBr(cond, loopbody, loopend);
                 }
 
@@ -371,12 +442,13 @@ namespace LCompilers {
             case ASR::ttypeType::Tuple: {
                 ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
                 return tuple_api->check_tuple_inequality(left, right, tuple_type, context,
-                                                       builder, module);
+                                                       builder, module, overload_id);
             }
             case ASR::ttypeType::List: {
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
                 return list_api->check_list_inequality(left, right, list_type->m_type,
-                                                     context, builder, module);
+                                                     context, builder, module,
+                                                     overload_id, int32_type);
             }
             default: {
                 throw LCompilersException("LLVMUtils::is_equal_by_value isn't implemented for " +
@@ -3185,15 +3257,10 @@ namespace LCompilers {
                                                  ASR::ttype_t* item_type,
                                                  llvm::LLVMContext& context,
                                                  llvm::IRBuilder<>* builder,
-                                                 llvm::Module& module) {
-        // TODO:
-        // - ineq operations other than "<"
-        // - abstract out this code, possibly switch over operators
-        // - short-circuit without initial allocation of res? Also for equality
-
+                                                 llvm::Module& module, int8_t overload_id,
+                                                 ASR::ttype_t* int32_type) {
         /**
          * Equivalent in C++
-         * For "<"
          * 
          * equality_holds = 1;
          * inequality_holds = 0;
@@ -3201,12 +3268,12 @@ namespace LCompilers {
          * 
          * while( i < a_len && i < b_len && equality_holds ) {
          *     equality_holds &= (a[i] == b[i]);
-         *     inequality_holds |= (a[i] < b[i]);
+         *     inequality_holds |= (a[i] op b[i]);
          *     i++;
          * }
          * 
-         * if( i == a_len && a_len < b_len && equality_holds ) {
-         *     inequality_holds = 1;
+         * if( (i == a_len || i == b_len) && equality_holds ) {
+         *     inequality_holds = a_len op b_len;
          * }
          * 
          */
@@ -3247,8 +3314,8 @@ namespace LCompilers {
                     false, module, LLVM::is_llvm_struct(item_type));
             llvm::Value* right_arg = llvm_utils->list_api->read_item(l2, i,
                     false, module, LLVM::is_llvm_struct(item_type));
-            llvm::Value* res = llvm_utils->is_less_by_value(left_arg, right_arg, module,
-                                    item_type);
+            llvm::Value* res = llvm_utils->is_ineq_by_value(left_arg, right_arg, module,
+                                    item_type, overload_id);
             res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
             LLVM::CreateStore(*builder, res, inequality_holds);
             res = llvm_utils->is_equal_by_value(left_arg, right_arg, module,
@@ -3267,13 +3334,15 @@ namespace LCompilers {
 
         llvm::Value* cond = builder->CreateICmpEQ(LLVM::CreateLoad(*builder, idx),
                                                   a_len);
-        cond = builder->CreateAnd(cond, builder->CreateICmpSLT(a_len, b_len));
+        cond = builder->CreateOr(cond, builder->CreateICmpEQ(
+                                 LLVM::CreateLoad(*builder, idx), b_len));
         cond = builder->CreateAnd(cond, LLVM::CreateLoad(*builder, equality_holds));
         llvm_utils->create_if_else(cond, [&]() {
-            LLVM::CreateStore(*builder, llvm::ConstantInt::get(
-                context, llvm::APInt(1, 1)), inequality_holds);
+            LLVM::CreateStore(*builder, llvm_utils->is_ineq_by_value(a_len, b_len,
+                module, int32_type, overload_id), inequality_holds);
         }, []() {
-            // will be already 0 from the loop
+            // LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+            //     context, llvm::APInt(1, 0)), inequality_holds);
         });
 
         return LLVM::CreateLoad(*builder, inequality_holds);
@@ -3428,22 +3497,23 @@ namespace LCompilers {
                                                  ASR::Tuple_t* tuple_type,
                                                  llvm::LLVMContext& context,
                                                  llvm::IRBuilder<>* builder,
-                                                 llvm::Module& module) {
-        // TODO: operators other than "<"
-
+                                                 llvm::Module& module, int8_t overload_id) {
         /**
          * Equivalent in C++
-         * For "<"
          * 
          * equality_holds = 1;
          * inequality_holds = 0;
          * i = 0;
          * 
+         * // owing to compile-time access of indices,
+         * // loop is unrolled into multiple if statements
          * while( i < a_len && equality_holds ) {
-         *     inequality_holds |= (a[i] < b[i]);
+         *     inequality_holds |= (a[i] op b[i]);
          *     equality_holds &= (a[i] == b[i]);
          *     i++;
          * }
+         * 
+         * return inequality_holds;
          * 
          */
 
@@ -3462,8 +3532,8 @@ namespace LCompilers {
                                                 tuple_type->m_type[i]));
                 llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
                                                 tuple_type->m_type[i]));
-                llvm::Value* res = llvm_utils->is_less_by_value(t1i, t2i, module,
-                                                tuple_type->m_type[i]);
+                llvm::Value* res = llvm_utils->is_ineq_by_value(t1i, t2i, module,
+                                                tuple_type->m_type[i], overload_id);
                 res = builder->CreateOr(LLVM::CreateLoad(*builder, inequality_holds), res);
                 LLVM::CreateStore(*builder, res, inequality_holds);
                 res = llvm_utils->is_equal_by_value(t1i, t2i, module, tuple_type->m_type[i]);
