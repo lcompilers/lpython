@@ -8,6 +8,7 @@ class Value(Enum):
     ONE: i32 = 1
     FIVE: i32 = 5
 
+@ccallable
 @dataclass
 class Foo:
     value: Value
