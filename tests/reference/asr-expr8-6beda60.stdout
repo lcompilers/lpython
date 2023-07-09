@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        127
+                        126
                         {
                             test_binop:
                                 (Function
@@ -16,7 +16,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     _lpython_floordiv
-                                                    4 _lpython_floordiv
+                                                    3 _lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     _lpython_floordiv
@@ -26,7 +26,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                    4 __lpython_overloaded_10___lpython_floordiv
+                                                    3 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_10___lpython_floordiv
@@ -441,7 +441,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        125
                         {
                             
                         })

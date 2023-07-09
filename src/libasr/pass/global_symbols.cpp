@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/global_symbols.h>
+#include <libasr/pass/wrap_global_symbols.h>
 #include <libasr/pass/pass_utils.h>
 
 
@@ -14,7 +14,7 @@ namespace LCompilers {
  * and wraps all global symbols into a module
  */
 
-void pass_wrap_global_syms_into_module(Allocator &al,
+void pass_wrap_global_symbols(Allocator &al,
         ASR::TranslationUnit_t &unit,
         const LCompilers::PassOptions &/*pass_options*/) {
     if( unit.m_global_scope->get_scope().size() == 0 ) {

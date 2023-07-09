@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        127
+                        126
                         {
                             test_Compare:
                                 (Function
@@ -32,7 +32,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex
-                                                    4 complex
+                                                    3 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -42,7 +42,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex@__lpython_overloaded_5__complex
-                                                    4 __lpython_overloaded_5__complex
+                                                    3 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -52,7 +52,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex@__lpython_overloaded_9__complex
-                                                    4 __lpython_overloaded_9__complex
+                                                    3 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -461,7 +461,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        125
                         {
                             
                         })

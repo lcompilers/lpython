@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_compare.h>
+#include <libasr/pass/compare.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -126,7 +126,7 @@ public:
                 call_arg.m_value = rig;
                 args.push_back(al, call_arg);
 
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
                     bool_type, nullptr, nullptr));
             }
@@ -142,7 +142,7 @@ public:
                 call_arg.m_value = rig;
                 args.push_back(al, call_arg);
 
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
                     bool_type, nullptr, nullptr));
             }
@@ -264,7 +264,7 @@ public:
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_tuple_compare_func(unit.base.base.loc,
                 unit.m_global_scope, ASRUtils::expr_type(x->m_left));
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
@@ -450,7 +450,7 @@ public:
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_list_compare_func(unit.base.base.loc,
                 unit.m_global_scope, ASRUtils::expr_type(x->m_left));
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,

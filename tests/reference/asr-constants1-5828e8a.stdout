@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        136
+                        135
                         {
                             test_abs:
                                 (Function
@@ -48,7 +48,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex
-                                                    13 complex
+                                                    12 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -58,7 +58,7 @@
                                                 (ExternalSymbol
                                                     4
                                                     complex@__lpython_overloaded_5__complex
-                                                    13 __lpython_overloaded_5__complex
+                                                    12 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -275,7 +275,7 @@
                                                 (ExternalSymbol
                                                     6
                                                     complex
-                                                    13 complex
+                                                    12 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -285,7 +285,7 @@
                                                 (ExternalSymbol
                                                     6
                                                     complex@__lpython_overloaded_9__complex
-                                                    13 __lpython_overloaded_9__complex
+                                                    12 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -470,7 +470,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     bin
-                                                    13 bin
+                                                    12 bin
                                                     lpython_builtin
                                                     []
                                                     bin
@@ -480,7 +480,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     hex
-                                                    13 hex
+                                                    12 hex
                                                     lpython_builtin
                                                     []
                                                     hex
@@ -490,7 +490,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     oct
-                                                    13 oct
+                                                    12 oct
                                                     lpython_builtin
                                                     []
                                                     oct
@@ -828,7 +828,7 @@
                                                 (ExternalSymbol
                                                     11
                                                     divmod
-                                                    13 divmod
+                                                    12 divmod
                                                     lpython_builtin
                                                     []
                                                     divmod
@@ -1790,7 +1790,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        135
+                        134
                         {
                             
                         })

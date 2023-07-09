@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        128
+                        127
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [test_bool]
                                     []
                                     [(SubroutineCall
-                                        128 test_bool
+                                        127 test_bool
                                         ()
                                         []
                                         ()
@@ -165,7 +165,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex
-                                                    4 complex
+                                                    3 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -175,7 +175,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex@__lpython_overloaded_13__complex
-                                                    4 __lpython_overloaded_13__complex
+                                                    3 __lpython_overloaded_13__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_13__complex
@@ -185,7 +185,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex@__lpython_overloaded_9__complex
-                                                    4 __lpython_overloaded_9__complex
+                                                    3 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -871,13 +871,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        125
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    126
+                                    125
                                     _lpython_main_program
-                                    128 _lpython_main_program
+                                    127 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -887,7 +887,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        126 _lpython_main_program
+                        125 _lpython_main_program
                         ()
                         []
                         ()

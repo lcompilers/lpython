@@ -11,9 +11,9 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/replace_class_constructor.h>
+#include <libasr/pass/replace_array_op.h>
+#include <libasr/pass/create_subroutine_from_function.h>
 
 #include <map>
 #include <utility>
@@ -146,11 +146,12 @@ public:
     void allocate_array_members_of_struct(ASR::StructType_t* der_type_t, std::string& sub,
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ||
-                ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(itr.second);
+            if( ASR::is_a<ASR::UnionType_t>(*sym) ||
+                ASR::is_a<ASR::StructType_t>(*sym) ) {
                 continue ;
             }
-            ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
+            ASR::ttype_t* mem_type = ASRUtils::symbol_type(sym);
             if( ASRUtils::is_character(*mem_type) ) {
                 sub += indent + name + "->" + itr.first + " = NULL;\n";
             } else if( ASRUtils::is_array(mem_type) &&
@@ -1064,16 +1065,51 @@ R"(    // Initialise Numpy
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
         bracket_open++;
+        visit_expr(*x.m_test);
+        std::string test_condition = src;
+        if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)){
+            out = symengine_src;
+            symengine_src = "";
+            out += indent;
+        }
         if (x.m_msg) {
+            this->visit_expr(*x.m_msg);
+            std::string tmp_gen = "";
+            ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_msg);
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
+                std::string p_func = c_ds_api->get_print_func(value_type);
+                tmp_gen += indent + p_func + "(" + src + ");\n";
+            } else {
+                tmp_gen += "\"";
+                tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_msg));
+                tmp_gen += "\", ";
+                if( ASRUtils::is_array(value_type) ) {
+                    src += "->data";
+                }
+                if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                    src += symengine_src;
+                    symengine_src = "";
+                }
+                if (ASR::is_a<ASR::Complex_t>(*value_type)) {
+                    tmp_gen += "creal(" + src + ")";
+                    tmp_gen += ", ";
+                    tmp_gen += "cimag(" + src + ")";
+                } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
+                    tmp_gen += "basic_str(" + src + ")";
+                    if(ASR::is_a<ASR::Var_t>(*x.m_msg)) {
+                        symengine_queue.pop();
+                    }
+                } else {
+                    tmp_gen += src;
+                }
+            }
             out += "ASSERT_MSG(";
-            visit_expr(*x.m_test);
-            out += src + ", ";
-            visit_expr(*x.m_msg);
-            out += src + ");\n";
+            out += test_condition + ", ";
+            out += tmp_gen + ");\n";
         } else {
             out += "ASSERT(";
-            visit_expr(*x.m_test);
-            out += src + ");\n";
+            out += test_condition + ");\n";
         }
         bracket_open--;
         src = check_tmp_buffer() + out;
@@ -1138,8 +1174,12 @@ R"(    // Initialise Numpy
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
-            if (value_type->type == ASR::ttypeType::List ||
-                value_type->type == ASR::ttypeType::Tuple) {
+            if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                out += symengine_src;
+                symengine_src = "";
+            }
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
                 tmp_gen += "\"";
                 if (!v.empty()) {
                     for (auto &s: v) {
@@ -1156,13 +1196,16 @@ R"(    // Initialise Numpy
             }
             tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
-            if (value_type->type == ASR::ttypeType::Complex) {
+            if (ASR::is_a<ASR::Complex_t>(*value_type)) {
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
-            } else if(value_type->type == ASR::ttypeType::SymbolicExpression){
+            } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
                 v.pop_back();
                 v.push_back("basic_str(" + src + ")");
+                if(ASR::is_a<ASR::Var_t>(*x.m_values[i])) {
+                    symengine_queue.pop();
+                }
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";

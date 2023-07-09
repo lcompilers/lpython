@@ -63,6 +63,7 @@
                                                             (Integer 2)
                                                             [(()
                                                             ())]
+                                                            DescriptorArray
                                                         )
                                                     )
                                                     ()
@@ -79,6 +80,7 @@
                                                 (Integer 2)
                                                 [(()
                                                 ())]
+                                                DescriptorArray
                                             )
                                         )]
                                         ()
@@ -166,6 +168,7 @@
                                                         (Integer 2)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 2 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -187,6 +190,7 @@
                                                             (Integer 2)
                                                             [(()
                                                             ())]
+                                                            DescriptorArray
                                                         )
                                                     )
                                                     ()
@@ -219,7 +223,18 @@
                                         7 g
                                         ()
                                         [((Var 4 yptr1))
-                                        ((Var 4 y))]
+                                        ((ArrayPhysicalCast
+                                            (Var 4 y)
+                                            FixedSizeArray
+                                            DescriptorArray
+                                            (Array
+                                                (Integer 2)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                DescriptorArray
+                                            )
+                                            ()
+                                        ))]
                                         ()
                                     )
                                     (SubroutineCall
@@ -253,6 +268,7 @@
                                                             (Integer 2)
                                                             [(()
                                                             ())]
+                                                            DescriptorArray
                                                         )
                                                     )
                                                     ()
@@ -274,6 +290,7 @@
                                                         (Integer 2)
                                                         [(()
                                                         ())]
+                                                        DescriptorArray
                                                     )
                                                     ()
                                                     Source
@@ -289,12 +306,14 @@
                                                 (Integer 2)
                                                 [(()
                                                 ())]
+                                                DescriptorArray
                                             )
                                         )
                                         (Array
                                             (Integer 2)
                                             [(()
                                             ())]
+                                            DescriptorArray
                                         )]
                                         ()
                                         Source
@@ -357,6 +376,7 @@
                                                     (Integer 2)
                                                     [(()
                                                     ())]
+                                                    DescriptorArray
                                                 )
                                             )
                                             ()

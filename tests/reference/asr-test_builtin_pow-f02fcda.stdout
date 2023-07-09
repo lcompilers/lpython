@@ -5,12 +5,12 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        128
+                        127
                         {
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
@@ -33,7 +33,7 @@
                                     [test_pow]
                                     []
                                     [(SubroutineCall
-                                        128 test_pow
+                                        127 test_pow
                                         ()
                                         []
                                         ()
@@ -165,7 +165,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex
-                                                    4 complex
+                                                    3 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -175,7 +175,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     complex@__lpython_overloaded_9__complex
-                                                    4 __lpython_overloaded_9__complex
+                                                    3 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -329,7 +329,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow
-                                                    4 pow
+                                                    3 pow
                                                     lpython_builtin
                                                     []
                                                     pow
@@ -339,7 +339,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_0__pow
-                                                    4 __lpython_overloaded_0__pow
+                                                    3 __lpython_overloaded_0__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_0__pow
@@ -349,7 +349,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_10__pow
-                                                    4 __lpython_overloaded_10__pow
+                                                    3 __lpython_overloaded_10__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_10__pow
@@ -359,7 +359,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_11__pow
-                                                    4 __lpython_overloaded_11__pow
+                                                    3 __lpython_overloaded_11__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_11__pow
@@ -369,7 +369,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_1__pow
-                                                    4 __lpython_overloaded_1__pow
+                                                    3 __lpython_overloaded_1__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_1__pow
@@ -379,7 +379,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_2__pow
-                                                    4 __lpython_overloaded_2__pow
+                                                    3 __lpython_overloaded_2__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_2__pow
@@ -389,7 +389,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_3__pow
-                                                    4 __lpython_overloaded_3__pow
+                                                    3 __lpython_overloaded_3__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_3__pow
@@ -399,7 +399,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_4__pow
-                                                    4 __lpython_overloaded_4__pow
+                                                    3 __lpython_overloaded_4__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_4__pow
@@ -409,7 +409,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_5__pow
-                                                    4 __lpython_overloaded_5__pow
+                                                    3 __lpython_overloaded_5__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__pow
@@ -419,7 +419,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_6__pow
-                                                    4 __lpython_overloaded_6__pow
+                                                    3 __lpython_overloaded_6__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_6__pow
@@ -429,7 +429,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_7__pow
-                                                    4 __lpython_overloaded_7__pow
+                                                    3 __lpython_overloaded_7__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_7__pow
@@ -439,7 +439,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_8__pow
-                                                    4 __lpython_overloaded_8__pow
+                                                    3 __lpython_overloaded_8__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_8__pow
@@ -449,7 +449,7 @@
                                                 (ExternalSymbol
                                                     2
                                                     pow@__lpython_overloaded_9__pow
-                                                    4 __lpython_overloaded_9__pow
+                                                    3 __lpython_overloaded_9__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__pow
@@ -1894,13 +1894,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        125
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    126
+                                    125
                                     _lpython_main_program
-                                    128 _lpython_main_program
+                                    127 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -1910,7 +1910,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        126 _lpython_main_program
+                        125 _lpython_main_program
                         ()
                         []
                         ()

@@ -14,16 +14,156 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 
 # data-types
 
+class UnsignedInteger:
+    def __init__(self, bit_width, value):
+        if isinstance(value, UnsignedInteger):
+            value = value.value
+        self.bit_width = bit_width
+        self.value = value % (2**bit_width)
+
+    def __bool__(self):
+        return self.value != 0
+
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, (self.value + other.value) % (2**self.bit_width))
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __sub__(self, other):
+        if isinstance(other, self.__class__):
+            # if self.value < other.value:
+                # raise ValueError("Result of subtraction cannot be negative")
+            return UnsignedInteger(self.bit_width, (self.value - other.value) % (2**self.bit_width))
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __mul__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, (self.value * other.value) % (2**self.bit_width))
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __div__(self, other):
+        if isinstance(other, self.__class__):
+            if other.value == 0:
+                raise ValueError("Division by zero")
+            return UnsignedInteger(self.bit_width, self.value / other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __floordiv__(self, other):
+        if isinstance(other, self.__class__):
+            if other.value == 0:
+                raise ValueError("Division by zero")
+            return UnsignedInteger(self.bit_width, self.value // other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __mod__(self, other):
+        if isinstance(other, self.__class__):
+            if other.value == 0:
+                raise ValueError("Modulo by zero")
+            return UnsignedInteger(self.bit_width, self.value % other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __pow__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, (self.value ** other.value) % (2**self.bit_width))
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __and__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, self.value & other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __or__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, self.value | other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    # unary operators
+    def __neg__(self):
+        return UnsignedInteger(self.bit_width, -self.value % (2**self.bit_width))
+
+    def __pos__(self):
+        return UnsignedInteger(self.bit_width, self.value)
+
+    def __abs__(self):
+        return UnsignedInteger(self.bit_width, abs(self.value))
+
+    def __invert__(self):
+        return UnsignedInteger(self.bit_width, ~self.value % (2**self.bit_width))
+
+    # comparator operators
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value == other.value
+        else:
+            try:
+                return self.value == other
+            except:
+                raise TypeError("Unsupported operand type")
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value != other.value
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value < other.value
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value <= other.value
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value > other.value
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return self.value >= other.value
+        else:
+            raise TypeError("Unsupported operand type")
+
+    # conversion to integer
+    def __int__(self):
+        return self.value
+
+    def __str__(self):
+        return str(self.value)
+
+    def __repr__(self):
+        return f'UnsignedInteger({self.bit_width}, {str(self)})'
+
+    def __index__(self):
+        return self.value
+
+
+
 type_to_convert_func = {
     "i1": bool,
     "i8": int,
     "i16": int,
     "i32": int,
     "i64": int,
-    "u8": lambda x: x,
-    "u16": lambda x: x,
-    "u32": lambda x: x,
-    "u64": lambda x: x,
+    "u8": lambda x: UnsignedInteger(8, x),
+    "u16": lambda x: UnsignedInteger(16, x),
+    "u32": lambda x: UnsignedInteger(32, x),
+    "u64": lambda x: UnsignedInteger(64, x),
     "f32": float,
     "f64": float,
     "c32": complex,

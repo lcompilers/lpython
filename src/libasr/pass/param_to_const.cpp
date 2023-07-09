@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/param_to_const.h>
+#include <libasr/pass/replace_param_to_const.h>
 
 
 namespace LCompilers {

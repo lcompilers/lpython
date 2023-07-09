@@ -5,7 +5,7 @@
             _global_symbols:
                 (Module
                     (SymbolTable
-                        6
+                        7
                         {
                             S:
                                 (StructType
@@ -53,13 +53,15 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())]
                                     ()
                                     ()
                                 ),
                             _lpython_main_program:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             
                                         })
@@ -82,7 +84,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        6 main0
+                                        7 main0
                                         ()
                                         []
                                         ()
@@ -108,7 +110,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        6 S
+                                                        7 S
                                                     )
                                                     ()
                                                     Source
@@ -138,11 +140,11 @@
                                     [(=
                                         (Var 3 s)
                                         (StructTypeConstructor
-                                            6 S
+                                            7 S
                                             [((IntegerConstant 2 (Integer 4)))
                                             (())]
                                             (Struct
-                                                6 S
+                                                7 S
                                             )
                                             ()
                                         )
@@ -163,13 +165,13 @@
             main_program:
                 (Program
                     (SymbolTable
-                        4
+                        5
                         {
                             _lpython_main_program:
                                 (ExternalSymbol
-                                    4
+                                    5
                                     _lpython_main_program
-                                    6 _lpython_main_program
+                                    7 _lpython_main_program
                                     _global_symbols
                                     []
                                     _lpython_main_program
@@ -179,7 +181,7 @@
                     main_program
                     [_global_symbols]
                     [(SubroutineCall
-                        4 _lpython_main_program
+                        5 _lpython_main_program
                         ()
                         []
                         ()

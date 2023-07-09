@@ -6,9 +6,9 @@
 
 namespace LCompilers::LPython {
 
-    Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm,
+    Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager &lm, SymbolTable* symtab,
         LPython::AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
-            bool main_module, std::string file_path, bool allow_implicit_casting=false);
+            bool main_module, std::string ext_mod_name, std::string file_path, bool allow_implicit_casting=false);
 
     int save_pyc_files(const ASR::TranslationUnit_t &u,
                        std::string infile);

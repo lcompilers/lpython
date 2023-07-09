@@ -408,7 +408,7 @@ filename = "../integration_tests/expr_05.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_integer_bitnot.py"
+filename = "../integration_tests/test_unary_op_03.py"
 asr = true
 llvm = true
 cpp = true
@@ -652,6 +652,10 @@ filename = "errors/structs_01.py"
 asr = true
 
 [[test]]
+filename = "errors/arrays_01.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_02.py"
 asr = true
 
@@ -686,6 +690,10 @@ asr = true
 [[test]]
 filename = "errors/structs_10.py"
 asr = true
+
+[[test]]
+filename = "errors/structs_11.py"
+llvm = true
 
 [[test]]
 filename = "errors/const_01.py"
@@ -790,6 +798,10 @@ filename = "errors/test_list_index3.py"
 run = true
 
 [[test]]
+filename = "errors/test_list_index4.py"
+run = true
+
+[[test]]
 filename = "errors/test_list1.py"
 asr = true
 
@@ -835,6 +847,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_operator_01.py"
 asr = true
 
 [[test]]

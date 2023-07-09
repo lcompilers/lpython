@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/flip_sign.h>
+#include <libasr/pass/replace_flip_sign.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>

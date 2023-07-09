@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/for_all.h>
+#include <libasr/pass/replace_for_all.h>
 #include <libasr/pass/stmt_walk_visitor.h>
 
 namespace LCompilers {
@@ -43,7 +43,7 @@ public:
     }
 };
 
-void pass_replace_forall(Allocator &al, ASR::TranslationUnit_t &unit,
+void pass_replace_for_all(Allocator &al, ASR::TranslationUnit_t &unit,
                          const LCompilers::PassOptions& /*pass_options*/) {
     ForAllVisitor v(al);
     v.visit_TranslationUnit(unit);

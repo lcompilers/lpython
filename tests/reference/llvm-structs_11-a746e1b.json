@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-structs_11-a746e1b",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/errors/structs_11.py",
+    "infile_hash": "9cb6c80ad837ba66472a91b22e9068ec439b6a2a179a452d90d84c78",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "llvm-structs_11-a746e1b.stderr",
+    "stderr_hash": "58e383d2ac915263088426f1b511760a8cb9ef3dd6f24cb207eda4de",
+    "returncode": 3
+}
