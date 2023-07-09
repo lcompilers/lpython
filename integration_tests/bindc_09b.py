@@ -1,7 +1,6 @@
 from enum import Enum
 
-from lpython import (CPtr, c_p_pointer, p_c_pointer, dataclass, empty_c_void_p,
-        pointer, Pointer, i32, ccallable, InOut)
+from lpython import CPtr, c_p_pointer, p_c_pointer, dataclass, empty_c_void_p, pointer, Pointer, i32, ccallable
 
 class Value(Enum):
     TEN: i32 = 10
@@ -9,6 +8,7 @@ class Value(Enum):
     ONE: i32 = 1
     FIVE: i32 = 5
 
+@ccallable
 @dataclass
 class Foo:
     value: Value
@@ -18,7 +18,8 @@ class Foo:
 class FooC:
     value: Value
 
-def bar(foo: InOut[Foo]) -> None:
+def bar(foo_ptr: CPtr) -> None:
+    foo: Pointer[Foo] = c_p_pointer(foo_ptr, Foo)
     foo.value = Value.FIVE
 
 def barc(foo_ptr: CPtr) -> None:
@@ -30,9 +31,10 @@ def main() -> None:
     fooc: FooC = FooC(Value.TWO)
     foo_ptr: CPtr = empty_c_void_p()
 
-    bar(foo)
-    print(foo.value, foo.value.name)
-    assert foo.value == Value.FIVE
+    p_c_pointer(pointer(foo), foo_ptr)
+    bar(foo_ptr)
+    print(foo.value)
+    assert foo.value == Value.FIVE.value
 
     p_c_pointer(pointer(fooc), foo_ptr)
     barc(foo_ptr)

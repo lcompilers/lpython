@@ -1,6 +1,8 @@
-from lpython import i32, i16, i64, CPtr, dataclass, ccall, Pointer, c_p_pointer, sizeof
+from lpython import (i32, i16, i64, CPtr, dataclass, ccall, Pointer,
+        c_p_pointer, sizeof, ccallable)
 from numpy import array
 
+@ccallable
 @dataclass
 class A:
     x: i32

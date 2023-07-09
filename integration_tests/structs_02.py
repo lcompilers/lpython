@@ -17,8 +17,6 @@ def f(a: CPtr) -> None:
     y = a2.y
     assert x == 3
     assert f64(y) == 3.25
-    a2 = c_p_pointer(a, A)
-    print(a, a2, pointer(a1))
 
 def g():
     b: CPtr = empty_c_void_p()
