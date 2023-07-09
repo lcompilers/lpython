@@ -1152,6 +1152,10 @@ filename = "errors/bindc_04.py"
 asr = true
 
 [[test]]
+filename = "errors/bindc_10e.py"
+asr = true
+
+[[test]]
 filename = "errors/cptr_01.py"
 asr = true
 
