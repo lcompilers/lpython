@@ -19,7 +19,7 @@ class S:
 
 
 def main():
-    p1: CPtr = alloc(sizeof(S))
+    p1: CPtr = alloc(i64(1000))
     print(p1)
     p2: Pointer[S] = c_p_pointer(p1, S)
     p2.a = i16(5)
