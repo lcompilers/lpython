@@ -375,6 +375,7 @@ RUN(NAME bindc_07            LABELS cpython llvm c NOFAST)
 RUN(NAME bindc_08            LABELS cpython llvm c)
 RUN(NAME bindc_09            LABELS cpython llvm c)
 RUN(NAME bindc_10            LABELS cpython llvm c)
+RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
 RUN(NAME exit_01             LABELS cpython llvm c NOFAST)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c NOFAST)
 RUN(NAME exit_03             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
