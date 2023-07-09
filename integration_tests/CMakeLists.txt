@@ -374,6 +374,7 @@ RUN(NAME bindc_04            LABELS llvm c NOFAST)
 RUN(NAME bindc_07            LABELS cpython llvm c NOFAST)
 RUN(NAME bindc_08            LABELS cpython llvm c)
 RUN(NAME bindc_09            LABELS cpython llvm c)
+RUN(NAME bindc_09b           LABELS cpython llvm c)
 RUN(NAME bindc_10            LABELS cpython llvm c NOFAST)
 RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
 RUN(NAME exit_01             LABELS cpython llvm c NOFAST)
