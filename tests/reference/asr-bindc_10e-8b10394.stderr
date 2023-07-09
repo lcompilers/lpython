@@ -1,0 +1,12 @@
+semantic error: The struct in c_p_pointer must be C interoperable
+  --> tests/errors/bindc_10e.py:23:38
+   |
+23 |     p2: Pointer[S] = c_p_pointer(p1, S)
+   |                                      ^ not C interoperable
+   |
+15 |    class S:
+   |    ~~~~~~~~...
+...
+   |
+17 |        b: i64
+   | ...~~~~~~~~~~ help: add the @ccallable decorator to this struct to make it C interoperable

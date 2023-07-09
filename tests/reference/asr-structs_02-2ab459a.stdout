@@ -304,28 +304,6 @@
                                             ()
                                         )
                                         ()
-                                    )
-                                    (CPtrToPointer
-                                        (Var 3 a)
-                                        (Var 3 a2)
-                                        ()
-                                        ()
-                                    )
-                                    (Print
-                                        ()
-                                        [(Var 3 a)
-                                        (Var 3 a2)
-                                        (GetPointer
-                                            (Var 3 a1)
-                                            (Pointer
-                                                (Struct
-                                                    8 A
-                                                )
-                                            )
-                                            ()
-                                        )]
-                                        ()
-                                        ()
                                     )]
                                     ()
                                     Public
