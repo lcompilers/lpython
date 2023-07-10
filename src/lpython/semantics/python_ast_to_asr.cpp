@@ -2735,7 +2735,7 @@ public:
             throw SemanticAbort();
         }
         if (ASR::is_a<ASR::Struct_t>(*asr_alloc_type)) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type;
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type);
             if (ASR::is_a<ASR::StructType_t>(*sym)) {
                 ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
                 if (st->m_abi != ASR::abiType::BindC) {
