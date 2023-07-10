@@ -4,6 +4,8 @@
 #include <libasr/asr_scopes.h>
 #include <libasr/asr_utils.h>
 
+std::string lcompilers_unique_ID;
+
 namespace LCompilers  {
 
 template< typename T >

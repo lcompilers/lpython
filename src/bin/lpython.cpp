@@ -44,6 +44,9 @@
     #include <rapidjson/stringbuffer.h>
     #include <rapidjson/writer.h>
 #endif
+
+extern std::string lcompilers_unique_ID;
+
 namespace {
 
 using LCompilers::endswith;
@@ -53,6 +56,7 @@ using LCompilers::LPython::parse_python_file;
 enum class Backend {
     llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64
 };
+
 
 std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
@@ -1609,6 +1613,9 @@ int main(int argc, char *argv[])
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
+
+        lcompilers_unique_ID = LCompilers::get_unique_ID();
+
 
         if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
         // ReleaseSafe Mode

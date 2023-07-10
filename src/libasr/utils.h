@@ -20,6 +20,8 @@ enum Platform {
 std::string pf2s(Platform);
 Platform get_platform();
 
+std::string get_unique_ID();
+
 struct CompilerOptions {
     std::filesystem::path mod_files_dir;
     std::vector<std::filesystem::path> include_dirs;
