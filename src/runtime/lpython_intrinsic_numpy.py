@@ -1,8 +1,5 @@
 from lpython import i32, i64, f64, f32, ccall, vectorize, overload
 
-pi_64: f64 = f64(3.141592653589793238462643383279502884197)
-pi_32: f32 = f32(3.141592653589793238462643383279502884197)
-
 ########## sin ##########
 
 @ccall
@@ -274,11 +271,13 @@ def arctan(x: f32) -> f32:
 @overload
 @vectorize
 def degrees(x: f64) -> f64:
+    pi_64: Const[f64] = f64(3.141592653589793238462643383279502884197)
     return x*180.0/pi_64
 
 @overload
 @vectorize
 def degrees(x: f32) -> f32:
+    pi_32: Const[f32] = f32(3.141592653589793238462643383279502884197)
     return x*f32(f32(180)/pi_32)
 
 ########## radians ##########
@@ -286,11 +285,13 @@ def degrees(x: f32) -> f32:
 @overload
 @vectorize
 def radians(x: f64) -> f64:
+    pi_64: Const[f64] = f64(3.141592653589793238462643383279502884197)
     return x*pi_64/180.0
 
 @overload
 @vectorize
 def radians(x: f32) -> f32:
+    pi_32: Const[f32] = f32(3.141592653589793238462643383279502884197)
     return x*f32(pi_32/f32(180))
 
 ########## arcsinh ##########
