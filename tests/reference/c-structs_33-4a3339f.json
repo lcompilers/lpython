@@ -1,0 +1,13 @@
+{
+    "basename": "c-structs_33-4a3339f",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/structs_33.py",
+    "infile_hash": "15fdcb483c864b6322ebcf6c495e635bbe917f1d8b407ccf4dc3e2ee",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-structs_33-4a3339f.stdout",
+    "stdout_hash": "425a22068f547e15ba187e2974220f28f0af3a70305b67cfd4a6a655",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

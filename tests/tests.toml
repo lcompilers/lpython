@@ -338,6 +338,10 @@ filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/structs_33.py"
+c = true
+
+[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 
