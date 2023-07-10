@@ -152,7 +152,7 @@ void resize_if_needed_str(struct list_str* x) {
 void list_append_str(struct list_str* x, char* element) {
     resize_if_needed_str(x);
     x->data[x->current_end_point] = NULL;
-    _lfortran_strcpy(&x->data[x->current_end_point], element, 1);
+    _lfortran_strcpy(&x->data[x->current_end_point], element, 0);
     x->current_end_point += 1;
 }
 
@@ -169,7 +169,7 @@ void list_insert_str(struct list_str* x, int pos, char* element) {
     }
 
     x->data[pos] = NULL;
-    _lfortran_strcpy(&x->data[pos], element, 1);
+    _lfortran_strcpy(&x->data[pos], element, 0);
     x->current_end_point += 1;
 }
 

@@ -12,10 +12,10 @@ void f()
     char * x = NULL;
     char * y = NULL;
     printf("%s\n", "Hello World!");
-    _lfortran_strcpy(&x, ",", 1);
-    _lfortran_strcpy(&y, "!!", 1);
+    _lfortran_strcpy(&x, ",", 0);
+    _lfortran_strcpy(&y, "!!", 0);
     printf("%s%s%s\n", "a", x, "b");
-    _lfortran_strcpy(&x, "-+-+-", 1);
+    _lfortran_strcpy(&x, "-+-+-", 0);
     printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
     printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
     printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);
