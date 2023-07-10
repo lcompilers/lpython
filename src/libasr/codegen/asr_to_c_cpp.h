@@ -567,8 +567,9 @@ R"(#include <stdio.h>
     pArgs = PyTuple_New()" + std::to_string(x.n_args) + R"();
 )";
         for (size_t i = 0; i < x.n_args; ++i) {
+            self().visit_expr(*x.m_args[i]);
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            std::string arg_name = std::string(arg->m_name);
+            std::string arg_name = src;
             std::string indent = "\n    ";
             if (ASRUtils::is_array(arg->m_type)) {
                 arg_conv += indent + bind_py_utils_functions->get_conv_dims_to_1D_arr() + "(" + arg_name + "->n_dims, " + arg_name + "->dims, __new_dims);";
@@ -1693,14 +1694,19 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         last_expr_precedence = 2;
     }
 
+    std::string find_unique_sym_name(const ASR::symbol_t *sym) {
+        std::string name = ASRUtils::symbol_name(sym);
+        uint64_t h = get_hash((ASR::asr_t*)sym);
+        if (orig_to_new_name.find(h) != orig_to_new_name.end()) {
+            name = orig_to_new_name[h];
+        }
+        return name;
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
-        std::string v_name = sv->m_name;
-        uint64_t h = get_hash((ASR::asr_t*)sv);
-        if (orig_to_new_name.find(h) != orig_to_new_name.end()) {
-            v_name = orig_to_new_name[h];
-        }
+        std::string v_name = find_unique_sym_name(s);
         if( (sv->m_intent == ASRUtils::intent_in ||
             sv->m_intent == ASRUtils::intent_inout) &&
             is_c && ASRUtils::is_array(sv->m_type) &&
@@ -1726,7 +1732,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
-        member = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(x.m_m));
+        ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(x.m_m);
+        member = find_unique_sym_name(sym);
         if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ||
             ASR::is_a<ASR::UnionInstanceMember_t>(*x.m_v) ||
             ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ) {
@@ -1741,7 +1748,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
-        member = ASRUtils::symbol_name(x.m_m);
+        member = find_unique_sym_name(x.m_m);
         src = der_expr + "." + member;
     }
 
@@ -2691,8 +2698,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string out = indent + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
+                self().visit_expr(*x.m_args[i].m_value);
                 ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i].m_value);
-                std::string arg_name = arg->m_name;
+                std::string arg_name = src;
                 if( ASRUtils::is_array(arg->m_type) &&
                     ASRUtils::is_pointer(arg->m_type) ) {
                     out += "&" + arg_name;

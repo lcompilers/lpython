@@ -153,7 +153,7 @@ public:
             }
             ASR::ttype_t* mem_type = ASRUtils::symbol_type(sym);
             if( ASRUtils::is_character(*mem_type) ) {
-                sub += indent + name + "->" + itr.first + " = NULL;\n";
+                sub += indent + name + lcompilers_unique_ID + "->" + itr.first + lcompilers_unique_ID + " = NULL;\n";
             } else if( ASRUtils::is_array(mem_type) &&
                         ASR::is_a<ASR::Variable_t>(*itr.second) ) {
                 ASR::Variable_t* mem_var = ASR::down_cast<ASR::Variable_t>(itr.second);
@@ -169,7 +169,7 @@ public:
                 c_decl_options_.force_declare_name = mem_var_name;
                 sub += indent + convert_variable_decl(*mem_var, &c_decl_options_) + ";\n";
                 if( !ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
-                    sub += indent + name + "->" + itr.first + " = " + mem_var_name + ";\n";
+                    sub += indent + name + lcompilers_unique_ID + "->" + itr.first + lcompilers_unique_ID + " = " + mem_var_name + ";\n";
                 }
             } else if( ASR::is_a<ASR::Struct_t>(*mem_type) ) {
                 ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(mem_type);

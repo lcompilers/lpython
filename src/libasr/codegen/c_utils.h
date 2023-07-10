@@ -5,6 +5,8 @@
 #include <libasr/asr_utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 
+extern std::string lcompilers_unique_ID;
+
 namespace LCompilers {
 
     static inline std::string format_type_c(const std::string &dims, const std::string &type,
@@ -844,8 +846,9 @@ class CCPPDSUtils {
             func_decls += "inline " + signature + ";\n";
             std::string tmp_generated = indent + signature + " {\n";
             for(size_t i=0; i < struct_type_t->n_members; i++) {
-                std::string mem_name = std::string(struct_type_t->m_members[i]);
-                ASR::symbol_t* member = struct_type_t->m_symtab->get_symbol(mem_name);
+                std::string org_name = std::string(struct_type_t->m_members[i]);
+                std::string mem_name = org_name + lcompilers_unique_ID;
+                ASR::symbol_t* member = struct_type_t->m_symtab->get_symbol(org_name);
                 ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(member);
                 if( CUtils::is_non_primitive_DT(member_type_asr) ||
                     ASR::is_a<ASR::Character_t>(*member_type_asr) ) {
