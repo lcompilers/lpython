@@ -36,6 +36,8 @@
         }                                                       \
 
 
+extern std::string lcompilers_unique_ID;
+
 namespace LCompilers {
 
 
@@ -176,6 +178,7 @@ public:
 
     SymbolTable* current_scope;
     bool is_string_concat_present;
+    std::map<uint64_t, std::string> orig_to_new_name;
 
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             CompilerOptions &_compiler_options, bool gen_stdstring, bool gen_stdcomplex, bool is_c,
@@ -780,9 +783,12 @@ R"(#include <stdio.h>
                 visited_return = true;
             }
 
+            std::string return_var_name = "";
             if (!visited_return && x.m_return_var) {
+                self().visit_expr(*x.m_return_var);
+                return_var_name = src;
                 current_body += indent + "return "
-                    + ASRUtils::EXPR2VAR(x.m_return_var)->m_name
+                    + return_var_name
                     + ";\n";
             }
 
@@ -1690,13 +1696,18 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
+        std::string v_name = sv->m_name;
+        uint64_t h = get_hash((ASR::asr_t*)sv);
+        if (orig_to_new_name.find(h) != orig_to_new_name.end()) {
+            v_name = orig_to_new_name[h];
+        }
         if( (sv->m_intent == ASRUtils::intent_in ||
             sv->m_intent == ASRUtils::intent_inout) &&
             is_c && ASRUtils::is_array(sv->m_type) &&
             ASRUtils::is_pointer(sv->m_type)) {
-            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+            src = "(*" + v_name + ")";
         } else {
-            src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+            src = v_name;
         }
         last_expr_precedence = 2;
         ASR::ttype_t* var_type = sv->m_type;
@@ -2276,19 +2287,19 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = "";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::symbol_t* tmp_sym = nullptr;
             ASR::ttype_t* type = nullptr;
             ASR::expr_t* tmp_expr = x.m_args[i].m_a;
+            std::string sym = "";
             if( ASR::is_a<ASR::Var_t>(*tmp_expr) ) {
-                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
-                tmp_sym = tmp_var->m_v;
+                self().visit_expr(*tmp_expr);
+                sym = src;
                 type = ASRUtils::expr_type(tmp_expr);
             } else {
                 throw CodeGenError("Cannot deallocate variables in expression " +
                                     std::to_string(tmp_expr->type),
                                     tmp_expr->base.loc);
             }
-            std::string sym = ASRUtils::symbol_name(tmp_sym);
+
             if (ASRUtils::is_array(type)) {
                 std::string size_str = "1";
                 out += indent + sym + "->n_dims = " + std::to_string(x.m_args[i].n_dims) + ";\n";
@@ -2494,8 +2505,9 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
     void visit_Return(const ASR::Return_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (current_function && current_function->m_return_var) {
+            self().visit_expr(*current_function->m_return_var);
             src = indent + "return "
-                + ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name
+                + src
                 + ";\n";
         } else {
             src = indent + "return;\n";
@@ -2545,11 +2557,11 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string loop_end_decl = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
-        ASR::Variable_t *loop_var = ASRUtils::EXPR2VAR(x.m_head.m_v);
-        std::string lvname=loop_var->m_name;
-        ASR::expr_t *a=x.m_head.m_start;
-        ASR::expr_t *b=x.m_head.m_end;
-        ASR::expr_t *c=x.m_head.m_increment;
+        self().visit_expr(*x.m_head.m_v);
+        std::string lvname = src;
+        ASR::expr_t *a = x.m_head.m_start;
+        ASR::expr_t *b = x.m_head.m_end;
+        ASR::expr_t *c = x.m_head.m_increment;
         LCOMPILERS_ASSERT(a);
         LCOMPILERS_ASSERT(b);
         int increment;
