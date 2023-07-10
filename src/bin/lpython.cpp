@@ -1500,6 +1500,7 @@ int main(int argc, char *argv[])
         bool print_targets = false;
         bool print_rtl_header_dir = false;
         bool print_rtl_dir = false;
+        bool separate_compilation = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1581,7 +1582,7 @@ int main(int argc, char *argv[])
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
         app.add_flag("--show-document-symbols", show_document_symbols, "Show symbols in lpython file");
-
+        app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
         /*
         * Subcommands:
         */
@@ -1614,7 +1615,7 @@ int main(int argc, char *argv[])
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
-        lcompilers_unique_ID = LCompilers::get_unique_ID();
+        lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
         if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
