@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/intrinsic_function.h>
+#include <libasr/pass/replace_intrinsic_function.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 #include <libasr/pass/pass_utils.h>
 
@@ -71,9 +71,15 @@ class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFun
         for( size_t i = 0; i < x->n_args; i++ ) {
             arg_types.push_back(al, ASRUtils::expr_type(x->m_args[i]));
         }
-        *current_expr = instantiate_function(al, x->base.base.loc,
+        ASR::expr_t* current_expr_ = instantiate_function(al, x->base.base.loc,
             global_scope, arg_types, new_args, x->m_overload_id, x->m_value);
-        ASR::expr_t* func_call = *current_expr;
+        ASR::expr_t* func_call = current_expr_;
+        if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*(*current_expr)) ) {
+            ASR::ArrayPhysicalCast_t* array_physical_cast_t = ASR::down_cast<ASR::ArrayPhysicalCast_t>(*current_expr);
+            array_physical_cast_t->m_arg = current_expr_;
+        } else {
+            *current_expr = current_expr_;
+        }
         LCOMPILERS_ASSERT(ASR::is_a<ASR::FunctionCall_t>(*func_call));
         ASR::FunctionCall_t* function_call_t = ASR::down_cast<ASR::FunctionCall_t>(func_call);
         ASR::symbol_t* function_call_t_symbol = ASRUtils::symbol_get_past_external(function_call_t->m_name);
@@ -253,11 +259,11 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         new_arg.loc = result_var_->base.loc;
         new_arg.m_value = result_var_;
         new_args.push_back(al, new_arg);
-        pass_result.push_back(al, ASRUtils::STMT(ASR::make_SubroutineCall_t(
+        pass_result.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
             al, x->base.base.loc, x->m_name, x->m_original_name, new_args.p,
             new_args.size(), x->m_dt)));
 
-        *current_expr = result_var_;
+        *current_expr = new_args.p[new_args.size() - 1].m_value;
     }
 
 };
@@ -308,6 +314,15 @@ class ReplaceFunctionCallReturningArrayVisitor : public ASR::CallReplacerOnExpre
             m_body = body.p;
             n_body = body.size();
             pass_result.n = 0;
+        }
+
+        void visit_Assignment(const ASR::Assignment_t& x) {
+            ASR::CallReplacerOnExpressionsVisitor<
+                ReplaceFunctionCallReturningArrayVisitor>::visit_Assignment(x);
+            ASR::Assignment_t& xx = const_cast<ASR::Assignment_t&>(x);
+            if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_value) ) {
+                xx.m_value = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x.m_value)->m_arg;
+            }
         }
 
 };

@@ -341,12 +341,8 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
     } else {
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
         ASR::Variable_t* member_variable = ASR::down_cast<ASR::Variable_t>(member);
-        ASR::ttype_t* member_type = ASRUtils::type_get_past_allocatable(member_variable->m_type);
-        bool is_pointer = false;
-        if (ASRUtils::is_pointer(member_type)) {
-            is_pointer = true;
-            member_type = ASR::down_cast<ASR::Pointer_t>(member_type)->m_type;
-        }
+        ASR::ttype_t* member_type = ASRUtils::type_get_past_pointer(
+            ASRUtils::type_get_past_allocatable(member_variable->m_type));
         ASR::ttype_t* member_type_ = ASRUtils::type_get_past_array(member_type);
         ASR::dimension_t* m_dims = nullptr;
         size_t n_dims = ASRUtils::extract_dimensions_from_ttype(member_type, m_dims);
@@ -406,19 +402,20 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                 } else if(ASR::is_a<ASR::ExternalSymbol_t>(*der_type_sym)) {
                     member_type_ = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_type_sym));
                 }
-                member_type = member_type_;
-                if( n_dims > 0 ) {
-                    member_type = ASRUtils::make_Array_t_util(al, loc,
-                        member_type_, m_dims, n_dims);
-                }
+                member_type = ASRUtils::make_Array_t_util(al, loc,
+                    member_type_, m_dims, n_dims);
                 break;
             }
             default :
                 break;
         }
-        if (is_pointer) {
-            member_type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc,
-                ASRUtils::type_get_past_allocatable(member_type)));
+
+        if( ASR::is_a<ASR::Allocatable_t>(*member_variable->m_type) ) {
+            member_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al,
+            member_variable->base.base.loc, member_type));
+        } else if( ASR::is_a<ASR::Pointer_t>(*member_variable->m_type) ) {
+            member_type = ASRUtils::TYPE(ASR::make_Pointer_t(al,
+            member_variable->base.base.loc, member_type));
         }
         ASR::symbol_t* member_ext = ASRUtils::import_struct_instance_member(al, member, current_scope, member_type);
         ASR::expr_t* value = nullptr;
@@ -537,7 +534,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             current_function_dependencies.push_back(al, s2c(al, matched_func_name));
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
-                            asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
+                            asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, sym,
                                                             a_args.p, 2,
                                                             return_type,
                                                             nullptr, nullptr);
@@ -612,14 +609,15 @@ void process_overloaded_unary_minus_function(ASR::symbol_t* proc, ASR::expr_t* o
                     return_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc,
                         curr_scope->resolve_symbol(ASRUtils::symbol_name(struct_t->m_derived_type))));
                     if( is_array ) {
-                        return_type = ASRUtils::make_Array_t_util(al, loc, return_type, m_dims, n_dims);
+                        return_type = ASRUtils::make_Array_t_util(
+                            al, loc, return_type, m_dims, n_dims);
                     }
                 }
             }
             current_function_dependencies.push_back(al, s2c(al, matched_func_name));
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
-            asr = ASR::make_FunctionCall_t(al, loc, a_name, proc,
+            asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, proc,
                                             a_args.p, 1,
                                             return_type,
                                             nullptr, nullptr);
@@ -790,7 +788,7 @@ void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* ta
             current_function_dependencies.push_back(al, s2c(al, matched_subrout_name));
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, subrout, al);
-            asr = ASR::make_SubroutineCall_t(al, loc, a_name, sym,
+            asr = ASRUtils::make_SubroutineCall_t_util(al, loc, a_name, sym,
                                             a_args.p, 2, nullptr);
         }
     }
@@ -930,7 +928,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             current_function_dependencies.push_back(al, s2c(al, matched_func_name));
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
-                            asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
+                            asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, sym,
                                                             a_args.p, 2,
                                                             return_type,
                                                             nullptr, nullptr);
@@ -1129,14 +1127,14 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
         if( func ) {
             ASRUtils::set_absent_optional_arguments_to_null(args, func, al);
         }
-        return ASR::make_SubroutineCall_t(al, loc, final_sym,
+        return ASRUtils::make_SubroutineCall_t_util(al, loc, final_sym,
                                         v, args.p, args.size(),
                                         nullptr);
     } else {
         if( func ) {
             ASRUtils::set_absent_optional_arguments_to_null(args, func, al);
         }
-        return ASR::make_FunctionCall_t(al, loc, final_sym,
+        return ASRUtils::make_FunctionCall_t_util(al, loc, final_sym,
                                         v, args.p, args.size(),
                                         return_type,
                                         nullptr, nullptr);

@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/pass_utils.h>
 
 
@@ -18,7 +18,7 @@ using ASRUtils::EXPR;
  * statements and expressions into a function.
  *
  */
-void pass_wrap_global_stmts_into_function(Allocator &al,
+void pass_wrap_global_stmts(Allocator &al,
             ASR::TranslationUnit_t &unit, const LCompilers::PassOptions& pass_options) {
     if (unit.n_items == 0) {
         return ;

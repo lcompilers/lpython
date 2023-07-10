@@ -842,14 +842,14 @@ class CCPPDSUtils {
                                 + struct_type_str + "* src, "
                                 + struct_type_str + "* dest)";
             func_decls += "inline " + signature + ";\n";
-            generated_code += indent + signature + " {\n";
+            std::string tmp_generated = indent + signature + " {\n";
             for(size_t i=0; i < struct_type_t->n_members; i++) {
                 std::string mem_name = std::string(struct_type_t->m_members[i]);
                 ASR::symbol_t* member = struct_type_t->m_symtab->get_symbol(mem_name);
                 ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(member);
                 if( CUtils::is_non_primitive_DT(member_type_asr) ||
                     ASR::is_a<ASR::Character_t>(*member_type_asr) ) {
-                    generated_code += indent + tab + get_deepcopy(member_type_asr, "&(src->" + mem_name + ")",
+                    tmp_generated += indent + tab + get_deepcopy(member_type_asr, "&(src->" + mem_name + ")",
                                  "&(dest->" + mem_name + ")") + ";\n";
                 } else if( ASRUtils::is_array(member_type_asr) ) {
                     ASR::dimension_t* m_dims = nullptr;
@@ -857,17 +857,18 @@ class CCPPDSUtils {
                     if( ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
                         std::string array_size = std::to_string(ASRUtils::get_fixed_size_of_array(m_dims, n_dims));
                         array_size += "*sizeof(" + CUtils::get_c_type_from_ttype_t(member_type_asr) + ")";
-                        generated_code += indent + tab + "memcpy(dest->" + mem_name + ", src->" + mem_name +
+                        tmp_generated += indent + tab + "memcpy(dest->" + mem_name + ", src->" + mem_name +
                                             ", " + array_size + ");\n";
                     } else {
-                        generated_code += indent + tab + get_deepcopy(member_type_asr, "src->" + mem_name,
+                        tmp_generated += indent + tab + get_deepcopy(member_type_asr, "src->" + mem_name,
                                             "dest->" + mem_name) + ";\n";
                     }
                 } else {
-                    generated_code += indent + tab + "dest->" + mem_name + " = " + " src->" + mem_name + ";\n";
+                    tmp_generated += indent + tab + "dest->" + mem_name + " = " + " src->" + mem_name + ";\n";
                 }
             }
-            generated_code += indent + "}\n\n";
+            tmp_generated += indent + "}\n\n";
+            generated_code += tmp_generated;
         }
 
         void list_deepcopy(std::string list_struct_type,

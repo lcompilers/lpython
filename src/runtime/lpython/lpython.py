@@ -17,14 +17,12 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 class UnsignedInteger:
     def __init__(self, bit_width, value):
         if isinstance(value, UnsignedInteger):
-            if bit_width != value.bit_width:
-                raise ValueError(f"Bit width mismatch: {bit_width} vs {value.bit_width}")
             value = value.value
-
-        if not (0 <= value < 2**bit_width):
-            raise ValueError(f"Value should be in range 0 to {2**bit_width-1} for a {bit_width}-bit unsigned integer.")
         self.bit_width = bit_width
-        self.value = value
+        self.value = value % (2**bit_width)
+
+    def __bool__(self):
+        return self.value != 0
 
     def __add__(self, other):
         if isinstance(other, self.__class__):

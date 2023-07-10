@@ -374,6 +374,9 @@ RUN(NAME bindc_04            LABELS llvm c NOFAST)
 RUN(NAME bindc_07            LABELS cpython llvm c NOFAST)
 RUN(NAME bindc_08            LABELS cpython llvm c)
 RUN(NAME bindc_09            LABELS cpython llvm c)
+RUN(NAME bindc_09b           LABELS cpython llvm c)
+RUN(NAME bindc_10            LABELS cpython llvm c NOFAST)
+RUN(NAME bindc_11            LABELS cpython) # This is CPython test only
 RUN(NAME exit_01             LABELS cpython llvm c NOFAST)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c NOFAST)
 RUN(NAME exit_03             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
@@ -418,6 +421,7 @@ RUN(NAME expr_15             LABELS cpython llvm c)
 RUN(NAME expr_16             LABELS cpython c)
 RUN(NAME expr_17             LABELS cpython llvm c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
+RUN(NAME expr_19             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm c NOFAST)
@@ -456,6 +460,7 @@ RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
+RUN(NAME test_list_compare   LABELS cpython llvm)
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)
@@ -553,16 +558,19 @@ RUN(NAME test_ConstantEllipsis  LABLES cpython llvm c)
 RUN(NAME test_max_min        LABELS cpython llvm c)
 RUN(NAME test_global         LABELS cpython llvm c)
 RUN(NAME test_global_decl    LABELS cpython llvm c)
-RUN(NAME test_integer_bitnot LABELS cpython llvm c wasm)
-RUN(NAME test_unsign_int_bitnot LABELS cpython llvm c)
 RUN(NAME test_ifexp_01          LABELS cpython llvm c)
 RUN(NAME test_ifexp_02          LABELS cpython llvm c)
-RUN(NAME test_unary_minus    LABELS cpython llvm c)
-RUN(NAME test_unary_plus     LABELS cpython llvm c)
+RUN(NAME test_unary_op_01    LABELS cpython llvm c) # unary minus
+RUN(NAME test_unary_op_02    LABELS cpython llvm c) # unary plus
+RUN(NAME test_unary_op_03    LABELS cpython llvm c wasm) # unary bitinvert
+RUN(NAME test_unary_op_04    LABELS cpython llvm c) # unary bitinvert
+RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
+RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
 RUN(NAME test_bool_binop     LABELS cpython llvm c)
 RUN(NAME test_issue_518      LABELS cpython llvm c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm c)
 RUN(NAME structs_02          LABELS cpython llvm c)
+RUN(NAME structs_02b         LABELS cpython llvm c NOFAST)
 RUN(NAME structs_03          LABELS llvm c)
 RUN(NAME structs_04          LABELS cpython llvm c)
 RUN(NAME structs_05          LABELS cpython llvm c)
@@ -598,12 +606,14 @@ RUN(NAME structs_29          LABELS cpython llvm)
 RUN(NAME structs_30          LABELS cpython llvm c)
 RUN(NAME structs_31          LABELS cpython llvm c)
 RUN(NAME structs_32          LABELS cpython llvm c)
+RUN(NAME structs_33          LABELS cpython llvm c)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_03        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_04        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_05        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_06        LABELS cpython_sym c_sym)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
@@ -631,6 +641,8 @@ RUN(NAME vec_01              LABELS cpython llvm c NOFAST)
 RUN(NAME test_str_comparison LABELS cpython llvm c)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
 RUN(NAME str_to_list_cast    LABELS cpython llvm c)
+RUN(NAME cast_01             LABELS cpython llvm c)
+RUN(NAME cast_02             LABELS cpython llvm c)
 RUN(NAME test_sys_01         LABELS cpython llvm c NOFAST)
 RUN(NAME intent_01           LABELS cpython llvm)
 

@@ -205,6 +205,7 @@
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 2 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -356,7 +357,20 @@
                                     (SubroutineCall
                                         207 verify
                                         ()
-                                        [((Var 203 y))
+                                        [((ArrayPhysicalCast
+                                            (Var 203 y)
+                                            FixedSizeArray
+                                            DescriptorArray
+                                            (Array
+                                                (Struct
+                                                    207 A
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                DescriptorArray
+                                            )
+                                            ()
+                                        ))
                                         ((IntegerConstant 1 (Integer 4)))
                                         ((RealConstant
                                             1.100000
@@ -388,13 +402,39 @@
                                     (SubroutineCall
                                         207 update_2
                                         ()
-                                        [((Var 203 y))]
+                                        [((ArrayPhysicalCast
+                                            (Var 203 y)
+                                            FixedSizeArray
+                                            DescriptorArray
+                                            (Array
+                                                (Struct
+                                                    207 A
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                DescriptorArray
+                                            )
+                                            ()
+                                        ))]
                                         ()
                                     )
                                     (SubroutineCall
                                         207 verify
                                         ()
-                                        [((Var 203 y))
+                                        [((ArrayPhysicalCast
+                                            (Var 203 y)
+                                            FixedSizeArray
+                                            DescriptorArray
+                                            (Array
+                                                (Struct
+                                                    207 A
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                DescriptorArray
+                                            )
+                                            ()
+                                        ))
                                         ((IntegerConstant 2 (Integer 4)))
                                         ((RealConstant
                                             1.200000
@@ -572,6 +612,7 @@
                                                         )
                                                         [(()
                                                         ())]
+                                                        DescriptorArray
                                                     )
                                                     ()
                                                     Source
@@ -588,6 +629,7 @@
                                             )
                                             [(()
                                             ())]
+                                            DescriptorArray
                                         )]
                                         ()
                                         Source
@@ -795,6 +837,7 @@
                                                         )
                                                         [(()
                                                         ())]
+                                                        DescriptorArray
                                                     )
                                                     ()
                                                     Source
@@ -911,6 +954,7 @@
                                             )
                                             [(()
                                             ())]
+                                            DescriptorArray
                                         )
                                         (Integer 4)
                                         (Real 8)

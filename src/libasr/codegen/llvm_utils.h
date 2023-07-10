@@ -8,9 +8,57 @@
 #include <libasr/asr.h>
 
 #include <map>
+#include <unordered_map>
 #include <tuple>
 
+#if LLVM_VERSION_MAJOR >= 11
+#    define FIXED_VECTOR_TYPE llvm::FixedVectorType
+#else
+#    define FIXED_VECTOR_TYPE llvm::VectorType
+#endif
+
 namespace LCompilers {
+
+    // Platform dependent fast unique hash:
+    static inline uint64_t get_hash(ASR::asr_t *node)
+    {
+        return (uint64_t)node;
+    }
+
+    namespace {
+
+    // This exception is used to abort the visitor pattern when an error occurs.
+    // This is only used locally in this file, not propagated outside. An error
+    // must be already present in ASRToLLVMVisitor::diag before throwing this
+    // exception. This is checked with an assert when the CodeGenAbort is
+    // caught.
+    class CodeGenAbort
+    {
+    };
+
+    // Local exception that is only used in this file to exit the visitor
+    // pattern and caught later (not propagated outside). It accepts an error
+    // message that is then appended at the end of ASRToLLVMVisitor::diag.  The
+    // `diag` can already contain other errors or warnings.  This is a
+    // convenience class. One can also report the error into `diag` directly and
+    // call `CodeGenAbort` instead.
+    class CodeGenError
+    {
+        public:
+            diag::Diagnostic d;
+        public:
+            CodeGenError(const std::string &msg)
+                : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
+            { }
+
+            CodeGenError(const std::string &msg, const Location &loc)
+                : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
+                    diag::Label("", {loc})
+                })}
+            { }
+        };
+
+    }
 
     namespace LLVMArrUtils {
         class Descriptor;
@@ -98,6 +146,10 @@ namespace LCompilers {
                    ASR::is_a<ASR::Class_t>(*asr_type)||
                    ASR::is_a<ASR::Dict_t>(*asr_type);
         }
+        static inline bool is_llvm_pointer(const ASR::ttype_t& asr_type) {
+            return ( ASR::is_a<ASR::Pointer_t>(asr_type) ||
+                   ASR::is_a<ASR::Allocatable_t>(asr_type) );
+        }
     }
 
     class LLVMList;
@@ -123,9 +175,34 @@ namespace LCompilers {
             LLVMSetInterface* set_api;
             LLVMArrUtils::Descriptor* arr_api;
             llvm::Module* module;
+            std::string& der_type_name;
+            std::map<std::string, llvm::StructType*>& name2dertype;
+            std::map<std::string, llvm::StructType*>& name2dercontext;
+            std::vector<std::string>& struct_type_stack;
+            std::map<std::string, std::string>& dertype2parent;
+            std::map<std::string, std::map<std::string, int>>& name2memidx;
+            std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache;
+            std::map<std::string, std::pair<llvm::Type*, llvm::Type*>>& fname2arg_type;
+
+            LLVMDictInterface* dict_api_lp;
+            LLVMDictInterface* dict_api_sc;
+
+            CompilerOptions &compiler_options;
+
+            llvm::StructType *complex_type_4, *complex_type_8;
+            llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
+            llvm::PointerType *character_type;
 
             LLVMUtils(llvm::LLVMContext& context,
-                llvm::IRBuilder<>* _builder);
+                llvm::IRBuilder<>* _builder, std::string& der_type_name_,
+                std::map<std::string, llvm::StructType*>& name2dertype_,
+                std::map<std::string, llvm::StructType*>& name2dercontext_,
+                std::vector<std::string>& struct_type_stack_,
+                std::map<std::string, std::string>& dertype2parent_,
+                std::map<std::string, std::map<std::string, int>>& name2memidx_,
+                CompilerOptions &compiler_options_,
+                std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache_,
+                std::map<std::string, std::pair<llvm::Type*, llvm::Type*>>& fname2arg_type_);
 
             llvm::Value* create_gep(llvm::Value* ds, int idx);
 
@@ -145,11 +222,67 @@ namespace LCompilers {
             llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                            llvm::Module& module, ASR::ttype_t* asr_type);
 
+            llvm::Value* is_ineq_by_value(llvm::Value* left, llvm::Value* right,
+                                          llvm::Module& module, ASR::ttype_t* asr_type,
+                                          int8_t overload_id, ASR::ttype_t* int32_type=nullptr);
+
             void set_iterators();
 
             void reset_iterators();
 
             void set_module(llvm::Module* module_);
+
+            llvm::Type* getMemberType(ASR::ttype_t* mem_type,
+                ASR::Variable_t* member, llvm::Module* module);
+
+            void createStructContext(ASR::StructType_t* der_type);
+
+            llvm::Type* getStructType(ASR::StructType_t* der_type, llvm::Module* module, bool is_pointer=false);
+
+            llvm::Type* getStructType(ASR::ttype_t* _type, llvm::Module* module, bool is_pointer=false);
+
+            llvm::Type* getUnionType(ASR::UnionType_t* union_type,
+                llvm::Module* module, bool is_pointer=false);
+
+            llvm::Type* getUnionType(ASR::ttype_t* _type,
+                llvm::Module* module, bool is_pointer=false);
+
+            llvm::Type* getClassType(ASR::ClassType_t* der_type, bool is_pointer=false);
+
+            llvm::Type* getClassType(ASR::StructType_t* der_type, bool is_pointer=false);
+
+            llvm::Type* getClassType(ASR::ttype_t* _type, bool is_pointer=false);
+
+            llvm::Type* getFPType(int a_kind, bool get_pointer=false);
+
+            llvm::Type* getComplexType(int a_kind, bool get_pointer=false);
+
+            llvm::Type* get_el_type(ASR::ttype_t* m_type_, llvm::Module* module);
+
+            llvm::Type* get_dict_type(ASR::ttype_t* asr_type, llvm::Module* module);
+
+            llvm::Type* get_set_type(ASR::ttype_t* asr_type, llvm::Module* module);
+
+            llvm::FunctionType* get_function_type(const ASR::Function_t &x, llvm::Module* module);
+
+            std::vector<llvm::Type*> convert_args(const ASR::Function_t &x, llvm::Module* module);
+
+            llvm::Type* get_type_from_ttype_t(ASR::ttype_t* asr_type,
+                ASR::symbol_t *type_declaration, ASR::storage_typeType m_storage,
+                bool& is_array_type, bool& is_malloc_array_type, bool& is_list,
+                ASR::dimension_t*& m_dims, int& n_dims, int& a_kind, llvm::Module* module,
+                ASR::abiType m_abi=ASR::abiType::Source, bool is_pointer=false);
+
+            llvm::Type* get_type_from_ttype_t_util(ASR::ttype_t* asr_type,
+                llvm::Module* module, ASR::abiType asr_abi=ASR::abiType::Source);
+
+            llvm::Type* get_arg_type_from_ttype_t(ASR::ttype_t* asr_type,
+                ASR::symbol_t *type_declaration, ASR::abiType m_abi, ASR::abiType arg_m_abi,
+                ASR::storage_typeType m_storage, bool arg_m_value_attr, int& n_dims,
+                int& a_kind, bool& is_array_type, ASR::intentType arg_intent, llvm::Module* module,
+                bool get_pointer=true);
+
+            void set_dict_api(ASR::Dict_t* dict_type);
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
                 ASR::ttype_t* asr_type, llvm::Module* module,
@@ -288,6 +421,11 @@ namespace LCompilers {
             llvm::Value* check_list_equality(llvm::Value* l1, llvm::Value* l2, ASR::ttype_t *item_type,
                 llvm::LLVMContext& context, llvm::IRBuilder<>* builder, llvm::Module& module);
 
+            llvm::Value* check_list_inequality(llvm::Value* l1, llvm::Value* l2,
+                ASR::ttype_t *item_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module,
+                int8_t overload_id, ASR::ttype_t* int32_type=nullptr);
+
             void list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                   llvm::Value* num_times, llvm::Value* init_list_len,
                                   llvm::Module* module);
@@ -328,6 +466,10 @@ namespace LCompilers {
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
+
+            llvm::Value* check_tuple_inequality(llvm::Value* t1, llvm::Value* t2,
+                ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module, int8_t overload_id);
 
             void concat(llvm::Value* t1, llvm::Value* t2, ASR::Tuple_t* tuple_type_1,
                         ASR::Tuple_t* tuple_type_2, llvm::Value* concat_tuple,

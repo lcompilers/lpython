@@ -322,7 +322,22 @@ expr
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedUnaryMinus(expr arg, ttype type, expr? value, expr overloaded)
+    -- This Cast changes the value (the bits) of the `arg`:
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
+    -- This ArrayPhysicalCast we only change the physical type, the logical type does not change
+    -- Note: the "new" physical type here will also be part of the "type" member
+    -- This allow to represent any combination, but we'll only support a few, at least we need:
+    -- Maybe it's easier to add an enumeration here:
+    -- Descriptor -> Pointer
+    -- Pointer -> Descriptor
+
+    -- CompileTimeFixedSizeArray -> Pointer
+    -- CompileTimeFixedSizeArray -> Descriptor
+    -- Descriptor -> NumPy
+    -- NumPy -> Descriptor
+    -- ISODescriptor -> Descriptor
+    -- Descriptor -> ISODescriptor
+    | ArrayPhysicalCast(expr arg, array_physical_type old, array_physical_type new, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(expr a, expr key, expr? default, ttype type, expr? value)
@@ -387,13 +402,19 @@ ttype
     | CPtr()
     | SymbolicExpression()
     | TypeParameter(identifier param)
-    | Array(ttype type, dimension* dims)
+    | Array(ttype type, dimension* dims, array_physical_type physical_type)
     | FunctionType(ttype* arg_types, ttype? return_var_type,
         abi abi, deftype deftype, string? bindc_name, bool elemental,
         bool pure, bool module, bool inline, bool static, ttype* type_params,
         symbol* restrictions, bool is_restriction)
 
-restriction_arg = RestrictionArg(identifier restriction_name, symbol restriction_func)
+-- TODO: prefix the enumerators here, improve the names
+array_physical_type
+    = DescriptorArray
+    | PointerToDataArray
+    | FixedSizeArray
+    | NumPyArray
+    | ISODescriptorArray
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 
@@ -429,7 +450,9 @@ cast_kind
     | IntegerToCharacter
     | LogicalToCharacter
     | UnsignedIntegerToInteger
+    | UnsignedIntegerToUnsignedInteger
     | UnsignedIntegerToReal
+    | UnsignedIntegerToLogical
     | IntegerToUnsignedInteger
     | RealToUnsignedInteger
     | CPtrToUnsignedInteger

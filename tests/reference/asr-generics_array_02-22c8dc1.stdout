@@ -43,6 +43,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 205 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -63,6 +64,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 205 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -115,6 +117,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 205 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -134,6 +137,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )
                                         (Array
                                             (Integer 4)
@@ -143,6 +147,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )]
                                         ()
                                         Source
@@ -249,6 +254,7 @@
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 206 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -269,6 +275,7 @@
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 206 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -321,6 +328,7 @@
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 206 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -340,6 +348,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )
                                         (Array
                                             (Real 4)
@@ -349,6 +358,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )]
                                         ()
                                         Source
@@ -773,6 +783,7 @@
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 202 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -795,6 +806,7 @@
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 202 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -849,6 +861,7 @@
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (Var 202 n))]
+                                                        PointerToDataArray
                                                     )
                                                     ()
                                                     Source
@@ -870,6 +883,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )
                                         (Array
                                             (TypeParameter
@@ -881,6 +895,7 @@
                                                 (Integer 4)
                                                 ()
                                             ))]
+                                            PointerToDataArray
                                         )]
                                         ()
                                         Source
@@ -999,6 +1014,7 @@
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -1019,6 +1035,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -1039,6 +1056,7 @@
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -1059,6 +1077,7 @@
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -1116,8 +1135,30 @@
                                         209 __asr_generic_g_0
                                         ()
                                         [((IntegerConstant 1 (Integer 4)))
-                                        ((Var 203 a_int))
-                                        ((Var 203 b_int))]
+                                        ((ArrayPhysicalCast
+                                            (Var 203 a_int)
+                                            FixedSizeArray
+                                            PointerToDataArray
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            ()
+                                        ))
+                                        ((ArrayPhysicalCast
+                                            (Var 203 b_int)
+                                            FixedSizeArray
+                                            PointerToDataArray
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            ()
+                                        ))]
                                         ()
                                     )
                                     (=
@@ -1172,8 +1213,30 @@
                                         209 __asr_generic_g_1
                                         ()
                                         [((IntegerConstant 1 (Integer 4)))
-                                        ((Var 203 a_float))
-                                        ((Var 203 b_float))]
+                                        ((ArrayPhysicalCast
+                                            (Var 203 a_float)
+                                            FixedSizeArray
+                                            PointerToDataArray
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            ()
+                                        ))
+                                        ((ArrayPhysicalCast
+                                            (Var 203 b_float)
+                                            FixedSizeArray
+                                            PointerToDataArray
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            ()
+                                        ))]
                                         ()
                                     )]
                                     ()

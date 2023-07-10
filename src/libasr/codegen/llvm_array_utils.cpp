@@ -187,30 +187,6 @@ namespace LCompilers {
             return dim_des->getPointerTo();
         }
 
-        llvm::Type* SimpleCMODescriptor::get_malloc_array_type
-        (ASR::ttype_t* m_type_, llvm::Type* el_type, bool get_pointer) {
-            std::string array_key = ASRUtils::get_type_code(m_type_, false, false);
-            if( tkr2array.find(array_key) != tkr2array.end() ) {
-                if( get_pointer ) {
-                    return tkr2array[array_key].first->getPointerTo();
-                }
-                return tkr2array[array_key].first;
-            }
-            llvm::Type* dim_des_array = create_dimension_descriptor_array_type();
-            std::vector<llvm::Type*> array_type_vec = {
-                el_type->getPointerTo(),
-                llvm::Type::getInt32Ty(context),
-                dim_des_array,
-                llvm::Type::getInt1Ty(context),
-                llvm::Type::getInt32Ty(context)};
-            llvm::StructType* new_array_type = llvm::StructType::create(context, array_type_vec, "array");
-            tkr2array[array_key] = std::make_pair(new_array_type, el_type);
-            if( get_pointer ) {
-                return tkr2array[array_key].first->getPointerTo();
-            }
-            return (llvm::Type*) tkr2array[array_key].first;
-        }
-
         llvm::Type* SimpleCMODescriptor::get_dimension_descriptor_type
         (bool get_pointer) {
             if( !get_pointer ) {
@@ -308,30 +284,29 @@ namespace LCompilers {
                 LCOMPILERS_ASSERT(false);
             }
 
+
             llvm::Value* source_offset_val = LLVM::CreateLoad(*builder, llvm_utils->create_gep(source, 1));
             llvm::Value* dest_offset = llvm_utils->create_gep(destination, 1);
             builder->CreateStore(source_offset_val, dest_offset);
+
 
             llvm::Value* source_dim_des_val = LLVM::CreateLoad(*builder, llvm_utils->create_gep(source, 2));
             llvm::Value* dest_dim_des_ptr = llvm_utils->create_gep(destination, 2);
             builder->CreateStore(source_dim_des_val, dest_dim_des_ptr);
 
-            llvm::Value* source_allocated_flag = this->get_is_allocated_flag(source);
-            llvm::Value* destination_allocated_flag_ptr = llvm_utils->create_gep(destination, 3);
-            builder->CreateStore(source_allocated_flag, destination_allocated_flag_ptr);
 
             llvm::Value* source_rank = this->get_rank(source, false);
             this->set_rank(destination, source_rank);
         };
 
         void SimpleCMODescriptor::fill_malloc_array_details(
-        llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
-        std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-        llvm::Module* module) {
+            llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
+            std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
+            llvm::Module* module) {
+            arr = LLVM::CreateLoad(*builder, arr);
             llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
                                     offset_val);
-            set_is_allocated_flag(arr, 1);
             llvm::Value* dim_des_val = LLVM::CreateLoad(*builder, llvm_utils->create_gep(arr, 2));
             llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             for( int r = 0; r < n_dims; r++ ) {
@@ -378,6 +353,7 @@ namespace LCompilers {
             llvm::Value* target_data = get_pointer_to_data(target);
             builder->CreateStore(value_desc_data, target_data);
 
+
             std::vector<llvm::Value*> section_first_indices;
             for( int i = 0; i < value_rank; i++ ) {
                 if( ds[i] != nullptr ) {
@@ -391,6 +367,7 @@ namespace LCompilers {
             llvm::Value* target_offset = cmo_convertor_single_element(
                 value_desc, section_first_indices, value_rank, false);
             builder->CreateStore(target_offset, get_offset(target, false));
+
 
             llvm::Value* value_dim_des_array = get_pointer_to_dimension_descriptor_array(value_desc);
             llvm::Value* target_dim_des_array = get_pointer_to_dimension_descriptor_array(target);
@@ -417,7 +394,6 @@ namespace LCompilers {
                 }
             }
             LCOMPILERS_ASSERT(j == target_rank);
-            set_is_allocated_flag(target, get_is_allocated_flag(value_desc));
             builder->CreateStore(
                 llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                        llvm::APInt(32, target_rank)),
@@ -470,8 +446,6 @@ namespace LCompilers {
                 r += 2;
             }
             LCOMPILERS_ASSERT(j == target_rank);
-            set_is_allocated_flag(target,
-                llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), llvm::APInt(1, 1)));
             builder->CreateStore(
                 llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                        llvm::APInt(32, target_rank)),
@@ -571,7 +545,7 @@ namespace LCompilers {
             // bool check_for_bounds = is_explicit_shape(v);
             bool check_for_bounds = false;
             llvm::Value* idx = nullptr;
-            if( data_only ) {
+            if( data_only || is_fixed_size ) {
                 LCOMPILERS_ASSERT(llvm_diminfo);
                 idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds);
                 if( is_fixed_size ) {
@@ -593,19 +567,22 @@ namespace LCompilers {
             return tmp;
         }
 
-        llvm::Value* SimpleCMODescriptor::get_is_allocated_flag(llvm::Value* array) {
-            return LLVM::CreateLoad(*builder, llvm_utils->create_gep(array, 3));
+        llvm::Value* SimpleCMODescriptor::get_is_allocated_flag(llvm::Value* array,
+            llvm::Type* llvm_data_type) {
+            return builder->CreateICmpNE(
+                builder->CreatePtrToInt(LLVM::CreateLoad(*builder, get_pointer_to_data(array)),
+                    llvm::Type::getInt64Ty(context)),
+                builder->CreatePtrToInt(llvm::ConstantPointerNull::get(llvm_data_type->getPointerTo()),
+                    llvm::Type::getInt64Ty(context))
+            );
         }
 
-        void SimpleCMODescriptor::set_is_allocated_flag(llvm::Value* array, bool status) {
-            llvm::Value* is_allocated_flag = llvm_utils->create_gep(array, 3);
-            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(1, (uint64_t) status)),
-                                    is_allocated_flag);
-        }
-
-        void SimpleCMODescriptor::set_is_allocated_flag(llvm::Value* array, llvm::Value* status) {
-            llvm::Value* is_allocated_flag = llvm_utils->create_gep(array, 3);
-            builder->CreateStore(status, is_allocated_flag);
+        void SimpleCMODescriptor::reset_is_allocated_flag(llvm::Value* array,
+            llvm::Type* llvm_data_type) {
+            builder->CreateStore(
+                llvm::ConstantPointerNull::get(llvm_data_type->getPointerTo()),
+                get_pointer_to_data(array)
+            );
         }
 
         llvm::Value* SimpleCMODescriptor::get_array_size(llvm::Value* array, llvm::Value* dim, int kind, int dim_kind) {
@@ -792,14 +769,12 @@ namespace LCompilers {
             // end
             llvm_utils->start_new_block(loopend);
 
-            llvm::Value* src_is_allocated_ptr = this->get_is_allocated_flag(src);
-            builder->CreateStore(src_is_allocated_ptr, llvm_utils->create_gep(src, 3));
+
             builder->CreateStore(n_dims, this->get_rank(dest, true));
         }
 
         void SimpleCMODescriptor::copy_array_data_only(llvm::Value* src, llvm::Value* dest,
-            llvm::Module* module, ASR::ttype_t* asr_data_type, llvm::Value* num_elements) {
-            llvm::Type* llvm_data_type = tkr2array[ASRUtils::get_type_code(asr_data_type, false, false)].second;
+            llvm::Module* module, llvm::Type* llvm_data_type, llvm::Value* num_elements) {
             llvm::DataLayout data_layout(module);
             uint64_t size = data_layout.getTypeAllocSize(llvm_data_type);
             llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));

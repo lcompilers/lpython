@@ -338,6 +338,10 @@ filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/structs_33.py"
+c = true
+
+[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 
@@ -408,7 +412,7 @@ filename = "../integration_tests/expr_05.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_integer_bitnot.py"
+filename = "../integration_tests/test_unary_op_03.py"
 asr = true
 llvm = true
 cpp = true
@@ -652,6 +656,10 @@ filename = "errors/structs_01.py"
 asr = true
 
 [[test]]
+filename = "errors/arrays_01.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_02.py"
 asr = true
 
@@ -843,6 +851,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_operator_01.py"
 asr = true
 
 [[test]]
@@ -1141,6 +1153,10 @@ asr = true
 
 [[test]]
 filename = "errors/bindc_04.py"
+asr = true
+
+[[test]]
+filename = "errors/bindc_10e.py"
 asr = true
 
 [[test]]

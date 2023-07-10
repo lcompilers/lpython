@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/print_arr.h>
+#include <libasr/pass/replace_print_arr.h>
 
 
 namespace LCompilers {

@@ -396,6 +396,15 @@ struct IntrinsicNodeHandler {
         newdim.m_start = nullptr, newdim.m_length = nullptr;
         dims.push_back(al, newdim);
         ASR::ttype_t* empty_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(array), &dims);
+        ASR::array_physical_typeType array_physical_type = ASRUtils::extract_physical_type(
+                                                                ASRUtils::expr_type(array));
+        if( array_physical_type == ASR::array_physical_typeType::FixedSizeArray ) {
+        empty_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(array),
+                        &dims, array_physical_type, true);
+        } else {
+        empty_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(array), &dims);
+        }
+        newshape = ASRUtils::cast_to_descriptor(al, newshape);
         return ASR::make_ArrayReshape_t(al, loc, array, newshape, empty_type, nullptr);
     }
 
