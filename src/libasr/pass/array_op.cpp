@@ -165,6 +165,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         } else if (var_rank == 0) {
             ASR::do_loop_head_t head;
             head.m_v = loop_vars[0];
+            head.loc = loop_vars[0]->base.loc;
             if( use_custom_loop_params ) {
                 int j = loop_var_indices[0];
                 head.m_start = result_lbound[j];
