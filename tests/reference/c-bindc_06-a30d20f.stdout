@@ -81,8 +81,6 @@ float _lfortran_caimag(float complex x);
 
 double _lfortran_zaimag(double complex x);
 
-float pi_32 =   3.14159265358979312e+00;
-double pi_64 =   3.14159265358979312e+00;
 double _lfortran_dacos(double x);
 
 double _lfortran_dacosh(double x);
