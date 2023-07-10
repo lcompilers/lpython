@@ -2735,18 +2735,21 @@ public:
             throw SemanticAbort();
         }
         if (ASR::is_a<ASR::Struct_t>(*asr_alloc_type)) {
-            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type);
-            if (st->m_abi != ASR::abiType::BindC) {
-                diag.add(diag::Diagnostic(
-                    "The struct in c_p_pointer must be C interoperable",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("not C interoperable",
-                                {asr_alloc_type->base.loc}),
-                        diag::Label("help: add the @ccallable decorator to this struct to make it C interoperable",
-                                {st->base.base.loc}, false)
-                    })
-                );
-                throw SemanticAbort();
+            ASR::symbol_t *sym = ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type;
+            if (ASR::is_a<ASR::StructType_t>(*sym)) {
+                ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
+                if (st->m_abi != ASR::abiType::BindC) {
+                    diag.add(diag::Diagnostic(
+                        "The struct in c_p_pointer must be C interoperable",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("not C interoperable",
+                                    {asr_alloc_type->base.loc}),
+                            diag::Label("help: add the @ccallable decorator to this struct to make it C interoperable",
+                                    {st->base.base.loc}, false)
+                        })
+                    );
+                    throw SemanticAbort();
+                }
             }
         }
         fill_shape_and_lower_bound_for_CPtrToPointer();
