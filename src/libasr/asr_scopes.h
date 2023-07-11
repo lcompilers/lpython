@@ -89,6 +89,8 @@ struct SymbolTable {
         scope[name] = symbol;
     }
 
+    void create_unique_symbols(std::string prefix="");
+
     // Marks all variables as external
     void mark_all_variables_external(Allocator &al);
 
