@@ -19,22 +19,22 @@ struct __attribute__((packed)) outer_struct {
 };
 
 
-inline void struct_deepcopy_outer_struct(struct outer_struct* src, struct outer_struct* dest);
-inline void struct_deepcopy_inner_struct(struct inner_struct* src, struct inner_struct* dest);
+inline void struct_deepcopy_outer_struct_dDlxNRXWp61v0dga17TkWW(struct outer_struct* src, struct outer_struct* dest);
+inline void struct_deepcopy_inner_struct_dDlxNRXWp61v0dga17TkWW(struct inner_struct* src, struct inner_struct* dest);
 
 
 // Implementations
 void check()
 {
-    struct inner_struct inner_struct_instance_value;
-    struct inner_struct* inner_struct_instance = &inner_struct_instance_value;
-    struct outer_struct outer_struct_instance_value;
-    struct outer_struct* outer_struct_instance = &outer_struct_instance_value;
-    struct outer_struct outer_struct_instance2_value;
-    struct outer_struct* outer_struct_instance2 = &outer_struct_instance2_value;
+    struct inner_struct inner_struct_instance_value_dDlxNRXWp61v0dga17TkWW;
+    struct inner_struct* inner_struct_instance = &inner_struct_instance_value_dDlxNRXWp61v0dga17TkWW;
+    struct outer_struct outer_struct_instance_value_dDlxNRXWp61v0dga17TkWW;
+    struct outer_struct* outer_struct_instance = &outer_struct_instance_value_dDlxNRXWp61v0dga17TkWW;
+    struct outer_struct outer_struct_instance2_value_dDlxNRXWp61v0dga17TkWW;
+    struct outer_struct* outer_struct_instance2 = &outer_struct_instance2_value_dDlxNRXWp61v0dga17TkWW;
     outer_struct_instance->inner_s.inner_field = 5;
-    struct_deepcopy_outer_struct(outer_struct_instance, outer_struct_instance2);
-    struct_deepcopy_inner_struct(&outer_struct_instance2->inner_s, inner_struct_instance);
+    struct_deepcopy_outer_struct_dDlxNRXWp61v0dga17TkWW(outer_struct_instance, outer_struct_instance2);
+    struct_deepcopy_inner_struct_dDlxNRXWp61v0dga17TkWW(&outer_struct_instance2->inner_s, inner_struct_instance);
     ASSERT(inner_struct_instance->inner_field == 5);
 }
 
@@ -50,12 +50,12 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void struct_deepcopy_inner_struct(struct inner_struct* src, struct inner_struct* dest) {
+void struct_deepcopy_inner_struct_dDlxNRXWp61v0dga17TkWW(struct inner_struct* src, struct inner_struct* dest) {
     dest->inner_field =  src->inner_field;
 }
 
-void struct_deepcopy_outer_struct(struct outer_struct* src, struct outer_struct* dest) {
-    struct_deepcopy_inner_struct(&(src->inner_s), &(dest->inner_s));;
+void struct_deepcopy_outer_struct_dDlxNRXWp61v0dga17TkWW(struct outer_struct* src, struct outer_struct* dest) {
+    struct_deepcopy_inner_struct_dDlxNRXWp61v0dga17TkWW(&(src->inner_s), &(dest->inner_s));;
 }
 
 

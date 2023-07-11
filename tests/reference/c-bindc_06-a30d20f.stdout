@@ -53,8 +53,8 @@ void test_arrays()
     array2->n_dims = 1;
     array2->dims[0].lower_bound = 0;
     array2->dims[0].length = 40;
-    struct CompareOperator compare_operator_value;
-    struct CompareOperator* compare_operator = &compare_operator_value;
+    struct CompareOperator compare_operator_value_rafnSlnJdpcEyT2WfShwVb;
+    struct CompareOperator* compare_operator = &compare_operator_value_rafnSlnJdpcEyT2WfShwVb;
     compare_operator->op_name = NULL;
     int32_t i;
     bool is_small;

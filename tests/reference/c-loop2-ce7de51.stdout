@@ -17,20 +17,20 @@ struct list_str {
     char** data;
 };
 
-inline bool compare_list_str_(struct list_str a, struct list_str b);
-inline bool compare_str(char* a, char* b);
-inline void print_list_str_(struct list_str a);
-inline void print_str(char* a);
-inline void list_init_str(struct list_str* x, int32_t capacity);
-inline void list_deepcopy_str(struct list_str* src, struct list_str* dest);
-inline void resize_if_needed_str(struct list_str* x);
-inline void list_append_str(struct list_str* x, char* element);
-inline void list_insert_str(struct list_str* x, int pos, char* element);
-inline int list_find_item_str(struct list_str* x, char* element);
-inline void list_remove_str(struct list_str* x, char* element);
-inline void list_clear_str(struct list_str* x);
-inline struct list_str* list_concat_str(struct list_str* left, struct list_str* right);
-inline struct list_str* list_section_str(struct list_str* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present);
+inline bool compare_list_str__2lijY6CdOnHRGifPaiCYCQ(struct list_str a, struct list_str b);
+inline bool compare_str_2lijY6CdOnHRGifPaiCYCQ(char* a, char* b);
+inline void print_list_str__2lijY6CdOnHRGifPaiCYCQ(struct list_str a);
+inline void print_str_2lijY6CdOnHRGifPaiCYCQ(char* a);
+inline void list_init_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int32_t capacity);
+inline void list_deepcopy_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* src, struct list_str* dest);
+inline void resize_if_needed_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x);
+inline void list_append_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element);
+inline void list_insert_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int pos, char* element);
+inline int list_find_item_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element);
+inline void list_remove_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element);
+inline void list_clear_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x);
+inline struct list_str* list_concat_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* left, struct list_str* right);
+inline struct list_str* list_section_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present);
 
 
 // Implementations
@@ -46,15 +46,15 @@ struct list_str _lpython_argv()
     struct list_str argv;
     int32_t i;
     argc = _lpython_get_argc();
-    struct list_str constname0;
-    list_init_str(&constname0, 0);
-    constname0.current_end_point = 0;
-    list_deepcopy_str(&constname0, &argv);
+    struct list_str constname0_2lijY6CdOnHRGifPaiCYCQ;
+    list_init_str_2lijY6CdOnHRGifPaiCYCQ(&constname0_2lijY6CdOnHRGifPaiCYCQ, 0);
+    constname0_2lijY6CdOnHRGifPaiCYCQ.current_end_point = 0;
+    list_deepcopy_str_2lijY6CdOnHRGifPaiCYCQ(&constname0_2lijY6CdOnHRGifPaiCYCQ, &argv);
 
     for (i=0; i<=argc - 1; i++) {
-        list_append_str(&argv, _lpython_get_argv(i));
+        list_append_str_2lijY6CdOnHRGifPaiCYCQ(&argv, _lpython_get_argv(i));
     }
-    list_deepcopy_str(&argv, &_lpython_return_variable);
+    list_deepcopy_str_2lijY6CdOnHRGifPaiCYCQ(&argv, &_lpython_return_variable);
 
     return _lpython_return_variable;
 }
@@ -66,8 +66,8 @@ void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 
 void global_initializer()
 {
-    struct list_str constname01 = _lpython_argv();
-    list_deepcopy_str(&constname01, &argv);
+    struct list_str constname0_2lijY6CdOnHRGifPaiCYCQ1_2lijY6CdOnHRGifPaiCYCQ = _lpython_argv();
+    list_deepcopy_str_2lijY6CdOnHRGifPaiCYCQ(&constname0_2lijY6CdOnHRGifPaiCYCQ1_2lijY6CdOnHRGifPaiCYCQ, &argv);
 
 }
 
@@ -101,63 +101,63 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-bool compare_str(char* a, char* b) {
+bool compare_str_2lijY6CdOnHRGifPaiCYCQ(char* a, char* b) {
     return strcmp(a, b) == 0;
 }
 
-bool compare_list_str_(struct list_str a, struct list_str b) {
+bool compare_list_str__2lijY6CdOnHRGifPaiCYCQ(struct list_str a, struct list_str b) {
     if (a.current_end_point != b.current_end_point)
         return false;
     for (int i=0; i<a.current_end_point; i++) {
-        if (!compare_str(a.data[i], b.data[i]))
+        if (!compare_str_2lijY6CdOnHRGifPaiCYCQ(a.data[i], b.data[i]))
             return false;
     }
     return true;
 }
 
-void print_str(char* a) {
+void print_str_2lijY6CdOnHRGifPaiCYCQ(char* a) {
     printf("'%s'", a);
 }
 
-void print_list_str_(struct list_str a) {
+void print_list_str__2lijY6CdOnHRGifPaiCYCQ(struct list_str a) {
     printf("[");
     for (int i=0; i<a.current_end_point; i++) {
-        print_str(a.data[i]);
+        print_str_2lijY6CdOnHRGifPaiCYCQ(a.data[i]);
         if (i+1!=a.current_end_point)
             printf(", ");
     }
     printf("]");
 }
 
-void list_init_str(struct list_str* x, int32_t capacity) {
+void list_init_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int32_t capacity) {
     x->capacity = capacity;
     x->current_end_point = 0;
     x->data = (char**) malloc(capacity * sizeof(char*));
 }
 
-void list_deepcopy_str(struct list_str* src, struct list_str* dest) {
+void list_deepcopy_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* src, struct list_str* dest) {
     dest->capacity = src->capacity;
     dest->current_end_point = src->current_end_point;
     dest->data = (char**) malloc(src->capacity * sizeof(char*));
     memcpy(dest->data, src->data, src->capacity * sizeof(char*));
 }
 
-void resize_if_needed_str(struct list_str* x) {
+void resize_if_needed_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x) {
     if (x->capacity == x->current_end_point) {
         x->capacity = 2 * x->capacity + 1;
         x->data = (char**) realloc(x->data, x->capacity * sizeof(char*));
     }
 }
 
-void list_append_str(struct list_str* x, char* element) {
-    resize_if_needed_str(x);
+void list_append_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element) {
+    resize_if_needed_str_2lijY6CdOnHRGifPaiCYCQ(x);
     x->data[x->current_end_point] = NULL;
     _lfortran_strcpy(&x->data[x->current_end_point], element, 1);
     x->current_end_point += 1;
 }
 
-void list_insert_str(struct list_str* x, int pos, char* element) {
-    resize_if_needed_str(x);
+void list_insert_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int pos, char* element) {
+    resize_if_needed_str_2lijY6CdOnHRGifPaiCYCQ(x);
     int pos_ptr = pos;
     char* tmp_ptr = x->data[pos];
     char* tmp;
@@ -173,17 +173,17 @@ void list_insert_str(struct list_str* x, int pos, char* element) {
     x->current_end_point += 1;
 }
 
-int list_find_item_str(struct list_str* x, char* element) {
+int list_find_item_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element) {
     int el_pos = 0;
     while (x->current_end_point > el_pos) {
-        if (compare_str(x->data[el_pos], element)) return el_pos;
+        if (compare_str_2lijY6CdOnHRGifPaiCYCQ(x->data[el_pos], element)) return el_pos;
         el_pos++;
     }
     return -1;
 }
 
-void list_remove_str(struct list_str* x, char* element) {
-    int el_pos = list_find_item_str(x, element);
+void list_remove_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, char* element) {
+    int el_pos = list_find_item_str_2lijY6CdOnHRGifPaiCYCQ(x, element);
     while (x->current_end_point > el_pos) {
         int tmp = el_pos + 1;
         x->data[el_pos] = x->data[tmp];
@@ -192,23 +192,23 @@ void list_remove_str(struct list_str* x, char* element) {
     x->current_end_point -= 1;
 }
 
-void list_clear_str(struct list_str* x) {
+void list_clear_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x) {
     free(x->data);
     x->capacity = 4;
     x->current_end_point = 0;
     x->data = (char**) malloc(x->capacity * sizeof(char*));
 }
 
-struct list_str* list_concat_str(struct list_str* left, struct list_str* right) {
+struct list_str* list_concat_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* left, struct list_str* right) {
     struct list_str *result = (struct list_str*)malloc(sizeof(struct list_str));
-    list_init_str(result, left->current_end_point + right->current_end_point);
+    list_init_str_2lijY6CdOnHRGifPaiCYCQ(result, left->current_end_point + right->current_end_point);
     memcpy(result->data, left->data, left->current_end_point * sizeof(char*));
     memcpy(result->data + left->current_end_point, right->data, right->current_end_point * sizeof(char*));
     result->current_end_point = left->current_end_point + right->current_end_point;
     return result;
 }
 
-struct list_str* list_section_str(struct list_str* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present) {
+struct list_str* list_section_str_2lijY6CdOnHRGifPaiCYCQ(struct list_str* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present) {
     int s_len = x->current_end_point;
     if (step == 0) {
         printf("slice step cannot be zero");
@@ -221,11 +221,11 @@ struct list_str* list_section_str(struct list_str* x, int32_t idx1, int32_t idx2
     idx2 = step > 0 ? (idx2 > s_len ? s_len : idx2) : idx2;
     idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;
     struct list_str *__tmp = (struct list_str*) malloc(sizeof(struct list_str));
-    list_init_str(__tmp, 4);
+    list_init_str_2lijY6CdOnHRGifPaiCYCQ(__tmp, 4);
     int s_i = idx1;
     while((step > 0 && s_i >= idx1 && s_i < idx2) ||
         (step < 0 && s_i <= idx1 && s_i > idx2)) {
-    list_append_str(__tmp, x->data[s_i]);
+    list_append_str_2lijY6CdOnHRGifPaiCYCQ(__tmp, x->data[s_i]);
     s_i+=step;
     }
     return __tmp;
