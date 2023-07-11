@@ -153,14 +153,18 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
         ASR::ExternalSymbol_t& xx = const_cast<ASR::ExternalSymbol_t&>(x);
-        ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
-        ASR::symbol_t *m_sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)m);
-        if (sym_to_new_name.find(m_sym) == sym_to_new_name.end()) {
-            visit_symbol(*m_sym);
-        }
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             return;
+        }
+        ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
+        if (m) {
+            ASR::symbol_t *m_sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)m);
+            if (sym_to_new_name.find(m_sym) == sym_to_new_name.end()) {
+                visit_symbol(*m_sym);
+            }
+        } else {
+            this->visit_symbol(*x.m_external);
         }
         xx.m_name = s2c(al, update_name(xx.m_name));
         sym_to_new_name[sym] = xx.m_name;
@@ -246,6 +250,9 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
     void visit_Variable(const ASR::Variable_t &x) {
         ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
+        if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
+            return;
+        }
         xx.m_name = s2c(al, update_name(xx.m_name));
         sym_to_new_name[sym] = xx.m_name;
         for (size_t i=0; i<xx.n_dependencies; i++) {
