@@ -19,5 +19,10 @@ python src/libasr/wasm_instructions_visitor.py
 (cd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)
 (cd src/lpython/parser && bison -Wall -d -r all parser.yy)
 
+python -c "file = 'src/lpython/parser/parser.tab.cc'
+with open(file, 'r') as f: text = f.read()
+with open(file, 'w') as f:
+    f.write('[[maybe_unused]] int yynerrs'.join(text.split('int yynerrs')))"
+
 grep -n "'" src/lpython/parser/parser.yy && echo "Single quote not allowed" && exit 1
 echo "OK"
