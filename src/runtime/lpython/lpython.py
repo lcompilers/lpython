@@ -139,6 +139,18 @@ class UnsignedInteger:
         else:
             raise TypeError("Unsupported operand type")
 
+    def __lshift__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, self.value << other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
+    def __rshift__(self, other):
+        if isinstance(other, self.__class__):
+            return UnsignedInteger(self.bit_width, self.value >> other.value)
+        else:
+            raise TypeError("Unsupported operand type")
+
     # conversion to integer
     def __int__(self):
         return self.value
