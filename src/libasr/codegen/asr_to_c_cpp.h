@@ -700,6 +700,22 @@ R"(#include <stdio.h>
                 std::string(x.m_name) == "char" ||
                 std::string(x.m_name) == "present" ||
                 std::string(x.m_name) == "len" ||
+                std::string(x.m_name) == "cabs" ||
+                std::string(x.m_name) == "cacos" ||
+                std::string(x.m_name) == "cacosh" ||
+                std::string(x.m_name) == "casin" ||
+                std::string(x.m_name) == "casinh" ||
+                std::string(x.m_name) == "catan" ||
+                std::string(x.m_name) == "catanh" ||
+                std::string(x.m_name) == "ccos" ||
+                std::string(x.m_name) == "ccosh" ||
+                std::string(x.m_name) == "cexp" ||
+                std::string(x.m_name) == "clog" ||
+                std::string(x.m_name) == "csin" ||
+                std::string(x.m_name) == "csinh" ||
+                std::string(x.m_name) == "csqrt" ||
+                std::string(x.m_name) == "ctan" ||
+                std::string(x.m_name) == "ctanh" ||
                 std::string(x.m_name) == "not"
                 ) && intrinsic_module) {
             // Intrinsic function `int`
@@ -720,7 +736,9 @@ R"(#include <stdio.h>
             return;
         }
         ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
+        bool generate_body = true;
         if (f_type->m_deftype == ASR::deftypeType::Interface) {
+            generate_body = false;
             if (f_type->m_abi == ASR::abiType::BindC) {
                 if (x.m_module_file) {
                     user_headers.insert(std::string(x.m_module_file));
@@ -733,8 +751,11 @@ R"(#include <stdio.h>
                 indentation_level += 1;
                 sub += "\n" + get_func_body_bind_python(x);
                 indentation_level -= 1;
+            } else {
+                generate_body = true;
             }
-        } else {
+        }
+        if( generate_body ) {
             sub += "\n";
 
             indentation_level += 1;
@@ -996,6 +1017,12 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
             ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
+        ASR::FunctionType_t *fn_type = ASRUtils::get_FunctionType(fn);
+        if (fn_type->m_abi == ASR::abiType::BindC && fn_type->m_bindc_name) {
+            fn_name = fn_type->m_bindc_name;
+        } else {
+            fn_name = fn->m_name;
+        }
         if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
                 LCOMPILERS_ASSERT(x.n_args > 0);
@@ -2173,6 +2200,33 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         handle_BinOp(x);
     }
 
+    void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
+        self().visit_expr(*x.m_re);
+        std::string re = std::move(src);
+        self().visit_expr(*x.m_im);
+        std::string im = std::move(src);
+        src = "CMPLX(" + re + "," + im + ")";
+    }
+
+    void visit_StructTypeConstructor(const ASR::StructTypeConstructor_t &x) {
+        std::string out = "{";
+        ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(x.m_dt_sym);
+        for (size_t i = 0; i < x.n_args; i++) {
+            if (x.m_args[i].m_value) {
+                out += ".";
+                out += st->m_members[i];
+                out += " = ";
+                self().visit_expr(*x.m_args[i].m_value);
+                out += src;
+                if (i < x.n_args-1) {
+                    out += ", ";
+                }
+            }
+        }
+        out += "}";
+        src = out;
+    }
+
     template <typename T>
     void handle_BinOp(const T &x) {
         CHECK_FAST_C_CPP(compiler_options, x)
@@ -2670,6 +2724,13 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             ASRUtils::symbol_get_past_external(x.m_name));
         // TODO: use a mapping with a hash(s) instead:
         std::string sym_name = s->m_name;
+        ASR::FunctionType_t *s_type = ASRUtils::get_FunctionType(s);
+        if (s_type->m_abi == ASR::abiType::BindC && s_type->m_bindc_name) {
+            sym_name = s_type->m_bindc_name;
+        } else {
+            sym_name = s->m_name;
+        }
+
         if (sym_name == "exit") {
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
@@ -2851,6 +2912,15 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         out += "(" + src + ")";
         src = out;
     }
+
+    void visit_IntrinsicFunctionSqrt(const ASR::IntrinsicFunctionSqrt_t &x) {
+        std::string out = "sqrt";
+        headers.insert("math.h");
+        this->visit_expr(*x.m_arg);
+        out += "(" + src + ")";
+        src = out;
+    }
+
 };
 
 } // namespace LCompilers

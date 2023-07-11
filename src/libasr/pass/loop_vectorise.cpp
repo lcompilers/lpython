@@ -129,6 +129,13 @@ public:
         ASR::expr_t* loop_start = x.m_head.m_start;
         ASR::expr_t* loop_end = x.m_head.m_end;
         ASR::expr_t* loop_inc = x.m_head.m_increment;
+        LCOMPILERS_ASSERT(loop_start);
+        LCOMPILERS_ASSERT(loop_end);
+        if (!loop_inc) {
+            int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_head.m_v));
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind));
+            loop_inc = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, type));
+        }
         ASR::expr_t* loop_start_value = ASRUtils::expr_value(loop_start);
         ASR::expr_t* loop_end_value = ASRUtils::expr_value(loop_end);
         ASR::expr_t* loop_inc_value = ASRUtils::expr_value(loop_inc);

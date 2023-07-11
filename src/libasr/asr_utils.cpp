@@ -133,6 +133,91 @@ void extract_module_python(const ASR::TranslationUnit_t &m,
     }
 }
 
+void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_interface) {
+    /*
+        Iterate over body of program, check if there are any subroutine calls if yes, iterate over its args
+        and update the args if they are equal to the old symbol
+        For example:
+            function func(f)
+                double precision c
+                call sub2(c)
+                print *, c(d)
+            end function
+        This function updates `sub2` to use the new symbol `c` that is now a function, not a variable.
+        Along with this, it also updates the args of `sub2` to use the new symbol `c` instead of the old one.
+    */
+    class UpdateArgsVisitor : public PassUtils::PassVisitor<UpdateArgsVisitor>
+    {
+        public:
+        SymbolTable* scope = current_scope;
+        UpdateArgsVisitor(Allocator &al) : PassVisitor(al, nullptr) {}
+
+        ASR::symbol_t* fetch_sym(ASR::symbol_t* arg_sym_underlying) {
+            ASR::symbol_t* sym = nullptr;
+            if (ASR::is_a<ASR::Variable_t>(*arg_sym_underlying)) {
+                ASR::Variable_t* arg_variable = ASR::down_cast<ASR::Variable_t>(arg_sym_underlying);
+                std::string arg_variable_name = std::string(arg_variable->m_name);
+                sym = arg_variable->m_parent_symtab->get_symbol(arg_variable_name);
+            } else if (ASR::is_a<ASR::Function_t>(*arg_sym_underlying)) {
+                ASR::Function_t* arg_function = ASR::down_cast<ASR::Function_t>(arg_sym_underlying);
+                std::string arg_function_name = std::string(arg_function->m_name);
+                sym = arg_function->m_symtab->parent->get_symbol(arg_function_name);
+            }
+            return sym;
+        }
+
+        void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
+            ASR::SubroutineCall_t* subrout_call = (ASR::SubroutineCall_t*)(&x);
+            for (size_t j = 0; j < subrout_call->n_args; j++) {
+                ASR::call_arg_t arg = subrout_call->m_args[j];
+                ASR::expr_t* arg_expr = arg.m_value;
+                if (ASR::is_a<ASR::Var_t>(*arg_expr)) {
+                    ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(arg_expr);
+                    ASR::symbol_t* arg_sym = arg_var->m_v;
+                    ASR::symbol_t* arg_sym_underlying = ASRUtils::symbol_get_past_external(arg_sym);
+                    ASR::symbol_t* sym = fetch_sym(arg_sym_underlying);
+                    if (sym != arg_sym) {
+                        subrout_call->m_args[j].m_value = ASRUtils::EXPR(ASR::make_Var_t(al, arg_expr->base.loc, sym));
+                    }
+                }
+            }
+        }
+
+        void visit_Function(const ASR::Function_t& x) {
+            ASR::Function_t* func = (ASR::Function_t*)(&x);
+            for (size_t i = 0; i < func->n_args; i++) {
+                ASR::expr_t* arg_expr = func->m_args[i];
+                if (ASR::is_a<ASR::Var_t>(*arg_expr)) {
+                    ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(arg_expr);
+                    ASR::symbol_t* arg_sym = arg_var->m_v;
+                    ASR::symbol_t* arg_sym_underlying = ASRUtils::symbol_get_past_external(arg_sym);
+                    ASR::symbol_t* sym = fetch_sym(arg_sym_underlying);
+                    if (sym != arg_sym) {
+                        func->m_args[i] = ASRUtils::EXPR(ASR::make_Var_t(al, arg_expr->base.loc, sym));
+                    }
+                }
+            }
+            scope = func->m_symtab;
+            for (auto &it: scope->get_scope()) {
+                visit_symbol(*it.second);
+            }
+            scope = func->m_symtab;
+            for (size_t i = 0; i < func->n_body; i++) {
+                visit_stmt(*func->m_body[i]);
+            }
+            scope = func->m_symtab;
+        }
+    };
+
+    if (implicit_interface) {
+        UpdateArgsVisitor v(al);
+        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        ASR::asr_t* asr_ = tu_symtab->asr_owner;
+        ASR::TranslationUnit_t* tu = ASR::down_cast2<ASR::TranslationUnit_t>(asr_);
+        v.visit_TranslationUnit(*tu);
+    }
+}
+
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
     LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
     for (auto &a : m.m_global_scope->get_scope()) {
@@ -368,7 +453,7 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                     }
                     std::string mangled_name = current_scope->get_unique_name(
                                                 std::string(module_name) + "_" +
-                                                std::string(der_type_name));
+                                                std::string(der_type_name), false);
                     char* mangled_name_char = s2c(al, mangled_name);
                     if( current_scope->get_symbol(mangled_name) == nullptr ) {
                         bool make_new_ext_sym = true;
@@ -789,7 +874,7 @@ void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* ta
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, subrout, al);
             asr = ASRUtils::make_SubroutineCall_t_util(al, loc, a_name, sym,
-                                            a_args.p, 2, nullptr);
+                                            a_args.p, 2, nullptr, nullptr, false);
         }
     }
 }
@@ -1129,7 +1214,7 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
         }
         return ASRUtils::make_SubroutineCall_t_util(al, loc, final_sym,
                                         v, args.p, args.size(),
-                                        nullptr);
+                                        nullptr, nullptr, false);
     } else {
         if( func ) {
             ASRUtils::set_absent_optional_arguments_to_null(args, func, al);

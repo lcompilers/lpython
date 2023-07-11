@@ -720,9 +720,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s =
                     ASR::down_cast<ASR::Function_t>(item.second);
-                if (ASRUtils::get_FunctionType(s)->n_type_params == 0) {
-                    this->visit_Function(*s);
-                }
+                this->visit_Function(*s);
             }
         }
     }
@@ -2896,6 +2894,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 {x.m_fmt->base.loc}, "treated as '*'");
         }
         handle_print(x);
+    }
+
+    void visit_StringFormat(const ASR::StringFormat_t &x) {
+        diag.codegen_warning_label(
+            "StringFormat not implemented yet, ignored for now",
+            {x.m_fmt->base.loc}, "ignored");
+        this->visit_expr(*x.m_fmt);
     }
 
     void visit_FileWrite(const ASR::FileWrite_t &x) {

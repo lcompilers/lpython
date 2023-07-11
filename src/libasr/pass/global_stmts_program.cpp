@@ -50,7 +50,8 @@ void pass_wrap_global_stmts_program(Allocator &al,
                 al, unit.base.base.loc,
                 fn_s, nullptr,
                 nullptr, 0,
-                nullptr);
+                nullptr,
+                nullptr, false);
         prog_body.push_back(al, ASR::down_cast<ASR::stmt_t>(stmt));
         prog_dep.push_back(al, s2c(al, "_global_symbols"));
     }

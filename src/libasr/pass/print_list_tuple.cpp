@@ -109,7 +109,7 @@ class PrintListTupleVisitor
         ASR::expr_t *list_iter_var;
         {
             list_iter_var_name =
-                current_scope->get_unique_name("__list_iterator");
+                current_scope->get_unique_name("__list_iterator", false);
             list_iter_var = PassUtils::create_auxiliary_variable(loc,
                 list_iter_var_name, al, current_scope, int_type);
         }

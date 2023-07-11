@@ -367,7 +367,7 @@ namespace LCompilers {
                 return ;
             }
             if( replacer->result_var == nullptr ) {
-                std::string result_var_name = replacer->current_scope->get_unique_name("temp_struct_var__");
+                std::string result_var_name = replacer->current_scope->get_unique_name("temp_struct_var__", false);
                 replacer->result_var = PassUtils::create_auxiliary_variable(x->base.base.loc,
                                     result_var_name, replacer->al, replacer->current_scope, x->m_type);
                 *replacer->current_expr = replacer->result_var;

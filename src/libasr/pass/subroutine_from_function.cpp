@@ -158,7 +158,8 @@ class ReplaceFunctionCallWithSubroutineCall:
             result_arg.m_value = result_var;
             s_args.push_back(al, result_arg);
             ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
-                al, x->base.base.loc, x->m_name, nullptr, s_args.p, s_args.size(), nullptr));
+                al, x->base.base.loc, x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
+                nullptr, false));
             pass_result.push_back(al, subrout_call);
             result_var = nullptr;
         }

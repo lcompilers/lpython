@@ -52,6 +52,7 @@ struct CompilerOptions {
     bool new_parser = false;
     bool implicit_typing = false;
     bool implicit_interface = false;
+    bool implicit_argument_casting = false;
     bool print_leading_space = false;
     bool rtlib = false;
     std::string target = "";
