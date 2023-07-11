@@ -1484,7 +1484,7 @@ namespace LCompilers {
                         throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                     }
                 }
-                return builder->CreateCmp(pred, left, right);
+                return builder->CreateICmp(pred, left, right);
             }
             case ASR::ttypeType::Real: {
                 switch( overload_id ) {
@@ -1508,7 +1508,7 @@ namespace LCompilers {
                         throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                     }
                 }
-                return builder->CreateCmp(pred, left, right);
+                return builder->CreateFCmp(pred, left, right);
             }
             case ASR::ttypeType::Character: {
                 if( !are_iterators_set ) {
@@ -1555,7 +1555,7 @@ namespace LCompilers {
                             throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                         }
                     }
-                    cond = builder->CreateAnd(cond, builder->CreateCmp(pred, l, r));
+                    cond = builder->CreateAnd(cond, builder->CreateICmp(pred, l, r));
                     builder->CreateCondBr(cond, loopbody, loopend);
                 }
 
