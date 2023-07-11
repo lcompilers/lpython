@@ -5,8 +5,6 @@
 #include <libasr/asr_utils.h>
 
 
-std::string lcompilers_unique_ID;
-
 namespace LCompilers  {
 
 template< typename T >
@@ -54,17 +52,6 @@ void SymbolTable::mark_all_variables_external(Allocator &al) {
     }
 }
 
-// Create unique names in the symbol table that are replaced by
-// name = name + lcompilers_unique_ID;
-void SymbolTable::create_unique_symbols(std::string prefix) {
-    std::map<std::string, ASR::symbol_t*> tmp;
-    for (auto &it: scope) {
-        tmp[prefix + it.first + lcompilers_unique_ID] = it.second;
-    }
-    scope.clear();
-    scope = tmp;
-    tmp.clear();
-}
 
 ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
         size_t n_scope_names, char **m_scope_names) {
