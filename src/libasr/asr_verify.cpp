@@ -840,6 +840,8 @@ public:
 
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
         BaseWalkVisitor<VerifyVisitor>::visit_ArrayPhysicalCast(x);
+        require(x.m_new != x.m_old, "ArrayPhysicalCast is redundant, "
+            "the old physical type and new physical type must be different.");
         require(x.m_new == ASRUtils::extract_physical_type(x.m_type),
             "Destination physical type conflicts with the physical type of target");
         require(x.m_old == ASRUtils::extract_physical_type(ASRUtils::expr_type(x.m_arg)),
@@ -1027,21 +1029,21 @@ public:
     }
 
     void visit_ArrayConstant(const ArrayConstant_t& x) {
-        require(ASR::is_a<ASR::Array_t>(*x.m_type),
+        require(ASRUtils::is_array(x.m_type),
             "Type of ArrayConstant must be an array");
         BaseWalkVisitor<VerifyVisitor>::visit_ArrayConstant(x);
     }
 
     void visit_dimension(const dimension_t &x) {
         if (x.m_start) {
-            require_with_loc(ASR::is_a<ASR::Integer_t>(
+            require_with_loc(ASRUtils::is_integer(
                 *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_start))),
                 "Start dimension must be a signed integer", x.loc);
             visit_expr(*x.m_start);
         }
 
         if (x.m_length) {
-            require_with_loc(ASR::is_a<ASR::Integer_t>(
+            require_with_loc(ASRUtils::is_integer(
                 *ASRUtils::type_get_past_const(ASRUtils::expr_type(x.m_length))),
                 "Length dimension must be a signed integer", x.loc);
             visit_expr(*x.m_length);

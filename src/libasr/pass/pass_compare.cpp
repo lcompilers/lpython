@@ -166,7 +166,7 @@ public:
         std::string tuple_type_name = ASRUtils::type_to_str_python(type);
         ASR::Tuple_t *tuple_type = ASR::down_cast<ASR::Tuple_t>(type);
 
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name, false);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
@@ -227,10 +227,7 @@ public:
             /* a_return_var */ result,
             ASR::abiType::Source,
             ASR::accessType::Public, ASR::deftypeType::Implementation,
-            nullptr,
-            false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, false, false, false, false, false, nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -336,7 +333,7 @@ public:
         std::string list_type_name = ASRUtils::type_to_str_python(type);
         ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type);
 
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_compare_" + list_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_compare_" + list_type_name, false);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
@@ -415,8 +412,7 @@ public:
             ASR::accessType::Public, ASR::deftypeType::Implementation,
             nullptr,
             false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);

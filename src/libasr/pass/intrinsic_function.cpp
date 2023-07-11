@@ -152,6 +152,8 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                                             al, loc_, 4)), nullptr));
 
             ASR::alloc_arg_t alloc_arg;
+            alloc_arg.m_len_expr = nullptr;
+            alloc_arg.m_type = nullptr;
             alloc_arg.loc = loc_;
             alloc_arg.m_a = result_var_;
             Vec<ASR::dimension_t> alloc_dims;
@@ -261,7 +263,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         new_args.push_back(al, new_arg);
         pass_result.push_back(al, ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
             al, x->base.base.loc, x->m_name, x->m_original_name, new_args.p,
-            new_args.size(), x->m_dt)));
+            new_args.size(), x->m_dt, nullptr, false)));
 
         *current_expr = new_args.p[new_args.size() - 1].m_value;
     }
