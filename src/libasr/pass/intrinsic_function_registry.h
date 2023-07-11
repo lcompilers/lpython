@@ -1629,7 +1629,7 @@ namespace Max {
         Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
         std::string func_name = "_lcompilers_max0_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
-        std::string fn_name = scope->get_unique_name(func_name, false);
+        std::string fn_name = scope->get_unique_name(func_name);
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
         Vec<ASR::expr_t*> args;
         args.reserve(al, new_args.size());
@@ -1742,7 +1742,7 @@ namespace Min {
         Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
         std::string func_name = "_lcompilers_min0_" + type_to_str_python(arg_types[0]);
         ASR::ttype_t *return_type = arg_types[0];
-        std::string fn_name = scope->get_unique_name(func_name, false);
+        std::string fn_name = scope->get_unique_name(func_name);
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
         Vec<ASR::expr_t*> args;
         args.reserve(al, new_args.size());

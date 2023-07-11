@@ -4353,6 +4353,9 @@ public:
 
         if( m_new == ASR::array_physical_typeType::PointerToDataArray &&
             m_old == ASR::array_physical_typeType::DescriptorArray ) {
+            if( ASR::is_a<ASR::StructInstanceMember_t>(*m_arg) ) {
+                arg = LLVM::CreateLoad(*builder, arg);
+            }
             tmp = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(arg));
         } else if(
             m_new == ASR::array_physical_typeType::PointerToDataArray &&
