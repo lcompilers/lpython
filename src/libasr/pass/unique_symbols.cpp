@@ -6,6 +6,7 @@
 #include <libasr/pass/unique_symbols.h>
 #include <libasr/pass/pass_utils.h>
 #include <unordered_map>
+#include <set>
 
 
 std::string lcompilers_unique_ID;
@@ -14,13 +15,6 @@ namespace LCompilers {
 
 using ASR::down_cast;
 
-std::string update_name(std::string curr_name, std::string prefix="") {
-    if (startswith(curr_name, "_lpython") || startswith(curr_name, "_lfortran") ) {
-        return curr_name;
-    }
-    return prefix + curr_name + lcompilers_unique_ID;
-}
-
 class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
     private:
 
@@ -28,11 +22,21 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     public:
     std::map<ASR::symbol_t*, std::string> sym_to_new_name;
-    std::map<std::string, ASR::symbol_t*> tmp_current_syms;
     std::string mod_name = "";
+    std::set<std::string> skip_list;
 
     UniqueSymbolVisitor(Allocator& al_) : al(al_){}
 
+
+    std::string update_name(std::string curr_name, std::string prefix="") {
+        if (startswith(curr_name, "_lpython") || startswith(curr_name, "_lfortran") ) {
+            return curr_name;
+        }
+        if (skip_list.find(curr_name) != skip_list.end()) {
+            return curr_name;
+        }
+        return prefix + curr_name + lcompilers_unique_ID;
+    }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         ASR::TranslationUnit_t& xx = const_cast<ASR::TranslationUnit_t&>(x);
@@ -100,6 +104,10 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        ASR::FunctionType_t *f_type = ASRUtils::get_FunctionType(x);
+        if (f_type->m_abi == ASR::abiType::BindC) {
+            skip_list.insert(x.m_name);
+        }
         ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
