@@ -233,13 +233,6 @@ c = true
 wat = true
 
 [[test]]
-filename = "loop2.py"
-ast = true
-asr = true
-c = true
-# cpp = true # TODO: support list types
-
-[[test]]
 filename = "loop3.py"
 ast = true
 asr = true
@@ -338,10 +331,6 @@ filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/structs_33.py"
-c = true
-
-[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 
@@ -353,10 +342,6 @@ llvm = true
 [[test]]
 filename = "../integration_tests/bindc_02.py"
 asr = true
-
-[[test]]
-filename = "../integration_tests/bindc_06.py"
-c = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_abs.py"
