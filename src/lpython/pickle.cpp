@@ -106,6 +106,20 @@ public:
         }
         return s;
     }
+
+    std::string convert_impure_intrinsic_id(int x) {
+        std::string s;
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::green));
+        }
+        s.append(ASRUtils::get_impure_intrinsic_name(x));
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        return s;
+    }
 };
 
 std::string pickle(ASR::asr_t &asr, bool colors, bool indent,

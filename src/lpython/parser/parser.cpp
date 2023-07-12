@@ -117,7 +117,7 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &infile,
         diag::Diagnostics &diagnostics,
         uint32_t prev_loc,
-        bool new_parser) {
+        [[maybe_unused]] bool new_parser) {
     LPython::AST::ast_t* ast;
     // We will be using the new parser from now on
     new_parser = true;

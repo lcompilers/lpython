@@ -353,7 +353,6 @@ namespace LCompilers {
             llvm::Value* target_data = get_pointer_to_data(target);
             builder->CreateStore(value_desc_data, target_data);
 
-
             std::vector<llvm::Value*> section_first_indices;
             for( int i = 0; i < value_rank; i++ ) {
                 if( ds[i] != nullptr ) {
@@ -367,7 +366,6 @@ namespace LCompilers {
             llvm::Value* target_offset = cmo_convertor_single_element(
                 value_desc, section_first_indices, value_rank, false);
             builder->CreateStore(target_offset, get_offset(target, false));
-
 
             llvm::Value* value_dim_des_array = get_pointer_to_dimension_descriptor_array(value_desc);
             llvm::Value* target_dim_des_array = get_pointer_to_dimension_descriptor_array(target);

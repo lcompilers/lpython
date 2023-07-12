@@ -261,12 +261,12 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             std::string module_name = "__lcompilers_created__nested_context__" + std::string(
                                     ASRUtils::symbol_name(it.first)) + "_";
             std::map<ASR::symbol_t*, std::string> sym_to_name;
-            module_name = current_scope->get_unique_name(module_name);
+            module_name = current_scope->get_unique_name(module_name, false);
             for (auto &it2: it.second) {
                 std::string new_ext_var = module_name + std::string(ASRUtils::symbol_name(it2));
                 ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(
                             ASRUtils::symbol_get_past_external(it2));
-                new_ext_var = current_scope->get_unique_name(new_ext_var);
+                new_ext_var = current_scope->get_unique_name(new_ext_var, false);
                 ASR::ttype_t* var_type = ASRUtils::type_get_past_allocatable(
                     ASRUtils::type_get_past_pointer(var->m_type));
                 ASR::ttype_t* var_type_ = ASRUtils::type_get_past_array(var_type);
@@ -403,7 +403,8 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             visit_expr(*x.m_dt);
         }
         ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
-        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt);
+        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt,
+            nullptr, false);
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
@@ -423,7 +424,8 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
         }
 
         ASR::SubroutineCall_t& xx = const_cast<ASR::SubroutineCall_t&>(x);
-        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt);
+        ASRUtils::Call_t_body(al, xx.m_name, xx.m_args, xx.n_args, x.m_dt,
+            nullptr, false);
     }
 
 };
@@ -490,7 +492,7 @@ public:
                                 ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
                                     al, t->base.loc,
                                     /* a_symtab */ current_scope,
-                                    /* a_name */ s2c(al, current_scope->get_unique_name(sym_name)),
+                                    /* a_name */ s2c(al, current_scope->get_unique_name(sym_name, false)),
                                     ASRUtils::symbol_get_past_external(sym),
                                     ASRUtils::symbol_name(ASRUtils::get_asr_owner(ASRUtils::symbol_get_past_external(sym))),
                                     nullptr, 0, s2c(al, sym_name), ASR::accessType::Public

@@ -130,7 +130,7 @@ public:
     }
 
     void set_empty_block(SymbolTable* scope, const Location& loc) {
-        std::string empty_block_name = scope->get_unique_name("~empty_block");
+        std::string empty_block_name = scope->get_unique_name("~empty_block", false);
         if( empty_block_name != "~empty_block" ) {
             empty_block = scope->get_symbol("~empty_block");
         } else {
@@ -174,7 +174,7 @@ public:
 
                 ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
                 std::string called_sym_name = std::string(called_sym_ext->m_name);
-                std::string new_sym_name_str = current_scope->get_unique_name(called_sym_name);
+                std::string new_sym_name_str = current_scope->get_unique_name(called_sym_name, false);
                 char* new_sym_name = s2c(al, new_sym_name_str);
                 if( current_scope->get_symbol(new_sym_name_str) == nullptr ) {
                     ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
@@ -257,7 +257,7 @@ public:
             }
             ASR::Variable_t* arg_variable = ASR::down_cast<ASR::Variable_t>(arg_var->m_v);
             std::string arg_variable_name = std::string(arg_variable->m_name);
-            std::string arg_name = current_scope->get_unique_name(arg_variable_name + "_" + std::string(func->m_name));
+            std::string arg_name = current_scope->get_unique_name(arg_variable_name + "_" + std::string(func->m_name), false);
             ASR::stmt_t* assign_stmt = nullptr;
             ASR::expr_t* call_arg_var = nullptr;
             if( x_m_args_i ) {
@@ -293,7 +293,7 @@ public:
             ASR::Variable_t* func_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             std::string func_var_name = itr.first;
             if( arg2value.find(func_var_name) == arg2value.end() ) {
-                std::string local_var_name = current_scope->get_unique_name(func_var_name + "_" + std::string(func->m_name));
+                std::string local_var_name = current_scope->get_unique_name(func_var_name + "_" + std::string(func->m_name), false);
                 node_duplicator.success = true;
                 ASR::expr_t *m_symbolic_value = node_duplicator.duplicate_expr(func_var->m_symbolic_value);
                 if( !node_duplicator.success ) {

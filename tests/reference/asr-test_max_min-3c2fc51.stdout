@@ -528,36 +528,6 @@
                                                     Public
                                                     Required
                                                     .false.
-                                                ),
-                                            min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min
-                                                    7 min
-                                                    lpython_builtin
-                                                    []
-                                                    min
-                                                    Private
-                                                ),
-                                            min@__lpython_overloaded_2__min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min@__lpython_overloaded_2__min
-                                                    7 __lpython_overloaded_2__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_2__min
-                                                    Public
-                                                ),
-                                            min@__lpython_overloaded_3__min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min@__lpython_overloaded_3__min
-                                                    7 __lpython_overloaded_3__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_3__min
-                                                    Public
                                                 )
                                         })
                                     test_min_float
@@ -576,8 +546,7 @@
                                         []
                                         .false.
                                     )
-                                    [min@__lpython_overloaded_2__min
-                                    min@__lpython_overloaded_3__min]
+                                    []
                                     []
                                     [(=
                                         (Var 5 d)
@@ -605,14 +574,13 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (FunctionCall
-                                                5 min@__lpython_overloaded_2__min
-                                                5 min
-                                                [((Var 5 d))
-                                                ((Var 5 e))
-                                                ((Var 5 f))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 5 d)
+                                                (Var 5 e)
+                                                (Var 5 f)]
+                                                0
                                                 (Real 8)
-                                                ()
                                                 ()
                                             )
                                             Eq
@@ -624,13 +592,12 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (FunctionCall
-                                                5 min@__lpython_overloaded_3__min
-                                                5 min
-                                                [((Var 5 e))
-                                                ((Var 5 f))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 5 e)
+                                                (Var 5 f)]
+                                                0
                                                 (Real 8)
-                                                ()
                                                 ()
                                             )
                                             Eq
@@ -698,36 +665,6 @@
                                                     Public
                                                     Required
                                                     .false.
-                                                ),
-                                            min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min
-                                                    7 min
-                                                    lpython_builtin
-                                                    []
-                                                    min
-                                                    Private
-                                                ),
-                                            min@__lpython_overloaded_0__min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min@__lpython_overloaded_0__min
-                                                    7 __lpython_overloaded_0__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_0__min
-                                                    Public
-                                                ),
-                                            min@__lpython_overloaded_1__min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min@__lpython_overloaded_1__min
-                                                    7 __lpython_overloaded_1__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_1__min
-                                                    Public
                                                 )
                                         })
                                     test_min_int
@@ -746,8 +683,7 @@
                                         []
                                         .false.
                                     )
-                                    [min@__lpython_overloaded_0__min
-                                    min@__lpython_overloaded_1__min]
+                                    []
                                     []
                                     [(=
                                         (Var 4 a)
@@ -766,13 +702,12 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_0__min
-                                                4 min
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 4 a)
+                                                (Var 4 b)]
+                                                0
                                                 (Integer 4)
-                                                ()
                                                 ()
                                             )
                                             Eq
@@ -784,14 +719,13 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_1__min
-                                                4 min
-                                                [((Var 4 a))
-                                                ((Var 4 b))
-                                                ((Var 4 c))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 4 a)
+                                                (Var 4 b)
+                                                (Var 4 c)]
+                                                0
                                                 (Integer 4)
-                                                ()
                                                 ()
                                             )
                                             Eq
@@ -803,15 +737,14 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_1__min
-                                                4 min
-                                                [((IntegerConstant 1 (Integer 4)))
-                                                ((IntegerConstant 2 (Integer 4)))
-                                                ((IntegerConstant 3 (Integer 4)))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
+                                                0
                                                 (Integer 4)
                                                 (IntegerConstant 1 (Integer 4))
-                                                ()
                                             )
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
@@ -825,14 +758,13 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_0__min
-                                                4 min
-                                                [((IntegerConstant 1 (Integer 4)))
-                                                ((IntegerConstant 6 (Integer 4)))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4))]
+                                                0
                                                 (Integer 4)
                                                 (IntegerConstant 1 (Integer 4))
-                                                ()
                                             )
                                             Eq
                                             (IntegerConstant 1 (Integer 4))

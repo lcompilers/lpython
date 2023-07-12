@@ -111,8 +111,10 @@ symbol
         identifier proc_name, symbol proc, abi abi, bool is_deferred)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
-    | Requirement(symbol_table symtab, identifier name, identifier* args)
-    | Template(symbol_table symtab, identifier name, identifier* args)
+    | Requirement(symbol_table symtab, identifier name, identifier* args,
+        require_instantiation* requires)
+    | Template(symbol_table symtab, identifier name, identifier* args,
+        require_instantiation* requires)
 
 storage_type = Default | Save | Parameter
 access = Public | Private
@@ -235,6 +237,8 @@ expr
             ttype type, expr? value, expr? dt)
     | IntrinsicFunction(int intrinsic_id, expr* args, int overload_id,
             ttype? type, expr? value)
+    | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id,
+            ttype? type, expr? value)
     | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
@@ -287,6 +291,7 @@ expr
     | StringCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | StringOrd(expr arg, ttype type, expr? value)
     | StringChr(expr arg, ttype type, expr? value)
+    | StringFormat(expr fmt, expr* args, string_format_kind kind, ttype type, expr? value)
 
     | CPtrCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | SymbolicCompare(expr left, cmpop op, expr right, ttype type, expr? value)
@@ -459,7 +464,7 @@ cast_kind
 
 dimension = (expr? start, expr? length)
 
-alloc_arg = (expr a, dimension* dims)
+alloc_arg = (expr a, dimension* dims, expr? len_expr, ttype? type)
 
 attribute = Attribute(identifier name, attribute_arg *args)
 
@@ -481,5 +486,14 @@ type_stmt
     | TypeStmtType(ttype type, stmt* body)
 
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
+
+require_instantiation = Require(identifier name, identifier* args)
+
+string_format_kind
+    = FormatFortran        -- "(f8.3,i4.2)", a, b
+    | FormatC              -- "%f: %d", a, b
+    | FormatPythonPercent  -- "%f: %d" % (a, b)
+    | FormatPythonFString  -- f"{a}: {b}"
+    | FormatPythonFormat   -- "{}: {}".format(a, b)
 
 }

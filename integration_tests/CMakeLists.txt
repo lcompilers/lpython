@@ -432,6 +432,7 @@ RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME loop_03             LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME loop_04             LABELS cpython llvm c)
 RUN(NAME loop_05             LABELS cpython llvm c)
+RUN(NAME loop_06             LABELS cpython llvm c NOFAST)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_03    FAIL       LABELS cpython llvm c NOFAST)
@@ -568,6 +569,7 @@ RUN(NAME test_unary_op_03    LABELS cpython llvm c wasm) # unary bitinvert
 RUN(NAME test_unary_op_04    LABELS cpython llvm c) # unary bitinvert
 RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
 RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
+RUN(NAME test_unsigned_01    LABELS cpython llvm c) # unsigned bitshift left, right
 RUN(NAME test_bool_binop     LABELS cpython llvm c)
 RUN(NAME test_issue_518      LABELS cpython llvm c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm c)

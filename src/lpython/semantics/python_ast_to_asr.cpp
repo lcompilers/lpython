@@ -623,7 +623,7 @@ public:
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
-        LCOMPILERS_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
+        LCOMPILERS_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym));
         std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
@@ -831,6 +831,8 @@ public:
             this->visit_expr(*exprs[i]);
             ASR::expr_t* expr = nullptr;
             ASR::call_arg_t arg;
+            arg.loc.first = -1;
+            arg.loc.last = -1;
             if (tmp) {
                 expr = ASRUtils::EXPR(tmp);
                 arg.loc = expr->base.loc;
@@ -1009,7 +1011,7 @@ public:
 
     ASR::ttype_t* get_type_from_var_annotation(std::string var_annotation,
         const Location& loc, Vec<ASR::dimension_t>& dims,
-        AST::expr_t** m_args=nullptr, size_t n_args=0,
+        AST::expr_t** m_args=nullptr, [[maybe_unused]] size_t n_args=0,
         bool raise_error=true, ASR::abiType abi=ASR::abiType::Source,
         bool is_argument=false) {
         ASR::ttype_t* type = nullptr;
@@ -1212,9 +1214,11 @@ public:
                     check_type_restriction(subs, rt_subs, rt, loc);
                 }
 
+
                 //ASR::symbol_t *t = get_generic_function(subs, rt_subs, func);
                 ASR::symbol_t *t = get_generic_function(subs, rt_subs, s);
                 std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
+
 
                 // Currently ignoring keyword arguments for generic function calls
                 Vec<ASR::call_arg_t> new_args;
@@ -1262,7 +1266,7 @@ public:
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
-                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
+                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
                     SetChar variable_dependencies_vec;
                     variable_dependencies_vec.reserve(al, 1);
                     ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, a_type);
@@ -1285,7 +1289,7 @@ public:
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 dependencies.push_back(al, ASRUtils::symbol_name(stemp));
                 return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
-                    s_generic, args_new.p, args_new.size(), nullptr);
+                    s_generic, args_new.p, args_new.size(), nullptr, nullptr, false);
             }
         } else if(ASR::is_a<ASR::StructType_t>(*s)) {
             ASR::StructType_t* StructType = ASR::down_cast<ASR::StructType_t>(s);
@@ -1849,7 +1853,7 @@ public:
                 }
             }
             if( import_from_struct ) {
-                import_name = current_scope->get_unique_name(import_name);
+                import_name = current_scope->get_unique_name(import_name, false);
                 import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
                                                         attr_annotation->base.base.loc, current_scope, s2c(al, import_name),
                                                         struct_member,s2c(al, struct_var_name), nullptr, 0,
@@ -2362,7 +2366,7 @@ public:
                         result = left_value >> right_value;
                         break;
                     }
-                    default: { LCOMPILERS_ASSERT(false); } // should never happen
+                    default: { throw SemanticError("ICE: Unknown binary operator", loc); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, dest_type));
@@ -2416,7 +2420,7 @@ public:
                         result = left_value >> right_value;
                         break;
                     }
-                    default: { LCOMPILERS_ASSERT(false); } // should never happen
+                    default: { throw SemanticError("ICE: Unknown binary operator", loc); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
                     al, loc, result, dest_type));
@@ -2458,7 +2462,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LCOMPILERS_ASSERT(false); }
+                    default: { throw SemanticError("ICE: Unknown binary operator", loc); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                     al, loc, result, dest_type));
@@ -2735,7 +2739,7 @@ public:
             throw SemanticAbort();
         }
         if (ASR::is_a<ASR::Struct_t>(*asr_alloc_type)) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type;
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(ASR::down_cast<ASR::Struct_t>(asr_alloc_type)->m_derived_type);
             if (ASR::is_a<ASR::StructType_t>(*sym)) {
                 ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(sym);
                 if (st->m_abi != ASR::abiType::BindC) {
@@ -2770,6 +2774,8 @@ public:
                         alloc_args_vec.reserve(al, 1);
                         ASR::alloc_arg_t new_arg;
                         new_arg.loc = loc;
+                        new_arg.m_len_expr = nullptr;
+                        new_arg.m_type = nullptr;
                         ASR::ttype_t *int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
                         ASR::expr_t* const_0 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
                                                     loc, 0, int32_type));
@@ -3258,7 +3264,7 @@ public:
             dims.reserve(al, 1);
             ASR::ttype_t *type = get_type_from_var_annotation(name,
                                     x.base.base.loc, dims, nullptr, 0);
-            tmp = (ASR::asr_t*) ASRUtils::get_constant_expression_with_given_type(al, type);
+            tmp = (ASR::asr_t*) ASRUtils::get_constant_zero_with_given_type(al, type);
         } else if (name == "__name__") {
             // __name__ was not declared yet in this scope, so we
             // declare it first:
@@ -3289,7 +3295,7 @@ public:
     void visit_NamedExpr(const AST::NamedExpr_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = ASRUtils::EXPR(tmp);
-        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        [[maybe_unused]] ASR::ttype_t *target_type = ASRUtils::expr_type(target);
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
@@ -3396,7 +3402,7 @@ public:
         ASR::expr_t *left = ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
-        ASR::binopType op;
+        ASR::binopType op = ASR::binopType::Add /* temporary assignment */;
         std::string op_name = "";
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
@@ -4874,7 +4880,7 @@ public:
                         ASR::accessType::Public));
                     current_scope->add_symbol(g_func_name, es);
                     tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                        es, g_func, nullptr, 0, nullptr));
+                        es, g_func, nullptr, 0, nullptr, nullptr, false));
                 }
 
                 g_func_name = mod_name + "@global_statements";
@@ -4887,7 +4893,7 @@ public:
                         ASR::accessType::Public));
                     current_scope->add_symbol(g_func_name, es);
                     tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                        es, g_func, nullptr, 0, nullptr));
+                        es, g_func, nullptr, 0, nullptr, nullptr, false));
                 }
             }
         }
@@ -4915,7 +4921,7 @@ public:
                     ASR::accessType::Public));
                 current_scope->add_symbol(g_func_name, es);
                 tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                    es, g_func, nullptr, 0, nullptr));
+                    es, g_func, nullptr, 0, nullptr, nullptr, false));
             }
 
             g_func_name = mod_name + "@global_statements";
@@ -4928,7 +4934,7 @@ public:
                     ASR::accessType::Public));
                 current_scope->add_symbol(g_func_name, es);
                 tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                    es, g_func, nullptr, 0, nullptr));
+                    es, g_func, nullptr, 0, nullptr, nullptr, false));
             }
         }
         tmp = nullptr;
@@ -5260,13 +5266,15 @@ public:
             list.size(), list_type);
     }
 
-    ASR::expr_t* for_iterable_helper(std::string var_name, const Location& loc) {
+    ASR::expr_t* for_iterable_helper(std::string var_name, const Location& loc,
+        std::string& explicit_iter_name_) {
         auto loop_src_var_symbol = current_scope->resolve_symbol(var_name);
         LCOMPILERS_ASSERT(loop_src_var_symbol!=nullptr);
         auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         // create a new variable called/named __explicit_iterator of type i32 and add it to symbol table
-        std::string explicit_iter_name = current_scope->get_unique_name("__explicit_iterator");
+        std::string explicit_iter_name = current_scope->get_unique_name("__explicit_iterator", false);
+        explicit_iter_name_ = explicit_iter_name;
         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
         if( ASR::is_a<ASR::Const_t>(*int_type) ) {
             storage_type = ASR::storage_typeType::Parameter;
@@ -5285,6 +5293,7 @@ public:
                         ASR::down_cast<ASR::symbol_t>(explicit_iter_variable));
         // make loop_end = len(loop_src_var), where loop_src_var is the variable over which
         // we are iterating the for in loop
+        LCOMPILERS_ASSERT(loop_src_var_symbol != nullptr);
         auto loop_src_var = ASR::make_Var_t(al, loc, loop_src_var_symbol);
         if (ASR::is_a<ASR::Character_t>(*loop_src_var_ttype)) {
             return ASRUtils::EXPR(ASR::make_StringLen_t(al, loc,
@@ -5403,6 +5412,7 @@ public:
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
         bool is_explicit_iterator_required = false;
+        std::string explicit_iter_name = "";
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         ASR::expr_t *for_iter_type = nullptr;
@@ -5444,7 +5454,7 @@ public:
 
         } else if (AST::is_a<AST::Name_t>(*x.m_iter)) {
             loop_src_var_name = AST::down_cast<AST::Name_t>(x.m_iter)->m_id;
-            loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc);
+            loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc, explicit_iter_name);
             for_iter_type = loop_end;
             LCOMPILERS_ASSERT(loop_end);
             is_explicit_iterator_required = true;
@@ -5458,7 +5468,7 @@ public:
                 ASR::ttype_t *loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
 
                 // Create a temporary variable that will contain the evaluated value of Subscript
-                std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
+                std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop", false);
                 SetChar variable_dependencies_vec;
                 variable_dependencies_vec.reserve(al, 1);
                 ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, loop_src_var_ttype);
@@ -5475,7 +5485,7 @@ public:
                                 ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                                 target, nullptr);
                 current_body->push_back(al, ASRUtils::STMT(assign));
-                loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc);
+                loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
                 for_iter_type = loop_end;
                 LCOMPILERS_ASSERT(loop_end);
                 loop_src_var_name = tmp_assign_name;
@@ -5490,7 +5500,7 @@ public:
             ASR::ttype_t *loop_src_var_ttype = ASRUtils::expr_type(target);
 
             // Create a temporary variable that will contain the evaluated value of List
-            std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
+            std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop", false);
             SetChar variable_dependencies_vec;
             variable_dependencies_vec.reserve(al, 1);
             ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, loop_src_var_ttype);
@@ -5507,7 +5517,7 @@ public:
                             ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
                             target, nullptr);
             current_body->push_back(al, ASRUtils::STMT(assign));
-            loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc);
+            loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc, explicit_iter_name);
             for_iter_type = loop_end;
             LCOMPILERS_ASSERT(loop_end);
             loop_src_var_name = tmp_assign_name;
@@ -5535,7 +5545,8 @@ public:
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
-            auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol("__explicit_iterator"));
+            LCOMPILERS_ASSERT(current_scope->get_symbol(explicit_iter_name) != nullptr);
+            auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol(explicit_iter_name));
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
                 ASR::binopType::Add, constant_one, a_type, nullptr);
             auto loop_src_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name));
@@ -5563,7 +5574,7 @@ public:
         transform_stmts(body, x.n_body, x.m_body);
         int32_t total_syms = current_scope->get_scope().size();
         if( total_syms > 0 ) {
-            std::string name = parent_scope->get_unique_name("block");
+            std::string name = parent_scope->get_unique_name("block", false);
             ASR::asr_t* block = ASR::make_Block_t(al, x.base.base.loc,
                                                 current_scope, s2c(al, name),
                                                 body.p, body.size());
@@ -5602,7 +5613,7 @@ public:
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
         ASR::ttype_t* left_type = ASRUtils::expr_type(left);
         ASR::ttype_t* right_type = ASRUtils::expr_type(right);
-        ASR::binopType op;
+        ASR::binopType op = ASR::binopType::Add /* temporary assignment */;
         std::string op_name = "";
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
@@ -5700,7 +5711,7 @@ public:
                             }
                         }
                         if( import_from_struct ) {
-                            import_name = current_scope->get_unique_name(import_name);
+                            import_name = current_scope->get_unique_name(import_name, false);
                             import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
                                                                     loc, current_scope, s2c(al, import_name),
                                                                     member_var_struct_t->m_derived_type, s2c(al, struct_var_name), nullptr, 0,
@@ -5834,7 +5845,7 @@ public:
                             }
                         }
                         if( import_from_struct ) {
-                            import_name = current_scope->get_unique_name(import_name);
+                            import_name = current_scope->get_unique_name(import_name, false);
                             import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
                                                                     loc, current_scope, s2c(al, import_name),
                                                                     member_var_struct_t->m_derived_type, s2c(al, struct_var_name), nullptr, 0,
@@ -6313,7 +6324,9 @@ public:
                         result = (strcmp < 0 || strcmp == 0);
                         break;
                     }
-                    default: LCOMPILERS_ASSERT(false); // should never happen
+                    default: {
+                        throw SemanticError("ICE: Unknown compare operator", x.base.base.loc); // should never happen
+                    }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
@@ -7270,7 +7283,7 @@ public:
             }
         }
         if( import_from_struct ) {
-            import_name = current_scope->get_unique_name(import_name);
+            import_name = current_scope->get_unique_name(import_name, false);
             import_struct_member = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(al,
                                         loc, current_scope, s2c(al, import_name),
                                         struct_member, s2c(al, struct_var_name), nullptr, 0,

@@ -469,7 +469,7 @@ namespace LCompilers {
     llvm::Type* LLVMUtils::get_el_type(ASR::ttype_t* m_type_, llvm::Module* module) {
         int a_kind = ASRUtils::extract_kind_from_ttype_t(m_type_);
         llvm::Type* el_type = nullptr;
-        if (ASR::is_a<ASR::Pointer_t>(*m_type_)) {
+        if (LLVM::is_llvm_pointer(*m_type_)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(m_type_)->m_type;
             switch(t2->type) {
                 case ASR::ttypeType::Integer: {
@@ -640,11 +640,7 @@ namespace LCompilers {
 
                         if( type == nullptr ) {
                             type = get_type_from_ttype_t_util(v_type->m_type, module, arg_m_abi)->getPointerTo();
-                }
-                }
-                if( type != nullptr ) {
                         }
-                if( type != nullptr ) {
                         break;
                     }
                     case ASR::array_physical_typeType::FixedSizeArray: {
@@ -911,7 +907,7 @@ namespace LCompilers {
                     ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
                     m_h = get_hash((ASR::asr_t*)_func);
                 }
-                if( is_array_type && arg->m_type->type != ASR::ttypeType::Pointer ) {
+                if( is_array_type && !LLVM::is_llvm_pointer(*arg->m_type) ) {
                     if( ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::Source ) {
                         llvm::Type* orig_type = type_original;
                         type = arr_api->get_argument_type(orig_type, m_h, arg->m_name, arr_arg_type_cache);
@@ -1541,10 +1537,10 @@ namespace LCompilers {
                         break;
                     }
                     default: {
-                        // can exit with error
+                        throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                     }
                 }
-                return builder->CreateCmp(pred, left, right);
+                return builder->CreateICmp(pred, left, right);
             }
             case ASR::ttypeType::Real: {
                 switch( overload_id ) {
@@ -1565,10 +1561,10 @@ namespace LCompilers {
                         break;
                     }
                     default: {
-                        // can exit with error
+                        throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                     }
                 }
-                return builder->CreateCmp(pred, left, right);
+                return builder->CreateFCmp(pred, left, right);
             }
             case ASR::ttypeType::Character: {
                 if( !are_iterators_set ) {
@@ -1612,10 +1608,10 @@ namespace LCompilers {
                             break;
                         }
                         default: {
-                            // can exit with error
+                            throw CodeGenError("Un-recognized overload-id: " + std::to_string(overload_id));
                         }
                     }
-                    cond = builder->CreateAnd(cond, builder->CreateCmp(pred, l, r));
+                    cond = builder->CreateAnd(cond, builder->CreateICmp(pred, l, r));
                     builder->CreateCondBr(cond, loopbody, loopend);
                 }
 
@@ -1696,6 +1692,7 @@ namespace LCompilers {
                 }
                 break ;
             };
+            case ASR::ttypeType::Allocatable:
             case ASR::ttypeType::Character:
             case ASR::ttypeType::CPtr: {
                 LLVM::CreateStore(*builder, src, dest);
@@ -4516,21 +4513,21 @@ namespace LCompilers {
                                                  ASR::ttype_t* int32_type) {
         /**
          * Equivalent in C++
-         * 
+         *
          * equality_holds = 1;
          * inequality_holds = 0;
          * i = 0;
-         * 
+         *
          * while( i < a_len && i < b_len && equality_holds ) {
          *     equality_holds &= (a[i] == b[i]);
          *     inequality_holds |= (a[i] op b[i]);
          *     i++;
          * }
-         * 
+         *
          * if( (i == a_len || i == b_len) && equality_holds ) {
          *     inequality_holds = a_len op b_len;
          * }
-         * 
+         *
          */
 
         llvm::AllocaInst *equality_holds = builder->CreateAlloca(
@@ -4755,11 +4752,11 @@ namespace LCompilers {
                                                  llvm::Module& module, int8_t overload_id) {
         /**
          * Equivalent in C++
-         * 
+         *
          * equality_holds = 1;
          * inequality_holds = 0;
          * i = 0;
-         * 
+         *
          * // owing to compile-time access of indices,
          * // loop is unrolled into multiple if statements
          * while( i < a_len && equality_holds ) {
@@ -4767,9 +4764,9 @@ namespace LCompilers {
          *     equality_holds &= (a[i] == b[i]);
          *     i++;
          * }
-         * 
+         *
          * return inequality_holds;
-         * 
+         *
          */
 
         llvm::AllocaInst *equality_holds = builder->CreateAlloca(

@@ -165,6 +165,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         } else if (var_rank == 0) {
             ASR::do_loop_head_t head;
             head.m_v = loop_vars[0];
+            head.loc = loop_vars[0]->base.loc;
             if( use_custom_loop_params ) {
                 int j = loop_var_indices[0];
                 head.m_start = result_lbound[j];
@@ -233,6 +234,11 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
     }
 
     void replace_ArrayItem(ASR::ArrayItem_t* x) {
+        replace_vars_helper(x);
+    }
+
+    void replace_ComplexConstructor(ASR::ComplexConstructor_t* x) {
+        LCOMPILERS_ASSERT( !ASRUtils::is_array(x->m_type) );
         replace_vars_helper(x);
     }
 
@@ -307,6 +313,10 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         replace_Constant(x);
     }
 
+    void replace_StringConstant(ASR::StringConstant_t* x) {
+        replace_Constant(x);
+    }
+
     void replace_RealConstant(ASR::RealConstant_t* x) {
         replace_Constant(x);
     }
@@ -372,7 +382,10 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 return ASRUtils::EXPR(ASR::make_LogicalCompare_t(
                             al, loc, left, (ASR::cmpopType)x->m_op,
                             right, x_m_type, nullptr));
-
+            case ASR::exprType::StringCompare:
+                return ASRUtils::EXPR(ASR::make_StringCompare_t(
+                            al, loc, left, (ASR::cmpopType)x->m_op,
+                            right, x_m_type, nullptr));
             default:
                 throw LCompilersException("The desired operation is not supported yet for arrays.");
         }
@@ -503,6 +516,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         if( !is_dimension_empty ) { \
             ASR::alloc_arg_t alloc_arg; \
             alloc_arg.loc = loc; \
+            alloc_arg.m_len_expr = nullptr; \
+            alloc_arg.m_type = nullptr; \
             alloc_arg.m_a = result_var; \
             alloc_arg.m_dims = op_dims_arg; \
             alloc_arg.n_dims = op_n_dims_arg; \
@@ -522,6 +537,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             } \
             ASR::alloc_arg_t alloc_arg; \
             alloc_arg.loc = loc; \
+            alloc_arg.m_len_expr = nullptr; \
+            alloc_arg.m_type = nullptr; \
             alloc_arg.m_a = result_var; \
             alloc_arg.m_dims = alloc_dims.p; \
             alloc_arg.n_dims = alloc_dims.size(); \
@@ -590,7 +607,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
             if( result_var == nullptr ) {
                 bool allocate = false;
-                ASR::ttype_t* result_var_type = get_result_type(ASRUtils::expr_type(left),
+                ASR::ttype_t* result_var_type = get_result_type(x->m_type,
                     left_dims, rank_left, loc, x->class_type, allocate);
                 if( allocate ) {
                     result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc,
@@ -640,7 +657,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             }
             if( result_var == nullptr ) {
                 bool allocate = false;
-                ASR::ttype_t* result_var_type = get_result_type(ASRUtils::expr_type(arr_expr),
+                ASR::ttype_t* result_var_type = get_result_type(x->m_type,
                     arr_expr_dims, arr_expr_n_dims, loc, x->class_type, allocate);
                 if( allocate ) {
                     result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, loc,
@@ -894,6 +911,10 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         replace_ArrayOpCommon<ASR::LogicalCompare_t>(x, "_logical_comp_op_res");
     }
 
+    void replace_StringCompare(ASR::StringCompare_t* x) {
+        replace_ArrayOpCommon<ASR::StringCompare_t>(x, "_string_comp_op_res");
+    }
+
     void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
         if( !ASRUtils::IntrinsicFunctionRegistry::is_elemental(x->m_intrinsic_id) ) {
             return ;
@@ -914,7 +935,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         ASR::expr_t* result_var_copy = result_var;
         bool is_all_rank_0 = true;
         std::vector<ASR::expr_t*> operands;
-        ASR::expr_t* operand = nullptr;
+        ASR::expr_t *operand = nullptr, *first_array_operand = nullptr;
         int common_rank = 0;
         bool are_all_rank_same = true;
         for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
@@ -926,6 +947,9 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             current_expr = current_expr_copy_9;
             operands.push_back(operand);
             int rank_operand = PassUtils::get_rank(operand);
+            if( rank_operand > 0 && first_array_operand == nullptr ) {
+                first_array_operand = operand;
+            }
             if( common_rank == 0 ) {
                 common_rank = rank_operand;
             }
@@ -946,12 +970,12 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         result_var = result_var_copy;
         if( result_var == nullptr ) {
             result_var = PassUtils::create_var(result_counter, res_prefix,
-                            loc, operand, al, current_scope);
+                            loc, x->m_type, al, current_scope);
             result_counter += 1;
-            operand = operands[0];
+            operand = first_array_operand;
             ASR::dimension_t* m_dims;
             int n_dims = ASRUtils::extract_dimensions_from_ttype(
-                ASRUtils::expr_type(operand), m_dims);
+                ASRUtils::expr_type(first_array_operand), m_dims);
             allocate_result_var(operand, m_dims, n_dims);
         }
         *current_expr = result_var;
@@ -988,6 +1012,16 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         });
         use_custom_loop_params = false;
         result_var = nullptr;
+    }
+
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<ReplaceArrayOp>::replace_ArrayPhysicalCast(x);
+        if( ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg)) != x->m_old ) {
+            x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
+        }
+        if( x->m_old == x->m_new ) {
+            *current_expr = x->m_arg;
+        }
     }
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
@@ -1063,7 +1097,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             result_arg.m_value = *current_expr;
             s_args.push_back(al, result_arg);
             ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, loc,
-                                            x->m_name, nullptr, s_args.p, s_args.size(), nullptr));
+                                            x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
+                                            nullptr, false));
             pass_result.push_back(al, subrout_call);
 
             if (is_allocatable && result_var != *current_expr &&
@@ -1071,6 +1106,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 Vec<ASR::alloc_arg_t> vec_alloc;
                 vec_alloc.reserve(al, 1);
                 ASR::alloc_arg_t alloc_arg;
+                alloc_arg.m_len_expr = nullptr;
+                alloc_arg.m_type = nullptr;
                 alloc_arg.loc = loc;
                 alloc_arg.m_a = result_var;
 
