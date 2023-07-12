@@ -2190,6 +2190,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
     void visit_UnsignedIntegerBinOp(const ASR::UnsignedIntegerBinOp_t &x) {
         handle_BinOp(x);
+        int kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        src = "(uint" + std::to_string(kind * 8) + "_t)(" + src + ")";
     }
 
     void visit_RealBinOp(const ASR::RealBinOp_t &x) {
