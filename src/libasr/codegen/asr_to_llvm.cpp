@@ -1668,6 +1668,34 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
+    void generate_SetAdd(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pset = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *el = tmp;
+        set_api->write_item(pset, el, module.get(), asr_el_type, name2memidx);
+    }
+
+    void generate_SetRemove(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pset = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *el = tmp;
+        set_api->remove_item(pset, el, *module, asr_el_type);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -1709,6 +1737,14 @@ public:
                         generate_ListPop_1(x.m_args[0], x.m_args[1]);
                         break;
                 }
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::SetAdd: {
+                generate_SetAdd(x.m_args[0], x.m_args[1]);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::SetRemove: {
+                generate_SetRemove(x.m_args[0], x.m_args[1]);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {

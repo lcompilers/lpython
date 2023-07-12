@@ -929,6 +929,16 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
+            void resolve_collision_for_read_with_bound_check(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type) = 0;
+
+            virtual
+            void remove_item(
+                llvm::Value* set, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type) = 0;
+
+            virtual
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,
                 ASR::Set_t* set_type, llvm::Module* module,
@@ -988,6 +998,14 @@ namespace LCompilers {
                 llvm::Value* set, llvm::Value* el,
                 llvm::Module* module, ASR::ttype_t* el_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void resolve_collision_for_read_with_bound_check(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type);
+
+            void remove_item(
+                llvm::Value* set, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type);
 
             void set_deepcopy(
                 llvm::Value* src, llvm::Value* dest,

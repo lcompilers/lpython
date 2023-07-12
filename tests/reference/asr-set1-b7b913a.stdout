@@ -109,13 +109,25 @@
                                         )
                                         ()
                                     )
-                                    (SetInsert
-                                        (Var 2 a)
-                                        (IntegerConstant 9 (Integer 4))
+                                    (Expr
+                                        (IntrinsicFunction
+                                            SetAdd
+                                            [(Var 2 a)
+                                            (IntegerConstant 9 (Integer 4))]
+                                            0
+                                            ()
+                                            ()
+                                        )
                                     )
-                                    (SetRemove
-                                        (Var 2 a)
-                                        (IntegerConstant 4 (Integer 4))
+                                    (Expr
+                                        (IntrinsicFunction
+                                            SetRemove
+                                            [(Var 2 a)
+                                            (IntegerConstant 4 (Integer 4))]
+                                            0
+                                            ()
+                                            ()
+                                        )
                                     )
                                     (=
                                         (Var 2 b)

@@ -1729,7 +1729,7 @@ public:
                         false, false, false, nullptr, 0, nullptr, 0, false));
                 return type;
             } else if (var_annotation == "set") {
-                if (AST::is_a<AST::Name_t>(*s->m_slice)) {
+                if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice,
                         is_allocatable, raise_error, abi, is_argument);
                     return ASRUtils::TYPE(ASR::make_Set_t(al, loc, type));
