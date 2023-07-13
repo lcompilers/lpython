@@ -4061,22 +4061,22 @@ public:
     }
 
     // Implement visit_While for Symbol Table visitor.
-    void visit_While(const AST::While_t &x) {}
+    void visit_While(const AST::While_t &/*x*/) {}
 
     // Implement visit_Delete for Symbol Table visitor.
-    void visit_Delete(const AST::Delete_t &x) {}
+    void visit_Delete(const AST::Delete_t &/*x*/) {}
 
     // Implement visit_Pass for Symbol Table visitor.
-    void visit_Pass(const AST::Pass_t &x) {}
+    void visit_Pass(const AST::Pass_t &/*x*/) {}
 
     // Implement visit_Return for Symbol Table visitor.
-    void visit_Return(const AST::Return_t &x) {}
+    void visit_Return(const AST::Return_t &/*x*/) {}
 
     // Implement visit_Raise for Symbol Table visitor.
-    void visit_Raise(const AST::Raise_t &x) {}
+    void visit_Raise(const AST::Raise_t &/*x*/) {}
 
     // Implement visit_Global for Symbol Table visitor.
-    void visit_Global(const AST::Global_t &x) {}
+    void visit_Global(const AST::Global_t &/*x*/) {}
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
