@@ -331,6 +331,12 @@ filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/structs_16.py"
+asr = true
+pass = "class_constructor"
+cumulative = true
+
+[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 
