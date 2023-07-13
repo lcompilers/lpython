@@ -26,6 +26,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
     c = is_included("c")
+    is_cumulative = is_included("cumulative")
     wat = is_included("wat")
     run = is_included("run")
     run_with_dbg = is_included("run_with_dbg")
@@ -91,7 +92,10 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
             extra_args)
 
     if pass_ is not None:
-        cmd = "lpython --pass=" + pass_ + \
+        cmd = "lpython "
+        if is_cumulative:
+            cmd += "--cumulative "
+        cmd += "--pass=" + pass_ + \
             " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)
