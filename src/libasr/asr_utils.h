@@ -1868,6 +1868,12 @@ static inline int64_t get_fixed_size_of_array(ASR::dimension_t* m_dims, size_t n
     return array_size;
 }
 
+static inline int64_t get_fixed_size_of_array(ASR::ttype_t* type) {
+    ASR::dimension_t* m_dims = nullptr;
+    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);
+    return ASRUtils::get_fixed_size_of_array(m_dims, n_dims);
+}
+
 inline int extract_n_dims_from_ttype(ASR::ttype_t *x) {
     ASR::dimension_t* m_dims_temp = nullptr;
     return extract_dimensions_from_ttype(x, m_dims_temp);
