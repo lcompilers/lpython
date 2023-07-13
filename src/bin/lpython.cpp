@@ -242,6 +242,7 @@ int emit_asr(const std::string &infile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.pass_cumulative = compiler_options.pass_cumulative;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -1574,6 +1575,7 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
+        app.add_flag("--cumulative", compiler_options.pass_cumulative, "Apply all the passes cumulatively till the given pass");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
