@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
-        lcompilers_unique_ID = "__" + LCompilers::get_unique_ID();
+        lcompilers_unique_ID = LCompilers::get_unique_ID();
 
 
         if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
