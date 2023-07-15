@@ -26,6 +26,7 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
     c = is_included("c")
+    is_cumulative = is_included("cumulative")
     wat = is_included("wat")
     run = is_included("run")
     run_with_dbg = is_included("run_with_dbg")
@@ -33,7 +34,8 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
-                           "dead_code_removal", "loop_vectorise", "print_list_tuple"]
+                           "dead_code_removal", "loop_vectorise", "print_list_tuple",
+                           "class_constructor"]
 
     if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
                   pass_ not in optimization_passes):
@@ -91,7 +93,10 @@ def single_test(test, verbose, no_llvm, skip_run_with_dbg, update_reference,
             extra_args)
 
     if pass_ is not None:
-        cmd = "lpython --pass=" + pass_ + \
+        cmd = "lpython "
+        if is_cumulative:
+            cmd += "--cumulative "
+        cmd += "--pass=" + pass_ + \
             " --show-asr --no-color {infile} -o {outfile}"
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)

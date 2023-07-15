@@ -4060,6 +4060,24 @@ public:
         return nullptr;
     }
 
+    // Implement visit_While for Symbol Table visitor.
+    void visit_While(const AST::While_t &/*x*/) {}
+
+    // Implement visit_Delete for Symbol Table visitor.
+    void visit_Delete(const AST::Delete_t &/*x*/) {}
+
+    // Implement visit_Pass for Symbol Table visitor.
+    void visit_Pass(const AST::Pass_t &/*x*/) {}
+
+    // Implement visit_Return for Symbol Table visitor.
+    void visit_Return(const AST::Return_t &/*x*/) {}
+
+    // Implement visit_Raise for Symbol Table visitor.
+    void visit_Raise(const AST::Raise_t &/*x*/) {}
+
+    // Implement visit_Global for Symbol Table visitor.
+    void visit_Global(const AST::Global_t &/*x*/) {}
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         dependencies.clear(al);
         SymbolTable *parent_scope = current_scope;
@@ -4304,6 +4322,12 @@ public:
             }
         } else {
             bool is_pure = false, is_module = false;
+            
+            // This checks for internal function defintions as well.
+            for (size_t i = 0; i < x.n_body; i++) {
+                visit_stmt(*x.m_body[i]);
+            }
+            
             tmp = ASRUtils::make_Function_t_util(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
@@ -6157,6 +6181,37 @@ public:
         if( ASR::is_a<ASR::Enum_t>(*dest_type) || ASR::is_a<ASR::Const_t>(*dest_type) ) {
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
+
+        if (ASRUtils::is_array(dest_type)) {
+            ASR::dimension_t* m_dims = nullptr;
+            int n_dims = ASRUtils::extract_dimensions_from_ttype(dest_type, m_dims);
+            int array_size = ASRUtils::get_fixed_size_of_array(m_dims, n_dims);
+            if (array_size == -1) {
+                throw SemanticError("The truth value of an array is ambiguous. Use a.any() or a.all()", x.base.base.loc);
+            } else if (array_size != 1) {
+                throw SemanticError("The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()", x.base.base.loc);
+            } else {
+                Vec<ASR::array_index_t> argsL, argsR;
+                argsL.reserve(al, 1);
+                argsR.reserve(al, 1);
+                for (int i = 0; i < n_dims; i++) {
+                    ASR::array_index_t aiL, aiR;
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
+                    ASR::expr_t* const_zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
+                    aiL.m_right = aiR.m_right = const_zero;
+                    aiL.m_left = aiR.m_left = nullptr;
+                    aiL.m_step = aiR.m_step = nullptr;
+                    aiL.loc = left->base.loc;
+                    aiR.loc = right->base.loc;
+                    argsL.push_back(al, aiL);
+                    argsR.push_back(al, aiR);
+                }
+                dest_type = ASRUtils::type_get_past_array(dest_type);
+                left = ASRUtils::EXPR(make_ArrayItem_t(al, left->base.loc, left, argsL.p, argsL.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
+                right = ASRUtils::EXPR(make_ArrayItem_t(al, right->base.loc, right, argsR.p, argsR.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
+            }
+        }
+
         if (ASRUtils::is_integer(*dest_type)) {
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = -1;
