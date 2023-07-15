@@ -4306,12 +4306,12 @@ public:
             }
         } else {
             bool is_pure = false, is_module = false;
-            
+
             // This checks for internal function defintions as well.
             for (size_t i = 0; i < x.n_body; i++) {
                 visit_stmt(*x.m_body[i]);
             }
-            
+
             tmp = ASRUtils::make_Function_t_util(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
