@@ -568,9 +568,6 @@ public:
     Allocator &al;
     LocationManager &lm;
     SymbolTable *current_scope;
-    // The current_module contains the current module that is being visited;
-    // this is used to append to the module dependencies if needed
-    ASR::Module_t *current_module = nullptr;
     SetChar current_module_dependencies;
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
@@ -668,24 +665,7 @@ public:
             v = current_scope->get_symbol(sym);
         }
 
-        // Now we need to add the module `m` with the intrinsic function
-        // into the current module dependencies
-        if (current_module) {
-            // We are in body visitor, the module is already constructed
-            // and available as current_module.
-            // Add the module `m` to current module dependencies
-            SetChar vec;
-            vec.from_pointer_n_copy(al, current_module->m_dependencies,
-                        current_module->n_dependencies);
-            vec.push_back(al, m->m_name);
-            current_module->m_dependencies = vec.p;
-            current_module->n_dependencies = vec.size();
-        } else {
-            // We are in the symtab visitor or body visitor and we are
-            // constructing a module, so current_module is not available yet
-            // (the current_module_dependencies is not used in body visitor)
-            current_module_dependencies.push_back(al, m->m_name);
-        }
+        current_module_dependencies.push_back(al, m->m_name);
         return v;
     }
 
