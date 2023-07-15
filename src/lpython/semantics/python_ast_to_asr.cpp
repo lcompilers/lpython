@@ -4921,17 +4921,13 @@ public:
 
         if (current_scope->get_scope().find(var_name) !=
                 current_scope->get_scope().end()) {
-            if (current_scope->parent != nullptr) {
-                // Re-declaring a global scope variable is allowed,
-                // otherwise raise an error
-                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
-                throw SemanticError(diag::Diagnostic(
-                    "Symbol is already declared in the same scope",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("original declaration", {orig_decl->base.loc}, false),
-                        diag::Label("redeclaration", {x.base.base.loc}),
-                    }));
-            }
+            ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
+            throw SemanticError(diag::Diagnostic(
+                "Symbol is already declared in the same scope",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("original declaration", {orig_decl->base.loc}, false),
+                    diag::Label("redeclaration", {x.base.base.loc}),
+                }));
         }
         ASR::expr_t *init_expr = nullptr;
         visit_AnnAssignUtil(x, var_name, init_expr);
