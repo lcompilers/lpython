@@ -420,133 +420,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod1_mod;
 }
 
-ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
-                std::string /*mname*/, std::string cur_sym_name, std::string& new_sym_name,
-                const Location &loc, bool skip_current_scope_check=false) {
-    new_sym_name = ASRUtils::get_mangled_name(m, new_sym_name);
-    ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
-    if (!t) {
-        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + std::string(m->m_name) + "'",
-                loc);
-    }
-    if (!skip_current_scope_check &&
-        current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
-        throw SemanticError(new_sym_name + " already defined", loc);
-    }
-    if (ASR::is_a<ASR::Function_t>(*t)) {
-        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-        // `mfn` is the Function in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)mfn,
-            m->m_name, nullptr, 0, mfn->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(fn);
-    } else if (ASR::is_a<ASR::StructType_t>(*t)) {
-        ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
-        // `st` is the StructType in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)st,
-            m->m_name, nullptr, 0, st->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
-        ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)et,
-            m->m_name, nullptr, 0, et->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
-        ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)ut,
-            m->m_name, nullptr, 0, ut->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::Variable_t>(*t)) {
-        ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
-        // `mv` is the Variable in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)mv,
-            m->m_name, nullptr, 0, mv->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(v);
-    } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
-        ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)gt,
-            m->m_name, nullptr, 0, gt->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(v);
-    } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
-        ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
-        SymbolTable *symtab = current_scope;
-        // while (symtab->parent != nullptr) symtab = symtab->parent;
-        ASR::symbol_t *sym = symtab->resolve_symbol(es->m_module_name);
-        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
-        return import_from_module(al, m, symtab, es->m_module_name,
-                            cur_sym_name, new_sym_name, loc);
-    } else if (ASR::is_a<ASR::Module_t>(*t)) {
-        ASR::Module_t* mt = ASR::down_cast<ASR::Module_t>(t);
-        std::string mangled_cur_sym_name = ASRUtils::get_mangled_name(mt, new_sym_name);
-        if( cur_sym_name == mangled_cur_sym_name ) {
-            throw SemanticError("Importing modules isn't supported yet.", loc);
-        }
-        return import_from_module(al, mt, current_scope, std::string(mt->m_name),
-                                  cur_sym_name, new_sym_name, loc);
-    } else {
-        throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
-            "ExternalSymbol are currently supported in 'import'", loc);
-    }
-    LCOMPILERS_ASSERT(false);
-    return nullptr;
-}
-
 // Here, we call the global_initializer & global_statements to
 // initialize and execute the global symbols
 void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, SymbolTable* scope,
@@ -1116,6 +989,134 @@ public:
 
         return type;
     }
+
+    ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
+                std::string /*mname*/, std::string cur_sym_name, std::string& new_sym_name,
+                const Location &loc, bool skip_current_scope_check=false) {
+        new_sym_name = ASRUtils::get_mangled_name(m, new_sym_name);
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
+        if (!t) {
+            throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + std::string(m->m_name) + "'",
+                    loc);
+        }
+        if (!skip_current_scope_check &&
+            current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
+            throw SemanticError(new_sym_name + " already defined", loc);
+        }
+        if (ASR::is_a<ASR::Function_t>(*t)) {
+            ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+            // `mfn` is the Function in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)mfn,
+                m->m_name, nullptr, 0, mfn->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(fn);
+        } else if (ASR::is_a<ASR::StructType_t>(*t)) {
+            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
+            // `st` is the StructType in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)st,
+                m->m_name, nullptr, 0, st->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
+            ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)et,
+                m->m_name, nullptr, 0, et->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
+            ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)ut,
+                m->m_name, nullptr, 0, ut->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+            ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+            // `mv` is the Variable in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)mv,
+                m->m_name, nullptr, 0, mv->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(v);
+        } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+            ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)gt,
+                m->m_name, nullptr, 0, gt->m_name,
+                ASR::accessType::Public
+                );
+            return ASR::down_cast<ASR::symbol_t>(v);
+        } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
+            ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
+            SymbolTable *symtab = current_scope;
+            // while (symtab->parent != nullptr) symtab = symtab->parent;
+            ASR::symbol_t *sym = symtab->resolve_symbol(es->m_module_name);
+            ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
+            return import_from_module(al, m, symtab, es->m_module_name,
+                                cur_sym_name, new_sym_name, loc);
+        } else if (ASR::is_a<ASR::Module_t>(*t)) {
+            ASR::Module_t* mt = ASR::down_cast<ASR::Module_t>(t);
+            std::string mangled_cur_sym_name = ASRUtils::get_mangled_name(mt, new_sym_name);
+            if( cur_sym_name == mangled_cur_sym_name ) {
+                throw SemanticError("Importing modules isn't supported yet.", loc);
+            }
+            return import_from_module(al, mt, current_scope, std::string(mt->m_name),
+                                    cur_sym_name, new_sym_name, loc);
+        } else {
+            throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
+                "ExternalSymbol are currently supported in 'import'", loc);
+        }
+        LCOMPILERS_ASSERT(false);
+        return nullptr;
+    }
+
 
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
