@@ -3201,12 +3201,7 @@ public:
 
     void add_name(const Location &loc) {
         std::string var_name = "__name__";
-        std::string var_value;
-        if (main_module) {
-            var_value = "__main__";
-        } else {
-            var_value = module_name;
-        }
+        std::string var_value = module_name;
         size_t s_size = var_value.size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                 1, s_size, nullptr));
