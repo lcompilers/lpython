@@ -426,26 +426,26 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
     ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
 
     std::string mod_name = mod->m_name;
-    std::string g_func_name = mod_name + "@global_initializer";
-    ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+    std::string g_func_name = mod_name + "__global_initializer";
+    ASR::symbol_t *g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
             ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
             scope, s2c(al, g_func_name), g_func,
-            s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+            s2c(al, mod_name), nullptr, 0, s2c(al, g_func_name),
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
             es, g_func, nullptr, 0, nullptr, nullptr, false));
     }
 
-    g_func_name = mod_name + "@global_statements";
-    g_func = mod->m_symtab->get_symbol("global_statements");
+    g_func_name = mod_name + "__global_statements";
+    g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
             ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
             scope, s2c(al, g_func_name), g_func,
-            s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+            s2c(al, mod_name), nullptr, 0, s2c(al, g_func_name),
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
@@ -4784,7 +4784,7 @@ public:
             // `pass_wrap_global_stmts_into_function` pass
             unit->m_items = global_init.p;
             unit->n_items = global_init.size();
-            std::string func_name = "global_initializer";
+            std::string func_name = module_name + "__global_initializer";
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
@@ -4807,7 +4807,7 @@ public:
         if (items.n > 0) {
             unit->m_items = items.p;
             unit->n_items = items.size();
-            std::string func_name = "global_statements";
+            std::string func_name = module_name + "__global_statements";
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
