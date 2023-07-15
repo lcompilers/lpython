@@ -4722,12 +4722,12 @@ public:
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         LCOMPILERS_ASSERT(current_scope != nullptr);
-        ASR::symbol_t* main_module_sym = current_scope->get_symbol(module_name);
+        ASR::symbol_t* module_sym = nullptr;
         ASR::Module_t* mod = nullptr;
-        if( main_module_sym ) {
-            mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
-        }
+
         if (!main_module) {
+            module_sym = current_scope->get_symbol(module_name);
+            mod = ASR::down_cast<ASR::Module_t>(module_sym);
             current_scope = mod->m_symtab;
             LCOMPILERS_ASSERT(current_scope != nullptr);
         }
@@ -4749,72 +4749,69 @@ public:
                 tmp_vec.clear();
             }
         }
+
         if( mod ) {
             for( size_t i = 0; i < mod->n_dependencies; i++ ) {
                 current_module_dependencies.push_back(al, mod->m_dependencies[i]);
             }
             mod->m_dependencies = current_module_dependencies.p;
-            mod->n_dependencies = current_module_dependencies.size();
-        }
+            mod->n_dependencies = current_module_dependencies.n;
 
-        if (global_init.n > 0 && main_module_sym) {
-            // unit->m_items is used and set to nullptr in the
-            // `pass_wrap_global_stmts_into_function` pass
-            unit->m_items = global_init.p;
-            unit->n_items = global_init.size();
-            std::string func_name = "global_initializer";
-            LCompilers::PassOptions pass_options;
-            pass_options.run_fun = func_name;
-            pass_wrap_global_stmts(al, *unit, pass_options);
+            if (global_init.n > 0) {
+                // unit->m_items is used and set to nullptr in the
+                // `pass_wrap_global_stmts_into_function` pass
+                unit->m_items = global_init.p;
+                unit->n_items = global_init.size();
+                std::string func_name = "global_initializer";
+                LCompilers::PassOptions pass_options;
+                pass_options.run_fun = func_name;
+                pass_wrap_global_stmts(al, *unit, pass_options);
 
-            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
-            if (f_sym) {
-                // Add the `global_initilaizer` function into the `__main__`
-                // module and later call this function to initialize the
-                // global variables like list, ...
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                f->m_symtab->parent = mod->m_symtab;
-                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+                ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+                if (f_sym) {
+                    // Add the `global_initilaizer` function into the
+                    // module and later call this function to initialize the
+                    // global variables like list, ...
+                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                    f->m_symtab->parent = mod->m_symtab;
+                    mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                    // Erase the function in TranslationUnit
+                    unit->m_global_scope->erase_symbol(func_name);
+                }
+                global_init.p = nullptr;
+                global_init.n = 0;
             }
-            global_init.p = nullptr;
-            global_init.n = 0;
-        }
 
-        if (global_init.n > 0) {
-            // copy all the item's from `items` (global_statements)
-            // into `global_init`
-            for (auto &i: items) {
-                global_init.push_back(al, i);
+            if (items.n > 0) {
+                unit->m_items = items.p;
+                unit->n_items = items.size();
+                std::string func_name = "global_statements";
+                // Wrap all the global statements into a Function
+                LCompilers::PassOptions pass_options;
+                pass_options.run_fun = func_name;
+                pass_wrap_global_stmts(al, *unit, pass_options);
+
+                ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+                if (f_sym) {
+                    // Add the `global_statements` function into the
+                    // module and later call this function to execute the
+                    // global_statements
+                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                    f->m_symtab->parent = mod->m_symtab;
+                    mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                    // Erase the function in TranslationUnit
+                    unit->m_global_scope->erase_symbol(func_name);
+                }
+                items.p = nullptr;
+                items.n = 0;
             }
-            unit->m_items = global_init.p;
-            unit->n_items = global_init.size();
         } else {
-            unit->m_items = items.p;
-            unit->n_items = items.size();
-        }
-
-        if (items.n > 0 && main_module_sym) {
-            std::string func_name = "global_statements";
-            // Wrap all the global statements into a Function
-            LCompilers::PassOptions pass_options;
-            pass_options.run_fun = func_name;
-            pass_wrap_global_stmts(al, *unit, pass_options);
-
-            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
-            if (f_sym) {
-                // Add the `global_statements` function into the `__main__`
-                // module and later call this function to execute the
-                // global_statements
-                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                f->m_symtab->parent = mod->m_symtab;
-                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+            // It is main_module
+            for (auto item:items) {
+                global_init.push_back(al, item);
             }
+            unit->m_items = global_init.p;
+            unit->n_items = global_init.size();
         }
 
         tmp = asr;
