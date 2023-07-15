@@ -547,6 +547,39 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     return nullptr;
 }
 
+// Here, we call the global_initializer & global_statements to
+// initialize and execute the global symbols
+void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, SymbolTable* scope,
+    ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
+
+    std::string mod_name = mod->m_name;
+    std::string g_func_name = mod_name + "@global_initializer";
+    ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+    if (g_func && !scope->get_symbol(g_func_name)) {
+        ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+            ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+            scope, s2c(al, g_func_name), g_func,
+            s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+            ASR::accessType::Public));
+        scope->add_symbol(g_func_name, es);
+        tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
+            es, g_func, nullptr, 0, nullptr, nullptr, false));
+    }
+
+    g_func_name = mod_name + "@global_statements";
+    g_func = mod->m_symtab->get_symbol("global_statements");
+    if (g_func && !scope->get_symbol(g_func_name)) {
+        ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
+            ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
+            scope, s2c(al, g_func_name), g_func,
+            s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+            ASR::accessType::Public));
+        scope->add_symbol(g_func_name, es);
+        tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
+            es, g_func, nullptr, 0, nullptr, nullptr, false));
+    }
+}
+
 template <class Struct>
 class CommonVisitor : public AST::BaseVisitor<Struct> {
 public:
@@ -4867,47 +4900,18 @@ public:
 
     void visit_Import(const AST::Import_t &x) {
         // All the modules are imported in the SymbolTable visitor
-        // Here, we call the global_initializer & global_statements to
-        // initialize and execute the global symbols
         for (size_t i = 0; i < x.n_names; i++) {
             std::string mod_name = x.m_names[i].m_name;
             ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
             if (mod_sym) {
                 ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
-
-                std::string g_func_name = mod_name + "@global_initializer";
-                ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
-                if (g_func && !current_scope->get_symbol(g_func_name)) {
-                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
-                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
-                        current_scope, s2c(al, g_func_name), g_func,
-                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
-                        ASR::accessType::Public));
-                    current_scope->add_symbol(g_func_name, es);
-                    tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                        es, g_func, nullptr, 0, nullptr, nullptr, false));
-                }
-
-                g_func_name = mod_name + "@global_statements";
-                g_func = mod->m_symtab->get_symbol("global_statements");
-                if (g_func && !current_scope->get_symbol(g_func_name)) {
-                    ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
-                        ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
-                        current_scope, s2c(al, g_func_name), g_func,
-                        s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
-                        ASR::accessType::Public));
-                    current_scope->add_symbol(g_func_name, es);
-                    tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                        es, g_func, nullptr, 0, nullptr, nullptr, false));
-                }
+                get_calls_to_global_init_and_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
             }
         }
     }
 
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
         // Handled by SymbolTableVisitor already
-        // Here, we call the global_initializer & global_statements to
-        // initialize and execute the global symbols
         std::string mod_name = x.m_module;
         for (size_t i = 0; i < x.n_names; i++) {
             imported_functions[x.m_names[i].m_name] = mod_name;
@@ -4915,32 +4919,7 @@ public:
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
-
-            std::string g_func_name = mod_name + "@global_initializer";
-            ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
-            if (g_func && !current_scope->get_symbol(g_func_name)) {
-                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
-                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
-                    current_scope, s2c(al, g_func_name), g_func,
-                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
-                    ASR::accessType::Public));
-                current_scope->add_symbol(g_func_name, es);
-                tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                    es, g_func, nullptr, 0, nullptr, nullptr, false));
-            }
-
-            g_func_name = mod_name + "@global_statements";
-            g_func = mod->m_symtab->get_symbol("global_statements");
-            if (g_func && !current_scope->get_symbol(g_func_name)) {
-                ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
-                    ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
-                    current_scope, s2c(al, g_func_name), g_func,
-                    s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
-                    ASR::accessType::Public));
-                current_scope->add_symbol(g_func_name, es);
-                tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, x.base.base.loc,
-                    es, g_func, nullptr, 0, nullptr, nullptr, false));
-            }
+            get_calls_to_global_init_and_stmts(al, x.base.base.loc, current_scope, mod, tmp_vec);
         }
         tmp = nullptr;
     }
