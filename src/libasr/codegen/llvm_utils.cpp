@@ -2961,7 +2961,7 @@ namespace LCompilers {
 
         /**
          * C++ equivalent:
-         * 
+         *
          * key_mask_value = key_mask[key_hash];
          * is_prob_needed = key_mask_value == 1;
          * if( is_prob_needed ) {
@@ -2976,12 +2976,12 @@ namespace LCompilers {
          * else {
          *     resolve_collision(key, for_read=true);  // modifies pos
          * }
-         * 
+         *
          * is_key_matching = key == key_list[pos];
          * if( !is_key_matching ) {
          *     exit(1); // key not present
          * }
-         * 
+         *
          * return value_list[pos];
          */
 
@@ -4820,7 +4820,8 @@ namespace LCompilers {
         context(context_),
         llvm_utils(std::move(llvm_utils_)),
         builder(std::move(builder_)),
-        pos_ptr(nullptr), is_set_present_(false) {
+        pos_ptr(nullptr), are_iterators_set(false),
+        is_set_present_(false) {
     }
 
     LLVMSetLinearProbing::LLVMSetLinearProbing(llvm::LLVMContext& context_,
@@ -5041,20 +5042,20 @@ namespace LCompilers {
 
         /**
          * C++ equivalent:
-         * 
+         *
          * pos = el_hash;
-         * 
+         *
          * while( true ) {
          *     is_el_skip = el_mask_value == 3;     // tombstone
          *     is_el_set = el_mask_value != 0;
          *     is_el_matching = 0;
-         * 
+         *
          *     compare_elems = is_el_set && !is_el_skip;
          *     if( compare_elems ) {
          *         original_el = el_list[pos];
          *         is_el_matching = el == original_el;
          *     }
-         * 
+         *
          *     cond;
          *     if( for_read ) {
          *         // for reading, continue to next pos
@@ -5066,7 +5067,7 @@ namespace LCompilers {
          *         // if current pos is tombstone
          *         cond = is_el_set && !is_el_matching && !is_el_skip;
          *     }
-         * 
+         *
          *     if( cond ) {
          *         pos += 1;
          *         pos %= capacity;
@@ -5075,7 +5076,7 @@ namespace LCompilers {
          *         break;
          *     }
          * }
-         * 
+         *
          */
 
         if( !are_iterators_set ) {
@@ -5155,7 +5156,7 @@ namespace LCompilers {
 
         /**
          * C++ equivalent:
-         * 
+         *
          * resolve_collision();     // modifies pos
          * el_list[pos] = el;
          * el_mask_value = el_mask[pos];
@@ -5165,7 +5166,7 @@ namespace LCompilers {
          * set_max_2 = linear_prob_happened ? 2 : 1;
          * el_mask[el_hash] = set_max_2;
          * el_mask[pos] = set_max_2;
-         * 
+         *
          */
 
         llvm::Value* el_list = get_el_list(set);
@@ -5208,10 +5209,10 @@ namespace LCompilers {
 
         /**
          * C++ equivalent:
-         * 
+         *
          * old_capacity = capacity;
          * capacity = 2 * capacity + 1;
-         * 
+         *
          * idx = 0;
          * while( old_capacity > idx ) {
          *     is_el_set = el_mask[idx] != 0;
@@ -5227,12 +5228,12 @@ namespace LCompilers {
          *     }
          *     idx += 1;
          * }
-         * 
+         *
          * free(el_list);
          * free(el_mask);
          * el_list = new_el_list;
          * el_mask = new_el_mask;
-         * 
+         *
          */
 
         llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
@@ -5332,10 +5333,10 @@ namespace LCompilers {
     void LLVMSetLinearProbing::rehash_all_at_once_if_needed(
         llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        
+
         /**
          * C++ equivalent:
-         * 
+         *
          * occupancy += 1;
          * load_factor = occupancy / capacity;
          * load_factor_threshold = 0.6;
@@ -5343,7 +5344,7 @@ namespace LCompilers {
          * if( rehash_condition ) {
          *     rehash();
          * }
-         * 
+         *
          */
 
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
@@ -5382,7 +5383,7 @@ namespace LCompilers {
 
         /**
          * C++ equivalent:
-         * 
+         *
          * el_mask_value = el_mask[el_hash];
          * is_prob_needed = el_mask_value == 1;
          * if( is_prob_needed ) {
@@ -5397,12 +5398,12 @@ namespace LCompilers {
          * else {
          *     resolve_collision(el, for_read=true);  // modifies pos
          * }
-         * 
+         *
          * is_el_matching = el == el_list[pos];
          * if( !is_el_matching ) {
          *     exit(1); // el not present
          * }
-         * 
+         *
          */
 
         llvm::Value* el_list = get_el_list(set);
@@ -5472,7 +5473,7 @@ namespace LCompilers {
         llvm::Module& module, ASR::ttype_t* el_asr_type) {
         /**
          * C++ equivalent:
-         * 
+         *
          * resolve_collision_for_read(el);  // modifies pos
          * el_mask[pos] = 3;    // tombstone marker
          * occupancy -= 1;
