@@ -294,53 +294,31 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_set_add(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (args.size() != 1) {
-            throw SemanticError("add() takes exactly one argument", loc);
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_set;
+        args_with_set.reserve(al, args.size() + 1);
+        args_with_set.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_set.push_back(al, args[i]);
         }
-
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
-        ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
-        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-            std::string fnd = ASRUtils::type_to_str_python(ele_type);
-            std::string org = ASRUtils::type_to_str_python(set_type);
-            diag.add(diag::Diagnostic(
-                "Type mismatch in 'add', the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
-                            {args[0]->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
-        return make_SetInsert_t(al, loc, s, args[0]);
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("set.add");
+        return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
     }
 
     static ASR::asr_t* eval_set_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        if (args.size() != 1) {
-            throw SemanticError("remove() takes exactly one argument", loc);
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_set;
+        args_with_set.reserve(al, args.size() + 1);
+        args_with_set.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_set.push_back(al, args[i]);
         }
-
-        ASR::ttype_t *type = ASRUtils::expr_type(s);
-        ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
-        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
-        if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-            std::string fnd = ASRUtils::type_to_str_python(ele_type);
-            std::string org = ASRUtils::type_to_str_python(set_type);
-            diag.add(diag::Diagnostic(
-                "Type mismatch in 'remove', the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
-                            {args[0]->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
-        return make_SetRemove_t(al, loc, s, args[0]);
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("set.remove");
+        return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
     }
 
     static ASR::asr_t* eval_dict_get(ASR::expr_t *s, Allocator &al, const Location &loc,

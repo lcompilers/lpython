@@ -221,8 +221,6 @@ stmt
     | SelectType(expr selector, type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape, expr? lower_bounds)
     | BlockCall(int label, symbol m)
-    | SetInsert(expr a, expr ele)
-    | SetRemove(expr a, expr ele)
     | ListInsert(expr a, expr pos, expr ele)
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)

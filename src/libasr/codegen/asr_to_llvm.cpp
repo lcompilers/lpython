@@ -175,6 +175,7 @@ public:
     std::unique_ptr<LLVMTuple> tuple_api;
     std::unique_ptr<LLVMDictInterface> dict_api_lp;
     std::unique_ptr<LLVMDictInterface> dict_api_sc;
+    std::unique_ptr<LLVMSetInterface> set_api;      // linear probing
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, std::string infile,
@@ -199,6 +200,7 @@ public:
     tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
     dict_api_lp(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
     dict_api_sc(std::make_unique<LLVMDictSeparateChaining>(context, llvm_utils.get(), builder.get())),
+    set_api(std::make_unique<LLVMSetLinearProbing>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(), llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor))
@@ -206,6 +208,7 @@ public:
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
         llvm_utils->dict_api = nullptr;
+        llvm_utils->set_api = set_api.get();
         llvm_utils->arr_api = arr_descr.get();
         llvm_utils->dict_api_lp = dict_api_lp.get();
         llvm_utils->dict_api_sc = dict_api_sc.get();
@@ -1149,6 +1152,25 @@ public:
         tmp = const_dict;
     }
 
+    void visit_SetConstant(const ASR::SetConstant_t& x) {
+        llvm::Type* const_set_type = llvm_utils->get_set_type(x.m_type, module.get());
+        llvm::Value* const_set = builder->CreateAlloca(const_set_type, nullptr, "const_set");
+        ASR::Set_t* x_set = ASR::down_cast<ASR::Set_t>(x.m_type);
+        std::string el_type_code = ASRUtils::get_type_code(x_set->m_type);
+        llvm_utils->set_api->set_init(el_type_code, const_set, module.get(), x.n_elements);
+        int64_t ptr_loads_el = !LLVM::is_llvm_struct(x_set->m_type);
+        int64_t ptr_loads_copy = ptr_loads;
+        for( size_t i = 0; i < x.n_elements; i++ ) {
+            ptr_loads = ptr_loads_el;
+            visit_expr_wrapper(x.m_elements[i], true);
+            llvm::Value* element = tmp;
+            llvm_utils->set_api->write_item(const_set, element, module.get(),
+                                            x_set->m_type, name2memidx);
+        }
+        ptr_loads = ptr_loads_copy;
+        tmp = const_set;
+    }
+
     void visit_TupleConstant(const ASR::TupleConstant_t& x) {
         ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(x.m_type);
         std::string type_code = ASRUtils::get_type_code(tuple_type->m_type,
@@ -1487,6 +1509,20 @@ public:
         tmp = llvm_utils->dict_api->len(pdict);
     }
 
+    void visit_SetLen(const ASR::SetLen_t& x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return ;
+        }
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* pset = tmp;
+        tmp = llvm_utils->set_api->len(pset);
+    }
+
     void visit_ListInsert(const ASR::ListInsert_t& x) {
         ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(
                                     ASRUtils::expr_type(x.m_a));
@@ -1648,6 +1684,34 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
+    void generate_SetAdd(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pset = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *el = tmp;
+        set_api->write_item(pset, el, module.get(), asr_el_type, name2memidx);
+    }
+
+    void generate_SetRemove(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pset = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *el = tmp;
+        set_api->remove_item(pset, el, *module, asr_el_type);
+    }
+
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
         switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
             case ASRUtils::IntrinsicFunctions::ListIndex: {
@@ -1689,6 +1753,14 @@ public:
                         generate_ListPop_1(x.m_args[0], x.m_args[1]);
                         break;
                 }
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::SetAdd: {
+                generate_SetAdd(x.m_args[0], x.m_args[1]);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::SetRemove: {
+                generate_SetRemove(x.m_args[0], x.m_args[1]);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::Exp: {
@@ -3945,6 +4017,8 @@ public:
         bool is_value_tuple = ASR::is_a<ASR::Tuple_t>(*asr_value_type);
         bool is_target_dict = ASR::is_a<ASR::Dict_t>(*asr_target_type);
         bool is_value_dict = ASR::is_a<ASR::Dict_t>(*asr_value_type);
+        bool is_target_set = ASR::is_a<ASR::Set_t>(*asr_target_type);
+        bool is_value_set = ASR::is_a<ASR::Set_t>(*asr_value_type);
         bool is_target_struct = ASR::is_a<ASR::Struct_t>(*asr_target_type);
         bool is_value_struct = ASR::is_a<ASR::Struct_t>(*asr_value_type);
         if (ASR::is_a<ASR::StringSection_t>(*x.m_target)) {
@@ -4033,6 +4107,18 @@ public:
             llvm_utils->set_dict_api(value_dict_type);
             llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get(), name2memidx);
+            return ;
+        } else if( is_target_set && is_value_set ) {
+            int64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_value);
+            llvm::Value* value_set = tmp;
+            this->visit_expr(*x.m_target);
+            llvm::Value* target_set = tmp;
+            ptr_loads = ptr_loads_copy;
+            ASR::Set_t* value_set_type = ASR::down_cast<ASR::Set_t>(asr_value_type);
+            llvm_utils->set_api->set_deepcopy(value_set, target_set,
+                                    value_set_type, module.get(), name2memidx);
             return ;
         } else if( is_target_struct && is_value_struct ) {
             int64_t ptr_loads_copy = ptr_loads;

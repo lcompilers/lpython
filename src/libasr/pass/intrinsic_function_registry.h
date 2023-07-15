@@ -46,6 +46,8 @@ enum class IntrinsicFunctions : int64_t {
     Partition,
     ListReverse,
     ListPop,
+    SetAdd,
+    SetRemove,
     Sum,
     Product,
     Max,
@@ -98,6 +100,8 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
         INTRINSIC_NAME_CASE(ListPop)
+        INTRINSIC_NAME_CASE(SetAdd)
+        INTRINSIC_NAME_CASE(SetRemove)
         INTRINSIC_NAME_CASE(Sum)
         INTRINSIC_NAME_CASE(Max)
         INTRINSIC_NAME_CASE(Min)
@@ -1253,6 +1257,104 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
 }
 
 } // namespace ListPop
+
+namespace SetAdd {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 2, "Call to set.add must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "First argument to set.add must be of set type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Second argument to set.add must be of same type as set's element type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(x.m_type == nullptr,
+        "Return type of set.add must be empty",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_set_add(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for SetConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_SetAdd(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 2) {
+        err("Call to set.add must have exactly one argument", loc);
+    }
+    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
+         ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
+        err("Argument to set.add must be of same type as set's "
+            "element type", loc);
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_set_add(al, loc, arg_values);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace SetAdd
+
+namespace SetRemove {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 2, "Call to set.remove must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "First argument to set.remove must be of set type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASRUtils::check_equal_type(ASRUtils::expr_type(x.m_args[1]),
+            ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_args[0]))),
+        "Second argument to set.remove must be of same type as set's element type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(x.m_type == nullptr,
+        "Return type of set.remove must be empty",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_set_remove(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for SetConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 2) {
+        err("Call to set.remove must have exactly one argument", loc);
+    }
+    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[1]),
+         ASRUtils::get_contained_type(ASRUtils::expr_type(args[0])))) {
+        err("Argument to set.remove must be of same type as set's "
+            "element type", loc);
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_set_remove(al, loc, arg_values);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace SetRemove
 
 namespace Any {
 
@@ -2922,6 +3024,10 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &ListReverse::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             {nullptr, &ListPop::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+            {nullptr, &SetAdd::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+            {nullptr, &SetRemove::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Max),
             {&Max::instantiate_Max, &Max::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::MaxVal),
@@ -3000,6 +3106,10 @@ namespace IntrinsicFunctionRegistry {
             "list.reverse"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             "list.pop"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+            "set.add"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+            "set.remove"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Any),
             "any"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sum),
@@ -3076,6 +3186,8 @@ namespace IntrinsicFunctionRegistry {
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
+                {"set.add", {&SetAdd::create_SetAdd, &SetAdd::eval_set_add}},
+                {"set.remove", {&SetRemove::create_SetRemove, &SetRemove::eval_set_remove}},
                 {"max0", {&Max::create_Max, &Max::eval_Max}},
                 {"maxval", {&MaxVal::create_MaxVal, &MaxVal::eval_MaxVal}},
                 {"min0", {&Min::create_Min, &Min::eval_Min}},
