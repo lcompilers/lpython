@@ -243,6 +243,11 @@ int emit_asr(const std::string &infile,
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
     pass_options.pass_cumulative = compiler_options.pass_cumulative;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
+
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -345,6 +350,10 @@ int emit_c(const std::string &infile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -398,6 +407,10 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -1501,6 +1514,7 @@ int main(int argc, char *argv[])
         bool print_targets = false;
         bool print_rtl_header_dir = false;
         bool print_rtl_dir = false;
+        bool separate_compilation = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1579,6 +1593,11 @@ int main(int argc, char *argv[])
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
+        app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
+        app.add_flag("--module-mangling", compiler_options.module_name_mangling, "Mangles the module name");
+        app.add_flag("--global-mangling", compiler_options.global_symbols_mangling, "Mangles all the global symbols");
+        app.add_flag("--intrinsic-mangling", compiler_options.intrinsic_symbols_mangling, "Mangles all the intrinsic symbols");
+        app.add_flag("--all-mangling", compiler_options.all_symbols_mangling, "Mangles all possible symbols");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
@@ -1616,7 +1635,7 @@ int main(int argc, char *argv[])
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
 
-        lcompilers_unique_ID = LCompilers::get_unique_ID();
+        lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
 
 
         if( compiler_options.fast && compiler_options.enable_bounds_checking ) {

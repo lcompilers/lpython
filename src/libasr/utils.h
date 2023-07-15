@@ -64,6 +64,10 @@ struct CompilerOptions {
     bool enable_cpython = false;
     bool enable_symengine = false;
     bool link_numpy = false;
+    bool module_name_mangling = false;
+    bool global_symbols_mangling = false;
+    bool intrinsic_symbols_mangling = false;
+    bool all_symbols_mangling = false;
     std::vector<std::string> import_paths;
     Platform platform;
 
@@ -93,6 +97,10 @@ namespace LCompilers {
         bool verbose = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
         bool disable_main = false;
+        bool module_name_mangling = false;
+        bool global_symbols_mangling = false;
+        bool intrinsic_symbols_mangling = false;
+        bool all_symbols_mangling = false;
     };
 
 }
