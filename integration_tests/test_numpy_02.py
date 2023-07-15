@@ -12,7 +12,6 @@ NZERO: f64 = -0.0
 eps: f64
 eps = 1e-12
 
-n: i32
 n = TypeVar("n")
 
 def zeros(n: i32) -> f64[n]:
@@ -126,7 +125,6 @@ def fabs(f: f64) -> f64:
 def fabs(b: bool) -> f64:
     return sqrt(b)
 
-num: i32
 num = TypeVar("num")
 def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
     A: f64[num]
