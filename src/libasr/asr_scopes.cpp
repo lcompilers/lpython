@@ -85,7 +85,7 @@ ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
 
 std::string SymbolTable::get_unique_name(const std::string &name, bool use_unique_id) {
     std::string unique_name = name;
-    if( use_unique_id ) {
+    if( use_unique_id && !lcompilers_unique_ID.empty()) {
         unique_name += "_" + lcompilers_unique_ID;
     }
     int counter = 1;

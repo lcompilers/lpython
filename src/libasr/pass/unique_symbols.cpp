@@ -232,7 +232,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     public:
     std::unordered_map<ASR::symbol_t*, std::string>& sym_to_new_name;
-    std::unordered_map<std::string, ASR::symbol_t*> current_scope;
+    std::map<std::string, ASR::symbol_t*> current_scope;
 
     UniqueSymbolVisitor(Allocator& al_,
     std::unordered_map<ASR::symbol_t*, std::string> &sn) : al(al_), sym_to_new_name(sn){}
@@ -240,7 +240,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         ASR::TranslationUnit_t& xx = const_cast<ASR::TranslationUnit_t&>(x);
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_global_scope->get_scope();
         for (auto &a : xx.m_global_scope->get_scope()) {
             visit_symbol(*a.second);
@@ -256,7 +256,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     void visit_Program(const ASR::Program_t &x) {
         ASR::Program_t& xx = const_cast<ASR::Program_t&>(x);
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
@@ -284,7 +284,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     void visit_Module(const ASR::Module_t &x) {
         ASR::Module_t& xx = const_cast<ASR::Module_t&>(x);
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
@@ -312,7 +312,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
     void visit_Function(const ASR::Function_t &x) {
         ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
@@ -376,7 +376,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         for (size_t i=0; i<xx.n_dependencies; i++) {
             if (current_scope.find(xx.m_dependencies[i]) != current_scope.end()) {
                 sym = current_scope[xx.m_dependencies[i]];
@@ -412,7 +412,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         for (size_t i=0; i<xx.n_dependencies; i++) {
             if (current_scope.find(xx.m_dependencies[i]) != current_scope.end()) {
                 sym = current_scope[xx.m_dependencies[i]];
@@ -448,7 +448,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         for (size_t i=0; i<xx.n_dependencies; i++) {
             if (current_scope.find(xx.m_dependencies[i]) != current_scope.end()) {
                 sym = current_scope[xx.m_dependencies[i]];
@@ -500,7 +500,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_symtab->get_scope();
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
@@ -528,7 +528,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_symtab->get_scope();
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
@@ -548,7 +548,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_symtab->get_scope();
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
@@ -568,7 +568,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_symtab->get_scope();
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
@@ -588,7 +588,7 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
         }
-        std::unordered_map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
+        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
         current_scope = x.m_symtab->get_scope();
         for (auto &a : x.m_symtab->get_scope()) {
             visit_symbol(*a.second);
@@ -606,8 +606,16 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
 
 
 void pass_unique_symbols(Allocator &al, ASR::TranslationUnit_t &unit,
-    const LCompilers::PassOptions& /*pass_options*/) {
-    SymbolRenameVisitor v(true, true, true, true);
+    const LCompilers::PassOptions& pass_options) {
+    bool any_present = (pass_options.module_name_mangling || pass_options.global_symbols_mangling ||
+                    pass_options.intrinsic_symbols_mangling || pass_options.all_symbols_mangling);
+    if (!any_present || lcompilers_unique_ID.empty()) {
+        return;
+    }
+    SymbolRenameVisitor v(pass_options.module_name_mangling,
+                pass_options.global_symbols_mangling,
+                pass_options.intrinsic_symbols_mangling,
+                pass_options.all_symbols_mangling);
     v.visit_TranslationUnit(unit);
     UniqueSymbolVisitor u(al, v.sym_to_renamed);
     u.visit_TranslationUnit(unit);
