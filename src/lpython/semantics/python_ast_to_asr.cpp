@@ -1018,6 +1018,7 @@ public:
                 m->m_name, nullptr, 0, mfn->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(fn);
         } else if (ASR::is_a<ASR::StructType_t>(*t)) {
             ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
@@ -1034,6 +1035,7 @@ public:
                 m->m_name, nullptr, 0, st->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(est);
         } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
             ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
@@ -1048,6 +1050,7 @@ public:
                 m->m_name, nullptr, 0, et->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(est);
         } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
             ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
@@ -1062,6 +1065,7 @@ public:
                 m->m_name, nullptr, 0, ut->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(est);
         } else if (ASR::is_a<ASR::Variable_t>(*t)) {
             ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
@@ -1078,6 +1082,7 @@ public:
                 m->m_name, nullptr, 0, mv->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(v);
         } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
             ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
@@ -1092,6 +1097,7 @@ public:
                 m->m_name, nullptr, 0, gt->m_name,
                 ASR::accessType::Public
                 );
+            current_module_dependencies.push_back(al, m->m_name);
             return ASR::down_cast<ASR::symbol_t>(v);
         } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
             ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
