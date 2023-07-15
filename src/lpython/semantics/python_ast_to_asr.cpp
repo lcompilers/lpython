@@ -582,6 +582,10 @@ public:
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
     std::vector<std::string> import_paths;
+    /*
+        current_body exists only for Functions, For, If (& its Else part), While.
+        current_body does not exist for Modules, ClassDef/Structs.
+    */
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
     AST::expr_t* assign_ast_target;
