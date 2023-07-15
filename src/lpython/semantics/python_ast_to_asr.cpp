@@ -4470,7 +4470,6 @@ public:
         ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
-            SymbolTable *st = current_scope;
             std::vector<std::string> paths;
             for (auto &path:import_paths) {
                 paths.push_back(path);
@@ -4478,12 +4477,9 @@ public:
             paths.push_back(rl_path);
             paths.push_back(parent_dir);
 
-            if (!main_module) {
-                st = st->parent;
-            }
             bool lpython, enum_py, copy, sympy;
             set_module_symbol(msym, paths);
-            t = (ASR::symbol_t*)(load_module(al, st,
+            t = (ASR::symbol_t*)(load_module(al, global_scope,
                 msym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
@@ -4547,18 +4543,14 @@ public:
         }
         paths.push_back(rl_path);
         paths.push_back(parent_dir);
-        SymbolTable *st = current_scope;
         std::vector<std::string> mods;
         for (size_t i=0; i<x.n_names; i++) {
             mods.push_back(x.m_names[i].m_name);
         }
-        if (!main_module) {
-            st = st->parent;
-        }
         for (auto &mod_sym : mods) {
             bool lpython, enum_py, copy, sympy;
             set_module_symbol(mod_sym, paths);
-            t = (ASR::symbol_t*)(load_module(al, st,
+            t = (ASR::symbol_t*)(load_module(al, global_scope,
                 mod_sym, x.base.base.loc, diag, lm, false, paths, lpython, enum_py, copy, sympy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
