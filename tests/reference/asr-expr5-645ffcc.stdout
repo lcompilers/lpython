@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_StrOp_concat:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -48,7 +48,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConcat
                                             (StringConstant
                                                 "3"
@@ -67,7 +67,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConcat
                                             (StringConstant
                                                 "a "
@@ -86,7 +86,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConcat
                                             (StringConcat
                                                 (StringConstant
@@ -122,7 +122,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -130,7 +130,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

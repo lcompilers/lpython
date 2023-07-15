@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_Set:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -32,7 +32,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -50,7 +50,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -84,7 +84,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (SetConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -96,7 +96,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (SetConstant
                                             [(IntegerConstant 2 (Integer 4))
                                             (IntegerConstant 3 (Integer 4))
@@ -112,7 +112,7 @@
                                     (Expr
                                         (IntrinsicFunction
                                             SetAdd
-                                            [(Var 2 a)
+                                            [(Var 3 a)
                                             (IntegerConstant 9 (Integer 4))]
                                             0
                                             ()
@@ -122,7 +122,7 @@
                                     (Expr
                                         (IntrinsicFunction
                                             SetRemove
-                                            [(Var 2 a)
+                                            [(Var 3 a)
                                             (IntegerConstant 4 (Integer 4))]
                                             0
                                             ()
@@ -130,7 +130,7 @@
                                         )
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (SetConstant
                                             [(StringConstant
                                                 "a"
@@ -151,9 +151,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (SetPop
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Character 1 -2 ())
                                             ()
                                         )
@@ -166,7 +166,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -174,7 +174,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

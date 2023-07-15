@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        8
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         7
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        8 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     Local
@@ -72,7 +72,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     Local
@@ -93,7 +93,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    3
+                                                    4
                                                     c
                                                     []
                                                     Local
@@ -114,7 +114,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    3
+                                                    4
                                                     i
                                                     []
                                                     Local
@@ -130,7 +130,7 @@
                                                 ),
                                             nsize:
                                                 (Variable
-                                                    3
+                                                    4
                                                     nsize
                                                     []
                                                     Local
@@ -146,7 +146,7 @@
                                                 ),
                                             scalar:
                                                 (Variable
-                                                    3
+                                                    4
                                                     scalar
                                                     []
                                                     Local
@@ -180,7 +180,7 @@
                                     [triad]
                                     []
                                     [(=
-                                        (Var 3 scalar)
+                                        (Var 4 scalar)
                                         (Cast
                                             (RealConstant
                                                 10.000000
@@ -196,9 +196,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 nsize)
+                                        (Var 4 nsize)
                                         (ArraySize
-                                            (Var 3 a)
+                                            (Var 4 a)
                                             ()
                                             (Integer 4)
                                             ()
@@ -206,10 +206,10 @@
                                         ()
                                     )
                                     (DoConcurrentLoop
-                                        ((Var 3 i)
+                                        ((Var 4 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (Var 3 nsize)
+                                            (Var 4 nsize)
                                             Sub
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -218,9 +218,9 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 3 a)
+                                                (Var 4 a)
                                                 [(()
-                                                (Var 3 i)
+                                                (Var 4 i)
                                                 ())]
                                                 (Real 4)
                                                 RowMajor
@@ -242,9 +242,9 @@
                                         )
                                         (=
                                             (ArrayItem
-                                                (Var 3 b)
+                                                (Var 4 b)
                                                 [(()
-                                                (Var 3 i)
+                                                (Var 4 i)
                                                 ())]
                                                 (Real 4)
                                                 RowMajor
@@ -266,10 +266,10 @@
                                         )]
                                     )
                                     (SubroutineCall
-                                        8 triad
+                                        2 triad
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 3 a)
+                                            (Var 4 a)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -281,7 +281,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -292,9 +292,9 @@
                                             )
                                             ()
                                         ))
-                                        ((Var 3 scalar))
+                                        ((Var 4 scalar))
                                         ((ArrayPhysicalCast
-                                            (Var 3 c)
+                                            (Var 4 c)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -325,11 +325,11 @@
                             triad:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             N:
                                                 (Variable
-                                                    2
+                                                    3
                                                     N
                                                     []
                                                     Local
@@ -345,7 +345,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     InOut
@@ -366,7 +366,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     InOut
@@ -387,7 +387,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     InOut
@@ -408,7 +408,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -424,7 +424,7 @@
                                                 ),
                                             scalar:
                                                 (Variable
-                                                    2
+                                                    3
                                                     scalar
                                                     []
                                                     In
@@ -474,14 +474,14 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 a)
-                                    (Var 2 b)
-                                    (Var 2 scalar)
-                                    (Var 2 c)]
+                                    [(Var 3 a)
+                                    (Var 3 b)
+                                    (Var 3 scalar)
+                                    (Var 3 c)]
                                     [(=
-                                        (Var 2 N)
+                                        (Var 3 N)
                                         (ArraySize
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             ()
                                             (Integer 4)
                                             ()
@@ -489,10 +489,10 @@
                                         ()
                                     )
                                     (DoConcurrentLoop
-                                        ((Var 2 i)
+                                        ((Var 3 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (Var 2 N)
+                                            (Var 3 N)
                                             Sub
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -501,9 +501,9 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 [(()
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 ())]
                                                 (Real 4)
                                                 RowMajor
@@ -511,9 +511,9 @@
                                             )
                                             (RealBinOp
                                                 (ArrayItem
-                                                    (Var 2 a)
+                                                    (Var 3 a)
                                                     [(()
-                                                    (Var 2 i)
+                                                    (Var 3 i)
                                                     ())]
                                                     (Real 4)
                                                     RowMajor
@@ -521,12 +521,12 @@
                                                 )
                                                 Add
                                                 (RealBinOp
-                                                    (Var 2 scalar)
+                                                    (Var 3 scalar)
                                                     Mul
                                                     (ArrayItem
-                                                        (Var 2 b)
+                                                        (Var 3 b)
                                                         [(()
-                                                        (Var 2 i)
+                                                        (Var 3 i)
                                                         ())]
                                                         (Real 4)
                                                         RowMajor
@@ -548,7 +548,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -556,24 +556,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        6
+                        8
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    6
-                                    _lpython_main_program
-                                    8 _lpython_main_program
-                                    _global_symbols
+                                    8
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        6 _lpython_main_program
-                        ()
+                        8 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

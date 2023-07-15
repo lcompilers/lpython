@@ -22,16 +22,16 @@ source_filename = "LFortran"
 @18 = private unnamed_addr constant [5 x i8] c"True\00", align 1
 @19 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
 
-define void @__module__global_symbols__lpython_main_program() {
+define void @__module___main_____main____global_statements() {
 .entry:
-  call void @__module__global_symbols_test_bool()
+  call void @__module___main___test_bool()
   br label %return
 
 return:                                           ; preds = %.entry
   ret void
 }
 
-define void @__module__global_symbols_test_bool() {
+define void @__module___main___test_bool() {
 .entry:
   %b = alloca i1, align 1
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @4, i32 0, i32 0), i8* getelementptr inbounds ([5 x i8], [5 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
@@ -57,7 +57,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module__global_symbols__lpython_main_program()
+  call void @__module___main_____main____global_statements()
   ret i32 0
 }
 

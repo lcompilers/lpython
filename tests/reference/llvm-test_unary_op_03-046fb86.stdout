@@ -4,16 +4,16 @@ source_filename = "LFortran"
 @0 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 @1 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
-define void @__module__global_symbols__lpython_main_program() {
+define void @__module___main_____main____global_statements() {
 .entry:
-  call void @__module__global_symbols_f()
+  call void @__module___main___f()
   br label %return
 
 return:                                           ; preds = %.entry
   ret void
 }
 
-define void @__module__global_symbols_f() {
+define void @__module___main___f() {
 .entry:
   %i = alloca i32, align 4
   %res = alloca i32, align 4
@@ -62,7 +62,7 @@ declare void @exit(i32)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module__global_symbols__lpython_main_program()
+  call void @__module___main_____main____global_statements()
   ret i32 0
 }
 

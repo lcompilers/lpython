@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        9 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             i:
                                                 (Variable
-                                                    5
+                                                    6
                                                     i
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    5
+                                                    6
                                                     j
                                                     []
                                                     Local
@@ -103,9 +103,9 @@
                                     test_factorial_3]
                                     []
                                     [(=
-                                        (Var 5 i)
+                                        (Var 6 i)
                                         (FunctionCall
-                                            9 test_factorial_1
+                                            2 test_factorial_1
                                             ()
                                             [((IntegerConstant 4 (Integer 4)))]
                                             (Integer 4)
@@ -115,9 +115,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 i)
+                                        (Var 6 i)
                                         (FunctionCall
-                                            9 test_factorial_2
+                                            2 test_factorial_2
                                             ()
                                             [((IntegerConstant 4 (Integer 4)))]
                                             (Integer 4)
@@ -127,9 +127,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 j)
+                                        (Var 6 j)
                                         (FunctionCall
-                                            9 test_factorial_3
+                                            2 test_factorial_3
                                             ()
                                             [((IntegerConstant 5 (Integer 4)))]
                                             (Integer 8)
@@ -147,11 +147,11 @@
                             test_factorial_1:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -167,7 +167,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    2
+                                                    3
                                                     result
                                                     []
                                                     Local
@@ -183,7 +183,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     In
@@ -215,17 +215,17 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 x)]
+                                    [(Var 3 x)]
                                     [(If
                                         (IntegerCompare
-                                            (Var 2 x)
+                                            (Var 3 x)
                                             Lt
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
                                             ()
                                         )
                                         [(=
-                                            (Var 2 _lpython_return_variable)
+                                            (Var 3 _lpython_return_variable)
                                             (IntegerConstant 0 (Integer 4))
                                             ()
                                         )
@@ -233,34 +233,34 @@
                                         []
                                     )
                                     (=
-                                        (Var 2 result)
+                                        (Var 3 result)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (WhileLoop
                                         ()
                                         (IntegerCompare
-                                            (Var 2 x)
+                                            (Var 3 x)
                                             Gt
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
                                             ()
                                         )
                                         [(=
-                                            (Var 2 result)
+                                            (Var 3 result)
                                             (IntegerBinOp
-                                                (Var 2 result)
+                                                (Var 3 result)
                                                 Mul
-                                                (Var 2 x)
+                                                (Var 3 x)
                                                 (Integer 4)
                                                 ()
                                             )
                                             ()
                                         )
                                         (=
-                                            (Var 2 x)
+                                            (Var 3 x)
                                             (IntegerBinOp
-                                                (Var 2 x)
+                                                (Var 3 x)
                                                 Sub
                                                 (IntegerConstant 1 (Integer 4))
                                                 (Integer 4)
@@ -270,12 +270,12 @@
                                         )]
                                     )
                                     (=
-                                        (Var 2 _lpython_return_variable)
-                                        (Var 2 result)
+                                        (Var 3 _lpython_return_variable)
+                                        (Var 3 result)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -284,11 +284,11 @@
                             test_factorial_2:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -304,7 +304,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    3
+                                                    4
                                                     i
                                                     []
                                                     Local
@@ -320,7 +320,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    3
+                                                    4
                                                     result
                                                     []
                                                     Local
@@ -336,7 +336,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     In
@@ -368,19 +368,19 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 x)]
+                                    [(Var 4 x)]
                                     [(=
-                                        (Var 3 result)
+                                        (Var 4 result)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 i)
+                                        ((Var 4 i)
                                         (IntegerConstant 1 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerBinOp
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 Add
                                                 (IntegerConstant 1 (Integer 4))
                                                 (Integer 4)
@@ -393,11 +393,11 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
-                                            (Var 3 result)
+                                            (Var 4 result)
                                             (IntegerBinOp
-                                                (Var 3 result)
+                                                (Var 4 result)
                                                 Mul
-                                                (Var 3 i)
+                                                (Var 4 i)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -405,12 +405,12 @@
                                         )]
                                     )
                                     (=
-                                        (Var 3 _lpython_return_variable)
-                                        (Var 3 result)
+                                        (Var 4 _lpython_return_variable)
+                                        (Var 4 result)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 3 _lpython_return_variable)
+                                    (Var 4 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -419,11 +419,11 @@
                             test_factorial_3:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    4
+                                                    5
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -439,7 +439,7 @@
                                                 ),
                                             result:
                                                 (Variable
-                                                    4
+                                                    5
                                                     result
                                                     []
                                                     Local
@@ -455,7 +455,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     In
@@ -487,9 +487,9 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 4 x)]
+                                    [(Var 5 x)]
                                     [(=
-                                        (Var 4 result)
+                                        (Var 5 result)
                                         (Cast
                                             (IntegerConstant 0 (Integer 4))
                                             IntegerToInteger
@@ -500,22 +500,22 @@
                                     )
                                     (If
                                         (IntegerCompare
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             Lt
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
                                             ()
                                         )
                                         [(=
-                                            (Var 4 _lpython_return_variable)
-                                            (Var 4 result)
+                                            (Var 5 _lpython_return_variable)
+                                            (Var 5 result)
                                             ()
                                         )
                                         (Return)]
                                         []
                                     )
                                     (=
-                                        (Var 4 result)
+                                        (Var 5 result)
                                         (Cast
                                             (IntegerConstant 1 (Integer 4))
                                             IntegerToInteger
@@ -527,19 +527,19 @@
                                     (WhileLoop
                                         ()
                                         (IntegerCompare
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             Gt
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
                                             ()
                                         )
                                         [(=
-                                            (Var 4 result)
+                                            (Var 5 result)
                                             (IntegerBinOp
-                                                (Var 4 result)
+                                                (Var 5 result)
                                                 Mul
                                                 (Cast
-                                                    (Var 4 x)
+                                                    (Var 5 x)
                                                     IntegerToInteger
                                                     (Integer 8)
                                                     ()
@@ -550,9 +550,9 @@
                                             ()
                                         )
                                         (=
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             (IntegerBinOp
-                                                (Var 4 x)
+                                                (Var 5 x)
                                                 Sub
                                                 (IntegerConstant 1 (Integer 4))
                                                 (Integer 4)
@@ -562,19 +562,19 @@
                                         )]
                                     )
                                     (=
-                                        (Var 4 _lpython_return_variable)
-                                        (Var 4 result)
+                                        (Var 5 _lpython_return_variable)
+                                        (Var 5 result)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 4 _lpython_return_variable)
+                                    (Var 5 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -582,24 +582,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

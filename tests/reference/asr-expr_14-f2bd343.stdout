@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        5
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_divide]
                                     []
                                     [(SubroutineCall
-                                        5 test_divide
+                                        2 test_divide
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_divide:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a1
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a2
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             a3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a3
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -115,7 +115,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b2
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                                 ),
                                             b3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b3
                                                     []
                                                     Local
@@ -147,7 +147,7 @@
                                                 ),
                                             c1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c1
                                                     []
                                                     Local
@@ -163,7 +163,7 @@
                                                 ),
                                             c2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c2
                                                     []
                                                     Local
@@ -179,7 +179,7 @@
                                                 ),
                                             c3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c3
                                                     []
                                                     Local
@@ -195,7 +195,7 @@
                                                 ),
                                             d1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     d1
                                                     []
                                                     Local
@@ -211,7 +211,7 @@
                                                 ),
                                             d2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     d2
                                                     []
                                                     Local
@@ -227,7 +227,7 @@
                                                 ),
                                             d3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     d3
                                                     []
                                                     Local
@@ -243,7 +243,7 @@
                                                 ),
                                             e1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     e1
                                                     []
                                                     Local
@@ -259,7 +259,7 @@
                                                 ),
                                             e2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     e2
                                                     []
                                                     Local
@@ -275,7 +275,7 @@
                                                 ),
                                             e3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     e3
                                                     []
                                                     Local
@@ -291,7 +291,7 @@
                                                 ),
                                             f1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f1
                                                     []
                                                     Local
@@ -307,7 +307,7 @@
                                                 ),
                                             f2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f2
                                                     []
                                                     Local
@@ -323,7 +323,7 @@
                                                 ),
                                             f3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f3
                                                     []
                                                     Local
@@ -357,27 +357,27 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a1)
+                                        (Var 3 a1)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 a2)
+                                        (Var 3 a2)
                                         (IntegerConstant 9 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 a3)
+                                        (Var 3 a3)
                                         (RealBinOp
                                             (Cast
-                                                (Var 2 a2)
+                                                (Var 3 a2)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
-                                                (Var 2 a1)
+                                                (Var 3 a1)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -392,7 +392,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 2 a3)
+                                                    (Var 3 a3)
                                                     Sub
                                                     (RealConstant
                                                         9.000000
@@ -416,7 +416,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
                                             IntegerToInteger
@@ -426,7 +426,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (Cast
                                             (IntegerConstant 10 (Integer 4))
                                             IntegerToInteger
@@ -436,17 +436,17 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b3)
+                                        (Var 3 b3)
                                         (RealBinOp
                                             (Cast
-                                                (Var 2 b2)
+                                                (Var 3 b2)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
-                                                (Var 2 b1)
+                                                (Var 3 b1)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -461,7 +461,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 2 b3)
+                                                    (Var 3 b3)
                                                     Sub
                                                     (RealConstant
                                                         5.000000
@@ -485,7 +485,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c1)
+                                        (Var 3 c1)
                                         (Cast
                                             (RealConstant
                                                 3.000000
@@ -501,7 +501,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c2)
+                                        (Var 3 c2)
                                         (Cast
                                             (RealConstant
                                                 11.000000
@@ -517,11 +517,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c3)
+                                        (Var 3 c3)
                                         (RealBinOp
-                                            (Var 2 c2)
+                                            (Var 3 c2)
                                             Div
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             (Real 4)
                                             ()
                                         )
@@ -532,7 +532,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 2 c3)
+                                                    (Var 3 c3)
                                                     Sub
                                                     (Cast
                                                         (RealConstant
@@ -572,7 +572,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 d1)
+                                        (Var 3 d1)
                                         (RealConstant
                                             4.000000
                                             (Real 8)
@@ -580,7 +580,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 d2)
+                                        (Var 3 d2)
                                         (RealConstant
                                             12.000000
                                             (Real 8)
@@ -588,11 +588,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 d3)
+                                        (Var 3 d3)
                                         (RealBinOp
-                                            (Var 2 d2)
+                                            (Var 3 d2)
                                             Div
-                                            (Var 2 d1)
+                                            (Var 3 d1)
                                             (Real 8)
                                             ()
                                         )
@@ -603,7 +603,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 2 d3)
+                                                    (Var 3 d3)
                                                     Sub
                                                     (RealConstant
                                                         3.000000
@@ -627,7 +627,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 e1)
+                                        (Var 3 e1)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 5 (Integer 4))
@@ -664,7 +664,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 e2)
+                                        (Var 3 e2)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 13 (Integer 4))
@@ -701,11 +701,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 e3)
+                                        (Var 3 e3)
                                         (ComplexBinOp
-                                            (Var 2 e2)
+                                            (Var 3 e2)
                                             Div
-                                            (Var 2 e1)
+                                            (Var 3 e1)
                                             (Complex 4)
                                             ()
                                         )
@@ -717,7 +717,7 @@
                                                 Abs
                                                 [(ComplexBinOp
                                                     (ComplexBinOp
-                                                        (Var 2 e3)
+                                                        (Var 3 e3)
                                                         Sub
                                                         (Cast
                                                             (RealConstant
@@ -776,7 +776,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f1)
+                                        (Var 3 f1)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 7 (Integer 4))
@@ -804,7 +804,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 15 (Integer 4))
@@ -832,11 +832,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f3)
+                                        (Var 3 f3)
                                         (ComplexBinOp
-                                            (Var 2 f2)
+                                            (Var 3 f2)
                                             Div
-                                            (Var 2 f1)
+                                            (Var 3 f1)
                                             (Complex 8)
                                             ()
                                         )
@@ -848,7 +848,7 @@
                                                 Abs
                                                 [(ComplexBinOp
                                                     (ComplexBinOp
-                                                        (Var 2 f3)
+                                                        (Var 3 f3)
                                                         Sub
                                                         (Cast
                                                             (RealConstant
@@ -896,7 +896,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -904,24 +904,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        5
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    3
-                                    _lpython_main_program
-                                    5 _lpython_main_program
-                                    _global_symbols
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        3 _lpython_main_program
-                        ()
+                        5 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

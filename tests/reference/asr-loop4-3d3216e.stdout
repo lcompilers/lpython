@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        6
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         5
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_for]
                                     []
                                     [(SubroutineCall
-                                        6 test_for
+                                        2 test_for
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_for:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -86,7 +86,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 2 i)
+                                        ((Var 3 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 10 (Integer 4))
@@ -98,7 +98,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(If
                                             (IntegerCompare
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 Eq
                                                 (IntegerConstant 0 (Integer 4))
                                                 (Logical 4)
@@ -111,7 +111,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 Gt
                                                 (IntegerConstant 5 (Integer 4))
                                                 (Logical 4)
@@ -124,7 +124,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 Eq
                                                 (IntegerConstant 3 (Integer 4))
                                                 (Logical 4)
@@ -143,7 +143,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -151,24 +151,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        4
+                        6
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    4
-                                    _lpython_main_program
-                                    6 _lpython_main_program
-                                    _global_symbols
+                                    6
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        4 _lpython_main_program
-                        ()
+                        6 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

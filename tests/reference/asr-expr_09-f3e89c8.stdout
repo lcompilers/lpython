@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -35,19 +35,19 @@
                                     main0]
                                     []
                                     [(SubroutineCall
-                                        9 test_multiple_assign_1
+                                        2 test_multiple_assign_1
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_issue_928
+                                        2 test_issue_928
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -61,11 +61,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             i1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i1
                                                     []
                                                     Local
@@ -81,7 +81,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i2
                                                     []
                                                     Local
@@ -115,22 +115,22 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 i1)
+                                        (Var 3 i1)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 i1)
+                                        (Var 3 i1)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
@@ -138,13 +138,13 @@
                                         ()
                                         [(IntegerBinOp
                                             (IntegerUnaryMinus
-                                                (Var 2 i1)
+                                                (Var 3 i1)
                                                 (Integer 4)
                                                 ()
                                             )
                                             BitXor
                                             (IntegerUnaryMinus
-                                                (Var 2 i2)
+                                                (Var 3 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -158,13 +158,13 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (Var 2 i1)
+                                                    (Var 3 i1)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 BitXor
                                                 (IntegerUnaryMinus
-                                                    (Var 2 i2)
+                                                    (Var 3 i2)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -185,6 +185,170 @@
                                     ()
                                 ),
                             test_issue_928:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            a:
+                                                (Variable
+                                                    5
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    5
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    5
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_issue_928
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (TupleConstant
+                                            [(Var 5 a)
+                                            (Var 5 b)]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        (TupleConstant
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 c)
+                                        (TupleConstant
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 5 a)
+                                            Eq
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 5 b)
+                                            Eq
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (LogicalBinOp
+                                            (IntegerCompare
+                                                (TupleItem
+                                                    (Var 5 c)
+                                                    (IntegerConstant 0 (Integer 4))
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                Eq
+                                                (Var 5 a)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            And
+                                            (IntegerCompare
+                                                (TupleItem
+                                                    (Var 5 c)
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                Eq
+                                                (Var 5 b)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_multiple_assign_1:
                                 (Function
                                     (SymbolTable
                                         4
@@ -230,170 +394,6 @@
                                                     ()
                                                     ()
                                                     Default
-                                                    (Tuple
-                                                        [(Integer 4)
-                                                        (Integer 4)]
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    test_issue_928
-                                    (FunctionType
-                                        []
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    []
-                                    [(=
-                                        (TupleConstant
-                                            [(Var 4 a)
-                                            (Var 4 b)]
-                                            (Tuple
-                                                [(Integer 4)
-                                                (Integer 4)]
-                                            )
-                                        )
-                                        (TupleConstant
-                                            [(IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))]
-                                            (Tuple
-                                                [(Integer 4)
-                                                (Integer 4)]
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 4 c)
-                                        (TupleConstant
-                                            [(IntegerConstant 2 (Integer 4))
-                                            (IntegerConstant 1 (Integer 4))]
-                                            (Tuple
-                                                [(Integer 4)
-                                                (Integer 4)]
-                                            )
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (Var 4 a)
-                                            Eq
-                                            (IntegerConstant 2 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (IntegerCompare
-                                            (Var 4 b)
-                                            Eq
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (LogicalBinOp
-                                            (IntegerCompare
-                                                (TupleItem
-                                                    (Var 4 c)
-                                                    (IntegerConstant 0 (Integer 4))
-                                                    (Integer 4)
-                                                    ()
-                                                )
-                                                Eq
-                                                (Var 4 a)
-                                                (Logical 4)
-                                                ()
-                                            )
-                                            And
-                                            (IntegerCompare
-                                                (TupleItem
-                                                    (Var 4 c)
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    (Integer 4)
-                                                    ()
-                                                )
-                                                Eq
-                                                (Var 4 b)
-                                                (Logical 4)
-                                                ()
-                                            )
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )]
-                                    ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            test_multiple_assign_1:
-                                (Function
-                                    (SymbolTable
-                                        3
-                                        {
-                                            a:
-                                                (Variable
-                                                    3
-                                                    a
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            b:
-                                                (Variable
-                                                    3
-                                                    b
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            c:
-                                                (Variable
-                                                    3
-                                                    c
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
                                                     (Integer 4)
                                                     ()
                                                     Source
@@ -403,7 +403,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    3
+                                                    4
                                                     d
                                                     []
                                                     Local
@@ -419,7 +419,7 @@
                                                 ),
                                             e:
                                                 (Variable
-                                                    3
+                                                    4
                                                     e
                                                     []
                                                     Local
@@ -435,7 +435,7 @@
                                                 ),
                                             g:
                                                 (Variable
-                                                    3
+                                                    4
                                                     g
                                                     []
                                                     Local
@@ -451,7 +451,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    3
+                                                    4
                                                     i
                                                     []
                                                     Local
@@ -469,7 +469,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    3
+                                                    4
                                                     j
                                                     []
                                                     Local
@@ -487,7 +487,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    3
+                                                    4
                                                     k
                                                     []
                                                     Local
@@ -505,7 +505,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -521,7 +521,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     Local
@@ -555,15 +555,15 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 g)
+                                        (Var 4 g)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 d)
+                                        (Var 4 d)
                                         (RealBinOp
                                             (Cast
-                                                (Var 3 g)
+                                                (Var 4 g)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -579,10 +579,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 e)
+                                        (Var 4 e)
                                         (RealBinOp
                                             (Cast
-                                                (Var 3 g)
+                                                (Var 4 g)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -598,25 +598,25 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 a)
+                                        (Var 4 a)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 c)
+                                        (Var 4 c)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 a)
+                                            (Var 4 a)
                                             Eq
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             (Logical 4)
                                             ()
                                         )
@@ -624,9 +624,9 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
-                                            (Var 3 c)
+                                            (Var 4 c)
                                             (Logical 4)
                                             ()
                                         )
@@ -634,7 +634,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 a)
+                                            (Var 4 a)
                                             Eq
                                             (IntegerConstant 10 (Integer 4))
                                             (Logical 4)
@@ -643,7 +643,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (RealConstant
                                             23.000000
                                             (Real 8)
@@ -651,7 +651,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (RealConstant
                                             23.000000
                                             (Real 8)
@@ -663,7 +663,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 3 x)
+                                                    (Var 4 x)
                                                     Sub
                                                     (RealConstant
                                                         23.000000
@@ -691,7 +691,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 3 y)
+                                                    (Var 4 y)
                                                     Sub
                                                     (RealConstant
                                                         23.000000
@@ -719,7 +719,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 3 e)
+                                                    (Var 4 e)
                                                     Sub
                                                     (RealConstant
                                                         6.000000
@@ -747,7 +747,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (Var 3 d)
+                                                    (Var 4 d)
                                                     Sub
                                                     (RealConstant
                                                         6.000000
@@ -771,7 +771,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 k)
+                                        (Var 4 k)
                                         (ListConstant
                                             []
                                             (List
@@ -781,13 +781,13 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 g)
+                                        (Var 4 g)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 g)
+                                        ((Var 4 g)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 10 (Integer 4))
@@ -798,11 +798,11 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(ListAppend
-                                            (Var 3 k)
+                                            (Var 4 k)
                                             (RealBinOp
                                                 (RealBinOp
                                                     (Cast
-                                                        (Var 3 g)
+                                                        (Var 4 g)
                                                         IntegerToReal
                                                         (Real 8)
                                                         ()
@@ -826,18 +826,18 @@
                                         )]
                                     )
                                     (=
-                                        (Var 3 i)
-                                        (Var 3 k)
+                                        (Var 4 i)
+                                        (Var 4 k)
                                         ()
                                     )
                                     (=
-                                        (Var 3 j)
-                                        (Var 3 k)
+                                        (Var 4 j)
+                                        (Var 4 k)
                                         ()
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 g)
+                                        ((Var 4 g)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 10 (Integer 4))
@@ -853,15 +853,15 @@
                                                     Abs
                                                     [(RealBinOp
                                                         (ListItem
-                                                            (Var 3 i)
-                                                            (Var 3 g)
+                                                            (Var 4 i)
+                                                            (Var 4 g)
                                                             (Real 8)
                                                             ()
                                                         )
                                                         Sub
                                                         (ListItem
-                                                            (Var 3 j)
-                                                            (Var 3 g)
+                                                            (Var 4 j)
+                                                            (Var 4 g)
                                                             (Real 8)
                                                             ()
                                                         )
@@ -888,15 +888,15 @@
                                                     Abs
                                                     [(RealBinOp
                                                         (ListItem
-                                                            (Var 3 i)
-                                                            (Var 3 g)
+                                                            (Var 4 i)
+                                                            (Var 4 g)
                                                             (Real 8)
                                                             ()
                                                         )
                                                         Sub
                                                         (ListItem
-                                                            (Var 3 k)
-                                                            (Var 3 g)
+                                                            (Var 4 k)
+                                                            (Var 4 g)
                                                             (Real 8)
                                                             ()
                                                         )
@@ -925,7 +925,7 @@
                                                         (RealBinOp
                                                             (RealBinOp
                                                                 (Cast
-                                                                    (Var 3 g)
+                                                                    (Var 4 g)
                                                                     IntegerToReal
                                                                     (Real 8)
                                                                     ()
@@ -948,8 +948,8 @@
                                                         )
                                                         Sub
                                                         (ListItem
-                                                            (Var 3 k)
-                                                            (Var 3 g)
+                                                            (Var 4 k)
+                                                            (Var 4 g)
                                                             (Real 8)
                                                             ()
                                                         )
@@ -978,7 +978,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -986,24 +986,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

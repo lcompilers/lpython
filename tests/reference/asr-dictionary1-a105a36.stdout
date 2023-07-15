@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
                             f:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             x:
                                                 (Variable
-                                                    6
+                                                    7
                                                     x
                                                     []
                                                     InOut
@@ -52,9 +52,9 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 6 x)]
+                                    [(Var 7 x)]
                                     [(DictInsert
-                                        (Var 6 x)
+                                        (Var 7 x)
                                         (IntegerConstant 2 (Integer 4))
                                         (IntegerConstant 4 (Integer 4))
                                     )]
@@ -67,11 +67,11 @@
                             test_Dict:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -90,7 +90,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -109,7 +109,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    2
+                                                    3
                                                     z
                                                     []
                                                     Local
@@ -143,7 +143,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (DictConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 3 (Integer 4))]
@@ -157,7 +157,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 y)
+                                        (Var 3 y)
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
@@ -185,9 +185,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 z)
+                                        (Var 3 z)
                                         (DictItem
-                                            (Var 2 y)
+                                            (Var 3 y)
                                             (StringConstant
                                                 "a"
                                                 (Character 1 1 ())
@@ -199,9 +199,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 z)
+                                        (Var 3 z)
                                         (DictItem
-                                            (Var 2 y)
+                                            (Var 3 y)
                                             (StringConstant
                                                 "b"
                                                 (Character 1 1 ())
@@ -213,9 +213,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 z)
+                                        (Var 3 z)
                                         (DictItem
-                                            (Var 2 x)
+                                            (Var 3 x)
                                             (IntegerConstant 1 (Integer 4))
                                             ()
                                             (Integer 4)
@@ -232,11 +232,11 @@
                             test_dict_get:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     Local
@@ -250,6 +250,111 @@
                                                     Required
                                                     .false.
                                                 ),
+                                            y:
+                                                (Variable
+                                                    5
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Dict
+                                                        (Character 1 -2 ())
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_dict_get
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 5 y)
+                                        (DictConstant
+                                            [(StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "b"
+                                                (Character 1 1 ())
+                                            )]
+                                            [(IntegerUnaryMinus
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
+                                            )]
+                                            (Dict
+                                                (Character 1 1 ())
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 x)
+                                        (DictItem
+                                            (Var 5 y)
+                                            (StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            ()
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 x)
+                                        (DictItem
+                                            (Var 5 y)
+                                            (StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (IntegerConstant 0 (Integer 4))
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_dict_insert:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
                                             y:
                                                 (Variable
                                                     4
@@ -270,7 +375,7 @@
                                                     .false.
                                                 )
                                         })
-                                    test_dict_get
+                                    test_dict_insert
                                     (FunctionType
                                         []
                                         ()
@@ -316,113 +421,8 @@
                                         )
                                         ()
                                     )
-                                    (=
-                                        (Var 4 x)
-                                        (DictItem
-                                            (Var 4 y)
-                                            (StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            )
-                                            ()
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 4 x)
-                                        (DictItem
-                                            (Var 4 y)
-                                            (StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            )
-                                            (IntegerConstant 0 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        ()
-                                    )]
-                                    ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            test_dict_insert:
-                                (Function
-                                    (SymbolTable
-                                        3
-                                        {
-                                            y:
-                                                (Variable
-                                                    3
-                                                    y
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Dict
-                                                        (Character 1 -2 ())
-                                                        (Integer 4)
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    test_dict_insert
-                                    (FunctionType
-                                        []
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    []
-                                    [(=
-                                        (Var 3 y)
-                                        (DictConstant
-                                            [(StringConstant
-                                                "a"
-                                                (Character 1 1 ())
-                                            )
-                                            (StringConstant
-                                                "b"
-                                                (Character 1 1 ())
-                                            )]
-                                            [(IntegerUnaryMinus
-                                                (IntegerConstant 1 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -1 (Integer 4))
-                                            )
-                                            (IntegerUnaryMinus
-                                                (IntegerConstant 2 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant -2 (Integer 4))
-                                            )]
-                                            (Dict
-                                                (Character 1 1 ())
-                                                (Integer 4)
-                                            )
-                                        )
-                                        ()
-                                    )
                                     (DictInsert
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (StringConstant
                                             "c"
                                             (Character 1 1 ())
@@ -442,11 +442,11 @@
                             test_dict_pop:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             x:
                                                 (Variable
-                                                    5
+                                                    6
                                                     x
                                                     []
                                                     Local
@@ -462,7 +462,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    5
+                                                    6
                                                     y
                                                     []
                                                     Local
@@ -499,7 +499,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 5 y)
+                                        (Var 6 y)
                                         (DictConstant
                                             [(StringConstant
                                                 "a"
@@ -519,9 +519,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 x)
+                                        (Var 6 x)
                                         (DictPop
-                                            (Var 5 y)
+                                            (Var 6 y)
                                             (StringConstant
                                                 "a"
                                                 (Character 1 1 ())
@@ -540,11 +540,11 @@
                             test_issue_204:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        8
                                         {
                                             x:
                                                 (Variable
-                                                    7
+                                                    8
                                                     x
                                                     []
                                                     Local
@@ -581,9 +581,9 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        9 f
+                                        2 f
                                         ()
-                                        [((Var 7 x))]
+                                        [((Var 8 x))]
                                         ()
                                     )]
                                     ()
@@ -593,7 +593,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -601,7 +601,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        8
+                        9
                         {
                             
                         })

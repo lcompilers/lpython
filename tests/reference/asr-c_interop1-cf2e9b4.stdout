@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        8
+                        2
                         {
                             f:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -30,7 +30,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     In
@@ -62,9 +62,9 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 x)]
+                                    [(Var 3 x)]
                                     []
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -73,11 +73,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     In
@@ -93,7 +93,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     In
@@ -109,7 +109,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    3
+                                                    4
                                                     c
                                                     []
                                                     In
@@ -125,7 +125,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    3
+                                                    4
                                                     d
                                                     []
                                                     In
@@ -160,10 +160,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 a)
-                                    (Var 3 b)
-                                    (Var 3 c)
-                                    (Var 3 d)]
+                                    [(Var 4 a)
+                                    (Var 4 b)
+                                    (Var 4 c)
+                                    (Var 4 d)]
                                     []
                                     ()
                                     Public
@@ -174,11 +174,11 @@
                             h:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    4
+                                                    5
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -194,7 +194,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     In
@@ -226,11 +226,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 4 x)]
+                                    [(Var 5 x)]
                                     [(=
-                                        (Var 4 _lpython_return_variable)
+                                        (Var 5 _lpython_return_variable)
                                         (RealBinOp
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             Add
                                             (RealConstant
                                                 1.000000
@@ -242,7 +242,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 4 _lpython_return_variable)
+                                    (Var 5 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -251,11 +251,11 @@
                             l:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             a:
                                                 (Variable
-                                                    5
+                                                    6
                                                     a
                                                     []
                                                     In
@@ -271,7 +271,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    5
+                                                    6
                                                     b
                                                     []
                                                     In
@@ -287,7 +287,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    5
+                                                    6
                                                     c
                                                     []
                                                     In
@@ -303,7 +303,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    5
+                                                    6
                                                     d
                                                     []
                                                     In
@@ -338,10 +338,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 5 a)
-                                    (Var 5 b)
-                                    (Var 5 c)
-                                    (Var 5 d)]
+                                    [(Var 6 a)
+                                    (Var 6 b)
+                                    (Var 6 c)
+                                    (Var 6 d)]
                                     [(Print
                                         ()
                                         [(StringConstant
@@ -360,11 +360,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             i:
                                                 (Variable
-                                                    6
+                                                    7
                                                     i
                                                     []
                                                     Local
@@ -380,7 +380,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    6
+                                                    7
                                                     x
                                                     []
                                                     Local
@@ -396,7 +396,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    6
+                                                    7
                                                     y
                                                     []
                                                     Local
@@ -412,7 +412,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    6
+                                                    7
                                                     z
                                                     []
                                                     Local
@@ -428,7 +428,7 @@
                                                 ),
                                             zz:
                                                 (Variable
-                                                    6
+                                                    7
                                                     zz
                                                     []
                                                     Local
@@ -465,7 +465,7 @@
                                     l]
                                     []
                                     [(=
-                                        (Var 6 x)
+                                        (Var 7 x)
                                         (RealConstant
                                             5.000000
                                             (Real 8)
@@ -473,11 +473,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 i)
+                                        (Var 7 i)
                                         (FunctionCall
-                                            8 f
+                                            2 f
                                             ()
-                                            [((Var 6 x))]
+                                            [((Var 7 x))]
                                             (Real 8)
                                             ()
                                             ()
@@ -485,7 +485,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 y)
+                                        (Var 7 y)
                                         (Cast
                                             (RealConstant
                                                 5.400000
@@ -501,7 +501,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 z)
+                                        (Var 7 z)
                                         (Cast
                                             (IntegerConstant 3 (Integer 4))
                                             IntegerToInteger
@@ -511,25 +511,25 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 zz)
+                                        (Var 7 zz)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 g
+                                        2 g
                                         ()
-                                        [((Var 6 x))
-                                        ((Var 6 y))
-                                        ((Var 6 z))
-                                        ((Var 6 zz))]
+                                        [((Var 7 x))
+                                        ((Var 7 y))
+                                        ((Var 7 z))
+                                        ((Var 7 zz))]
                                         ()
                                     )
                                     (=
-                                        (Var 6 i)
+                                        (Var 7 i)
                                         (FunctionCall
-                                            8 h
+                                            2 h
                                             ()
-                                            [((Var 6 x))]
+                                            [((Var 7 x))]
                                             (Real 8)
                                             ()
                                             ()
@@ -537,12 +537,12 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 l
+                                        2 l
                                         ()
-                                        [((Var 6 x))
-                                        ((Var 6 y))
-                                        ((Var 6 z))
-                                        ((Var 6 zz))]
+                                        [((Var 7 x))
+                                        ((Var 7 y))
+                                        ((Var 7 z))
+                                        ((Var 7 zz))]
                                         ()
                                     )]
                                     ()
@@ -552,7 +552,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -560,7 +560,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        8
                         {
                             
                         })

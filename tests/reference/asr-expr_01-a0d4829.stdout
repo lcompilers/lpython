@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        7 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -45,98 +45,6 @@
                                     ()
                                 ),
                             add:
-                                (Function
-                                    (SymbolTable
-                                        2
-                                        {
-                                            _lpython_return_variable:
-                                                (Variable
-                                                    2
-                                                    _lpython_return_variable
-                                                    []
-                                                    ReturnVar
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            x:
-                                                (Variable
-                                                    2
-                                                    x
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            y:
-                                                (Variable
-                                                    2
-                                                    y
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    add
-                                    (FunctionType
-                                        [(Integer 4)
-                                        (Integer 4)]
-                                        (Integer 4)
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .true.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    [(Var 2 x)
-                                    (Var 2 y)]
-                                    [(=
-                                        (Var 2 _lpython_return_variable)
-                                        (IntegerBinOp
-                                            (Var 2 x)
-                                            Add
-                                            (Var 2 y)
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Return)]
-                                    (Var 2 _lpython_return_variable)
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            and_op:
                                 (Function
                                     (SymbolTable
                                         3
@@ -190,7 +98,7 @@
                                                     .false.
                                                 )
                                         })
-                                    and_op
+                                    add
                                     (FunctionType
                                         [(Integer 4)
                                         (Integer 4)]
@@ -214,7 +122,7 @@
                                         (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (Var 3 x)
-                                            BitAnd
+                                            Add
                                             (Var 3 y)
                                             (Integer 4)
                                             ()
@@ -228,17 +136,33 @@
                                     .false.
                                     ()
                                 ),
-                            main0:
+                            and_op:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    4
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
                                             x:
                                                 (Variable
                                                     4
                                                     x
                                                     []
-                                                    Local
+                                                    In
                                                     ()
                                                     ()
                                                     Default
@@ -254,6 +178,82 @@
                                                     4
                                                     y
                                                     []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    and_op
+                                    (FunctionType
+                                        [(Integer 4)
+                                        (Integer 4)]
+                                        (Integer 4)
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .true.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 4 x)
+                                    (Var 4 y)]
+                                    [(=
+                                        (Var 4 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (Var 4 x)
+                                            BitAnd
+                                            (Var 4 y)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 4 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            main0:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            x:
+                                                (Variable
+                                                    5
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            y:
+                                                (Variable
+                                                    5
+                                                    y
+                                                    []
                                                     Local
                                                     ()
                                                     ()
@@ -267,7 +267,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    4
+                                                    5
                                                     z
                                                     []
                                                     Local
@@ -302,7 +302,7 @@
                                     and_op]
                                     []
                                     [(=
-                                        (Var 4 x)
+                                        (Var 5 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
                                                 (IntegerConstant 2 (Integer 4))
@@ -319,12 +319,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 y)
+                                        (Var 5 y)
                                         (IntegerBinOp
                                             (FunctionCall
-                                                7 add
+                                                2 add
                                                 ()
-                                                [((Var 4 x))
+                                                [((Var 5 x))
                                                 ((IntegerConstant 2 (Integer 4)))]
                                                 (Integer 4)
                                                 ()
@@ -339,7 +339,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             Eq
                                             (IntegerConstant 25 (Integer 4))
                                             (Logical 4)
@@ -349,7 +349,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 y)
+                                            (Var 5 y)
                                             Eq
                                             (IntegerConstant 54 (Integer 4))
                                             (Logical 4)
@@ -358,12 +358,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 z)
+                                        (Var 5 z)
                                         (FunctionCall
-                                            7 and_op
+                                            2 and_op
                                             ()
-                                            [((Var 4 x))
-                                            ((Var 4 y))]
+                                            [((Var 5 x))
+                                            ((Var 5 y))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -372,7 +372,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 z)
+                                            (Var 5 z)
                                             Eq
                                             (IntegerConstant 16 (Integer 4))
                                             (Logical 4)
@@ -387,7 +387,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -395,24 +395,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

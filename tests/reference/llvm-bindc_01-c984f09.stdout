@@ -9,7 +9,7 @@ source_filename = "LFortran"
 @3 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 @4 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
-define void @__module__global_symbols__lpython_main_program() {
+define void @__module___main_____main____global_statements() {
 .entry:
   %0 = load void*, void** @queries, align 8
   %1 = bitcast void* %0 to i16*
@@ -19,14 +19,14 @@ define void @__module__global_symbols__lpython_main_program() {
   %4 = load i16*, i16** @x, align 8
   %5 = ptrtoint i16* %4 to i64
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @2, i32 0, i32 0), i64 %3, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i64 %5, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
-  call void @__module__global_symbols_test_issue_1781()
+  call void @__module___main___test_issue_1781()
   br label %return
 
 return:                                           ; preds = %.entry
   ret void
 }
 
-define void @__module__global_symbols_test_issue_1781() {
+define void @__module___main___test_issue_1781() {
 .entry:
   %p = alloca void*, align 8
   store void* null, void** %p, align 8
@@ -74,7 +74,7 @@ declare void @exit(i32)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module__global_symbols__lpython_main_program()
+  call void @__module___main_____main____global_statements()
   ret i32 0
 }
 

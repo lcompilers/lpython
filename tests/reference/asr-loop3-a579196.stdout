@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_pass:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -48,14 +48,14 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (WhileLoop
                                         ()
                                         (IntegerCompare
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             Gt
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -70,7 +70,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -78,7 +78,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

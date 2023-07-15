@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        135
+                        2
                         {
                             test_abs:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -46,9 +46,9 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     complex
-                                                    12 complex
+                                                    13 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -56,9 +56,9 @@
                                                 ),
                                             complex@__lpython_overloaded_5__complex:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     complex@__lpython_overloaded_5__complex
-                                                    12 __lpython_overloaded_5__complex
+                                                    13 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -84,7 +84,7 @@
                                     [complex@__lpython_overloaded_5__complex]
                                     []
                                     [(=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntrinsicFunction
                                             Abs
                                             [(IntegerConstant 5 (Integer 4))]
@@ -95,7 +95,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntrinsicFunction
                                             Abs
                                             [(IntegerUnaryMinus
@@ -110,7 +110,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntrinsicFunction
                                             Abs
                                             [(Cast
@@ -129,7 +129,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntrinsicFunction
                                             Abs
                                             [(Cast
@@ -148,7 +148,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (Cast
                                             (IntrinsicFunction
                                                 Abs
@@ -173,7 +173,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (Cast
                                             (IntrinsicFunction
                                                 Abs
@@ -205,13 +205,13 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (Cast
                                             (IntrinsicFunction
                                                 Abs
                                                 [(FunctionCall
-                                                    4 complex@__lpython_overloaded_5__complex
-                                                    4 complex
+                                                    5 complex@__lpython_overloaded_5__complex
+                                                    5 complex
                                                     [((RealConstant
                                                         3.450000
                                                         (Real 8)
@@ -253,11 +253,11 @@
                             test_bool:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             a:
                                                 (Variable
-                                                    6
+                                                    7
                                                     a
                                                     []
                                                     Local
@@ -273,9 +273,9 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    6
+                                                    7
                                                     complex
-                                                    12 complex
+                                                    13 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -283,9 +283,9 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    6
+                                                    7
                                                     complex@__lpython_overloaded_9__complex
-                                                    12 __lpython_overloaded_9__complex
+                                                    13 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -311,7 +311,7 @@
                                     [complex@__lpython_overloaded_9__complex]
                                     []
                                     [(=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (IntegerConstant 0 (Integer 4))
                                             IntegerToLogical
@@ -324,7 +324,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4))
@@ -341,7 +341,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (StringConstant
                                                 ""
@@ -357,11 +357,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (FunctionCall
-                                                6 complex@__lpython_overloaded_9__complex
-                                                6 complex
+                                                7 complex@__lpython_overloaded_9__complex
+                                                7 complex
                                                 [((IntegerConstant 0 (Integer 4)))
                                                 ((IntegerConstant 0 (Integer 4)))]
                                                 (Complex 8)
@@ -383,7 +383,7 @@
                                     )
                                     (Assert
                                         (LogicalCompare
-                                            (Var 6 a)
+                                            (Var 7 a)
                                             Eq
                                             (LogicalConstant
                                                 .false.
@@ -395,7 +395,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (StringConstant
                                                 "t"
@@ -411,7 +411,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 6 a)
+                                        (Var 7 a)
                                         (Cast
                                             (RealConstant
                                                 2.300000
@@ -428,7 +428,7 @@
                                     )
                                     (Assert
                                         (LogicalCompare
-                                            (Var 6 a)
+                                            (Var 7 a)
                                             Eq
                                             (LogicalConstant
                                                 .true.
@@ -448,11 +448,11 @@
                             test_boz:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -468,9 +468,9 @@
                                                 ),
                                             bin:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     bin
-                                                    12 bin
+                                                    13 bin
                                                     lpython_builtin
                                                     []
                                                     bin
@@ -478,9 +478,9 @@
                                                 ),
                                             hex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     hex
-                                                    12 hex
+                                                    13 hex
                                                     lpython_builtin
                                                     []
                                                     hex
@@ -488,9 +488,9 @@
                                                 ),
                                             oct:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     oct
-                                                    12 oct
+                                                    13 oct
                                                     lpython_builtin
                                                     []
                                                     oct
@@ -518,9 +518,9 @@
                                     hex]
                                     []
                                     [(=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 bin
+                                            3 bin
                                             ()
                                             [((IntegerConstant 5 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -533,9 +533,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 bin
+                                            3 bin
                                             ()
                                             [((IntegerConstant 64 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -548,9 +548,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 bin
+                                            3 bin
                                             ()
                                             [((IntegerUnaryMinus
                                                 (IntegerConstant 534 (Integer 4))
@@ -567,9 +567,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 oct
+                                            3 oct
                                             ()
                                             [((IntegerConstant 8 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -582,9 +582,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 oct
+                                            3 oct
                                             ()
                                             [((IntegerConstant 56 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -597,9 +597,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 oct
+                                            3 oct
                                             ()
                                             [((IntegerUnaryMinus
                                                 (IntegerConstant 534 (Integer 4))
@@ -616,9 +616,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 hex
+                                            3 hex
                                             ()
                                             [((IntegerConstant 42 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -631,9 +631,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 hex
+                                            3 hex
                                             ()
                                             [((IntegerConstant 12648430 (Integer 4)))]
                                             (Character 1 -2 ())
@@ -646,9 +646,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (FunctionCall
-                                            2 hex
+                                            3 hex
                                             ()
                                             [((IntegerUnaryMinus
                                                 (IntegerConstant 534 (Integer 4))
@@ -673,11 +673,11 @@
                             test_callable:
                                 (Function
                                     (SymbolTable
-                                        8
+                                        9
                                         {
                                             a:
                                                 (Variable
-                                                    8
+                                                    9
                                                     a
                                                     []
                                                     Local
@@ -693,7 +693,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    8
+                                                    9
                                                     b
                                                     []
                                                     Local
@@ -727,12 +727,12 @@
                                     []
                                     []
                                     [(=
-                                        (Var 8 b)
+                                        (Var 9 b)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 8 a)
+                                        (Var 9 a)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -741,7 +741,7 @@
                                     )
                                     (Assert
                                         (LogicalCompare
-                                            (Var 8 a)
+                                            (Var 9 a)
                                             Eq
                                             (LogicalConstant
                                                 .true.
@@ -753,7 +753,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 8 a)
+                                        (Var 9 a)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -762,7 +762,7 @@
                                     )
                                     (Assert
                                         (LogicalCompare
-                                            (Var 8 a)
+                                            (Var 9 a)
                                             Eq
                                             (LogicalConstant
                                                 .false.
@@ -774,7 +774,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 8 a)
+                                        (Var 9 a)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -783,7 +783,7 @@
                                     )
                                     (Assert
                                         (LogicalCompare
-                                            (Var 8 a)
+                                            (Var 9 a)
                                             Eq
                                             (LogicalConstant
                                                 .false.
@@ -803,11 +803,11 @@
                             test_divmod:
                                 (Function
                                     (SymbolTable
-                                        11
+                                        12
                                         {
                                             a:
                                                 (Variable
-                                                    11
+                                                    12
                                                     a
                                                     []
                                                     Local
@@ -826,9 +826,9 @@
                                                 ),
                                             divmod:
                                                 (ExternalSymbol
-                                                    11
+                                                    12
                                                     divmod
-                                                    12 divmod
+                                                    13 divmod
                                                     lpython_builtin
                                                     []
                                                     divmod
@@ -854,9 +854,9 @@
                                     [divmod]
                                     []
                                     [(=
-                                        (Var 11 a)
+                                        (Var 12 a)
                                         (FunctionCall
-                                            11 divmod
+                                            12 divmod
                                             ()
                                             [((IntegerConstant 9 (Integer 4)))
                                             ((IntegerConstant 3 (Integer 4)))]
@@ -877,9 +877,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 11 a)
+                                        (Var 12 a)
                                         (FunctionCall
-                                            11 divmod
+                                            12 divmod
                                             ()
                                             [((IntegerConstant 9 (Integer 4)))
                                             ((IntegerUnaryMinus
@@ -904,9 +904,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 11 a)
+                                        (Var 12 a)
                                         (FunctionCall
-                                            11 divmod
+                                            12 divmod
                                             ()
                                             [((IntegerConstant 3 (Integer 4)))
                                             ((IntegerConstant 3 (Integer 4)))]
@@ -927,9 +927,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 11 a)
+                                        (Var 12 a)
                                         (FunctionCall
-                                            11 divmod
+                                            12 divmod
                                             ()
                                             [((IntegerConstant 4 (Integer 4)))
                                             ((IntegerConstant 5 (Integer 4)))]
@@ -950,9 +950,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 11 a)
+                                        (Var 12 a)
                                         (FunctionCall
-                                            11 divmod
+                                            12 divmod
                                             ()
                                             [((IntegerConstant 0 (Integer 4)))
                                             ((IntegerConstant 5 (Integer 4)))]
@@ -981,11 +981,11 @@
                             test_float:
                                 (Function
                                     (SymbolTable
-                                        10
+                                        11
                                         {
                                             a:
                                                 (Variable
-                                                    10
+                                                    11
                                                     a
                                                     []
                                                     Local
@@ -1019,7 +1019,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -1027,7 +1027,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (RealConstant
                                             4.560000
                                             (Real 8)
@@ -1035,7 +1035,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
                                             IntegerToReal
@@ -1048,7 +1048,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (Cast
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4))
@@ -1065,7 +1065,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (Cast
                                             (LogicalConstant
                                                 .true.
@@ -1081,7 +1081,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 10 a)
+                                        (Var 11 a)
                                         (Cast
                                             (LogicalConstant
                                                 .false.
@@ -1105,11 +1105,11 @@
                             test_int:
                                 (Function
                                     (SymbolTable
-                                        9
+                                        10
                                         {
                                             a:
                                                 (Variable
-                                                    9
+                                                    10
                                                     a
                                                     []
                                                     Local
@@ -1143,12 +1143,12 @@
                                     []
                                     []
                                     [(=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (IntegerConstant 0 (Integer 8))
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (Cast
                                             (RealConstant
                                                 4.560000
@@ -1161,7 +1161,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
                                             IntegerToInteger
@@ -1171,7 +1171,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (Cast
                                             (RealUnaryMinus
                                                 (RealConstant
@@ -1191,7 +1191,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (Cast
                                             (LogicalConstant
                                                 .true.
@@ -1204,7 +1204,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (Cast
                                             (LogicalConstant
                                                 .false.
@@ -1217,7 +1217,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 9 a)
+                                        (Var 10 a)
                                         (IntegerConstant 5346 (Integer 8))
                                         ()
                                     )]
@@ -1230,11 +1230,11 @@
                             test_len:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             a:
                                                 (Variable
-                                                    5
+                                                    6
                                                     a
                                                     []
                                                     Local
@@ -1250,7 +1250,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    5
+                                                    6
                                                     l
                                                     []
                                                     Local
@@ -1286,7 +1286,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (StringLen
                                             (StringConstant
                                                 ""
@@ -1298,7 +1298,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (StringLen
                                             (StringConstant
                                                 "test"
@@ -1310,7 +1310,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (StringLen
                                             (StringConstant
                                                 "this is a test"
@@ -1322,7 +1322,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (TupleLen
                                             (TupleConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -1340,7 +1340,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (TupleLen
                                             (TupleConstant
                                                 [(TupleConstant
@@ -1397,7 +1397,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (ListLen
                                             (ListConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -1413,7 +1413,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (ListLen
                                             (ListConstant
                                                 [(ListConstant
@@ -1468,7 +1468,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (SetLen
                                             (SetConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -1484,7 +1484,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (DictLen
                                             (DictConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -1513,7 +1513,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 l)
+                                        (Var 6 l)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -1526,22 +1526,22 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (ListLen
-                                            (Var 5 l)
+                                            (Var 6 l)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (ListAppend
-                                        (Var 5 l)
+                                        (Var 6 l)
                                         (IntegerConstant 5 (Integer 4))
                                     )
                                     (=
-                                        (Var 5 a)
+                                        (Var 6 a)
                                         (ListLen
-                                            (Var 5 l)
+                                            (Var 6 l)
                                             (Integer 4)
                                             ()
                                         )
@@ -1556,11 +1556,11 @@
                             test_ord_chr:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     Local
@@ -1576,7 +1576,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    3
+                                                    4
                                                     s
                                                     []
                                                     Local
@@ -1610,7 +1610,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 a)
+                                        (Var 4 a)
                                         (StringOrd
                                             (StringConstant
                                                 "5"
@@ -1622,7 +1622,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 s)
+                                        (Var 4 s)
                                         (StringChr
                                             (IntegerConstant 43 (Integer 4))
                                             (Character 1 1 ())
@@ -1642,11 +1642,11 @@
                             test_str:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        8
                                         {
                                             s:
                                                 (Variable
-                                                    7
+                                                    8
                                                     s
                                                     []
                                                     Local
@@ -1680,7 +1680,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (StringConstant
                                             ""
                                             (Character 1 0 ())
@@ -1688,7 +1688,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
                                             IntegerToCharacter
@@ -1701,7 +1701,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (Cast
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 4 (Integer 4))
@@ -1718,7 +1718,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (Cast
                                             (RealConstant
                                                 5.600000
@@ -1734,7 +1734,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (Cast
                                             (LogicalConstant
                                                 .true.
@@ -1750,7 +1750,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (Cast
                                             (LogicalConstant
                                                 .false.
@@ -1766,7 +1766,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 7 s)
+                                        (Var 8 s)
                                         (StringConstant
                                             "5346"
                                             (Character 1 4 ())
@@ -1780,7 +1780,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -1790,7 +1790,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        134
+                        135
                         {
                             
                         })

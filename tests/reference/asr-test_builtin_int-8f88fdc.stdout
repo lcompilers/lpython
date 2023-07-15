@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check_all]
                                     []
                                     [(SubroutineCall
-                                        7 check_all
+                                        2 check_all
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check_all:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             
                                         })
@@ -71,13 +71,13 @@
                                     test_bool_to_int]
                                     []
                                     [(SubroutineCall
-                                        7 test_int
+                                        2 test_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 test_bool_to_int
+                                        2 test_bool_to_int
                                         ()
                                         []
                                         ()
@@ -91,11 +91,11 @@
                             test_bool_to_int:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     Local
@@ -129,7 +129,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -157,7 +157,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -166,7 +166,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -194,7 +194,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -203,7 +203,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -231,7 +231,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 1 (Integer 4))
@@ -244,7 +244,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -272,7 +272,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -281,7 +281,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -309,7 +309,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 2 (Integer 4))
                                             (Logical 4)
@@ -318,7 +318,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -346,7 +346,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -355,7 +355,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -383,7 +383,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -392,7 +392,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -420,7 +420,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -429,7 +429,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (IntegerBinOp
                                                 (Cast
@@ -485,13 +485,13 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 b)]
+                                        [(Var 4 b)]
                                         ()
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 3 (Integer 4))
                                             (Logical 4)
@@ -500,7 +500,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
                                             (IntegerBinOp
                                                 (Cast
@@ -570,7 +570,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 2 (Integer 4))
                                             (Logical 4)
@@ -587,11 +587,11 @@
                             test_int:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -607,7 +607,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -623,7 +623,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i2
                                                     []
                                                     Local
@@ -657,7 +657,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             5.678000
                                             (Real 8)
@@ -665,7 +665,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
@@ -690,7 +690,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (Cast
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 IntegerToInteger
                                                 (Integer 8)
                                                 ()
@@ -708,7 +708,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (Cast
                                             (RealConstant
                                                 3.000000
@@ -722,7 +722,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i2)
+                                            (Var 3 i2)
                                             Eq
                                             (Cast
                                                 (IntegerConstant 3 (Integer 4))
@@ -764,7 +764,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (Cast
-                                                (Var 2 f)
+                                                (Var 3 f)
                                                 RealToInteger
                                                 (Integer 8)
                                                 ()
@@ -782,7 +782,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant
                                                 183745.230000
@@ -836,7 +836,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (Cast
-                                                (Var 2 f)
+                                                (Var 3 f)
                                                 RealToInteger
                                                 (Integer 8)
                                                 ()
@@ -979,7 +979,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -987,24 +987,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        126
+                        2
                         {
                             test_Compare:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,9 +30,9 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex
-                                                    3 complex
+                                                    4 complex
                                                     lpython_builtin
                                                     []
                                                     complex
@@ -40,9 +40,9 @@
                                                 ),
                                             complex@__lpython_overloaded_5__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_5__complex
-                                                    3 __lpython_overloaded_5__complex
+                                                    4 __lpython_overloaded_5__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5__complex
@@ -50,9 +50,9 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_9__complex
-                                                    3 __lpython_overloaded_9__complex
+                                                    4 __lpython_overloaded_9__complex
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9__complex
@@ -79,7 +79,7 @@
                                     complex@__lpython_overloaded_5__complex]
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
                                             Gt
@@ -93,7 +93,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
                                             LtE
@@ -107,7 +107,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerCompare
                                             (IntegerConstant 5 (Integer 4))
                                             Lt
@@ -121,7 +121,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (RealCompare
                                             (RealConstant
                                                 5.600000
@@ -141,7 +141,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (RealCompare
                                             (RealConstant
                                                 3.300000
@@ -161,7 +161,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (RealCompare
                                             (RealConstant
                                                 3.300000
@@ -181,11 +181,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (ComplexCompare
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_9__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
                                                 [((IntegerConstant 3 (Integer 4)))
                                                 ((IntegerConstant 4 (Integer 4)))]
                                                 (Complex 8)
@@ -198,8 +198,8 @@
                                             )
                                             Eq
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_5__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_5__complex
+                                                3 complex
                                                 [((RealConstant
                                                     3.000000
                                                     (Real 8)
@@ -225,7 +225,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
@@ -245,7 +245,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 ""
@@ -265,7 +265,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 "-abs"
@@ -285,7 +285,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 "abcd"
@@ -305,7 +305,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
@@ -325,7 +325,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 "abc"
@@ -345,7 +345,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringCompare
                                             (StringConstant
                                                 ""
@@ -365,7 +365,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
                                                 .true.
@@ -385,7 +385,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
                                                 .true.
@@ -405,7 +405,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
                                                 .false.
@@ -425,7 +425,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalCompare
                                             (LogicalConstant
                                                 .false.
@@ -451,7 +451,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -461,7 +461,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        125
+                        126
                         {
                             
                         })

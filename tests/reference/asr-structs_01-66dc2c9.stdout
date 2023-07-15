@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
                             S:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -58,14 +58,14 @@
                                     ()
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -84,7 +84,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        7 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -98,11 +98,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             s:
                                                 (Variable
-                                                    3
+                                                    4
                                                     s
                                                     []
                                                     Local
@@ -110,7 +110,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        7 S
+                                                        2 S
                                                     )
                                                     ()
                                                     Source
@@ -138,13 +138,13 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 s)
+                                        (Var 4 s)
                                         (StructTypeConstructor
-                                            7 S
+                                            2 S
                                             [((IntegerConstant 2 (Integer 4)))
                                             (())]
                                             (Struct
-                                                7 S
+                                                2 S
                                             )
                                             ()
                                         )
@@ -157,7 +157,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -165,24 +165,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

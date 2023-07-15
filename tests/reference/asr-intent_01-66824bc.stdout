@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        6
+                        2
                         {
                             Foo:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             p:
                                                 (Variable
-                                                    2
+                                                    3
                                                     p
                                                     []
                                                     Local
@@ -43,11 +43,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             w:
                                                 (Variable
-                                                    3
+                                                    4
                                                     w
                                                     []
                                                     Out
@@ -56,7 +56,7 @@
                                                     Default
                                                     (Array
                                                         (Struct
-                                                            6 Foo
+                                                            2 Foo
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 5 (Integer 4)))]
@@ -70,7 +70,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     In
@@ -86,7 +86,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     In
@@ -102,7 +102,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     z
                                                     []
                                                     InOut
@@ -132,7 +132,7 @@
                                         )
                                         (Array
                                             (Struct
-                                                6 Foo
+                                                2 Foo
                                             )
                                             [((IntegerConstant 0 (Integer 4))
                                             (IntegerConstant 5 (Integer 4)))]
@@ -152,10 +152,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 x)
-                                    (Var 3 y)
-                                    (Var 3 z)
-                                    (Var 3 w)]
+                                    [(Var 4 x)
+                                    (Var 4 y)
+                                    (Var 4 z)
+                                    (Var 4 w)]
                                     []
                                     ()
                                     Public
@@ -164,7 +164,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -172,7 +172,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        6
                         {
                             
                         })

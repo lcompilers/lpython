@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        5
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_abs]
                                     []
                                     [(SubroutineCall
-                                        5 test_abs
+                                        2 test_abs
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_abs:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i2
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             i3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i3
                                                     []
                                                     Local
@@ -115,7 +115,7 @@
                                                 ),
                                             i4:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i4
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -147,7 +147,7 @@
                                                 ),
                                             x2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x2
                                                     []
                                                     Local
@@ -181,7 +181,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (RealConstant
                                             5.500000
                                             (Real 8)
@@ -192,7 +192,7 @@
                                         (RealCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 x)]
+                                                [(Var 3 x)]
                                                 0
                                                 (Real 8)
                                                 ()
@@ -208,7 +208,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (RealUnaryMinus
                                             (RealConstant
                                                 5.500000
@@ -226,7 +226,7 @@
                                         (RealCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 x)]
+                                                [(Var 3 x)]
                                                 0
                                                 (Real 8)
                                                 ()
@@ -305,7 +305,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x2)
+                                        (Var 3 x2)
                                         (RealUnaryMinus
                                             (Cast
                                                 (RealConstant
@@ -331,7 +331,7 @@
                                         (RealCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 x2)]
+                                                [(Var 3 x2)]
                                                 0
                                                 (Real 4)
                                                 ()
@@ -355,7 +355,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
                                             (Integer 4)
@@ -367,7 +367,7 @@
                                         (IntegerCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 i)]
+                                                [(Var 3 i)]
                                                 0
                                                 (Integer 4)
                                                 ()
@@ -403,7 +403,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (IntegerConstant 6 (Integer 4))
@@ -420,7 +420,7 @@
                                         (IntegerCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 i2)]
+                                                [(Var 3 i2)]
                                                 0
                                                 (Integer 8)
                                                 ()
@@ -438,7 +438,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i3)
+                                        (Var 3 i3)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (IntegerConstant 7 (Integer 4))
@@ -455,7 +455,7 @@
                                         (IntegerCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 i3)]
+                                                [(Var 3 i3)]
                                                 0
                                                 (Integer 1)
                                                 ()
@@ -473,7 +473,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i4)
+                                        (Var 3 i4)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (IntegerConstant 8 (Integer 4))
@@ -490,7 +490,7 @@
                                         (IntegerCompare
                                             (IntrinsicFunction
                                                 Abs
-                                                [(Var 2 i4)]
+                                                [(Var 3 i4)]
                                                 0
                                                 (Integer 2)
                                                 ()
@@ -508,7 +508,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -520,7 +520,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(Cast
-                                                    (Var 2 b)
+                                                    (Var 3 b)
                                                     LogicalToInteger
                                                     (Integer 4)
                                                     ()
@@ -537,7 +537,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -549,7 +549,7 @@
                                             (IntrinsicFunction
                                                 Abs
                                                 [(Cast
-                                                    (Var 2 b)
+                                                    (Var 3 b)
                                                     LogicalToInteger
                                                     (Integer 4)
                                                     ()
@@ -572,7 +572,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -580,24 +580,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        5
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    3
-                                    _lpython_main_program
-                                    5 _lpython_main_program
-                                    _global_symbols
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        3 _lpython_main_program
-                        ()
+                        5 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

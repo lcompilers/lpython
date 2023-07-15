@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        8
+                        2
                         {
                             A:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -58,14 +58,14 @@
                                     ()
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         7
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -84,7 +84,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        8 g
+                                        2 g
                                         ()
                                         []
                                         ()
@@ -98,11 +98,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     In
@@ -118,7 +118,7 @@
                                                 ),
                                             a1:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a1
                                                     []
                                                     Local
@@ -126,7 +126,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        8 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -136,7 +136,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a2
                                                     []
                                                     Local
@@ -145,7 +145,7 @@
                                                     Default
                                                     (Pointer
                                                         (Struct
-                                                            8 A
+                                                            2 A
                                                         )
                                                     )
                                                     ()
@@ -156,7 +156,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -172,7 +172,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     Local
@@ -204,11 +204,11 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 a)]
+                                    [(Var 4 a)]
                                     [(=
-                                        (Var 3 a1)
+                                        (Var 4 a1)
                                         (StructTypeConstructor
-                                            8 A
+                                            2 A
                                             [((IntegerConstant 3 (Integer 4)))
                                             ((Cast
                                                 (RealConstant
@@ -223,19 +223,19 @@
                                                 )
                                             ))]
                                             (Struct
-                                                8 A
+                                                2 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 3 a2)
+                                        (Var 4 a2)
                                         (GetPointer
-                                            (Var 3 a1)
+                                            (Var 4 a1)
                                             (Pointer
                                                 (Struct
-                                                    8 A
+                                                    2 A
                                                 )
                                             )
                                             ()
@@ -244,12 +244,12 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 a2)
+                                        [(Var 4 a2)
                                         (GetPointer
-                                            (Var 3 a1)
+                                            (Var 4 a1)
                                             (Pointer
                                                 (Struct
-                                                    8 A
+                                                    2 A
                                                 )
                                             )
                                             ()
@@ -258,20 +258,20 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (StructInstanceMember
-                                            (Var 3 a2)
-                                            2 x
+                                            (Var 4 a2)
+                                            3 x
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (StructInstanceMember
-                                            (Var 3 a2)
-                                            2 y
+                                            (Var 4 a2)
+                                            3 y
                                             (Real 4)
                                             ()
                                         )
@@ -279,7 +279,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 x)
+                                            (Var 4 x)
                                             Eq
                                             (IntegerConstant 3 (Integer 4))
                                             (Logical 4)
@@ -290,7 +290,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (Var 3 y)
+                                                (Var 4 y)
                                                 RealToReal
                                                 (Real 8)
                                                 ()
@@ -314,11 +314,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -352,16 +352,16 @@
                                     [f]
                                     []
                                     [(=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
                                         ()
                                     )
                                     (SubroutineCall
-                                        8 f
+                                        2 f
                                         ()
-                                        [((Var 4 b))]
+                                        [((Var 5 b))]
                                         ()
                                     )]
                                     ()
@@ -371,7 +371,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -379,24 +379,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        6
+                        8
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    6
-                                    _lpython_main_program
-                                    8 _lpython_main_program
-                                    _global_symbols
+                                    8
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        6 _lpython_main_program
-                        ()
+                        8 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

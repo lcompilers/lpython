@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        127
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        127 f
+                                        2 f
                                         ()
                                         []
                                         ()
@@ -47,13 +47,13 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             list:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     list
-                                                    3 list
+                                                    4 list
                                                     lpython_builtin
                                                     []
                                                     list
@@ -61,7 +61,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -77,7 +77,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -95,7 +95,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                     [list]
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "lpython"
                                             (Character 1 7 ())
@@ -139,11 +139,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (FunctionCall
-                                            2 list
+                                            3 list
                                             ()
-                                            [((Var 2 s))]
+                                            [((Var 3 s))]
                                             (List
                                                 (Character 1 -2 ())
                                             )
@@ -153,7 +153,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 y)
+                                        (Var 3 y)
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
@@ -174,11 +174,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (FunctionCall
-                                            2 list
+                                            3 list
                                             ()
-                                            [((Var 2 y))]
+                                            [((Var 3 y))]
                                             (List
                                                 (Character 1 -2 ())
                                             )
@@ -188,9 +188,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (FunctionCall
-                                            2 list
+                                            3 list
                                             ()
                                             [((StringConstant
                                                 "lpython"
@@ -243,7 +243,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -253,24 +253,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        125
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    125
-                                    _lpython_main_program
-                                    127 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        125 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

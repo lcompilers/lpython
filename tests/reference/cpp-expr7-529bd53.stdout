@@ -23,7 +23,7 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void _lpython_main_program();
+void __main____global_statements();
 void main0();
 void test_pow();
 int32_t test_pow_1(int32_t a, int32_t b);
@@ -67,7 +67,7 @@ void main0()
     c = test_pow_1(1, 2);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     main0();
 }
@@ -75,7 +75,7 @@ void _lpython_main_program()
 namespace {
 
 void main2() {
-    _lpython_main_program();
+    __main____global_statements();
 }
 
 }

@@ -2,14 +2,14 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        3
+                        2
                         {
                             f:
                                 (Variable
-                                    3
+                                    2
                                     f
                                     []
                                     Local
@@ -39,7 +39,7 @@
                                 ),
                             f2:
                                 (Variable
-                                    3
+                                    2
                                     f2
                                     []
                                     Local
@@ -61,7 +61,7 @@
                                 ),
                             i:
                                 (Variable
-                                    3
+                                    2
                                     i
                                     []
                                     Local
@@ -77,7 +77,7 @@
                                 ),
                             i2:
                                 (Variable
-                                    3
+                                    2
                                     i2
                                     []
                                     Local
@@ -97,7 +97,7 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -105,7 +105,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        2
+                        3
                         {
                             
                         })
