@@ -443,7 +443,6 @@ public:
         // Dependencies of the function should be from the same symbol table.
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
             std::string found_dep = x.m_dependencies[i];
-            std::cout << "Function Name: " << x.m_name << " Dependency: " << found_dep << std::endl;
             // Check if the dependency is present in the same symtab of function.
             require_with_loc(current_symtab->get_symbol(found_dep) != nullptr,
                     "Symbol " + found_dep + " is not found in the current "
