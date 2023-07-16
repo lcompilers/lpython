@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        129
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         128
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        129 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             c:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c
                                                     []
                                                     Local
@@ -86,15 +86,15 @@
                                     test_pow_1]
                                     []
                                     [(SubroutineCall
-                                        129 test_pow
+                                        2 test_pow
                                         ()
                                         []
                                         ()
                                     )
                                     (=
-                                        (Var 4 c)
+                                        (Var 5 c)
                                         (FunctionCall
-                                            129 test_pow_1
+                                            2 test_pow_1
                                             ()
                                             [((IntegerConstant 1 (Integer 4)))
                                             ((IntegerConstant 2 (Integer 4)))]
@@ -113,11 +113,11 @@
                             test_pow:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -133,9 +133,9 @@
                                                 ),
                                             pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow
-                                                    5 pow
+                                                    6 pow
                                                     lpython_builtin
                                                     []
                                                     pow
@@ -143,9 +143,9 @@
                                                 ),
                                             pow@__lpython_overloaded_0__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_0__pow
-                                                    5 __lpython_overloaded_0__pow
+                                                    6 __lpython_overloaded_0__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_0__pow
@@ -171,11 +171,11 @@
                                     [pow@__lpython_overloaded_0__pow]
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (Cast
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_0__pow
-                                                2 pow
+                                                3 pow@__lpython_overloaded_0__pow
+                                                3 pow
                                                 [((IntegerConstant 2 (Integer 4)))
                                                 ((IntegerConstant 2 (Integer 4)))]
                                                 (Real 8)
@@ -200,11 +200,11 @@
                             test_pow_1:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -220,7 +220,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     In
@@ -236,7 +236,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     In
@@ -252,9 +252,9 @@
                                                 ),
                                             pow:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     pow
-                                                    5 pow
+                                                    6 pow
                                                     lpython_builtin
                                                     []
                                                     pow
@@ -262,9 +262,9 @@
                                                 ),
                                             pow@__lpython_overloaded_0__pow:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     pow@__lpython_overloaded_0__pow
-                                                    5 __lpython_overloaded_0__pow
+                                                    6 __lpython_overloaded_0__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_0__pow
@@ -272,7 +272,7 @@
                                                 ),
                                             res:
                                                 (Variable
-                                                    3
+                                                    4
                                                     res
                                                     []
                                                     Local
@@ -305,16 +305,16 @@
                                         .false.
                                     )
                                     [pow@__lpython_overloaded_0__pow]
-                                    [(Var 3 a)
-                                    (Var 3 b)]
+                                    [(Var 4 a)
+                                    (Var 4 b)]
                                     [(=
-                                        (Var 3 res)
+                                        (Var 4 res)
                                         (Cast
                                             (FunctionCall
-                                                3 pow@__lpython_overloaded_0__pow
-                                                3 pow
-                                                [((Var 3 a))
-                                                ((Var 3 b))]
+                                                4 pow@__lpython_overloaded_0__pow
+                                                4 pow
+                                                [((Var 4 a))
+                                                ((Var 4 b))]
                                                 (Real 8)
                                                 ()
                                                 ()
@@ -326,19 +326,19 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 _lpython_return_variable)
-                                        (Var 3 res)
+                                        (Var 4 _lpython_return_variable)
+                                        (Var 4 res)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 3 _lpython_return_variable)
+                                    (Var 4 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -348,24 +348,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        129
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    127
-                                    _lpython_main_program
-                                    129 _lpython_main_program
-                                    _global_symbols
+                                    129
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        127 _lpython_main_program
-                        ()
+                        129 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

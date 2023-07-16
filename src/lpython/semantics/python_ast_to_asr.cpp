@@ -17,7 +17,6 @@
 #include <libasr/config.h>
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
-#include <libasr/pass/wrap_global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
 #include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/intrinsic_function_registry.h>
@@ -420,159 +419,32 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod1_mod;
 }
 
-ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
-                std::string /*mname*/, std::string cur_sym_name, std::string& new_sym_name,
-                const Location &loc, bool skip_current_scope_check=false) {
-    new_sym_name = ASRUtils::get_mangled_name(m, new_sym_name);
-    ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
-    if (!t) {
-        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + std::string(m->m_name) + "'",
-                loc);
-    }
-    if (!skip_current_scope_check &&
-        current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
-        throw SemanticError(new_sym_name + " already defined", loc);
-    }
-    if (ASR::is_a<ASR::Function_t>(*t)) {
-        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-        // `mfn` is the Function in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)mfn,
-            m->m_name, nullptr, 0, mfn->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(fn);
-    } else if (ASR::is_a<ASR::StructType_t>(*t)) {
-        ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
-        // `st` is the StructType in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)st,
-            m->m_name, nullptr, 0, st->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
-        ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)et,
-            m->m_name, nullptr, 0, et->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
-        ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *est = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)ut,
-            m->m_name, nullptr, 0, ut->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(est);
-    } else if (ASR::is_a<ASR::Variable_t>(*t)) {
-        ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
-        // `mv` is the Variable in a module. Now we construct
-        // an ExternalSymbol that points to it.
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)mv,
-            m->m_name, nullptr, 0, mv->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(v);
-    } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
-        ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
-        Str name;
-        name.from_str(al, new_sym_name);
-        char *cname = name.c_str(al);
-        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-            al, loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ cname,
-            (ASR::symbol_t*)gt,
-            m->m_name, nullptr, 0, gt->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(v);
-    } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
-        ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
-        SymbolTable *symtab = current_scope;
-        // while (symtab->parent != nullptr) symtab = symtab->parent;
-        ASR::symbol_t *sym = symtab->resolve_symbol(es->m_module_name);
-        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
-        return import_from_module(al, m, symtab, es->m_module_name,
-                            cur_sym_name, new_sym_name, loc);
-    } else if (ASR::is_a<ASR::Module_t>(*t)) {
-        ASR::Module_t* mt = ASR::down_cast<ASR::Module_t>(t);
-        std::string mangled_cur_sym_name = ASRUtils::get_mangled_name(mt, new_sym_name);
-        if( cur_sym_name == mangled_cur_sym_name ) {
-            throw SemanticError("Importing modules isn't supported yet.", loc);
-        }
-        return import_from_module(al, mt, current_scope, std::string(mt->m_name),
-                                  cur_sym_name, new_sym_name, loc);
-    } else {
-        throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
-            "ExternalSymbol are currently supported in 'import'", loc);
-    }
-    LCOMPILERS_ASSERT(false);
-    return nullptr;
-}
-
 // Here, we call the global_initializer & global_statements to
 // initialize and execute the global symbols
 void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, SymbolTable* scope,
     ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
 
     std::string mod_name = mod->m_name;
-    std::string g_func_name = mod_name + "@global_initializer";
-    ASR::symbol_t *g_func = mod->m_symtab->get_symbol("global_initializer");
+    std::string g_func_name = mod_name + "__global_initializer";
+    ASR::symbol_t *g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
             ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
             scope, s2c(al, g_func_name), g_func,
-            s2c(al, mod_name), nullptr, 0, s2c(al, "global_initializer"),
+            s2c(al, mod_name), nullptr, 0, s2c(al, g_func_name),
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
             es, g_func, nullptr, 0, nullptr, nullptr, false));
     }
 
-    g_func_name = mod_name + "@global_statements";
-    g_func = mod->m_symtab->get_symbol("global_statements");
+    g_func_name = mod_name + "__global_statements";
+    g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
             ASR::make_ExternalSymbol_t(al, mod->base.base.loc,
             scope, s2c(al, g_func_name), g_func,
-            s2c(al, mod_name), nullptr, 0, s2c(al, "global_statements"),
+            s2c(al, mod_name), nullptr, 0, s2c(al, g_func_name),
             ASR::accessType::Public));
         scope->add_symbol(g_func_name, es);
         tmp_vec.push_back(ASRUtils::make_SubroutineCall_t_util(al, loc,
@@ -1116,6 +988,140 @@ public:
 
         return type;
     }
+
+    ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
+                std::string /*mname*/, std::string cur_sym_name, std::string& new_sym_name,
+                const Location &loc, bool skip_current_scope_check=false) {
+        new_sym_name = ASRUtils::get_mangled_name(m, new_sym_name);
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
+        if (!t) {
+            throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + std::string(m->m_name) + "'",
+                    loc);
+        }
+        if (!skip_current_scope_check &&
+            current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
+            throw SemanticError(new_sym_name + " already defined", loc);
+        }
+        if (ASR::is_a<ASR::Function_t>(*t)) {
+            ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+            // `mfn` is the Function in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)mfn,
+                m->m_name, nullptr, 0, mfn->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(fn);
+        } else if (ASR::is_a<ASR::StructType_t>(*t)) {
+            ASR::StructType_t *st = ASR::down_cast<ASR::StructType_t>(t);
+            // `st` is the StructType in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)st,
+                m->m_name, nullptr, 0, st->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
+            ASR::EnumType_t *et = ASR::down_cast<ASR::EnumType_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)et,
+                m->m_name, nullptr, 0, et->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::UnionType_t>(*t)) {
+            ASR::UnionType_t *ut = ASR::down_cast<ASR::UnionType_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *est = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)ut,
+                m->m_name, nullptr, 0, ut->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(est);
+        } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+            ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+            // `mv` is the Variable in a module. Now we construct
+            // an ExternalSymbol that points to it.
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)mv,
+                m->m_name, nullptr, 0, mv->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(v);
+        } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+            ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
+            Str name;
+            name.from_str(al, new_sym_name);
+            char *cname = name.c_str(al);
+            ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                al, loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ cname,
+                (ASR::symbol_t*)gt,
+                m->m_name, nullptr, 0, gt->m_name,
+                ASR::accessType::Public
+                );
+            current_module_dependencies.push_back(al, m->m_name);
+            return ASR::down_cast<ASR::symbol_t>(v);
+        } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
+            ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
+            SymbolTable *symtab = current_scope;
+            // while (symtab->parent != nullptr) symtab = symtab->parent;
+            ASR::symbol_t *sym = symtab->resolve_symbol(es->m_module_name);
+            ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
+            return import_from_module(al, m, symtab, es->m_module_name,
+                                cur_sym_name, new_sym_name, loc);
+        } else if (ASR::is_a<ASR::Module_t>(*t)) {
+            ASR::Module_t* mt = ASR::down_cast<ASR::Module_t>(t);
+            std::string mangled_cur_sym_name = ASRUtils::get_mangled_name(mt, new_sym_name);
+            if( cur_sym_name == mangled_cur_sym_name ) {
+                throw SemanticError("Importing modules isn't supported yet.", loc);
+            }
+            return import_from_module(al, mt, current_scope, std::string(mt->m_name),
+                                    cur_sym_name, new_sym_name, loc);
+        } else {
+            throw SemanticError("Only Subroutines, Functions, StructType, Variables and "
+                "ExternalSymbol are currently supported in 'import'", loc);
+        }
+        LCOMPILERS_ASSERT(false);
+        return nullptr;
+    }
+
 
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
@@ -3201,12 +3207,7 @@ public:
 
     void add_name(const Location &loc) {
         std::string var_name = "__name__";
-        std::string var_value;
-        if (main_module) {
-            var_value = "__main__";
-        } else {
-            var_value = module_name;
-        }
+        std::string var_value = module_name;
         size_t s_size = var_value.size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                 1, s_size, nullptr));
@@ -3963,34 +3964,30 @@ public:
         global_scope = current_scope;
 
         ASR::Module_t* module_sym = nullptr;
-        if (!main_module) {
-            // Main module goes directly to TranslationUnit.
-            // Every other module goes into a Module.
-            SymbolTable *parent_scope = current_scope;
-            current_scope = al.make_new<SymbolTable>(parent_scope);
+        // Every module goes into a Module_t
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
 
-            std::string mod_name = module_name;
-            ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
-                                        /* a_symtab */ current_scope,
-                                        /* a_name */ s2c(al, mod_name),
-                                        nullptr,
-                                        0,
-                                        false, false);
+        ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
+                                    /* a_symtab */ current_scope,
+                                    /* a_name */ s2c(al, module_name),
+                                    nullptr,
+                                    0,
+                                    false, false);
 
-            if (parent_scope->get_scope().find(mod_name) != parent_scope->get_scope().end()) {
-                throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
-            }
-            module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
-            parent_scope->add_symbol(mod_name, ASR::down_cast<ASR::symbol_t>(tmp1));
+        if (parent_scope->get_scope().find(module_name) != parent_scope->get_scope().end()) {
+            throw SemanticError("Module '" + module_name + "' already defined", tmp1->loc);
         }
+        module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
+        parent_scope->add_symbol(module_name, ASR::down_cast<ASR::symbol_t>(tmp1));
         current_module_dependencies.reserve(al, 1);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
         }
-        if( module_sym ) {
-            module_sym->m_dependencies = current_module_dependencies.p;
-            module_sym->n_dependencies = current_module_dependencies.size();
-        }
+
+        LCOMPILERS_ASSERT(module_sym != nullptr);
+        module_sym->m_dependencies = current_module_dependencies.p;
+        module_sym->n_dependencies = current_module_dependencies.size();
         if (!overload_defs.empty()) {
             create_GenericProcedure(x.base.base.loc);
         }
@@ -4750,12 +4747,12 @@ public:
         ASR::symbol_t* module_sym = nullptr;
         ASR::Module_t* mod = nullptr;
 
-        if (!main_module) {
-            module_sym = current_scope->get_symbol(module_name);
-            mod = ASR::down_cast<ASR::Module_t>(module_sym);
-            current_scope = mod->m_symtab;
-            LCOMPILERS_ASSERT(current_scope != nullptr);
-        }
+        LCOMPILERS_ASSERT(module_name.size() > 0);
+        module_sym = current_scope->get_symbol(module_name);
+        mod = ASR::down_cast<ASR::Module_t>(module_sym);
+        LCOMPILERS_ASSERT(mod != nullptr);
+        current_scope = mod->m_symtab;
+        LCOMPILERS_ASSERT(current_scope != nullptr);
 
         Vec<ASR::asr_t*> items;
         items.reserve(al, 4);
@@ -4775,68 +4772,59 @@ public:
             }
         }
 
-        if( mod ) {
-            for( size_t i = 0; i < mod->n_dependencies; i++ ) {
-                current_module_dependencies.push_back(al, mod->m_dependencies[i]);
-            }
-            mod->m_dependencies = current_module_dependencies.p;
-            mod->n_dependencies = current_module_dependencies.n;
+        for( size_t i = 0; i < mod->n_dependencies; i++ ) {
+            current_module_dependencies.push_back(al, mod->m_dependencies[i]);
+        }
+        mod->m_dependencies = current_module_dependencies.p;
+        mod->n_dependencies = current_module_dependencies.n;
 
-            if (global_init.n > 0) {
-                // unit->m_items is used and set to nullptr in the
-                // `pass_wrap_global_stmts_into_function` pass
-                unit->m_items = global_init.p;
-                unit->n_items = global_init.size();
-                std::string func_name = "global_initializer";
-                LCompilers::PassOptions pass_options;
-                pass_options.run_fun = func_name;
-                pass_wrap_global_stmts(al, *unit, pass_options);
-
-                ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
-                if (f_sym) {
-                    // Add the `global_initilaizer` function into the
-                    // module and later call this function to initialize the
-                    // global variables like list, ...
-                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                    f->m_symtab->parent = mod->m_symtab;
-                    mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                    // Erase the function in TranslationUnit
-                    unit->m_global_scope->erase_symbol(func_name);
-                }
-                global_init.p = nullptr;
-                global_init.n = 0;
-            }
-
-            if (items.n > 0) {
-                unit->m_items = items.p;
-                unit->n_items = items.size();
-                std::string func_name = "global_statements";
-                // Wrap all the global statements into a Function
-                LCompilers::PassOptions pass_options;
-                pass_options.run_fun = func_name;
-                pass_wrap_global_stmts(al, *unit, pass_options);
-
-                ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
-                if (f_sym) {
-                    // Add the `global_statements` function into the
-                    // module and later call this function to execute the
-                    // global_statements
-                    ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
-                    f->m_symtab->parent = mod->m_symtab;
-                    mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
-                    // Erase the function in TranslationUnit
-                    unit->m_global_scope->erase_symbol(func_name);
-                }
-                items.p = nullptr;
-                items.n = 0;
-            }
-        } else {
-            // It is main_module
-            for (auto item:items) {
-                global_init.push_back(al, item);
-            }
+        if (global_init.n > 0) {
+            // unit->m_items is used and set to nullptr in the
+            // `pass_wrap_global_stmts_into_function` pass
             unit->m_items = global_init.p;
             unit->n_items = global_init.size();
+            std::string func_name = module_name + "__global_initializer";
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts(al, *unit, pass_options);
+
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_initilaizer` function into the
+                // module and later call this function to initialize the
+                // global variables like list, ...
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+            global_init.p = nullptr;
+            global_init.n = 0;
+        }
+
+        if (items.n > 0) {
+            unit->m_items = items.p;
+            unit->n_items = items.size();
+            std::string func_name = module_name + "__global_statements";
+            // Wrap all the global statements into a Function
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = func_name;
+            pass_wrap_global_stmts(al, *unit, pass_options);
+
+            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            if (f_sym) {
+                // Add the `global_statements` function into the
+                // module and later call this function to execute the
+                // global_statements
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f_sym);
+                f->m_symtab->parent = mod->m_symtab;
+                mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
+                // Erase the function in TranslationUnit
+                unit->m_global_scope->erase_symbol(func_name);
+            }
+            items.p = nullptr;
+            items.n = 0;
         }
 
         tmp = asr;
@@ -4932,17 +4920,13 @@ public:
 
         if (current_scope->get_scope().find(var_name) !=
                 current_scope->get_scope().end()) {
-            if (current_scope->parent != nullptr) {
-                // Re-declaring a global scope variable is allowed,
-                // otherwise raise an error
-                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
-                throw SemanticError(diag::Diagnostic(
-                    "Symbol is already declared in the same scope",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("original declaration", {orig_decl->base.loc}, false),
-                        diag::Label("redeclaration", {x.base.base.loc}),
-                    }));
-            }
+            ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
+            throw SemanticError(diag::Diagnostic(
+                "Symbol is already declared in the same scope",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("original declaration", {orig_decl->base.loc}, false),
+                    diag::Label("redeclaration", {x.base.base.loc}),
+                }));
         }
         ASR::expr_t *init_expr = nullptr;
         visit_AnnAssignUtil(x, var_name, init_expr);
@@ -7706,35 +7690,49 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
 #endif
     }
 
-    if (main_module) {
+    if (main_module && !compiler_options.disable_main) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
-        LCompilers::PassOptions pass_options;
-        pass_options.disable_main = compiler_options.disable_main;
-        if (compiler_options.disable_main) {
-            if (tu->n_items > 0) {
-                diagnostics.add(diag::Diagnostic(
-                    "The script is invoked as the main module and it has code to execute,\n"
-                    "but `--disable-main` was passed so no code was generated for `main`.\n"
-                    "We are removing all global executable code from ASR.",
-                    diag::Level::Warning, diag::Stage::Semantic, {})
-                );
-                // We have to remove the code
-                tu->m_items=nullptr;
-                tu->n_items=0;
-                // LCOMPILERS_ASSERT(asr_verify(*tu));
-            }
-        } else {
-            pass_options.run_fun = "_lpython_main_program";
-            pass_options.runtime_library_dir = get_runtime_library_dir();
+
+        Vec<ASR::stmt_t*> prog_body;
+        prog_body.reserve(al, 1);
+        SetChar prog_dep;
+        prog_dep.reserve(al, 1);
+        SymbolTable *program_scope = al.make_new<SymbolTable>(tu->m_global_scope);
+
+        std::string mod_name = "__main__";
+        ASR::symbol_t *mod_sym = tu->m_global_scope->resolve_symbol(mod_name);
+        LCOMPILERS_ASSERT(mod_sym);
+        ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
+        LCOMPILERS_ASSERT(mod);
+        std::vector<ASR::asr_t*> tmp_vec;
+        get_calls_to_global_init_and_stmts(al, tu->base.base.loc, program_scope, mod, tmp_vec);
+
+        for (auto i:tmp_vec) {
+            prog_body.push_back(al, ASRUtils::STMT(i));
         }
-        pass_wrap_global_stmts_program(al, *tu, pass_options);
+
+        if (prog_body.size() > 0) {
+            prog_dep.push_back(al, s2c(al, mod_name));
+        }
+
+        std::string prog_name = "main_program";
+        ASR::asr_t *prog = ASR::make_Program_t(
+            al, tu->base.base.loc,
+            /* a_symtab */ program_scope,
+            /* a_name */ s2c(al, prog_name),
+            prog_dep.p,
+            prog_dep.n,
+            /* a_body */ prog_body.p,
+            /* n_body */ prog_body.n);
+        tu->m_global_scope->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
+
         #if defined(WITH_LFORTRAN_ASSERT)
-                    diag::Diagnostics diagnostics;
-                    if (!asr_verify(*tu, true, diagnostics)) {
-                        std::cerr << diagnostics.render2();
-                        throw LCompilersException("Verify failed");
-                    };
+            diag::Diagnostics diagnostics;
+            if (!asr_verify(*tu, true, diagnostics)) {
+                std::cerr << diagnostics.render2();
+                throw LCompilersException("Verify failed");
+            };
         #endif
     }
 

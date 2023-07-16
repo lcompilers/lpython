@@ -23,7 +23,7 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void _lpython_main_program();
+void __main____global_statements();
 void f();
 namespace {
 }
@@ -45,7 +45,7 @@ void f()
     std::cout << "LCompilers" << " " << "LPython" << std::endl;
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     f();
 }
@@ -53,7 +53,7 @@ void _lpython_main_program()
 namespace {
 
 void main2() {
-    _lpython_main_program();
+    __main____global_statements();
 }
 
 }

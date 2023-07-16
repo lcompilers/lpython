@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_fn1]
                                     []
                                     [(SubroutineCall
-                                        7 test_fn1
+                                        2 test_fn1
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -85,12 +85,12 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 _lpython_return_variable)
+                                        (Var 3 _lpython_return_variable)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (Return)]
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -99,11 +99,11 @@
                             gsubrout:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     In
@@ -135,10 +135,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 x)]
+                                    [(Var 4 x)]
                                     [(Print
                                         ()
-                                        [(Var 3 x)]
+                                        [(Var 4 x)]
                                         ()
                                         ()
                                     )]
@@ -151,11 +151,11 @@
                             test_fn1:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             __lcompilers_dummy:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __lcompilers_dummy
                                                     []
                                                     Local
@@ -171,7 +171,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i
                                                     []
                                                     Local
@@ -187,7 +187,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    4
+                                                    5
                                                     j
                                                     []
                                                     Local
@@ -222,9 +222,9 @@
                                     gsubrout]
                                     []
                                     [(=
-                                        (Var 4 i)
+                                        (Var 5 i)
                                         (FunctionCall
-                                            7 g
+                                            2 g
                                             ()
                                             []
                                             (Integer 4)
@@ -234,9 +234,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 j)
+                                        (Var 5 j)
                                         (FunctionCall
-                                            7 g
+                                            2 g
                                             ()
                                             []
                                             (Integer 4)
@@ -246,9 +246,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 __lcompilers_dummy)
+                                        (Var 5 __lcompilers_dummy)
                                         (FunctionCall
-                                            7 g
+                                            2 g
                                             ()
                                             []
                                             (Integer 4)
@@ -258,9 +258,9 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 gsubrout
+                                        2 gsubrout
                                         ()
-                                        [((Var 4 i))]
+                                        [((Var 5 i))]
                                         ()
                                     )]
                                     ()
@@ -270,7 +270,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -278,24 +278,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_del:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -64,18 +64,18 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerConstant 20 (Integer 4))
                                         ()
                                     )
                                     (ExplicitDeallocate
-                                        [(Var 2 a)
-                                        (Var 2 b)]
+                                        [(Var 3 a)
+                                        (Var 3 b)]
                                     )]
                                     ()
                                     Public
@@ -84,7 +84,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -92,7 +92,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

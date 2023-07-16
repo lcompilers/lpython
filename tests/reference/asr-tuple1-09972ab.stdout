@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_Tuple:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a1
                                                     []
                                                     Local
@@ -34,7 +34,7 @@
                                                 ),
                                             a11:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a11
                                                     []
                                                     Local
@@ -53,7 +53,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a2
                                                     []
                                                     Local
@@ -73,7 +73,7 @@
                                                 ),
                                             a3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a3
                                                     []
                                                     Local
@@ -94,7 +94,7 @@
                                                 ),
                                             a4:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a4
                                                     []
                                                     Local
@@ -121,7 +121,7 @@
                                                 ),
                                             a5:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a5
                                                     []
                                                     Local
@@ -148,7 +148,7 @@
                                                 ),
                                             b0:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b0
                                                     []
                                                     Local
@@ -164,7 +164,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -180,7 +180,7 @@
                                                 ),
                                             b11:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b11
                                                     []
                                                     Local
@@ -199,7 +199,7 @@
                                                 ),
                                             float_mem:
                                                 (Variable
-                                                    2
+                                                    3
                                                     float_mem
                                                     []
                                                     Local
@@ -215,7 +215,7 @@
                                                 ),
                                             float_mem1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     float_mem1
                                                     []
                                                     Local
@@ -231,7 +231,7 @@
                                                 ),
                                             float_mem2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     float_mem2
                                                     []
                                                     Local
@@ -265,7 +265,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a1)
+                                        (Var 3 a1)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -279,7 +279,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a1)
+                                        (Var 3 a1)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 3 (Integer 4))
@@ -305,7 +305,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a2)
+                                        (Var 3 a2)
                                         (TupleConstant
                                             [(StringConstant
                                                 "a"
@@ -328,7 +328,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 float_mem)
+                                        (Var 3 float_mem)
                                         (Cast
                                             (RealConstant
                                                 0.450000
@@ -344,7 +344,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a3)
+                                        (Var 3 a3)
                                         (TupleConstant
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 2 (Integer 4))
@@ -356,7 +356,7 @@
                                                 (Integer 4)
                                                 (IntegerConstant -1 (Integer 4))
                                             )
-                                            (Var 2 float_mem)
+                                            (Var 3 float_mem)
                                             (StringConstant
                                                 "d"
                                                 (Character 1 1 ())
@@ -371,7 +371,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a4)
+                                        (Var 3 a4)
                                         (TupleConstant
                                             [(TupleConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -409,7 +409,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 float_mem1)
+                                        (Var 3 float_mem1)
                                         (Cast
                                             (RealConstant
                                                 3.400000
@@ -425,7 +425,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 float_mem2)
+                                        (Var 3 float_mem2)
                                         (Cast
                                             (RealConstant
                                                 5.600000
@@ -441,7 +441,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a5)
+                                        (Var 3 a5)
                                         (TupleConstant
                                             [(TupleConstant
                                                 [(StringConstant
@@ -452,7 +452,7 @@
                                                     "b"
                                                     (Character 1 1 ())
                                                 )
-                                                (Var 2 float_mem1)]
+                                                (Var 3 float_mem1)]
                                                 (Tuple
                                                     [(Character 1 1 ())
                                                     (Character 1 1 ())
@@ -465,7 +465,7 @@
                                                     (Character 1 1 ())
                                                 )
                                                 (IntegerConstant 3 (Integer 4))
-                                                (Var 2 float_mem2)]
+                                                (Var 3 float_mem2)]
                                                 (Tuple
                                                     [(Character 1 1 ())
                                                     (Integer 4)
@@ -488,9 +488,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b0)
+                                        (Var 3 b0)
                                         (TupleItem
-                                            (Var 2 a1)
+                                            (Var 3 a1)
                                             (IntegerConstant 0 (Integer 4))
                                             (Integer 4)
                                             ()
@@ -499,8 +499,8 @@
                                     )
                                     (=
                                         (TupleConstant
-                                            [(Var 2 b0)
-                                            (Var 2 b1)]
+                                            [(Var 3 b0)
+                                            (Var 3 b1)]
                                             (Tuple
                                                 [(Integer 4)
                                                 (Integer 4)]
@@ -508,13 +508,13 @@
                                         )
                                         (TupleConstant
                                             [(TupleItem
-                                                (Var 2 a1)
+                                                (Var 3 a1)
                                                 (IntegerConstant 2 (Integer 4))
                                                 (Integer 4)
                                                 ()
                                             )
                                             (TupleItem
-                                                (Var 2 a1)
+                                                (Var 3 a1)
                                                 (IntegerConstant 1 (Integer 4))
                                                 (Integer 4)
                                                 ()
@@ -527,7 +527,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a11)
+                                        (Var 3 a11)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))]
@@ -539,7 +539,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b11)
+                                        (Var 3 b11)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))]
@@ -552,9 +552,9 @@
                                     )
                                     (Assert
                                         (TupleCompare
-                                            (Var 2 a11)
+                                            (Var 3 a11)
                                             Eq
-                                            (Var 2 b11)
+                                            (Var 3 b11)
                                             (Logical 4)
                                             ()
                                         )
@@ -567,7 +567,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -575,7 +575,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

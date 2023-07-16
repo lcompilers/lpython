@@ -2,14 +2,14 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        209
+                        2
                         {
                             T:
                                 (Variable
-                                    209
+                                    2
                                     T
                                     []
                                     Local
@@ -28,11 +28,11 @@
                             __asr_generic_g_0:
                                 (Function
                                     (SymbolTable
-                                        205
+                                        206
                                         {
                                             a:
                                                 (Variable
-                                                    205
+                                                    206
                                                     a
                                                     [n]
                                                     InOut
@@ -42,7 +42,7 @@
                                                     (Array
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 205 n))]
+                                                        (Var 206 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -53,7 +53,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    205
+                                                    206
                                                     b
                                                     [n]
                                                     InOut
@@ -63,7 +63,7 @@
                                                     (Array
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 205 n))]
+                                                        (Var 206 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -74,7 +74,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    205
+                                                    206
                                                     i
                                                     []
                                                     Local
@@ -90,7 +90,7 @@
                                                 ),
                                             n:
                                                 (Variable
-                                                    205
+                                                    206
                                                     n
                                                     []
                                                     In
@@ -106,7 +106,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    205
+                                                    206
                                                     r
                                                     [n]
                                                     Local
@@ -116,7 +116,7 @@
                                                     (Array
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 205 n))]
+                                                        (Var 206 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -163,15 +163,15 @@
                                         .false.
                                     )
                                     [add_integer]
-                                    [(Var 205 n)
-                                    (Var 205 a)
-                                    (Var 205 b)]
+                                    [(Var 206 n)
+                                    (Var 206 a)
+                                    (Var 206 b)]
                                     [(DoLoop
                                         ()
-                                        ((Var 205 i)
+                                        ((Var 206 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (Var 205 n)
+                                            (Var 206 n)
                                             Sub
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -180,30 +180,30 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 205 r)
+                                                (Var 206 r)
                                                 [(()
-                                                (Var 205 i)
+                                                (Var 206 i)
                                                 ())]
                                                 (Integer 4)
                                                 RowMajor
                                                 ()
                                             )
                                             (FunctionCall
-                                                209 add_integer
+                                                2 add_integer
                                                 ()
                                                 [((ArrayItem
-                                                    (Var 205 a)
+                                                    (Var 206 a)
                                                     [(()
-                                                    (Var 205 i)
+                                                    (Var 206 i)
                                                     ())]
                                                     (Integer 4)
                                                     RowMajor
                                                     ()
                                                 ))
                                                 ((ArrayItem
-                                                    (Var 205 b)
+                                                    (Var 206 b)
                                                     [(()
-                                                    (Var 205 i)
+                                                    (Var 206 i)
                                                     ())]
                                                     (Integer 4)
                                                     RowMajor
@@ -219,7 +219,7 @@
                                     (Print
                                         ()
                                         [(ArrayItem
-                                            (Var 205 r)
+                                            (Var 206 r)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -239,11 +239,11 @@
                             __asr_generic_g_1:
                                 (Function
                                     (SymbolTable
-                                        206
+                                        207
                                         {
                                             a:
                                                 (Variable
-                                                    206
+                                                    207
                                                     a
                                                     [n]
                                                     InOut
@@ -253,7 +253,7 @@
                                                     (Array
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 206 n))]
+                                                        (Var 207 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -264,7 +264,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    206
+                                                    207
                                                     b
                                                     [n]
                                                     InOut
@@ -274,7 +274,7 @@
                                                     (Array
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 206 n))]
+                                                        (Var 207 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -285,7 +285,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    206
+                                                    207
                                                     i
                                                     []
                                                     Local
@@ -301,7 +301,7 @@
                                                 ),
                                             n:
                                                 (Variable
-                                                    206
+                                                    207
                                                     n
                                                     []
                                                     In
@@ -317,7 +317,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    206
+                                                    207
                                                     r
                                                     [n]
                                                     Local
@@ -327,7 +327,7 @@
                                                     (Array
                                                         (Real 4)
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 206 n))]
+                                                        (Var 207 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -374,15 +374,15 @@
                                         .false.
                                     )
                                     [add_float]
-                                    [(Var 206 n)
-                                    (Var 206 a)
-                                    (Var 206 b)]
+                                    [(Var 207 n)
+                                    (Var 207 a)
+                                    (Var 207 b)]
                                     [(DoLoop
                                         ()
-                                        ((Var 206 i)
+                                        ((Var 207 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (Var 206 n)
+                                            (Var 207 n)
                                             Sub
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -391,30 +391,30 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 206 r)
+                                                (Var 207 r)
                                                 [(()
-                                                (Var 206 i)
+                                                (Var 207 i)
                                                 ())]
                                                 (Real 4)
                                                 RowMajor
                                                 ()
                                             )
                                             (FunctionCall
-                                                209 add_float
+                                                2 add_float
                                                 ()
                                                 [((ArrayItem
-                                                    (Var 206 a)
+                                                    (Var 207 a)
                                                     [(()
-                                                    (Var 206 i)
+                                                    (Var 207 i)
                                                     ())]
                                                     (Real 4)
                                                     RowMajor
                                                     ()
                                                 ))
                                                 ((ArrayItem
-                                                    (Var 206 b)
+                                                    (Var 207 b)
                                                     [(()
-                                                    (Var 206 i)
+                                                    (Var 207 i)
                                                     ())]
                                                     (Real 4)
                                                     RowMajor
@@ -430,7 +430,7 @@
                                     (Print
                                         ()
                                         [(ArrayItem
-                                            (Var 206 r)
+                                            (Var 207 r)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -447,14 +447,14 @@
                                     .false.
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         208
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -473,7 +473,7 @@
                                     [main]
                                     []
                                     [(SubroutineCall
-                                        209 main
+                                        2 main
                                         ()
                                         []
                                         ()
@@ -487,11 +487,11 @@
                             add:
                                 (Function
                                     (SymbolTable
-                                        199
+                                        200
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    199
+                                                    200
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -509,7 +509,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    199
+                                                    200
                                                     x
                                                     []
                                                     In
@@ -527,7 +527,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    199
+                                                    200
                                                     y
                                                     []
                                                     In
@@ -570,10 +570,10 @@
                                         .true.
                                     )
                                     []
-                                    [(Var 199 x)
-                                    (Var 199 y)]
+                                    [(Var 200 x)
+                                    (Var 200 y)]
                                     []
-                                    (Var 199 _lpython_return_variable)
+                                    (Var 200 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -582,11 +582,11 @@
                             add_float:
                                 (Function
                                     (SymbolTable
-                                        201
+                                        202
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    201
+                                                    202
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -602,7 +602,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    201
+                                                    202
                                                     x
                                                     []
                                                     In
@@ -618,7 +618,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    201
+                                                    202
                                                     y
                                                     []
                                                     In
@@ -651,21 +651,21 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 201 x)
-                                    (Var 201 y)]
+                                    [(Var 202 x)
+                                    (Var 202 y)]
                                     [(=
-                                        (Var 201 _lpython_return_variable)
+                                        (Var 202 _lpython_return_variable)
                                         (RealBinOp
-                                            (Var 201 x)
+                                            (Var 202 x)
                                             Add
-                                            (Var 201 y)
+                                            (Var 202 y)
                                             (Real 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Return)]
-                                    (Var 201 _lpython_return_variable)
+                                    (Var 202 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -674,11 +674,11 @@
                             add_integer:
                                 (Function
                                     (SymbolTable
-                                        200
+                                        201
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    200
+                                                    201
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -694,7 +694,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    200
+                                                    201
                                                     x
                                                     []
                                                     In
@@ -710,7 +710,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    200
+                                                    201
                                                     y
                                                     []
                                                     In
@@ -743,21 +743,21 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 200 x)
-                                    (Var 200 y)]
+                                    [(Var 201 x)
+                                    (Var 201 y)]
                                     [(=
-                                        (Var 200 _lpython_return_variable)
+                                        (Var 201 _lpython_return_variable)
                                         (IntegerBinOp
-                                            (Var 200 x)
+                                            (Var 201 x)
                                             Add
-                                            (Var 200 y)
+                                            (Var 201 y)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Return)]
-                                    (Var 200 _lpython_return_variable)
+                                    (Var 201 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -766,11 +766,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        202
+                                        203
                                         {
                                             a:
                                                 (Variable
-                                                    202
+                                                    203
                                                     a
                                                     [n]
                                                     InOut
@@ -782,7 +782,7 @@
                                                             T
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 202 n))]
+                                                        (Var 203 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -793,7 +793,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    202
+                                                    203
                                                     b
                                                     [n]
                                                     InOut
@@ -805,7 +805,7 @@
                                                             T
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 202 n))]
+                                                        (Var 203 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -816,7 +816,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    202
+                                                    203
                                                     i
                                                     []
                                                     Local
@@ -832,7 +832,7 @@
                                                 ),
                                             n:
                                                 (Variable
-                                                    202
+                                                    203
                                                     n
                                                     []
                                                     In
@@ -848,7 +848,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    202
+                                                    203
                                                     r
                                                     [n]
                                                     Local
@@ -860,7 +860,7 @@
                                                             T
                                                         )
                                                         [((IntegerConstant 0 (Integer 4))
-                                                        (Var 202 n))]
+                                                        (Var 203 n))]
                                                         PointerToDataArray
                                                     )
                                                     ()
@@ -909,19 +909,19 @@
                                         [(TypeParameter
                                             T
                                         )]
-                                        [209 add]
+                                        [2 add]
                                         .false.
                                     )
                                     [add]
-                                    [(Var 202 n)
-                                    (Var 202 a)
-                                    (Var 202 b)]
+                                    [(Var 203 n)
+                                    (Var 203 a)
+                                    (Var 203 b)]
                                     [(DoLoop
                                         ()
-                                        ((Var 202 i)
+                                        ((Var 203 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
-                                            (Var 202 n)
+                                            (Var 203 n)
                                             Sub
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -930,9 +930,9 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 202 r)
+                                                (Var 203 r)
                                                 [(()
-                                                (Var 202 i)
+                                                (Var 203 i)
                                                 ())]
                                                 (TypeParameter
                                                     T
@@ -941,12 +941,12 @@
                                                 ()
                                             )
                                             (FunctionCall
-                                                209 add
+                                                2 add
                                                 ()
                                                 [((ArrayItem
-                                                    (Var 202 a)
+                                                    (Var 203 a)
                                                     [(()
-                                                    (Var 202 i)
+                                                    (Var 203 i)
                                                     ())]
                                                     (TypeParameter
                                                         T
@@ -955,9 +955,9 @@
                                                     ()
                                                 ))
                                                 ((ArrayItem
-                                                    (Var 202 b)
+                                                    (Var 203 b)
                                                     [(()
-                                                    (Var 202 i)
+                                                    (Var 203 i)
                                                     ())]
                                                     (TypeParameter
                                                         T
@@ -977,7 +977,7 @@
                                     (Print
                                         ()
                                         [(ArrayItem
-                                            (Var 202 r)
+                                            (Var 203 r)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -999,11 +999,11 @@
                             main:
                                 (Function
                                     (SymbolTable
-                                        203
+                                        204
                                         {
                                             a_float:
                                                 (Variable
-                                                    203
+                                                    204
                                                     a_float
                                                     []
                                                     Local
@@ -1024,7 +1024,7 @@
                                                 ),
                                             a_int:
                                                 (Variable
-                                                    203
+                                                    204
                                                     a_int
                                                     []
                                                     Local
@@ -1045,7 +1045,7 @@
                                                 ),
                                             b_float:
                                                 (Variable
-                                                    203
+                                                    204
                                                     b_float
                                                     []
                                                     Local
@@ -1066,7 +1066,7 @@
                                                 ),
                                             b_int:
                                                 (Variable
-                                                    203
+                                                    204
                                                     b_int
                                                     []
                                                     Local
@@ -1107,7 +1107,7 @@
                                     []
                                     [(=
                                         (ArrayItem
-                                            (Var 203 a_int)
+                                            (Var 204 a_int)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1120,7 +1120,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 203 b_int)
+                                            (Var 204 b_int)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1132,11 +1132,11 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        209 __asr_generic_g_0
+                                        2 __asr_generic_g_0
                                         ()
                                         [((IntegerConstant 1 (Integer 4)))
                                         ((ArrayPhysicalCast
-                                            (Var 203 a_int)
+                                            (Var 204 a_int)
                                             FixedSizeArray
                                             PointerToDataArray
                                             (Array
@@ -1148,7 +1148,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 203 b_int)
+                                            (Var 204 b_int)
                                             FixedSizeArray
                                             PointerToDataArray
                                             (Array
@@ -1163,7 +1163,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 203 a_float)
+                                            (Var 204 a_float)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1187,7 +1187,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 203 b_float)
+                                            (Var 204 b_float)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1210,11 +1210,11 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        209 __asr_generic_g_1
+                                        2 __asr_generic_g_1
                                         ()
                                         [((IntegerConstant 1 (Integer 4)))
                                         ((ArrayPhysicalCast
-                                            (Var 203 a_float)
+                                            (Var 204 a_float)
                                             FixedSizeArray
                                             PointerToDataArray
                                             (Array
@@ -1226,7 +1226,7 @@
                                             ()
                                         ))
                                         ((ArrayPhysicalCast
-                                            (Var 203 b_float)
+                                            (Var 204 b_float)
                                             FixedSizeArray
                                             PointerToDataArray
                                             (Array
@@ -1247,14 +1247,16 @@
                                 ),
                             n:
                                 (Variable
-                                    209
+                                    2
                                     n
                                     []
                                     Local
                                     ()
                                     ()
                                     Default
-                                    (Integer 4)
+                                    (TypeParameter
+                                        n
+                                    )
                                     ()
                                     Source
                                     Public
@@ -1262,8 +1264,8 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -1272,24 +1274,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        207
+                        209
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    207
-                                    _lpython_main_program
-                                    209 _lpython_main_program
-                                    _global_symbols
+                                    209
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        207 _lpython_main_program
-                        ()
+                        209 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

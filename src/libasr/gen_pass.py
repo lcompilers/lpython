@@ -9,8 +9,6 @@ passes = [
         "replace_fma",
         "replace_for_all",
         "wrap_global_stmts",
-        "wrap_global_stmts_program",
-        "wrap_global_symbols",
         "replace_implied_do_loops",
         "replace_init_expr",
         "inline_function_calls",

@@ -177,7 +177,7 @@
     )
     (memory (;0;) 100 100)
     (export "memory" (memory 0))
-    (export "_lpython_main_program" (func 2))
+    (export "__main____global_statements" (func 2))
     (export "test_bool" (func 3))
     (export "_start" (func 4))
     (export "print_i64" (func 5))

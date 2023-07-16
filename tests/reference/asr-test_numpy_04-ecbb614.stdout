@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        204
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         203
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        204 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        201
+                                        202
                                         {
                                             
                                         })
@@ -71,13 +71,13 @@
                                     test_array_02]
                                     []
                                     [(SubroutineCall
-                                        204 test_array_01
+                                        2 test_array_01
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        204 test_array_02
+                                        2 test_array_02
                                         ()
                                         []
                                         ()
@@ -91,11 +91,11 @@
                             test_array_01:
                                 (Function
                                     (SymbolTable
-                                        199
+                                        200
                                         {
                                             eps:
                                                 (Variable
-                                                    199
+                                                    200
                                                     eps
                                                     []
                                                     Local
@@ -111,7 +111,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    199
+                                                    200
                                                     x
                                                     []
                                                     Local
@@ -150,7 +150,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 199 x)
+                                        (Var 200 x)
                                         (ArrayConstant
                                             [(RealConstant
                                                 1.000000
@@ -175,7 +175,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 199 eps)
+                                        (Var 200 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -188,7 +188,7 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 199 x)
+                                                        (Var 200 x)
                                                         [(()
                                                         (IntegerConstant 0 (Integer 4))
                                                         ())]
@@ -209,7 +209,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 199 eps)
+                                            (Var 200 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -221,7 +221,7 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 199 x)
+                                                        (Var 200 x)
                                                         [(()
                                                         (IntegerConstant 1 (Integer 4))
                                                         ())]
@@ -242,7 +242,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 199 eps)
+                                            (Var 200 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -254,7 +254,7 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
-                                                        (Var 199 x)
+                                                        (Var 200 x)
                                                         [(()
                                                         (IntegerConstant 2 (Integer 4))
                                                         ())]
@@ -275,7 +275,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 199 eps)
+                                            (Var 200 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -290,11 +290,11 @@
                             test_array_02:
                                 (Function
                                     (SymbolTable
-                                        200
+                                        201
                                         {
                                             eps:
                                                 (Variable
-                                                    200
+                                                    201
                                                     eps
                                                     []
                                                     Local
@@ -310,7 +310,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    200
+                                                    201
                                                     x
                                                     []
                                                     Local
@@ -349,7 +349,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 200 x)
+                                        (Var 201 x)
                                         (ArrayConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -365,7 +365,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 eps)
+                                        (Var 201 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -379,7 +379,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 200 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 0 (Integer 4))
                                                             ())]
@@ -401,7 +401,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 200 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -414,7 +414,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 200 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 1 (Integer 4))
                                                             ())]
@@ -436,7 +436,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 200 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -449,7 +449,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 200 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 2 (Integer 4))
                                                             ())]
@@ -471,7 +471,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 200 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -484,8 +484,8 @@
                                     ()
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -494,24 +494,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        202
+                        204
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    202
-                                    _lpython_main_program
-                                    204 _lpython_main_program
-                                    _global_symbols
+                                    204
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        202 _lpython_main_program
-                        ()
+                        204 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

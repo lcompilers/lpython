@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        9 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             
                                         })
@@ -73,25 +73,25 @@
                                     test_print_list_tuple]
                                     []
                                     [(SubroutineCall
-                                        9 f
+                                        2 f
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_nested_lists
+                                        2 test_nested_lists
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_nested_lists2
+                                        2 test_nested_lists2
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_print_list_tuple
+                                        2 test_print_list_tuple
                                         ()
                                         []
                                         ()
@@ -105,11 +105,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -127,7 +127,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -145,7 +145,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -163,7 +163,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    2
+                                                    3
                                                     d
                                                     []
                                                     Local
@@ -199,7 +199,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (ListConstant
                                             [(StringConstant
                                                 "ab"
@@ -220,7 +220,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -233,7 +233,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ListConstant
                                             [(RealConstant
                                                 1.230000
@@ -262,7 +262,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 d)
+                                        (Var 3 d)
                                         (ListConstant
                                             []
                                             (List
@@ -273,50 +273,50 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 a)]
+                                        [(Var 3 a)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 b)]
+                                        [(Var 3 b)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 c)]
+                                        [(Var 3 c)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 d)]
+                                        [(Var 3 d)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 a)
-                                        (Var 2 a)
-                                        (Var 2 b)
-                                        (Var 2 c)
-                                        (Var 2 d)]
+                                        [(Var 3 a)
+                                        (Var 3 a)
+                                        (Var 3 b)
+                                        (Var 3 c)
+                                        (Var 3 d)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 a)
-                                        (Var 2 a)
+                                        [(Var 3 a)
+                                        (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
-                                        (Var 2 b)
-                                        (Var 2 c)
+                                        (Var 3 b)
+                                        (Var 3 c)
                                         (RealConstant
                                             1.100000
                                             (Real 8)
                                         )
-                                        (Var 2 d)]
+                                        (Var 3 d)]
                                         ()
                                         ()
                                     )
@@ -383,8 +383,8 @@
                                                 (Integer 4)
                                             )
                                         )
-                                        (Var 2 a)
-                                        (Var 2 c)]
+                                        (Var 3 a)
+                                        (Var 3 c)]
                                         ()
                                         ()
                                     )]
@@ -397,11 +397,11 @@
                             test_nested_lists:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             w:
                                                 (Variable
-                                                    3
+                                                    4
                                                     w
                                                     []
                                                     Local
@@ -427,7 +427,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -449,7 +449,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     Local
@@ -469,7 +469,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     z
                                                     []
                                                     Local
@@ -507,7 +507,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 w)
+                                        (Var 4 w)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -596,7 +596,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -683,7 +683,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (ListConstant
                                             [(ListConstant
                                                 [(RealConstant
@@ -734,7 +734,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 z)
+                                        (Var 4 z)
                                         (ListConstant
                                             [(ListConstant
                                                 [(StringConstant
@@ -793,25 +793,25 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 w)]
+                                        [(Var 4 w)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 x)]
+                                        [(Var 4 x)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 y)]
+                                        [(Var 4 y)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 z)]
+                                        [(Var 4 z)]
                                         ()
                                         ()
                                     )]
@@ -824,11 +824,11 @@
                             test_nested_lists2:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             p:
                                                 (Variable
-                                                    5
+                                                    6
                                                     p
                                                     []
                                                     Local
@@ -848,7 +848,7 @@
                                                 ),
                                             q:
                                                 (Variable
-                                                    5
+                                                    6
                                                     q
                                                     []
                                                     Local
@@ -872,7 +872,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    5
+                                                    6
                                                     r
                                                     []
                                                     Local
@@ -912,7 +912,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 5 p)
+                                        (Var 6 p)
                                         (ListConstant
                                             [(ListConstant
                                                 [(IntegerConstant 0 (Integer 4))
@@ -1073,7 +1073,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 q)
+                                        (Var 6 q)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -1896,7 +1896,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 r)
+                                        (Var 6 r)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -2570,19 +2570,19 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 5 p)]
+                                        [(Var 6 p)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 5 q)]
+                                        [(Var 6 q)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 5 r)]
+                                        [(Var 6 r)]
                                         ()
                                         ()
                                     )]
@@ -2595,11 +2595,11 @@
                             test_print_list_tuple:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -2620,7 +2620,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -2644,7 +2644,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b1
                                                     []
                                                     Local
@@ -2662,7 +2662,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b2
                                                     []
                                                     Local
@@ -2680,7 +2680,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c
                                                     []
                                                     Local
@@ -2721,7 +2721,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (ListConstant
                                             [(TupleConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -2757,7 +2757,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 c)
+                                        (Var 5 c)
                                         (ListConstant
                                             [(ListConstant
                                                 [(TupleConstant
@@ -2831,7 +2831,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b1)
+                                        (Var 5 b1)
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
@@ -2860,7 +2860,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b2)
+                                        (Var 5 b2)
                                         (ListConstant
                                             [(IntegerConstant 10 (Integer 4))
                                             (IntegerConstant 20 (Integer 4))
@@ -2873,10 +2873,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (TupleConstant
-                                            [(Var 4 b1)
-                                            (Var 4 b2)
+                                            [(Var 5 b1)
+                                            (Var 5 b2)
                                             (RealConstant
                                                 6.030500
                                                 (Real 8)
@@ -2895,16 +2895,16 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 4 a)
-                                        (Var 4 b)]
+                                        [(Var 5 a)
+                                        (Var 5 b)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 4 c)
-                                        (Var 4 b1)
-                                        (Var 4 b2)
+                                        [(Var 5 c)
+                                        (Var 5 b1)
+                                        (Var 5 b2)
                                         (RealConstant
                                             3.420000
                                             (Real 8)
@@ -2928,7 +2928,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -2936,24 +2936,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        10
+                        2
                         {
                             A:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -61,11 +61,11 @@
                             B:
                                 (StructType
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     Local
@@ -73,7 +73,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        10 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -83,7 +83,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     z
                                                     []
                                                     Local
@@ -108,7 +108,7 @@
                                     .false.
                                     [(())
                                     ((StructTypeConstructor
-                                        10 A
+                                        2 A
                                         [((Cast
                                             (RealConstant
                                                 0.000000
@@ -123,21 +123,21 @@
                                         ))
                                         ((IntegerConstant 0 (Integer 4)))]
                                         (Struct
-                                            10 A
+                                            2 A
                                         )
                                         ()
                                     ))]
                                     ()
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         9
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -156,7 +156,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        10 g
+                                        2 g
                                         ()
                                         []
                                         ()
@@ -170,11 +170,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     In
@@ -182,7 +182,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        10 B
+                                                        2 B
                                                     )
                                                     ()
                                                     Source
@@ -194,7 +194,7 @@
                                     f
                                     (FunctionType
                                         [(Struct
-                                            10 B
+                                            2 B
                                         )]
                                         ()
                                         Source
@@ -210,38 +210,38 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 4 b)]
+                                    [(Var 5 b)]
                                     [(Print
                                         ()
                                         [(StructInstanceMember
-                                            (Var 4 b)
-                                            3 z
+                                            (Var 5 b)
+                                            4 z
                                             (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
                                             (StructInstanceMember
-                                                (Var 4 b)
-                                                3 a
+                                                (Var 5 b)
+                                                4 a
                                                 (Struct
-                                                    10 A
+                                                    2 A
                                                 )
                                                 ()
                                             )
-                                            2 x
+                                            3 x
                                             (Integer 4)
                                             ()
                                         )
                                         (StructInstanceMember
                                             (StructInstanceMember
-                                                (Var 4 b)
-                                                3 a
+                                                (Var 5 b)
+                                                4 a
                                                 (Struct
-                                                    10 A
+                                                    2 A
                                                 )
                                                 ()
                                             )
-                                            2 y
+                                            3 y
                                             (Real 4)
                                             ()
                                         )]
@@ -251,8 +251,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 4 b)
-                                                3 z
+                                                (Var 5 b)
+                                                4 z
                                                 (Integer 4)
                                                 ()
                                             )
@@ -267,14 +267,14 @@
                                         (IntegerCompare
                                             (StructInstanceMember
                                                 (StructInstanceMember
-                                                    (Var 4 b)
-                                                    3 a
+                                                    (Var 5 b)
+                                                    4 a
                                                     (Struct
-                                                        10 A
+                                                        2 A
                                                     )
                                                     ()
                                                 )
-                                                2 x
+                                                3 x
                                                 (Integer 4)
                                                 ()
                                             )
@@ -290,14 +290,14 @@
                                             (Cast
                                                 (StructInstanceMember
                                                     (StructInstanceMember
-                                                        (Var 4 b)
-                                                        3 a
+                                                        (Var 5 b)
+                                                        4 a
                                                         (Struct
-                                                            10 A
+                                                            2 A
                                                         )
                                                         ()
                                                     )
-                                                    2 y
+                                                    3 y
                                                     (Real 4)
                                                     ()
                                                 )
@@ -324,11 +324,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             a1:
                                                 (Variable
-                                                    5
+                                                    6
                                                     a1
                                                     []
                                                     Local
@@ -336,7 +336,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        10 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -346,7 +346,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    5
+                                                    6
                                                     a2
                                                     []
                                                     Local
@@ -354,7 +354,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        10 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -364,7 +364,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    5
+                                                    6
                                                     b
                                                     []
                                                     Local
@@ -372,7 +372,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        10 B
+                                                        2 B
                                                     )
                                                     ()
                                                     Source
@@ -400,9 +400,9 @@
                                     [f]
                                     []
                                     [(=
-                                        (Var 5 a1)
+                                        (Var 6 a1)
                                         (StructTypeConstructor
-                                            10 A
+                                            2 A
                                             [((Cast
                                                 (RealConstant
                                                     1.000000
@@ -417,16 +417,16 @@
                                             ))
                                             ((IntegerConstant 1 (Integer 4)))]
                                             (Struct
-                                                10 A
+                                                2 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 5 a2)
+                                        (Var 6 a2)
                                         (StructTypeConstructor
-                                            10 A
+                                            2 A
                                             [((Cast
                                                 (RealConstant
                                                     2.000000
@@ -441,20 +441,20 @@
                                             ))
                                             ((IntegerConstant 2 (Integer 4)))]
                                             (Struct
-                                                10 A
+                                                2 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 5 b)
+                                        (Var 6 b)
                                         (StructTypeConstructor
-                                            10 B
+                                            2 B
                                             [((IntegerConstant 1 (Integer 4)))
-                                            ((Var 5 a1))]
+                                            ((Var 6 a1))]
                                             (Struct
-                                                10 B
+                                                2 B
                                             )
                                             ()
                                         )
@@ -462,20 +462,20 @@
                                     )
                                     (=
                                         (StructInstanceMember
-                                            (Var 5 b)
-                                            3 a
+                                            (Var 6 b)
+                                            4 a
                                             (Struct
-                                                10 A
+                                                2 A
                                             )
                                             ()
                                         )
-                                        (Var 5 a2)
+                                        (Var 6 a2)
                                         ()
                                     )
                                     (=
                                         (StructInstanceMember
-                                            (Var 5 b)
-                                            3 z
+                                            (Var 6 b)
+                                            4 z
                                             (Integer 4)
                                             ()
                                         )
@@ -485,14 +485,14 @@
                                     (=
                                         (StructInstanceMember
                                             (StructInstanceMember
-                                                (Var 5 b)
-                                                3 a
+                                                (Var 6 b)
+                                                4 a
                                                 (Struct
-                                                    10 A
+                                                    2 A
                                                 )
                                                 ()
                                             )
-                                            2 x
+                                            3 x
                                             (Integer 4)
                                             ()
                                         )
@@ -502,14 +502,14 @@
                                     (=
                                         (StructInstanceMember
                                             (StructInstanceMember
-                                                (Var 5 b)
-                                                3 a
+                                                (Var 6 b)
+                                                4 a
                                                 (Struct
-                                                    10 A
+                                                    2 A
                                                 )
                                                 ()
                                             )
-                                            2 y
+                                            3 y
                                             (Real 4)
                                             ()
                                         )
@@ -530,8 +530,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 5 a1)
-                                                2 x
+                                                (Var 6 a1)
+                                                3 x
                                                 (Integer 4)
                                                 ()
                                             )
@@ -546,8 +546,8 @@
                                         (RealCompare
                                             (Cast
                                                 (StructInstanceMember
-                                                    (Var 5 a1)
-                                                    2 y
+                                                    (Var 6 a1)
+                                                    3 y
                                                     (Real 4)
                                                     ()
                                                 )
@@ -568,8 +568,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 5 a2)
-                                                2 x
+                                                (Var 6 a2)
+                                                3 x
                                                 (Integer 4)
                                                 ()
                                             )
@@ -584,8 +584,8 @@
                                         (RealCompare
                                             (Cast
                                                 (StructInstanceMember
-                                                    (Var 5 a2)
-                                                    2 y
+                                                    (Var 6 a2)
+                                                    3 y
                                                     (Real 4)
                                                     ()
                                                 )
@@ -604,9 +604,9 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        10 f
+                                        2 f
                                         ()
-                                        [((Var 5 b))]
+                                        [((Var 6 b))]
                                         ()
                                     )]
                                     ()
@@ -616,7 +616,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -624,24 +624,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        8
+                        10
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    8
-                                    _lpython_main_program
-                                    10 _lpython_main_program
-                                    _global_symbols
+                                    10
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        8 _lpython_main_program
-                        ()
+                        10 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_StrOp_repeat:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -48,7 +48,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
                                                 "a"
@@ -64,7 +64,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
                                                 "a"
@@ -84,7 +84,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
                                                 "test"
@@ -100,7 +100,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
                                                 "bb"
@@ -116,7 +116,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringConstant
                                                 "bb"
@@ -136,7 +136,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringRepeat
                                             (StringRepeat
                                                 (StringConstant
@@ -166,7 +166,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -174,7 +174,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -34,13 +34,13 @@
                                     bool_to_str]
                                     []
                                     [(SubroutineCall
-                                        7 f
+                                        2 f
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 bool_to_str
+                                        2 bool_to_str
                                         ()
                                         []
                                         ()
@@ -54,11 +54,11 @@
                             bool_to_str:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             var:
                                                 (Variable
-                                                    4
+                                                    5
                                                     var
                                                     []
                                                     Local
@@ -92,7 +92,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 var)
+                                        (Var 5 var)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -119,7 +119,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 4 var)
+                                                (Var 5 var)
                                                 LogicalToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -135,7 +135,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 var)
+                                        (Var 5 var)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -145,7 +145,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 4 var)
+                                                (Var 5 var)
                                                 LogicalToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -196,11 +196,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     Local
@@ -216,7 +216,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     Local
@@ -232,7 +232,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -266,24 +266,24 @@
                                     [g]
                                     []
                                     [(=
-                                        (Var 3 a)
+                                        (Var 4 a)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 b)
+                                        (Var 4 b)
                                         (IntegerBinOp
-                                            (Var 3 x)
+                                            (Var 4 x)
                                             Add
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -293,14 +293,14 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 a)
-                                        (Var 3 b)]
+                                        [(Var 4 a)
+                                        (Var 4 b)]
                                         ()
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 b)
+                                            (Var 4 b)
                                             Eq
                                             (IntegerConstant 6 (Integer 4))
                                             (Logical 4)
@@ -309,13 +309,13 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 g
+                                        2 g
                                         ()
                                         [((IntegerBinOp
                                             (IntegerBinOp
-                                                (Var 3 a)
+                                                (Var 4 a)
                                                 Mul
-                                                (Var 3 b)
+                                                (Var 4 b)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -335,11 +335,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     In
@@ -371,10 +371,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 x)]
+                                    [(Var 3 x)]
                                     [(Print
                                         ()
-                                        [(Var 2 x)]
+                                        [(Var 3 x)]
                                         ()
                                         ()
                                     )]
@@ -386,7 +386,7 @@
                                 ),
                             x:
                                 (Variable
-                                    7
+                                    2
                                     x
                                     []
                                     Local
@@ -401,7 +401,7 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -409,24 +409,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

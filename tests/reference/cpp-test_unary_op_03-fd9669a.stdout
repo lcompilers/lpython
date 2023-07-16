@@ -23,7 +23,7 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
-void _lpython_main_program();
+void __main____global_statements();
 void f();
 namespace {
 }
@@ -40,7 +40,7 @@ void f()
     assert (~i == 235345);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     f();
 }
@@ -48,7 +48,7 @@ void _lpython_main_program()
 namespace {
 
 void main2() {
-    _lpython_main_program();
+    __main____global_statements();
 }
 
 }

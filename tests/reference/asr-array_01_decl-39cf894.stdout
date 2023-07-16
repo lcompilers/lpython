@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        208
+                        2
                         {
                             ArraySizes:
                                 (EnumType
                                     (SymbolTable
-                                        199
+                                        200
                                         {
                                             SIZE_10:
                                                 (Variable
-                                                    199
+                                                    200
                                                     SIZE_10
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             SIZE_3:
                                                 (Variable
-                                                    199
+                                                    200
                                                     SIZE_3
                                                     []
                                                     Local
@@ -55,14 +55,14 @@
                                     (Integer 4)
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         207
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -81,7 +81,7 @@
                                     [declare_arrays]
                                     []
                                     [(SubroutineCall
-                                        208 declare_arrays
+                                        2 declare_arrays
                                         ()
                                         []
                                         ()
@@ -95,11 +95,11 @@
                             accept_f32_array:
                                 (Function
                                     (SymbolTable
-                                        203
+                                        204
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    203
+                                                    204
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -115,7 +115,7 @@
                                                 ),
                                             xf32:
                                                 (Variable
-                                                    203
+                                                    204
                                                     xf32
                                                     []
                                                     InOut
@@ -157,10 +157,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 203 xf32)]
+                                    [(Var 204 xf32)]
                                     [(=
                                         (ArrayItem
-                                            (Var 203 xf32)
+                                            (Var 204 xf32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -183,9 +183,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 203 _lpython_return_variable)
+                                        (Var 204 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 203 xf32)
+                                            (Var 204 xf32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -196,7 +196,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 203 _lpython_return_variable)
+                                    (Var 204 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -205,11 +205,11 @@
                             accept_f64_array:
                                 (Function
                                     (SymbolTable
-                                        204
+                                        205
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    204
+                                                    205
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -225,7 +225,7 @@
                                                 ),
                                             xf64:
                                                 (Variable
-                                                    204
+                                                    205
                                                     xf64
                                                     []
                                                     InOut
@@ -267,10 +267,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 204 xf64)]
+                                    [(Var 205 xf64)]
                                     [(=
                                         (ArrayItem
-                                            (Var 204 xf64)
+                                            (Var 205 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -285,9 +285,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 204 _lpython_return_variable)
+                                        (Var 205 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 204 xf64)
+                                            (Var 205 xf64)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -298,7 +298,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 204 _lpython_return_variable)
+                                    (Var 205 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -307,11 +307,11 @@
                             accept_i16_array:
                                 (Function
                                     (SymbolTable
-                                        200
+                                        201
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    200
+                                                    201
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -327,7 +327,7 @@
                                                 ),
                                             xi16:
                                                 (Variable
-                                                    200
+                                                    201
                                                     xi16
                                                     []
                                                     InOut
@@ -369,10 +369,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 200 xi16)]
+                                    [(Var 201 xi16)]
                                     [(=
                                         (ArrayItem
-                                            (Var 200 xi16)
+                                            (Var 201 xi16)
                                             [(()
                                             (IntegerConstant 2 (Integer 4))
                                             ())]
@@ -389,9 +389,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 _lpython_return_variable)
+                                        (Var 201 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 200 xi16)
+                                            (Var 201 xi16)
                                             [(()
                                             (IntegerConstant 2 (Integer 4))
                                             ())]
@@ -402,7 +402,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 200 _lpython_return_variable)
+                                    (Var 201 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -411,11 +411,11 @@
                             accept_i32_array:
                                 (Function
                                     (SymbolTable
-                                        201
+                                        202
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    201
+                                                    202
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -431,7 +431,7 @@
                                                 ),
                                             xi32:
                                                 (Variable
-                                                    201
+                                                    202
                                                     xi32
                                                     []
                                                     InOut
@@ -473,10 +473,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 201 xi32)]
+                                    [(Var 202 xi32)]
                                     [(=
                                         (ArrayItem
-                                            (Var 201 xi32)
+                                            (Var 202 xi32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -488,9 +488,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 _lpython_return_variable)
+                                        (Var 202 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 201 xi32)
+                                            (Var 202 xi32)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -501,7 +501,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 201 _lpython_return_variable)
+                                    (Var 202 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -510,11 +510,11 @@
                             accept_i64_array:
                                 (Function
                                     (SymbolTable
-                                        202
+                                        203
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    202
+                                                    203
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -530,7 +530,7 @@
                                                 ),
                                             xi64:
                                                 (Variable
-                                                    202
+                                                    203
                                                     xi64
                                                     []
                                                     InOut
@@ -572,10 +572,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 202 xi64)]
+                                    [(Var 203 xi64)]
                                     [(=
                                         (ArrayItem
-                                            (Var 202 xi64)
+                                            (Var 203 xi64)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -592,9 +592,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 202 _lpython_return_variable)
+                                        (Var 203 _lpython_return_variable)
                                         (ArrayItem
-                                            (Var 202 xi64)
+                                            (Var 203 xi64)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -605,7 +605,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 202 _lpython_return_variable)
+                                    (Var 203 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -614,11 +614,11 @@
                             declare_arrays:
                                 (Function
                                     (SymbolTable
-                                        205
+                                        206
                                         {
                                             ac32:
                                                 (Variable
-                                                    205
+                                                    206
                                                     ac32
                                                     []
                                                     Local
@@ -639,7 +639,7 @@
                                                 ),
                                             ac64:
                                                 (Variable
-                                                    205
+                                                    206
                                                     ac64
                                                     []
                                                     Local
@@ -660,7 +660,7 @@
                                                 ),
                                             af32:
                                                 (Variable
-                                                    205
+                                                    206
                                                     af32
                                                     []
                                                     Local
@@ -681,7 +681,7 @@
                                                 ),
                                             af64:
                                                 (Variable
-                                                    205
+                                                    206
                                                     af64
                                                     []
                                                     Local
@@ -702,7 +702,7 @@
                                                 ),
                                             ai16:
                                                 (Variable
-                                                    205
+                                                    206
                                                     ai16
                                                     []
                                                     Local
@@ -723,7 +723,7 @@
                                                 ),
                                             ai32:
                                                 (Variable
-                                                    205
+                                                    206
                                                     ai32
                                                     []
                                                     Local
@@ -744,7 +744,7 @@
                                                 ),
                                             ai64:
                                                 (Variable
-                                                    205
+                                                    206
                                                     ai64
                                                     []
                                                     Local
@@ -789,10 +789,10 @@
                                     [(Print
                                         ()
                                         [(FunctionCall
-                                            208 accept_i16_array
+                                            2 accept_i16_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 205 ai16)
+                                                (Var 206 ai16)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -813,10 +813,10 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            208 accept_i32_array
+                                            2 accept_i32_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 205 ai32)
+                                                (Var 206 ai32)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -837,10 +837,10 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            208 accept_i64_array
+                                            2 accept_i64_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 205 ai64)
+                                                (Var 206 ai64)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -861,10 +861,10 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            208 accept_f32_array
+                                            2 accept_f32_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 205 af32)
+                                                (Var 206 af32)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -885,10 +885,10 @@
                                     (Print
                                         ()
                                         [(FunctionCall
-                                            208 accept_f64_array
+                                            2 accept_f64_array
                                             ()
                                             [((ArrayPhysicalCast
-                                                (Var 205 af64)
+                                                (Var 206 af64)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -913,8 +913,8 @@
                                     ()
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -923,24 +923,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        206
+                        208
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    206
-                                    _lpython_main_program
-                                    208 _lpython_main_program
-                                    _global_symbols
+                                    208
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        206 _lpython_main_program
-                        ()
+                        208 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

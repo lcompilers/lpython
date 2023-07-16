@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        7 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -67,7 +67,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     Local
@@ -101,9 +101,9 @@
                                     [test]
                                     []
                                     [(=
-                                        (Var 3 a)
+                                        (Var 4 a)
                                         (FunctionCall
-                                            7 test
+                                            2 test
                                             ()
                                             [((IntegerConstant 2 (Integer 4)))
                                             ((IntegerConstant 2 (Integer 4)))]
@@ -114,12 +114,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 _lpython_return_variable)
-                                        (Var 3 a)
+                                        (Var 4 _lpython_return_variable)
+                                        (Var 4 a)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 3 _lpython_return_variable)
+                                    (Var 4 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -128,11 +128,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     Local
@@ -166,9 +166,9 @@
                                     [check]
                                     []
                                     [(=
-                                        (Var 4 x)
+                                        (Var 5 x)
                                         (FunctionCall
-                                            7 check
+                                            2 check
                                             ()
                                             []
                                             (Integer 4)
@@ -186,11 +186,11 @@
                             test:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -206,7 +206,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     In
@@ -222,7 +222,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     In
@@ -255,28 +255,28 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 a)
-                                    (Var 2 b)]
+                                    [(Var 3 a)
+                                    (Var 3 b)]
                                     [(=
-                                        (Var 2 _lpython_return_variable)
+                                        (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             Pow
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Return)]
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -284,24 +284,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

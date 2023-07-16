@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -35,19 +35,19 @@
                                     more_test]
                                     []
                                     [(SubroutineCall
-                                        7 test_ord
+                                        2 test_ord
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 test_chr
+                                        2 test_chr
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 more_test
+                                        2 more_test
                                         ()
                                         []
                                         ()
@@ -61,11 +61,11 @@
                             more_test:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -81,7 +81,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -97,7 +97,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c
                                                     []
                                                     Local
@@ -113,7 +113,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    4
+                                                    5
                                                     d
                                                     []
                                                     Local
@@ -129,7 +129,7 @@
                                                 ),
                                             p:
                                                 (Variable
-                                                    4
+                                                    5
                                                     p
                                                     []
                                                     Local
@@ -145,7 +145,7 @@
                                                 ),
                                             q:
                                                 (Variable
-                                                    4
+                                                    5
                                                     q
                                                     []
                                                     Local
@@ -161,7 +161,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    4
+                                                    5
                                                     r
                                                     []
                                                     Local
@@ -177,7 +177,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    4
+                                                    5
                                                     s
                                                     []
                                                     Local
@@ -211,29 +211,29 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 p)
+                                        (Var 5 p)
                                         (IntegerConstant 97 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 q)
+                                        (Var 5 q)
                                         (IntegerConstant 112 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 r)
+                                        (Var 5 r)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 s)
+                                        (Var 5 s)
                                         (IntegerConstant 65 (Integer 4))
                                         ()
                                     )
                                     (Print
                                         ()
                                         [(StringChr
-                                            (Var 4 p)
+                                            (Var 5 p)
                                             (Character 1 1 ())
                                             ()
                                         )]
@@ -243,7 +243,7 @@
                                     (Print
                                         ()
                                         [(StringChr
-                                            (Var 4 q)
+                                            (Var 5 q)
                                             (Character 1 1 ())
                                             ()
                                         )]
@@ -253,7 +253,7 @@
                                     (Print
                                         ()
                                         [(StringChr
-                                            (Var 4 r)
+                                            (Var 5 r)
                                             (Character 1 1 ())
                                             ()
                                         )]
@@ -263,7 +263,7 @@
                                     (Print
                                         ()
                                         [(StringChr
-                                            (Var 4 s)
+                                            (Var 5 s)
                                             (Character 1 1 ())
                                             ()
                                         )]
@@ -271,7 +271,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (StringConstant
                                             "!"
                                             (Character 1 1 ())
@@ -279,7 +279,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (StringConstant
                                             " "
                                             (Character 1 1 ())
@@ -287,7 +287,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 c)
+                                        (Var 5 c)
                                         (StringConstant
                                             "Z"
                                             (Character 1 1 ())
@@ -295,7 +295,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 d)
+                                        (Var 5 d)
                                         (StringConstant
                                             "g"
                                             (Character 1 1 ())
@@ -305,7 +305,7 @@
                                     (Print
                                         ()
                                         [(StringOrd
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             (Integer 4)
                                             ()
                                         )]
@@ -315,7 +315,7 @@
                                     (Print
                                         ()
                                         [(StringOrd
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             (Integer 4)
                                             ()
                                         )]
@@ -325,7 +325,7 @@
                                     (Print
                                         ()
                                         [(StringOrd
-                                            (Var 4 c)
+                                            (Var 5 c)
                                             (Integer 4)
                                             ()
                                         )]
@@ -335,7 +335,7 @@
                                     (Print
                                         ()
                                         [(StringOrd
-                                            (Var 4 d)
+                                            (Var 5 d)
                                             (Integer 4)
                                             ()
                                         )]
@@ -351,11 +351,11 @@
                             test_chr:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             capital_a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     capital_a
                                                     []
                                                     Local
@@ -371,7 +371,7 @@
                                                 ),
                                             capital_z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     capital_z
                                                     []
                                                     Local
@@ -387,7 +387,7 @@
                                                 ),
                                             dollar:
                                                 (Variable
-                                                    3
+                                                    4
                                                     dollar
                                                     []
                                                     Local
@@ -403,7 +403,7 @@
                                                 ),
                                             exclamation:
                                                 (Variable
-                                                    3
+                                                    4
                                                     exclamation
                                                     []
                                                     Local
@@ -419,7 +419,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    3
+                                                    4
                                                     i
                                                     []
                                                     Local
@@ -435,7 +435,7 @@
                                                 ),
                                             left_parenthesis:
                                                 (Variable
-                                                    3
+                                                    4
                                                     left_parenthesis
                                                     []
                                                     Local
@@ -451,7 +451,7 @@
                                                 ),
                                             nine:
                                                 (Variable
-                                                    3
+                                                    4
                                                     nine
                                                     []
                                                     Local
@@ -467,7 +467,7 @@
                                                 ),
                                             plus:
                                                 (Variable
-                                                    3
+                                                    4
                                                     plus
                                                     []
                                                     Local
@@ -483,7 +483,7 @@
                                                 ),
                                             right_brace:
                                                 (Variable
-                                                    3
+                                                    4
                                                     right_brace
                                                     []
                                                     Local
@@ -499,7 +499,7 @@
                                                 ),
                                             right_bracket:
                                                 (Variable
-                                                    3
+                                                    4
                                                     right_bracket
                                                     []
                                                     Local
@@ -515,7 +515,7 @@
                                                 ),
                                             semicolon:
                                                 (Variable
-                                                    3
+                                                    4
                                                     semicolon
                                                     []
                                                     Local
@@ -531,7 +531,7 @@
                                                 ),
                                             small_a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     small_a
                                                     []
                                                     Local
@@ -547,7 +547,7 @@
                                                 ),
                                             small_z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     small_z
                                                     []
                                                     Local
@@ -563,7 +563,7 @@
                                                 ),
                                             zero:
                                                 (Variable
-                                                    3
+                                                    4
                                                     zero
                                                     []
                                                     Local
@@ -597,14 +597,14 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 33 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 exclamation)
+                                        (Var 4 exclamation)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -635,7 +635,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 exclamation)
+                                            (Var 4 exclamation)
                                             Eq
                                             (StringConstant
                                                 "!"
@@ -647,14 +647,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 36 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 dollar)
+                                        (Var 4 dollar)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -685,7 +685,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 dollar)
+                                            (Var 4 dollar)
                                             Eq
                                             (StringConstant
                                                 "$"
@@ -697,14 +697,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 40 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 left_parenthesis)
+                                        (Var 4 left_parenthesis)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -735,7 +735,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 left_parenthesis)
+                                            (Var 4 left_parenthesis)
                                             Eq
                                             (StringConstant
                                                 "("
@@ -747,14 +747,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 43 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 plus)
+                                        (Var 4 plus)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -785,7 +785,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 plus)
+                                            (Var 4 plus)
                                             Eq
                                             (StringConstant
                                                 "+"
@@ -797,14 +797,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 48 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 zero)
+                                        (Var 4 zero)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -835,7 +835,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 zero)
+                                            (Var 4 zero)
                                             Eq
                                             (StringConstant
                                                 "0"
@@ -847,14 +847,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 57 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 nine)
+                                        (Var 4 nine)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -885,7 +885,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 nine)
+                                            (Var 4 nine)
                                             Eq
                                             (StringConstant
                                                 "9"
@@ -897,14 +897,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 59 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 semicolon)
+                                        (Var 4 semicolon)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -935,7 +935,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 semicolon)
+                                            (Var 4 semicolon)
                                             Eq
                                             (StringConstant
                                                 ";"
@@ -947,14 +947,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 65 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 capital_a)
+                                        (Var 4 capital_a)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -985,7 +985,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 capital_a)
+                                            (Var 4 capital_a)
                                             Eq
                                             (StringConstant
                                                 "A"
@@ -997,14 +997,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 90 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 capital_z)
+                                        (Var 4 capital_z)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -1035,7 +1035,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 capital_z)
+                                            (Var 4 capital_z)
                                             Eq
                                             (StringConstant
                                                 "Z"
@@ -1047,14 +1047,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 93 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 right_bracket)
+                                        (Var 4 right_bracket)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -1085,7 +1085,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 right_bracket)
+                                            (Var 4 right_bracket)
                                             Eq
                                             (StringConstant
                                                 "]"
@@ -1097,14 +1097,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 97 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 small_a)
+                                        (Var 4 small_a)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -1135,7 +1135,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 small_a)
+                                            (Var 4 small_a)
                                             Eq
                                             (StringConstant
                                                 "a"
@@ -1147,14 +1147,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 122 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 small_z)
+                                        (Var 4 small_z)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -1185,7 +1185,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 small_z)
+                                            (Var 4 small_z)
                                             Eq
                                             (StringConstant
                                                 "z"
@@ -1197,14 +1197,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 i)
+                                        (Var 4 i)
                                         (IntegerConstant 125 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 3 right_brace)
+                                        (Var 4 right_brace)
                                         (StringChr
-                                            (Var 3 i)
+                                            (Var 4 i)
                                             (Character 1 1 ())
                                             ()
                                         )
@@ -1235,7 +1235,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 right_brace)
+                                            (Var 4 right_brace)
                                             Eq
                                             (StringConstant
                                                 "}"
@@ -1255,11 +1255,11 @@
                             test_ord:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             capital_a_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     capital_a_unicode
                                                     []
                                                     Local
@@ -1275,7 +1275,7 @@
                                                 ),
                                             capital_z_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     capital_z_unicode
                                                     []
                                                     Local
@@ -1291,7 +1291,7 @@
                                                 ),
                                             dollar_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     dollar_unicode
                                                     []
                                                     Local
@@ -1307,7 +1307,7 @@
                                                 ),
                                             exclamation_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     exclamation_unicode
                                                     []
                                                     Local
@@ -1323,7 +1323,7 @@
                                                 ),
                                             left_parenthesis_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     left_parenthesis_unicode
                                                     []
                                                     Local
@@ -1339,7 +1339,7 @@
                                                 ),
                                             nine_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     nine_unicode
                                                     []
                                                     Local
@@ -1355,7 +1355,7 @@
                                                 ),
                                             plus_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     plus_unicode
                                                     []
                                                     Local
@@ -1371,7 +1371,7 @@
                                                 ),
                                             right_brace_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     right_brace_unicode
                                                     []
                                                     Local
@@ -1387,7 +1387,7 @@
                                                 ),
                                             right_bracket_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     right_bracket_unicode
                                                     []
                                                     Local
@@ -1403,7 +1403,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -1419,7 +1419,7 @@
                                                 ),
                                             semicolon_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     semicolon_unicode
                                                     []
                                                     Local
@@ -1435,7 +1435,7 @@
                                                 ),
                                             small_a_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     small_a_unicode
                                                     []
                                                     Local
@@ -1451,7 +1451,7 @@
                                                 ),
                                             small_z_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     small_z_unicode
                                                     []
                                                     Local
@@ -1467,7 +1467,7 @@
                                                 ),
                                             zero_unicode:
                                                 (Variable
-                                                    2
+                                                    3
                                                     zero_unicode
                                                     []
                                                     Local
@@ -1501,7 +1501,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "!"
                                             (Character 1 1 ())
@@ -1509,9 +1509,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 exclamation_unicode)
+                                        (Var 3 exclamation_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1539,7 +1539,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 exclamation_unicode)
+                                            (Var 3 exclamation_unicode)
                                             Eq
                                             (IntegerConstant 33 (Integer 4))
                                             (Logical 4)
@@ -1548,7 +1548,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "$"
                                             (Character 1 1 ())
@@ -1556,9 +1556,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 dollar_unicode)
+                                        (Var 3 dollar_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1586,7 +1586,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 dollar_unicode)
+                                            (Var 3 dollar_unicode)
                                             Eq
                                             (IntegerConstant 36 (Integer 4))
                                             (Logical 4)
@@ -1595,7 +1595,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "("
                                             (Character 1 1 ())
@@ -1603,9 +1603,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 left_parenthesis_unicode)
+                                        (Var 3 left_parenthesis_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1633,7 +1633,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 left_parenthesis_unicode)
+                                            (Var 3 left_parenthesis_unicode)
                                             Eq
                                             (IntegerConstant 40 (Integer 4))
                                             (Logical 4)
@@ -1642,7 +1642,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "+"
                                             (Character 1 1 ())
@@ -1650,9 +1650,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 plus_unicode)
+                                        (Var 3 plus_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1680,7 +1680,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 plus_unicode)
+                                            (Var 3 plus_unicode)
                                             Eq
                                             (IntegerConstant 43 (Integer 4))
                                             (Logical 4)
@@ -1689,7 +1689,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "0"
                                             (Character 1 1 ())
@@ -1697,9 +1697,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 zero_unicode)
+                                        (Var 3 zero_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1727,7 +1727,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 zero_unicode)
+                                            (Var 3 zero_unicode)
                                             Eq
                                             (IntegerConstant 48 (Integer 4))
                                             (Logical 4)
@@ -1736,7 +1736,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "9"
                                             (Character 1 1 ())
@@ -1744,9 +1744,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 nine_unicode)
+                                        (Var 3 nine_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1774,7 +1774,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 nine_unicode)
+                                            (Var 3 nine_unicode)
                                             Eq
                                             (IntegerConstant 57 (Integer 4))
                                             (Logical 4)
@@ -1783,7 +1783,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             ";"
                                             (Character 1 1 ())
@@ -1791,9 +1791,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 semicolon_unicode)
+                                        (Var 3 semicolon_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1821,7 +1821,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 semicolon_unicode)
+                                            (Var 3 semicolon_unicode)
                                             Eq
                                             (IntegerConstant 59 (Integer 4))
                                             (Logical 4)
@@ -1830,7 +1830,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "A"
                                             (Character 1 1 ())
@@ -1838,9 +1838,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 capital_a_unicode)
+                                        (Var 3 capital_a_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1868,7 +1868,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 capital_a_unicode)
+                                            (Var 3 capital_a_unicode)
                                             Eq
                                             (IntegerConstant 65 (Integer 4))
                                             (Logical 4)
@@ -1877,7 +1877,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "Z"
                                             (Character 1 1 ())
@@ -1885,9 +1885,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 capital_z_unicode)
+                                        (Var 3 capital_z_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1915,7 +1915,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 capital_z_unicode)
+                                            (Var 3 capital_z_unicode)
                                             Eq
                                             (IntegerConstant 90 (Integer 4))
                                             (Logical 4)
@@ -1924,7 +1924,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "]"
                                             (Character 1 1 ())
@@ -1932,9 +1932,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 right_bracket_unicode)
+                                        (Var 3 right_bracket_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -1962,7 +1962,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 right_bracket_unicode)
+                                            (Var 3 right_bracket_unicode)
                                             Eq
                                             (IntegerConstant 93 (Integer 4))
                                             (Logical 4)
@@ -1971,7 +1971,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "a"
                                             (Character 1 1 ())
@@ -1979,9 +1979,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 small_a_unicode)
+                                        (Var 3 small_a_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -2009,7 +2009,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 small_a_unicode)
+                                            (Var 3 small_a_unicode)
                                             Eq
                                             (IntegerConstant 97 (Integer 4))
                                             (Logical 4)
@@ -2018,7 +2018,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "z"
                                             (Character 1 1 ())
@@ -2026,9 +2026,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 small_z_unicode)
+                                        (Var 3 small_z_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -2056,7 +2056,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 small_z_unicode)
+                                            (Var 3 small_z_unicode)
                                             Eq
                                             (IntegerConstant 122 (Integer 4))
                                             (Logical 4)
@@ -2065,7 +2065,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "}"
                                             (Character 1 1 ())
@@ -2073,9 +2073,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 right_brace_unicode)
+                                        (Var 3 right_brace_unicode)
                                         (StringOrd
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
@@ -2103,7 +2103,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 right_brace_unicode)
+                                            (Var 3 right_brace_unicode)
                                             Eq
                                             (IntegerConstant 125 (Integer 4))
                                             (Logical 4)
@@ -2118,7 +2118,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -2126,24 +2126,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

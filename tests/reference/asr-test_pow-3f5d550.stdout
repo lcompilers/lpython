@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        127
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main]
                                     []
                                     [(SubroutineCall
-                                        127 main
+                                        2 main
                                         ()
                                         []
                                         ()
@@ -47,13 +47,13 @@
                             main:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow
-                                                    3 pow
+                                                    4 pow
                                                     lpython_builtin
                                                     []
                                                     pow
@@ -61,9 +61,9 @@
                                                 ),
                                             pow@__lpython_overloaded_0__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_0__pow
-                                                    3 __lpython_overloaded_0__pow
+                                                    4 __lpython_overloaded_0__pow
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_0__pow
@@ -91,8 +91,8 @@
                                     [(Print
                                         ()
                                         [(FunctionCall
-                                            2 pow@__lpython_overloaded_0__pow
-                                            2 pow
+                                            3 pow@__lpython_overloaded_0__pow
+                                            3 pow
                                             [((IntegerConstant 2 (Integer 4)))
                                             ((IntegerConstant 2 (Integer 4)))]
                                             (Real 8)
@@ -124,7 +124,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -134,24 +134,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        125
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    125
-                                    _lpython_main_program
-                                    127 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        125 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

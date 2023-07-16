@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_augassign:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    2
+                                                    3
                                                     r
                                                     []
                                                     Local
@@ -46,7 +46,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -80,14 +80,14 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 r)
+                                        (Var 3 r)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 r)
+                                        (Var 3 r)
                                         (IntegerBinOp
-                                            (Var 2 r)
+                                            (Var 3 r)
                                             Add
                                             (IntegerConstant 4 (Integer 4))
                                             (Integer 4)
@@ -96,25 +96,25 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 r)
+                                        (Var 3 r)
                                         (IntegerBinOp
-                                            (Var 2 r)
+                                            (Var 3 r)
                                             Mul
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 r)
+                                        (Var 3 r)
                                         (IntegerBinOp
-                                            (Var 2 r)
+                                            (Var 3 r)
                                             Sub
                                             (IntegerConstant 2 (Integer 4))
                                             (Integer 4)
@@ -123,22 +123,22 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 r)
+                                        (Var 3 r)
                                         (RealBinOp
                                             (Cast
-                                                (Var 2 r)
+                                                (Var 3 r)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
-                                                (Var 2 s)
+                                                (Var 3 s)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -149,7 +149,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringConstant
                                             ""
                                             (Character 1 0 ())
@@ -157,9 +157,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (StringConcat
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             (StringConstant
                                                 "test"
                                                 (Character 1 4 ())
@@ -176,7 +176,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -184,7 +184,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

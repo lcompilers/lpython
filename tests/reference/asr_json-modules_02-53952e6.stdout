@@ -4,20 +4,20 @@
         "global_scope": {
             "node": "SymbolTable1",
             "fields": {
-                "_global_symbols": {
+                "__main__": {
                     "node": "Module",
                     "fields": {
                         "symtab": {
-                            "node": "SymbolTable9",
+                            "node": "SymbolTable2",
                             "fields": {
-                                "_lpython_main_program": {
+                                "__main____global_statements": {
                                     "node": "Function",
                                     "fields": {
                                         "symtab": {
                                             "node": "SymbolTable8",
                                             "fields": {}
                                         },
-                                        "name": "_lpython_main_program",
+                                        "name": "__main____global_statements",
                                         "function_signature": {
                                             "node": "FunctionType",
                                             "fields": {
@@ -54,7 +54,7 @@
                                             {
                                                 "node": "SubroutineCall",
                                                 "fields": {
-                                                    "name": "main0 (SymbolTable9)",
+                                                    "name": "main0 (SymbolTable2)",
                                                     "original_name": [],
                                                     "args": [],
                                                     "dt": []
@@ -91,9 +91,9 @@
                                 "f": {
                                     "node": "ExternalSymbol",
                                     "fields": {
-                                        "parent_symtab": 9,
+                                        "parent_symtab": 2,
                                         "name": "f",
-                                        "external": "f (SymbolTable2)",
+                                        "external": "f (SymbolTable3)",
                                         "module_name": "modules_02b",
                                         "scope_names": [],
                                         "original_name": "f",
@@ -114,12 +114,12 @@
                                     "node": "Function",
                                     "fields": {
                                         "symtab": {
-                                            "node": "SymbolTable6",
+                                            "node": "SymbolTable7",
                                             "fields": {
                                                 "x": {
                                                     "node": "Variable",
                                                     "fields": {
-                                                        "parent_symtab": 6,
+                                                        "parent_symtab": 7,
                                                         "name": "x",
                                                         "dependencies": [],
                                                         "intent": "Local",
@@ -201,7 +201,7 @@
                                                     "target": {
                                                         "node": "Var",
                                                         "fields": {
-                                                            "v": "x (SymbolTable6)"
+                                                            "v": "x (SymbolTable7)"
                                                         },
                                                         "loc": {
                                                             "first": 82,
@@ -460,7 +460,7 @@
                                                             "left": {
                                                                 "node": "Var",
                                                                 "fields": {
-                                                                    "v": "x (SymbolTable6)"
+                                                                    "v": "x (SymbolTable7)"
                                                                 },
                                                                 "loc": {
                                                                     "first": 105,
@@ -551,7 +551,7 @@
                                             {
                                                 "node": "SubroutineCall",
                                                 "fields": {
-                                                    "name": "f (SymbolTable9)",
+                                                    "name": "f (SymbolTable2)",
                                                     "original_name": [],
                                                     "args": [],
                                                     "dt": []
@@ -587,7 +587,7 @@
                                 }
                             }
                         },
-                        "name": "_global_symbols",
+                        "name": "__main__",
                         "dependencies": [
                             "modules_02b"
                         ],
@@ -609,17 +609,17 @@
                     "node": "Program",
                     "fields": {
                         "symtab": {
-                            "node": "SymbolTable7",
+                            "node": "SymbolTable9",
                             "fields": {
-                                "_lpython_main_program": {
+                                "__main____global_statements": {
                                     "node": "ExternalSymbol",
                                     "fields": {
-                                        "parent_symtab": 7,
-                                        "name": "_lpython_main_program",
-                                        "external": "_lpython_main_program (SymbolTable9)",
-                                        "module_name": "_global_symbols",
+                                        "parent_symtab": 9,
+                                        "name": "__main____global_statements",
+                                        "external": "__main____global_statements (SymbolTable2)",
+                                        "module_name": "__main__",
                                         "scope_names": [],
-                                        "original_name": "_lpython_main_program",
+                                        "original_name": "__main____global_statements",
                                         "access": "Public"
                                     },
                                     "loc": {
@@ -637,14 +637,14 @@
                         },
                         "name": "main_program",
                         "dependencies": [
-                            "_global_symbols"
+                            "__main__"
                         ],
                         "body": [
                             {
                                 "node": "SubroutineCall",
                                 "fields": {
-                                    "name": "_lpython_main_program (SymbolTable7)",
-                                    "original_name": [],
+                                    "name": "__main____global_statements (SymbolTable9)",
+                                    "original_name": "__main____global_statements (SymbolTable2)",
                                     "args": [],
                                     "dt": []
                                 },
@@ -676,13 +676,13 @@
                     "node": "Module",
                     "fields": {
                         "symtab": {
-                            "node": "SymbolTable2",
+                            "node": "SymbolTable3",
                             "fields": {
                                 "f": {
                                     "node": "Function",
                                     "fields": {
                                         "symtab": {
-                                            "node": "SymbolTable5",
+                                            "node": "SymbolTable6",
                                             "fields": {}
                                         },
                                         "name": "f",
@@ -722,7 +722,7 @@
                                             {
                                                 "node": "SubroutineCall",
                                                 "fields": {
-                                                    "name": "g (SymbolTable2)",
+                                                    "name": "g (SymbolTable3)",
                                                     "original_name": [],
                                                     "args": [],
                                                     "dt": []
@@ -813,9 +813,9 @@
                                 "g": {
                                     "node": "ExternalSymbol",
                                     "fields": {
-                                        "parent_symtab": 2,
+                                        "parent_symtab": 3,
                                         "name": "g",
-                                        "external": "g (SymbolTable3)",
+                                        "external": "g (SymbolTable4)",
                                         "module_name": "modules_02c",
                                         "scope_names": [],
                                         "original_name": "g",
@@ -856,13 +856,13 @@
                     "node": "Module",
                     "fields": {
                         "symtab": {
-                            "node": "SymbolTable3",
+                            "node": "SymbolTable4",
                             "fields": {
                                 "g": {
                                     "node": "Function",
                                     "fields": {
                                         "symtab": {
-                                            "node": "SymbolTable4",
+                                            "node": "SymbolTable5",
                                             "fields": {}
                                         },
                                         "name": "g",

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        10
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         9
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        10 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        8
                                         {
                                             
                                         })
@@ -72,9 +72,9 @@
                                     [(Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                10 g
+                                                2 g
                                                 ()
-                                                [((Var 10 f))
+                                                [((Var 2 f))
                                                 ((IntegerConstant 10 (Integer 4)))]
                                                 (Integer 4)
                                                 ()
@@ -90,9 +90,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                10 g
+                                                2 g
                                                 ()
-                                                [((Var 10 f2))
+                                                [((Var 2 f2))
                                                 ((IntegerConstant 20 (Integer 4)))]
                                                 (Integer 4)
                                                 ()
@@ -108,9 +108,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                10 g
+                                                2 g
                                                 ()
-                                                [((Var 10 f3))
+                                                [((Var 2 f3))
                                                 ((IntegerConstant 5 (Integer 4)))]
                                                 (Integer 4)
                                                 ()
@@ -130,80 +130,6 @@
                                     ()
                                 ),
                             f:
-                                (Function
-                                    (SymbolTable
-                                        2
-                                        {
-                                            _lpython_return_variable:
-                                                (Variable
-                                                    2
-                                                    _lpython_return_variable
-                                                    []
-                                                    ReturnVar
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            x:
-                                                (Variable
-                                                    2
-                                                    x
-                                                    []
-                                                    In
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    f
-                                    (FunctionType
-                                        [(Integer 4)]
-                                        (Integer 4)
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    [(Var 2 x)]
-                                    [(=
-                                        (Var 2 _lpython_return_variable)
-                                        (IntegerBinOp
-                                            (Var 2 x)
-                                            Add
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Return)]
-                                    (Var 2 _lpython_return_variable)
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            f2:
                                 (Function
                                     (SymbolTable
                                         3
@@ -241,7 +167,7 @@
                                                     .false.
                                                 )
                                         })
-                                    f2
+                                    f
                                     (FunctionType
                                         [(Integer 4)]
                                         (Integer 4)
@@ -264,7 +190,7 @@
                                         (IntegerBinOp
                                             (Var 3 x)
                                             Add
-                                            (IntegerConstant 10 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
                                             ()
                                         )
@@ -277,7 +203,7 @@
                                     .false.
                                     ()
                                 ),
-                            f3:
+                            f2:
                                 (Function
                                     (SymbolTable
                                         4
@@ -315,7 +241,7 @@
                                                     .false.
                                                 )
                                         })
-                                    f3
+                                    f2
                                     (FunctionType
                                         [(Integer 4)]
                                         (Integer 4)
@@ -331,29 +257,14 @@
                                         []
                                         .false.
                                     )
-                                    [f
-                                    f2]
+                                    []
                                     [(Var 4 x)]
                                     [(=
                                         (Var 4 _lpython_return_variable)
                                         (IntegerBinOp
-                                            (FunctionCall
-                                                10 f
-                                                ()
-                                                [((Var 4 x))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
+                                            (Var 4 x)
                                             Add
-                                            (FunctionCall
-                                                10 f2
-                                                ()
-                                                [((Var 4 x))]
-                                                (Integer 4)
-                                                ()
-                                                ()
-                                            )
+                                            (IntegerConstant 10 (Integer 4))
                                             (Integer 4)
                                             ()
                                         )
@@ -366,7 +277,7 @@
                                     .false.
                                     ()
                                 ),
-                            g:
+                            f3:
                                 (Function
                                     (SymbolTable
                                         5
@@ -387,9 +298,98 @@
                                                     Required
                                                     .false.
                                                 ),
-                                            arg:
+                                            x:
                                                 (Variable
                                                     5
+                                                    x
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f3
+                                    (FunctionType
+                                        [(Integer 4)]
+                                        (Integer 4)
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [f
+                                    f2]
+                                    [(Var 5 x)]
+                                    [(=
+                                        (Var 5 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (FunctionCall
+                                                2 f
+                                                ()
+                                                [((Var 5 x))]
+                                                (Integer 4)
+                                                ()
+                                                ()
+                                            )
+                                            Add
+                                            (FunctionCall
+                                                2 f2
+                                                ()
+                                                [((Var 5 x))]
+                                                (Integer 4)
+                                                ()
+                                                ()
+                                            )
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 5 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            g:
+                                (Function
+                                    (SymbolTable
+                                        6
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    6
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            arg:
+                                                (Variable
+                                                    6
                                                     arg
                                                     []
                                                     In
@@ -406,11 +406,11 @@
                                             func:
                                                 (Function
                                                     (SymbolTable
-                                                        6
+                                                        7
                                                         {
                                                             func_arg_0:
                                                                 (Variable
-                                                                    6
+                                                                    7
                                                                     func_arg_0
                                                                     []
                                                                     Unspecified
@@ -426,7 +426,7 @@
                                                                 ),
                                                             func_return_var_name:
                                                                 (Variable
-                                                                    6
+                                                                    7
                                                                     func_return_var_name
                                                                     []
                                                                     ReturnVar
@@ -458,9 +458,9 @@
                                                         .false.
                                                     )
                                                     []
-                                                    [(Var 6 func_arg_0)]
+                                                    [(Var 7 func_arg_0)]
                                                     []
-                                                    (Var 6 func_return_var_name)
+                                                    (Var 7 func_return_var_name)
                                                     Public
                                                     .false.
                                                     .false.
@@ -468,7 +468,7 @@
                                                 ),
                                             ret:
                                                 (Variable
-                                                    5
+                                                    6
                                                     ret
                                                     []
                                                     Local
@@ -515,14 +515,14 @@
                                         .false.
                                     )
                                     [func]
-                                    [(Var 5 func)
-                                    (Var 5 arg)]
+                                    [(Var 6 func)
+                                    (Var 6 arg)]
                                     [(=
-                                        (Var 5 ret)
+                                        (Var 6 ret)
                                         (FunctionCall
-                                            5 func
+                                            6 func
                                             ()
-                                            [((Var 5 arg))]
+                                            [((Var 6 arg))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -530,19 +530,19 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 _lpython_return_variable)
-                                        (Var 5 ret)
+                                        (Var 6 _lpython_return_variable)
+                                        (Var 6 ret)
                                         ()
                                     )
                                     (Return)]
-                                    (Var 5 _lpython_return_variable)
+                                    (Var 6 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -550,24 +550,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        8
+                        10
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    8
-                                    _lpython_main_program
-                                    10 _lpython_main_program
-                                    _global_symbols
+                                    10
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        8 _lpython_main_program
-                        ()
+                        10 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

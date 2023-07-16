@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        129
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         128
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        129 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -47,13 +47,13 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             _lpython_floordiv:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _lpython_floordiv
-                                                    5 _lpython_floordiv
+                                                    6 _lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     _lpython_floordiv
@@ -61,9 +61,9 @@
                                                 ),
                                             _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
-                                                    5 __lpython_overloaded_5___lpython_floordiv
+                                                    6 __lpython_overloaded_5___lpython_floordiv
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_5___lpython_floordiv
@@ -71,9 +71,9 @@
                                                 ),
                                             _mod:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _mod
-                                                    5 _mod
+                                                    6 _mod
                                                     lpython_builtin
                                                     []
                                                     _mod
@@ -81,9 +81,9 @@
                                                 ),
                                             _mod@__lpython_overloaded_2___mod:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _mod@__lpython_overloaded_2___mod
-                                                    5 __lpython_overloaded_2___mod
+                                                    6 __lpython_overloaded_2___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_2___mod
@@ -91,9 +91,9 @@
                                                 ),
                                             _mod@__lpython_overloaded_4___mod:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _mod@__lpython_overloaded_4___mod
-                                                    5 __lpython_overloaded_4___mod
+                                                    6 __lpython_overloaded_4___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_4___mod
@@ -101,9 +101,9 @@
                                                 ),
                                             _mod@__lpython_overloaded_9___mod:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     _mod@__lpython_overloaded_9___mod
-                                                    5 __lpython_overloaded_9___mod
+                                                    6 __lpython_overloaded_9___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_9___mod
@@ -111,7 +111,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -127,7 +127,7 @@
                                                 ),
                                             a1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a1
                                                     []
                                                     Local
@@ -145,7 +145,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -161,7 +161,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b1
                                                     []
                                                     Local
@@ -179,7 +179,7 @@
                                                 ),
                                             c1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c1
                                                     []
                                                     Local
@@ -197,7 +197,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    4
+                                                    5
                                                     eps
                                                     []
                                                     Local
@@ -213,7 +213,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i
                                                     []
                                                     Local
@@ -229,7 +229,7 @@
                                                 ),
                                             i1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i1
                                                     []
                                                     Local
@@ -245,7 +245,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i2
                                                     []
                                                     Local
@@ -261,7 +261,7 @@
                                                 ),
                                             i3:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i3
                                                     []
                                                     Local
@@ -277,7 +277,7 @@
                                                 ),
                                             i4:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i4
                                                     []
                                                     Local
@@ -316,12 +316,12 @@
                                     _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv]
                                     []
                                     [(=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
                                             (Integer 4)
@@ -330,7 +330,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 eps)
+                                        (Var 5 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -340,10 +340,10 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                129 test_multiply
+                                                2 test_multiply
                                                 ()
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                                [((Var 5 a))
+                                                ((Var 5 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -360,7 +360,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 i)
+                                        (Var 5 i)
                                         (Cast
                                             (IntegerConstant 1 (Integer 4))
                                             IntegerToInteger
@@ -370,9 +370,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 i)
+                                        (Var 5 i)
                                         (IntegerBinOp
-                                            (Var 4 i)
+                                            (Var 5 i)
                                             Add
                                             (Cast
                                                 (IntegerConstant 1 (Integer 4))
@@ -387,7 +387,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 i)
+                                            (Var 5 i)
                                             Eq
                                             (Cast
                                                 (IntegerConstant 2 (Integer 4))
@@ -401,22 +401,22 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                129 test_mod
+                                                2 test_mod
                                                 ()
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                                [((Var 5 a))
+                                                ((Var 5 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -431,7 +431,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                129 test_mod
+                                                2 test_mod
                                                 ()
                                                 [((IntegerConstant 23 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))]
@@ -447,22 +447,22 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerConstant 123282374 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 32771 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                129 test_mod
+                                                2 test_mod
                                                 ()
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                                [((Var 5 a))
+                                                ((Var 5 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -475,7 +475,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5345 (Integer 4))
                                             (Integer 4)
@@ -484,7 +484,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 534 (Integer 4))
                                             (Integer 4)
@@ -495,10 +495,10 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                4 _mod@__lpython_overloaded_2___mod
-                                                4 _mod
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                                5 _mod@__lpython_overloaded_2___mod
+                                                5 _mod
+                                                [((Var 5 a))
+                                                ((Var 5 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -515,7 +515,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 123282374 (Integer 4))
                                             (Integer 4)
@@ -524,17 +524,17 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 32771 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                129 test_mod
+                                                2 test_mod
                                                 ()
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                                [((Var 5 a))
+                                                ((Var 5 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -731,21 +731,21 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 i1)
+                                        (Var 5 i1)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 i2)
+                                        (Var 5 i2)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i1)
+                                                (Var 5 i1)
                                                 BitLShift
-                                                (Var 4 i2)
+                                                (Var 5 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -759,9 +759,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i1)
+                                                (Var 5 i1)
                                                 BitRShift
-                                                (Var 4 i2)
+                                                (Var 5 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -775,9 +775,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i1)
+                                                (Var 5 i1)
                                                 BitAnd
-                                                (Var 4 i2)
+                                                (Var 5 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -791,9 +791,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i1)
+                                                (Var 5 i1)
                                                 BitOr
-                                                (Var 4 i2)
+                                                (Var 5 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -807,9 +807,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i1)
+                                                (Var 5 i1)
                                                 BitXor
-                                                (Var 4 i2)
+                                                (Var 5 i2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -824,13 +824,13 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (Var 4 i1)
+                                                    (Var 5 i1)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 BitXor
                                                 (IntegerUnaryMinus
-                                                    (Var 4 i2)
+                                                    (Var 5 i2)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -845,12 +845,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 i3)
+                                        (Var 5 i3)
                                         (IntegerConstant 432534534 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 i4)
+                                        (Var 5 i4)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4325 (Integer 4))
                                             (Integer 4)
@@ -861,9 +861,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i3)
+                                                (Var 5 i3)
                                                 BitOr
-                                                (Var 4 i4)
+                                                (Var 5 i4)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -881,7 +881,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (IntegerBinOp
-                                                (Var 4 i4)
+                                                (Var 5 i4)
                                                 BitRShift
                                                 (IntegerConstant 3 (Integer 4))
                                                 (Integer 4)
@@ -902,12 +902,12 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (Var 4 i3)
+                                                    (Var 5 i3)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 BitAnd
-                                                (Var 4 i4)
+                                                (Var 5 i4)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -926,12 +926,12 @@
                                         (IntegerCompare
                                             (IntegerBinOp
                                                 (IntegerUnaryMinus
-                                                    (Var 4 i3)
+                                                    (Var 5 i3)
                                                     (Integer 4)
                                                     ()
                                                 )
                                                 BitXor
-                                                (Var 4 i4)
+                                                (Var 5 i4)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -943,14 +943,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerBinOp
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             BitOr
                                             (IntegerConstant 4 (Integer 4))
                                             (Integer 4)
@@ -960,7 +960,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 14 (Integer 4))
                                             (Logical 4)
@@ -969,9 +969,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerBinOp
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             BitXor
                                             (IntegerConstant 3 (Integer 4))
                                             (Integer 4)
@@ -981,7 +981,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 13 (Integer 4))
                                             (Logical 4)
@@ -990,17 +990,17 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 10 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (FunctionCall
-                                            4 _mod@__lpython_overloaded_2___mod
-                                            4 _mod
-                                            [((Var 4 a))
-                                            ((Var 4 b))]
+                                            5 _mod@__lpython_overloaded_2___mod
+                                            5 _mod
+                                            [((Var 5 a))
+                                            ((Var 5 b))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -1009,7 +1009,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 3 (Integer 4))
                                             (Logical 4)
@@ -1018,16 +1018,16 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerBinOp
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             BitLShift
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             (Integer 4)
                                             ()
                                         )
@@ -1035,7 +1035,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 48 (Integer 4))
                                             (Logical 4)
@@ -1044,9 +1044,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerBinOp
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             BitRShift
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -1056,7 +1056,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 24 (Integer 4))
                                             (Logical 4)
@@ -1065,11 +1065,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerBinOp
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             BitAnd
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             (Integer 4)
                                             ()
                                         )
@@ -1077,7 +1077,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -1086,9 +1086,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerBinOp
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             Pow
                                             (IntegerConstant 4 (Integer 4))
                                             (Integer 4)
@@ -1098,7 +1098,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             Eq
                                             (IntegerConstant 256 (Integer 4))
                                             (Logical 4)
@@ -1109,8 +1109,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                4 _mod@__lpython_overloaded_2___mod
-                                                4 _mod
+                                                5 _mod@__lpython_overloaded_2___mod
+                                                5 _mod
                                                 [((IntegerUnaryMinus
                                                     (IntegerConstant 8 (Integer 4))
                                                     (Integer 4)
@@ -1134,8 +1134,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                4 _mod@__lpython_overloaded_2___mod
-                                                4 _mod
+                                                5 _mod@__lpython_overloaded_2___mod
+                                                5 _mod
                                                 [((IntegerConstant 8 (Integer 4)))
                                                 ((IntegerUnaryMinus
                                                     (IntegerConstant 3 (Integer 4))
@@ -1163,8 +1163,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                4 _mod@__lpython_overloaded_2___mod
-                                                4 _mod
+                                                5 _mod@__lpython_overloaded_2___mod
+                                                5 _mod
                                                 [((IntegerUnaryMinus
                                                     (IntegerConstant 8 (Integer 4))
                                                     (Integer 4)
@@ -1199,8 +1199,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        4 _mod@__lpython_overloaded_9___mod
-                                                        4 _mod
+                                                        5 _mod@__lpython_overloaded_9___mod
+                                                        5 _mod
                                                         [((RealConstant
                                                             11.000000
                                                             (Real 8)
@@ -1249,7 +1249,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 4 eps)
+                                            (Var 5 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1261,8 +1261,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        4 _mod@__lpython_overloaded_9___mod
-                                                        4 _mod
+                                                        5 _mod@__lpython_overloaded_9___mod
+                                                        5 _mod
                                                         [((RealUnaryMinus
                                                             (RealConstant
                                                                 11.000000
@@ -1304,14 +1304,14 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 4 eps)
+                                            (Var 5 eps)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 4 a1)
+                                        (Var 5 a1)
                                         (Cast
                                             (IntegerConstant 10 (Integer 4))
                                             IntegerToUnsignedInteger
@@ -1328,7 +1328,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b1)
+                                        (Var 5 b1)
                                         (Cast
                                             (IntegerConstant 3 (Integer 4))
                                             IntegerToUnsignedInteger
@@ -1345,12 +1345,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 c1)
+                                        (Var 5 c1)
                                         (FunctionCall
-                                            4 _mod@__lpython_overloaded_4___mod
-                                            4 _mod
-                                            [((Var 4 a1))
-                                            ((Var 4 b1))]
+                                            5 _mod@__lpython_overloaded_4___mod
+                                            5 _mod
+                                            [((Var 5 a1))
+                                            ((Var 5 b1))]
                                             (UnsignedInteger
                                                 2
                                             )
@@ -1361,7 +1361,7 @@
                                     )
                                     (Assert
                                         (UnsignedIntegerCompare
-                                            (Var 4 c1)
+                                            (Var 5 c1)
                                             Eq
                                             (Cast
                                                 (IntegerConstant 1 (Integer 4))
@@ -1382,12 +1382,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 c1)
+                                        (Var 5 c1)
                                         (FunctionCall
-                                            4 _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
-                                            4 _lpython_floordiv
-                                            [((Var 4 a1))
-                                            ((Var 4 b1))]
+                                            5 _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
+                                            5 _lpython_floordiv
+                                            [((Var 5 a1))
+                                            ((Var 5 b1))]
                                             (UnsignedInteger
                                                 2
                                             )
@@ -1398,7 +1398,7 @@
                                     )
                                     (Assert
                                         (UnsignedIntegerCompare
-                                            (Var 4 c1)
+                                            (Var 5 c1)
                                             Eq
                                             (Cast
                                                 (IntegerConstant 3 (Integer 4))
@@ -1427,11 +1427,11 @@
                             test_mod:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -1447,9 +1447,9 @@
                                                 ),
                                             _mod:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     _mod
-                                                    5 _mod
+                                                    6 _mod
                                                     lpython_builtin
                                                     []
                                                     _mod
@@ -1457,9 +1457,9 @@
                                                 ),
                                             _mod@__lpython_overloaded_2___mod:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     _mod@__lpython_overloaded_2___mod
-                                                    5 __lpython_overloaded_2___mod
+                                                    6 __lpython_overloaded_2___mod
                                                     lpython_builtin
                                                     []
                                                     __lpython_overloaded_2___mod
@@ -1467,7 +1467,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    3
+                                                    4
                                                     a
                                                     []
                                                     In
@@ -1483,7 +1483,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    3
+                                                    4
                                                     b
                                                     []
                                                     In
@@ -1516,15 +1516,15 @@
                                         .false.
                                     )
                                     [_mod@__lpython_overloaded_2___mod]
-                                    [(Var 3 a)
-                                    (Var 3 b)]
+                                    [(Var 4 a)
+                                    (Var 4 b)]
                                     [(=
-                                        (Var 3 _lpython_return_variable)
+                                        (Var 4 _lpython_return_variable)
                                         (FunctionCall
-                                            3 _mod@__lpython_overloaded_2___mod
-                                            3 _mod
-                                            [((Var 3 a))
-                                            ((Var 3 b))]
+                                            4 _mod@__lpython_overloaded_2___mod
+                                            4 _mod
+                                            [((Var 4 a))
+                                            ((Var 4 b))]
                                             (Integer 4)
                                             ()
                                             ()
@@ -1532,7 +1532,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 3 _lpython_return_variable)
+                                    (Var 4 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -1541,11 +1541,11 @@
                             test_multiply:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -1561,7 +1561,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     In
@@ -1577,7 +1577,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     In
@@ -1610,28 +1610,28 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 a)
-                                    (Var 2 b)]
+                                    [(Var 3 a)
+                                    (Var 3 b)]
                                     [(=
-                                        (Var 2 _lpython_return_variable)
+                                        (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             Mul
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Integer 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (Return)]
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -1641,24 +1641,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        127
+                        129
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    127
-                                    _lpython_main_program
-                                    129 _lpython_main_program
-                                    _global_symbols
+                                    129
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        127 _lpython_main_program
-                        ()
+                        129 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

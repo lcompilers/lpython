@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        202
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         201
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,8 +33,8 @@
                                     [f]
                                     []
                                     [(CPtrToPointer
-                                        (Var 202 queries)
-                                        (Var 202 x)
+                                        (Var 2 queries)
+                                        (Var 2 x)
                                         (ArrayConstant
                                             [(IntegerConstant 1 (Integer 4))]
                                             (Array
@@ -58,13 +58,13 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 202 queries)
-                                        (Var 202 x)]
+                                        [(Var 2 queries)
+                                        (Var 2 x)]
                                         ()
                                         ()
                                     )
                                     (SubroutineCall
-                                        202 f
+                                        2 f
                                         ()
                                         []
                                         ()
@@ -78,11 +78,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        199
+                                        200
                                         {
                                             y:
                                                 (Variable
-                                                    199
+                                                    200
                                                     y
                                                     []
                                                     Local
@@ -103,7 +103,7 @@
                                                 ),
                                             yptr1:
                                                 (Variable
-                                                    199
+                                                    200
                                                     yptr1
                                                     []
                                                     Local
@@ -126,7 +126,7 @@
                                                 ),
                                             yq:
                                                 (Variable
-                                                    199
+                                                    200
                                                     yq
                                                     []
                                                     Local
@@ -160,7 +160,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 199 yq)
+                                        (Var 200 yq)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
@@ -168,7 +168,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 199 y)
+                                            (Var 200 y)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -186,7 +186,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 199 y)
+                                            (Var 200 y)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -203,9 +203,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 199 yptr1)
+                                        (Var 200 yptr1)
                                         (GetPointer
-                                            (Var 199 y)
+                                            (Var 200 y)
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
@@ -221,7 +221,7 @@
                                     (Print
                                         ()
                                         [(GetPointer
-                                            (Var 199 y)
+                                            (Var 200 y)
                                             (Pointer
                                                 (Array
                                                     (Integer 2)
@@ -232,14 +232,14 @@
                                             )
                                             ()
                                         )
-                                        (Var 199 yptr1)]
+                                        (Var 200 yptr1)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
                                         [(ArrayItem
-                                            (Var 199 yptr1)
+                                            (Var 200 yptr1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -248,7 +248,7 @@
                                             ()
                                         )
                                         (ArrayItem
-                                            (Var 199 yptr1)
+                                            (Var 200 yptr1)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -262,7 +262,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 199 yptr1)
+                                                (Var 200 yptr1)
                                                 [(()
                                                 (IntegerConstant 0 (Integer 4))
                                                 ())]
@@ -285,7 +285,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ArrayItem
-                                                (Var 199 yptr1)
+                                                (Var 200 yptr1)
                                                 [(()
                                                 (IntegerConstant 1 (Integer 4))
                                                 ())]
@@ -306,8 +306,8 @@
                                         ()
                                     )
                                     (CPtrToPointer
-                                        (Var 199 yq)
-                                        (Var 199 yptr1)
+                                        (Var 200 yq)
+                                        (Var 200 yptr1)
                                         (ArrayConstant
                                             [(IntegerConstant 2 (Integer 4))]
                                             (Array
@@ -331,8 +331,8 @@
                                     )
                                     (Print
                                         ()
-                                        [(Var 199 yq)
-                                        (Var 199 yptr1)]
+                                        [(Var 200 yq)
+                                        (Var 200 yptr1)]
                                         ()
                                         ()
                                     )]
@@ -344,7 +344,7 @@
                                 ),
                             queries:
                                 (Variable
-                                    202
+                                    2
                                     queries
                                     []
                                     Local
@@ -364,7 +364,7 @@
                                 ),
                             x:
                                 (Variable
-                                    202
+                                    2
                                     x
                                     []
                                     Local
@@ -386,8 +386,8 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -396,24 +396,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        200
+                        202
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    200
-                                    _lpython_main_program
-                                    202 _lpython_main_program
-                                    _global_symbols
+                                    202
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        200 _lpython_main_program
-                        ()
+                        202 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -36,25 +36,25 @@
                                     test_issue_883]
                                     []
                                     [(SubroutineCall
-                                        9 test_str_int_float
+                                        2 test_str_int_float
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 str_conv_for_variables
+                                        2 str_conv_for_variables
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_str_slice_step
+                                        2 test_str_slice_step
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_issue_883
+                                        2 test_issue_883
                                         ()
                                         []
                                         ()
@@ -68,11 +68,11 @@
                             str_conv_for_variables:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             bool_t:
                                                 (Variable
-                                                    3
+                                                    4
                                                     bool_t
                                                     []
                                                     Local
@@ -88,7 +88,7 @@
                                                 ),
                                             str_t:
                                                 (Variable
-                                                    3
+                                                    4
                                                     str_t
                                                     []
                                                     Local
@@ -104,7 +104,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -120,7 +120,7 @@
                                                 ),
                                             xx:
                                                 (Variable
-                                                    3
+                                                    4
                                                     xx
                                                     []
                                                     Local
@@ -136,7 +136,7 @@
                                                 ),
                                             yy:
                                                 (Variable
-                                                    3
+                                                    4
                                                     yy
                                                     []
                                                     Local
@@ -170,7 +170,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerConstant 123 (Integer 4))
                                         ()
                                     )
@@ -182,7 +182,7 @@
                                             )
                                             Eq
                                             (Cast
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 IntegerToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -193,7 +193,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerConstant 12345 (Integer 4))
                                         ()
                                     )
@@ -205,7 +205,7 @@
                                             )
                                             Eq
                                             (Cast
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 IntegerToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -216,7 +216,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 12 (Integer 4))
                                             (Integer 4)
@@ -232,7 +232,7 @@
                                             )
                                             Eq
                                             (Cast
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 IntegerToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -243,7 +243,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 121212 (Integer 4))
                                             (Integer 4)
@@ -259,7 +259,7 @@
                                             )
                                             Eq
                                             (Cast
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 IntegerToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -270,7 +270,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 xx)
+                                        (Var 4 xx)
                                         (Cast
                                             (RealConstant
                                                 12.322234
@@ -288,7 +288,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 3 xx)
+                                                (Var 4 xx)
                                                 RealToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -304,7 +304,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 yy)
+                                        (Var 4 yy)
                                         (RealConstant
                                             12.322234
                                             (Real 8)
@@ -314,7 +314,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 3 yy)
+                                                (Var 4 yy)
                                                 RealToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -330,7 +330,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 bool_t)
+                                        (Var 4 bool_t)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -340,7 +340,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 3 bool_t)
+                                                (Var 4 bool_t)
                                                 LogicalToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -356,7 +356,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 bool_t)
+                                        (Var 4 bool_t)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -366,7 +366,7 @@
                                     (Assert
                                         (StringCompare
                                             (Cast
-                                                (Var 3 bool_t)
+                                                (Var 4 bool_t)
                                                 LogicalToCharacter
                                                 (Character 1 -2 ())
                                                 ()
@@ -382,7 +382,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 str_t)
+                                        (Var 4 str_t)
                                         (StringConstant
                                             "just a str"
                                             (Character 1 10 ())
@@ -391,9 +391,9 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 3 str_t)
+                                            (Var 4 str_t)
                                             Eq
-                                            (Var 3 str_t)
+                                            (Var 4 str_t)
                                             (Logical 4)
                                             ()
                                         )
@@ -408,11 +408,11 @@
                             test_issue_883:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             __explicit_iterator:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __explicit_iterator
                                                     []
                                                     Local
@@ -428,7 +428,7 @@
                                                 ),
                                             __tmp_assign_for_loop:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __tmp_assign_for_loop
                                                     []
                                                     Local
@@ -444,7 +444,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    5
+                                                    6
                                                     c
                                                     []
                                                     Local
@@ -460,7 +460,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    5
+                                                    6
                                                     d
                                                     []
                                                     Local
@@ -476,7 +476,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    5
+                                                    6
                                                     i
                                                     []
                                                     Local
@@ -492,7 +492,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    5
+                                                    6
                                                     s
                                                     []
                                                     Local
@@ -526,7 +526,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 5 s)
+                                        (Var 6 s)
                                         (StringConstant
                                             "abcde"
                                             (Character 1 5 ())
@@ -534,7 +534,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 d)
+                                        (Var 6 d)
                                         (StringConstant
                                             "edcba"
                                             (Character 1 5 ())
@@ -542,14 +542,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 i)
+                                        (Var 6 i)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 5 __tmp_assign_for_loop)
+                                        (Var 6 __tmp_assign_for_loop)
                                         (StringSection
-                                            (Var 5 s)
+                                            (Var 6 s)
                                             ()
                                             ()
                                             (IntegerUnaryMinus
@@ -564,11 +564,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 5 __explicit_iterator)
+                                        ((Var 6 __explicit_iterator)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (StringLen
-                                                (Var 5 __tmp_assign_for_loop)
+                                                (Var 6 __tmp_assign_for_loop)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -579,11 +579,11 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
-                                            (Var 5 c)
+                                            (Var 6 c)
                                             (StringItem
-                                                (Var 5 __tmp_assign_for_loop)
+                                                (Var 6 __tmp_assign_for_loop)
                                                 (IntegerBinOp
-                                                    (Var 5 __explicit_iterator)
+                                                    (Var 6 __explicit_iterator)
                                                     Add
                                                     (IntegerConstant 1 (Integer 4))
                                                     (Integer 4)
@@ -596,18 +596,18 @@
                                         )
                                         (Print
                                             ()
-                                            [(Var 5 c)]
+                                            [(Var 6 c)]
                                             ()
                                             ()
                                         )
                                         (Assert
                                             (StringCompare
-                                                (Var 5 c)
+                                                (Var 6 c)
                                                 Eq
                                                 (StringItem
-                                                    (Var 5 d)
+                                                    (Var 6 d)
                                                     (IntegerBinOp
-                                                        (Var 5 i)
+                                                        (Var 6 i)
                                                         Add
                                                         (IntegerConstant 1 (Integer 4))
                                                         (Integer 4)
@@ -622,9 +622,9 @@
                                             ()
                                         )
                                         (=
-                                            (Var 5 i)
+                                            (Var 6 i)
                                             (IntegerBinOp
-                                                (Var 5 i)
+                                                (Var 6 i)
                                                 Add
                                                 (IntegerConstant 1 (Integer 4))
                                                 (Integer 4)
@@ -642,11 +642,11 @@
                             test_str_int_float:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -680,7 +680,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (Cast
                                             (IntegerConstant 356 (Integer 4))
                                             IntegerToCharacter
@@ -694,7 +694,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             Eq
                                             (StringConstant
                                                 "356"
@@ -706,7 +706,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (Cast
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 567 (Integer 4))
@@ -724,7 +724,7 @@
                                     )
                                     (Assert
                                         (StringCompare
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             Eq
                                             (StringConstant
                                                 "-567"
@@ -938,11 +938,11 @@
                             test_str_slice_step:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             end:
                                                 (Variable
-                                                    4
+                                                    5
                                                     end
                                                     []
                                                     Local
@@ -958,7 +958,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    4
+                                                    5
                                                     s
                                                     []
                                                     Local
@@ -974,7 +974,7 @@
                                                 ),
                                             start:
                                                 (Variable
-                                                    4
+                                                    5
                                                     start
                                                     []
                                                     Local
@@ -990,7 +990,7 @@
                                                 ),
                                             step:
                                                 (Variable
-                                                    4
+                                                    5
                                                     step
                                                     []
                                                     Local
@@ -1024,7 +1024,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 s)
+                                        (Var 5 s)
                                         (StringConstant
                                             "abcdefghijk"
                                             (Character 1 11 ())
@@ -1032,24 +1032,24 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 start)
+                                        (Var 5 start)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 end)
+                                        (Var 5 end)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 step)
+                                        (Var 5 step)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 ()
                                                 ()
                                                 ()
@@ -1069,7 +1069,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 1 (Integer 4))
                                                 (IntegerConstant 4 (Integer 4))
                                                 ()
@@ -1089,7 +1089,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 ()
                                                 (IntegerConstant 4 (Integer 4))
                                                 (IntegerConstant 5 (Integer 4))
@@ -1109,7 +1109,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 ()
                                                 ()
                                                 (IntegerUnaryMinus
@@ -1133,7 +1133,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 3 (Integer 4))
                                                 (IntegerConstant 12 (Integer 4))
                                                 (IntegerConstant 3 (Integer 4))
@@ -1153,7 +1153,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 1 (Integer 4))
                                                 ()
                                                 (IntegerConstant 3 (Integer 4))
@@ -1173,7 +1173,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 4 (Integer 4))
                                                 ()
                                                 ()
@@ -1193,7 +1193,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 ()
                                                 (IntegerConstant 5 (Integer 4))
                                                 ()
@@ -1213,7 +1213,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 3 (Integer 4))
                                                 (IntegerConstant 9 (Integer 4))
                                                 (IntegerConstant 3 (Integer 4))
@@ -1233,7 +1233,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerConstant 10 (Integer 4))
                                                 (IntegerConstant 3 (Integer 4))
                                                 (IntegerUnaryMinus
@@ -1257,7 +1257,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerUnaryMinus
                                                     (IntegerConstant 2 (Integer 4))
                                                     (Integer 4)
@@ -1285,7 +1285,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerUnaryMinus
                                                     (IntegerConstant 3 (Integer 4))
                                                     (Integer 4)
@@ -1317,7 +1317,7 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
+                                                (Var 5 s)
                                                 (IntegerUnaryMinus
                                                     (IntegerConstant 3 (Integer 4))
                                                     (Integer 4)
@@ -1349,10 +1349,10 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
-                                                (Var 4 start)
-                                                (Var 4 end)
-                                                (Var 4 step)
+                                                (Var 5 s)
+                                                (Var 5 start)
+                                                (Var 5 end)
+                                                (Var 5 step)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -1369,13 +1369,13 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
-                                                (Var 4 start)
+                                                (Var 5 s)
+                                                (Var 5 start)
                                                 (IntegerBinOp
                                                     (IntegerBinOp
                                                         (IntegerConstant 2 (Integer 4))
                                                         Mul
-                                                        (Var 4 end)
+                                                        (Var 5 end)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1384,7 +1384,7 @@
                                                     (Integer 4)
                                                     ()
                                                 )
-                                                (Var 4 step)
+                                                (Var 5 step)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -1401,13 +1401,13 @@
                                     (Assert
                                         (StringCompare
                                             (StringSection
-                                                (Var 4 s)
-                                                (Var 4 start)
+                                                (Var 5 s)
+                                                (Var 5 start)
                                                 (IntegerBinOp
                                                     (IntegerBinOp
                                                         (IntegerConstant 2 (Integer 4))
                                                         Mul
-                                                        (Var 4 end)
+                                                        (Var 5 end)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1417,7 +1417,7 @@
                                                     ()
                                                 )
                                                 (IntegerUnaryMinus
-                                                    (Var 4 step)
+                                                    (Var 5 step)
                                                     (Integer 4)
                                                     ()
                                                 )
@@ -1441,7 +1441,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -1449,24 +1449,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

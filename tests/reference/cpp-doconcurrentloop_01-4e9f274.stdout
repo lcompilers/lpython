@@ -33,7 +33,7 @@ struct f32_10000_1
 };
 
 // Forward declarations
-void _lpython_main_program();
+void __main____global_statements();
 void main0();
 
 template <typename T0, typename T1, typename T2>
@@ -84,7 +84,7 @@ void main0()
     std::cout << "End Stream Triad" << std::endl;
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     main0();
 }
@@ -92,7 +92,7 @@ void _lpython_main_program()
 namespace {
 
 void main2() {
-    _lpython_main_program();
+    __main____global_statements();
 }
 
 }

@@ -2,24 +2,24 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
                             A:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             B:
                                                 (UnionType
                                                     (SymbolTable
-                                                        3
+                                                        4
                                                         {
                                                             x:
                                                                 (Variable
-                                                                    3
+                                                                    4
                                                                     x
                                                                     []
                                                                     Local
@@ -35,7 +35,7 @@
                                                                 ),
                                                             y:
                                                                 (Variable
-                                                                    3
+                                                                    4
                                                                     y
                                                                     []
                                                                     Local
@@ -62,7 +62,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -70,7 +70,7 @@
                                                     ()
                                                     Default
                                                     (Union
-                                                        2 B
+                                                        3 B
                                                     )
                                                     ()
                                                     Source
@@ -80,7 +80,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -108,14 +108,14 @@
                                     ()
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -134,7 +134,7 @@
                                     [test_ordering]
                                     []
                                     [(SubroutineCall
-                                        9 test_ordering
+                                        2 test_ordering
                                         ()
                                         []
                                         ()
@@ -148,13 +148,13 @@
                             test_ordering:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             A_B:
                                                 (ExternalSymbol
-                                                    4
+                                                    5
                                                     A_B
-                                                    2 B
+                                                    3 B
                                                     A
                                                     []
                                                     B
@@ -162,7 +162,7 @@
                                                 ),
                                             ad:
                                                 (Variable
-                                                    4
+                                                    5
                                                     ad
                                                     []
                                                     Local
@@ -170,7 +170,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        9 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -180,7 +180,7 @@
                                                 ),
                                             bd:
                                                 (Variable
-                                                    4
+                                                    5
                                                     bd
                                                     []
                                                     Local
@@ -188,7 +188,7 @@
                                                     ()
                                                     Default
                                                     (Union
-                                                        4 A_B
+                                                        5 A_B
                                                     )
                                                     ()
                                                     Source
@@ -216,12 +216,12 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 bd)
+                                        (Var 5 bd)
                                         (UnionTypeConstructor
-                                            4 A_B
+                                            5 A_B
                                             []
                                             (Union
-                                                4 A_B
+                                                5 A_B
                                             )
                                             ()
                                         )
@@ -229,8 +229,8 @@
                                     )
                                     (=
                                         (UnionInstanceMember
-                                            (Var 4 bd)
-                                            3 x
+                                            (Var 5 bd)
+                                            4 x
                                             (Integer 4)
                                             ()
                                         )
@@ -238,13 +238,13 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 ad)
+                                        (Var 5 ad)
                                         (StructTypeConstructor
-                                            9 A
-                                            [((Var 4 bd))
+                                            2 A
+                                            [((Var 5 bd))
                                             ((IntegerConstant 2 (Integer 4)))]
                                             (Struct
-                                                9 A
+                                                2 A
                                             )
                                             ()
                                         )
@@ -254,14 +254,14 @@
                                         (IntegerCompare
                                             (UnionInstanceMember
                                                 (StructInstanceMember
-                                                    (Var 4 ad)
-                                                    2 b
+                                                    (Var 5 ad)
+                                                    3 b
                                                     (Union
-                                                        2 B
+                                                        3 B
                                                     )
                                                     ()
                                                 )
-                                                3 x
+                                                4 x
                                                 (Integer 4)
                                                 ()
                                             )
@@ -275,8 +275,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 4 ad)
-                                                2 c
+                                                (Var 5 ad)
+                                                3 c
                                                 (Integer 4)
                                                 ()
                                             )
@@ -294,7 +294,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -302,24 +302,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

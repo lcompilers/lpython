@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        205
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         204
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [loop_vec]
                                     []
                                     [(SubroutineCall
-                                        205 loop_vec
+                                        2 loop_vec
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             loop_vec:
                                 (Function
                                     (SymbolTable
-                                        199
+                                        200
                                         {
                                             a:
                                                 (Variable
-                                                    199
+                                                    200
                                                     a
                                                     []
                                                     Local
@@ -72,7 +72,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    199
+                                                    200
                                                     b
                                                     []
                                                     Local
@@ -93,7 +93,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    199
+                                                    200
                                                     i
                                                     []
                                                     Local
@@ -359,7 +359,7 @@
                                     []
                                     [(DoLoop
                                         ()
-                                        ((Var 199 i)
+                                        ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4))
@@ -371,9 +371,9 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 199 b)
+                                                (Var 200 b)
                                                 [(()
-                                                (Var 199 i)
+                                                (Var 200 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -388,17 +388,17 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 199 i)
+                                        ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerConstant 1151 (Integer 4))
                                         (IntegerConstant 1 (Integer 4)))
                                         [(SubroutineCall
-                                            199 vector_copy_f64f64i32@IntrinsicOptimization
+                                            200 vector_copy_f64f64i32@IntrinsicOptimization
                                             ()
-                                            [((Var 199 a))
-                                            ((Var 199 b))
+                                            [((Var 200 a))
+                                            ((Var 200 b))
                                             ((IntegerBinOp
-                                                (Var 199 i)
+                                                (Var 200 i)
                                                 Mul
                                                 (IntegerConstant 8 (Integer 4))
                                                 (Integer 4)
@@ -406,7 +406,7 @@
                                             ))
                                             ((IntegerBinOp
                                                 (IntegerBinOp
-                                                    (Var 199 i)
+                                                    (Var 200 i)
                                                     Add
                                                     (IntegerConstant 1 (Integer 4))
                                                     (Integer 4)
@@ -424,7 +424,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 199 i)
+                                        ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4))
@@ -437,9 +437,9 @@
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem
-                                                    (Var 199 a)
+                                                    (Var 200 a)
                                                     [(()
-                                                    (Var 199 i)
+                                                    (Var 200 i)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -463,8 +463,8 @@
                                     ()
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -473,24 +473,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        203
+                        205
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    203
-                                    _lpython_main_program
-                                    205 _lpython_main_program
-                                    _global_symbols
+                                    205
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        203 _lpython_main_program
-                        ()
+                        205 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

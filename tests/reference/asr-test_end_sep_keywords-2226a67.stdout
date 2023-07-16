@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        5
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [testEndSepKeywords]
                                     []
                                     [(SubroutineCall
-                                        5 testEndSepKeywords
+                                        2 testEndSepKeywords
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             testEndSepKeywords:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             
                                         })
@@ -156,7 +156,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -164,24 +164,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        5
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    3
-                                    _lpython_main_program
-                                    5 _lpython_main_program
-                                    _global_symbols
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        3 _lpython_main_program
-                        ()
+                        5 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -33,8 +33,6 @@ set(SRC
     pass/do_loops.cpp
     pass/for_all.cpp
     pass/global_stmts.cpp
-    pass/global_stmts_program.cpp
-    pass/global_symbols.cpp
     pass/select_case.cpp
     pass/init_expr.cpp
     pass/implied_do_loops.cpp

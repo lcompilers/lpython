@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        5
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_float]
                                     []
                                     [(SubroutineCall
-                                        5 test_float
+                                        2 test_float
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_float:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             f2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f2
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -133,12 +133,12 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (Cast
                                             (RealConstant
                                                 0.000000
@@ -199,7 +199,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -215,7 +215,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4235 (Integer 4))
                                             (Integer 4)
@@ -261,7 +261,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (Var 2 i)
+                                                (Var 3 i)
                                                 IntegerToReal
                                                 (Real 8)
                                                 ()
@@ -364,7 +364,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (Var 2 f)
+                                                (Var 3 f)
                                                 RealToReal
                                                 (Real 8)
                                                 ()
@@ -434,7 +434,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -442,9 +442,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (Cast
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             LogicalToReal
                                             (Real 8)
                                             ()
@@ -453,7 +453,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (Var 2 f2)
+                                            (Var 3 f2)
                                             Eq
                                             (RealConstant
                                                 1.000000
@@ -465,7 +465,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -475,7 +475,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 LogicalToReal
                                                 (Real 8)
                                                 ()
@@ -497,7 +497,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -505,24 +505,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        5
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    3
-                                    _lpython_main_program
-                                    5 _lpython_main_program
-                                    _global_symbols
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        3 _lpython_main_program
-                        ()
+                        5 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

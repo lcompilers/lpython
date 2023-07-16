@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_boolOp:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -64,7 +64,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -72,7 +72,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -80,20 +80,20 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             And
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             Or
                                             (LogicalConstant
                                                 .true.
@@ -105,25 +105,25 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             Or
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             And
                                             (LogicalCompare
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 Eq
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 (Logical 4)
                                                 ()
                                             )
@@ -133,14 +133,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalBinOp
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             And
                                             (LogicalCompare
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 NotEq
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 (Logical 4)
                                                 ()
                                             )
@@ -150,11 +150,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (LogicalBinOp
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             Or
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
@@ -167,7 +167,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -175,7 +175,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })
