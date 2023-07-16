@@ -2353,8 +2353,9 @@ public:
             this->visit_expr_wrapper(x.m_symbolic_value, true);
             init_value = llvm::dyn_cast<llvm::Constant>(tmp);
         }
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+        if (x.m_type->type == ASR::ttypeType::Integer
+            || x.m_type->type == ASR::ttypeType::UnsignedInteger) {
+            int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
             llvm::Type *type;
             int init_value_bits = 8*a_kind;
             type = llvm_utils->getIntType(a_kind);
