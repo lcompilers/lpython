@@ -776,7 +776,7 @@ def cptr_to_u64(cptr):
     return u64(ctypes.addressof(cptr))
 
 def u64_to_cptr(ivalue):
-    return ctypes.c_void_p(ivalue)
+    return ctypes.c_void_p(i64(ivalue))
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
