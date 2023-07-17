@@ -773,7 +773,7 @@ def empty_c_void_p():
     return ctypes_c_void_p()
 
 def cptr_to_u64(cptr):
-    return ctypes.addressof(cptr)
+    return u64(ctypes.addressof(cptr))
 
 def u64_to_cptr(ivalue):
     return ctypes.c_void_p(ivalue)
