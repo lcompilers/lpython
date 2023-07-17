@@ -2375,6 +2375,27 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::UnsignedInteger) {
+            int a_kind = down_cast<ASR::UnsignedInteger_t>(x.m_type)->m_kind;
+            llvm::Type *type;
+            int init_value_bits = 8*a_kind;
+            type = llvm_utils->getIntType(a_kind);
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                type);
+            if (!external) {
+                if (ASRUtils::is_array(x.m_type)) {
+                    throw CodeGenError("Arrays are not supported by visit_Variable");
+                }
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantInt::get(context,
+                                llvm::APInt(init_value_bits, 0)));
+                }
+            }
+            llvm_symtab[h] = ptr;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
             llvm::Type *type;

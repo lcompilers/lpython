@@ -573,6 +573,7 @@ RUN(NAME test_unary_op_04    LABELS cpython llvm c) # unary bitinvert
 RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
 RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
 RUN(NAME test_unsigned_01    LABELS cpython llvm c) # unsigned bitshift left, right
+RUN(NAME test_unsigned_02    LABELS cpython llvm c)
 RUN(NAME test_bool_binop     LABELS cpython llvm c)
 RUN(NAME test_issue_518      LABELS cpython llvm c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm c)
