@@ -440,13 +440,18 @@ public:
         verify_unique_dependencies(x.m_dependencies, x.n_dependencies,
                                    x.m_name, x.base.base.loc);
 
-        // Dependencies of the function should be from the same symbol table.
+        // Dependencies of the function should be from same symbol table.
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
             std::string found_dep = x.m_dependencies[i];
-            // Check if the dependency is present in the same symtab of function.
-            require_with_loc(current_symtab->get_symbol(found_dep) != nullptr,
-                    "Symbol " + found_dep + " is not found in the current "
-                    "symbol table for " + x.m_name, x.base.base.loc);
+
+            // Get the x symtab.
+            SymbolTable *sym = x.m_symtab->parent;
+
+            // Get the symtab of the dependency.
+            ASR::symbol_t* dep_sym = sym->get_symbol(found_dep);
+
+            require(dep_sym != nullptr,
+                    "Dependency " + found_dep + " and function " + std::string(x.m_name) + " does not belong to same symbol table");
         }
 
         // Check if there are unnecessary dependencies
