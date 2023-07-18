@@ -6329,7 +6329,7 @@ public:
                     arg_kind != dest_kind )
                 {
                     if (dest_kind > arg_kind) {
-                        tmp = builder->CreateSExt(tmp, llvm_utils->getIntType(dest_kind));
+                        tmp = builder->CreateZExt(tmp, llvm_utils->getIntType(dest_kind));
                     } else {
                         tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
                     }
