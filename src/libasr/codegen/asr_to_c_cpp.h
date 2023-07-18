@@ -1034,18 +1034,17 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         bracket_open++;
         std::string args = "";
         for (size_t i=0; i<n_args; i++) {
+            self().visit_expr(*m_args[i].m_value);
+            ASR::ttype_t* type = ASRUtils::expr_type(m_args[i].m_value);
             if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value)) {
-                ASR::Variable_t *arg = ASRUtils::EXPR2VAR(m_args[i].m_value);
-                std::string arg_name = arg->m_name;
-                if( ASRUtils::is_array(arg->m_type) &&
-                    ASRUtils::is_pointer(arg->m_type) ) {
-                    args += "&" + arg_name;
+                if( ASRUtils::is_array(type) &&
+                    ASRUtils::is_pointer(type) ) {
+                    args += "&" + src;
                 } else {
-                    args += arg_name;
+                    args += src;
                 }
             } else {
-                self().visit_expr(*m_args[i].m_value);
-                if( ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(m_args[i].m_value)) ) {
+                if( ASR::is_a<ASR::Struct_t>(*type) ) {
                     args += "&" + src;
                 } else {
                     args += src;
