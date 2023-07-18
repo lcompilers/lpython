@@ -401,7 +401,6 @@ public:
     }
 
     void visit_Function(const Function_t &x) {
-        std::cout << "X name "  << x.m_name << std::endl;
         std::vector<std::string> function_dependencies_copy = function_dependencies;
         function_dependencies.clear();
         function_dependencies.reserve(x.n_dependencies);
