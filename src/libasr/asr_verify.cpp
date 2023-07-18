@@ -450,8 +450,13 @@ public:
             // Get the symbol of the found_dep.
             ASR::symbol_t* dep_sym = sym->get_symbol(found_dep);
 
+            // If dep_sym is External Symbol or nullptr. It should be skipped.
+            if (dep_sym == nullptr || ASR::is_a<ASR::ExternalSymbol_t>(*dep_sym)) {
+                continue;
+            }  
+
             require(dep_sym != nullptr,
-                    "Dependency " + found_dep +  " does not belong to same symbol table of " + std::string(x.m_name));
+                    "Dependency " + found_dep +  " does not belong to same parent symbol table of " + std::string(x.m_name));
         }
 
         // Check if there are unnecessary dependencies
