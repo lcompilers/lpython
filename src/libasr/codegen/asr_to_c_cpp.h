@@ -1012,6 +1012,33 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
          this->visit_expr(*x.m_arg);
      }
 
+    std::string construct_call_args(size_t n_args, ASR::call_arg_t* m_args) {
+        bracket_open++;
+        std::string args = "";
+        for (size_t i=0; i<n_args; i++) {
+            if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value)) {
+                ASR::Variable_t *arg = ASRUtils::EXPR2VAR(m_args[i].m_value);
+                std::string arg_name = arg->m_name;
+                if( ASRUtils::is_array(arg->m_type) &&
+                    ASRUtils::is_pointer(arg->m_type) ) {
+                    args += "&" + arg_name;
+                } else {
+                    args += arg_name;
+                }
+            } else {
+                self().visit_expr(*m_args[i].m_value);
+                if( ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(m_args[i].m_value)) ) {
+                    args += "&" + src;
+                } else {
+                    args += src;
+                }
+            }
+            if (i < n_args-1) args += ", ";
+        }
+        bracket_open--;
+        return args;
+    }
+
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         CHECK_FAST_C_CPP(compiler_options, x)
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
@@ -1052,15 +1079,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
-            std::string args;
-            bracket_open++;
-            for (size_t i=0; i<x.n_args; i++) {
-                self().visit_expr(*x.m_args[i].m_value);
-                args += src;
-                if (i < x.n_args-1) args += ", ";
-            }
-            bracket_open--;
-            src = fn_name + "(" + args + ")";
+            src = fn_name + "(" + construct_call_args(x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;
         if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
@@ -2739,30 +2758,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
-        std::string out = indent + sym_name + "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
-                ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i].m_value);
-                std::string arg_name = arg->m_name;
-                if( ASRUtils::is_array(arg->m_type) &&
-                    ASRUtils::is_pointer(arg->m_type) ) {
-                    out += "&" + arg_name;
-                } else {
-                    out += arg_name;
-                }
-            } else {
-                self().visit_expr(*x.m_args[i].m_value);
-                if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
-                    ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
-                    out += "&" + src;
-                } else {
-                    out += src;
-                }
-            }
-            if (i < x.n_args-1) out += ", ";
-        }
-        out += ");\n";
-        src = out;
+        src = indent + sym_name + "(" + construct_call_args(x.n_args, x.m_args) + ");\n";
     }
 
     #define SET_INTRINSIC_NAME(X, func_name)                             \
