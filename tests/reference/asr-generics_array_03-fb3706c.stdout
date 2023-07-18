@@ -252,7 +252,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [add_integer]
@@ -582,7 +581,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [add_float]
@@ -705,7 +703,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [main]
@@ -801,9 +798,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        [(TypeParameter
-                                            T
-                                        )]
                                         []
                                         .true.
                                     )
@@ -884,7 +878,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -976,7 +969,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1241,9 +1233,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        [(TypeParameter
-                                            T
-                                        )]
                                         [2 add]
                                         .false.
                                     )
@@ -1531,7 +1520,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
