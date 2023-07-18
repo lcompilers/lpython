@@ -206,7 +206,7 @@ class ASRBuilder {
         symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,    \
         return_var, ASR::abiType::abi, ASR::accessType::Public,                 \
         ASR::deftypeType::deftype, bindc_name, false, false, false, false,      \
-        false, nullptr, 0, nullptr, 0, false, false, false));
+        false, nullptr, 0, false, false, false));
 
     #define make_Function_Without_ReturnVar_t(name, symtab, dep, args, body,    \
             abi, deftype, bindc_name)                                           \
@@ -214,7 +214,7 @@ class ASRBuilder {
         symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,    \
         nullptr, ASR::abiType::abi, ASR::accessType::Public,                    \
         ASR::deftypeType::deftype, bindc_name, false, false, false, false,      \
-        false, nullptr, 0, nullptr, 0, false, false, false));
+        false, nullptr, 0, false, false, false));
 
     // Types -------------------------------------------------------------------
     #define int32        TYPE(ASR::make_Integer_t(al, loc, 4))

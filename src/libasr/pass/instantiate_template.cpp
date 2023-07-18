@@ -189,8 +189,7 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, ASRUtils::get_FunctionType(x)->m_inline,
-            ASRUtils::get_FunctionType(x)->m_static, ASRUtils::get_FunctionType(x)->m_type_params,
-            ASRUtils::get_FunctionType(x)->n_type_params, ASRUtils::get_FunctionType(x)->m_restrictions,
+            ASRUtils::get_FunctionType(x)->m_static, ASRUtils::get_FunctionType(x)->m_restrictions,
             ASRUtils::get_FunctionType(x)->n_restrictions, false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
@@ -337,7 +336,7 @@ public:
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         if (ASRUtils::is_requirement_function(name)) {
             name = symbol_subs[call_name];
-        } else if (ASRUtils::is_template_function(name)) {
+        } else if (ASRUtils::is_generic_function(name)) {
             std::string nested_func_name = current_scope->get_unique_name("__asr_generic_" + call_name, false);
             ASR::symbol_t* name2 = ASRUtils::symbol_get_past_external(name);
             SymbolInstantiator nested_t(al, context_map, type_subs, symbol_subs, func_scope, template_scope, nested_func_name);
@@ -740,7 +739,7 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, ASRUtils::get_FunctionType(x)->m_inline,
-            ASRUtils::get_FunctionType(x)->m_static, nullptr, 0, nullptr, 0, false, false, false);
+            ASRUtils::get_FunctionType(x)->m_static, nullptr, 0, false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         func_scope->add_symbol(new_func_name, t);
@@ -836,7 +835,7 @@ public:
         ASR::ttype_t* type = substitute_type(x->m_type);
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
-        if (ASRUtils::is_restriction_function(name)) {
+        if (ASRUtils::is_requirement_function(name)) {
             name = rt_subs[call_name];
         } else if (ASRUtils::is_generic_function(name)) {
             std::string nested_func_name = current_scope->get_unique_name("__asr_generic_" + call_name, false);
@@ -863,7 +862,7 @@ public:
             args.push_back(al, new_arg);
         }
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
-        if (ASRUtils::is_restriction_function(name)) {
+        if (ASRUtils::is_requirement_function(name)) {
             name = rt_subs[call_name];
         } else {
             std::string nested_func_name = current_scope->get_unique_name("__asr_generic_" + call_name, false);

@@ -743,7 +743,7 @@ namespace LCompilers {
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation,
                 nullptr, false, false, false, false, false,
-                nullptr, 0, nullptr, 0, false, false, false);
+                nullptr, 0, false, false, false);
             global_scope->add_symbol(vector_copy_name, ASR::down_cast<ASR::symbol_t>(vector_copy_asr));
             return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
         }
