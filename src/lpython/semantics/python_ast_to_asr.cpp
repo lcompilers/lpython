@@ -7473,6 +7473,26 @@ public:
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc, type_));
                 tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
                 return ;
+            } else if( call_name.substr(0, 6) == "bitnot" ) {
+                parse_args(x, args);
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() expects one argument, provided " + std::to_string(args.size()), x.base.base.loc);
+                }
+                ASR::expr_t* operand = args[0].m_value;
+                ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
+                ASR::expr_t* value = nullptr;
+                if (!ASR::is_a<ASR::UnsignedInteger_t>(*operand_type)) {
+                    throw SemanticError(call_name + "() expects unsigned integer, provided" + ASRUtils::type_to_str_python(operand_type), x.base.base.loc);
+                }
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    uint64_t val = ~uint64_t(op_value);
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
+                        al, x.base.base.loc, val, operand_type));
+                }
+                tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
+                return;
             } else if( call_name == "array" ) {
                 parse_args(x, args);
                 if( args.size() != 1 ) {
