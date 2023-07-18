@@ -3482,15 +3482,17 @@ public:
                 tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
                 return;
             } else if (ASRUtils::is_unsigned_integer(*operand_type)) {
-                if (ASRUtils::expr_value(operand) != nullptr) {
-                    int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
-                                            ASRUtils::expr_value(operand))->m_n;
-                    uint64_t val = ~uint64_t(op_value);
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
-                        al, x.base.base.loc, val, operand_type));
-                }
-                tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
-                return;
+                int kind = ASRUtils::extract_kind_from_ttype_t(operand_type);
+                int signed_promote_kind = (kind < 8) ? kind * 2 : kind;
+                diag.add(diag::Diagnostic(
+                    "The result of the bitnot ~ operation is negative, thus out of range for u" + std::to_string(kind * 8),
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("use ~i" + std::to_string(signed_promote_kind * 8)
+                            + "(u) for signed result or bitnot_u" + std::to_string(kind * 8) + "(u) for unsigned result",
+                                {x.base.base.loc})
+                    })
+                );
+                throw SemanticAbort();
             } else if (ASRUtils::is_real(*operand_type)) {
                 throw SemanticError("Unary operator '~' not supported for floats",
                     x.base.base.loc);
