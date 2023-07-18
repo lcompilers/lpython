@@ -739,8 +739,8 @@ R"(
             array_types_decls.insert(0, "struct dimension_descriptor\n"
                 "{\n    int32_t lower_bound, length;\n};\n");
         }
-
-        src = to_include + head + array_types_decls + unit_src +
+        forward_decl_functions += "\n\n";
+        src = to_include + head + array_types_decls + forward_decl_functions + unit_src +
               ds_funcs_defined + util_funcs_defined;
         if (!emit_headers.empty()) {
             std::string to_includes_1 = "";
