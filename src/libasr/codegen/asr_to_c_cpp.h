@@ -1079,15 +1079,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
-            std::string args;
-            bracket_open++;
-            for (size_t i=0; i<x.n_args; i++) {
-                self().visit_expr(*x.m_args[i].m_value);
-                args += src;
-                if (i < x.n_args-1) args += ", ";
-            }
-            bracket_open--;
-            src = fn_name + "(" + args + ")";
+            src = fn_name + "(" + construct_call_args(x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;
         if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
