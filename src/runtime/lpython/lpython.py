@@ -707,3 +707,11 @@ class lpython:
         function = getattr(__import__("lpython_module_" + self.fn_name),
             self.fn_name)
         return function(*args, **kwargs)
+
+def bitnot(x, bitsize):
+    return (~x) % (2 ** bitsize)
+
+bitnot_u8 = lambda x: bitnot(x, 8)
+bitnot_u16 = lambda x: bitnot(x, 16)
+bitnot_u32 = lambda x: bitnot(x, 32)
+bitnot_u64 = lambda x: bitnot(x, 64)
