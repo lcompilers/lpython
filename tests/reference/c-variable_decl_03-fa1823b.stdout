@@ -5,6 +5,12 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+double _lcompilers_abs_f64(double x);
+double f();
+void _xx_lcompilers_changed_main_xx();
+void __main____global_statements();
+
+
 
 // Implementations
 double _lcompilers_abs_f64(double x)
