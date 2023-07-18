@@ -401,6 +401,7 @@ public:
     }
 
     void visit_Function(const Function_t &x) {
+        std::cout << "X name "  << x.m_name << std::endl;
         std::vector<std::string> function_dependencies_copy = function_dependencies;
         function_dependencies.clear();
         function_dependencies.reserve(x.n_dependencies);
@@ -440,18 +441,18 @@ public:
         verify_unique_dependencies(x.m_dependencies, x.n_dependencies,
                                    x.m_name, x.base.base.loc);
 
-        // Dependencies of the function should be from same symbol table.
+        // Get the x symtab.
+        SymbolTable *sym = x.m_symtab;
+
+        // Dependencies of the function should be from function's symbol table.
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
             std::string found_dep = x.m_dependencies[i];
 
-            // Get the x symtab.
-            SymbolTable *sym = x.m_symtab->parent;
-
-            // Get the symtab of the dependency.
+            // Get the symbol of the found_dep.
             ASR::symbol_t* dep_sym = sym->get_symbol(found_dep);
 
             require(dep_sym != nullptr,
-                    "Dependency " + found_dep + " and function " + std::string(x.m_name) + " does not belong to same symbol table");
+                    "Dependency " + found_dep +  " does not belong to same symbol table of " + std::string(x.m_name));
         }
 
         // Check if there are unnecessary dependencies
