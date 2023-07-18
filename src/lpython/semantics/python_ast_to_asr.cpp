@@ -4115,8 +4115,6 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool vectorize = false, is_inline = false, is_static = false;
-        Vec<ASR::ttype_t*> tps;
-        tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
         bool is_deterministic = false;
         bool is_side_effect_free = false;
@@ -4213,29 +4211,6 @@ public:
                 && !ASRUtils::is_aggregate_type(arg_type)) {
                 throw SemanticError("Simple Type " + ASRUtils::type_to_str_python(arg_type)
                     + " cannot be intent InOut/Out", loc);
-            }
-
-            // Set the function as generic if an argument is typed with a type parameter
-            if (ASRUtils::is_type_parameter(*arg_type)) {
-                ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
-                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, arg_type_type, arg_type_type->base.loc);
-                size_t current_size = tps.size();
-                if (current_size == 0) {
-                    tps.push_back(al, new_tt);
-                } else {
-                    bool not_found = true;
-                    for (size_t i = 0; i < current_size; i++) {
-                        ASR::TypeParameter_t *added_tp = ASR::down_cast<ASR::TypeParameter_t>(tps.p[i]);
-                        std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
-                        std::string added_param = added_tp->m_param;
-                        if (added_param.compare(new_param) == 0) {
-                            not_found = false; break;
-                        }
-                    }
-                    if (not_found) {
-                        tps.push_back(al, new_tt);
-                    }
-                }
             }
 
             std::string arg_s = arg;
@@ -4340,7 +4315,8 @@ public:
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
-                    nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                    nullptr, 0,
+                    is_restriction, is_deterministic, is_side_effect_free,
                     module_file);
                     return_variable->m_type = return_type_;
             } else {
@@ -4368,7 +4344,8 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
                 false, is_pure, is_module, is_inline, is_static,
-                nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                nullptr, 0,
+                is_restriction, is_deterministic, is_side_effect_free,
                 module_file);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
