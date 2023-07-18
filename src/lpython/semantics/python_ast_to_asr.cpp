@@ -499,6 +499,7 @@ public:
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
     std::vector<ASR::symbol_t*> rt_vec;
+    std::map<std::string, std::string> context_map;
     SetChar dependencies;
     bool allow_implicit_casting;
     // Stores the name of imported functions and the modules they are imported from
@@ -1527,10 +1528,10 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::symbol_t *func) {
+            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::symbol_t *sym) {
         int new_function_num;
         ASR::symbol_t *t;
-        std::string func_name = ASRUtils::symbol_name(func);
+        std::string func_name = ASRUtils::symbol_name(sym);
         if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
             new_function_num = generic_func_nums[func_name];
             for (int i=0; i<generic_func_nums[func_name]; i++) {
@@ -1562,8 +1563,15 @@ public:
         std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_template(al, subs, rt_subs,
-            ASRUtils::symbol_parent_symtab(func), new_func_name, func);
+        SymbolTable *target_scope = ASRUtils::symbol_parent_symtab(sym);
+        t = pass_instantiate_symbol(al, context_map, subs, rt_subs,
+                target_scope, target_scope, new_func_name, sym);
+        if (ASR::is_a<ASR::Function_t>(*sym)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
+            ASR::Function_t *new_f = ASR::down_cast<ASR::Function_t>(t);
+            t = pass_instantiate_function_body(al, context_map, subs, rt_subs,
+                target_scope, target_scope, new_f, f);
+        }
         dependencies.erase(s2c(al, func_name));
         dependencies.push_back(al, s2c(al, new_func_name));
         return t;
