@@ -441,7 +441,7 @@ public:
                                    x.m_name, x.base.base.loc);
 
         // Get the x symtab.
-        SymbolTable *sym = x.m_symtab;
+        SymbolTable *sym = x.m_symtab->parent;
 
         // Dependencies of the function should be from function's symbol table.
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
