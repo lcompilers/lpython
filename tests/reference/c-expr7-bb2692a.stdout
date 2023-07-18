@@ -8,6 +8,12 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+void test_pow();
+int32_t test_pow_1(int32_t a, int32_t b);
+void main0();
+void __main____global_statements();
+
+
 
 // Implementations
 double __lpython_overloaded_0__pow(int32_t x, int32_t y)

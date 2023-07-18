@@ -6,6 +6,11 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+static int64_t fib(int64_t n);
+void main0();
+void __main____global_statements();
+
+
 
 // Implementations
 static int64_t fib(int64_t n)
