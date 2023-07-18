@@ -137,6 +137,7 @@ public:
     std::map<int32_t, std::string> gotoid2name;
     std::map<std::string, std::string> emit_headers;
     std::string array_types_decls;
+    std::string forward_decl_functions;
 
     // Output configuration:
     // Use std::string or char*
@@ -493,7 +494,7 @@ R"(#include <stdio.h>
     }
 
     // Returns the declaration, no semi colon at the end
-    std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar) {
+    std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar, bool is_pointer=false) {
         template_for_Kokkos.clear();
         template_number = 0;
         std::string sub, inl, static_attr;
@@ -501,10 +502,10 @@ R"(#include <stdio.h>
         // This helps to check if the function is generic.
         // If it is generic we skip the codegen for that function.
         has_typevar = false;
-        if (ASRUtils::get_FunctionType(x)->m_inline) {
+        if (ASRUtils::get_FunctionType(x)->m_inline && !is_pointer) {
             inl = "inline __attribute__((always_inline)) ";
         }
-        if( ASRUtils::get_FunctionType(x)->m_static ) {
+        if( ASRUtils::get_FunctionType(x)->m_static && !is_pointer) {
             static_attr = "static ";
         }
         if (x.m_return_var) {
@@ -526,30 +527,47 @@ R"(#include <stdio.h>
                 f_type->m_deftype == ASR::deftypeType::Implementation) {
             sym_name = "_xx_internal_" + sym_name + "_xx";
         }
-        std::string func = static_attr + inl + sub + sym_name + "(";
+        std::string func = static_attr + inl + sub;
+        if (is_pointer) {
+            func += "(*" + sym_name + ")(";
+        } else {
+            func += sym_name + "(";
+        }
         bracket_open++;
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            if (ASR::is_a<ASR::TypeParameter_t>(*arg->m_type)) {
-                has_typevar = true;
-                bracket_open--;
-                return "";
-            }
-            if( is_c ) {
-                CDeclarationOptions c_decl_options;
-                c_decl_options.pre_initialise_derived_type = false;
-                func += self().convert_variable_decl(*arg, &c_decl_options);
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v);
+            if (ASR::is_a<ASR::Variable_t>(*sym)) {
+                ASR::Variable_t *arg = ASR::down_cast<ASR::Variable_t>(sym);
+                LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+                if( is_c ) {
+                    CDeclarationOptions c_decl_options;
+                    c_decl_options.pre_initialise_derived_type = false;
+                    func += self().convert_variable_decl(*arg, &c_decl_options);
+                } else {
+                    CPPDeclarationOptions cpp_decl_options;
+                    cpp_decl_options.use_static = false;
+                    cpp_decl_options.use_templates_for_arrays = true;
+                    func += self().convert_variable_decl(*arg, &cpp_decl_options);
+                }
+                if (ASR::is_a<ASR::TypeParameter_t>(*arg->m_type)) {
+                    has_typevar = true;
+                    bracket_open--;
+                    return "";
+                }
+            } else if (ASR::is_a<ASR::Function_t>(*sym)) {
+                ASR::Function_t *fun = ASR::down_cast<ASR::Function_t>(sym);
+                func += get_function_declaration(*fun, has_typevar, true);
             } else {
-                CPPDeclarationOptions cpp_decl_options;
-                cpp_decl_options.use_static = false;
-                cpp_decl_options.use_templates_for_arrays = true;
-                func += self().convert_variable_decl(*arg, &cpp_decl_options);
+                throw CodeGenError("Unsupported function argument");
             }
             if (i < x.n_args-1) func += ", ";
         }
         func += ")";
         bracket_open--;
+        if (f_type->m_abi == ASR::abiType::Source) {
+            forward_decl_functions += func + ";\n";
+        }
         if( is_c || template_for_Kokkos.empty() ) {
             return func;
         }
@@ -1716,6 +1734,10 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
+        if (ASR::is_a<ASR::Function_t>(*s)) {
+            src = ASRUtils::symbol_name(s);
+            return;
+        }
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
         if( (sv->m_intent == ASRUtils::intent_in ||
             sv->m_intent == ASRUtils::intent_inout) &&
