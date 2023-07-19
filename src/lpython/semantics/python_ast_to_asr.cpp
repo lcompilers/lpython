@@ -7627,6 +7627,15 @@ public:
                     target_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
                 }
                 ASR::expr_t* arg = args[0].m_value;
+                if (ASR::is_a<ASR::UnsignedInteger_t>(*target_type)) {
+                    int64_t value_int;
+                    if( ASRUtils::extract_value(ASRUtils::expr_value(arg), value_int) ) {
+                        if (value_int < 0) {
+                            throw SemanticError("Cannot cast negative value to unsigned integer ",
+                                                x.base.base.loc);
+                        }
+                    }
+                }
                 cast_helper(target_type, arg, x.base.base.loc, true);
                 tmp = (ASR::asr_t*) arg;
                 return ;
