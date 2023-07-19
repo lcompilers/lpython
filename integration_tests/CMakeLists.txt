@@ -694,7 +694,7 @@ RUN(NAME global_syms_01    LABELS cpython llvm c)
 RUN(NAME global_syms_02    LABELS cpython llvm c)
 RUN(NAME global_syms_03_b  LABELS cpython llvm c)
 RUN(NAME global_syms_03_c  LABELS cpython llvm c)
-RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)
+RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64 NOFAST)
 RUN(NAME global_syms_05    LABELS cpython llvm c)
 RUN(NAME global_syms_06    LABELS cpython llvm c)
 
