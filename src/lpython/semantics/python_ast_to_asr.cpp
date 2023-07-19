@@ -3646,8 +3646,20 @@ public:
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
                                             ASRUtils::expr_value(operand))->m_n;
+                    if (op_value != 0) {
+                        int kind = ASRUtils::extract_kind_from_ttype_t(operand_type);
+                        int signed_promote_kind = (kind < 8) ? kind * 2 : kind;
+                        diag.add(diag::Diagnostic(
+                            "The result of the unary minus `-` operation is negative, thus out of range for u" + std::to_string(kind * 8),
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("use -i" + std::to_string(signed_promote_kind * 8)
+                                    + "(u) for signed result", {x.base.base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(
-                        al, x.base.base.loc, -op_value, operand_type));
+                        al, x.base.base.loc, 0, operand_type));
                 }
                 tmp = ASR::make_UnsignedIntegerUnaryMinus_t(al, x.base.base.loc, operand,
                                                     operand_type, value);
@@ -7615,6 +7627,15 @@ public:
                     target_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
                 }
                 ASR::expr_t* arg = args[0].m_value;
+                if (ASR::is_a<ASR::UnsignedInteger_t>(*target_type)) {
+                    int64_t value_int;
+                    if( ASRUtils::extract_value(ASRUtils::expr_value(arg), value_int) ) {
+                        if (value_int < 0) {
+                            throw SemanticError("Cannot cast negative value to unsigned integer ",
+                                                x.base.base.loc);
+                        }
+                    }
+                }
                 cast_helper(target_type, arg, x.base.base.loc, true);
                 tmp = (ASR::asr_t*) arg;
                 return ;
