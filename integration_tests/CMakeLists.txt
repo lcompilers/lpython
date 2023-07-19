@@ -570,8 +570,7 @@ RUN(NAME test_unary_op_01    LABELS cpython llvm c) # unary minus
 RUN(NAME test_unary_op_02    LABELS cpython llvm c) # unary plus
 RUN(NAME test_unary_op_03    LABELS cpython llvm c wasm) # unary bitinvert
 RUN(NAME test_unary_op_04    LABELS cpython llvm c) # unary bitinvert
-# Unsigned unary minus is not supported in CPython
-# RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
+RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
 RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
 # The value after shift overflows in CPython
 # RUN(NAME test_unsigned_01    LABELS cpython llvm c) # unsigned bitshift left, right
