@@ -249,6 +249,7 @@ public:
     void create_loop(char *name, Cond condition, Body loop_body) {
         dict_api_lp->set_iterators();
         dict_api_sc->set_iterators();
+        set_api->set_iterators();
 
         std::string loop_name;
         if (name) {
@@ -288,6 +289,7 @@ public:
         start_new_block(loopend);
         dict_api_lp->reset_iterators();
         dict_api_sc->reset_iterators();
+        set_api->reset_iterators();
     }
 
     void get_type_debug_info(ASR::ttype_t* t, std::string &type_name,

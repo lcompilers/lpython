@@ -5337,10 +5337,8 @@ namespace LCompilers {
         /**
          * C++ equivalent:
          *
-         * occupancy += 1;
-         * load_factor = occupancy / capacity;
-         * load_factor_threshold = 0.6;
-         * rehash_condition = (capacity == 0) || (load_factor >= load_factor_threshold);
+         * // this condition will be true with 0 capacity too
+         * rehash_condition = 5 * occupancy >= 3 * capacity;
          * if( rehash_condition ) {
          *     rehash();
          * }
@@ -5349,21 +5347,16 @@ namespace LCompilers {
 
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
-        llvm::Value* rehash_condition = builder->CreateICmpEQ(capacity,
-            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)));
-        occupancy = builder->CreateAdd(occupancy, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                                                         llvm::APInt(32, 1)));
-        occupancy = builder->CreateSIToFP(occupancy, llvm::Type::getFloatTy(context));
-        capacity = builder->CreateSIToFP(capacity, llvm::Type::getFloatTy(context));
-        llvm::Value* load_factor = builder->CreateFDiv(occupancy, capacity);
         // Threshold hash is chosen from https://en.wikipedia.org/wiki/Hash_table#Load_factor
-        llvm::Value* load_factor_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
-                                                                   llvm::APFloat((float) 0.6));
-        rehash_condition = builder->CreateOr(rehash_condition, builder->CreateFCmpOGE(load_factor, load_factor_threshold));
-        llvm_utils->create_if_else(rehash_condition, [&]() {
+        // occupancy / capacity >= 0.6 is same as 5 * occupancy >= 3 * capacity
+        llvm::Value* occupancy_times_5 = builder->CreateMul(occupancy, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 5)));
+        llvm::Value* capacity_times_3 = builder->CreateMul(capacity, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 3)));
+        llvm_utils->create_if_else(builder->CreateICmpSGE(occupancy_times_5,
+                                    capacity_times_3), [&]() {
             rehash(set, module, el_asr_type, name2memidx);
-        }, [=]() {
-        });
+        }, []() {});
     }
 
     void LLVMSetLinearProbing::write_item(

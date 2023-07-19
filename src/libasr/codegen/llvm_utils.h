@@ -17,6 +17,8 @@
 #    define FIXED_VECTOR_TYPE llvm::VectorType
 #endif
 
+#define PERTURB_SHIFT 5
+
 namespace LCompilers {
 
     // Platform dependent fast unique hash:
