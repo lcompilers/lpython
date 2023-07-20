@@ -391,7 +391,10 @@ class CTypes:
                 new_args.append(arg.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(arg.dtype))))
             else:
                 new_args.append(arg)
-        return self.cf(*new_args)
+        res = self.cf(*new_args)
+        if self.cf.restype == ctypes.c_char_p:
+            res = res.decode("utf-8")
+        return res
 
 def convert_to_ctypes_Union(f):
     fields = []
