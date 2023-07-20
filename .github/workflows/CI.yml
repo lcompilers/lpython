@@ -441,5 +441,5 @@ jobs:
         shell: bash -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b c_sym cpython_sym
-            ./run_tests.py -b c_sym cpython_sym -f
+            ./run_tests.py -b c_sym cpython_sym llvm_sym
+            ./run_tests.py -b c_sym cpython_sym llvm_sym -f
