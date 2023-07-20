@@ -1,14 +1,15 @@
 from lpython import ccall, CPtr
+import os
 
-@ccall(header="symengine/cwrapper.h")
+@ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
 def basic_new_heap() -> CPtr:
     pass
 
-@ccall(header="symengine/cwrapper.h")
+@ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
 def basic_const_pi(x: CPtr) -> None:
     pass
 
-@ccall(header="symengine/cwrapper.h")
+@ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
 def basic_str(x: CPtr) -> str:
     pass
 
