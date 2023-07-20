@@ -15,6 +15,8 @@ def basic_str(x: CPtr) -> str:
 def main0():
     x: CPtr = basic_new_heap()
     basic_const_pi(x)
-    print(basic_str(x))
+    s: str = basic_str(x)
+    print(s)
+    assert s == "pi"
 
 main0()
