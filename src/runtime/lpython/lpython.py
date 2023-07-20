@@ -335,7 +335,7 @@ class CTypes:
     A wrapper class for interfacing C via ctypes.
     """
 
-    def __init__(self, f):
+    def __init__(self, f, py_mod = None, py_mod_path = None):
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -349,17 +349,20 @@ class CTypes:
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
+            nonlocal py_mod, py_mod_path
+            if py_mod is None:
+                py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
             if py_mod == "":
                 return os.path.join(get_rtlib_dir(),
                     get_lib_name("lpython_runtime"))
             else:
-                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                if py_mod_path is None:
+                    py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
                 return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        if "LPYTHON_PY_MOD_NAME" in os.environ:
+        if ("LPYTHON_PY_MOD_NAME" in os.environ) or (py_mod is not None):
             crtlib = get_crtlib_path()
             self.library = ctypes.CDLL(crtlib)
             self.cf = self.library[self.name]
@@ -465,10 +468,14 @@ def convert_to_ctypes_Structure(f):
 
     return ctypes_Structure
 
-def ccall(f):
-    if isclass(f) and issubclass(f, Union):
-        return f
-    return CTypes(f)
+def ccall(f=None, header=None, c_shared_lib=None, c_shared_lib_path=None):
+    def wrap(func):
+        if not isclass(func) or not issubclass(func, Union):
+            func = CTypes(func, c_shared_lib, c_shared_lib_path)
+        return func
+    if f:
+        return wrap(f)
+    return wrap
 
 def pythoncall(*args, **kwargs):
     def inner(fn):
