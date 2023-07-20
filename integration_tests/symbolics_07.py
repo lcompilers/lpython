@@ -1,4 +1,4 @@
-from lpython import ccall
+from lpython import ccall, CPtr
 
 @ccall(header="symengine/cwrapper.h")
 def basic_new_heap() -> CPtr:
