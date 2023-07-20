@@ -42,23 +42,23 @@ jobs:
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: conda install m2-bison=3.0.4
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: conda install bison=3.4
 
       - name: Conda info
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             conda info
             conda list
 
       - name: Setup Platform (Linux)
         if: contains(matrix.os, 'ubuntu')
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
@@ -67,7 +67,7 @@ jobs:
 
       - name: Setup Platform (macOS)
         if: contains(matrix.os, 'macos')
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
@@ -75,7 +75,7 @@ jobs:
             echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
 
       - name: Build (Linux / macOS)
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         run: |
             xonsh ci/build.xsh
@@ -95,7 +95,7 @@ jobs:
             xonsh ci\build.xsh
 
       - name: Test (Linux / macOS)
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         run: |
             xonsh ci/test.xsh
@@ -216,7 +216,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ./build0.sh
             cmake . -GNinja \
@@ -233,29 +233,29 @@ jobs:
             cmake --build . -j16 --target install
 
       - name: PIP show version
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             python -m pip -V
 
       - name: PIP install required packages
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             # Package lpynn has lpython_emulation as dependency
             # Hence, it should by default install lpython_emulation
             python -m pip install lpython_emulation==0.0.1.9 lpynn==0.0.1.4 numpy==1.24.3
 
       - name: PIP show installed packages
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             python -m pip list
 
       - name: Test PIP Packages with Python
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             python integration_tests/test_pip_import_01.py
 
       - name: Test PIP Packages with LPython
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             pip_pkg_path=$(python -c "import site; print(site.getsitepackages()[0])")
             echo $pip_pkg_path
@@ -282,7 +282,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ./build0.sh
             export CXXFLAGS="-Werror"
@@ -300,7 +300,7 @@ jobs:
             cmake --build . -j16 --target install
 
       - name: Test Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ctest
             ./run_tests.py -s
@@ -329,7 +329,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ./build0.sh
             export CXXFLAGS="-Werror"
@@ -347,7 +347,7 @@ jobs:
             cmake --build . -j16 --target install
 
       - name: Test Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ctest
             ./run_tests.py -s
@@ -376,7 +376,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ./build0.sh
             cmake . -GNinja \
@@ -393,7 +393,7 @@ jobs:
             cmake --build . -j16 --target install
 
       - name: Test Linux
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             cd integration_tests
             ./run_tests.py -b cpython c_py
@@ -421,7 +421,7 @@ jobs:
           key: ${{ github.job }}-${{ matrix.os }}
 
       - name: Build
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             ./build0.sh
             cmake . -G"Unix Makefiles" \
@@ -438,7 +438,7 @@ jobs:
             cmake --build . -j16 --target install
 
       - name: Test
-        shell: bash -l {0}
+        shell: bash -e -l {0}
         run: |
             cd integration_tests
             ./run_tests.py -b c_sym cpython_sym
