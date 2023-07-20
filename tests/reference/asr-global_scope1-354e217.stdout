@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         3
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 i)
+                                        (Var 2 i)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )]
@@ -45,7 +45,7 @@
                                 ),
                             i:
                                 (Variable
-                                    4
+                                    2
                                     i
                                     []
                                     Local
@@ -60,7 +60,7 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -68,24 +68,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        2
+                        4
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    2
-                                    _lpython_main_program
-                                    4 _lpython_main_program
-                                    _global_symbols
+                                    4
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        2 _lpython_main_program
-                        ()
+                        4 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

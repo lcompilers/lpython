@@ -6,8 +6,8 @@
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_x86.h>
 #include <libasr/codegen/x86_assembler.h>
-#include <libasr/pass/do_loops.h>
-#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/replace_do_loops.h>
+#include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 
@@ -577,7 +577,7 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        pass_wrap_global_stmts_into_function(al, asr, pass_options);
+        pass_wrap_global_stmts(al, asr, pass_options);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_pass_global = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }

@@ -6,6 +6,11 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+static int64_t fib(int64_t n);
+void main0();
+void __main____global_statements();
+
+
 
 // Implementations
 static int64_t fib(int64_t n)
@@ -28,7 +33,7 @@ void main0()
     ASSERT(ans == 5);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     main0();
 }
@@ -36,6 +41,6 @@ void _lpython_main_program()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    _lpython_main_program();
+    __main____global_statements();
     return 0;
 }

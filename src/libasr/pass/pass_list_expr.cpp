@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_list_expr.h>
+#include <libasr/pass/list_expr.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -151,7 +151,7 @@ public:
 
         SymbolTable* list_section_symtab = al.make_new<SymbolTable>(global_scope);
         std::string list_type_name = ASRUtils::get_type_code(list_type, true);
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name, false);
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
@@ -329,8 +329,7 @@ public:
             ASR::accessType::Public, ASR::deftypeType::Implementation,
             nullptr,
             false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -409,7 +408,7 @@ public:
                 unit.m_global_scope, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr));
     }
 
@@ -432,7 +431,7 @@ public:
         */
         SymbolTable* list_concat_symtab = al.make_new<SymbolTable>(global_scope);
         std::string list_type_name = ASRUtils::get_type_code(list_type, true);
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_concat_" + list_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_concat_" + list_type_name, false);
 
         Vec<ASR::expr_t*> arg_exprs;
         arg_exprs.reserve(al, 2);
@@ -497,8 +496,7 @@ public:
             ASR::accessType::Public, ASR::deftypeType::Implementation,
             nullptr,
             false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -534,7 +532,7 @@ public:
                 unit.m_global_scope, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_concat_func_map[list_type_name];
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
     }
 

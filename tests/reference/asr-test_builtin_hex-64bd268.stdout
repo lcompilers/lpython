@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_hex]
                                     []
                                     [(SubroutineCall
-                                        128 test_hex
+                                        2 test_hex
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_hex:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             hex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     hex
                                                     4 hex
                                                     lpython_builtin
@@ -61,7 +61,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -95,16 +95,16 @@
                                     [hex]
                                     []
                                     [(=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 hex
+                                                3 hex
                                                 ()
-                                                [((Var 2 i))]
+                                                [((Var 3 i))]
                                                 (Character 1 -2 ())
                                                 ()
                                                 ()
@@ -120,7 +120,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4235 (Integer 4))
                                             (Integer 4)
@@ -131,9 +131,9 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 hex
+                                                3 hex
                                                 ()
-                                                [((Var 2 i))]
+                                                [((Var 3 i))]
                                                 (Character 1 -2 ())
                                                 ()
                                                 ()
@@ -151,7 +151,7 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 hex
+                                                3 hex
                                                 ()
                                                 [((IntegerConstant 34 (Integer 4)))]
                                                 (Character 1 -2 ())
@@ -177,7 +177,7 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 hex
+                                                3 hex
                                                 ()
                                                 [((IntegerUnaryMinus
                                                     (IntegerConstant 4235 (Integer 4))
@@ -211,7 +211,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -221,24 +221,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

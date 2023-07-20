@@ -44,6 +44,9 @@
     #include <rapidjson/stringbuffer.h>
     #include <rapidjson/writer.h>
 #endif
+
+extern std::string lcompilers_unique_ID;
+
 namespace {
 
 using LCompilers::endswith;
@@ -53,6 +56,7 @@ using LCompilers::LPython::parse_python_file;
 enum class Backend {
     llvm, cpp, c, x86, wasm, wasm_x86, wasm_x64
 };
+
 
 std::string remove_extension(const std::string& filename) {
     size_t lastdot = filename.find_last_of(".");
@@ -226,8 +230,8 @@ int emit_asr(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics,
-            compiler_options, true, infile);
+        r = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics,
+            compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -238,6 +242,12 @@ int emit_asr(const std::string &infile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.pass_cumulative = compiler_options.pass_cumulative;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
+
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -281,7 +291,7 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -326,7 +336,7 @@ int emit_c(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -340,6 +350,10 @@ int emit_c(const std::string &infile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -379,7 +393,7 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -393,6 +407,10 @@ int emit_c_to_file(const std::string &infile, const std::string &outfile,
     pass_options.run_fun = "f";
     pass_options.always_run = true;
     pass_options.verbose = compiler_options.verbose;
+    pass_options.all_symbols_mangling = compiler_options.all_symbols_mangling;
+    pass_options.module_name_mangling = compiler_options.module_name_mangling;
+    pass_options.global_symbols_mangling = compiler_options.global_symbols_mangling;
+    pass_options.intrinsic_symbols_mangling = compiler_options.intrinsic_symbols_mangling;
 
     pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
@@ -435,7 +453,7 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -484,7 +502,7 @@ int get_symbols (const std::string &infile,
         if (r1.ok) {
            LCompilers::LPython::AST::ast_t* ast = r1.result;
            LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-               x = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+               x = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
            if (!x.ok) {
                std::cout << "{}\n";
                return 0;
@@ -585,7 +603,7 @@ int get_errors (const std::string &infile,
         if (r1.ok) {
             LCompilers::LPython::AST::ast_t* ast = r1.result;
             LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-                r = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+                r = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
         }
         std::vector<LCompilers::error_highlight> diag_lists;
         LCompilers::error_highlight h;
@@ -705,7 +723,7 @@ int emit_llvm(const std::string &infile,
     LCompilers::LPython::AST::ast_t* ast = r.result;
     diagnostics.diagnostics.clear();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -780,8 +798,8 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options,
-            !(arg_c && compiler_options.disable_main), infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options,
+            !(arg_c && compiler_options.disable_main), "__main__", infile);
 
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
@@ -898,7 +916,7 @@ int compile_to_binary_wasm(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -971,7 +989,7 @@ int compile_to_binary_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1045,7 +1063,7 @@ int compile_to_binary_wasm_to_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
@@ -1341,7 +1359,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "__main__", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             out += LCompilers::LPython::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
@@ -1359,7 +1377,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "__main__", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
@@ -1386,7 +1404,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "__main__", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             auto res = LCompilers::asr_to_cpp(al, *asr.result, diagnostics,
@@ -1424,7 +1442,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LCompilers::LPython::AST::ast_t*)ast.result;
         LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
-        asr = LCompilers::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *casted_ast, diagnostics, compiler_options, true, "__main__", "input");
         out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LCompilers::Result<LCompilers::Vec<uint8_t>>
@@ -1496,6 +1514,7 @@ int main(int argc, char *argv[])
         bool print_targets = false;
         bool print_rtl_header_dir = false;
         bool print_rtl_dir = false;
+        bool separate_compilation = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -1570,9 +1589,15 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.verbose, "Print debugging statements");
+        app.add_flag("--cumulative", compiler_options.pass_cumulative, "Apply all the passes cumulatively till the given pass");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
         app.add_flag("--link-numpy", compiler_options.link_numpy, "Enable NumPy runtime (implies --enable-cpython)");
+        app.add_flag("--separate-compilation", separate_compilation, "Generates unique names for all the symbols");
+        app.add_flag("--module-mangling", compiler_options.module_name_mangling, "Mangles the module name");
+        app.add_flag("--global-mangling", compiler_options.global_symbols_mangling, "Mangles all the global symbols");
+        app.add_flag("--intrinsic-mangling", compiler_options.intrinsic_symbols_mangling, "Mangles all the intrinsic symbols");
+        app.add_flag("--all-mangling", compiler_options.all_symbols_mangling, "Mangles all possible symbols");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
@@ -1609,6 +1634,9 @@ int main(int argc, char *argv[])
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
+
+        lcompilers_unique_ID = separate_compilation ? LCompilers::get_unique_ID(): "";
+
 
         if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
         // ReleaseSafe Mode

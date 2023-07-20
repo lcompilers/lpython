@@ -20,6 +20,8 @@ enum Platform {
 std::string pf2s(Platform);
 Platform get_platform();
 
+std::string get_unique_ID();
+
 struct CompilerOptions {
     std::filesystem::path mod_files_dir;
     std::vector<std::filesystem::path> include_dirs;
@@ -50,6 +52,7 @@ struct CompilerOptions {
     bool new_parser = false;
     bool implicit_typing = false;
     bool implicit_interface = false;
+    bool implicit_argument_casting = false;
     bool print_leading_space = false;
     bool rtlib = false;
     std::string target = "";
@@ -61,6 +64,10 @@ struct CompilerOptions {
     bool enable_cpython = false;
     bool enable_symengine = false;
     bool link_numpy = false;
+    bool module_name_mangling = false;
+    bool global_symbols_mangling = false;
+    bool intrinsic_symbols_mangling = false;
+    bool all_symbols_mangling = false;
     std::vector<std::string> import_paths;
     Platform platform;
 
@@ -90,6 +97,10 @@ namespace LCompilers {
         bool verbose = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
         bool disable_main = false;
+        bool module_name_mangling = false;
+        bool global_symbols_mangling = false;
+        bool intrinsic_symbols_mangling = false;
+        bool all_symbols_mangling = false;
     };
 
 }

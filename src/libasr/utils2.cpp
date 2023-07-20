@@ -4,12 +4,27 @@
 #endif
 
 #include <fstream>
+#include <filesystem>
+#include <random>
 
 #include <libasr/exception.h>
 #include <libasr/utils.h>
 #include <libasr/string_utils.h>
 
 namespace LCompilers {
+
+std::string get_unique_ID() {
+    static std::random_device dev;
+    static std::mt19937 rng(dev());
+    std::uniform_int_distribution<int> dist(0, 61);
+    const std::string v =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    std::string res;
+    for (int i = 0; i < 22; i++) {
+        res += v[dist(rng)];
+    }
+    return res;
+}
 
 bool read_file(const std::string &filename, std::string &text)
 {

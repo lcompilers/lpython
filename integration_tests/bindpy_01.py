@@ -1,11 +1,19 @@
 from lpython import i32, i64, u32, u64, f32, f64, pythoncall
 
 @pythoncall(module = "bindpy_01_module")
-def add_ints(a: i32, b: i64, c: u32, d: u64) -> i64:
+def add_ints(a: i32, b: i32, c: i32, d: i32) -> i64:
     pass
 
 @pythoncall(module = "bindpy_01_module")
-def multiply_ints(a: i32, b: i64, c: u32, d: u64) -> i64:
+def multiply_ints(a: i32, b: i32, c: i32, d: i32) -> i64:
+    pass
+
+@pythoncall(module = "bindpy_01_module")
+def add_unsigned_ints(a: u32, b: u32, c: u32, d: u32) -> u64:
+    pass
+
+@pythoncall(module = "bindpy_01_module")
+def multiply_unsigned_ints(a: u32, b: u32, c: u32, d: u32) -> u64:
     pass
 
 @pythoncall(module = "bindpy_01_module")
@@ -31,16 +39,30 @@ def get_cpython_version() -> str:
 # Integers:
 def test_ints():
     i: i32
-    j: i64
-    k: u32
-    l: u64
+    j: i32
+    k: i32
+    l: i32
     i = -5
-    j = i64(24)
-    k = u32(20)
-    l = u64(92)
+    j = 24
+    k = 20
+    l = 92
 
     assert add_ints(i, j, k, l) == i64(131)
     assert multiply_ints(i, j, k, l) == i64(-220800)
+
+# Unsigned Integers:
+def test_unsigned_ints():
+    i: u32
+    j: u32
+    k: u32
+    l: u32
+    i = u32(5)
+    j = u32(24)
+    k = u32(20)
+    l = u32(92)
+
+    assert add_unsigned_ints(i, j, k, l) == u64(141)
+    assert multiply_unsigned_ints(i, j, k, l) == u64(220800)
 
 # Floats
 def test_floats():

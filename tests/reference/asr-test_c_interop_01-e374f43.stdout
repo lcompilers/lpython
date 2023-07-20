@@ -2,19 +2,56 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
+                            __main____global_statements:
+                                (Function
+                                    (SymbolTable
+                                        8
+                                        {
+                                            
+                                        })
+                                    __main____global_statements
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [test_c_callbacks]
+                                    []
+                                    [(SubroutineCall
+                                        2 test_c_callbacks
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
                             _lfortran_bgt32:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    4
+                                                    5
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -30,7 +67,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    4
+                                                    5
                                                     i
                                                     []
                                                     In
@@ -46,7 +83,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    4
+                                                    5
                                                     j
                                                     []
                                                     In
@@ -79,10 +116,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 4 i)
-                                    (Var 4 j)]
+                                    [(Var 5 i)
+                                    (Var 5 j)]
                                     []
-                                    (Var 4 _lpython_return_variable)
+                                    (Var 5 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -91,11 +128,11 @@
                             _lfortran_bgt64:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    5
+                                                    6
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -111,7 +148,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    5
+                                                    6
                                                     i
                                                     []
                                                     In
@@ -127,7 +164,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    5
+                                                    6
                                                     j
                                                     []
                                                     In
@@ -160,10 +197,10 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 5 i)
-                                    (Var 5 j)]
+                                    [(Var 6 i)
+                                    (Var 6 j)]
                                     []
-                                    (Var 5 _lpython_return_variable)
+                                    (Var 6 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -172,11 +209,11 @@
                             _lfortran_dsin:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -192,7 +229,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     In
@@ -224,9 +261,9 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 x)]
+                                    [(Var 3 x)]
                                     []
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -235,11 +272,11 @@
                             _lfortran_ssin:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -255,7 +292,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     In
@@ -287,46 +324,9 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 x)]
+                                    [(Var 4 x)]
                                     []
-                                    (Var 3 _lpython_return_variable)
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            _lpython_main_program:
-                                (Function
-                                    (SymbolTable
-                                        8
-                                        {
-                                            
-                                        })
-                                    _lpython_main_program
-                                    (FunctionType
-                                        []
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    [test_c_callbacks]
-                                    []
-                                    [(SubroutineCall
-                                        9 test_c_callbacks
-                                        ()
-                                        []
-                                        ()
-                                    )]
-                                    ()
+                                    (Var 4 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -335,11 +335,11 @@
                             test_c_callbacks:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             pi:
                                                 (Variable
-                                                    6
+                                                    7
                                                     pi
                                                     []
                                                     Local
@@ -376,7 +376,7 @@
                                     _lfortran_bgt64]
                                     []
                                     [(=
-                                        (Var 6 pi)
+                                        (Var 7 pi)
                                         (RealConstant
                                             3.141593
                                             (Real 8)
@@ -389,9 +389,9 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        9 _lfortran_dsin
+                                                        2 _lfortran_dsin
                                                         ()
-                                                        [((Var 6 pi))]
+                                                        [((Var 7 pi))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -424,10 +424,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        9 _lfortran_dsin
+                                                        2 _lfortran_dsin
                                                         ()
                                                         [((RealBinOp
-                                                            (Var 6 pi)
+                                                            (Var 7 pi)
                                                             Div
                                                             (RealConstant
                                                                 2.000000
@@ -468,10 +468,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        9 _lfortran_ssin
+                                                        2 _lfortran_ssin
                                                         ()
                                                         [((Cast
-                                                            (Var 6 pi)
+                                                            (Var 7 pi)
                                                             RealToReal
                                                             (Real 4)
                                                             ()
@@ -524,11 +524,11 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        9 _lfortran_ssin
+                                                        2 _lfortran_ssin
                                                         ()
                                                         [((Cast
                                                             (RealBinOp
-                                                                (Var 6 pi)
+                                                                (Var 7 pi)
                                                                 Div
                                                                 (RealConstant
                                                                     2.000000
@@ -586,7 +586,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                9 _lfortran_bgt32
+                                                2 _lfortran_bgt32
                                                 ()
                                                 [((IntegerConstant 3 (Integer 4)))
                                                 ((IntegerConstant 4 (Integer 4)))]
@@ -604,7 +604,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                9 _lfortran_bgt32
+                                                2 _lfortran_bgt32
                                                 ()
                                                 [((IntegerConstant 4 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))]
@@ -622,7 +622,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                9 _lfortran_bgt64
+                                                2 _lfortran_bgt64
                                                 ()
                                                 [((Cast
                                                     (IntegerConstant 3 (Integer 4))
@@ -650,7 +650,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                9 _lfortran_bgt64
+                                                2 _lfortran_bgt64
                                                 ()
                                                 [((Cast
                                                     (IntegerConstant 4 (Integer 4))
@@ -682,7 +682,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -690,24 +690,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

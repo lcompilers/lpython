@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_bool]
                                     []
                                     [(SubroutineCall
-                                        128 test_bool
+                                        2 test_bool
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_bool:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a2
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             a3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a3
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             a4:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a4
                                                     []
                                                     Local
@@ -115,7 +115,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -147,7 +147,7 @@
                                                 ),
                                             c1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c1
                                                     []
                                                     Local
@@ -163,7 +163,7 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex
                                                     4 complex
                                                     lpython_builtin
@@ -173,7 +173,7 @@
                                                 ),
                                             complex@__lpython_overloaded_13__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_13__complex
                                                     4 __lpython_overloaded_13__complex
                                                     lpython_builtin
@@ -183,7 +183,7 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_9__complex
                                                     4 __lpython_overloaded_9__complex
                                                     lpython_builtin
@@ -193,7 +193,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -209,7 +209,7 @@
                                                 ),
                                             f2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f2
                                                     []
                                                     Local
@@ -225,7 +225,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -260,13 +260,13 @@
                                     complex@__lpython_overloaded_13__complex]
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 34 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             IntegerToLogical
                                             (Logical 4)
                                             ()
@@ -274,14 +274,14 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 IntegerToLogical
                                                 (Logical 4)
                                                 ()
@@ -327,7 +327,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a2)
+                                        (Var 3 a2)
                                         (Cast
                                             (IntegerConstant 34 (Integer 4))
                                             IntegerToInteger
@@ -338,7 +338,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 a2)
+                                            (Var 3 a2)
                                             IntegerToLogical
                                             (Logical 4)
                                             ()
@@ -346,7 +346,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a3)
+                                        (Var 3 a3)
                                         (Cast
                                             (IntegerConstant 34 (Integer 4))
                                             IntegerToInteger
@@ -357,7 +357,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 a3)
+                                            (Var 3 a3)
                                             IntegerToLogical
                                             (Logical 4)
                                             ()
@@ -365,7 +365,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a4)
+                                        (Var 3 a4)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (IntegerConstant 1 (Integer 4))
@@ -380,7 +380,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 a4)
+                                            (Var 3 a4)
                                             IntegerToLogical
                                             (Logical 4)
                                             ()
@@ -388,7 +388,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -398,7 +398,7 @@
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (Var 2 f)
+                                                (Var 3 f)
                                                 RealToLogical
                                                 (Logical 4)
                                                 ()
@@ -409,7 +409,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             1.000000
                                             (Real 8)
@@ -418,7 +418,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 f)
+                                            (Var 3 f)
                                             RealToLogical
                                             (Logical 4)
                                             ()
@@ -463,7 +463,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (RealUnaryMinus
                                             (Cast
                                                 (RealConstant
@@ -487,7 +487,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 f2)
+                                            (Var 3 f2)
                                             RealToLogical
                                             (Logical 4)
                                             ()
@@ -495,7 +495,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (Cast
                                             (RealConstant
                                                 0.000053
@@ -512,7 +512,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 f2)
+                                            (Var 3 f2)
                                             RealToLogical
                                             (Logical 4)
                                             ()
@@ -520,7 +520,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             ""
                                             (Character 1 0 ())
@@ -530,7 +530,7 @@
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (Var 2 s)
+                                                (Var 3 s)
                                                 CharacterToLogical
                                                 (Logical 4)
                                                 ()
@@ -541,7 +541,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "str"
                                             (Character 1 3 ())
@@ -550,7 +550,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 s)
+                                            (Var 3 s)
                                             CharacterToLogical
                                             (Logical 4)
                                             ()
@@ -595,7 +595,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -603,11 +603,11 @@
                                         ()
                                     )
                                     (Assert
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -616,7 +616,7 @@
                                     )
                                     (Assert
                                         (LogicalNot
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
@@ -644,11 +644,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_9__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
                                                 [((IntegerConstant 2 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))]
                                                 (Complex 8)
@@ -671,7 +671,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 c)
+                                            (Var 3 c)
                                             ComplexToLogical
                                             (Logical 4)
                                             ()
@@ -679,11 +679,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_9__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
                                                 [((IntegerConstant 0 (Integer 4)))
                                                 ((IntegerConstant 0 (Integer 4)))]
                                                 (Complex 8)
@@ -707,7 +707,7 @@
                                     (Assert
                                         (LogicalNot
                                             (Cast
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 ComplexToLogical
                                                 (Logical 4)
                                                 ()
@@ -760,10 +760,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c1)
+                                        (Var 3 c1)
                                         (FunctionCall
-                                            2 complex@__lpython_overloaded_13__complex
-                                            2 complex
+                                            3 complex@__lpython_overloaded_13__complex
+                                            3 complex
                                             [((IntegerConstant 0 (Integer 4)))
                                             ((RealConstant
                                                 0.100202
@@ -781,7 +781,7 @@
                                     )
                                     (Assert
                                         (Cast
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             ComplexToLogical
                                             (Logical 4)
                                             ()
@@ -792,8 +792,8 @@
                                         (LogicalNot
                                             (Cast
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 0 (Integer 4)))
                                                     ((IntegerConstant 0 (Integer 4)))]
                                                     (Complex 8)
@@ -861,7 +861,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -871,24 +871,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

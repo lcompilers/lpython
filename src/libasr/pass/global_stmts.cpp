@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/pass_utils.h>
 
 
@@ -18,7 +18,7 @@ using ASRUtils::EXPR;
  * statements and expressions into a function.
  *
  */
-void pass_wrap_global_stmts_into_function(Allocator &al,
+void pass_wrap_global_stmts(Allocator &al,
             ASR::TranslationUnit_t &unit, const LCompilers::PassOptions& pass_options) {
     if (unit.n_items == 0) {
         return ;
@@ -105,59 +105,31 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
     }
 
     if (return_var) {
-        // The last item was an expression, create a function returning it
-
         // The last defined `return_var` is the actual return value
         ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = ASRUtils::intent_return_var;
-
-
-        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
-            al, loc,
-            /* a_symtab */ fn_scope,
-            /* a_name */ fn_name,
-            nullptr, 0,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
-            /* a_body */ body.p,
-            /* n_body */ body.size(),
-            /* a_return_var */ return_var_ref,
-            ASR::abiType::BindC,
-            ASR::Public, ASR::Implementation,
-            nullptr,
-            false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
-            false, false, false);
-        std::string sym_name = fn_name;
-        if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
-            throw LCompilersException("Function already defined");
-        }
-        unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
-    } else {
-        // The last item was a statement, create a subroutine (returning
-        // nothing)
-        ASR::asr_t *fn = ASRUtils::make_Function_t_util(
-            al, loc,
-            /* a_symtab */ fn_scope,
-            /* a_name */ fn_name,
-            nullptr, 0,
-            /* a_args */ nullptr,
-            /* n_args */ 0,
-            /* a_body */ body.p,
-            /* n_body */ body.size(),
-            nullptr,
-            ASR::abiType::Source,
-            ASR::Public, ASR::Implementation, nullptr,
-            false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
-            false, false, false);
-        std::string sym_name = fn_name;
-        if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
-            throw LCompilersException("Function already defined");
-        }
-        unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
     }
+
+    ASR::asr_t *fn = ASRUtils::make_Function_t_util(
+        al, loc,
+        /* a_symtab */ fn_scope,
+        /* a_name */ fn_name,
+        nullptr, 0,
+        /* a_args */ nullptr,
+        /* n_args */ 0,
+        /* a_body */ body.p,
+        /* n_body */ body.size(),
+        /* a_return_var */ (return_var ? return_var_ref : nullptr),
+        (return_var ? ASR::abiType::BindC : ASR::abiType::Source),
+        ASR::Public, ASR::Implementation,
+        nullptr,
+        false, false, false, false, false,
+        nullptr, 0, nullptr, 0,
+        false, false, false);
+    std::string sym_name = fn_name;
+    if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
+        throw LCompilersException("Function already defined");
+    }
+    unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
     unit.m_items = nullptr;
     unit.n_items = 0;
     PassUtils::UpdateDependenciesVisitor v(al);

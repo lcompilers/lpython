@@ -2,4 +2,4 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
  --> tests/errors/test_annassign_type_mismatch.py:4:5
   |
 4 |     x: i32[4] = [1, 2, 3, 4]
-  |     ^           ^^^^^^^^^^^^ type mismatch ('i32[5]' and 'list[i32]')
+  |     ^           ^^^^^^^^^^^^ type mismatch ('i32[4]' and 'list[i32]')

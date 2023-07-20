@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        11
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        10
+                                        8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main0]
                                     []
                                     [(SubroutineCall
-                                        11 main0
+                                        2 main0
                                         ()
                                         []
                                         ()
@@ -46,7 +46,7 @@
                                 ),
                             f:
                                 (ExternalSymbol
-                                    11
+                                    2
                                     f
                                     3 f
                                     modules_02b
@@ -57,11 +57,11 @@
                             main0:
                                 (Function
                                     (SymbolTable
-                                        8
+                                        7
                                         {
                                             x:
                                                 (Variable
-                                                    8
+                                                    7
                                                     x
                                                     []
                                                     Local
@@ -95,7 +95,7 @@
                                     [f]
                                     []
                                     [(=
-                                        (Var 8 x)
+                                        (Var 7 x)
                                         (IntegerBinOp
                                             (IntegerBinOp
                                                 (IntegerConstant 2 (Integer 4))
@@ -113,7 +113,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 8 x)
+                                            (Var 7 x)
                                             Eq
                                             (IntegerConstant 25 (Integer 4))
                                             (Logical 4)
@@ -122,7 +122,7 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        11 f
+                                        2 f
                                         ()
                                         []
                                         ()
@@ -134,7 +134,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [modules_02b]
                     .false.
                     .false.
@@ -144,22 +144,22 @@
                     (SymbolTable
                         9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
                                     9
-                                    _lpython_main_program
-                                    11 _lpython_main_program
-                                    _global_symbols
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        9 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]
@@ -172,7 +172,7 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        7
+                                        6
                                         {
                                             
                                         })
@@ -219,7 +219,7 @@
                                 (ExternalSymbol
                                     3
                                     g
-                                    5 g
+                                    4 g
                                     modules_02c
                                     []
                                     g
@@ -234,12 +234,12 @@
             modules_02c:
                 (Module
                     (SymbolTable
-                        5
+                        4
                         {
                             g:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        5
                                         {
                                             
                                         })

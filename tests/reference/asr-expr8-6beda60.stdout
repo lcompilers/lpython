@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        127
+                        2
                         {
                             test_binop:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_floordiv:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     _lpython_floordiv
                                                     4 _lpython_floordiv
                                                     lpython_builtin
@@ -24,7 +24,7 @@
                                                 ),
                                             _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                     4 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
@@ -34,7 +34,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -50,7 +50,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b2
                                                     []
                                                     Local
@@ -66,7 +66,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -82,7 +82,7 @@
                                                 ),
                                             x2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x2
                                                     []
                                                     Local
@@ -116,7 +116,7 @@
                                     [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
                                     []
                                     [(=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (IntegerConstant 2 (Integer 4))
                                             Pow
@@ -127,7 +127,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x2)
+                                        (Var 3 x2)
                                         (Cast
                                             (RealBinOp
                                                 (RealConstant
@@ -155,7 +155,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (IntegerConstant 54 (Integer 4))
                                             Sub
@@ -166,7 +166,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x2)
+                                        (Var 3 x2)
                                         (Cast
                                             (RealBinOp
                                                 (RealBinOp
@@ -206,7 +206,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x2)
+                                        (Var 3 x2)
                                         (Cast
                                             (RealBinOp
                                                 (RealConstant
@@ -234,7 +234,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x2)
+                                        (Var 3 x2)
                                         (Cast
                                             (RealBinOp
                                                 (RealConstant
@@ -262,7 +262,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -289,7 +289,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -316,7 +316,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -343,7 +343,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -370,7 +370,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -378,7 +378,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -386,13 +386,13 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                2 _lpython_floordiv
-                                                [((Var 2 b1))
-                                                ((Var 2 b1))]
+                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
+                                                3 _lpython_floordiv
+                                                [((Var 3 b1))
+                                                ((Var 3 b1))]
                                                 (Logical 4)
                                                 ()
                                                 ()
@@ -404,17 +404,17 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerBinOp
                                             (Cast
-                                                (Var 2 b1)
+                                                (Var 3 b1)
                                                 LogicalToInteger
                                                 (Integer 4)
                                                 ()
                                             )
                                             Pow
                                             (Cast
-                                                (Var 2 b2)
+                                                (Var 3 b2)
                                                 LogicalToInteger
                                                 (Integer 4)
                                                 ()
@@ -431,7 +431,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.

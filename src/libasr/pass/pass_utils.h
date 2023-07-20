@@ -367,7 +367,7 @@ namespace LCompilers {
                 return ;
             }
             if( replacer->result_var == nullptr ) {
-                std::string result_var_name = replacer->current_scope->get_unique_name("temp_struct_var__");
+                std::string result_var_name = replacer->current_scope->get_unique_name("temp_struct_var__", false);
                 replacer->result_var = PassUtils::create_auxiliary_variable(x->base.base.loc,
                                     result_var_name, replacer->al, replacer->current_scope, x->m_type);
                 *replacer->current_expr = replacer->result_var;
@@ -479,7 +479,7 @@ namespace LCompilers {
                 Vec<ASR::dimension_t> empty_dims;
                 empty_dims.reserve(al, 1);
                 array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
-                ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.loc,
+                ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al, arr_var->base.loc,
                                             arr_var, args.p, args.size(),
                                             ASRUtils::type_get_past_allocatable(array_ref_type),
                                             ASR::arraystorageType::RowMajor, nullptr));
@@ -646,7 +646,7 @@ namespace LCompilers {
                         empty_dims.reserve(replacer->al, 1);
                         array_ref_type = ASRUtils::duplicate_type(replacer->al, array_ref_type, &empty_dims);
 
-                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(replacer->al,
+                        ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(replacer->al,
                                                         target_section->base.base.loc,
                                                         target_section->m_v,
                                                         args.p, args.size(),

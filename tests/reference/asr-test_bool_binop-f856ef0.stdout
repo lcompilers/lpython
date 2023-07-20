@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [f]
                                     []
                                     [(SubroutineCall
-                                        128 f
+                                        2 f
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_floordiv:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     _lpython_floordiv
                                                     4 _lpython_floordiv
                                                     lpython_builtin
@@ -61,7 +61,7 @@
                                                 ),
                                             _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
                                                     4 __lpython_overloaded_10___lpython_floordiv
                                                     lpython_builtin
@@ -71,7 +71,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -87,7 +87,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b2
                                                     []
                                                     Local
@@ -103,7 +103,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -119,7 +119,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -153,7 +153,7 @@
                                     [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
                                     []
                                     [(=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -181,7 +181,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 2 (Integer 4))
                                             (Logical 4)
@@ -190,7 +190,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -218,7 +218,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -227,7 +227,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -255,7 +255,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -264,11 +264,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                2 _lpython_floordiv
+                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
+                                                3 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .true.
                                                     (Logical 4)
@@ -292,7 +292,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -301,11 +301,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (Cast
                                             (FunctionCall
-                                                2 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                2 _lpython_floordiv
+                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
+                                                3 _lpython_floordiv
                                                 [((LogicalConstant
                                                     .false.
                                                     (Logical 4)
@@ -329,7 +329,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 0 (Integer 4))
                                             (Logical 4)
@@ -338,7 +338,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerBinOp
                                             (Cast
                                                 (LogicalConstant
@@ -366,7 +366,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 i)
+                                            (Var 3 i)
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
                                             (Logical 4)
@@ -375,7 +375,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -383,7 +383,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -391,17 +391,17 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealBinOp
                                             (Cast
-                                                (Var 2 b1)
+                                                (Var 3 b1)
                                                 LogicalToReal
                                                 (Real 8)
                                                 ()
                                             )
                                             Div
                                             (Cast
-                                                (Var 2 b2)
+                                                (Var 3 b2)
                                                 LogicalToReal
                                                 (Real 8)
                                                 ()
@@ -413,7 +413,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (Var 2 f)
+                                            (Var 3 f)
                                             Eq
                                             (RealConstant
                                                 0.000000
@@ -431,7 +431,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -441,24 +441,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

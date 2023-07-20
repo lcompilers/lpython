@@ -67,6 +67,10 @@ namespace LCompilers {
                 ASR::ttype_t *x_type = ASR::down_cast<ASR::StructInstanceMember_t>(x)->m_type;
                 ASR::dimension_t* m_dims;
                 get_dim_rank(x_type, m_dims, n_dims);
+            } else if (ASR::is_a<ASR::ArrayPhysicalCast_t>(*x)) {
+                ASR::ttype_t* x_type = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x)->m_type;
+                ASR::dimension_t* m_dims;
+                get_dim_rank(x_type, m_dims, n_dims);
             }
             return n_dims;
         }
@@ -105,7 +109,7 @@ namespace LCompilers {
                     array_ref_type = struct_type;
                 }
             }
-            ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
+            ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al,
                                         arr_expr->base.loc, arr_expr,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
@@ -129,7 +133,7 @@ namespace LCompilers {
             empty_dims.reserve(al, 1);
             ASR::ttype_t* array_ref_type = ASRUtils::expr_type(arr_expr);
             array_ref_type = ASRUtils::duplicate_type(al, array_ref_type, &empty_dims);
-            ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
+            ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al,
                                         arr_expr->base.loc, arr_expr,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
@@ -169,7 +173,7 @@ namespace LCompilers {
                     array_ref_type = struct_type;
                 }
             }
-            ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
+            ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al,
                                         arr_expr->base.loc, arr_expr,
                                         args.p, args.size(),
                                         array_ref_type,
@@ -198,7 +202,7 @@ namespace LCompilers {
             empty_dims.reserve(al, 1);
             ASR::ttype_t* _type = array_section->m_type;
             _type = ASRUtils::duplicate_type_without_dims(al, _type, loc);
-            ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
+            ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al,
                                         loc, array_section->m_v,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
@@ -223,7 +227,7 @@ namespace LCompilers {
             empty_dims.reserve(al, 1);
             _type = ASRUtils::duplicate_type(al, _type, &empty_dims);
             ASR::expr_t* arr_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arr));
-            ASR::expr_t* array_ref = ASRUtils::EXPR(ASR::make_ArrayItem_t(al, loc, arr_var,
+            ASR::expr_t* array_ref = ASRUtils::EXPR(ASRUtils::make_ArrayItem_t_util(al, loc, arr_var,
                                         args.p, args.size(),
                                         ASRUtils::type_get_past_array(
                                             ASRUtils::type_get_past_allocatable(_type)),
@@ -313,10 +317,10 @@ namespace LCompilers {
                         ASR::Variable_t* idx_var = ASR::down_cast<ASR::Variable_t>(idx_sym);
                         if( !(ASRUtils::check_equal_type(idx_var->m_type, int32_type) &&
                               idx_var->m_symbolic_value == nullptr) ) {
-                            idx_var_name = current_scope->get_unique_name(idx_var_name);
+                            idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                         }
                     } else {
-                        idx_var_name = current_scope->get_unique_name(idx_var_name);
+                        idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                     }
                 }
                 char* var_name = s2c(al, idx_var_name);;
@@ -358,10 +362,10 @@ namespace LCompilers {
                         ASR::Variable_t* idx_var = ASR::down_cast<ASR::Variable_t>(idx_sym);
                         if( !(ASRUtils::check_equal_type(idx_var->m_type, int32_type) &&
                               idx_var->m_symbolic_value == nullptr) ) {
-                            idx_var_name = current_scope->get_unique_name(idx_var_name);
+                            idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                         }
                     } else {
-                        idx_var_name = current_scope->get_unique_name(idx_var_name);
+                        idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                     }
                 }
                 char* var_name = s2c(al, idx_var_name);;
@@ -402,10 +406,10 @@ namespace LCompilers {
                         ASR::Variable_t* idx_var = ASR::down_cast<ASR::Variable_t>(idx_sym);
                         if( !(ASRUtils::check_equal_type(idx_var->m_type, int32_type) &&
                               idx_var->m_symbolic_value == nullptr) ) {
-                            idx_var_name = current_scope->get_unique_name(idx_var_name);
+                            idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                         }
                     } else {
-                        idx_var_name = current_scope->get_unique_name(idx_var_name);
+                        idx_var_name = current_scope->get_unique_name(idx_var_name, false);
                     }
                 }
                 char* var_name = s2c(al, idx_var_name);;
@@ -633,7 +637,7 @@ namespace LCompilers {
             Allocator& al, SymbolTable*& current_scope, ASR::stmt_t*& assign_stmt) {
             ASR::asr_t* expr_sym = ASR::make_Variable_t(al, expr->base.loc, current_scope, s2c(al, name), nullptr, 0,
                                                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    ASRUtils::expr_type(expr), nullptr, ASR::abiType::Source, ASR::accessType::Public,
+                                                    ASRUtils::duplicate_type(al, ASRUtils::expr_type(expr)), nullptr, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
@@ -772,9 +776,9 @@ namespace LCompilers {
             args.push_back(al, arg4_);
             arg5_.loc = vector_length->base.loc, arg5_.m_value = vector_length;
             args.push_back(al, arg5_);
-            return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, v,
+            return ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, loc, v,
                                                              nullptr, args.p, args.size(),
-                                                             nullptr));
+                                                             nullptr, nullptr, false));
         }
 
         ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,

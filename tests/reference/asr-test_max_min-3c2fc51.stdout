@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        132
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        131
+                                        130
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        132 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             
                                         })
@@ -73,25 +73,25 @@
                                     test_min_float]
                                     []
                                     [(SubroutineCall
-                                        132 test_max_int
+                                        2 test_max_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_max_float
+                                        2 test_max_float
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_min_int
+                                        2 test_min_int
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        132 test_min_float
+                                        2 test_min_float
                                         ()
                                         []
                                         ()
@@ -105,11 +105,11 @@
                             test_max_float:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             d:
                                                 (Variable
-                                                    3
+                                                    4
                                                     d
                                                     []
                                                     Local
@@ -125,7 +125,7 @@
                                                 ),
                                             e:
                                                 (Variable
-                                                    3
+                                                    4
                                                     e
                                                     []
                                                     Local
@@ -141,7 +141,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    3
+                                                    4
                                                     f
                                                     []
                                                     Local
@@ -157,7 +157,7 @@
                                                 ),
                                             max:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     max
                                                     8 max
                                                     lpython_builtin
@@ -167,7 +167,7 @@
                                                 ),
                                             max@__lpython_overloaded_2__max:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     max@__lpython_overloaded_2__max
                                                     8 __lpython_overloaded_2__max
                                                     lpython_builtin
@@ -177,7 +177,7 @@
                                                 ),
                                             max@__lpython_overloaded_3__max:
                                                 (ExternalSymbol
-                                                    3
+                                                    4
                                                     max@__lpython_overloaded_3__max
                                                     8 __lpython_overloaded_3__max
                                                     lpython_builtin
@@ -206,7 +206,7 @@
                                     max@__lpython_overloaded_3__max]
                                     []
                                     [(=
-                                        (Var 3 d)
+                                        (Var 4 d)
                                         (RealConstant
                                             23.233000
                                             (Real 8)
@@ -214,7 +214,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 e)
+                                        (Var 4 e)
                                         (RealConstant
                                             23.223300
                                             (Real 8)
@@ -222,7 +222,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 f)
+                                        (Var 4 f)
                                         (RealConstant
                                             21.230000
                                             (Real 8)
@@ -232,17 +232,17 @@
                                     (Assert
                                         (RealCompare
                                             (FunctionCall
-                                                3 max@__lpython_overloaded_2__max
-                                                3 max
-                                                [((Var 3 d))
-                                                ((Var 3 e))
-                                                ((Var 3 f))]
+                                                4 max@__lpython_overloaded_2__max
+                                                4 max
+                                                [((Var 4 d))
+                                                ((Var 4 e))
+                                                ((Var 4 f))]
                                                 (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 3 d)
+                                            (Var 4 d)
                                             (Logical 4)
                                             ()
                                         )
@@ -251,16 +251,16 @@
                                     (Assert
                                         (RealCompare
                                             (FunctionCall
-                                                3 max@__lpython_overloaded_3__max
-                                                3 max
-                                                [((Var 3 e))
-                                                ((Var 3 f))]
+                                                4 max@__lpython_overloaded_3__max
+                                                4 max
+                                                [((Var 4 e))
+                                                ((Var 4 f))]
                                                 (Real 8)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 3 e)
+                                            (Var 4 e)
                                             (Logical 4)
                                             ()
                                         )
@@ -275,11 +275,11 @@
                             test_max_int:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -295,7 +295,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -311,7 +311,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -327,7 +327,7 @@
                                                 ),
                                             max:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     max
                                                     8 max
                                                     lpython_builtin
@@ -337,7 +337,7 @@
                                                 ),
                                             max@__lpython_overloaded_0__max:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     max@__lpython_overloaded_0__max
                                                     8 __lpython_overloaded_0__max
                                                     lpython_builtin
@@ -347,7 +347,7 @@
                                                 ),
                                             max@__lpython_overloaded_1__max:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     max@__lpython_overloaded_1__max
                                                     8 __lpython_overloaded_1__max
                                                     lpython_builtin
@@ -376,33 +376,33 @@
                                     max@__lpython_overloaded_1__max]
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 max@__lpython_overloaded_0__max
-                                                2 max
-                                                [((Var 2 a))
-                                                ((Var 2 b))]
+                                                3 max@__lpython_overloaded_0__max
+                                                3 max
+                                                [((Var 3 a))
+                                                ((Var 3 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 2 b)
+                                            (Var 3 b)
                                             (Logical 4)
                                             ()
                                         )
@@ -411,17 +411,17 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 max@__lpython_overloaded_1__max
-                                                2 max
-                                                [((Var 2 a))
-                                                ((Var 2 b))
-                                                ((Var 2 c))]
+                                                3 max@__lpython_overloaded_1__max
+                                                3 max
+                                                [((Var 3 a))
+                                                ((Var 3 b))
+                                                ((Var 3 c))]
                                                 (Integer 4)
                                                 ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 2 c)
+                                            (Var 3 c)
                                             (Logical 4)
                                             ()
                                         )
@@ -430,8 +430,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 max@__lpython_overloaded_1__max
-                                                2 max
+                                                3 max@__lpython_overloaded_1__max
+                                                3 max
                                                 [((IntegerConstant 1 (Integer 4)))
                                                 ((IntegerConstant 2 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))]
@@ -452,8 +452,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 max@__lpython_overloaded_0__max
-                                                2 max
+                                                3 max@__lpython_overloaded_0__max
+                                                3 max
                                                 [((IntegerConstant 1 (Integer 4)))
                                                 ((IntegerConstant 6 (Integer 4)))]
                                                 (Integer 4)
@@ -479,11 +479,11 @@
                             test_min_float:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             d:
                                                 (Variable
-                                                    5
+                                                    6
                                                     d
                                                     []
                                                     Local
@@ -499,7 +499,7 @@
                                                 ),
                                             e:
                                                 (Variable
-                                                    5
+                                                    6
                                                     e
                                                     []
                                                     Local
@@ -515,7 +515,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    5
+                                                    6
                                                     f
                                                     []
                                                     Local
@@ -528,36 +528,6 @@
                                                     Public
                                                     Required
                                                     .false.
-                                                ),
-                                            min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min
-                                                    8 min
-                                                    lpython_builtin
-                                                    []
-                                                    min
-                                                    Private
-                                                ),
-                                            min@__lpython_overloaded_2__min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min@__lpython_overloaded_2__min
-                                                    8 __lpython_overloaded_2__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_2__min
-                                                    Public
-                                                ),
-                                            min@__lpython_overloaded_3__min:
-                                                (ExternalSymbol
-                                                    5
-                                                    min@__lpython_overloaded_3__min
-                                                    8 __lpython_overloaded_3__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_3__min
-                                                    Public
                                                 )
                                         })
                                     test_min_float
@@ -576,11 +546,10 @@
                                         []
                                         .false.
                                     )
-                                    [min@__lpython_overloaded_2__min
-                                    min@__lpython_overloaded_3__min]
+                                    []
                                     []
                                     [(=
-                                        (Var 5 d)
+                                        (Var 6 d)
                                         (RealConstant
                                             23.233000
                                             (Real 8)
@@ -588,7 +557,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 e)
+                                        (Var 6 e)
                                         (RealConstant
                                             23.223300
                                             (Real 8)
@@ -596,7 +565,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 f)
+                                        (Var 6 f)
                                         (RealConstant
                                             21.230000
                                             (Real 8)
@@ -605,18 +574,17 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (FunctionCall
-                                                5 min@__lpython_overloaded_2__min
-                                                5 min
-                                                [((Var 5 d))
-                                                ((Var 5 e))
-                                                ((Var 5 f))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 6 d)
+                                                (Var 6 e)
+                                                (Var 6 f)]
+                                                0
                                                 (Real 8)
-                                                ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 5 f)
+                                            (Var 6 f)
                                             (Logical 4)
                                             ()
                                         )
@@ -624,17 +592,16 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (FunctionCall
-                                                5 min@__lpython_overloaded_3__min
-                                                5 min
-                                                [((Var 5 e))
-                                                ((Var 5 f))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 6 e)
+                                                (Var 6 f)]
+                                                0
                                                 (Real 8)
-                                                ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 5 f)
+                                            (Var 6 f)
                                             (Logical 4)
                                             ()
                                         )
@@ -649,11 +616,11 @@
                             test_min_int:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -669,7 +636,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -685,7 +652,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c
                                                     []
                                                     Local
@@ -698,36 +665,6 @@
                                                     Public
                                                     Required
                                                     .false.
-                                                ),
-                                            min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min
-                                                    8 min
-                                                    lpython_builtin
-                                                    []
-                                                    min
-                                                    Private
-                                                ),
-                                            min@__lpython_overloaded_0__min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min@__lpython_overloaded_0__min
-                                                    8 __lpython_overloaded_0__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_0__min
-                                                    Public
-                                                ),
-                                            min@__lpython_overloaded_1__min:
-                                                (ExternalSymbol
-                                                    4
-                                                    min@__lpython_overloaded_1__min
-                                                    8 __lpython_overloaded_1__min
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_1__min
-                                                    Public
                                                 )
                                         })
                                     test_min_int
@@ -746,37 +683,35 @@
                                         []
                                         .false.
                                     )
-                                    [min@__lpython_overloaded_0__min
-                                    min@__lpython_overloaded_1__min]
+                                    []
                                     []
                                     [(=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 4 c)
+                                        (Var 5 c)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_0__min
-                                                4 min
-                                                [((Var 4 a))
-                                                ((Var 4 b))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 5 a)
+                                                (Var 5 b)]
+                                                0
                                                 (Integer 4)
-                                                ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             (Logical 4)
                                             ()
                                         )
@@ -784,18 +719,17 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_1__min
-                                                4 min
-                                                [((Var 4 a))
-                                                ((Var 4 b))
-                                                ((Var 4 c))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(Var 5 a)
+                                                (Var 5 b)
+                                                (Var 5 c)]
+                                                0
                                                 (Integer 4)
-                                                ()
                                                 ()
                                             )
                                             Eq
-                                            (Var 4 a)
+                                            (Var 5 a)
                                             (Logical 4)
                                             ()
                                         )
@@ -803,15 +737,14 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_1__min
-                                                4 min
-                                                [((IntegerConstant 1 (Integer 4)))
-                                                ((IntegerConstant 2 (Integer 4)))
-                                                ((IntegerConstant 3 (Integer 4)))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
+                                                0
                                                 (Integer 4)
                                                 (IntegerConstant 1 (Integer 4))
-                                                ()
                                             )
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
@@ -825,14 +758,13 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (FunctionCall
-                                                4 min@__lpython_overloaded_0__min
-                                                4 min
-                                                [((IntegerConstant 1 (Integer 4)))
-                                                ((IntegerConstant 6 (Integer 4)))]
+                                            (IntrinsicFunction
+                                                Min
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4))]
+                                                0
                                                 (Integer 4)
                                                 (IntegerConstant 1 (Integer 4))
-                                                ()
                                             )
                                             Eq
                                             (IntegerConstant 1 (Integer 4))
@@ -851,7 +783,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -861,24 +793,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        130
+                        131
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    130
-                                    _lpython_main_program
-                                    132 _lpython_main_program
-                                    _global_symbols
+                                    131
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        130 _lpython_main_program
-                        ()
+                        131 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

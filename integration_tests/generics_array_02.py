@@ -1,7 +1,6 @@
 from lpython import TypeVar, restriction, i32, f32
 from numpy import empty
 
-n: i32
 n = TypeVar("n")
 T = TypeVar('T')
 

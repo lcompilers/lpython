@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        5
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,20 +33,20 @@
                                     [test_issue_1781]
                                     []
                                     [(CPtrToPointer
-                                        (Var 5 queries)
-                                        (Var 5 x)
+                                        (Var 2 queries)
+                                        (Var 2 x)
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 5 queries)
-                                        (Var 5 x)]
+                                        [(Var 2 queries)
+                                        (Var 2 x)]
                                         ()
                                         ()
                                     )
                                     (SubroutineCall
-                                        5 test_issue_1781
+                                        2 test_issue_1781
                                         ()
                                         []
                                         ()
@@ -59,7 +59,7 @@
                                 ),
                             queries:
                                 (Variable
-                                    5
+                                    2
                                     queries
                                     []
                                     Local
@@ -80,11 +80,11 @@
                             test_issue_1781:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             p:
                                                 (Variable
-                                                    2
+                                                    3
                                                     p
                                                     []
                                                     Local
@@ -118,7 +118,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 p)
+                                        (Var 3 p)
                                         (PointerNullConstant
                                             (CPtr)
                                         )
@@ -126,7 +126,7 @@
                                     )
                                     (Assert
                                         (CPtrCompare
-                                            (Var 2 p)
+                                            (Var 3 p)
                                             Eq
                                             (PointerNullConstant
                                                 (CPtr)
@@ -139,7 +139,7 @@
                                     (Assert
                                         (LogicalNot
                                             (CPtrCompare
-                                                (Var 2 p)
+                                                (Var 3 p)
                                                 NotEq
                                                 (PointerNullConstant
                                                     (CPtr)
@@ -160,7 +160,7 @@
                                 ),
                             x:
                                 (Variable
-                                    5
+                                    2
                                     x
                                     []
                                     Local
@@ -177,7 +177,7 @@
                                     .false.
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -185,24 +185,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        5
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    3
-                                    _lpython_main_program
-                                    5 _lpython_main_program
-                                    _global_symbols
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        3 _lpython_main_program
-                        ()
+                        5 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

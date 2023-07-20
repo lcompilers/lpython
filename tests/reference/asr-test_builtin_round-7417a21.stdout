@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_round]
                                     []
                                     [(SubroutineCall
-                                        128 test_round
+                                        2 test_round
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_round:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             f2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f2
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -115,7 +115,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i2
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                                 ),
                                             i3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i3
                                                     []
                                                     Local
@@ -147,7 +147,7 @@
                                                 ),
                                             i4:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i4
                                                     []
                                                     Local
@@ -163,7 +163,7 @@
                                                 ),
                                             round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round
                                                     4 round
                                                     lpython_builtin
@@ -173,7 +173,7 @@
                                                 ),
                                             round@__lpython_overloaded_0__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_0__round
                                                     4 __lpython_overloaded_0__round
                                                     lpython_builtin
@@ -183,7 +183,7 @@
                                                 ),
                                             round@__lpython_overloaded_1__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_1__round
                                                     4 __lpython_overloaded_1__round
                                                     lpython_builtin
@@ -193,7 +193,7 @@
                                                 ),
                                             round@__lpython_overloaded_2__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_2__round
                                                     4 __lpython_overloaded_2__round
                                                     lpython_builtin
@@ -203,7 +203,7 @@
                                                 ),
                                             round@__lpython_overloaded_3__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_3__round
                                                     4 __lpython_overloaded_3__round
                                                     lpython_builtin
@@ -213,7 +213,7 @@
                                                 ),
                                             round@__lpython_overloaded_4__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_4__round
                                                     4 __lpython_overloaded_4__round
                                                     lpython_builtin
@@ -223,7 +223,7 @@
                                                 ),
                                             round@__lpython_overloaded_5__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_5__round
                                                     4 __lpython_overloaded_5__round
                                                     lpython_builtin
@@ -233,7 +233,7 @@
                                                 ),
                                             round@__lpython_overloaded_6__round:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     round@__lpython_overloaded_6__round
                                                     4 __lpython_overloaded_6__round
                                                     lpython_builtin
@@ -267,7 +267,7 @@
                                     round@__lpython_overloaded_6__round]
                                     []
                                     [(=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             5.678000
                                             (Real 8)
@@ -277,9 +277,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -292,7 +292,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant
                                                 183745.230000
@@ -309,9 +309,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -328,7 +328,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             44.340000
                                             (Real 8)
@@ -338,9 +338,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -353,7 +353,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             0.500000
                                             (Real 8)
@@ -363,9 +363,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -378,7 +378,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealUnaryMinus
                                             (RealConstant
                                                 50.500000
@@ -395,9 +395,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -414,7 +414,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             1.500000
                                             (Real 8)
@@ -424,9 +424,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
-                                                [((Var 2 f))]
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
+                                                [((Var 3 f))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -441,8 +441,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealConstant
                                                     13.001000
                                                     (Real 8)
@@ -464,8 +464,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealUnaryMinus
                                                     (RealConstant
                                                         40.499990
@@ -498,8 +498,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealConstant
                                                     0.500000
                                                     (Real 8)
@@ -521,8 +521,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealUnaryMinus
                                                     (RealConstant
                                                         0.500000
@@ -551,8 +551,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealConstant
                                                     1.500000
                                                     (Real 8)
@@ -574,8 +574,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealConstant
                                                     50.500000
                                                     (Real 8)
@@ -597,8 +597,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_0__round
-                                                2 round
+                                                3 round@__lpython_overloaded_0__round
+                                                3 round
                                                 [((RealConstant
                                                     56.780000
                                                     (Real 8)
@@ -618,7 +618,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (Cast
                                             (RealConstant
                                                 5.678000
@@ -636,9 +636,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_1__round
-                                                2 round
-                                                [((Var 2 f2))]
+                                                3 round@__lpython_overloaded_1__round
+                                                3 round
+                                                [((Var 3 f2))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -651,7 +651,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 5 (Integer 4))
                                             (Integer 4)
@@ -662,9 +662,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_2__round
-                                                2 round
-                                                [((Var 2 i))]
+                                                3 round@__lpython_overloaded_2__round
+                                                3 round
+                                                [((Var 3 i))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -683,8 +683,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_2__round
-                                                2 round
+                                                3 round@__lpython_overloaded_2__round
+                                                3 round
                                                 [((IntegerConstant 4 (Integer 4)))]
                                                 (Integer 4)
                                                 (IntegerConstant 4 (Integer 4))
@@ -701,7 +701,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (Cast
                                             (IntegerConstant 7 (Integer 4))
                                             IntegerToInteger
@@ -713,9 +713,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_4__round
-                                                2 round
-                                                [((Var 2 i2))]
+                                                3 round@__lpython_overloaded_4__round
+                                                3 round
+                                                [((Var 3 i2))]
                                                 (Integer 1)
                                                 ()
                                                 ()
@@ -733,7 +733,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i3)
+                                        (Var 3 i3)
                                         (Cast
                                             (IntegerUnaryMinus
                                                 (IntegerConstant 8 (Integer 4))
@@ -749,9 +749,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_5__round
-                                                2 round
-                                                [((Var 2 i3))]
+                                                3 round@__lpython_overloaded_5__round
+                                                3 round
+                                                [((Var 3 i3))]
                                                 (Integer 2)
                                                 ()
                                                 ()
@@ -773,7 +773,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i4)
+                                        (Var 3 i4)
                                         (Cast
                                             (IntegerConstant 0 (Integer 4))
                                             IntegerToInteger
@@ -785,9 +785,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_3__round
-                                                2 round
-                                                [((Var 2 i4))]
+                                                3 round@__lpython_overloaded_3__round
+                                                3 round
+                                                [((Var 3 i4))]
                                                 (Integer 8)
                                                 ()
                                                 ()
@@ -805,7 +805,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -815,9 +815,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_6__round
-                                                2 round
-                                                [((Var 2 b))]
+                                                3 round@__lpython_overloaded_6__round
+                                                3 round
+                                                [((Var 3 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -830,7 +830,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -840,9 +840,9 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_6__round
-                                                2 round
-                                                [((Var 2 b))]
+                                                3 round@__lpython_overloaded_6__round
+                                                3 round
+                                                [((Var 3 b))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -857,8 +857,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 round@__lpython_overloaded_6__round
-                                                2 round
+                                                3 round@__lpython_overloaded_6__round
+                                                3 round
                                                 [((LogicalConstant
                                                     .false.
                                                     (Logical 4)
@@ -884,7 +884,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -894,24 +894,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

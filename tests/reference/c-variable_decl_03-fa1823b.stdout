@@ -5,6 +5,12 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+double _lcompilers_abs_f64(double x);
+double f();
+void _xx_lcompilers_changed_main_xx();
+void __main____global_statements();
+
+
 
 // Implementations
 double _lcompilers_abs_f64(double x)
@@ -33,7 +39,7 @@ void _xx_lcompilers_changed_main_xx()
     ASSERT(_lcompilers_abs_f64(t1 -   5.50000000000000000e+00*  1.00000000000000000e+06) <=   9.99999999999999955e-07);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     _xx_lcompilers_changed_main_xx();
 }
@@ -41,6 +47,6 @@ void _lpython_main_program()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    _lpython_main_program();
+    __main____global_statements();
     return 0;
 }

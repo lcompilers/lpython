@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/implied_do_loops.h>
+#include <libasr/pass/replace_implied_do_loops.h>
 #include <libasr/pass/pass_utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
 
@@ -210,6 +210,8 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
                 Vec<ASR::alloc_arg_t> alloc_args;
                 alloc_args.reserve(al, 1);
                 ASR::alloc_arg_t arg;
+                arg.m_len_expr = nullptr;
+                arg.m_type = nullptr;
                 arg.loc = result_var->base.loc;
                 arg.m_a = result_var;
                 arg.m_dims = dims.p;
@@ -229,6 +231,14 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
         PassUtils::ReplacerUtils::replace_ArrayConstant(x, this,
             remove_original_statement, result_vec);
         result_var = result_var_copy;
+    }
+
+    void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
+        ASR::BaseExprReplacer<ReplaceArrayConstant>::replace_ArrayPhysicalCast(x);
+        x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
+        if( x->m_old == x->m_new ) {
+            *current_expr = x->m_arg;
+        }
     }
 
 };

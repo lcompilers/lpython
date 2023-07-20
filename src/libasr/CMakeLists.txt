@@ -33,8 +33,6 @@ set(SRC
     pass/do_loops.cpp
     pass/for_all.cpp
     pass/global_stmts.cpp
-    pass/global_stmts_program.cpp
-    pass/global_symbols.cpp
     pass/select_case.cpp
     pass/init_expr.cpp
     pass/implied_do_loops.cpp
@@ -62,6 +60,7 @@ set(SRC
     pass/pass_array_by_data.cpp
     pass/pass_list_expr.cpp
     pass/pass_compare.cpp
+    pass/unique_symbols.cpp
 
     asr_verify.cpp
     asr_utils.cpp

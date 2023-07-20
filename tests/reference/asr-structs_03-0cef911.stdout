@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
                             A:
                                 (StructType
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -53,17 +53,19 @@
                                     Public
                                     .false.
                                     .false.
+                                    [(())
+                                    (())]
                                     ()
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -82,7 +84,7 @@
                                     [g]
                                     []
                                     [(SubroutineCall
-                                        7 g
+                                        2 g
                                         ()
                                         []
                                         ()
@@ -96,11 +98,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             pa:
                                                 (Variable
-                                                    3
+                                                    4
                                                     pa
                                                     []
                                                     In
@@ -109,7 +111,7 @@
                                                     Default
                                                     (Pointer
                                                         (Struct
-                                                            7 A
+                                                            2 A
                                                         )
                                                     )
                                                     ()
@@ -123,7 +125,7 @@
                                     (FunctionType
                                         [(Pointer
                                             (Struct
-                                                7 A
+                                                2 A
                                             )
                                         )]
                                         ()
@@ -140,12 +142,12 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 pa)]
+                                    [(Var 4 pa)]
                                     [(Print
                                         ()
                                         [(StructInstanceMember
-                                            (Var 3 pa)
-                                            2 x
+                                            (Var 4 pa)
+                                            3 x
                                             (Integer 4)
                                             ()
                                         )]
@@ -155,8 +157,8 @@
                                     (Print
                                         ()
                                         [(StructInstanceMember
-                                            (Var 3 pa)
-                                            2 y
+                                            (Var 4 pa)
+                                            3 y
                                             (Real 4)
                                             ()
                                         )]
@@ -172,11 +174,11 @@
                             g:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     Local
@@ -184,7 +186,7 @@
                                                     ()
                                                     Default
                                                     (Struct
-                                                        7 A
+                                                        2 A
                                                     )
                                                     ()
                                                     Source
@@ -194,7 +196,7 @@
                                                 ),
                                             xp:
                                                 (Variable
-                                                    4
+                                                    5
                                                     xp
                                                     []
                                                     Local
@@ -203,7 +205,7 @@
                                                     Default
                                                     (Pointer
                                                         (Struct
-                                                            7 A
+                                                            2 A
                                                         )
                                                     )
                                                     ()
@@ -232,9 +234,9 @@
                                     [f]
                                     []
                                     [(=
-                                        (Var 4 x)
+                                        (Var 5 x)
                                         (StructTypeConstructor
-                                            7 A
+                                            2 A
                                             [((IntegerConstant 3 (Integer 4)))
                                             ((Cast
                                                 (RealConstant
@@ -249,19 +251,19 @@
                                                 )
                                             ))]
                                             (Struct
-                                                7 A
+                                                2 A
                                             )
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 4 xp)
+                                        (Var 5 xp)
                                         (GetPointer
-                                            (Var 4 x)
+                                            (Var 5 x)
                                             (Pointer
                                                 (Struct
-                                                    7 A
+                                                    2 A
                                                 )
                                             )
                                             ()
@@ -271,8 +273,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (StructInstanceMember
-                                                (Var 4 xp)
-                                                2 x
+                                                (Var 5 xp)
+                                                3 x
                                                 (Integer 4)
                                                 ()
                                             )
@@ -287,8 +289,8 @@
                                         (RealCompare
                                             (Cast
                                                 (StructInstanceMember
-                                                    (Var 4 xp)
-                                                    2 y
+                                                    (Var 5 xp)
+                                                    3 y
                                                     (Real 4)
                                                     ()
                                                 )
@@ -308,8 +310,8 @@
                                     )
                                     (=
                                         (StructInstanceMember
-                                            (Var 4 xp)
-                                            2 x
+                                            (Var 5 xp)
+                                            3 x
                                             (Integer 4)
                                             ()
                                         )
@@ -318,8 +320,8 @@
                                     )
                                     (=
                                         (StructInstanceMember
-                                            (Var 4 xp)
-                                            2 y
+                                            (Var 5 xp)
+                                            3 y
                                             (Real 4)
                                             ()
                                         )
@@ -338,9 +340,9 @@
                                         ()
                                     )
                                     (SubroutineCall
-                                        7 f
+                                        2 f
                                         ()
-                                        [((Var 4 xp))]
+                                        [((Var 5 xp))]
                                         ()
                                     )]
                                     ()
@@ -350,7 +352,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -358,24 +360,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        8
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    8
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        8 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

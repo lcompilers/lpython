@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_pow]
                                     []
                                     [(SubroutineCall
-                                        128 test_pow
+                                        2 test_pow
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_pow:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             a1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a1
                                                     []
                                                     Local
@@ -83,7 +83,7 @@
                                                 ),
                                             a2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a2
                                                     []
                                                     Local
@@ -99,7 +99,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -115,7 +115,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -131,7 +131,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b2
                                                     []
                                                     Local
@@ -147,7 +147,7 @@
                                                 ),
                                             c1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c1
                                                     []
                                                     Local
@@ -163,7 +163,7 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex
                                                     4 complex
                                                     lpython_builtin
@@ -173,7 +173,7 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_9__complex
                                                     4 __lpython_overloaded_9__complex
                                                     lpython_builtin
@@ -183,7 +183,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    2
+                                                    3
                                                     eps
                                                     []
                                                     Local
@@ -199,7 +199,7 @@
                                                 ),
                                             f1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f1
                                                     []
                                                     Local
@@ -215,7 +215,7 @@
                                                 ),
                                             f2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f2
                                                     []
                                                     Local
@@ -231,7 +231,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -247,7 +247,7 @@
                                                 ),
                                             i1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i1
                                                     []
                                                     Local
@@ -263,7 +263,7 @@
                                                 ),
                                             i2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i2
                                                     []
                                                     Local
@@ -279,7 +279,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    2
+                                                    3
                                                     j
                                                     []
                                                     Local
@@ -295,7 +295,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    2
+                                                    3
                                                     k
                                                     []
                                                     Local
@@ -311,7 +311,7 @@
                                                 ),
                                             p:
                                                 (Variable
-                                                    2
+                                                    3
                                                     p
                                                     []
                                                     Local
@@ -327,7 +327,7 @@
                                                 ),
                                             pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow
                                                     4 pow
                                                     lpython_builtin
@@ -337,7 +337,7 @@
                                                 ),
                                             pow@__lpython_overloaded_0__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_0__pow
                                                     4 __lpython_overloaded_0__pow
                                                     lpython_builtin
@@ -347,7 +347,7 @@
                                                 ),
                                             pow@__lpython_overloaded_10__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_10__pow
                                                     4 __lpython_overloaded_10__pow
                                                     lpython_builtin
@@ -357,7 +357,7 @@
                                                 ),
                                             pow@__lpython_overloaded_11__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_11__pow
                                                     4 __lpython_overloaded_11__pow
                                                     lpython_builtin
@@ -367,7 +367,7 @@
                                                 ),
                                             pow@__lpython_overloaded_1__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_1__pow
                                                     4 __lpython_overloaded_1__pow
                                                     lpython_builtin
@@ -377,7 +377,7 @@
                                                 ),
                                             pow@__lpython_overloaded_2__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_2__pow
                                                     4 __lpython_overloaded_2__pow
                                                     lpython_builtin
@@ -387,7 +387,7 @@
                                                 ),
                                             pow@__lpython_overloaded_3__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_3__pow
                                                     4 __lpython_overloaded_3__pow
                                                     lpython_builtin
@@ -397,7 +397,7 @@
                                                 ),
                                             pow@__lpython_overloaded_4__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_4__pow
                                                     4 __lpython_overloaded_4__pow
                                                     lpython_builtin
@@ -407,7 +407,7 @@
                                                 ),
                                             pow@__lpython_overloaded_5__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_5__pow
                                                     4 __lpython_overloaded_5__pow
                                                     lpython_builtin
@@ -417,7 +417,7 @@
                                                 ),
                                             pow@__lpython_overloaded_6__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_6__pow
                                                     4 __lpython_overloaded_6__pow
                                                     lpython_builtin
@@ -427,7 +427,7 @@
                                                 ),
                                             pow@__lpython_overloaded_7__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_7__pow
                                                     4 __lpython_overloaded_7__pow
                                                     lpython_builtin
@@ -437,7 +437,7 @@
                                                 ),
                                             pow@__lpython_overloaded_8__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_8__pow
                                                     4 __lpython_overloaded_8__pow
                                                     lpython_builtin
@@ -447,7 +447,7 @@
                                                 ),
                                             pow@__lpython_overloaded_9__pow:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     pow@__lpython_overloaded_9__pow
                                                     4 __lpython_overloaded_9__pow
                                                     lpython_builtin
@@ -457,7 +457,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -473,7 +473,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -519,7 +519,7 @@
                                     pow@__lpython_overloaded_9__pow]
                                     []
                                     [(=
-                                        (Var 2 eps)
+                                        (Var 3 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -527,12 +527,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
@@ -540,10 +540,10 @@
                                         (IntegerCompare
                                             (Cast
                                                 (FunctionCall
-                                                    2 pow@__lpython_overloaded_0__pow
-                                                    2 pow
-                                                    [((Var 2 a))
-                                                    ((Var 2 b))]
+                                                    3 pow@__lpython_overloaded_0__pow
+                                                    3 pow
+                                                    [((Var 3 a))
+                                                    ((Var 3 b))]
                                                     (Real 8)
                                                     ()
                                                     ()
@@ -560,12 +560,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 6 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
@@ -573,10 +573,10 @@
                                         (IntegerCompare
                                             (Cast
                                                 (FunctionCall
-                                                    2 pow@__lpython_overloaded_0__pow
-                                                    2 pow
-                                                    [((Var 2 a))
-                                                    ((Var 2 b))]
+                                                    3 pow@__lpython_overloaded_0__pow
+                                                    3 pow
+                                                    [((Var 3 a))
+                                                    ((Var 3 b))]
                                                     (Real 8)
                                                     ()
                                                     ()
@@ -593,12 +593,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerConstant 0 (Integer 4))
                                         ()
                                     )
@@ -606,10 +606,10 @@
                                         (IntegerCompare
                                             (Cast
                                                 (FunctionCall
-                                                    2 pow@__lpython_overloaded_0__pow
-                                                    2 pow
-                                                    [((Var 2 a))
-                                                    ((Var 2 b))]
+                                                    3 pow@__lpython_overloaded_0__pow
+                                                    3 pow
+                                                    [((Var 3 a))
+                                                    ((Var 3 b))]
                                                     (Real 8)
                                                     ()
                                                     ()
@@ -626,12 +626,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 2 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
@@ -640,12 +640,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 6 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 4 (Integer 4))
                                             (Integer 4)
@@ -654,7 +654,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i1)
+                                        (Var 3 i1)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
                                             IntegerToInteger
@@ -664,7 +664,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
                                             IntegerToInteger
@@ -677,10 +677,10 @@
                                         (IntegerCompare
                                             (Cast
                                                 (FunctionCall
-                                                    2 pow@__lpython_overloaded_1__pow
-                                                    2 pow
-                                                    [((Var 2 i1))
-                                                    ((Var 2 i2))]
+                                                    3 pow@__lpython_overloaded_1__pow
+                                                    3 pow
+                                                    [((Var 3 i1))
+                                                    ((Var 3 i2))]
                                                     (Real 8)
                                                     ()
                                                     ()
@@ -702,7 +702,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i1)
+                                        (Var 3 i1)
                                         (Cast
                                             (IntegerConstant 6 (Integer 4))
                                             IntegerToInteger
@@ -712,7 +712,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i2)
+                                        (Var 3 i2)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (IntegerConstant 3 (Integer 4))
@@ -726,7 +726,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f1)
+                                        (Var 3 f1)
                                         (Cast
                                             (RealBinOp
                                                 (Cast
@@ -764,7 +764,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f2)
+                                        (Var 3 f2)
                                         (Cast
                                             (RealConstant
                                                 3.000000
@@ -780,12 +780,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 p)
+                                        (Var 3 p)
                                         (FunctionCall
-                                            2 pow@__lpython_overloaded_2__pow
-                                            2 pow
-                                            [((Var 2 f1))
-                                            ((Var 2 f2))]
+                                            3 pow@__lpython_overloaded_2__pow
+                                            3 pow
+                                            [((Var 3 f1))
+                                            ((Var 3 f2))]
                                             (Real 4)
                                             ()
                                             ()
@@ -793,12 +793,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f1)
+                                        (Var 3 f1)
                                         (FunctionCall
-                                            2 pow@__lpython_overloaded_4__pow
-                                            2 pow
-                                            [((Var 2 a))
-                                            ((Var 2 f2))]
+                                            3 pow@__lpython_overloaded_4__pow
+                                            3 pow
+                                            [((Var 3 a))
+                                            ((Var 3 f2))]
                                             (Real 4)
                                             ()
                                             ()
@@ -806,12 +806,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f1)
+                                        (Var 3 f1)
                                         (FunctionCall
-                                            2 pow@__lpython_overloaded_5__pow
-                                            2 pow
-                                            [((Var 2 f2))
-                                            ((Var 2 a))]
+                                            3 pow@__lpython_overloaded_5__pow
+                                            3 pow
+                                            [((Var 3 f2))
+                                            ((Var 3 a))]
                                             (Real 4)
                                             ()
                                             ()
@@ -819,7 +819,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -827,7 +827,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -837,10 +837,10 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_8__pow
-                                                2 pow
-                                                [((Var 2 b1))
-                                                ((Var 2 b2))]
+                                                3 pow@__lpython_overloaded_8__pow
+                                                3 pow
+                                                [((Var 3 b1))
+                                                ((Var 3 b2))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -855,10 +855,10 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_8__pow
-                                                2 pow
-                                                [((Var 2 b2))
-                                                ((Var 2 b1))]
+                                                3 pow@__lpython_overloaded_8__pow
+                                                3 pow
+                                                [((Var 3 b2))
+                                                ((Var 3 b1))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -873,10 +873,10 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_8__pow
-                                                2 pow
-                                                [((Var 2 b1))
-                                                ((Var 2 b2))]
+                                                3 pow@__lpython_overloaded_8__pow
+                                                3 pow
+                                                [((Var 3 b1))
+                                                ((Var 3 b2))]
                                                 (Integer 4)
                                                 ()
                                                 ()
@@ -891,8 +891,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_8__pow
-                                                2 pow
+                                                3 pow@__lpython_overloaded_8__pow
+                                                3 pow
                                                 [((LogicalConstant
                                                     .false.
                                                     (Logical 4)
@@ -916,7 +916,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a1)
+                                        (Var 3 a1)
                                         (RealConstant
                                             4.500000
                                             (Real 8)
@@ -924,7 +924,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a2)
+                                        (Var 3 a2)
                                         (RealConstant
                                             2.300000
                                             (Real 8)
@@ -937,10 +937,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_3__pow
-                                                        2 pow
-                                                        [((Var 2 a1))
-                                                        ((Var 2 a2))]
+                                                        3 pow@__lpython_overloaded_3__pow
+                                                        3 pow
+                                                        [((Var 3 a1))
+                                                        ((Var 3 a2))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -958,7 +958,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -970,10 +970,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_3__pow
-                                                        2 pow
-                                                        [((Var 2 a2))
-                                                        ((Var 2 a1))]
+                                                        3 pow@__lpython_overloaded_3__pow
+                                                        3 pow
+                                                        [((Var 3 a2))
+                                                        ((Var 3 a1))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -991,19 +991,19 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (IntegerConstant 3 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 y)
+                                        (Var 3 y)
                                         (RealConstant
                                             2.300000
                                             (Real 8)
@@ -1016,10 +1016,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_6__pow
-                                                        2 pow
-                                                        [((Var 2 x))
-                                                        ((Var 2 y))]
+                                                        3 pow@__lpython_overloaded_6__pow
+                                                        3 pow
+                                                        [((Var 3 x))
+                                                        ((Var 3 y))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -1037,7 +1037,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1049,10 +1049,10 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_7__pow
-                                                        2 pow
-                                                        [((Var 2 y))
-                                                        ((Var 2 x))]
+                                                        3 pow@__lpython_overloaded_7__pow
+                                                        3 pow
+                                                        [((Var 3 y))
+                                                        ((Var 3 x))]
                                                         (Real 8)
                                                         ()
                                                         ()
@@ -1070,7 +1070,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1082,9 +1082,9 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_6__pow
-                                                        2 pow
-                                                        [((Var 2 x))
+                                                        3 pow@__lpython_overloaded_6__pow
+                                                        3 pow
+                                                        [((Var 3 x))
                                                         ((RealConstant
                                                             5.500000
                                                             (Real 8)
@@ -1106,7 +1106,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1118,8 +1118,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_1__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_1__pow
+                                                        3 pow
                                                         [((Cast
                                                             (IntegerConstant 2 (Integer 4))
                                                             IntegerToInteger
@@ -1162,7 +1162,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1174,8 +1174,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_1__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_1__pow
+                                                        3 pow
                                                         [((Cast
                                                             (IntegerConstant 6 (Integer 4))
                                                             IntegerToInteger
@@ -1218,7 +1218,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1230,8 +1230,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_1__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_1__pow
+                                                        3 pow
                                                         [((IntegerUnaryMinus
                                                             (Cast
                                                                 (IntegerConstant 3 (Integer 4))
@@ -1278,7 +1278,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1290,8 +1290,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_1__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_1__pow
+                                                        3 pow
                                                         [((Cast
                                                             (IntegerConstant 6 (Integer 4))
                                                             IntegerToInteger
@@ -1334,7 +1334,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1346,8 +1346,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_3__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_3__pow
+                                                        3 pow
                                                         [((RealConstant
                                                             4.500000
                                                             (Real 8)
@@ -1382,7 +1382,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1394,8 +1394,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_3__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_3__pow
+                                                        3 pow
                                                         [((RealConstant
                                                             2.300000
                                                             (Real 8)
@@ -1430,7 +1430,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1442,8 +1442,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_3__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_3__pow
+                                                        3 pow
                                                         [((RealConstant
                                                             2.300000
                                                             (Real 8)
@@ -1485,7 +1485,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1497,8 +1497,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_6__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_6__pow
+                                                        3 pow
                                                         [((IntegerConstant 2 (Integer 4)))
                                                         ((RealConstant
                                                             3.400000
@@ -1530,7 +1530,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1542,8 +1542,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_6__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_6__pow
+                                                        3 pow
                                                         [((IntegerConstant 2 (Integer 4)))
                                                         ((RealUnaryMinus
                                                             (RealConstant
@@ -1582,7 +1582,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1594,8 +1594,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_7__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_7__pow
+                                                        3 pow
                                                         [((RealConstant
                                                             3.400000
                                                             (Real 8)
@@ -1627,7 +1627,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1639,8 +1639,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_7__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_7__pow
+                                                        3 pow
                                                         [((RealConstant
                                                             0.000000
                                                             (Real 8)
@@ -1672,7 +1672,7 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -1682,8 +1682,8 @@
                                         (IntegerCompare
                                             (Cast
                                                 (FunctionCall
-                                                    2 pow@__lpython_overloaded_0__pow
-                                                    2 pow
+                                                    3 pow@__lpython_overloaded_0__pow
+                                                    3 pow
                                                     [((IntegerConstant 4 (Integer 4)))
                                                     ((IntegerConstant 2 (Integer 4)))]
                                                     (Real 8)
@@ -1713,8 +1713,8 @@
                                                 Abs
                                                 [(RealBinOp
                                                     (FunctionCall
-                                                        2 pow@__lpython_overloaded_7__pow
-                                                        2 pow
+                                                        3 pow@__lpython_overloaded_7__pow
+                                                        3 pow
                                                         [((RealUnaryMinus
                                                             (RealConstant
                                                                 4235.000000
@@ -1753,14 +1753,14 @@
                                                 )
                                             )
                                             Lt
-                                            (Var 2 eps)
+                                            (Var 3 eps)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (Cast
                                             (IntegerConstant 7 (Integer 4))
                                             IntegerToInteger
@@ -1770,7 +1770,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 j)
+                                        (Var 3 j)
                                         (Cast
                                             (IntegerConstant 2 (Integer 4))
                                             IntegerToInteger
@@ -1780,7 +1780,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 k)
+                                        (Var 3 k)
                                         (Cast
                                             (IntegerConstant 5 (Integer 4))
                                             IntegerToInteger
@@ -1792,11 +1792,11 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_11__pow
-                                                2 pow
-                                                [((Var 2 i))
-                                                ((Var 2 j))
-                                                ((Var 2 k))]
+                                                3 pow@__lpython_overloaded_11__pow
+                                                3 pow
+                                                [((Var 3 i))
+                                                ((Var 3 j))
+                                                ((Var 3 k))]
                                                 (Integer 8)
                                                 ()
                                                 ()
@@ -1816,8 +1816,8 @@
                                     (Assert
                                         (IntegerCompare
                                             (FunctionCall
-                                                2 pow@__lpython_overloaded_10__pow
-                                                2 pow
+                                                3 pow@__lpython_overloaded_10__pow
+                                                3 pow
                                                 [((IntegerConstant 102 (Integer 4)))
                                                 ((IntegerConstant 3 (Integer 4)))
                                                 ((IntegerConstant 121 (Integer 4)))]
@@ -1839,11 +1839,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c1)
+                                        (Var 3 c1)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_9__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
                                                 [((IntegerConstant 4 (Integer 4)))
                                                 ((IntegerConstant 5 (Integer 4)))]
                                                 (Complex 8)
@@ -1865,11 +1865,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c1)
+                                        (Var 3 c1)
                                         (FunctionCall
-                                            2 pow@__lpython_overloaded_9__pow
-                                            2 pow
-                                            [((Var 2 c1))
+                                            3 pow@__lpython_overloaded_9__pow
+                                            3 pow
+                                            [((Var 3 c1))
                                             ((IntegerConstant 4 (Integer 4)))]
                                             (Complex 4)
                                             ()
@@ -1884,7 +1884,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -1894,24 +1894,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -1,7 +1,6 @@
 from lpython import i32, f32, TypeVar
 from numpy import empty, sqrt, float32
 
-n: i32
 n = TypeVar("n")
 
 def modify(array_a: f32[:], n: i32) -> f32[n]:

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        127
+                                        126
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_bin]
                                     []
                                     [(SubroutineCall
-                                        128 test_bin
+                                        2 test_bin
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_bin:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             bin:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     bin
                                                     4 bin
                                                     lpython_builtin
@@ -61,7 +61,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -95,16 +95,16 @@
                                     [bin]
                                     []
                                     [(=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerConstant 5 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 bin
+                                                3 bin
                                                 ()
-                                                [((Var 2 i))]
+                                                [((Var 3 i))]
                                                 (Character 1 -2 ())
                                                 ()
                                                 ()
@@ -120,16 +120,16 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerConstant 64 (Integer 4))
                                         ()
                                     )
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 bin
+                                                3 bin
                                                 ()
-                                                [((Var 2 i))]
+                                                [((Var 3 i))]
                                                 (Character 1 -2 ())
                                                 ()
                                                 ()
@@ -145,7 +145,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 i)
+                                        (Var 3 i)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 534 (Integer 4))
                                             (Integer 4)
@@ -156,9 +156,9 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 bin
+                                                3 bin
                                                 ()
-                                                [((Var 2 i))]
+                                                [((Var 3 i))]
                                                 (Character 1 -2 ())
                                                 ()
                                                 ()
@@ -176,7 +176,7 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 bin
+                                                3 bin
                                                 ()
                                                 [((IntegerConstant 64 (Integer 4)))]
                                                 (Character 1 -2 ())
@@ -202,7 +202,7 @@
                                     (Assert
                                         (StringCompare
                                             (FunctionCall
-                                                2 bin
+                                                3 bin
                                                 ()
                                                 [((IntegerUnaryMinus
                                                     (IntegerConstant 534 (Integer 4))
@@ -236,7 +236,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.
@@ -246,24 +246,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        127
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    126
-                                    _lpython_main_program
-                                    128 _lpython_main_program
-                                    _global_symbols
+                                    127
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        126 _lpython_main_program
-                        ()
+                        127 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

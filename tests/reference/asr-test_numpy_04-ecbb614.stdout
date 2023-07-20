@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        206
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
-                                        205
+                                        203
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        206 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        203
+                                        202
                                         {
                                             
                                         })
@@ -71,13 +71,13 @@
                                     test_array_02]
                                     []
                                     [(SubroutineCall
-                                        206 test_array_01
+                                        2 test_array_01
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        206 test_array_02
+                                        2 test_array_02
                                         ()
                                         []
                                         ()
@@ -89,6 +89,205 @@
                                     ()
                                 ),
                             test_array_01:
+                                (Function
+                                    (SymbolTable
+                                        200
+                                        {
+                                            eps:
+                                                (Variable
+                                                    200
+                                                    eps
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    200
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 3 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_array_01
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 200 x)
+                                        (ArrayConstant
+                                            [(RealConstant
+                                                1.000000
+                                                (Real 8)
+                                            )
+                                            (RealConstant
+                                                2.000000
+                                                (Real 8)
+                                            )
+                                            (RealConstant
+                                                3.000000
+                                                (Real 8)
+                                            )]
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 200 eps)
+                                        (RealConstant
+                                            0.000000
+                                            (Real 8)
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (ArrayItem
+                                                        (Var 200 x)
+                                                        [(()
+                                                        (IntegerConstant 0 (Integer 4))
+                                                        ())]
+                                                        (Real 8)
+                                                        RowMajor
+                                                        ()
+                                                    )
+                                                    Sub
+                                                    (RealConstant
+                                                        1.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (Var 200 eps)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (ArrayItem
+                                                        (Var 200 x)
+                                                        [(()
+                                                        (IntegerConstant 1 (Integer 4))
+                                                        ())]
+                                                        (Real 8)
+                                                        RowMajor
+                                                        ()
+                                                    )
+                                                    Sub
+                                                    (RealConstant
+                                                        2.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (Var 200 eps)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (ArrayItem
+                                                        (Var 200 x)
+                                                        [(()
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        ())]
+                                                        (Real 8)
+                                                        RowMajor
+                                                        ()
+                                                    )
+                                                    Sub
+                                                    (RealConstant
+                                                        3.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (Var 200 eps)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_array_02:
                                 (Function
                                     (SymbolTable
                                         201
@@ -119,206 +318,10 @@
                                                     ()
                                                     Default
                                                     (Array
-                                                        (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 3 (Integer 4)))]
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    test_array_01
-                                    (FunctionType
-                                        []
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        []
-                                        .false.
-                                    )
-                                    []
-                                    []
-                                    [(=
-                                        (Var 201 x)
-                                        (ArrayConstant
-                                            [(RealConstant
-                                                1.000000
-                                                (Real 8)
-                                            )
-                                            (RealConstant
-                                                2.000000
-                                                (Real 8)
-                                            )
-                                            (RealConstant
-                                                3.000000
-                                                (Real 8)
-                                            )]
-                                            (Array
-                                                (Real 8)
-                                                [(()
-                                                ())]
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 201 eps)
-                                        (RealConstant
-                                            0.000000
-                                            (Real 8)
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (RealCompare
-                                            (IntrinsicFunction
-                                                Abs
-                                                [(RealBinOp
-                                                    (ArrayItem
-                                                        (Var 201 x)
-                                                        [(()
-                                                        (IntegerConstant 0 (Integer 4))
-                                                        ())]
-                                                        (Real 8)
-                                                        RowMajor
-                                                        ()
-                                                    )
-                                                    Sub
-                                                    (RealConstant
-                                                        1.000000
-                                                        (Real 8)
-                                                    )
-                                                    (Real 8)
-                                                    ()
-                                                )]
-                                                0
-                                                (Real 8)
-                                                ()
-                                            )
-                                            Lt
-                                            (Var 201 eps)
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (RealCompare
-                                            (IntrinsicFunction
-                                                Abs
-                                                [(RealBinOp
-                                                    (ArrayItem
-                                                        (Var 201 x)
-                                                        [(()
-                                                        (IntegerConstant 1 (Integer 4))
-                                                        ())]
-                                                        (Real 8)
-                                                        RowMajor
-                                                        ()
-                                                    )
-                                                    Sub
-                                                    (RealConstant
-                                                        2.000000
-                                                        (Real 8)
-                                                    )
-                                                    (Real 8)
-                                                    ()
-                                                )]
-                                                0
-                                                (Real 8)
-                                                ()
-                                            )
-                                            Lt
-                                            (Var 201 eps)
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (Assert
-                                        (RealCompare
-                                            (IntrinsicFunction
-                                                Abs
-                                                [(RealBinOp
-                                                    (ArrayItem
-                                                        (Var 201 x)
-                                                        [(()
-                                                        (IntegerConstant 2 (Integer 4))
-                                                        ())]
-                                                        (Real 8)
-                                                        RowMajor
-                                                        ()
-                                                    )
-                                                    Sub
-                                                    (RealConstant
-                                                        3.000000
-                                                        (Real 8)
-                                                    )
-                                                    (Real 8)
-                                                    ()
-                                                )]
-                                                0
-                                                (Real 8)
-                                                ()
-                                            )
-                                            Lt
-                                            (Var 201 eps)
-                                            (Logical 4)
-                                            ()
-                                        )
-                                        ()
-                                    )]
-                                    ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            test_array_02:
-                                (Function
-                                    (SymbolTable
-                                        202
-                                        {
-                                            eps:
-                                                (Variable
-                                                    202
-                                                    eps
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Real 8)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            x:
-                                                (Variable
-                                                    202
-                                                    x
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
                                                         (Integer 4)
                                                         [((IntegerConstant 0 (Integer 4))
                                                         (IntegerConstant 3 (Integer 4)))]
+                                                        FixedSizeArray
                                                     )
                                                     ()
                                                     Source
@@ -346,22 +349,23 @@
                                     []
                                     []
                                     [(=
-                                        (Var 202 x)
+                                        (Var 201 x)
                                         (ArrayConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
                                             (IntegerConstant 3 (Integer 4))]
                                             (Array
                                                 (Integer 4)
-                                                [(()
-                                                ())]
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                PointerToDataArray
                                             )
                                             RowMajor
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 202 eps)
+                                        (Var 201 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -375,7 +379,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 202 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 0 (Integer 4))
                                                             ())]
@@ -397,7 +401,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 202 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -410,7 +414,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 202 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 1 (Integer 4))
                                                             ())]
@@ -432,7 +436,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 202 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -445,7 +449,7 @@
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
-                                                            (Var 202 x)
+                                                            (Var 201 x)
                                                             [(()
                                                             (IntegerConstant 2 (Integer 4))
                                                             ())]
@@ -467,7 +471,7 @@
                                                 ()
                                             )
                                             Lt
-                                            (Var 202 eps)
+                                            (Var 201 eps)
                                             (Logical 4)
                                             ()
                                         )
@@ -480,8 +484,8 @@
                                     ()
                                 )
                         })
-                    _global_symbols
-                    []
+                    __main__
+                    [numpy]
                     .false.
                     .false.
                 ),
@@ -492,22 +496,22 @@
                     (SymbolTable
                         204
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
                                     204
-                                    _lpython_main_program
-                                    206 _lpython_main_program
-                                    _global_symbols
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        204 _lpython_main_program
-                        ()
+                        204 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -4,17 +4,17 @@ source_filename = "LFortran"
 @0 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 @1 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
-define void @__module__global_symbols__lpython_main_program() {
+define void @__module___main_____main____global_statements() {
 .entry:
-  call void @__module__global_symbols_main0()
-  call void @__module__global_symbols__xx_lcompilers_changed_main_xx()
+  call void @__module___main___main0()
+  call void @__module___main____xx_lcompilers_changed_main_xx()
   br label %return
 
 return:                                           ; preds = %.entry
   ret void
 }
 
-define i64 @__module__global_symbols_fib(i64* %n) {
+define i64 @__module___main___fib(i64* %n) {
 .entry:
   %call_arg_value1 = alloca i64, align 8
   %call_arg_value = alloca i64, align 8
@@ -35,11 +35,11 @@ else:                                             ; preds = %.entry
   %3 = load i64, i64* %n, align 4
   %4 = sub i64 %3, 1
   store i64 %4, i64* %call_arg_value, align 4
-  %5 = call i64 @__module__global_symbols_fib(i64* %call_arg_value)
+  %5 = call i64 @__module___main___fib(i64* %call_arg_value)
   %6 = load i64, i64* %n, align 4
   %7 = sub i64 %6, 2
   store i64 %7, i64* %call_arg_value1, align 4
-  %8 = call i64 @__module__global_symbols_fib(i64* %call_arg_value1)
+  %8 = call i64 @__module___main___fib(i64* %call_arg_value1)
   %9 = add i64 %5, %8
   store i64 %9, i64* %_lpython_return_variable, align 4
   br label %return
@@ -55,12 +55,12 @@ return:                                           ; preds = %ifcont, %else, %the
   ret i64 %10
 }
 
-define void @__module__global_symbols__xx_lcompilers_changed_main_xx() {
+define void @__module___main____xx_lcompilers_changed_main_xx() {
 .entry:
   %call_arg_value = alloca i64, align 8
   %ans = alloca i64, align 8
   store i64 10, i64* %call_arg_value, align 4
-  %0 = call i64 @__module__global_symbols_fib(i64* %call_arg_value)
+  %0 = call i64 @__module___main___fib(i64* %call_arg_value)
   store i64 %0, i64* %ans, align 4
   %1 = load i64, i64* %ans, align 4
   %2 = icmp eq i64 %1, 55
@@ -81,12 +81,12 @@ return:                                           ; preds = %ifcont
   ret void
 }
 
-define void @__module__global_symbols_main0() {
+define void @__module___main___main0() {
 .entry:
   %call_arg_value = alloca i64, align 8
   %ans = alloca i64, align 8
   store i64 15, i64* %call_arg_value, align 4
-  %0 = call i64 @__module__global_symbols_fib(i64* %call_arg_value)
+  %0 = call i64 @__module___main___fib(i64* %call_arg_value)
   store i64 %0, i64* %ans, align 4
   %1 = load i64, i64* %ans, align 4
   %2 = icmp eq i64 %1, 610
@@ -114,7 +114,7 @@ declare void @exit(i32)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module__global_symbols__lpython_main_program()
+  call void @__module___main_____main____global_statements()
   ret i32 0
 }
 

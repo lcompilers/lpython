@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-test_unary_op_03-fd9669a",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/test_unary_op_03.py",
+    "infile_hash": "ce63509c56eb6c68ca6d64cc2a195644f3d2fc285f3ec8865551eff5",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-test_unary_op_03-fd9669a.stdout",
+    "stdout_hash": "1105b1727159860e90e30c9035022ba0b63f471aa698f31717c8b826",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

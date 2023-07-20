@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        127
+                        2
                         {
                             test_UnaryOp:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -46,7 +46,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b1
                                                     []
                                                     Local
@@ -62,7 +62,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b2
                                                     []
                                                     Local
@@ -78,7 +78,7 @@
                                                 ),
                                             b3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b3
                                                     []
                                                     Local
@@ -94,7 +94,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -110,7 +110,7 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex
                                                     4 complex
                                                     lpython_builtin
@@ -120,7 +120,7 @@
                                                 ),
                                             complex@__lpython_overloaded_13__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_13__complex
                                                     4 __lpython_overloaded_13__complex
                                                     lpython_builtin
@@ -130,7 +130,7 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_9__complex
                                                     4 __lpython_overloaded_9__complex
                                                     lpython_builtin
@@ -140,7 +140,7 @@
                                                 ),
                                             f:
                                                 (Variable
-                                                    2
+                                                    3
                                                     f
                                                     []
                                                     Local
@@ -174,12 +174,12 @@
                                     [complex@__lpython_overloaded_13__complex]
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 4 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerUnaryMinus
                                             (IntegerConstant 500 (Integer 4))
                                             (Integer 4)
@@ -188,7 +188,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerBitNot
                                             (IntegerConstant 5 (Integer 4))
                                             (Integer 4)
@@ -197,7 +197,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalNot
                                             (Cast
                                                 (IntegerConstant 5 (Integer 4))
@@ -217,7 +217,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalNot
                                             (Cast
                                                 (IntegerUnaryMinus
@@ -241,7 +241,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (LogicalNot
                                             (Cast
                                                 (IntegerConstant 0 (Integer 4))
@@ -261,7 +261,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealConstant
                                             1.000000
                                             (Real 4)
@@ -269,7 +269,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 f)
+                                        (Var 3 f)
                                         (RealUnaryMinus
                                             (Cast
                                                 (RealConstant
@@ -292,7 +292,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -300,7 +300,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (LogicalNot
                                             (LogicalConstant
                                                 .false.
@@ -315,21 +315,21 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b3)
+                                        (Var 3 b3)
                                         (LogicalNot
-                                            (Var 2 b2)
+                                            (Var 3 b2)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerConstant 1 (Integer 4))
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerUnaryMinus
                                             (Cast
                                                 (LogicalConstant
@@ -346,7 +346,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (IntegerBitNot
                                             (Cast
                                                 (LogicalConstant
@@ -363,7 +363,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ComplexConstant
                                             1.000000
                                             2.000000
@@ -372,12 +372,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ComplexUnaryMinus
                                             (Cast
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_13__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_13__complex
+                                                    3 complex
                                                     [((IntegerConstant 3 (Integer 4)))
                                                     ((RealConstant
                                                         65.000000
@@ -409,7 +409,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b1)
+                                        (Var 3 b1)
                                         (LogicalConstant
                                             .false.
                                             (Logical 4)
@@ -417,7 +417,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b2)
+                                        (Var 3 b2)
                                         (LogicalConstant
                                             .true.
                                             (Logical 4)
@@ -431,7 +431,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.

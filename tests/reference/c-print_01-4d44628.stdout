@@ -5,6 +5,10 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+void f();
+void __main____global_statements();
+
+
 
 // Implementations
 void f()
@@ -23,7 +27,7 @@ void f()
     printf("%s%s%s\n", "LCompilers", " ", "LPython");
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     f();
 }
@@ -31,6 +35,6 @@ void _lpython_main_program()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    _lpython_main_program();
+    __main____global_statements();
     return 0;
 }

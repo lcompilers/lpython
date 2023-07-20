@@ -400,12 +400,12 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     p.visit_TranslationUnit(*tu);
 
 #if defined(WITH_LFORTRAN_ASSERT)
-        diag::Diagnostics diagnostics;
-        if (!asr_verify(*tu, false, diagnostics)) {
-            std::cerr << diagnostics.render2();
-            throw LCompilersException("Verify failed");
-        };
-#endif
+    diag::Diagnostics diagnostics;
+    if (!asr_verify(*tu, false, diagnostics)) {
+        std::cerr << diagnostics.render2();
+        throw LCompilersException("Verify failed");
+    };
+ #endif
 
     return node;
 }

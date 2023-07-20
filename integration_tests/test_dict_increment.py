@@ -22,21 +22,21 @@ def test_dict_increment():
         d_int_int[1] += i1
         i2 += i1
         assert d_int_int[1] == i2
-    
+
     i2 = 10
     d_int_int = {0: 0, 1: 0}
     for i1 in range(i2):
         d_int_int[i1 % 2] += 1
     assert d_int_int[0] == d_int_int[1]
     assert d_int_int[0] == i2 // 2
-    
+
     j1 = 2.0
     d_int_float = {2: j1}
     while j1 < 4.0:
         d_int_float[2] += 0.1
         j1 += 0.1
         assert d_int_float[2] == j1
-    
+
     j1 = 0.0
     j2 = 0.0
     d_bool_float = {True: 0.0, False: 0.0}

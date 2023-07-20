@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        128
+                        2
                         {
                             test:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     Local
@@ -46,7 +46,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     z
                                                     []
                                                     Local
@@ -80,7 +80,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 2 (Integer 4))
@@ -108,7 +108,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (ComplexBinOp
                                             (Cast
                                                 (IntegerConstant 5 (Integer 4))
@@ -136,12 +136,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 z)
+                                        (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 Add
-                                                (Var 3 y)
+                                                (Var 4 y)
                                                 (Complex 8)
                                                 ()
                                             )
@@ -152,12 +152,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 z)
+                                        (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 Sub
-                                                (Var 3 y)
+                                                (Var 4 y)
                                                 (Complex 8)
                                                 ()
                                             )
@@ -168,7 +168,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 z)
+                                        (Var 4 z)
                                         (Cast
                                             (ComplexBinOp
                                                 (Cast
@@ -182,7 +182,7 @@
                                                     )
                                                 )
                                                 Mul
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 (Complex 8)
                                                 ()
                                             )
@@ -201,11 +201,11 @@
                             test_complex:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -221,7 +221,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -237,7 +237,7 @@
                                                 ),
                                             c1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c1
                                                     []
                                                     Local
@@ -253,7 +253,7 @@
                                                 ),
                                             c2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c2
                                                     []
                                                     Local
@@ -269,7 +269,7 @@
                                                 ),
                                             c3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c3
                                                     []
                                                     Local
@@ -285,7 +285,7 @@
                                                 ),
                                             complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex
                                                     5 complex
                                                     lpython_builtin
@@ -295,7 +295,7 @@
                                                 ),
                                             complex@__lpython_overloaded_0__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_0__complex
                                                     5 __lpython_overloaded_0__complex
                                                     lpython_builtin
@@ -305,7 +305,7 @@
                                                 ),
                                             complex@__lpython_overloaded_13__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_13__complex
                                                     5 __lpython_overloaded_13__complex
                                                     lpython_builtin
@@ -315,7 +315,7 @@
                                                 ),
                                             complex@__lpython_overloaded_1__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_1__complex
                                                     5 __lpython_overloaded_1__complex
                                                     lpython_builtin
@@ -325,7 +325,7 @@
                                                 ),
                                             complex@__lpython_overloaded_2__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_2__complex
                                                     5 __lpython_overloaded_2__complex
                                                     lpython_builtin
@@ -335,7 +335,7 @@
                                                 ),
                                             complex@__lpython_overloaded_5__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_5__complex
                                                     5 __lpython_overloaded_5__complex
                                                     lpython_builtin
@@ -345,7 +345,7 @@
                                                 ),
                                             complex@__lpython_overloaded_9__complex:
                                                 (ExternalSymbol
-                                                    2
+                                                    3
                                                     complex@__lpython_overloaded_9__complex
                                                     5 __lpython_overloaded_9__complex
                                                     lpython_builtin
@@ -378,11 +378,11 @@
                                     complex@__lpython_overloaded_13__complex]
                                     []
                                     [(=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_0__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_0__complex
+                                                3 complex
                                                 []
                                                 (Complex 8)
                                                 (ComplexConstant
@@ -403,11 +403,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_1__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_1__complex
+                                                3 complex
                                                 [((RealConstant
                                                     3.400000
                                                     (Real 8)
@@ -431,11 +431,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_5__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_5__complex
+                                                3 complex
                                                 [((RealConstant
                                                     5.000000
                                                     (Real 8)
@@ -463,10 +463,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (FunctionCall
-                                            2 complex@__lpython_overloaded_2__complex
-                                            2 complex
+                                            3 complex@__lpython_overloaded_2__complex
+                                            3 complex
                                             [((IntegerConstant 1 (Integer 4)))]
                                             (Complex 4)
                                             (ComplexConstant
@@ -479,11 +479,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c1)
+                                        (Var 3 c1)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_9__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
                                                 [((IntegerConstant 3 (Integer 4)))
                                                 ((IntegerConstant 4 (Integer 4)))]
                                                 (Complex 8)
@@ -505,11 +505,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c2)
+                                        (Var 3 c2)
                                         (Cast
                                             (FunctionCall
-                                                2 complex@__lpython_overloaded_13__complex
-                                                2 complex
+                                                3 complex@__lpython_overloaded_13__complex
+                                                3 complex
                                                 [((IntegerConstant 2 (Integer 4)))
                                                 ((RealConstant
                                                     4.500000
@@ -534,10 +534,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c3)
+                                        (Var 3 c3)
                                         (FunctionCall
-                                            2 complex@__lpython_overloaded_5__complex
-                                            2 complex
+                                            3 complex@__lpython_overloaded_5__complex
+                                            3 complex
                                             [((RealConstant
                                                 3.000000
                                                 (Real 8)
@@ -557,72 +557,72 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (ComplexCompare
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             NotEq
-                                            (Var 2 c2)
+                                            (Var 3 c2)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (ComplexCompare
                                             (Cast
-                                                (Var 2 c1)
+                                                (Var 3 c1)
                                                 ComplexToComplex
                                                 (Complex 8)
                                                 ()
                                             )
                                             Eq
-                                            (Var 2 c3)
+                                            (Var 3 c3)
                                             (Logical 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ComplexBinOp
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             Add
-                                            (Var 2 c2)
+                                            (Var 3 c2)
                                             (Complex 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ComplexBinOp
-                                            (Var 2 c2)
+                                            (Var 3 c2)
                                             Sub
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             (Complex 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ComplexBinOp
-                                            (Var 2 c1)
+                                            (Var 3 c1)
                                             Mul
-                                            (Var 2 c2)
+                                            (Var 3 c2)
                                             (Complex 4)
                                             ()
                                         )
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 1 (Integer 4)))
                                                     ((IntegerConstant 2 (Integer 4)))]
                                                     (Complex 8)
@@ -635,8 +635,8 @@
                                                 )
                                                 Pow
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_5__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_5__complex
+                                                    3 complex
                                                     [((RealConstant
                                                         3.345340
                                                         (Real 8)
@@ -671,12 +671,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 1 (Integer 4)))
                                                     ((IntegerConstant 2 (Integer 4)))]
                                                     (Complex 8)
@@ -689,8 +689,8 @@
                                                 )
                                                 Mul
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 3 (Integer 4)))
                                                     ((IntegerConstant 4 (Integer 4)))]
                                                     (Complex 8)
@@ -719,12 +719,12 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (Cast
                                             (ComplexBinOp
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 4 (Integer 4)))
                                                     ((IntegerConstant 5 (Integer 4)))]
                                                     (Complex 8)
@@ -737,8 +737,8 @@
                                                 )
                                                 Sub
                                                 (FunctionCall
-                                                    2 complex@__lpython_overloaded_9__complex
-                                                    2 complex
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
                                                     [((IntegerConstant 3 (Integer 4)))
                                                     ((IntegerConstant 4 (Integer 4)))]
                                                     (Complex 8)
@@ -773,7 +773,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     [lpython_builtin]
                     .false.
                     .false.

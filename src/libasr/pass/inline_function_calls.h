@@ -7,8 +7,8 @@
 namespace LCompilers {
 
     void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
-                                    const LCompilers::PassOptions& pass_options);
+                                const PassOptions &pass_options);
 
 } // namespace LCompilers
 
-#endif // LIBASR_PASS_FMA_H
+#endif // LIBASR_PASS_INLINE_FUNCTION_CALLS_H

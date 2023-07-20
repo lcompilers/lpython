@@ -1,0 +1,193 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main____global_statements:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            
+                                        })
+                                    __main____global_statements
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    [f]
+                                    []
+                                    [(SubroutineCall
+                                        2 f
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            i:
+                                                (Variable
+                                                    3
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            res:
+                                                (Variable
+                                                    3
+                                                    res
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 i)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 res)
+                                        (IntegerBitNot
+                                            (Var 3 i)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 res)
+                                            Eq
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 6 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -6 (Integer 4))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 i)
+                                        (IntegerUnaryMinus
+                                            (IntegerConstant 235346 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant -235346 (Integer 4))
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (IntegerBitNot
+                                                (Var 3 i)
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 235345 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        5
+                        {
+                            __main____global_statements:
+                                (ExternalSymbol
+                                    5
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
+                                    []
+                                    __main____global_statements
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        5 __main____global_statements
+                        2 __main____global_statements
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

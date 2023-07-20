@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        6
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         5
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [main]
                                     []
                                     [(SubroutineCall
-                                        6 main
+                                        2 main
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             fib:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             _lpython_return_variable:
                                                 (Variable
-                                                    2
+                                                    3
                                                     _lpython_return_variable
                                                     []
                                                     ReturnVar
@@ -67,7 +67,7 @@
                                                 ),
                                             n:
                                                 (Variable
-                                                    2
+                                                    3
                                                     n
                                                     []
                                                     In
@@ -99,10 +99,10 @@
                                         .false.
                                     )
                                     [fib]
-                                    [(Var 2 n)]
+                                    [(Var 3 n)]
                                     [(If
                                         (IntegerCompare
-                                            (Var 2 n)
+                                            (Var 3 n)
                                             Lt
                                             (Cast
                                                 (IntegerConstant 2 (Integer 4))
@@ -114,21 +114,21 @@
                                             ()
                                         )
                                         [(=
-                                            (Var 2 _lpython_return_variable)
-                                            (Var 2 n)
+                                            (Var 3 _lpython_return_variable)
+                                            (Var 3 n)
                                             ()
                                         )
                                         (Return)]
                                         []
                                     )
                                     (=
-                                        (Var 2 _lpython_return_variable)
+                                        (Var 3 _lpython_return_variable)
                                         (IntegerBinOp
                                             (FunctionCall
-                                                6 fib
+                                                2 fib
                                                 ()
                                                 [((IntegerBinOp
-                                                    (Var 2 n)
+                                                    (Var 3 n)
                                                     Sub
                                                     (Cast
                                                         (IntegerConstant 1 (Integer 4))
@@ -145,10 +145,10 @@
                                             )
                                             Add
                                             (FunctionCall
-                                                6 fib
+                                                2 fib
                                                 ()
                                                 [((IntegerBinOp
-                                                    (Var 2 n)
+                                                    (Var 3 n)
                                                     Sub
                                                     (Cast
                                                         (IntegerConstant 2 (Integer 4))
@@ -169,7 +169,7 @@
                                         ()
                                     )
                                     (Return)]
-                                    (Var 2 _lpython_return_variable)
+                                    (Var 3 _lpython_return_variable)
                                     Public
                                     .false.
                                     .false.
@@ -178,11 +178,11 @@
                             main:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             _lpython_return_variable_fib:
                                                 (Variable
-                                                    3
+                                                    4
                                                     _lpython_return_variable_fib
                                                     []
                                                     Local
@@ -198,7 +198,7 @@
                                                 ),
                                             ans:
                                                 (Variable
-                                                    3
+                                                    4
                                                     ans
                                                     []
                                                     Local
@@ -214,7 +214,7 @@
                                                 ),
                                             n_fib:
                                                 (Variable
-                                                    3
+                                                    4
                                                     n_fib
                                                     []
                                                     Local
@@ -230,7 +230,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -274,7 +274,7 @@
                                     [fib]
                                     []
                                     [(=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (Cast
                                             (IntegerConstant 40 (Integer 4))
                                             IntegerToInteger
@@ -284,13 +284,13 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 n_fib)
-                                        (Var 3 x)
+                                        (Var 4 n_fib)
+                                        (Var 4 x)
                                         ()
                                     )
                                     (If
                                         (IntegerCompare
-                                            (Var 3 n_fib)
+                                            (Var 4 n_fib)
                                             Lt
                                             (Cast
                                                 (IntegerConstant 2 (Integer 4))
@@ -302,8 +302,8 @@
                                             ()
                                         )
                                         [(=
-                                            (Var 3 _lpython_return_variable_fib)
-                                            (Var 3 n_fib)
+                                            (Var 4 _lpython_return_variable_fib)
+                                            (Var 4 n_fib)
                                             ()
                                         )
                                         (GoTo
@@ -313,13 +313,13 @@
                                         []
                                     )
                                     (=
-                                        (Var 3 _lpython_return_variable_fib)
+                                        (Var 4 _lpython_return_variable_fib)
                                         (IntegerBinOp
                                             (FunctionCall
-                                                6 fib
+                                                2 fib
                                                 ()
                                                 [((IntegerBinOp
-                                                    (Var 3 n_fib)
+                                                    (Var 4 n_fib)
                                                     Sub
                                                     (Cast
                                                         (IntegerConstant 1 (Integer 4))
@@ -336,10 +336,10 @@
                                             )
                                             Add
                                             (FunctionCall
-                                                6 fib
+                                                2 fib
                                                 ()
                                                 [((IntegerBinOp
-                                                    (Var 3 n_fib)
+                                                    (Var 4 n_fib)
                                                     Sub
                                                     (Cast
                                                         (IntegerConstant 2 (Integer 4))
@@ -365,22 +365,22 @@
                                     )
                                     (BlockCall
                                         1
-                                        3 ~empty_block
+                                        4 ~empty_block
                                     )
                                     (=
-                                        (Var 3 ans)
-                                        (Var 3 _lpython_return_variable_fib)
+                                        (Var 4 ans)
+                                        (Var 4 _lpython_return_variable_fib)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 ans)]
+                                        [(Var 4 ans)]
                                         ()
                                         ()
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 3 ans)
+                                            (Var 4 ans)
                                             Eq
                                             (Cast
                                                 (IntegerConstant 102334155 (Integer 4))
@@ -400,7 +400,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -408,24 +408,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        4
+                        6
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    4
-                                    _lpython_main_program
-                                    6 _lpython_main_program
-                                    _global_symbols
+                                    6
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        4 _lpython_main_program
-                        ()
+                        6 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

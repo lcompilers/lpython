@@ -10,6 +10,14 @@ def multiply_ints(a, b, c, d):
     e = a * b * c * d
     return e
 
+def add_unsigned_ints(a, b, c, d):
+    e = a + b + c + d
+    return e
+
+def multiply_unsigned_ints(a, b, c, d):
+    e = a * b * c * d
+    return e
+
 def add_floats(a, b):
     return a + b
 

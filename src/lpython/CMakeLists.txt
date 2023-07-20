@@ -12,6 +12,10 @@ set(SRC
     utils.cpp
 )
 
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set_source_files_properties(parser/parser.tab.cc PROPERTIES COMPILE_FLAGS -Wno-free-nonheap-object)
+endif()
+
 if (WITH_WHEREAMI)
     set(SRC ${SRC} ../bin/tpl/whereami/whereami.cpp)
 endif()

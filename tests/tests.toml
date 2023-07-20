@@ -233,13 +233,6 @@ c = true
 wat = true
 
 [[test]]
-filename = "loop2.py"
-ast = true
-asr = true
-c = true
-# cpp = true # TODO: support list types
-
-[[test]]
 filename = "loop3.py"
 ast = true
 asr = true
@@ -338,6 +331,12 @@ filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/structs_16.py"
+asr = true
+pass = "class_constructor"
+cumulative = true
+
+[[test]]
 filename = "../integration_tests/callback_01.py"
 asr = true
 
@@ -349,10 +348,6 @@ llvm = true
 [[test]]
 filename = "../integration_tests/bindc_02.py"
 asr = true
-
-[[test]]
-filename = "../integration_tests/bindc_06.py"
-c = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_abs.py"
@@ -408,7 +403,7 @@ filename = "../integration_tests/expr_05.py"
 asr = true
 
 [[test]]
-filename = "../integration_tests/test_integer_bitnot.py"
+filename = "../integration_tests/test_unary_op_03.py"
 asr = true
 llvm = true
 cpp = true
@@ -652,6 +647,14 @@ filename = "errors/structs_01.py"
 asr = true
 
 [[test]]
+filename = "errors/arrays_01.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_02.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_02.py"
 asr = true
 
@@ -686,6 +689,10 @@ asr = true
 [[test]]
 filename = "errors/structs_10.py"
 asr = true
+
+[[test]]
+filename = "errors/structs_11.py"
+llvm = true
 
 [[test]]
 filename = "errors/const_01.py"
@@ -790,6 +797,10 @@ filename = "errors/test_list_index3.py"
 run = true
 
 [[test]]
+filename = "errors/test_list_index4.py"
+run = true
+
+[[test]]
 filename = "errors/test_list1.py"
 asr = true
 
@@ -818,6 +829,10 @@ filename = "errors/test_set3.py"
 asr = true
 
 [[test]]
+filename = "errors/test_set4.py"
+asr = true
+
+[[test]]
 filename = "errors/test_pow.py"
 asr = true
 
@@ -835,6 +850,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_operator_01.py"
 asr = true
 
 [[test]]
@@ -1136,6 +1155,10 @@ filename = "errors/bindc_04.py"
 asr = true
 
 [[test]]
+filename = "errors/bindc_10e.py"
+asr = true
+
+[[test]]
 filename = "errors/cptr_01.py"
 asr = true
 
@@ -1169,6 +1192,22 @@ asr = true
 
 [[test]]
 filename = "errors/func_08.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_01.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_02.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_03.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_04.py"
 asr = true
 
 # tests/runtime_errors

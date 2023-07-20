@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_compare.h>
+#include <libasr/pass/compare.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -126,7 +126,7 @@ public:
                 call_arg.m_value = rig;
                 args.push_back(al, call_arg);
 
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
                     bool_type, nullptr, nullptr));
             }
@@ -142,7 +142,7 @@ public:
                 call_arg.m_value = rig;
                 args.push_back(al, call_arg);
 
-                return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+                return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     fn, nullptr, args.p, args.n,
                     bool_type, nullptr, nullptr));
             }
@@ -166,7 +166,7 @@ public:
         std::string tuple_type_name = ASRUtils::type_to_str_python(type);
         ASR::Tuple_t *tuple_type = ASR::down_cast<ASR::Tuple_t>(type);
 
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name, false);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
@@ -227,10 +227,7 @@ public:
             /* a_return_var */ result,
             ASR::abiType::Source,
             ASR::accessType::Public, ASR::deftypeType::Implementation,
-            nullptr,
-            false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, false, false, false, false, false, nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -264,7 +261,7 @@ public:
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_tuple_compare_func(unit.base.base.loc,
                 unit.m_global_scope, ASRUtils::expr_type(x->m_left));
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
@@ -336,7 +333,7 @@ public:
         std::string list_type_name = ASRUtils::type_to_str_python(type);
         ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type);
 
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_compare_" + list_type_name);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_compare_" + list_type_name, false);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
 
@@ -415,8 +412,7 @@ public:
             ASR::accessType::Public, ASR::deftypeType::Implementation,
             nullptr,
             false, false, false, false, false,
-            nullptr, 0,
-            nullptr, 0,
+            nullptr, 0, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -450,7 +446,7 @@ public:
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_list_compare_func(unit.base.base.loc,
                 unit.m_global_scope, ASRUtils::expr_type(x->m_left));
-        *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
+        *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
             *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,

@@ -5,16 +5,16 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
 
-define void @__module__global_symbols__lpython_main_program() !dbg !3 {
+define void @__module___main_____main____global_statements() !dbg !3 {
 .entry:
-  call void @__module__global_symbols_main0(), !dbg !6
+  call void @__module___main___main0(), !dbg !6
   br label %return, !dbg !6
 
 return:                                           ; preds = %.entry
   ret void, !dbg !6
 }
 
-define void @__module__global_symbols_main0() !dbg !7 {
+define void @__module___main___main0() !dbg !7 {
 .entry:
   %x = alloca i32, align 4, !dbg !8
   call void @llvm.dbg.declare(metadata i32* %x, metadata !9, metadata !DIExpression()), !dbg !11
@@ -41,7 +41,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) !dbg !22 {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1), !dbg !25
-  call void @__module__global_symbols__lpython_main_program(), !dbg !25
+  call void @__module___main_____main____global_statements(), !dbg !25
   ret i32 0, !dbg !25
 }
 
@@ -54,7 +54,7 @@ attributes #0 = { nounwind readnone speculatable willreturn }
 !0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "LPython Compiler", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !2)
 !1 = !DIFile(filename: "tests/expr_01.py", directory: ".")
 !2 = !{}
-!3 = distinct !DISubprogram(name: "_lpython_main_program", scope: !1, file: !1, line: 1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!3 = distinct !DISubprogram(name: "__main____global_statements", scope: !1, file: !1, line: 1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
 !4 = !DISubroutineType(types: !5)
 !5 = !{null}
 !6 = !DILocation(line: 9, column: 1, scope: !3)

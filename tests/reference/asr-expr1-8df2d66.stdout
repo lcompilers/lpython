@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        4
+                        2
                         {
                             test_namedexpr:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -30,7 +30,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     Local
@@ -46,7 +46,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     Local
@@ -80,9 +80,9 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 x)
+                                        (Var 3 x)
                                         (NamedExpr
-                                            (Var 2 y)
+                                            (Var 3 y)
                                             (IntegerConstant 0 (Integer 4))
                                             (Integer 4)
                                         )
@@ -90,7 +90,7 @@
                                     )
                                     (If
                                         (NamedExpr
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             (StringOrd
                                                 (StringConstant
                                                     "3"
@@ -102,7 +102,7 @@
                                             (Integer 4)
                                         )
                                         [(=
-                                            (Var 2 x)
+                                            (Var 3 x)
                                             (IntegerConstant 1 (Integer 4))
                                             ()
                                         )]
@@ -111,12 +111,12 @@
                                     (WhileLoop
                                         ()
                                         (NamedExpr
-                                            (Var 2 a)
+                                            (Var 3 a)
                                             (IntegerConstant 1 (Integer 4))
                                             (Integer 4)
                                         )
                                         [(=
-                                            (Var 2 y)
+                                            (Var 3 y)
                                             (IntegerConstant 1 (Integer 4))
                                             ()
                                         )]
@@ -128,7 +128,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -136,7 +136,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        3
+                        4
                         {
                             
                         })

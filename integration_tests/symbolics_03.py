@@ -6,13 +6,16 @@ def test_operator_chaining():
     x: S = Symbol('x')
     y: S = Symbol('y')
     z: S = Symbol('z')
-    Pi: S = Symbol('pi')
 
     a: S = x * w
-    b: S = a + Pi
+    b: S = a + pi
     c: S = b / z
     d: S = c ** w
 
+    assert(a == S(2)*x)
+    assert(b == pi + S(2)*x)
+    assert(c == (pi + S(2)*x)/z)
+    assert(d == (pi + S(2)*x)**S(2)/z**S(2))
     print(a)  # Expected: 2*x
     print(b)  # Expected: pi + 2*x
     print(c)  # Expected: (pi + 2*x)/z

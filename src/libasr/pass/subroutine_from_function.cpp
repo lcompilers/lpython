@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/create_subroutine_from_function.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -15,11 +15,11 @@ namespace LCompilers {
 using ASR::down_cast;
 using ASR::is_a;
 
-class CreateSubroutineFromFunction: public PassUtils::PassVisitor<CreateSubroutineFromFunction> {
+class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunctionFromSubroutine> {
 
     public:
 
-        CreateSubroutineFromFunction(Allocator &al_) :
+        CreateFunctionFromSubroutine(Allocator &al_) :
         PassVisitor(al_, nullptr)
         {
             pass_result.reserve(al, 1);
@@ -157,8 +157,9 @@ class ReplaceFunctionCallWithSubroutineCall:
             result_arg.loc = result_var->base.loc;
             result_arg.m_value = result_var;
             s_args.push_back(al, result_arg);
-            ASR::stmt_t* subrout_call = ASRUtils::STMT(ASR::make_SubroutineCall_t(
-                al, x->base.base.loc, x->m_name, nullptr, s_args.p, s_args.size(), nullptr));
+            ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
+                al, x->base.base.loc, x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
+                nullptr, false));
             pass_result.push_back(al, subrout_call);
             result_var = nullptr;
         }
@@ -227,7 +228,7 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
 
 void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t &unit,
                                           const LCompilers::PassOptions& /*pass_options*/) {
-    CreateSubroutineFromFunction v(al);
+    CreateFunctionFromSubroutine v(al);
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallWithSubroutineCallVisitor u(al);
     u.visit_TranslationUnit(unit);

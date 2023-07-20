@@ -19,6 +19,12 @@ struct i16
     bool is_allocated;
 };
 
+void g(struct i16* *x, struct i16* y);
+void check(struct i16* *ptr);
+void f();
+void __main____global_statements();
+
+
 
 // Implementations
 void g(struct i16* *x, struct i16* y)
@@ -50,7 +56,7 @@ void f()
     check(&yptr1);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     f();
 }
@@ -58,6 +64,6 @@ void _lpython_main_program()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    _lpython_main_program();
+    __main____global_statements();
     return 0;
 }

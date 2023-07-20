@@ -6,6 +6,12 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+int32_t add(int32_t x, int32_t y);
+int32_t multiply(int32_t x, int32_t y);
+void f();
+void __main____global_statements();
+
+
 
 // Implementations
 const double μ =   1.45136923488338110e+00;
@@ -34,7 +40,7 @@ void f()
     ASSERT(multiply(10, 20) == 200);
 }
 
-void _lpython_main_program()
+void __main____global_statements()
 {
     f();
 }
@@ -42,6 +48,6 @@ void _lpython_main_program()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    _lpython_main_program();
+    __main____global_statements();
     return 0;
 }

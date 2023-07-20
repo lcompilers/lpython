@@ -2,14 +2,14 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        6
+                        2
                         {
                             T:
                                 (Variable
-                                    6
+                                    2
                                     T
                                     []
                                     Local
@@ -28,11 +28,11 @@
                             __asr_generic_swap_0:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             temp:
                                                 (Variable
-                                                    3
+                                                    4
                                                     temp
                                                     []
                                                     Local
@@ -48,7 +48,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     InOut
@@ -64,7 +64,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     InOut
@@ -97,32 +97,32 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 3 x)
-                                    (Var 3 y)]
+                                    [(Var 4 x)
+                                    (Var 4 y)]
                                     [(=
-                                        (Var 3 temp)
-                                        (Var 3 x)
+                                        (Var 4 temp)
+                                        (Var 4 x)
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
-                                        (Var 3 y)
+                                        (Var 4 x)
+                                        (Var 4 y)
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
-                                        (Var 3 temp)
+                                        (Var 4 y)
+                                        (Var 4 temp)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 x)]
+                                        [(Var 4 x)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 3 y)]
+                                        [(Var 4 y)]
                                         ()
                                         ()
                                     )]
@@ -132,14 +132,14 @@
                                     .false.
                                     ()
                                 ),
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         5
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -158,7 +158,7 @@
                                     [__asr_generic_swap_0]
                                     []
                                     [(SubroutineCall
-                                        6 __asr_generic_swap_0
+                                        2 __asr_generic_swap_0
                                         ()
                                         [((IntegerConstant 1 (Integer 4)))
                                         ((IntegerConstant 2 (Integer 4)))]
@@ -173,11 +173,11 @@
                             swap:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             temp:
                                                 (Variable
-                                                    2
+                                                    3
                                                     temp
                                                     []
                                                     Local
@@ -195,7 +195,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    2
+                                                    3
                                                     x
                                                     []
                                                     InOut
@@ -213,7 +213,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    2
+                                                    3
                                                     y
                                                     []
                                                     InOut
@@ -254,32 +254,32 @@
                                         .false.
                                     )
                                     []
-                                    [(Var 2 x)
-                                    (Var 2 y)]
+                                    [(Var 3 x)
+                                    (Var 3 y)]
                                     [(=
-                                        (Var 2 temp)
-                                        (Var 2 x)
+                                        (Var 3 temp)
+                                        (Var 3 x)
                                         ()
                                     )
                                     (=
-                                        (Var 2 x)
-                                        (Var 2 y)
+                                        (Var 3 x)
+                                        (Var 3 y)
                                         ()
                                     )
                                     (=
-                                        (Var 2 y)
-                                        (Var 2 temp)
+                                        (Var 3 y)
+                                        (Var 3 temp)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 x)]
+                                        [(Var 3 x)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 2 y)]
+                                        [(Var 3 y)]
                                         ()
                                         ()
                                     )]
@@ -290,7 +290,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -298,24 +298,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        4
+                        6
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    4
-                                    _lpython_main_program
-                                    6 _lpython_main_program
-                                    _global_symbols
+                                    6
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        4 _lpython_main_program
-                        ()
+                        6 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

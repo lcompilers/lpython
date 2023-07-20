@@ -11,9 +11,9 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/subroutine_from_function.h>
+#include <libasr/pass/replace_class_constructor.h>
+#include <libasr/pass/replace_array_op.h>
+#include <libasr/pass/create_subroutine_from_function.h>
 
 #include <map>
 #include <utility>
@@ -146,11 +146,12 @@ public:
     void allocate_array_members_of_struct(ASR::StructType_t* der_type_t, std::string& sub,
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ||
-                ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(itr.second);
+            if( ASR::is_a<ASR::UnionType_t>(*sym) ||
+                ASR::is_a<ASR::StructType_t>(*sym) ) {
                 continue ;
             }
-            ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
+            ASR::ttype_t* mem_type = ASRUtils::symbol_type(sym);
             if( ASRUtils::is_character(*mem_type) ) {
                 sub += indent + name + "->" + itr.first + " = NULL;\n";
             } else if( ASRUtils::is_array(mem_type) &&
@@ -200,13 +201,16 @@ public:
                 if( !force_declare ) {
                     force_declare_name = std::string(v.m_name);
                 }
+                bool is_module_var = ASR::is_a<ASR::Module_t>(
+                    *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                 generate_array_decl(sub, force_declare_name, type_name, dims,
                                     encoded_type_name, m_dims, n_dims,
                                     use_ref, dummy,
                                     (v.m_intent != ASRUtils::intent_in &&
                                     v.m_intent != ASRUtils::intent_inout &&
                                     v.m_intent != ASRUtils::intent_out &&
-                                    !is_struct_type_member) || force_declare,
+                                    v.m_intent != ASRUtils::intent_unspecified &&
+                                    !is_struct_type_member && !is_module_var) || force_declare,
                                     is_fixed_size);
             }
         } else {
@@ -282,7 +286,8 @@ public:
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
-                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified, is_fixed_size, true);
                 } else {
                     bool is_fixed_size = true;
                     std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
@@ -303,7 +308,9 @@ public:
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
-                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified,
+                                        is_fixed_size, true);
                 } else {
                     bool is_fixed_size = true;
                     std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
@@ -334,7 +341,9 @@ public:
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
-                                        v.m_intent != ASRUtils::intent_out, is_fixed_size, true);
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified,
+                                        is_fixed_size, true);
                 } else {
                     bool is_fixed_size = true;
                     std::string dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
@@ -352,7 +361,9 @@ public:
                                         encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
-                                        v.m_intent != ASRUtils::intent_inout,
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified,
                                         is_fixed_size);
                  } else {
                     std::string ptr_char = "*";
@@ -421,7 +432,9 @@ public:
                                         encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
-                                        v.m_intent != ASRUtils::intent_inout,
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified,
                                         is_fixed_size);
                 } else if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type) {
                     bool is_fixed_size = true;
@@ -481,7 +494,9 @@ public:
                                         encoded_type_name, m_dims, n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
-                                        v.m_intent != ASRUtils::intent_inout, is_fixed_size);
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        v.m_intent != ASRUtils::intent_unspecified, is_fixed_size);
                 } else {
                     bool is_fixed_size = true;
                     dims = convert_dims_c(n_dims, m_dims, v_m_type, is_fixed_size);
@@ -545,9 +560,13 @@ public:
                     }
                 }
                 if( init_expr ) {
-                    this->visit_expr(*init_expr);
-                    std::string init = src;
-                    sub += " = " + init;
+                    if (is_c && ASR::is_a<ASR::StringChr_t>(*init_expr)) {
+                        // TODO: Not supported yet
+                    } else {
+                        this->visit_expr(*init_expr);
+                        std::string init = src;
+                        sub += " = " + init;
+                    }
                 }
             }
         }
@@ -584,7 +603,7 @@ R"(
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
         std::string strcat_def = "";
-        strcat_def += indent + "char* " + global_scope->get_unique_name("strcat_") + "(char* x, char* y) {\n";
+        strcat_def += indent + "char* " + global_scope->get_unique_name("strcat_", false) + "(char* x, char* y) {\n";
         strcat_def += indent + tab + "char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
         strcat_def += indent + tab + "strcpy(str_tmp, x);\n";
         strcat_def += indent + tab + "return strcat(str_tmp, y);\n";
@@ -720,8 +739,8 @@ R"(
             array_types_decls.insert(0, "struct dimension_descriptor\n"
                 "{\n    int32_t lower_bound, length;\n};\n");
         }
-
-        src = to_include + head + array_types_decls + unit_src +
+        forward_decl_functions += "\n\n";
+        src = to_include + head + array_types_decls + forward_decl_functions + unit_src +
               ds_funcs_defined + util_funcs_defined;
         if (!emit_headers.empty()) {
             std::string to_includes_1 = "";
@@ -744,6 +763,12 @@ R"(
     }
 
     void visit_Module(const ASR::Module_t &x) {
+        if (startswith(x.m_name, "lfortran_intrinsic_")) {
+            intrinsic_module = true;
+        } else {
+            intrinsic_module = false;
+        }
+
         std::string unit_src = "";
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
@@ -787,6 +812,7 @@ R"(
             unit_src += src;
         }
         src = unit_src;
+        intrinsic_module = false;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -995,8 +1021,8 @@ R"(    // Initialise Numpy
         meta_data.pop_back();
         meta_data += "};\n";
         std::string end_struct = "};\n\n";
-        std::string enum_names_type = "char " + global_scope->get_unique_name("enum_names_") +
-            std::string(x.m_name) + "[" + std::to_string(max_names) + "][" + std::to_string(max_name_len + 1) + "] ";
+        std::string enum_names_type = "char " + global_scope->get_unique_name("enum_names_" + std::string(x.m_name)) +
+         + "[" + std::to_string(max_names) + "][" + std::to_string(max_name_len + 1) + "] ";
         array_types_decls += enum_names_type + meta_data + open_struct + body + end_struct;
         src = "";
     }
@@ -1064,16 +1090,51 @@ R"(    // Initialise Numpy
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
         bracket_open++;
+        visit_expr(*x.m_test);
+        std::string test_condition = src;
+        if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)){
+            out = symengine_src;
+            symengine_src = "";
+            out += indent;
+        }
         if (x.m_msg) {
+            this->visit_expr(*x.m_msg);
+            std::string tmp_gen = "";
+            ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_msg);
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
+                std::string p_func = c_ds_api->get_print_func(value_type);
+                tmp_gen += indent + p_func + "(" + src + ");\n";
+            } else {
+                tmp_gen += "\"";
+                tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_msg));
+                tmp_gen += "\", ";
+                if( ASRUtils::is_array(value_type) ) {
+                    src += "->data";
+                }
+                if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                    src += symengine_src;
+                    symengine_src = "";
+                }
+                if (ASR::is_a<ASR::Complex_t>(*value_type)) {
+                    tmp_gen += "creal(" + src + ")";
+                    tmp_gen += ", ";
+                    tmp_gen += "cimag(" + src + ")";
+                } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
+                    tmp_gen += "basic_str(" + src + ")";
+                    if(ASR::is_a<ASR::Var_t>(*x.m_msg)) {
+                        symengine_queue.pop();
+                    }
+                } else {
+                    tmp_gen += src;
+                }
+            }
             out += "ASSERT_MSG(";
-            visit_expr(*x.m_test);
-            out += src + ", ";
-            visit_expr(*x.m_msg);
-            out += src + ");\n";
+            out += test_condition + ", ";
+            out += tmp_gen + ");\n";
         } else {
             out += "ASSERT(";
-            visit_expr(*x.m_test);
-            out += src + ");\n";
+            out += test_condition + ");\n";
         }
         bracket_open--;
         src = check_tmp_buffer() + out;
@@ -1138,8 +1199,12 @@ R"(    // Initialise Numpy
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
-            if (value_type->type == ASR::ttypeType::List ||
-                value_type->type == ASR::ttypeType::Tuple) {
+            if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
+                out += symengine_src;
+                symengine_src = "";
+            }
+            if( ASR::is_a<ASR::List_t>(*value_type) ||
+                ASR::is_a<ASR::Tuple_t>(*value_type)) {
                 tmp_gen += "\"";
                 if (!v.empty()) {
                     for (auto &s: v) {
@@ -1156,13 +1221,16 @@ R"(    // Initialise Numpy
             }
             tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
-            if (value_type->type == ASR::ttypeType::Complex) {
+            if (ASR::is_a<ASR::Complex_t>(*value_type)) {
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
-            } else if(value_type->type == ASR::ttypeType::SymbolicExpression){
+            } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
                 v.pop_back();
                 v.push_back("basic_str(" + src + ")");
+                if(ASR::is_a<ASR::Var_t>(*x.m_values[i])) {
+                    symengine_queue.pop();
+                }
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";

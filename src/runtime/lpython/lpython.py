@@ -20,10 +20,10 @@ type_to_convert_func = {
     "i16": int,
     "i32": int,
     "i64": int,
-    "u8": lambda x: x,
-    "u16": lambda x: x,
-    "u32": lambda x: x,
-    "u64": lambda x: x,
+    "u8": int,
+    "u16": int,
+    "u32": int,
+    "u64": int,
     "f32": float,
     "f64": float,
     "c32": complex,
@@ -621,10 +621,10 @@ def empty_c_void_p():
     return ctypes_c_void_p()
 
 def cptr_to_u64(cptr):
-    return ctypes.addressof(cptr)
+    return u64(ctypes.cast(cptr, ctypes.c_void_p).value)
 
 def u64_to_cptr(ivalue):
-    return ctypes.c_void_p(ivalue)
+    return ctypes.c_void_p(i64(ivalue))
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
@@ -707,3 +707,11 @@ class lpython:
         function = getattr(__import__("lpython_module_" + self.fn_name),
             self.fn_name)
         return function(*args, **kwargs)
+
+def bitnot(x, bitsize):
+    return (~x) % (2 ** bitsize)
+
+bitnot_u8 = lambda x: bitnot(x, 8)
+bitnot_u16 = lambda x: bitnot(x, 16)
+bitnot_u32 = lambda x: bitnot(x, 32)
+bitnot_u64 = lambda x: bitnot(x, 64)

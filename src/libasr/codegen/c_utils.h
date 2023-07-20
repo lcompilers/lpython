@@ -445,68 +445,6 @@ class CCPPDSUtils {
             return result;
         }
 
-        std::string generate_binary_operator_code(std::string value, std::string target, std::string operatorName) {
-            size_t delimiterPos = value.find(",");
-            std::string leftPart = value.substr(0, delimiterPos);
-            std::string rightPart = value.substr(delimiterPos + 1);
-            std::string result = operatorName + "(" + target + ", " + leftPart + ", " + rightPart + ");";
-            return result;
-        }
-
-        std::string get_deepcopy_symbolic(ASR::expr_t *value_expr, std::string value, std::string target) {
-            std::string result;
-            if (ASR::is_a<ASR::Var_t>(*value_expr)) {
-                result = "basic_assign(" + target + ", " + value + ");";
-            } else if (ASR::is_a<ASR::IntrinsicFunction_t>(*value_expr)) {
-                ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(value_expr);
-                int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
-                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                        result = "symbol_set(" + target + ", " + value + ");";
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                        result = generate_binary_operator_code(value, target, "basic_add");
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
-                        result = generate_binary_operator_code(value, target, "basic_sub");
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
-                        result = generate_binary_operator_code(value, target, "basic_mul");
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
-                        result = generate_binary_operator_code(value, target, "basic_div");
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
-                        result = generate_binary_operator_code(value, target, "basic_pow");
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
-                        result = "basic_const_pi(" + target + ");";
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicInteger: {
-                        result = "integer_set_si(" + target + ", " + value + ");";
-                        break;
-                    }
-                    default: {
-                        throw LCompilersException("IntrinsicFunction: `"
-                            + LCompilers::ASRUtils::get_intrinsic_name(intrinsic_id)
-                            + "` is not implemented");
-                    }
-                }
-            } else if (ASR::is_a<ASR::Cast_t>(*value_expr)) {
-                ASR::Cast_t* cast_expr = ASR::down_cast<ASR::Cast_t>(value_expr);
-                std::string cast_value_expr = get_deepcopy_symbolic(cast_expr->m_value, value, target);
-                return cast_value_expr;
-            }
-            return result;
-        }
-
         std::string get_type(ASR::ttype_t *t) {
             LCOMPILERS_ASSERT(CUtils::is_non_primitive_DT(t));
             if (ASR::is_a<ASR::List_t>(*t)) {
@@ -904,30 +842,33 @@ class CCPPDSUtils {
                                 + struct_type_str + "* src, "
                                 + struct_type_str + "* dest)";
             func_decls += "inline " + signature + ";\n";
-            generated_code += indent + signature + " {\n";
-            for( auto item: struct_type_t->m_symtab->get_scope() ) {
-                ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(item.second);
+            std::string tmp_generated = indent + signature + " {\n";
+            for(size_t i=0; i < struct_type_t->n_members; i++) {
+                std::string mem_name = std::string(struct_type_t->m_members[i]);
+                ASR::symbol_t* member = struct_type_t->m_symtab->get_symbol(mem_name);
+                ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(member);
                 if( CUtils::is_non_primitive_DT(member_type_asr) ||
                     ASR::is_a<ASR::Character_t>(*member_type_asr) ) {
-                    generated_code += indent + tab + get_deepcopy(member_type_asr, "&(src->" + item.first + ")",
-                                 "&(dest->" + item.first + ")") + ";\n";
+                    tmp_generated += indent + tab + get_deepcopy(member_type_asr, "&(src->" + mem_name + ")",
+                                 "&(dest->" + mem_name + ")") + ";\n";
                 } else if( ASRUtils::is_array(member_type_asr) ) {
                     ASR::dimension_t* m_dims = nullptr;
                     size_t n_dims = ASRUtils::extract_dimensions_from_ttype(member_type_asr, m_dims);
                     if( ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
                         std::string array_size = std::to_string(ASRUtils::get_fixed_size_of_array(m_dims, n_dims));
                         array_size += "*sizeof(" + CUtils::get_c_type_from_ttype_t(member_type_asr) + ")";
-                        generated_code += indent + tab + "memcpy(dest->" + item.first + ", src->" + item.first +
+                        tmp_generated += indent + tab + "memcpy(dest->" + mem_name + ", src->" + mem_name +
                                             ", " + array_size + ");\n";
                     } else {
-                        generated_code += indent + tab + get_deepcopy(member_type_asr, "src->" + item.first,
-                                            "dest->" + item.first) + ";\n";
+                        tmp_generated += indent + tab + get_deepcopy(member_type_asr, "src->" + mem_name,
+                                            "dest->" + mem_name) + ";\n";
                     }
                 } else {
-                    generated_code += indent + tab + "dest->" + item.first + " = " + " src->" + item.first + ";\n";
+                    tmp_generated += indent + tab + "dest->" + mem_name + " = " + " src->" + mem_name + ";\n";
                 }
             }
-            generated_code += indent + "}\n\n";
+            tmp_generated += indent + "}\n\n";
+            generated_code += tmp_generated;
         }
 
         void list_deepcopy(std::string list_struct_type,

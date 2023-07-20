@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        7
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         6
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [test_len]
                                     []
                                     [(SubroutineCall
-                                        7 test_len
+                                        2 test_len
                                         ()
                                         []
                                         ()
@@ -47,11 +47,11 @@
                             test_len:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             i:
                                                 (Variable
-                                                    2
+                                                    3
                                                     i
                                                     []
                                                     Local
@@ -67,7 +67,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    2
+                                                    3
                                                     l
                                                     []
                                                     Local
@@ -85,7 +85,7 @@
                                                 ),
                                             l2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     l2
                                                     []
                                                     Local
@@ -103,7 +103,7 @@
                                                 ),
                                             l3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     l3
                                                     []
                                                     Local
@@ -121,7 +121,7 @@
                                                 ),
                                             list_len:
                                                 (Variable
-                                                    2
+                                                    3
                                                     list_len
                                                     []
                                                     Local
@@ -137,7 +137,7 @@
                                                 ),
                                             s:
                                                 (Variable
-                                                    2
+                                                    3
                                                     s
                                                     []
                                                     Local
@@ -153,7 +153,7 @@
                                                 ),
                                             t:
                                                 (Variable
-                                                    2
+                                                    3
                                                     t
                                                     []
                                                     Local
@@ -173,7 +173,7 @@
                                                 ),
                                             t2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     t2
                                                     []
                                                     Local
@@ -195,7 +195,7 @@
                                                 ),
                                             t3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     t3
                                                     []
                                                     Local
@@ -211,7 +211,7 @@
                                                 ),
                                             tmp:
                                                 (Variable
-                                                    2
+                                                    3
                                                     tmp
                                                     []
                                                     Local
@@ -245,7 +245,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             "abcd"
                                             (Character 1 4 ())
@@ -255,7 +255,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (StringLen
-                                                (Var 2 s)
+                                                (Var 3 s)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -267,7 +267,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 s)
+                                        (Var 3 s)
                                         (StringConstant
                                             ""
                                             (Character 1 0 ())
@@ -277,7 +277,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (StringLen
-                                                (Var 2 s)
+                                                (Var 3 s)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -329,7 +329,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 l)
+                                        (Var 3 l)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -344,7 +344,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ListLen
-                                                (Var 2 l)
+                                                (Var 3 l)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -356,7 +356,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 l2)
+                                        (Var 3 l2)
                                         (ListConstant
                                             [(RealConstant
                                                 1.200000
@@ -387,7 +387,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ListLen
-                                                (Var 2 l2)
+                                                (Var 3 l2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -399,7 +399,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 l3)
+                                        (Var 3 l3)
                                         (ListConstant
                                             []
                                             (List
@@ -411,7 +411,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (ListLen
-                                                (Var 2 l3)
+                                                (Var 3 l3)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -424,7 +424,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 i)
+                                        ((Var 3 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 50 (Integer 4))
@@ -435,14 +435,14 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(ListAppend
-                                            (Var 2 l3)
-                                            (Var 2 i)
+                                            (Var 3 l3)
+                                            (Var 3 i)
                                         )]
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (ListLen
-                                                (Var 2 l3)
+                                                (Var 3 l3)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -454,7 +454,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 list_len)
+                                        (Var 3 list_len)
                                         (ListLen
                                             (ListConstant
                                                 [(RealConstant
@@ -476,7 +476,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 list_len)
+                                            (Var 3 list_len)
                                             Eq
                                             (IntegerConstant 2 (Integer 4))
                                             (Logical 4)
@@ -485,7 +485,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 t)
+                                        (Var 3 t)
                                         (TupleConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -504,7 +504,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (TupleLen
-                                                (Var 2 t)
+                                                (Var 3 t)
                                                 (Integer 4)
                                                 (IntegerConstant 3 (Integer 4))
                                             )
@@ -519,7 +519,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 t2)
+                                        (Var 3 t2)
                                         (TupleConstant
                                             [(RealConstant
                                                 1.200000
@@ -551,7 +551,7 @@
                                     (Assert
                                         (IntegerCompare
                                             (TupleLen
-                                                (Var 2 t2)
+                                                (Var 3 t2)
                                                 (Integer 4)
                                                 (IntegerConstant 5 (Integer 4))
                                             )
@@ -566,7 +566,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 t3)
+                                        (Var 3 t3)
                                         (TupleLen
                                             (TupleConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -589,7 +589,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (Var 2 t3)
+                                            (Var 3 t3)
                                             Eq
                                             (IntegerConstant 5 (Integer 4))
                                             (Logical 4)
@@ -598,9 +598,9 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 tmp)
+                                        (Var 3 tmp)
                                         (ListLen
-                                            (Var 2 l)
+                                            (Var 3 l)
                                             (Integer 4)
                                             ()
                                         )
@@ -608,11 +608,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 i)
+                                        ((Var 3 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (TupleLen
-                                                (Var 2 t2)
+                                                (Var 3 t2)
                                                 (Integer 4)
                                                 (IntegerConstant 5 (Integer 4))
                                             )
@@ -623,26 +623,26 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(ListAppend
-                                            (Var 2 l)
-                                            (Var 2 i)
+                                            (Var 3 l)
+                                            (Var 3 i)
                                         )]
                                     )
                                     (Assert
                                         (IntegerCompare
                                             (ListLen
-                                                (Var 2 l)
+                                                (Var 3 l)
                                                 (Integer 4)
                                                 ()
                                             )
                                             Eq
                                             (IntegerBinOp
                                                 (TupleLen
-                                                    (Var 2 t2)
+                                                    (Var 3 t2)
                                                     (Integer 4)
                                                     (IntegerConstant 5 (Integer 4))
                                                 )
                                                 Add
-                                                (Var 2 tmp)
+                                                (Var 3 tmp)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -658,7 +658,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -666,24 +666,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        5
+                        7
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    5
-                                    _lpython_main_program
-                                    7 _lpython_main_program
-                                    _global_symbols
+                                    7
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        5 _lpython_main_program
-                        ()
+                        7 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

@@ -2,19 +2,19 @@
     (SymbolTable
         1
         {
-            _global_symbols:
+            __main__:
                 (Module
                     (SymbolTable
-                        9
+                        2
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    _lpython_main_program
+                                    __main____global_statements
                                     (FunctionType
                                         []
                                         ()
@@ -33,7 +33,7 @@
                                     [check]
                                     []
                                     [(SubroutineCall
-                                        9 check
+                                        2 check
                                         ()
                                         []
                                         ()
@@ -47,7 +47,7 @@
                             check:
                                 (Function
                                     (SymbolTable
-                                        6
+                                        7
                                         {
                                             
                                         })
@@ -73,25 +73,25 @@
                                     test_print_list_tuple]
                                     []
                                     [(SubroutineCall
-                                        9 f
+                                        2 f
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_nested_lists
+                                        2 test_nested_lists
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_nested_lists2
+                                        2 test_nested_lists2
                                         ()
                                         []
                                         ()
                                     )
                                     (SubroutineCall
-                                        9 test_print_list_tuple
+                                        2 test_print_list_tuple
                                         ()
                                         []
                                         ()
@@ -105,11 +105,11 @@
                             f:
                                 (Function
                                     (SymbolTable
-                                        2
+                                        3
                                         {
                                             __list_iterator:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator
                                                     []
                                                     Local
@@ -125,7 +125,7 @@
                                                 ),
                                             __list_iterator1:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator1
                                                     []
                                                     Local
@@ -141,7 +141,7 @@
                                                 ),
                                             __list_iterator10:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator10
                                                     []
                                                     Local
@@ -157,7 +157,7 @@
                                                 ),
                                             __list_iterator11:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator11
                                                     []
                                                     Local
@@ -173,7 +173,7 @@
                                                 ),
                                             __list_iterator12:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator12
                                                     []
                                                     Local
@@ -189,7 +189,7 @@
                                                 ),
                                             __list_iterator13:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator13
                                                     []
                                                     Local
@@ -205,7 +205,7 @@
                                                 ),
                                             __list_iterator14:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator14
                                                     []
                                                     Local
@@ -221,7 +221,7 @@
                                                 ),
                                             __list_iterator15:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator15
                                                     []
                                                     Local
@@ -237,7 +237,7 @@
                                                 ),
                                             __list_iterator16:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator16
                                                     []
                                                     Local
@@ -253,7 +253,7 @@
                                                 ),
                                             __list_iterator17:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator17
                                                     []
                                                     Local
@@ -269,7 +269,7 @@
                                                 ),
                                             __list_iterator18:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator18
                                                     []
                                                     Local
@@ -285,7 +285,7 @@
                                                 ),
                                             __list_iterator2:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator2
                                                     []
                                                     Local
@@ -301,7 +301,7 @@
                                                 ),
                                             __list_iterator3:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator3
                                                     []
                                                     Local
@@ -317,7 +317,7 @@
                                                 ),
                                             __list_iterator4:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator4
                                                     []
                                                     Local
@@ -333,7 +333,7 @@
                                                 ),
                                             __list_iterator5:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator5
                                                     []
                                                     Local
@@ -349,7 +349,7 @@
                                                 ),
                                             __list_iterator6:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator6
                                                     []
                                                     Local
@@ -365,7 +365,7 @@
                                                 ),
                                             __list_iterator7:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator7
                                                     []
                                                     Local
@@ -381,7 +381,7 @@
                                                 ),
                                             __list_iterator8:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator8
                                                     []
                                                     Local
@@ -397,7 +397,7 @@
                                                 ),
                                             __list_iterator9:
                                                 (Variable
-                                                    2
+                                                    3
                                                     __list_iterator9
                                                     []
                                                     Local
@@ -413,7 +413,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    2
+                                                    3
                                                     a
                                                     []
                                                     Local
@@ -431,7 +431,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    2
+                                                    3
                                                     b
                                                     []
                                                     Local
@@ -449,7 +449,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    2
+                                                    3
                                                     c
                                                     []
                                                     Local
@@ -467,7 +467,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    2
+                                                    3
                                                     d
                                                     []
                                                     Local
@@ -503,7 +503,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 2 a)
+                                        (Var 3 a)
                                         (ListConstant
                                             [(StringConstant
                                                 "ab"
@@ -524,7 +524,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 b)
+                                        (Var 3 b)
                                         (ListConstant
                                             [(IntegerConstant 1 (Integer 4))
                                             (IntegerConstant 2 (Integer 4))
@@ -537,7 +537,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 c)
+                                        (Var 3 c)
                                         (ListConstant
                                             [(RealConstant
                                                 1.230000
@@ -566,7 +566,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 2 d)
+                                        (Var 3 d)
                                         (ListConstant
                                             []
                                             (List
@@ -589,11 +589,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator)
+                                        ((Var 3 __list_iterator)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -610,8 +610,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -630,11 +630,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator)
+                                                (Var 3 __list_iterator)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -687,11 +687,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator1)
+                                        ((Var 3 __list_iterator1)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -704,8 +704,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 b)
-                                                (Var 2 __list_iterator1)
+                                                (Var 3 b)
+                                                (Var 3 __list_iterator1)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -720,11 +720,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator1)
+                                                (Var 3 __list_iterator1)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 b)
+                                                        (Var 3 b)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -777,11 +777,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator2)
+                                        ((Var 3 __list_iterator2)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -794,8 +794,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 c)
-                                                (Var 2 __list_iterator2)
+                                                (Var 3 c)
+                                                (Var 3 __list_iterator2)
                                                 (Real 8)
                                                 ()
                                             )]
@@ -810,11 +810,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator2)
+                                                (Var 3 __list_iterator2)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 c)
+                                                        (Var 3 c)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -867,11 +867,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator3)
+                                        ((Var 3 __list_iterator3)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 d)
+                                                (Var 3 d)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -884,8 +884,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 d)
-                                                (Var 2 __list_iterator3)
+                                                (Var 3 d)
+                                                (Var 3 __list_iterator3)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -900,11 +900,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator3)
+                                                (Var 3 __list_iterator3)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 d)
+                                                        (Var 3 d)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -957,11 +957,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator4)
+                                        ((Var 3 __list_iterator4)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -978,8 +978,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator4)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator4)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -998,11 +998,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator4)
+                                                (Var 3 __list_iterator4)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1058,11 +1058,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator5)
+                                        ((Var 3 __list_iterator5)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1079,8 +1079,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator5)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator5)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -1099,11 +1099,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator5)
+                                                (Var 3 __list_iterator5)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1159,11 +1159,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator6)
+                                        ((Var 3 __list_iterator6)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1176,8 +1176,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 b)
-                                                (Var 2 __list_iterator6)
+                                                (Var 3 b)
+                                                (Var 3 __list_iterator6)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -1192,11 +1192,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator6)
+                                                (Var 3 __list_iterator6)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 b)
+                                                        (Var 3 b)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1252,11 +1252,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator7)
+                                        ((Var 3 __list_iterator7)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1269,8 +1269,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 c)
-                                                (Var 2 __list_iterator7)
+                                                (Var 3 c)
+                                                (Var 3 __list_iterator7)
                                                 (Real 8)
                                                 ()
                                             )]
@@ -1285,11 +1285,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator7)
+                                                (Var 3 __list_iterator7)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 c)
+                                                        (Var 3 c)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1345,11 +1345,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator8)
+                                        ((Var 3 __list_iterator8)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 d)
+                                                (Var 3 d)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1362,8 +1362,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 d)
-                                                (Var 2 __list_iterator8)
+                                                (Var 3 d)
+                                                (Var 3 __list_iterator8)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -1378,11 +1378,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator8)
+                                                (Var 3 __list_iterator8)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 d)
+                                                        (Var 3 d)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1435,11 +1435,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator9)
+                                        ((Var 3 __list_iterator9)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1456,8 +1456,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator9)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator9)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -1476,11 +1476,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator9)
+                                                (Var 3 __list_iterator9)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1536,11 +1536,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator10)
+                                        ((Var 3 __list_iterator10)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1557,8 +1557,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator10)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator10)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -1577,11 +1577,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator10)
+                                                (Var 3 __list_iterator10)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1646,11 +1646,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator11)
+                                        ((Var 3 __list_iterator11)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 b)
+                                                (Var 3 b)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1663,8 +1663,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 b)
-                                                (Var 2 __list_iterator11)
+                                                (Var 3 b)
+                                                (Var 3 __list_iterator11)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -1679,11 +1679,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator11)
+                                                (Var 3 __list_iterator11)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 b)
+                                                        (Var 3 b)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1739,11 +1739,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator12)
+                                        ((Var 3 __list_iterator12)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1756,8 +1756,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 c)
-                                                (Var 2 __list_iterator12)
+                                                (Var 3 c)
+                                                (Var 3 __list_iterator12)
                                                 (Real 8)
                                                 ()
                                             )]
@@ -1772,11 +1772,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator12)
+                                                (Var 3 __list_iterator12)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 c)
+                                                        (Var 3 c)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1844,11 +1844,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator13)
+                                        ((Var 3 __list_iterator13)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 d)
+                                                (Var 3 d)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -1861,8 +1861,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 d)
-                                                (Var 2 __list_iterator13)
+                                                (Var 3 d)
+                                                (Var 3 __list_iterator13)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -1877,11 +1877,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator13)
+                                                (Var 3 __list_iterator13)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 d)
+                                                        (Var 3 d)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -1934,7 +1934,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator14)
+                                        ((Var 3 __list_iterator14)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
@@ -1976,7 +1976,7 @@
                                                         (Integer 4)
                                                     )
                                                 )
-                                                (Var 2 __list_iterator14)
+                                                (Var 3 __list_iterator14)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -1991,7 +1991,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator14)
+                                                (Var 3 __list_iterator14)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
@@ -2060,7 +2060,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator15)
+                                        ((Var 3 __list_iterator15)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
@@ -2138,7 +2138,7 @@
                                                         (Character 1 1 ())
                                                     )
                                                 )
-                                                (Var 2 __list_iterator15)
+                                                (Var 3 __list_iterator15)
                                                 (Character 1 1 ())
                                                 ()
                                             )
@@ -2157,7 +2157,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator15)
+                                                (Var 3 __list_iterator15)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
@@ -2242,7 +2242,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator16)
+                                        ((Var 3 __list_iterator16)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
@@ -2276,7 +2276,7 @@
                                                         (Integer 4)
                                                     )
                                                 )
-                                                (Var 2 __list_iterator16)
+                                                (Var 3 __list_iterator16)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -2291,7 +2291,7 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator16)
+                                                (Var 3 __list_iterator16)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
@@ -2359,11 +2359,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator17)
+                                        ((Var 3 __list_iterator17)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 a)
+                                                (Var 3 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -2380,8 +2380,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 2 a)
-                                                (Var 2 __list_iterator17)
+                                                (Var 3 a)
+                                                (Var 3 __list_iterator17)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -2400,11 +2400,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator17)
+                                                (Var 3 __list_iterator17)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 a)
+                                                        (Var 3 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -2460,11 +2460,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 2 __list_iterator18)
+                                        ((Var 3 __list_iterator18)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 2 c)
+                                                (Var 3 c)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -2477,8 +2477,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 2 c)
-                                                (Var 2 __list_iterator18)
+                                                (Var 3 c)
+                                                (Var 3 __list_iterator18)
                                                 (Real 8)
                                                 ()
                                             )]
@@ -2493,11 +2493,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 2 __list_iterator18)
+                                                (Var 3 __list_iterator18)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 2 c)
+                                                        (Var 3 c)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -2545,11 +2545,11 @@
                             test_nested_lists:
                                 (Function
                                     (SymbolTable
-                                        3
+                                        4
                                         {
                                             __list_iterator:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator
                                                     []
                                                     Local
@@ -2565,7 +2565,7 @@
                                                 ),
                                             __list_iterator1:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator1
                                                     []
                                                     Local
@@ -2581,7 +2581,7 @@
                                                 ),
                                             __list_iterator10:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator10
                                                     []
                                                     Local
@@ -2597,7 +2597,7 @@
                                                 ),
                                             __list_iterator11:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator11
                                                     []
                                                     Local
@@ -2613,7 +2613,7 @@
                                                 ),
                                             __list_iterator2:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator2
                                                     []
                                                     Local
@@ -2629,7 +2629,7 @@
                                                 ),
                                             __list_iterator3:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator3
                                                     []
                                                     Local
@@ -2645,7 +2645,7 @@
                                                 ),
                                             __list_iterator4:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator4
                                                     []
                                                     Local
@@ -2661,7 +2661,7 @@
                                                 ),
                                             __list_iterator5:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator5
                                                     []
                                                     Local
@@ -2677,7 +2677,7 @@
                                                 ),
                                             __list_iterator6:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator6
                                                     []
                                                     Local
@@ -2693,7 +2693,7 @@
                                                 ),
                                             __list_iterator7:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator7
                                                     []
                                                     Local
@@ -2709,7 +2709,7 @@
                                                 ),
                                             __list_iterator8:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator8
                                                     []
                                                     Local
@@ -2725,7 +2725,7 @@
                                                 ),
                                             __list_iterator9:
                                                 (Variable
-                                                    3
+                                                    4
                                                     __list_iterator9
                                                     []
                                                     Local
@@ -2741,7 +2741,7 @@
                                                 ),
                                             w:
                                                 (Variable
-                                                    3
+                                                    4
                                                     w
                                                     []
                                                     Local
@@ -2767,7 +2767,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    3
+                                                    4
                                                     x
                                                     []
                                                     Local
@@ -2789,7 +2789,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    3
+                                                    4
                                                     y
                                                     []
                                                     Local
@@ -2809,7 +2809,7 @@
                                                 ),
                                             z:
                                                 (Variable
-                                                    3
+                                                    4
                                                     z
                                                     []
                                                     Local
@@ -2847,7 +2847,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 3 w)
+                                        (Var 4 w)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -2936,7 +2936,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 x)
+                                        (Var 4 x)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -3023,7 +3023,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 y)
+                                        (Var 4 y)
                                         (ListConstant
                                             [(ListConstant
                                                 [(RealConstant
@@ -3074,7 +3074,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 3 z)
+                                        (Var 4 z)
                                         (ListConstant
                                             [(ListConstant
                                                 [(StringConstant
@@ -3145,11 +3145,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 __list_iterator)
+                                        ((Var 4 __list_iterator)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 3 w)
+                                                (Var 4 w)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -3173,13 +3173,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 3 __list_iterator1)
+                                            ((Var 4 __list_iterator1)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 3 w)
-                                                        (Var 3 __list_iterator)
+                                                        (Var 4 w)
+                                                        (Var 4 __list_iterator)
                                                         (List
                                                             (List
                                                                 (List
@@ -3214,14 +3214,14 @@
                                             )
                                             (DoLoop
                                                 ()
-                                                ((Var 3 __list_iterator2)
+                                                ((Var 4 __list_iterator2)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 3 w)
-                                                                (Var 3 __list_iterator)
+                                                                (Var 4 w)
+                                                                (Var 4 __list_iterator)
                                                                 (List
                                                                     (List
                                                                         (List
@@ -3233,7 +3233,7 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 3 __list_iterator1)
+                                                            (Var 4 __list_iterator1)
                                                             (List
                                                                 (List
                                                                     (List
@@ -3266,15 +3266,15 @@
                                                 )
                                                 (DoLoop
                                                     ()
-                                                    ((Var 3 __list_iterator3)
+                                                    ((Var 4 __list_iterator3)
                                                     (IntegerConstant 0 (Integer 4))
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 3 w)
-                                                                        (Var 3 __list_iterator)
+                                                                        (Var 4 w)
+                                                                        (Var 4 __list_iterator)
                                                                         (List
                                                                             (List
                                                                                 (List
@@ -3286,7 +3286,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 3 __list_iterator1)
+                                                                    (Var 4 __list_iterator1)
                                                                     (List
                                                                         (List
                                                                             (List
@@ -3296,7 +3296,7 @@
                                                                     )
                                                                     ()
                                                                 )
-                                                                (Var 3 __list_iterator2)
+                                                                (Var 4 __list_iterator2)
                                                                 (List
                                                                     (List
                                                                         (Real 8)
@@ -3327,7 +3327,7 @@
                                                     )
                                                     (DoLoop
                                                         ()
-                                                        ((Var 3 __list_iterator4)
+                                                        ((Var 4 __list_iterator4)
                                                         (IntegerConstant 0 (Integer 4))
                                                         (IntegerBinOp
                                                             (ListLen
@@ -3335,8 +3335,8 @@
                                                                     (ListItem
                                                                         (ListItem
                                                                             (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
+                                                                                (Var 4 w)
+                                                                                (Var 4 __list_iterator)
                                                                                 (List
                                                                                     (List
                                                                                         (List
@@ -3348,7 +3348,7 @@
                                                                                 )
                                                                                 ()
                                                                             )
-                                                                            (Var 3 __list_iterator1)
+                                                                            (Var 4 __list_iterator1)
                                                                             (List
                                                                                 (List
                                                                                     (List
@@ -3358,7 +3358,7 @@
                                                                             )
                                                                             ()
                                                                         )
-                                                                        (Var 3 __list_iterator2)
+                                                                        (Var 4 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (Real 8)
@@ -3366,7 +3366,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 3 __list_iterator3)
+                                                                    (Var 4 __list_iterator3)
                                                                     (List
                                                                         (Real 8)
                                                                     )
@@ -3388,8 +3388,8 @@
                                                                     (ListItem
                                                                         (ListItem
                                                                             (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
+                                                                                (Var 4 w)
+                                                                                (Var 4 __list_iterator)
                                                                                 (List
                                                                                     (List
                                                                                         (List
@@ -3401,7 +3401,7 @@
                                                                                 )
                                                                                 ()
                                                                             )
-                                                                            (Var 3 __list_iterator1)
+                                                                            (Var 4 __list_iterator1)
                                                                             (List
                                                                                 (List
                                                                                     (List
@@ -3411,7 +3411,7 @@
                                                                             )
                                                                             ()
                                                                         )
-                                                                        (Var 3 __list_iterator2)
+                                                                        (Var 4 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (Real 8)
@@ -3419,13 +3419,13 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 3 __list_iterator3)
+                                                                    (Var 4 __list_iterator3)
                                                                     (List
                                                                         (Real 8)
                                                                     )
                                                                     ()
                                                                 )
-                                                                (Var 3 __list_iterator4)
+                                                                (Var 4 __list_iterator4)
                                                                 (Real 8)
                                                                 ()
                                                             )]
@@ -3440,7 +3440,7 @@
                                                         )
                                                         (If
                                                             (IntegerCompare
-                                                                (Var 3 __list_iterator4)
+                                                                (Var 4 __list_iterator4)
                                                                 Lt
                                                                 (IntegerBinOp
                                                                     (ListLen
@@ -3448,8 +3448,8 @@
                                                                             (ListItem
                                                                                 (ListItem
                                                                                     (ListItem
-                                                                                        (Var 3 w)
-                                                                                        (Var 3 __list_iterator)
+                                                                                        (Var 4 w)
+                                                                                        (Var 4 __list_iterator)
                                                                                         (List
                                                                                             (List
                                                                                                 (List
@@ -3461,7 +3461,7 @@
                                                                                         )
                                                                                         ()
                                                                                     )
-                                                                                    (Var 3 __list_iterator1)
+                                                                                    (Var 4 __list_iterator1)
                                                                                     (List
                                                                                         (List
                                                                                             (List
@@ -3471,7 +3471,7 @@
                                                                                     )
                                                                                     ()
                                                                                 )
-                                                                                (Var 3 __list_iterator2)
+                                                                                (Var 4 __list_iterator2)
                                                                                 (List
                                                                                     (List
                                                                                         (Real 8)
@@ -3479,7 +3479,7 @@
                                                                                 )
                                                                                 ()
                                                                             )
-                                                                            (Var 3 __list_iterator3)
+                                                                            (Var 4 __list_iterator3)
                                                                             (List
                                                                                 (Real 8)
                                                                             )
@@ -3528,15 +3528,15 @@
                                                     )
                                                     (If
                                                         (IntegerCompare
-                                                            (Var 3 __list_iterator3)
+                                                            (Var 4 __list_iterator3)
                                                             Lt
                                                             (IntegerBinOp
                                                                 (ListLen
                                                                     (ListItem
                                                                         (ListItem
                                                                             (ListItem
-                                                                                (Var 3 w)
-                                                                                (Var 3 __list_iterator)
+                                                                                (Var 4 w)
+                                                                                (Var 4 __list_iterator)
                                                                                 (List
                                                                                     (List
                                                                                         (List
@@ -3548,7 +3548,7 @@
                                                                                 )
                                                                                 ()
                                                                             )
-                                                                            (Var 3 __list_iterator1)
+                                                                            (Var 4 __list_iterator1)
                                                                             (List
                                                                                 (List
                                                                                     (List
@@ -3558,7 +3558,7 @@
                                                                             )
                                                                             ()
                                                                         )
-                                                                        (Var 3 __list_iterator2)
+                                                                        (Var 4 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (Real 8)
@@ -3609,14 +3609,14 @@
                                                 )
                                                 (If
                                                     (IntegerCompare
-                                                        (Var 3 __list_iterator2)
+                                                        (Var 4 __list_iterator2)
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 3 w)
-                                                                        (Var 3 __list_iterator)
+                                                                        (Var 4 w)
+                                                                        (Var 4 __list_iterator)
                                                                         (List
                                                                             (List
                                                                                 (List
@@ -3628,7 +3628,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 3 __list_iterator1)
+                                                                    (Var 4 __list_iterator1)
                                                                     (List
                                                                         (List
                                                                             (List
@@ -3681,13 +3681,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 3 __list_iterator1)
+                                                    (Var 4 __list_iterator1)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 3 w)
-                                                                (Var 3 __list_iterator)
+                                                                (Var 4 w)
+                                                                (Var 4 __list_iterator)
                                                                 (List
                                                                     (List
                                                                         (List
@@ -3742,11 +3742,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 3 __list_iterator)
+                                                (Var 4 __list_iterator)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 3 w)
+                                                        (Var 4 w)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -3799,11 +3799,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 __list_iterator5)
+                                        ((Var 4 __list_iterator5)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 3 x)
+                                                (Var 4 x)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -3827,13 +3827,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 3 __list_iterator6)
+                                            ((Var 4 __list_iterator6)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 3 x)
-                                                        (Var 3 __list_iterator5)
+                                                        (Var 4 x)
+                                                        (Var 4 __list_iterator5)
                                                         (List
                                                             (List
                                                                 (Integer 4)
@@ -3864,14 +3864,14 @@
                                             )
                                             (DoLoop
                                                 ()
-                                                ((Var 3 __list_iterator7)
+                                                ((Var 4 __list_iterator7)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
+                                                                (Var 4 x)
+                                                                (Var 4 __list_iterator5)
                                                                 (List
                                                                     (List
                                                                         (Integer 4)
@@ -3879,7 +3879,7 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 3 __list_iterator6)
+                                                            (Var 4 __list_iterator6)
                                                             (List
                                                                 (Integer 4)
                                                             )
@@ -3899,8 +3899,8 @@
                                                     [(ListItem
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
+                                                                (Var 4 x)
+                                                                (Var 4 __list_iterator5)
                                                                 (List
                                                                     (List
                                                                         (Integer 4)
@@ -3908,13 +3908,13 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 3 __list_iterator6)
+                                                            (Var 4 __list_iterator6)
                                                             (List
                                                                 (Integer 4)
                                                             )
                                                             ()
                                                         )
-                                                        (Var 3 __list_iterator7)
+                                                        (Var 4 __list_iterator7)
                                                         (Integer 4)
                                                         ()
                                                     )]
@@ -3929,14 +3929,14 @@
                                                 )
                                                 (If
                                                     (IntegerCompare
-                                                        (Var 3 __list_iterator7)
+                                                        (Var 4 __list_iterator7)
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 3 x)
-                                                                        (Var 3 __list_iterator5)
+                                                                        (Var 4 x)
+                                                                        (Var 4 __list_iterator5)
                                                                         (List
                                                                             (List
                                                                                 (Integer 4)
@@ -3944,7 +3944,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 3 __list_iterator6)
+                                                                    (Var 4 __list_iterator6)
                                                                     (List
                                                                         (Integer 4)
                                                                     )
@@ -3993,13 +3993,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 3 __list_iterator6)
+                                                    (Var 4 __list_iterator6)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 3 x)
-                                                                (Var 3 __list_iterator5)
+                                                                (Var 4 x)
+                                                                (Var 4 __list_iterator5)
                                                                 (List
                                                                     (List
                                                                         (Integer 4)
@@ -4050,11 +4050,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 3 __list_iterator5)
+                                                (Var 4 __list_iterator5)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 3 x)
+                                                        (Var 4 x)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -4107,11 +4107,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 __list_iterator8)
+                                        ((Var 4 __list_iterator8)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 3 y)
+                                                (Var 4 y)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -4135,13 +4135,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 3 __list_iterator9)
+                                            ((Var 4 __list_iterator9)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 3 y)
-                                                        (Var 3 __list_iterator8)
+                                                        (Var 4 y)
+                                                        (Var 4 __list_iterator8)
                                                         (List
                                                             (Real 8)
                                                         )
@@ -4160,14 +4160,14 @@
                                                 ()
                                                 [(ListItem
                                                     (ListItem
-                                                        (Var 3 y)
-                                                        (Var 3 __list_iterator8)
+                                                        (Var 4 y)
+                                                        (Var 4 __list_iterator8)
                                                         (List
                                                             (Real 8)
                                                         )
                                                         ()
                                                     )
-                                                    (Var 3 __list_iterator9)
+                                                    (Var 4 __list_iterator9)
                                                     (Real 8)
                                                     ()
                                                 )]
@@ -4182,13 +4182,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 3 __list_iterator9)
+                                                    (Var 4 __list_iterator9)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 3 y)
-                                                                (Var 3 __list_iterator8)
+                                                                (Var 4 y)
+                                                                (Var 4 __list_iterator8)
                                                                 (List
                                                                     (Real 8)
                                                                 )
@@ -4237,11 +4237,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 3 __list_iterator8)
+                                                (Var 4 __list_iterator8)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 3 y)
+                                                        (Var 4 y)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -4294,11 +4294,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 3 __list_iterator10)
+                                        ((Var 4 __list_iterator10)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 3 z)
+                                                (Var 4 z)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -4322,13 +4322,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 3 __list_iterator11)
+                                            ((Var 4 __list_iterator11)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 3 z)
-                                                        (Var 3 __list_iterator10)
+                                                        (Var 4 z)
+                                                        (Var 4 __list_iterator10)
                                                         (List
                                                             (Character 1 -2 ())
                                                         )
@@ -4351,14 +4351,14 @@
                                                 )
                                                 (ListItem
                                                     (ListItem
-                                                        (Var 3 z)
-                                                        (Var 3 __list_iterator10)
+                                                        (Var 4 z)
+                                                        (Var 4 __list_iterator10)
                                                         (List
                                                             (Character 1 -2 ())
                                                         )
                                                         ()
                                                     )
-                                                    (Var 3 __list_iterator11)
+                                                    (Var 4 __list_iterator11)
                                                     (Character 1 -2 ())
                                                     ()
                                                 )
@@ -4377,13 +4377,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 3 __list_iterator11)
+                                                    (Var 4 __list_iterator11)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 3 z)
-                                                                (Var 3 __list_iterator10)
+                                                                (Var 4 z)
+                                                                (Var 4 __list_iterator10)
                                                                 (List
                                                                     (Character 1 -2 ())
                                                                 )
@@ -4432,11 +4432,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 3 __list_iterator10)
+                                                (Var 4 __list_iterator10)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 3 z)
+                                                        (Var 4 z)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -4484,11 +4484,11 @@
                             test_nested_lists2:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             __list_iterator:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator
                                                     []
                                                     Local
@@ -4504,7 +4504,7 @@
                                                 ),
                                             __list_iterator1:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator1
                                                     []
                                                     Local
@@ -4520,7 +4520,7 @@
                                                 ),
                                             __list_iterator2:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator2
                                                     []
                                                     Local
@@ -4536,7 +4536,7 @@
                                                 ),
                                             __list_iterator3:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator3
                                                     []
                                                     Local
@@ -4552,7 +4552,7 @@
                                                 ),
                                             __list_iterator4:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator4
                                                     []
                                                     Local
@@ -4568,7 +4568,7 @@
                                                 ),
                                             __list_iterator5:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator5
                                                     []
                                                     Local
@@ -4584,7 +4584,7 @@
                                                 ),
                                             __list_iterator6:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator6
                                                     []
                                                     Local
@@ -4600,7 +4600,7 @@
                                                 ),
                                             __list_iterator7:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator7
                                                     []
                                                     Local
@@ -4616,7 +4616,7 @@
                                                 ),
                                             __list_iterator8:
                                                 (Variable
-                                                    5
+                                                    6
                                                     __list_iterator8
                                                     []
                                                     Local
@@ -4632,7 +4632,7 @@
                                                 ),
                                             p:
                                                 (Variable
-                                                    5
+                                                    6
                                                     p
                                                     []
                                                     Local
@@ -4652,7 +4652,7 @@
                                                 ),
                                             q:
                                                 (Variable
-                                                    5
+                                                    6
                                                     q
                                                     []
                                                     Local
@@ -4676,7 +4676,7 @@
                                                 ),
                                             r:
                                                 (Variable
-                                                    5
+                                                    6
                                                     r
                                                     []
                                                     Local
@@ -4716,7 +4716,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 5 p)
+                                        (Var 6 p)
                                         (ListConstant
                                             [(ListConstant
                                                 [(IntegerConstant 0 (Integer 4))
@@ -4877,7 +4877,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 q)
+                                        (Var 6 q)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -5700,7 +5700,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 5 r)
+                                        (Var 6 r)
                                         (ListConstant
                                             [(ListConstant
                                                 [(ListConstant
@@ -6386,11 +6386,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 5 __list_iterator)
+                                        ((Var 6 __list_iterator)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 5 p)
+                                                (Var 6 p)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -6414,13 +6414,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 5 __list_iterator1)
+                                            ((Var 6 __list_iterator1)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 5 p)
-                                                        (Var 5 __list_iterator)
+                                                        (Var 6 p)
+                                                        (Var 6 __list_iterator)
                                                         (List
                                                             (Integer 4)
                                                         )
@@ -6439,14 +6439,14 @@
                                                 ()
                                                 [(ListItem
                                                     (ListItem
-                                                        (Var 5 p)
-                                                        (Var 5 __list_iterator)
+                                                        (Var 6 p)
+                                                        (Var 6 __list_iterator)
                                                         (List
                                                             (Integer 4)
                                                         )
                                                         ()
                                                     )
-                                                    (Var 5 __list_iterator1)
+                                                    (Var 6 __list_iterator1)
                                                     (Integer 4)
                                                     ()
                                                 )]
@@ -6461,13 +6461,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 5 __list_iterator1)
+                                                    (Var 6 __list_iterator1)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 5 p)
-                                                                (Var 5 __list_iterator)
+                                                                (Var 6 p)
+                                                                (Var 6 __list_iterator)
                                                                 (List
                                                                     (Integer 4)
                                                                 )
@@ -6516,11 +6516,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 5 __list_iterator)
+                                                (Var 6 __list_iterator)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 5 p)
+                                                        (Var 6 p)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -6573,11 +6573,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 5 __list_iterator2)
+                                        ((Var 6 __list_iterator2)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 5 q)
+                                                (Var 6 q)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -6601,13 +6601,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 5 __list_iterator3)
+                                            ((Var 6 __list_iterator3)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 5 q)
-                                                        (Var 5 __list_iterator2)
+                                                        (Var 6 q)
+                                                        (Var 6 __list_iterator2)
                                                         (List
                                                             (List
                                                                 (List
@@ -6640,14 +6640,14 @@
                                             )
                                             (DoLoop
                                                 ()
-                                                ((Var 5 __list_iterator4)
+                                                ((Var 6 __list_iterator4)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 5 q)
-                                                                (Var 5 __list_iterator2)
+                                                                (Var 6 q)
+                                                                (Var 6 __list_iterator2)
                                                                 (List
                                                                     (List
                                                                         (List
@@ -6657,7 +6657,7 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 5 __list_iterator3)
+                                                            (Var 6 __list_iterator3)
                                                             (List
                                                                 (List
                                                                     (Real 8)
@@ -6688,15 +6688,15 @@
                                                 )
                                                 (DoLoop
                                                     ()
-                                                    ((Var 5 __list_iterator5)
+                                                    ((Var 6 __list_iterator5)
                                                     (IntegerConstant 0 (Integer 4))
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
+                                                                        (Var 6 q)
+                                                                        (Var 6 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (List
@@ -6706,7 +6706,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 5 __list_iterator3)
+                                                                    (Var 6 __list_iterator3)
                                                                     (List
                                                                         (List
                                                                             (Real 8)
@@ -6714,7 +6714,7 @@
                                                                     )
                                                                     ()
                                                                 )
-                                                                (Var 5 __list_iterator4)
+                                                                (Var 6 __list_iterator4)
                                                                 (List
                                                                     (Real 8)
                                                                 )
@@ -6735,8 +6735,8 @@
                                                             (ListItem
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
+                                                                        (Var 6 q)
+                                                                        (Var 6 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (List
@@ -6746,7 +6746,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 5 __list_iterator3)
+                                                                    (Var 6 __list_iterator3)
                                                                     (List
                                                                         (List
                                                                             (Real 8)
@@ -6754,13 +6754,13 @@
                                                                     )
                                                                     ()
                                                                 )
-                                                                (Var 5 __list_iterator4)
+                                                                (Var 6 __list_iterator4)
                                                                 (List
                                                                     (Real 8)
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 5 __list_iterator5)
+                                                            (Var 6 __list_iterator5)
                                                             (Real 8)
                                                             ()
                                                         )]
@@ -6775,15 +6775,15 @@
                                                     )
                                                     (If
                                                         (IntegerCompare
-                                                            (Var 5 __list_iterator5)
+                                                            (Var 6 __list_iterator5)
                                                             Lt
                                                             (IntegerBinOp
                                                                 (ListLen
                                                                     (ListItem
                                                                         (ListItem
                                                                             (ListItem
-                                                                                (Var 5 q)
-                                                                                (Var 5 __list_iterator2)
+                                                                                (Var 6 q)
+                                                                                (Var 6 __list_iterator2)
                                                                                 (List
                                                                                     (List
                                                                                         (List
@@ -6793,7 +6793,7 @@
                                                                                 )
                                                                                 ()
                                                                             )
-                                                                            (Var 5 __list_iterator3)
+                                                                            (Var 6 __list_iterator3)
                                                                             (List
                                                                                 (List
                                                                                     (Real 8)
@@ -6801,7 +6801,7 @@
                                                                             )
                                                                             ()
                                                                         )
-                                                                        (Var 5 __list_iterator4)
+                                                                        (Var 6 __list_iterator4)
                                                                         (List
                                                                             (Real 8)
                                                                         )
@@ -6850,14 +6850,14 @@
                                                 )
                                                 (If
                                                     (IntegerCompare
-                                                        (Var 5 __list_iterator4)
+                                                        (Var 6 __list_iterator4)
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 5 q)
-                                                                        (Var 5 __list_iterator2)
+                                                                        (Var 6 q)
+                                                                        (Var 6 __list_iterator2)
                                                                         (List
                                                                             (List
                                                                                 (List
@@ -6867,7 +6867,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 5 __list_iterator3)
+                                                                    (Var 6 __list_iterator3)
                                                                     (List
                                                                         (List
                                                                             (Real 8)
@@ -6918,13 +6918,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 5 __list_iterator3)
+                                                    (Var 6 __list_iterator3)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 5 q)
-                                                                (Var 5 __list_iterator2)
+                                                                (Var 6 q)
+                                                                (Var 6 __list_iterator2)
                                                                 (List
                                                                     (List
                                                                         (List
@@ -6977,11 +6977,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 5 __list_iterator2)
+                                                (Var 6 __list_iterator2)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 5 q)
+                                                        (Var 6 q)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -7034,11 +7034,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 5 __list_iterator6)
+                                        ((Var 6 __list_iterator6)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 5 r)
+                                                (Var 6 r)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -7062,13 +7062,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 5 __list_iterator7)
+                                            ((Var 6 __list_iterator7)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 5 r)
-                                                        (Var 5 __list_iterator6)
+                                                        (Var 6 r)
+                                                        (Var 6 __list_iterator6)
                                                         (List
                                                             (List
                                                                 (Character 1 -2 ())
@@ -7099,14 +7099,14 @@
                                             )
                                             (DoLoop
                                                 ()
-                                                ((Var 5 __list_iterator8)
+                                                ((Var 6 __list_iterator8)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
+                                                                (Var 6 r)
+                                                                (Var 6 __list_iterator6)
                                                                 (List
                                                                     (List
                                                                         (Character 1 -2 ())
@@ -7114,7 +7114,7 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 5 __list_iterator7)
+                                                            (Var 6 __list_iterator7)
                                                             (List
                                                                 (Character 1 -2 ())
                                                             )
@@ -7138,8 +7138,8 @@
                                                     (ListItem
                                                         (ListItem
                                                             (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
+                                                                (Var 6 r)
+                                                                (Var 6 __list_iterator6)
                                                                 (List
                                                                     (List
                                                                         (Character 1 -2 ())
@@ -7147,13 +7147,13 @@
                                                                 )
                                                                 ()
                                                             )
-                                                            (Var 5 __list_iterator7)
+                                                            (Var 6 __list_iterator7)
                                                             (List
                                                                 (Character 1 -2 ())
                                                             )
                                                             ()
                                                         )
-                                                        (Var 5 __list_iterator8)
+                                                        (Var 6 __list_iterator8)
                                                         (Character 1 -2 ())
                                                         ()
                                                     )
@@ -7172,14 +7172,14 @@
                                                 )
                                                 (If
                                                     (IntegerCompare
-                                                        (Var 5 __list_iterator8)
+                                                        (Var 6 __list_iterator8)
                                                         Lt
                                                         (IntegerBinOp
                                                             (ListLen
                                                                 (ListItem
                                                                     (ListItem
-                                                                        (Var 5 r)
-                                                                        (Var 5 __list_iterator6)
+                                                                        (Var 6 r)
+                                                                        (Var 6 __list_iterator6)
                                                                         (List
                                                                             (List
                                                                                 (Character 1 -2 ())
@@ -7187,7 +7187,7 @@
                                                                         )
                                                                         ()
                                                                     )
-                                                                    (Var 5 __list_iterator7)
+                                                                    (Var 6 __list_iterator7)
                                                                     (List
                                                                         (Character 1 -2 ())
                                                                     )
@@ -7236,13 +7236,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 5 __list_iterator7)
+                                                    (Var 6 __list_iterator7)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 5 r)
-                                                                (Var 5 __list_iterator6)
+                                                                (Var 6 r)
+                                                                (Var 6 __list_iterator6)
                                                                 (List
                                                                     (List
                                                                         (Character 1 -2 ())
@@ -7293,11 +7293,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 5 __list_iterator6)
+                                                (Var 6 __list_iterator6)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 5 r)
+                                                        (Var 6 r)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -7345,11 +7345,11 @@
                             test_print_list_tuple:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             __list_iterator:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator
                                                     []
                                                     Local
@@ -7365,7 +7365,7 @@
                                                 ),
                                             __list_iterator1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator1
                                                     []
                                                     Local
@@ -7381,7 +7381,7 @@
                                                 ),
                                             __list_iterator2:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator2
                                                     []
                                                     Local
@@ -7397,7 +7397,7 @@
                                                 ),
                                             __list_iterator3:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator3
                                                     []
                                                     Local
@@ -7413,7 +7413,7 @@
                                                 ),
                                             __list_iterator4:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator4
                                                     []
                                                     Local
@@ -7429,7 +7429,7 @@
                                                 ),
                                             __list_iterator5:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator5
                                                     []
                                                     Local
@@ -7445,7 +7445,7 @@
                                                 ),
                                             __list_iterator6:
                                                 (Variable
-                                                    4
+                                                    5
                                                     __list_iterator6
                                                     []
                                                     Local
@@ -7461,7 +7461,7 @@
                                                 ),
                                             a:
                                                 (Variable
-                                                    4
+                                                    5
                                                     a
                                                     []
                                                     Local
@@ -7482,7 +7482,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b
                                                     []
                                                     Local
@@ -7506,7 +7506,7 @@
                                                 ),
                                             b1:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b1
                                                     []
                                                     Local
@@ -7524,7 +7524,7 @@
                                                 ),
                                             b2:
                                                 (Variable
-                                                    4
+                                                    5
                                                     b2
                                                     []
                                                     Local
@@ -7542,7 +7542,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    4
+                                                    5
                                                     c
                                                     []
                                                     Local
@@ -7583,7 +7583,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 4 a)
+                                        (Var 5 a)
                                         (ListConstant
                                             [(TupleConstant
                                                 [(IntegerConstant 1 (Integer 4))
@@ -7619,7 +7619,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 c)
+                                        (Var 5 c)
                                         (ListConstant
                                             [(ListConstant
                                                 [(TupleConstant
@@ -7693,7 +7693,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b1)
+                                        (Var 5 b1)
                                         (ListConstant
                                             [(StringConstant
                                                 "a"
@@ -7722,7 +7722,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b2)
+                                        (Var 5 b2)
                                         (ListConstant
                                             [(IntegerConstant 10 (Integer 4))
                                             (IntegerConstant 20 (Integer 4))
@@ -7735,10 +7735,10 @@
                                         ()
                                     )
                                     (=
-                                        (Var 4 b)
+                                        (Var 5 b)
                                         (TupleConstant
-                                            [(Var 4 b1)
-                                            (Var 4 b2)
+                                            [(Var 5 b1)
+                                            (Var 5 b2)
                                             (RealConstant
                                                 6.030500
                                                 (Real 8)
@@ -7769,11 +7769,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator)
+                                        ((Var 5 __list_iterator)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 4 a)
+                                                (Var 5 a)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -7799,8 +7799,8 @@
                                             ()
                                             [(TupleItem
                                                 (ListItem
-                                                    (Var 4 a)
-                                                    (Var 4 __list_iterator)
+                                                    (Var 5 a)
+                                                    (Var 5 __list_iterator)
                                                     (Tuple
                                                         [(Integer 4)
                                                         (Integer 4)]
@@ -7839,8 +7839,8 @@
                                             ()
                                             [(TupleItem
                                                 (ListItem
-                                                    (Var 4 a)
-                                                    (Var 4 __list_iterator)
+                                                    (Var 5 a)
+                                                    (Var 5 __list_iterator)
                                                     (Tuple
                                                         [(Integer 4)
                                                         (Integer 4)]
@@ -7874,11 +7874,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator)
+                                                (Var 5 __list_iterator)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 4 a)
+                                                        (Var 5 a)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -7946,12 +7946,12 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator1)
+                                        ((Var 5 __list_iterator1)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
                                                 (TupleItem
-                                                    (Var 4 b)
+                                                    (Var 5 b)
                                                     (IntegerConstant 0 (Integer 4))
                                                     (List
                                                         (Character 1 -2 ())
@@ -7975,14 +7975,14 @@
                                             )
                                             (ListItem
                                                 (TupleItem
-                                                    (Var 4 b)
+                                                    (Var 5 b)
                                                     (IntegerConstant 0 (Integer 4))
                                                     (List
                                                         (Character 1 -2 ())
                                                     )
                                                     ()
                                                 )
-                                                (Var 4 __list_iterator1)
+                                                (Var 5 __list_iterator1)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -8001,12 +8001,12 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator1)
+                                                (Var 5 __list_iterator1)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (TupleItem
-                                                            (Var 4 b)
+                                                            (Var 5 b)
                                                             (IntegerConstant 0 (Integer 4))
                                                             (List
                                                                 (Character 1 -2 ())
@@ -8083,12 +8083,12 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator2)
+                                        ((Var 5 __list_iterator2)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
                                                 (TupleItem
-                                                    (Var 4 b)
+                                                    (Var 5 b)
                                                     (IntegerConstant 1 (Integer 4))
                                                     (List
                                                         (Integer 4)
@@ -8108,14 +8108,14 @@
                                             ()
                                             [(ListItem
                                                 (TupleItem
-                                                    (Var 4 b)
+                                                    (Var 5 b)
                                                     (IntegerConstant 1 (Integer 4))
                                                     (List
                                                         (Integer 4)
                                                     )
                                                     ()
                                                 )
-                                                (Var 4 __list_iterator2)
+                                                (Var 5 __list_iterator2)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -8130,12 +8130,12 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator2)
+                                                (Var 5 __list_iterator2)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
                                                         (TupleItem
-                                                            (Var 4 b)
+                                                            (Var 5 b)
                                                             (IntegerConstant 1 (Integer 4))
                                                             (List
                                                                 (Integer 4)
@@ -8201,7 +8201,7 @@
                                     (Print
                                         ()
                                         [(TupleItem
-                                            (Var 4 b)
+                                            (Var 5 b)
                                             (IntegerConstant 2 (Integer 4))
                                             (Real 8)
                                             ()
@@ -8238,11 +8238,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator3)
+                                        ((Var 5 __list_iterator3)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 4 c)
+                                                (Var 5 c)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -8266,13 +8266,13 @@
                                         )
                                         (DoLoop
                                             ()
-                                            ((Var 4 __list_iterator4)
+                                            ((Var 5 __list_iterator4)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (ListLen
                                                     (ListItem
-                                                        (Var 4 c)
-                                                        (Var 4 __list_iterator3)
+                                                        (Var 5 c)
+                                                        (Var 5 __list_iterator3)
                                                         (List
                                                             (Tuple
                                                                 [(Integer 4)
@@ -8307,8 +8307,8 @@
                                                 [(TupleItem
                                                     (ListItem
                                                         (ListItem
-                                                            (Var 4 c)
-                                                            (Var 4 __list_iterator3)
+                                                            (Var 5 c)
+                                                            (Var 5 __list_iterator3)
                                                             (List
                                                                 (Tuple
                                                                     [(Integer 4)
@@ -8317,7 +8317,7 @@
                                                             )
                                                             ()
                                                         )
-                                                        (Var 4 __list_iterator4)
+                                                        (Var 5 __list_iterator4)
                                                         (Tuple
                                                             [(Integer 4)
                                                             (Character 1 -2 ())]
@@ -8361,8 +8361,8 @@
                                                 (TupleItem
                                                     (ListItem
                                                         (ListItem
-                                                            (Var 4 c)
-                                                            (Var 4 __list_iterator3)
+                                                            (Var 5 c)
+                                                            (Var 5 __list_iterator3)
                                                             (List
                                                                 (Tuple
                                                                     [(Integer 4)
@@ -8371,7 +8371,7 @@
                                                             )
                                                             ()
                                                         )
-                                                        (Var 4 __list_iterator4)
+                                                        (Var 5 __list_iterator4)
                                                         (Tuple
                                                             [(Integer 4)
                                                             (Character 1 -2 ())]
@@ -8409,13 +8409,13 @@
                                             )
                                             (If
                                                 (IntegerCompare
-                                                    (Var 4 __list_iterator4)
+                                                    (Var 5 __list_iterator4)
                                                     Lt
                                                     (IntegerBinOp
                                                         (ListLen
                                                             (ListItem
-                                                                (Var 4 c)
-                                                                (Var 4 __list_iterator3)
+                                                                (Var 5 c)
+                                                                (Var 5 __list_iterator3)
                                                                 (List
                                                                     (Tuple
                                                                         [(Integer 4)
@@ -8467,11 +8467,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator3)
+                                                (Var 5 __list_iterator3)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 4 c)
+                                                        (Var 5 c)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -8527,11 +8527,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator5)
+                                        ((Var 5 __list_iterator5)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 4 b1)
+                                                (Var 5 b1)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -8548,8 +8548,8 @@
                                                 (Character 1 1 ())
                                             )
                                             (ListItem
-                                                (Var 4 b1)
-                                                (Var 4 __list_iterator5)
+                                                (Var 5 b1)
+                                                (Var 5 __list_iterator5)
                                                 (Character 1 -2 ())
                                                 ()
                                             )
@@ -8568,11 +8568,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator5)
+                                                (Var 5 __list_iterator5)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 4 b1)
+                                                        (Var 5 b1)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -8628,11 +8628,11 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 4 __list_iterator6)
+                                        ((Var 5 __list_iterator6)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (ListLen
-                                                (Var 4 b2)
+                                                (Var 5 b2)
                                                 (Integer 4)
                                                 ()
                                             )
@@ -8645,8 +8645,8 @@
                                         [(Print
                                             ()
                                             [(ListItem
-                                                (Var 4 b2)
-                                                (Var 4 __list_iterator6)
+                                                (Var 5 b2)
+                                                (Var 5 __list_iterator6)
                                                 (Integer 4)
                                                 ()
                                             )]
@@ -8661,11 +8661,11 @@
                                         )
                                         (If
                                             (IntegerCompare
-                                                (Var 4 __list_iterator6)
+                                                (Var 5 __list_iterator6)
                                                 Lt
                                                 (IntegerBinOp
                                                     (ListLen
-                                                        (Var 4 b2)
+                                                        (Var 5 b2)
                                                         (Integer 4)
                                                         ()
                                                     )
@@ -8732,7 +8732,7 @@
                                     ()
                                 )
                         })
-                    _global_symbols
+                    __main__
                     []
                     .false.
                     .false.
@@ -8740,24 +8740,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        7
+                        9
                         {
-                            _lpython_main_program:
+                            __main____global_statements:
                                 (ExternalSymbol
-                                    7
-                                    _lpython_main_program
-                                    9 _lpython_main_program
-                                    _global_symbols
+                                    9
+                                    __main____global_statements
+                                    2 __main____global_statements
+                                    __main__
                                     []
-                                    _lpython_main_program
+                                    __main____global_statements
                                     Public
                                 )
                         })
                     main_program
-                    [_global_symbols]
+                    [__main__]
                     [(SubroutineCall
-                        7 _lpython_main_program
-                        ()
+                        9 __main____global_statements
+                        2 __main____global_statements
                         []
                         ()
                     )]

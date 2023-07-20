@@ -920,6 +920,10 @@ public:
         }
     }
 
+    void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& /*x*/) {
+
+    }
+
     void visit_Allocate(const ASR::Allocate_t& x)
     {
         std::string indent(indentation_level * indentation_spaces, ' ');
