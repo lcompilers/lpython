@@ -450,13 +450,13 @@ R"(#include <stdio.h>
                     if (gen_stdcomplex) {
                         sub = "std::complex<float> ";
                     } else {
-                        sub = "float complex ";
+                        sub = "float_complex_t ";
                     }
                 } else {
                     if (gen_stdcomplex) {
                         sub = "std::complex<double> ";
                     } else {
-                        sub = "double complex ";
+                        sub = "double_complex_t ";
                     }
                 }
             }
