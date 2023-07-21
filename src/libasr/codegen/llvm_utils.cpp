@@ -877,12 +877,13 @@ namespace LCompilers {
         }
     }
 
-    void LLVMUtils::set_set_api(ASR::Set_t* set_type) {
-        if( ASR::is_a<ASR::Character_t>(*set_type->m_type) ) {
-            set_api = set_api_sc;
-        } else {
-            set_api = set_api_lp;
-        }
+    void LLVMUtils::set_set_api(ASR::Set_t* /*set_type*/) {
+        // if( ASR::is_a<ASR::Character_t>(*set_type->m_type) ) {
+        //     set_api = set_api_sc;
+        // } else {
+        //     set_api = set_api_lp;
+        // }
+        set_api = set_api_lp;
     }
 
     std::vector<llvm::Type*> LLVMUtils::convert_args(const ASR::Function_t& x, llvm::Module* module) {
