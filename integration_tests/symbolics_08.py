@@ -16,7 +16,7 @@ def basic_str(x: CPtr) -> str:
 def main0():
     y: i64 = i64(0)
     x: CPtr = empty_c_void_p()
-    p_c_pointer(pointer(y), x)
+    p_c_pointer(pointer(y, i64), x)
     basic_new_stack(x)
     basic_const_pi(x)
     s: str = basic_str(x)
