@@ -2156,7 +2156,6 @@ public:
                 llvm::Type* target_type = llvm_utils->get_type_from_ttype_t_util(x_m_array_type, module.get());
                 llvm::Value *target = builder0.CreateAlloca(
                     target_type, nullptr, "fixed_size_reshaped_array");
-                array = llvm_utils->create_gep(array, 0);
                 llvm::Value* target_ = llvm_utils->create_gep(target, 0);
                 ASR::dimension_t* asr_dims = nullptr;
                 size_t asr_n_dims = ASRUtils::extract_dimensions_from_ttype(x_m_array_type, asr_dims);
@@ -3172,6 +3171,8 @@ public:
                                 builder->CreateMemCpy(llvm_utils->create_gep(target_var, 0),
                                     llvm::MaybeAlign(), init_value, llvm::MaybeAlign(), arg_size);
                             }
+                        } else if (ASR::is_a<ASR::ArrayReshape_t>(*v->m_symbolic_value)) {
+                            builder->CreateStore(LLVM::CreateLoad(*builder, init_value), target_var);
                         } else {
                             builder->CreateStore(init_value, target_var);
                         }
