@@ -17,8 +17,6 @@
 #    define FIXED_VECTOR_TYPE llvm::VectorType
 #endif
 
-#define PERTURB_SHIFT 5
-
 namespace LCompilers {
 
     // Platform dependent fast unique hash:
@@ -202,6 +200,8 @@ namespace LCompilers {
 
             LLVMDictInterface* dict_api_lp;
             LLVMDictInterface* dict_api_sc;
+            LLVMSetInterface* set_api_lp;
+            LLVMSetInterface* set_api_sc;
 
             CompilerOptions &compiler_options;
 
@@ -299,6 +299,8 @@ namespace LCompilers {
                 bool get_pointer=true);
 
             void set_dict_api(ASR::Dict_t* dict_type);
+
+            void set_set_api(ASR::Set_t* set_type);
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
                 ASR::ttype_t* asr_type, llvm::Module* module,
@@ -876,6 +878,10 @@ namespace LCompilers {
             llvm::AllocaInst *pos_ptr, *is_el_matching_var;
             llvm::AllocaInst *idx_ptr, *hash_iter, *hash_value;
             llvm::AllocaInst *polynomial_powers;
+            llvm::AllocaInst *chain_itr, *chain_itr_prev;
+            llvm::AllocaInst *old_capacity, *old_elems, *old_el_mask;
+            llvm::AllocaInst *old_occupancy, *old_number_of_buckets_filled;
+            llvm::AllocaInst *src_itr, *dest_itr, *next_ptr, *copy_itr;
             bool are_iterators_set;
 
             std::map<std::string, std::tuple<llvm::Type*, int32_t, llvm::Type*>> typecode2settype;
@@ -916,13 +922,6 @@ namespace LCompilers {
                 ASR::ttype_t* el_asr_type, llvm::Module& module);
 
             virtual
-            void resolve_collision(
-                llvm::Value* capacity, llvm::Value* el_hash,
-                llvm::Value* el, llvm::Value* el_list,
-                llvm::Value* el_mask, llvm::Module& module,
-                ASR::ttype_t* el_asr_type, bool for_read=false) = 0;
-
-            virtual
             void resolve_collision_for_write(
                 llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
                 llvm::Module* module, ASR::ttype_t* el_asr_type,
@@ -942,7 +941,7 @@ namespace LCompilers {
             void write_item(
                 llvm::Value* set, llvm::Value* el,
                 llvm::Module* module, ASR::ttype_t* el_asr_type,
-                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             virtual
             void resolve_collision_for_read_with_bound_check(
@@ -961,7 +960,13 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
-            llvm::Value* len(llvm::Value* set) = 0;
+            llvm::Value* len(llvm::Value* set);
+
+            virtual
+            bool is_set_present();
+
+            virtual
+            void set_is_set_present(bool value);
 
             virtual ~LLVMSetInterface() = 0;
 
@@ -1010,9 +1015,85 @@ namespace LCompilers {
                 llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
-            void write_item(
+            void resolve_collision_for_read_with_bound_check(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type);
+
+            void remove_item(
                 llvm::Value* set, llvm::Value* el,
+                llvm::Module& module, ASR::ttype_t* el_asr_type);
+
+            void set_deepcopy(
+                llvm::Value* src, llvm::Value* dest,
+                ASR::Set_t* set_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            ~LLVMSetLinearProbing();
+    };
+
+    class LLVMSetSeparateChaining: public LLVMSetInterface {
+
+        protected:
+
+            std::map<std::string, llvm::Type*> typecode2elstruct;
+
+            llvm::Value* get_pointer_to_number_of_filled_buckets(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_elems(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_rehash_flag(llvm::Value* set);
+
+            void set_init_given_initial_capacity(std::string el_type_code,
+                llvm::Value* set, llvm::Module* module, llvm::Value* initial_capacity);
+
+            void resolve_collision(
+                llvm::Value* el_hash, llvm::Value* el, llvm::Value* el_linked_list,
+                llvm::Type* el_struct_type, llvm::Value* el_mask,
+                llvm::Module& module, ASR::ttype_t* el_asr_type);
+
+            void write_el_linked_list(
+                llvm::Value* el_ll, llvm::Value* set, llvm::Value* capacity,
+                ASR::ttype_t* m_el_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void deepcopy_el_linked_list(
+                llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_elems,
+                ASR::Set_t* set_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+        public:
+
+            LLVMSetSeparateChaining(
+                llvm::LLVMContext& context_,
+                LLVMUtils* llvm_utils,
+                llvm::IRBuilder<>* builder);
+
+            llvm::Type* get_set_type(
+                std::string type_code,
+                int32_t type_size, llvm::Type* el_type);
+
+            void set_init(std::string type_code, llvm::Value* set,
+                llvm::Module* module, size_t initial_capacity);
+
+            llvm::Value* get_el_list(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_capacity(llvm::Value* set);
+
+            llvm::Value* get_pointer_to_mask(llvm::Value* set);
+
+            void resolve_collision_for_write(
+                llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
                 llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void rehash(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
+
+            void rehash_all_at_once_if_needed(
+                llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void resolve_collision_for_read_with_bound_check(
@@ -1028,9 +1109,7 @@ namespace LCompilers {
                 ASR::Set_t* set_type, llvm::Module* module,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
-            llvm::Value* len(llvm::Value* set);
-
-            ~LLVMSetLinearProbing();
+            ~LLVMSetSeparateChaining();
     };
 
 } // namespace LCompilers
