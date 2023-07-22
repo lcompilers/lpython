@@ -3,6 +3,7 @@ import os
 import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
+import functools
 
 
 # TODO: this does not seem to restrict other imports
@@ -647,30 +648,28 @@ def ccallable(f):
 def ccallback(f):
     return f
 
-class Lpython:
-    """
-    The @lpython decorator compiles a given function using LPython.
+class LpythonJITCache:
 
-    The decorator should be used from CPython mode, i.e., when the module is
-    being run using CPython. When possible, it is recommended to use LPython
-    for the main program, and use the @cpython decorator from the LPython mode
-    to access CPython features that are not supported by LPython.
-    """
+    def __init__(self):
+        self.pyfunc2compiledfunc = {}
 
-    def __init__(self, function, backend, optimisation_flags):
+    def compile(self, function, backend, optimisation_flags):
+        if function in self.pyfunc2compiledfunc:
+            return self.pyfunc2compiledfunc[function]
+
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
 
-        self.fn_name = function.__name__
+        fn_name = function.__name__
         # Get the source code of the function
         source_code = getsource(function)
         source_code = source_code[source_code.find('\n'):]
 
-        dir_name = "./lpython_decorator_" + self.fn_name
+        dir_name = "./lpython_decorator_" + fn_name
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)
-        filename = dir_name + "/" + self.fn_name
+        filename = dir_name + "/" + fn_name
 
         # Open the file for writing
         with open(filename + ".py", "w") as file:
@@ -716,21 +715,29 @@ class Lpython:
 
         # ----------------------------------------------------------------------
         # Compile the C file and create a shared library
+        shared_library_name = "lpython_module_" + fn_name
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            filename + ".c -o lpython_module_" + self.fn_name + ".so " +
+            filename + ".c -o " + shared_library_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
+        self.pyfunc2compiledfunc[function] = (shared_library_name, fn_name)
+        return self.pyfunc2compiledfunc[function]
 
-    def __call__(self, *args, **kwargs):
-        import sys; sys.path.append('.')
-        # import the symbol from the shared library
-        function = getattr(__import__("lpython_module_" + self.fn_name),
-            self.fn_name)
-        return function(*args, **kwargs)
+lpython_jit_cache = LpythonJITCache()
 
-def lpython(backend, optimisation_flags=None):
+# Taken from https://stackoverflow.com/a/24617244
+def lpython(original_function=None, backend="c", optimisation_flags=None):
     def _lpython(function):
-        return Lpython(function, backend, optimisation_flags)
+        @functools.wraps(function)
+        def __lpython(*args, **kwargs):
+            import sys; sys.path.append('.')
+            lib_name, fn_name = lpython_jit_cache.compile(
+                function, backend, optimisation_flags)
+            return getattr(__import__(lib_name), fn_name)(*args, **kwargs)
+        return __lpython
+
+    if original_function:
+        return _lpython(original_function)
     return _lpython
 
 def bitnot(x, bitsize):

@@ -3,14 +3,14 @@ from lpython import i32, i64, f64, lpython, TypeVar
 
 n = TypeVar("n")
 
-@lpython("c", ["-ffast-math", "-funroll-loops"])
+@lpython(optimisation_flags=["-ffast-math", "-funroll-loops"])
 def multiply_01(n: i32, x: f64[:]) -> f64[n]:
     i: i32
     for i in range(n):
         x[i] *= 5.0
     return x
 
-@lpython("c")
+@lpython
 def multiply_02(n: i32, x: i64[:], y: i64[:]) -> i64[n]:
     z: i64[n]; i: i32
     for i in range(n):
