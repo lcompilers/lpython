@@ -657,6 +657,12 @@ class LpythonJITCache:
         if function in self.pyfunc2compiledfunc:
             return self.pyfunc2compiledfunc[function]
 
+        if optimisation_flags is not None and backend is None:
+            raise ValueError("backend must be specified if backend_optimisation_flags are provided.")
+
+        if backend is None:
+            backend = "c"
+
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -726,13 +732,21 @@ class LpythonJITCache:
 lpython_jit_cache = LpythonJITCache()
 
 # Taken from https://stackoverflow.com/a/24617244
-def lpython(original_function=None, backend="c", optimisation_flags=None):
+def lpython(original_function=None, backend=None, backend_optimisation_flags=None):
+    """
+     The @lpython decorator compiles a given function using LPython.
+
+     The decorator should be used from CPython mode, i.e., when the module is
+     being run using CPython. When possible, it is recommended to use LPython
+     for the main program, and use the @cpython decorator from the LPython mode
+     to access CPython features that are not supported by LPython.
+    """
     def _lpython(function):
         @functools.wraps(function)
         def __lpython(*args, **kwargs):
             import sys; sys.path.append('.')
             lib_name, fn_name = lpython_jit_cache.compile(
-                function, backend, optimisation_flags)
+                function, backend, backend_optimisation_flags)
             return getattr(__import__(lib_name), fn_name)(*args, **kwargs)
         return __lpython
 

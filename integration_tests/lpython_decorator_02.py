@@ -3,7 +3,7 @@ from lpython import i32, i64, f64, lpython, TypeVar
 
 n = TypeVar("n")
 
-@lpython(optimisation_flags=["-ffast-math", "-funroll-loops"])
+@lpython(backend="c", backend_optimisation_flags=["-ffast-math", "-funroll-loops"])
 def multiply_01(n: i32, x: f64[:]) -> f64[n]:
     i: i32
     for i in range(n):
