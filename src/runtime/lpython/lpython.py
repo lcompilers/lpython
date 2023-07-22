@@ -647,7 +647,7 @@ def ccallable(f):
 def ccallback(f):
     return f
 
-class lpython:
+class Lpython:
     """
     The @lpython decorator compiles a given function using LPython.
 
@@ -657,7 +657,7 @@ class lpython:
     to access CPython features that are not supported by LPython.
     """
 
-    def __init__(self, function):
+    def __init__(self, function, backend, optimisation_flags):
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -678,6 +678,14 @@ class lpython:
             file.write("@pythoncallable")
             file.write(source_code)
 
+        if backend != "c":
+            raise NotImplementedError("Backend %s is not supported with @lpython yet."%(backend))
+
+        opt_flags = " "
+        if optimisation_flags is not None:
+            for opt_flag in optimisation_flags:
+                opt_flags += opt_flag + " "
+
         # ----------------------------------------------------------------------
         # Generate the shared library
         # TODO: Use LLVM instead of C backend
@@ -687,11 +695,13 @@ class lpython:
 
         gcc_flags = ""
         if platform.system() == "Linux":
-            gcc_flags = " -shared -fPIC -funroll-loops -ffast-math "
+            gcc_flags = " -shared -fPIC"
         elif platform.system() == "Darwin":
-            gcc_flags = " -bundle -flat_namespace -undefined suppress -funroll-loops -ffast-math "
+            gcc_flags = " -bundle -flat_namespace -undefined suppress"
         else:
             raise NotImplementedError("Platform not implemented")
+
+        gcc_flags += opt_flags
 
         from numpy import get_include
         from distutils.sysconfig import get_python_inc, get_python_lib, \
@@ -717,6 +727,11 @@ class lpython:
         function = getattr(__import__("lpython_module_" + self.fn_name),
             self.fn_name)
         return function(*args, **kwargs)
+
+def lpython(backend, optimisation_flags=None):
+    def _lpython(function):
+        return Lpython(function, backend, optimisation_flags)
+    return _lpython
 
 def bitnot(x, bitsize):
     return (~x) % (2 ** bitsize)
