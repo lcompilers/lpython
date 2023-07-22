@@ -734,12 +734,12 @@ lpython_jit_cache = LpythonJITCache()
 # Taken from https://stackoverflow.com/a/24617244
 def lpython(original_function=None, backend=None, backend_optimisation_flags=None):
     """
-     The @lpython decorator compiles a given function using LPython.
+    The @lpython decorator compiles a given function using LPython.
 
-     The decorator should be used from CPython mode, i.e., when the module is
-     being run using CPython. When possible, it is recommended to use LPython
-     for the main program, and use the @cpython decorator from the LPython mode
-     to access CPython features that are not supported by LPython.
+    The decorator should be used from CPython mode, i.e., when the module is
+    being run using CPython. When possible, it is recommended to use LPython
+    for the main program, and use the @cpython decorator from the LPython mode
+    to access CPython features that are not supported by LPython.
     """
     def _lpython(function):
         @functools.wraps(function)
