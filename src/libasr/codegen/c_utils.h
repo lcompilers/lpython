@@ -314,13 +314,13 @@ namespace CUtils {
             case ASR::ttypeType::Complex: {
                 if( kind == 4 ) {
                     if( is_c ) {
-                        type_src = "float complex";
+                        type_src = "float_complex_t";
                     } else {
                         type_src = "std::complex<float>";
                     }
                 } else if( kind == 8 ) {
                     if( is_c ) {
-                        type_src = "double complex";
+                        type_src = "double_complex_t";
                     } else {
                         type_src = "std::complex<double>";
                     }
