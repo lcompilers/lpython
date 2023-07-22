@@ -687,9 +687,9 @@ class lpython:
 
         gcc_flags = ""
         if platform.system() == "Linux":
-            gcc_flags = " -shared -fPIC "
+            gcc_flags = " -shared -fPIC -funroll-loops -ffast-math "
         elif platform.system() == "Darwin":
-            gcc_flags = " -bundle -flat_namespace -undefined suppress "
+            gcc_flags = " -bundle -flat_namespace -undefined suppress -funroll-loops -ffast-math "
         else:
             raise NotImplementedError("Platform not implemented")
 
