@@ -1684,7 +1684,7 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
-    void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value, const Location &loc) {
+    void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
         ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
                                     ASRUtils::expr_type(m_arg));
         ASR::ttype_t* el_type = key_or_value == 0 ?
@@ -1695,11 +1695,6 @@ public:
         this->visit_expr(*m_arg);
         llvm::Value* pdict = tmp;
 
-        llvm_utils->set_dict_api(dict_type);
-        if(llvm_utils->dict_api == dict_api_sc.get()) {
-            throw CodeGenError("dict.keys and dict.values are only implemented "
-                               "for linear probing for now", loc);
-        }
         ptr_loads = ptr_loads_copy;
 
         bool is_array_type_local = false, is_malloc_array_type_local = false;
@@ -1725,7 +1720,9 @@ public:
                                                      "keys_list" : "values_list");
         list_api->list_init(type_code, el_list, *module, 0, 0);
 
-        llvm_utils->dict_api->get_elements_list(pdict, el_list, el_type, *module,
+        llvm_utils->set_dict_api(dict_type);
+        llvm_utils->dict_api->get_elements_list(pdict, el_list, dict_type->m_key_type,
+                                                dict_type->m_value_type, *module,
                                                 name2memidx, key_or_value);
         tmp = el_list;
     }
@@ -1802,11 +1799,11 @@ public:
                 break;
             }
             case ASRUtils::IntrinsicFunctions::DictKeys: {
-                generate_DictElems(x.m_args[0], 0, x.base.base.loc);
+                generate_DictElems(x.m_args[0], 0);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::DictValues: {
-                generate_DictElems(x.m_args[0], 1, x.base.base.loc);
+                generate_DictElems(x.m_args[0], 1);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::SetAdd: {
