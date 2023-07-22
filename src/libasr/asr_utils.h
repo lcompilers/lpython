@@ -1688,42 +1688,17 @@ static inline bool is_logical(ASR::ttype_t &x) {
                 type_get_past_pointer(&x))));
 }
 
-static inline bool is_generic(ASR::ttype_t &x) {
-    switch (x.type) {
-        case ASR::ttypeType::List: {
-            ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
-            return is_generic(*list_type->m_type);
-        }
-        case ASR::ttypeType::Array: {
-            ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(type_get_past_pointer(&x));
-            return is_generic(*array_t->m_type);
-        }
-        default : return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
-    }
-}
-
 static inline bool is_type_parameter(ASR::ttype_t &x) {
     switch (x.type) {
         case ASR::ttypeType::List: {
             ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
             return is_type_parameter(*list_type->m_type);
         }
-        default : return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
-    }
-}
-
-static inline bool is_template_function(ASR::symbol_t *x) {
-    ASR::symbol_t* x2 = symbol_get_past_external(x);
-    switch (x2->type) {
-        case ASR::symbolType::Function: {
-            const SymbolTable* parent_symtab = symbol_parent_symtab(x2);
-            if (ASR::is_a<ASR::symbol_t>(*parent_symtab->asr_owner)) {
-                ASR::symbol_t* parent_sym = ASR::down_cast<ASR::symbol_t>(parent_symtab->asr_owner);
-                return ASR::is_a<ASR::Template_t>(*parent_sym);
-            }
-            return false;
+        case ASR::ttypeType::Array: {
+            ASR::Array_t *arr_type = ASR::down_cast<ASR::Array_t>(type_get_past_pointer(&x));
+            return is_type_parameter(*arr_type->m_type);
         }
-        default: return false;
+        default : return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
     }
 }
 
@@ -1742,20 +1717,19 @@ static inline bool is_generic_function(ASR::symbol_t *x) {
     ASR::symbol_t* x2 = symbol_get_past_external(x);
     switch (x2->type) {
         case ASR::symbolType::Function: {
-            ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x2);
-            return (ASRUtils::get_FunctionType(func_sym)->n_type_params > 0 &&
-                   !ASRUtils::get_FunctionType(func_sym)->m_is_restriction);
-        }
-        default: return false;
-    }
-}
-
-static inline bool is_restriction_function(ASR::symbol_t *x) {
-    ASR::symbol_t* x2 = symbol_get_past_external(x);
-    switch (x2->type) {
-        case ASR::symbolType::Function: {
-            ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x2);
-            return ASRUtils::get_FunctionType(func_sym)->m_is_restriction;
+            if (is_requirement_function(x2)) {
+                return false;
+            }
+            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(x2);
+            ASR::FunctionType_t *func_type
+                = ASR::down_cast<ASR::FunctionType_t>(func->m_function_signature);
+            for (size_t i=0; i<func_type->n_arg_types; i++) {
+                if (is_type_parameter(*func_type->m_arg_types[i])) {
+                    return true;
+                }
+            }
+            return func_type->m_return_var_type 
+                   && is_type_parameter(*func_type->m_return_var_type);
         }
         default: return false;
     }
@@ -2110,7 +2084,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             return ASRUtils::TYPE(ASR::make_FunctionType_t(al, ft->base.base.loc,
                 arg_types.p, arg_types.size(), ft->m_return_var_type, ft->m_abi,
                 ft->m_deftype, ft->m_bindc_name, ft->m_elemental, ft->m_pure, ft->m_module, ft->m_inline,
-                ft->m_static, ft->m_type_params, ft->n_type_params, ft->m_restrictions, ft->n_restrictions,
+                ft->m_static, ft->m_restrictions, ft->n_restrictions,
                 ft->m_is_restriction));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
@@ -3119,7 +3093,7 @@ inline ASR::asr_t* make_FunctionType_t_util(Allocator &al,
     const Location &a_loc, ASR::expr_t** a_args, size_t n_args,
     ASR::expr_t* a_return_var, ASR::abiType a_abi, ASR::deftypeType a_deftype,
     char* a_bindc_name, bool a_elemental, bool a_pure, bool a_module, bool a_inline,
-    bool a_static, ASR::ttype_t** a_type_params, size_t n_type_params,
+    bool a_static,
     ASR::symbol_t** a_restrictions, size_t n_restrictions, bool a_is_restriction) {
     Vec<ASR::ttype_t*> arg_types;
     arg_types.reserve(al, n_args);
@@ -3141,7 +3115,7 @@ inline ASR::asr_t* make_FunctionType_t_util(Allocator &al,
     return ASR::make_FunctionType_t(
         al, a_loc, arg_types.p, arg_types.size(), return_var_type, a_abi, a_deftype,
         a_bindc_name, a_elemental, a_pure, a_module, a_inline,
-        a_static, a_type_params, n_type_params, a_restrictions, n_restrictions,
+        a_static, a_restrictions, n_restrictions,
         a_is_restriction);
 }
 
@@ -3150,7 +3124,7 @@ inline ASR::asr_t* make_FunctionType_t_util(Allocator &al, const Location &a_loc
     return ASRUtils::make_FunctionType_t_util(al, a_loc, a_args, n_args, a_return_var,
         ft->m_abi, ft->m_deftype, ft->m_bindc_name, ft->m_elemental,
         ft->m_pure, ft->m_module, ft->m_inline, ft->m_static,
-        ft->m_type_params, ft->n_type_params, ft->m_restrictions,
+        ft->m_restrictions,
         ft->n_restrictions, ft->m_is_restriction);
 }
 
@@ -3159,12 +3133,12 @@ inline ASR::asr_t* make_Function_t_util(Allocator& al, const Location& loc,
     ASR::expr_t** a_args, size_t n_args, ASR::stmt_t** m_body, size_t n_body,
     ASR::expr_t* m_return_var, ASR::abiType m_abi, ASR::accessType m_access,
     ASR::deftypeType m_deftype, char* m_bindc_name, bool m_elemental, bool m_pure,
-    bool m_module, bool m_inline, bool m_static, ASR::ttype_t** m_type_params, size_t n_type_params,
+    bool m_module, bool m_inline, bool m_static,
     ASR::symbol_t** m_restrictions, size_t n_restrictions, bool m_is_restriction,
     bool m_deterministic, bool m_side_effect_free, char *m_c_header=nullptr) {
     ASR::ttype_t* func_type = ASRUtils::TYPE(ASRUtils::make_FunctionType_t_util(
         al, loc, a_args, n_args, m_return_var, m_abi, m_deftype, m_bindc_name,
-        m_elemental, m_pure, m_module, m_inline, m_static, m_type_params, n_type_params,
+        m_elemental, m_pure, m_module, m_inline, m_static,
         m_restrictions, n_restrictions, m_is_restriction));
     return ASR::make_Function_t(
         al, loc, m_symtab, m_name, func_type, m_dependencies, n_dependencies,
@@ -3353,7 +3327,6 @@ class SymbolDuplicator {
             function_type->m_abi, function->m_access, function_type->m_deftype,
             function_type->m_bindc_name, function_type->m_elemental, function_type->m_pure,
             function_type->m_module, function_type->m_inline, function_type->m_static,
-            function_type->m_type_params, function_type->n_type_params,
             function_type->m_restrictions, function_type->n_restrictions,
             function_type->m_is_restriction, function->m_deterministic,
             function->m_side_effect_free));

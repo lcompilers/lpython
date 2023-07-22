@@ -27,7 +27,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [main0]
@@ -304,7 +303,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1512,7 +1510,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [_mod@__lpython_overloaded_2___mod]
@@ -1605,7 +1602,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
