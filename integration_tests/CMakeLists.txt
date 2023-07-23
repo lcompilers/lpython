@@ -445,6 +445,7 @@ RUN(NAME expr_17             LABELS cpython llvm c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
 RUN(NAME expr_19             LABELS cpython llvm c)
 RUN(NAME expr_20             LABELS cpython llvm c)
+RUN(NAME expr_21             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm c NOFAST)
