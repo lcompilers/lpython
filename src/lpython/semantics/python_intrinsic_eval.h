@@ -457,6 +457,11 @@ struct IntrinsicNodeHandler {
                 value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_StringConstant_t(al, loc, s2c(al, svalue), str_type));
             }
+            int kind = ASRUtils::extract_kind_from_ttype_t(type);
+            if (kind != 4) {
+                ASR::ttype_t* dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4));
+                arg = ASRUtils::EXPR(ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::IntegerToInteger, dest_type, nullptr));
+            }
             return ASR::make_StringChr_t(al, loc, arg, str_type, value);
         } else {
             throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
