@@ -448,12 +448,12 @@ struct IntrinsicNodeHandler {
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int64_t c = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-                if (! (c >= 0 && c <= 127) ) {
-                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
+                c = (uint8_t) c;
+                if (! (c >= 0 && c <= 255) ) {
+                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 255.", loc);
                 }
-                char cc = c;
                 std::string svalue;
-                svalue += cc;
+                svalue += char(c);
                 value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_StringConstant_t(al, loc, s2c(al, svalue), str_type));
             }
