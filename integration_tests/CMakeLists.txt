@@ -722,6 +722,7 @@ RUN(NAME global_syms_06    LABELS cpython llvm c)
 
 RUN(NAME callback_01       LABELS cpython llvm c)
 RUN(NAME callback_02       LABELS cpython llvm c)
+RUN(NAME callback_03       LABELS cpython llvm c)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any

@@ -1703,6 +1703,10 @@ public:
                 abi, is_argument);
         }
 
+        if (AST::is_a<AST::ConstantNone_t>(annotation)) {
+            return nullptr;
+        }
+
         if (AST::is_a<AST::Subscript_t>(annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(&annotation);
             if (AST::is_a<AST::Name_t>(*s->m_value)) {
