@@ -247,8 +247,6 @@ public:
 
     template <typename Cond, typename Body>
     void create_loop(char *name, Cond condition, Body loop_body) {
-        dict_api_lp->set_iterators();
-        dict_api_sc->set_iterators();
 
         std::string loop_name;
         if (name) {
@@ -286,8 +284,6 @@ public:
         loop_or_block_end.pop_back();
         loop_or_block_end_names.pop_back();
         start_new_block(loopend);
-        dict_api_lp->reset_iterators();
-        dict_api_sc->reset_iterators();
     }
 
     void get_type_debug_info(ASR::ttype_t* t, std::string &type_name,
