@@ -287,6 +287,8 @@ def convert_type_to_ctype(arg):
         return c_double_complex
     elif arg == bool:
         return ctypes.c_bool
+    elif arg == Callable:
+        return ctypes.PYFUNCTYPE(None)
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
