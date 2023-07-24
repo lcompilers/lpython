@@ -116,8 +116,7 @@ namespace LCompilers {
         CompilerOptions &compiler_options_,
         std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache_,
         std::map<std::string, std::pair<llvm::Type*, llvm::Type*>>& fname2arg_type_):
-        context(context), builder(std::move(_builder)), str_cmp_itr(nullptr),
-        are_iterators_set(false), der_type_name(der_type_name_),
+        context(context), builder(std::move(_builder)), str_cmp_itr(nullptr), der_type_name(der_type_name_),
         name2dertype(name2dertype_), name2dercontext(name2dercontext_),
         struct_type_stack(struct_type_stack_), dertype2parent(dertype2parent_),
         name2memidx(name2memidx_), arr_arg_type_cache(arr_arg_type_cache_), fname2arg_type(fname2arg_type_),
