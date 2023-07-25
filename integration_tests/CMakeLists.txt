@@ -106,6 +106,23 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
             if (${fail})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif (KIND STREQUAL "llvm_py")
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.o ${extra_files})
+            target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${NUMPY_INCLUDE_DIR})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib Python::Python)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         elseif(KIND STREQUAL "llvm_sym")
             add_custom_command(
                 OUTPUT ${name}.o
