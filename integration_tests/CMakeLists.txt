@@ -76,13 +76,14 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
     set(labels ${${RUN_LABELS}})
     set(extra_files ${${RUN_EXTRAFILES}})
     set(extra_args ${${RUN_EXTRA_ARGS}})
+    set(copy_to_bin ${${RUN_COPY_TO_BIN}})
 
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
@@ -153,9 +154,6 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${NUMPY_INCLUDE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib Python::Python)
-            if (extra_files)
-                file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-            endif()
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
@@ -281,12 +279,17 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         endif()
+
+        if (copy_to_bin)
+            file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${copy_to_bin} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+        endif()
+
     endif()
 endmacro(RUN_UTIL)
 
 macro(RUN)
     set(options FAIL NOFAST ENABLE_CPYTHON LINK_NUMPY)
-    set(oneValueArgs NAME IMPORT_PATH)
+    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN} )
@@ -309,14 +312,14 @@ macro(RUN)
     endif()
 
     if (NOT FAST)
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 
     if ((FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 endmacro(RUN)
 
@@ -575,10 +578,10 @@ RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
-RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
-RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
-RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST EXTRAFILES bindpy_03_module.py)
-RUN(NAME bindpy_04           LABELS cpython c_py LINK_NUMPY NOFAST EXTRAFILES bindpy_04_module.py)
+RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST COPY_TO_BIN bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY COPY_TO_BIN bindpy_02_module.py)
+RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_03_module.py)
+RUN(NAME bindpy_04           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_04_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
