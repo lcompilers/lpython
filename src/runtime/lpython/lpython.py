@@ -3,6 +3,7 @@ import os
 import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
+import functools
 
 
 # TODO: this does not seem to restrict other imports
@@ -335,7 +336,7 @@ class CTypes:
     A wrapper class for interfacing C via ctypes.
     """
 
-    def __init__(self, f):
+    def __init__(self, f, py_mod = None, py_mod_path = None):
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -349,17 +350,20 @@ class CTypes:
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
+            nonlocal py_mod, py_mod_path
+            if py_mod is None:
+                py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
             if py_mod == "":
                 return os.path.join(get_rtlib_dir(),
                     get_lib_name("lpython_runtime"))
             else:
-                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                if py_mod_path is None:
+                    py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
                 return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        if "LPYTHON_PY_MOD_NAME" in os.environ:
+        if ("LPYTHON_PY_MOD_NAME" in os.environ) or (py_mod is not None):
             crtlib = get_crtlib_path()
             self.library = ctypes.CDLL(crtlib)
             self.cf = self.library[self.name]
@@ -388,7 +392,10 @@ class CTypes:
                 new_args.append(arg.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(arg.dtype))))
             else:
                 new_args.append(arg)
-        return self.cf(*new_args)
+        res = self.cf(*new_args)
+        if self.cf.restype == ctypes.c_char_p:
+            res = res.decode("utf-8")
+        return res
 
 def convert_to_ctypes_Union(f):
     fields = []
@@ -465,10 +472,14 @@ def convert_to_ctypes_Structure(f):
 
     return ctypes_Structure
 
-def ccall(f):
-    if isclass(f) and issubclass(f, Union):
-        return f
-    return CTypes(f)
+def ccall(f=None, header=None, c_shared_lib=None, c_shared_lib_path=None):
+    def wrap(func):
+        if not isclass(func) or not issubclass(func, Union):
+            func = CTypes(func, c_shared_lib, c_shared_lib_path)
+        return func
+    if f:
+        return wrap(f)
+    return wrap
 
 def pythoncall(*args, **kwargs):
     def inner(fn):
@@ -637,36 +648,48 @@ def ccallable(f):
 def ccallback(f):
     return f
 
-class lpython:
-    """
-    The @lpython decorator compiles a given function using LPython.
+class LpythonJITCache:
 
-    The decorator should be used from CPython mode, i.e., when the module is
-    being run using CPython. When possible, it is recommended to use LPython
-    for the main program, and use the @cpython decorator from the LPython mode
-    to access CPython features that are not supported by LPython.
-    """
+    def __init__(self):
+        self.pyfunc2compiledfunc = {}
 
-    def __init__(self, function):
+    def compile(self, function, backend, optimisation_flags):
+        if function in self.pyfunc2compiledfunc:
+            return self.pyfunc2compiledfunc[function]
+
+        if optimisation_flags is not None and backend is None:
+            raise ValueError("backend must be specified if backend_optimisation_flags are provided.")
+
+        if backend is None:
+            backend = "c"
+
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
 
-        self.fn_name = function.__name__
+        fn_name = function.__name__
         # Get the source code of the function
         source_code = getsource(function)
         source_code = source_code[source_code.find('\n'):]
 
-        dir_name = "./lpython_decorator_" + self.fn_name
+        dir_name = "./lpython_decorator_" + fn_name
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)
-        filename = dir_name + "/" + self.fn_name
+        filename = dir_name + "/" + fn_name
 
         # Open the file for writing
         with open(filename + ".py", "w") as file:
             # Write the Python source code to the file
             file.write("@pythoncallable")
             file.write(source_code)
+
+        if backend != "c":
+            raise NotImplementedError("Backend %s is not supported with @lpython yet."%(backend))
+
+        opt_flags = " "
+        if optimisation_flags is not None:
+            for opt_flag in optimisation_flags:
+                opt_flags += opt_flag + " "
 
         # ----------------------------------------------------------------------
         # Generate the shared library
@@ -677,11 +700,13 @@ class lpython:
 
         gcc_flags = ""
         if platform.system() == "Linux":
-            gcc_flags = " -shared -fPIC "
+            gcc_flags = " -shared -fPIC"
         elif platform.system() == "Darwin":
-            gcc_flags = " -bundle -flat_namespace -undefined suppress "
+            gcc_flags = " -bundle -flat_namespace -undefined suppress"
         else:
             raise NotImplementedError("Platform not implemented")
+
+        gcc_flags += opt_flags
 
         from numpy import get_include
         from distutils.sysconfig import get_python_inc, get_python_lib, \
@@ -696,17 +721,38 @@ class lpython:
 
         # ----------------------------------------------------------------------
         # Compile the C file and create a shared library
+        shared_library_name = "lpython_module_" + fn_name
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            filename + ".c -o lpython_module_" + self.fn_name + ".so " +
+            filename + ".c -o " + shared_library_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
+        self.pyfunc2compiledfunc[function] = (shared_library_name, fn_name)
+        return self.pyfunc2compiledfunc[function]
 
-    def __call__(self, *args, **kwargs):
-        import sys; sys.path.append('.')
-        # import the symbol from the shared library
-        function = getattr(__import__("lpython_module_" + self.fn_name),
-            self.fn_name)
-        return function(*args, **kwargs)
+lpython_jit_cache = LpythonJITCache()
+
+# Taken from https://stackoverflow.com/a/24617244
+def lpython(original_function=None, backend=None, backend_optimisation_flags=None):
+    """
+    The @lpython decorator compiles a given function using LPython.
+
+    The decorator should be used from CPython mode, i.e., when the module is
+    being run using CPython. When possible, it is recommended to use LPython
+    for the main program, and use the @cpython decorator from the LPython mode
+    to access CPython features that are not supported by LPython.
+    """
+    def _lpython(function):
+        @functools.wraps(function)
+        def __lpython(*args, **kwargs):
+            import sys; sys.path.append('.')
+            lib_name, fn_name = lpython_jit_cache.compile(
+                function, backend, backend_optimisation_flags)
+            return getattr(__import__(lib_name), fn_name)(*args, **kwargs)
+        return __lpython
+
+    if original_function:
+        return _lpython(original_function)
+    return _lpython
 
 def bitnot(x, bitsize):
     return (~x) % (2 ** bitsize)

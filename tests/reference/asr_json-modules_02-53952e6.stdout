@@ -31,7 +31,6 @@
                                                 "module": false,
                                                 "inline": false,
                                                 "static": false,
-                                                "type_params": [],
                                                 "restrictions": [],
                                                 "is_restriction": false
                                             },
@@ -175,7 +174,6 @@
                                                 "module": false,
                                                 "inline": false,
                                                 "static": false,
-                                                "type_params": [],
                                                 "restrictions": [],
                                                 "is_restriction": false
                                             },
@@ -699,7 +697,6 @@
                                                 "module": false,
                                                 "inline": false,
                                                 "static": false,
-                                                "type_params": [],
                                                 "restrictions": [],
                                                 "is_restriction": false
                                             },
@@ -879,7 +876,6 @@
                                                 "module": false,
                                                 "inline": false,
                                                 "static": false,
-                                                "type_params": [],
                                                 "restrictions": [],
                                                 "is_restriction": false
                                             },

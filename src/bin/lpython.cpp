@@ -1218,8 +1218,14 @@ int link_executable(const std::vector<std::string> &infiles,
             for (auto &s : infiles) {
                 cmd += s + " ";
             }
+            if (compiler_options.enable_symengine) {
+                cmd += " -I${CONDA_PREFIX}/include";
+            }
             cmd += + " -L"
                 + base_path + " -Wl,-rpath," + base_path + " -l" + runtime_lib + " -lm";
+            if (compiler_options.enable_symengine) {
+                cmd += " -L$CONDA_PREFIX/lib -Wl,-rpath -Wl,$CONDA_PREFIX/lib -lsymengine";
+            }
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
