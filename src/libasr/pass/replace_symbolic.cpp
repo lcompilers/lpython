@@ -100,13 +100,13 @@ public:
                     ASR::expr_t* value3 = ASRUtils::EXPR(ASR::make_PointerToCPtr_t(al, xx.base.base.loc, get_pointer_node, type3, nullptr));
 
                     // statement 4
-                    ASR::symbol_t* basic_new_stack_sym = current_scope->parent->get_symbol("basic_new_stack");
-                    Vec<ASR::call_arg_t> call_args;
-                    call_args.reserve(al, 1);
-                    ASR::call_arg_t call_arg;
-                    call_arg.loc = xx.base.base.loc;
-                    call_arg.m_value = target2;
-                    call_args.push_back(al, call_arg);
+                    // ASR::symbol_t* basic_new_stack_sym = current_scope->parent->get_symbol("basic_new_stack");
+                    // Vec<ASR::call_arg_t> call_args;
+                    // call_args.reserve(al, 1);
+                    // ASR::call_arg_t call_arg;
+                    // call_arg.loc = xx.base.base.loc;
+                    // call_arg.m_value = target2;
+                    // call_args.push_back(al, call_arg);
 
                     // defining the assignment statement
                     ASR::stmt_t* stmt1 = ASRUtils::STMT(ASR::make_Assignment_t(al, xx.base.base.loc, target1, value1, nullptr));
@@ -132,8 +132,6 @@ public:
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
-        SymbolTable* current_scope_copy = current_scope;
-        current_scope = x.m_parent_symtab;
         if (x.m_type->type == ASR::ttypeType::SymbolicExpression) {
             symbolic_replaces_with_CPtr_Module = true;
             symbolic_replaces_with_CPtr_Function = true;
@@ -165,7 +163,6 @@ public:
             current_scope->add_symbol(s2c(al, var_name), sym1);
             current_scope->add_symbol(s2c(al, placeholder), sym2);
         }
-        current_scope = current_scope_copy;
     }
 };
 
