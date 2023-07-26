@@ -57,8 +57,8 @@ public:
                 ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
                     fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
                     nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                    ASR::deftypeType::Interface, nullptr, false, false, false,
-                    false, false, nullptr, 0, nullptr, 0, false, false, false, s2c(al, header));
+                    ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                    false, false, nullptr, 0, false, false, false);
                 ASR::symbol_t *new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
                 current_scope->add_symbol(new_name, new_symbol);
                 symbolic_replaces_with_CPtr_Module = false;
