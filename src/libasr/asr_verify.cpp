@@ -450,13 +450,8 @@ public:
             // Get the symbol of the found_dep.
             ASR::symbol_t* dep_sym = sym->get_symbol(found_dep);
 
-            // If dep_sym is External Symbol or nullptr. It should be skipped.
-            if (dep_sym == nullptr || ASR::is_a<ASR::ExternalSymbol_t>(*dep_sym)) {
-                continue;
-            }  
-
             require(dep_sym != nullptr,
-                    "Dependency " + found_dep +  " does not belong to same parent symbol table of " + std::string(x.m_name));
+                    "Dependency " + found_dep +  " was not found in the parent symbol table " + std::string(x.m_name));
         }
 
         // Check if there are unnecessary dependencies
@@ -886,7 +881,11 @@ public:
             }
         }
 
-        function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        if (ASRUtils::symbol_parent_symtab(x.m_name) == current_symtab->parent) {
+            // add to dependencies
+            function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        }
+        
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
             if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {
@@ -1007,7 +1006,12 @@ public:
     void visit_FunctionCall(const FunctionCall_t &x) {
         require(x.m_name,
             "FunctionCall::m_name must be present");
-        function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        // Check x.m_name is from parent sym tab.
+        if (ASRUtils::symbol_parent_symtab(x.m_name) == current_symtab->parent) {
+            // add to dependencies
+            function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        }
+        
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
             if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {

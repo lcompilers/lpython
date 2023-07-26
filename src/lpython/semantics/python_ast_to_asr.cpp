@@ -1284,7 +1284,10 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
                     !ASRUtils::is_intrinsic_function2(func));
-                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                // Check if it is inside the parent symbol scope.
+                if(ASRUtils::symbol_parent_symtab(stemp) == func->m_symtab->parent) {
+                    dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                }   
                 ASR::asr_t* func_call_asr = ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
@@ -1310,7 +1313,9 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                if(ASRUtils::symbol_parent_symtab(stemp) == func->m_symtab->parent) {
+                    dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                }
                 return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr, nullptr, false);
             }
@@ -1565,7 +1570,9 @@ public:
         t = pass_instantiate_template(al, subs, rt_subs,
             ASRUtils::symbol_parent_symtab(func), new_func_name, func);
         dependencies.erase(s2c(al, func_name));
-        dependencies.push_back(al, s2c(al, new_func_name));
+        if(ASRUtils::symbol_parent_symtab(func) == current_scope->parent) {
+            dependencies.push_back(al, s2c(al, new_func_name));
+        }
         return t;
     }
 

@@ -3015,7 +3015,9 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
             default:
                 break;
         }
-        current_function_dependencies.push_back(al, ASRUtils::symbol_name(new_es));
+        if (ASRUtils::symbol_parent_symtab(new_es) == current_scope->parent) {
+            current_function_dependencies.push_back(al, ASRUtils::symbol_name(new_es));
+        }
         ASRUtils::insert_module_dependency(new_es, al, current_module_dependencies);
         x->m_name = new_es;
     }

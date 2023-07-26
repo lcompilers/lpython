@@ -346,7 +346,9 @@ public:
                                              ASR::down_cast<ASR::Function_t>(name2));
             context_map[ASRUtils::symbol_name(name2)] = ASRUtils::symbol_name(name);
         }
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
+        if (ASRUtils::symbol_parent_symtab(name) == template_scope->parent) {
+            dependencies.push_back(al, ASRUtils::symbol_name(name));
+        }
         return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
@@ -372,7 +374,9 @@ public:
             name = nested_t.instantiate_symbol(name2);
             context_map[ASRUtils::symbol_name(name2)] = ASRUtils::symbol_name(name);
         }
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
+        if (ASRUtils::symbol_parent_symtab(name) == template_scope->parent) {
+            dependencies.push_back(al, ASRUtils::symbol_name(name));
+        }
         return ASRUtils::make_SubroutineCall_t_util(al, x->base.base.loc, name /* change this */,
             x->m_original_name, args.p, args.size(), dt, nullptr, false);
     }
@@ -846,7 +850,9 @@ public:
             ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
+        if (ASRUtils::symbol_parent_symtab(name) == func_scope->parent) {
+            dependencies.push_back(al, ASRUtils::symbol_name(name));
+        }
         return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
@@ -873,7 +879,9 @@ public:
             ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
             name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
         }
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
+        if (ASRUtils::symbol_parent_symtab(name) == func_scope->parent) {
+            dependencies.push_back(al, ASRUtils::symbol_name(name));
+        }    
         return ASRUtils::make_SubroutineCall_t_util(al, x->base.base.loc, name /* change this */,
             x->m_original_name, args.p, args.size(), dt, nullptr, false);
     }

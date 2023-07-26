@@ -320,7 +320,7 @@ namespace LCompilers {
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    if( fill_function_dependencies ) {
+                    if( fill_function_dependencies && ASRUtils::symbol_symtab(x.m_name) != nullptr && ASRUtils::symbol_parent_symtab(x.m_name) == ASRUtils::symbol_symtab(x.m_name)->parent) {
                         function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                     }
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
@@ -334,7 +334,7 @@ namespace LCompilers {
                 }
 
                 void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
-                    if( fill_function_dependencies ) {
+                    if( fill_function_dependencies && ASRUtils::symbol_symtab(x.m_name) != nullptr && ASRUtils::symbol_parent_symtab(x.m_name) == ASRUtils::symbol_symtab(x.m_name)->parent) {
                         function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                     }
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
