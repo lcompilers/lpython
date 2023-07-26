@@ -396,8 +396,8 @@ jobs:
         shell: bash -e -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b cpython c_py
-            ./run_tests.py -b cpython c_py -f
+            ./run_tests.py -b cpython c_py llvm_py
+            ./run_tests.py -b cpython c_py llvm_py -f
 
   sympy:
     name: Run SymPy tests
