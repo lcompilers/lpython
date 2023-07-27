@@ -6053,54 +6053,31 @@ public:
                 body.size());
     }
 
-    void visit_Compare(const AST::Compare_t &x) {
-        this->visit_expr(*x.m_left);
+    void compare_helper(Location &loc, AST::expr_t *m_left, AST::expr_t *m_right, ASR::cmpopType asr_op) {
+        this->visit_expr(*m_left);
         ASR::expr_t *left = ASRUtils::EXPR(tmp);
-        if (x.n_comparators > 1) {
-            diag.add(diag::Diagnostic(
-                "Only one comparison operator is supported for now",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("multiple comparison operators",
-                            {x.m_comparators[0]->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-        this->visit_expr(*x.m_comparators[0]);
+        this->visit_expr(*m_right);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
-
-        ASR::cmpopType asr_op;
-        switch (x.m_ops) {
-            case (AST::cmpopType::Eq): { asr_op = ASR::cmpopType::Eq; break; }
-            case (AST::cmpopType::Gt): { asr_op = ASR::cmpopType::Gt; break; }
-            case (AST::cmpopType::GtE): { asr_op = ASR::cmpopType::GtE; break; }
-            case (AST::cmpopType::Lt): { asr_op = ASR::cmpopType::Lt; break; }
-            case (AST::cmpopType::LtE): { asr_op = ASR::cmpopType::LtE; break; }
-            case (AST::cmpopType::NotEq): { asr_op = ASR::cmpopType::NotEq; break; }
-            default: {
-                throw SemanticError("Comparison operator not implemented",
-                                    x.base.base.loc);
-            }
-        }
-
+        ASR::ttype_t *type = ASRUtils::TYPE(
+            ASR::make_Logical_t(al, loc, 4));
+        ASR::expr_t *value = nullptr;
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *dest_type = left_type;
+        ASR::expr_t *overloaded = nullptr;
         if( ASR::is_a<ASR::Const_t>(*left_type) ) {
             left_type = ASRUtils::get_contained_type(left_type);
         }
         if( ASR::is_a<ASR::Const_t>(*right_type) ) {
             right_type = ASRUtils::get_contained_type(right_type);
         }
-        ASR::expr_t *overloaded = nullptr;
 
         if (!ASRUtils::is_logical(*left_type) || !ASRUtils::is_logical(*right_type)) {
             cast_helper(left, right, false);
         }
 
-        left_type = ASRUtils::expr_type(left);
-        right_type = ASRUtils::expr_type(right);
-        ASR::ttype_t *dest_type = left_type;
         if (!ASRUtils::check_equal_type(left_type, right_type)) {
+
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
@@ -6112,20 +6089,15 @@ public:
             );
             throw SemanticAbort();
         }
-        ASR::ttype_t *type = ASRUtils::TYPE(
-            ASR::make_Logical_t(al, x.base.base.loc, 4));
-        ASR::expr_t *value = nullptr;
-
         if( ASR::is_a<ASR::Enum_t>(*dest_type) || ASR::is_a<ASR::Const_t>(*dest_type) ) {
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
-
         if (ASRUtils::is_array(dest_type)) {
             ASR::dimension_t* m_dims = nullptr;
             int n_dims = ASRUtils::extract_dimensions_from_ttype(dest_type, m_dims);
             int array_size = ASRUtils::get_fixed_size_of_array(m_dims, n_dims);
             if (array_size == -1) {
-                throw SemanticError("The truth value of an array is ambiguous. Use a.any() or a.all()", x.base.base.loc);
+                throw SemanticError("The truth value of an array is ambiguous. Use a.any() or a.all()", loc);
             } else if (array_size != 1) {
                 throw SemanticError("The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()", x.base.base.loc);
             } else {
@@ -6134,8 +6106,8 @@ public:
                 argsR.reserve(al, 1);
                 for (int i = 0; i < n_dims; i++) {
                     ASR::array_index_t aiL, aiR;
-                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4));
-                    ASR::expr_t* const_zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+                    ASR::expr_t* const_zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, int_type));
                     aiL.m_right = aiR.m_right = const_zero;
                     aiL.m_left = aiR.m_left = nullptr;
                     aiL.m_step = aiR.m_step = nullptr;
@@ -6145,8 +6117,10 @@ public:
                     argsR.push_back(al, aiR);
                 }
                 dest_type = ASRUtils::type_get_past_array(dest_type);
-                left = ASRUtils::EXPR(make_ArrayItem_t(al, left->base.loc, left, argsL.p, argsL.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
-                right = ASRUtils::EXPR(make_ArrayItem_t(al, right->base.loc, right, argsR.p, argsR.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
+                left = ASRUtils::EXPR(make_ArrayItem_t(al, left->base.loc,
+                                left, argsL.p, argsL.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
+                right = ASRUtils::EXPR(make_ArrayItem_t(al, right->base.loc,
+                            right, argsR.p, argsR.n, dest_type, ASR::arraystorageType::RowMajor, nullptr));
             }
         }
 
@@ -6166,13 +6140,13 @@ public:
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
-            tmp = ASR::make_IntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_IntegerCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASRUtils::is_unsigned_integer(*dest_type)) {
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = -1;
@@ -6189,13 +6163,13 @@ public:
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
-            tmp = ASR::make_UnsignedIntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_UnsignedIntegerCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -6213,14 +6187,14 @@ public:
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
 
-            tmp = ASR::make_RealCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_RealCompare_t(al, loc, left, asr_op, right, type, value);
 
         } else if (ASRUtils::is_complex(*dest_type)) {
 
@@ -6246,14 +6220,14 @@ public:
                     default: {
                         throw SemanticError("'" + ASRUtils::cmpop_to_str(asr_op) +
                                             "' comparison is not supported between complex numbers",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
 
-            tmp = ASR::make_ComplexCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_ComplexCompare_t(al, loc, left, asr_op, right, type, value);
 
         } else if (ASRUtils::is_logical(*dest_type)) {
 
@@ -6276,10 +6250,10 @@ public:
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
 
-            tmp = ASR::make_LogicalCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_LogicalCompare_t(al, loc, left, asr_op, right, type, value);
 
         } else if (ASRUtils::is_character(*dest_type)) {
 
@@ -6318,49 +6292,76 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError("ICE: Unknown compare operator", x.base.base.loc); // should never happen
+                        throw SemanticError("ICE: Unknown compare operator", loc); // should never happen
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
-                    al, x.base.base.loc, result, type));
+                    al, loc, result, type));
             }
 
-            tmp = ASR::make_StringCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_StringCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASR::is_a<ASR::Tuple_t>(*dest_type)) {
             if (asr_op != ASR::cmpopType::Eq && asr_op != ASR::cmpopType::NotEq
                 && asr_op != ASR::cmpopType::Lt && asr_op != ASR::cmpopType::LtE
                 && asr_op != ASR::cmpopType::Gt && asr_op != ASR::cmpopType::GtE) {
                 throw SemanticError("Only ==, !=, <, <=, >, >= operators "
                                     "are supported for Tuples",
-                                x.base.base.loc);
+                                loc);
             }
-            tmp = ASR::make_TupleCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_TupleCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASR::is_a<ASR::List_t>(*dest_type)) {
             if (asr_op != ASR::cmpopType::Eq && asr_op != ASR::cmpopType::NotEq
                 && asr_op != ASR::cmpopType::Lt && asr_op != ASR::cmpopType::LtE
                 && asr_op != ASR::cmpopType::Gt && asr_op != ASR::cmpopType::GtE) {
                 throw SemanticError("Only ==, !=, <, <=, >, >= operators "
                                     "are supported for Lists",
-                                x.base.base.loc);
+                                loc);
             }
-            tmp = ASR::make_ListCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_ListCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASR::is_a<ASR::CPtr_t>(*dest_type)) {
             if (asr_op != ASR::cmpopType::Eq && asr_op != ASR::cmpopType::NotEq) {
                 throw SemanticError("Only Equal and Not-equal operators are supported for CPtr",
-                                x.base.base.loc);
+                                loc);
             }
-            tmp = ASR::make_CPtrCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_CPtrCompare_t(al, loc, left, asr_op, right, type, value);
         } else if (ASR::is_a<ASR::SymbolicExpression_t>(*dest_type)) {
-            tmp = ASR::make_SymbolicCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+            tmp = ASR::make_SymbolicCompare_t(al, loc, left, asr_op, right, type, value);
         } else {
             throw SemanticError("Compare not supported for type: " + ASRUtils::type_to_str_python(dest_type),
-                                x.base.base.loc);
+                                loc);
         }
 
         if (overloaded != nullptr) {
             tmp = ASR::make_OverloadedCompare_t(al, x.base.base.loc, left, asr_op, right, type,
                 value, overloaded);
         }
+    }
+    void visit_Compare(const AST::Compare_t &x) {
+        if (x.n_comparators > 1) {
+            diag.add(diag::Diagnostic(
+                "Only one comparison operator is supported for now",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("multiple comparison operators",
+                            {x.m_comparators[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        ASR::cmpopType asr_op;
+        switch (x.m_ops) {
+            case (AST::cmpopType::Eq): { asr_op = ASR::cmpopType::Eq; break; }
+            case (AST::cmpopType::Gt): { asr_op = ASR::cmpopType::Gt; break; }
+            case (AST::cmpopType::GtE): { asr_op = ASR::cmpopType::GtE; break; }
+            case (AST::cmpopType::Lt): { asr_op = ASR::cmpopType::Lt; break; }
+            case (AST::cmpopType::LtE): { asr_op = ASR::cmpopType::LtE; break; }
+            case (AST::cmpopType::NotEq): { asr_op = ASR::cmpopType::NotEq; break; }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+
     }
 
     void visit_ConstantEllipsis(const AST::ConstantEllipsis_t &/*x*/) {
