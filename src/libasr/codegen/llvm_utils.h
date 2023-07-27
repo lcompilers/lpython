@@ -614,6 +614,13 @@ namespace LCompilers {
             virtual
             void set_is_dict_present(bool value);
 
+            virtual
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value) = 0;
+
             virtual ~LLVMDictInterface() = 0;
 
     };
@@ -705,6 +712,12 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
+
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value);
 
             virtual ~LLVMDict();
     };
@@ -852,6 +865,12 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
+
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value);
 
             virtual ~LLVMDictSeparateChaining();
 

@@ -244,6 +244,10 @@ struct IntrinsicNodeHandler {
 
         } else if (ASRUtils::is_logical(*type)) {
             return (ASR::asr_t *)arg;
+        } else if (ASR::is_a<ASR::CPtr_t>(*type)) {
+            ASR::expr_t* c_null_ptr = ASRUtils::EXPR(ASR::make_PointerNullConstant_t(
+                    al, loc, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))));
+            return ASR::make_CPtrCompare_t(al, loc, arg, ASR::cmpopType::NotEq, c_null_ptr, to_type, nullptr);
         } else {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
