@@ -428,7 +428,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
     ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
 
     std::string mod_name = mod->m_name;
-    std::string g_func_name = mod_name + "__global_initializer";
+    std::string g_func_name = mod_name + "global_init";
     ASR::symbol_t *g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
@@ -441,7 +441,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
             es, g_func, nullptr, 0, nullptr, nullptr, false));
     }
 
-    g_func_name = mod_name + "__global_statements";
+    g_func_name = mod_name + "global_stmts";
     g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
@@ -4803,7 +4803,7 @@ public:
             // `pass_wrap_global_stmts_into_function` pass
             unit->m_items = global_init.p;
             unit->n_items = global_init.size();
-            std::string func_name = module_name + "__global_initializer";
+            std::string func_name = module_name + "global_init";
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
@@ -4826,7 +4826,7 @@ public:
         if (items.n > 0) {
             unit->m_items = items.p;
             unit->n_items = items.size();
-            std::string func_name = module_name + "__global_statements";
+            std::string func_name = module_name + "global_stmts";
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
