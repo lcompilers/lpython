@@ -7,8 +7,6 @@ from numpy import (empty,
 
 # test issue 2131
 
-r : i8 = i8(240)
-
 @dataclass
 class Foo:
     a : i8[4] = empty(4, dtype=int8)
