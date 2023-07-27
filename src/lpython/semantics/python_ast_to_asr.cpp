@@ -6053,7 +6053,7 @@ public:
                 body.size());
     }
 
-    void compare_helper(Location &loc, AST::expr_t *m_left, AST::expr_t *m_right, ASR::cmpopType asr_op) {
+    void compare_helper(const Location &loc, AST::expr_t *m_left, AST::expr_t *m_right, ASR::cmpopType asr_op) {
         this->visit_expr(*m_left);
         ASR::expr_t *left = ASRUtils::EXPR(tmp);
         this->visit_expr(*m_right);
@@ -6077,7 +6077,47 @@ public:
         }
 
         if (!ASRUtils::check_equal_type(left_type, right_type)) {
-
+            if (AST::is_a<AST::Compare_t>(*m_left)) {
+                // handle chained comparisons
+                LCOMPILERS_ASSERT(ASRUtils::is_logical(*left_type));
+                AST::Compare_t *lc = AST::down_cast<AST::Compare_t>(m_left);
+                compare_helper(loc, lc->m_comparators[0], m_right, asr_op);
+                right = ASRUtils::EXPR(tmp);
+                right_type = ASRUtils::expr_type(right);
+                LCOMPILERS_ASSERT(ASRUtils::is_logical(*right_type));
+                if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                    bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                            ASRUtils::expr_value(left))->m_value;
+                    bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                            ASRUtils::expr_value(right))->m_value;
+                    bool result = left_value && right_value;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                        al, loc, result, type));
+                }
+                tmp = ASR::make_LogicalBinOp_t(al, loc, left,
+                        ASR::logicalbinopType::And, right, type, value);
+                return;
+            } else if (AST::is_a<AST::Compare_t>(*m_right)) {
+                 // handle chained comparisons
+                LCOMPILERS_ASSERT(ASRUtils::is_logical(*right_type));
+                AST::Compare_t *rc = AST::down_cast<AST::Compare_t>(m_right);
+                compare_helper(loc, m_left, rc->m_left, asr_op);
+                left = ASRUtils::EXPR(tmp);
+                left_type = ASRUtils::expr_type(left);
+                LCOMPILERS_ASSERT(ASRUtils::is_logical(*left_type));
+                if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                    bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                            ASRUtils::expr_value(left))->m_value;
+                    bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                            ASRUtils::expr_value(right))->m_value;
+                    bool result = left_value && right_value;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                        al, loc, result, type));
+                }
+                tmp = ASR::make_LogicalBinOp_t(al, loc, left,
+                        ASR::logicalbinopType::And, right, type, value);
+                return;
+            }
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
@@ -6099,7 +6139,7 @@ public:
             if (array_size == -1) {
                 throw SemanticError("The truth value of an array is ambiguous. Use a.any() or a.all()", loc);
             } else if (array_size != 1) {
-                throw SemanticError("The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()", x.base.base.loc);
+                throw SemanticError("The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()", loc);
             } else {
                 Vec<ASR::array_index_t> argsL, argsR;
                 argsL.reserve(al, 1);
@@ -6246,7 +6286,7 @@ public:
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
-                                            x.base.base.loc);
+                                            loc);
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
@@ -6332,7 +6372,7 @@ public:
         }
 
         if (overloaded != nullptr) {
-            tmp = ASR::make_OverloadedCompare_t(al, x.base.base.loc, left, asr_op, right, type,
+            tmp = ASR::make_OverloadedCompare_t(al, loc, left, asr_op, right, type,
                 value, overloaded);
         }
     }
@@ -6361,7 +6401,7 @@ public:
                                     x.base.base.loc);
             }
         }
-
+        compare_helper(x.base.base.loc, x.m_left, x.m_comparators[0], asr_op);
     }
 
     void visit_ConstantEllipsis(const AST::ConstantEllipsis_t &/*x*/) {
