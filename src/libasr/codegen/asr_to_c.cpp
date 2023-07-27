@@ -583,6 +583,8 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = global_scope;
         c_ds_api->set_indentation(indentation_level, indentation_spaces);
         c_ds_api->set_global_scope(global_scope);
         c_utils_functions->set_indentation(indentation_level, indentation_spaces);
@@ -760,6 +762,7 @@ R"(
                 out_file.close();
             }
         }
+        current_scope = current_scope_copy;
     }
 
     void visit_Module(const ASR::Module_t &x) {
@@ -768,7 +771,8 @@ R"(
         } else {
             intrinsic_module = false;
         }
-
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         std::string unit_src = "";
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
@@ -813,13 +817,15 @@ R"(
         }
         src = unit_src;
         intrinsic_module = false;
+        current_scope = current_scope_copy;
     }
 
     void visit_Program(const ASR::Program_t &x) {
         // Topologically sort all program functions
         // and then define them in the right order
         std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
-
+        SymbolTable *current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : func_order) {
@@ -898,6 +904,7 @@ R"(    // Initialise Numpy
                 + decl + body
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
+        current_scope = current_scope_copy;
     }
 
     template <typename T>
