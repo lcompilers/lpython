@@ -877,13 +877,13 @@ namespace LCompilers {
         }
     }
 
-    void LLVMUtils::set_set_api(ASR::Set_t* /*set_type*/) {
-        // if( ASR::is_a<ASR::Character_t>(*set_type->m_type) ) {
-        //     set_api = set_api_sc;
-        // } else {
-        //     set_api = set_api_lp;
-        // }
-        set_api = set_api_lp;
+    void LLVMUtils::set_set_api(ASR::Set_t* set_type) {
+        if( ASR::is_a<ASR::Character_t>(*set_type->m_type) ) {
+            set_api = set_api_sc;
+        } else {
+            set_api = set_api_lp;
+        }
+        // set_api = set_api_lp;
     }
 
     std::vector<llvm::Type*> LLVMUtils::convert_args(const ASR::Function_t& x, llvm::Module* module) {
@@ -4994,7 +4994,7 @@ namespace LCompilers {
         std::string el_type_code, llvm::Value* set,
         llvm::Module* module, size_t initial_capacity) {
         llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                        llvm::APInt(32, initial_capacity + 1));
+                                        llvm::APInt(32, initial_capacity));
         llvm::Value* rehash_flag_ptr = get_pointer_to_rehash_flag(set);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
                             llvm::APInt(1, 1)), rehash_flag_ptr);
@@ -5351,13 +5351,20 @@ namespace LCompilers {
         /**
          * C++ equivalent:
          *
-         * is_el_matching = 1;
+         * ll_exists = el_mask_value == 1;
+         * if( ll_exists ) {
+         *     chain_itr = ll_head;
+         * }
+         * else {
+         *     chain_itr = nullptr;
+         * }
+         * is_el_matching = 0;
          *
-         * while( chain_itr != nullptr && is_el_matching ) {
-         *     break_signal = el != el_struct_el;
-         *     is_el_matching = break_signal;   // 1 means not matching
-         *     if( break_signal ) {
-         *         chain_itr = next_el_struct;
+         * while( chain_itr != nullptr && !is_el_matching ) {
+         *     chain_itr_prev = chain_itr;
+         *     is_el_matching = (el == el_struct_el);
+         *     if( !is_el_matching ) {
+         *         chain_itr = next_el_struct;  // (*chain_itr)[1]
          *     }
          * }
          *
@@ -5372,12 +5379,18 @@ namespace LCompilers {
 
         LLVM::CreateStore(*builder,
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr_prev);
-        llvm::Value* el_ll_i8 = builder->CreateBitCast(el_linked_list, llvm::Type::getInt8PtrTy(context));
-        LLVM::CreateStore(*builder, el_ll_i8, chain_itr);
         llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(el_mask, el_hash));
+        llvm_utils->create_if_else(builder->CreateICmpEQ(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1))), [&]() {
+            llvm::Value* el_ll_i8 = builder->CreateBitCast(el_linked_list, llvm::Type::getInt8PtrTy(context));
+            LLVM::CreateStore(*builder, el_ll_i8, chain_itr);
+        }, [&]() {
+            LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr);
+        });
         LLVM::CreateStore(*builder,
-            builder->CreateICmpEQ(el_mask_value, llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1))),
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(1, 0)),
             is_el_matching_var
         );
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -5391,7 +5404,8 @@ namespace LCompilers {
                 LLVM::CreateLoad(*builder, chain_itr),
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
             );
-            cond = builder->CreateAnd(cond, LLVM::CreateLoad(*builder, is_el_matching_var));
+            cond = builder->CreateAnd(cond, builder->CreateNot(LLVM::CreateLoad(
+                                      *builder, is_el_matching_var)));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
@@ -5405,14 +5419,12 @@ namespace LCompilers {
             if( !LLVM::is_llvm_struct(el_asr_type) ) {
                 el_struct_el = LLVM::CreateLoad(*builder, el_struct_el);
             }
-            llvm::Value* break_signal = llvm_utils->is_equal_by_value(el, el_struct_el, module, el_asr_type);
-            break_signal = builder->CreateNot(break_signal);
-            LLVM::CreateStore(*builder, break_signal, is_el_matching_var);
-            llvm_utils->create_if_else(break_signal, [&]() {
+            LLVM::CreateStore(*builder, llvm_utils->is_equal_by_value(el, el_struct_el,
+                                module, el_asr_type), is_el_matching_var);
+            llvm_utils->create_if_else(builder->CreateNot(LLVM::CreateLoad(*builder, is_el_matching_var)), [&]() {
                 llvm::Value* next_el_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(el_struct, 1));
                 LLVM::CreateStore(*builder, next_el_struct, chain_itr);
-            }, []() {
-            });
+            }, []() {});
         }
 
         builder->CreateBr(loophead);
@@ -5483,14 +5495,22 @@ namespace LCompilers {
         /**
          * C++ equivalent:
          *
+         * el_linked_list = elems[el_hash];
          * resolve_collision(el);   // modifies chain_itr
          * do_insert = chain_itr == nullptr;
          *
          * if( do_insert ) {
-         *     new_el_struct = malloc(el_struct_size);
-         *     new_el_struct[0] = el;
-         *     new_el_struct[1] = nullptr;
-         *     chain_itr_prev[1] = new_el_struct;
+         *     if( chain_itr_prev != nullptr ) {
+         *         new_el_struct = malloc(el_struct_size);
+         *         new_el_struct[0] = el;
+         *         new_el_struct[1] = nullptr;
+         *         chain_itr_prev[1] = new_el_struct;
+         *     }
+         *     else {
+         *         el_linked_list[0] = el;
+         *         el_linked_list[1] = nullptr;
+         *     }
+         *     occupancy += 1;
          * }
          * else {
          *     el_struct[0] = el;
@@ -5520,18 +5540,33 @@ namespace LCompilers {
 
         builder->SetInsertPoint(thenBB);
         {
-            llvm::DataLayout data_layout(module);
-            size_t el_struct_size = data_layout.getTypeAllocSize(el_struct_type);
-            llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), el_struct_size);
-            llvm::Value* new_el_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
-            llvm::Value* new_el_struct = builder->CreateBitCast(new_el_struct_i8, el_struct_type->getPointerTo());
-            llvm_utils->deepcopy(el, llvm_utils->create_gep(new_el_struct, 0), el_asr_type, module, name2memidx);
-            LLVM::CreateStore(*builder,
-                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
-                llvm_utils->create_gep(new_el_struct, 1));
-            llvm::Value* el_struct_prev_i8 = LLVM::CreateLoad(*builder, chain_itr_prev);
-            llvm::Value* el_struct_prev = builder->CreateBitCast(el_struct_prev_i8, el_struct_type->getPointerTo());
-            LLVM::CreateStore(*builder, new_el_struct_i8, llvm_utils->create_gep(el_struct_prev, 1));
+            llvm_utils->create_if_else(builder->CreateICmpNE(
+                    LLVM::CreateLoad(*builder, chain_itr_prev),
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))), [&]() {
+                llvm::DataLayout data_layout(module);
+                size_t el_struct_size = data_layout.getTypeAllocSize(el_struct_type);
+                llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), el_struct_size);
+                llvm::Value* new_el_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+                llvm::Value* new_el_struct = builder->CreateBitCast(new_el_struct_i8, el_struct_type->getPointerTo());
+                llvm_utils->deepcopy(el, llvm_utils->create_gep(new_el_struct, 0), el_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(new_el_struct, 1));
+                llvm::Value* el_struct_prev_i8 = LLVM::CreateLoad(*builder, chain_itr_prev);
+                llvm::Value* el_struct_prev = builder->CreateBitCast(el_struct_prev_i8, el_struct_type->getPointerTo());
+                LLVM::CreateStore(*builder, new_el_struct_i8, llvm_utils->create_gep(el_struct_prev, 1));
+            }, [&]() {
+                llvm_utils->deepcopy(el, llvm_utils->create_gep(el_linked_list, 0), el_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(el_linked_list, 1));
+            });
+
+            llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+            llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+            occupancy = builder->CreateAdd(occupancy,
+                llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 1));
+            LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
@@ -5540,12 +5575,7 @@ namespace LCompilers {
             llvm_utils->deepcopy(el, llvm_utils->create_gep(el_struct, 0), el_asr_type, module, name2memidx);
         }
         llvm_utils->start_new_block(mergeBB);
-        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
         llvm::Value* buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
-        llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
-        occupancy = builder->CreateAdd(occupancy,
-            builder->CreateZExt(do_insert, llvm::Type::getInt32Ty(context)));
-        LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
         llvm::Value* el_mask_value_ptr = llvm_utils->create_ptr_gep(el_mask, el_hash);
         llvm::Value* el_mask_value = LLVM::CreateLoad(*builder, el_mask_value_ptr);
         llvm::Value* buckets_filled_delta = builder->CreateICmpEQ(el_mask_value,
@@ -6225,6 +6255,7 @@ namespace LCompilers {
         llvm::Value* dest_el_mask = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
         LLVM::CreateStore(*builder, dest_el_mask, get_pointer_to_mask(dest));
 
+        // number of elements to be copied = capacity + (occupancy - filled_buckets)
         malloc_size = builder->CreateSub(src_occupancy, src_filled_buckets);
         malloc_size = builder->CreateAdd(src_capacity, malloc_size);
         llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(set_type->m_type)];
@@ -6295,13 +6326,15 @@ namespace LCompilers {
          * // memory allocation done before calling this function
          *
          * while( src_itr != nullptr ) {
-         *     deepcopy(src_el, dest_el_ptr);
+         *     deepcopy(src_el, curr_dest_ptr);
          *     src_itr = src_itr_next;
          *     if( src_next_exists ) {
          *         *next_ptr = *next_ptr + 1;
+         *         curr_dest[1] = &dest_elems[*next_ptr];
+         *         curr_dest = *curr_dest[1];
          *     }
          *     else {
-         *         curr_dest_next_ptr = nullptr;
+         *         curr_dest[1] = nullptr;
          *     }
          * }
          *
@@ -6350,15 +6383,9 @@ namespace LCompilers {
             llvm::Value* curr_dest_next_ptr = llvm_utils->create_gep(curr_dest, 1);
             LLVM::CreateStore(*builder, src_next_ptr, src_itr);
 
-            llvm::Function *fn = builder->GetInsertBlock()->getParent();
-            llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-            llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-            llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* src_next_exists = builder->CreateICmpNE(src_next_ptr,
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)));
-            builder->CreateCondBr(src_next_exists, thenBB, elseBB);
-            builder->SetInsertPoint(thenBB);
-            {
+            llvm_utils->create_if_else(src_next_exists, [&]() {
                 llvm::Value* next_idx = LLVM::CreateLoad(*builder, next_ptr);
                 llvm::Value* dest_next_ptr = llvm_utils->create_ptr_gep(dest_elems, next_idx);
                 dest_next_ptr = builder->CreateBitCast(dest_next_ptr, llvm::Type::getInt8PtrTy(context));
@@ -6367,16 +6394,12 @@ namespace LCompilers {
                 next_idx = builder->CreateAdd(next_idx, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                               llvm::APInt(32, 1)));
                 LLVM::CreateStore(*builder, next_idx, next_ptr);
-            }
-            builder->CreateBr(mergeBB);
-            llvm_utils->start_new_block(elseBB);
-            {
+            }, [&]() {
                 LLVM::CreateStore(*builder,
                     llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
                     curr_dest_next_ptr
                 );
-            }
-            llvm_utils->start_new_block(mergeBB);
+            });
         }
 
         builder->CreateBr(loophead);
