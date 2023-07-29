@@ -1194,6 +1194,22 @@ asr = true
 filename = "errors/func_08.py"
 asr = true
 
+[[test]]
+filename = "errors/unsigned_01.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_02.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_03.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_04.py"
+asr = true
+
 # tests/runtime_errors
 [[test]]
 filename = "runtime_errors/test_list_01.py"

@@ -137,6 +137,7 @@ public:
     std::map<int32_t, std::string> gotoid2name;
     std::map<std::string, std::string> emit_headers;
     std::string array_types_decls;
+    std::string forward_decl_functions;
 
     // Output configuration:
     // Use std::string or char*
@@ -192,6 +193,8 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -254,6 +257,7 @@ R"(#include <stdio.h>
         }
 
         src = unit_src;
+        current_scope = current_scope_copy;
     }
 
     std::string check_tmp_buffer() {
@@ -449,13 +453,13 @@ R"(#include <stdio.h>
                     if (gen_stdcomplex) {
                         sub = "std::complex<float> ";
                     } else {
-                        sub = "float complex ";
+                        sub = "float_complex_t ";
                     }
                 } else {
                     if (gen_stdcomplex) {
                         sub = "std::complex<double> ";
                     } else {
-                        sub = "double complex ";
+                        sub = "double_complex_t ";
                     }
                 }
             }
@@ -493,7 +497,7 @@ R"(#include <stdio.h>
     }
 
     // Returns the declaration, no semi colon at the end
-    std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar) {
+    std::string get_function_declaration(const ASR::Function_t &x, bool &has_typevar, bool is_pointer=false) {
         template_for_Kokkos.clear();
         template_number = 0;
         std::string sub, inl, static_attr;
@@ -501,10 +505,10 @@ R"(#include <stdio.h>
         // This helps to check if the function is generic.
         // If it is generic we skip the codegen for that function.
         has_typevar = false;
-        if (ASRUtils::get_FunctionType(x)->m_inline) {
+        if (ASRUtils::get_FunctionType(x)->m_inline && !is_pointer) {
             inl = "inline __attribute__((always_inline)) ";
         }
-        if( ASRUtils::get_FunctionType(x)->m_static ) {
+        if( ASRUtils::get_FunctionType(x)->m_static && !is_pointer) {
             static_attr = "static ";
         }
         if (x.m_return_var) {
@@ -526,30 +530,47 @@ R"(#include <stdio.h>
                 f_type->m_deftype == ASR::deftypeType::Implementation) {
             sym_name = "_xx_internal_" + sym_name + "_xx";
         }
-        std::string func = static_attr + inl + sub + sym_name + "(";
+        std::string func = static_attr + inl + sub;
+        if (is_pointer) {
+            func += "(*" + sym_name + ")(";
+        } else {
+            func += sym_name + "(";
+        }
         bracket_open++;
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            if (ASR::is_a<ASR::TypeParameter_t>(*arg->m_type)) {
-                has_typevar = true;
-                bracket_open--;
-                return "";
-            }
-            if( is_c ) {
-                CDeclarationOptions c_decl_options;
-                c_decl_options.pre_initialise_derived_type = false;
-                func += self().convert_variable_decl(*arg, &c_decl_options);
+            ASR::symbol_t *sym = ASRUtils::symbol_get_past_external(
+                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v);
+            if (ASR::is_a<ASR::Variable_t>(*sym)) {
+                ASR::Variable_t *arg = ASR::down_cast<ASR::Variable_t>(sym);
+                LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+                if( is_c ) {
+                    CDeclarationOptions c_decl_options;
+                    c_decl_options.pre_initialise_derived_type = false;
+                    func += self().convert_variable_decl(*arg, &c_decl_options);
+                } else {
+                    CPPDeclarationOptions cpp_decl_options;
+                    cpp_decl_options.use_static = false;
+                    cpp_decl_options.use_templates_for_arrays = true;
+                    func += self().convert_variable_decl(*arg, &cpp_decl_options);
+                }
+                if (ASR::is_a<ASR::TypeParameter_t>(*arg->m_type)) {
+                    has_typevar = true;
+                    bracket_open--;
+                    return "";
+                }
+            } else if (ASR::is_a<ASR::Function_t>(*sym)) {
+                ASR::Function_t *fun = ASR::down_cast<ASR::Function_t>(sym);
+                func += get_function_declaration(*fun, has_typevar, true);
             } else {
-                CPPDeclarationOptions cpp_decl_options;
-                cpp_decl_options.use_static = false;
-                cpp_decl_options.use_templates_for_arrays = true;
-                func += self().convert_variable_decl(*arg, &cpp_decl_options);
+                throw CodeGenError("Unsupported function argument");
             }
             if (i < x.n_args-1) func += ", ";
         }
         func += ")";
         bracket_open--;
+        if (f_type->m_abi == ASR::abiType::Source) {
+            forward_decl_functions += func + ";\n";
+        }
         if( is_c || template_for_Kokkos.empty() ) {
             return func;
         }
@@ -1012,6 +1033,32 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
          this->visit_expr(*x.m_arg);
      }
 
+    std::string construct_call_args(size_t n_args, ASR::call_arg_t* m_args) {
+        bracket_open++;
+        std::string args = "";
+        for (size_t i=0; i<n_args; i++) {
+            self().visit_expr(*m_args[i].m_value);
+            ASR::ttype_t* type = ASRUtils::expr_type(m_args[i].m_value);
+            if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value)) {
+                if( ASRUtils::is_array(type) &&
+                    ASRUtils::is_pointer(type) ) {
+                    args += "&" + src;
+                } else {
+                    args += src;
+                }
+            } else {
+                if( ASR::is_a<ASR::Struct_t>(*type) ) {
+                    args += "&" + src;
+                } else {
+                    args += src;
+                }
+            }
+            if (i < n_args-1) args += ", ";
+        }
+        bracket_open--;
+        return args;
+    }
+
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         CHECK_FAST_C_CPP(compiler_options, x)
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
@@ -1052,15 +1099,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
-            std::string args;
-            bracket_open++;
-            for (size_t i=0; i<x.n_args; i++) {
-                self().visit_expr(*x.m_args[i].m_value);
-                args += src;
-                if (i < x.n_args-1) args += ", ";
-            }
-            bracket_open--;
-            src = fn_name + "(" + args + ")";
+            src = fn_name + "(" + construct_call_args(x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;
         if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
@@ -1716,6 +1755,10 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
+        if (ASR::is_a<ASR::Function_t>(*s)) {
+            src = ASRUtils::symbol_name(s);
+            return;
+        }
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
         if( (sv->m_intent == ASRUtils::intent_in ||
             sv->m_intent == ASRUtils::intent_inout) &&
@@ -2739,30 +2782,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
-        std::string out = indent + sym_name + "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
-                ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i].m_value);
-                std::string arg_name = arg->m_name;
-                if( ASRUtils::is_array(arg->m_type) &&
-                    ASRUtils::is_pointer(arg->m_type) ) {
-                    out += "&" + arg_name;
-                } else {
-                    out += arg_name;
-                }
-            } else {
-                self().visit_expr(*x.m_args[i].m_value);
-                if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
-                    ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
-                    out += "&" + src;
-                } else {
-                    out += src;
-                }
-            }
-            if (i < x.n_args-1) out += ", ";
-        }
-        out += ");\n";
-        src = out;
+        src = indent + sym_name + "(" + construct_call_args(x.n_args, x.m_args) + ");\n";
     }
 
     #define SET_INTRINSIC_NAME(X, func_name)                             \

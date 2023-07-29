@@ -6,6 +6,9 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+int32_t f();
+
+
 
 // Implementations
 int32_t f()

@@ -76,13 +76,14 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
     set(labels ${${RUN_LABELS}})
     set(extra_files ${${RUN_EXTRAFILES}})
     set(extra_args ${${RUN_EXTRA_ARGS}})
+    set(copy_to_bin ${${RUN_COPY_TO_BIN}})
 
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
@@ -98,6 +99,44 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
             add_executable(${name} ${name}.o ${extra_files})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif (KIND STREQUAL "llvm_py")
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.o ${extra_files})
+            target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${NUMPY_INCLUDE_DIR})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib Python::Python)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (labels)
+                set_tests_properties(${name} PROPERTIES LABELS "${labels}")
+            endif()
+            if (${fail})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif(KIND STREQUAL "llvm_sym")
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND ${LPYTHON} -c ${extra_args} ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.o ${extra_files})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            if (APPLE)
+                set(SYMENGINE_LIB "${Python_LIBRARY_DIRS}/libsymengine.dylib")
+            else()
+                set(SYMENGINE_LIB "${Python_LIBRARY_DIRS}/libsymengine.so")
+            endif()
+            target_link_libraries(${name} lpython_rtlib ${SYMENGINE_LIB})
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
@@ -132,9 +171,6 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
             target_include_directories(${name} PRIVATE ${CMAKE_SOURCE_DIR} ${NUMPY_INCLUDE_DIR})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib Python::Python)
-            if (extra_files)
-                file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${extra_files} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-            endif()
             add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
@@ -260,12 +296,17 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         endif()
+
+        if (copy_to_bin)
+            file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/${copy_to_bin} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+        endif()
+
     endif()
 endmacro(RUN_UTIL)
 
 macro(RUN)
     set(options FAIL NOFAST ENABLE_CPYTHON LINK_NUMPY)
-    set(oneValueArgs NAME IMPORT_PATH)
+    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN} )
@@ -288,14 +329,14 @@ macro(RUN)
     endif()
 
     if (NOT FAST)
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 
     if ((FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 endmacro(RUN)
 
@@ -424,6 +465,8 @@ RUN(NAME expr_17             LABELS cpython llvm c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
 RUN(NAME expr_19             LABELS cpython llvm c)
 RUN(NAME expr_20             LABELS cpython llvm c)
+RUN(NAME expr_21             LABELS cpython llvm c)
+RUN(NAME expr_22             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm c NOFAST)
@@ -486,6 +529,7 @@ RUN(NAME test_dict_12        LABELS cpython llvm c)
 RUN(NAME test_dict_13        LABELS cpython llvm c)
 RUN(NAME test_dict_bool      LABELS cpython llvm)
 RUN(NAME test_dict_increment LABELS cpython llvm)
+RUN(NAME test_dict_keys_values LABELS cpython llvm)
 RUN(NAME test_set_len        LABELS cpython llvm)
 RUN(NAME test_set_add        LABELS cpython llvm)
 RUN(NAME test_set_remove     LABELS cpython llvm)
@@ -552,10 +596,11 @@ RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME bindc_06   LABELS llvm c
         EXTRAFILES bindc_06b.c)
-RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST EXTRAFILES bindpy_01_module.py)
-RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY EXTRAFILES bindpy_02_module.py)
-RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST EXTRAFILES bindpy_03_module.py)
-RUN(NAME bindpy_04           LABELS cpython c_py LINK_NUMPY NOFAST EXTRAFILES bindpy_04_module.py)
+RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST COPY_TO_BIN bindpy_01_module.py)
+RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY COPY_TO_BIN bindpy_02_module.py)
+RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_03_module.py)
+RUN(NAME bindpy_04           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_04_module.py)
+RUN(NAME bindpy_05           LABELS llvm_py c_py ENABLE_CPYTHON COPY_TO_BIN bindpy_05_module.py)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
@@ -574,6 +619,7 @@ RUN(NAME test_unary_op_05    LABELS cpython llvm c) # unsigned unary minus, plus
 RUN(NAME test_unary_op_06    LABELS cpython llvm c) # unsigned unary bitnot
 RUN(NAME test_unsigned_01    LABELS cpython llvm c) # unsigned bitshift left, right
 RUN(NAME test_unsigned_02    LABELS cpython llvm c)
+RUN(NAME test_unsigned_03    LABELS cpython llvm c)
 RUN(NAME test_bool_binop     LABELS cpython llvm c)
 RUN(NAME test_issue_518      LABELS cpython llvm c NOFAST)
 RUN(NAME structs_01          LABELS cpython llvm c)
@@ -615,6 +661,8 @@ RUN(NAME structs_30          LABELS cpython llvm c)
 RUN(NAME structs_31          LABELS cpython llvm c)
 RUN(NAME structs_32          LABELS cpython llvm c)
 RUN(NAME structs_33          LABELS cpython llvm c)
+RUN(NAME structs_34          LABELS cpython llvm c)
+RUN(NAME structs_35          LABELS cpython llvm c)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
@@ -622,6 +670,8 @@ RUN(NAME symbolics_03        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_04        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_05        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_06        LABELS cpython_sym c_sym)
+RUN(NAME symbolics_07        LABELS cpython_sym c_sym llvm_sym NOFAST)
+RUN(NAME symbolics_08        LABELS cpython_sym c_sym llvm_sym)
 
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
@@ -694,7 +744,13 @@ RUN(NAME global_syms_04    LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME global_syms_05    LABELS cpython llvm c)
 RUN(NAME global_syms_06    LABELS cpython llvm c)
 
-RUN(NAME callback_01       LABELS cpython llvm)
+RUN(NAME callback_01       LABELS cpython llvm c)
+RUN(NAME callback_02       LABELS cpython llvm c)
+RUN(NAME callback_03       LABELS cpython llvm c)
+
+
+# callback_04 is to test emulation. So just run with cpython
+RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any

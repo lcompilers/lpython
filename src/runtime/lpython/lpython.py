@@ -3,6 +3,7 @@ import os
 import ctypes
 import platform
 from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
+import functools
 
 
 # TODO: this does not seem to restrict other imports
@@ -14,168 +15,16 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
 
 # data-types
 
-class UnsignedInteger:
-    def __init__(self, bit_width, value):
-        if isinstance(value, UnsignedInteger):
-            value = value.value
-        self.bit_width = bit_width
-        self.value = value % (2**bit_width)
-
-    def __bool__(self):
-        return self.value != 0
-
-    def __add__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, (self.value + other.value) % (2**self.bit_width))
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __sub__(self, other):
-        if isinstance(other, self.__class__):
-            # if self.value < other.value:
-                # raise ValueError("Result of subtraction cannot be negative")
-            return UnsignedInteger(self.bit_width, (self.value - other.value) % (2**self.bit_width))
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __mul__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, (self.value * other.value) % (2**self.bit_width))
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __div__(self, other):
-        if isinstance(other, self.__class__):
-            if other.value == 0:
-                raise ValueError("Division by zero")
-            return UnsignedInteger(self.bit_width, self.value / other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __floordiv__(self, other):
-        if isinstance(other, self.__class__):
-            if other.value == 0:
-                raise ValueError("Division by zero")
-            return UnsignedInteger(self.bit_width, self.value // other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __mod__(self, other):
-        if isinstance(other, self.__class__):
-            if other.value == 0:
-                raise ValueError("Modulo by zero")
-            return UnsignedInteger(self.bit_width, self.value % other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __pow__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, (self.value ** other.value) % (2**self.bit_width))
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __and__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, self.value & other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __or__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, self.value | other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    # unary operators
-    def __neg__(self):
-        return UnsignedInteger(self.bit_width, -self.value % (2**self.bit_width))
-
-    def __pos__(self):
-        return UnsignedInteger(self.bit_width, self.value)
-
-    def __abs__(self):
-        return UnsignedInteger(self.bit_width, abs(self.value))
-
-    def __invert__(self):
-        return UnsignedInteger(self.bit_width, ~self.value % (2**self.bit_width))
-
-    # comparator operators
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value == other.value
-        else:
-            try:
-                return self.value == other
-            except:
-                raise TypeError("Unsupported operand type")
-
-    def __ne__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value != other.value
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __lt__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value < other.value
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __le__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value <= other.value
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __gt__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value > other.value
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __ge__(self, other):
-        if isinstance(other, self.__class__):
-            return self.value >= other.value
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __lshift__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, self.value << other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    def __rshift__(self, other):
-        if isinstance(other, self.__class__):
-            return UnsignedInteger(self.bit_width, self.value >> other.value)
-        else:
-            raise TypeError("Unsupported operand type")
-
-    # conversion to integer
-    def __int__(self):
-        return self.value
-
-    def __str__(self):
-        return str(self.value)
-
-    def __repr__(self):
-        return f'UnsignedInteger({self.bit_width}, {str(self)})'
-
-    def __index__(self):
-        return self.value
-
-
-
 type_to_convert_func = {
     "i1": bool,
     "i8": int,
     "i16": int,
     "i32": int,
     "i64": int,
-    "u8": lambda x: UnsignedInteger(8, x),
-    "u16": lambda x: UnsignedInteger(16, x),
-    "u32": lambda x: UnsignedInteger(32, x),
-    "u64": lambda x: UnsignedInteger(64, x),
+    "u8": int,
+    "u16": int,
+    "u32": int,
+    "u64": int,
     "f32": float,
     "f64": float,
     "c32": complex,
@@ -438,6 +287,8 @@ def convert_type_to_ctype(arg):
         return c_double_complex
     elif arg == bool:
         return ctypes.c_bool
+    elif arg == Callable:
+        return ctypes.PYFUNCTYPE(None)
     elif arg is None:
         raise NotImplementedError("Type cannot be None")
     elif isinstance(arg, Array):
@@ -487,7 +338,7 @@ class CTypes:
     A wrapper class for interfacing C via ctypes.
     """
 
-    def __init__(self, f):
+    def __init__(self, f, py_mod = None, py_mod_path = None):
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -501,17 +352,20 @@ class CTypes:
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
+            nonlocal py_mod, py_mod_path
+            if py_mod is None:
+                py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
             if py_mod == "":
                 return os.path.join(get_rtlib_dir(),
                     get_lib_name("lpython_runtime"))
             else:
-                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                if py_mod_path is None:
+                    py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
                 return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        if "LPYTHON_PY_MOD_NAME" in os.environ:
+        if ("LPYTHON_PY_MOD_NAME" in os.environ) or (py_mod is not None):
             crtlib = get_crtlib_path()
             self.library = ctypes.CDLL(crtlib)
             self.cf = self.library[self.name]
@@ -540,7 +394,10 @@ class CTypes:
                 new_args.append(arg.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(arg.dtype))))
             else:
                 new_args.append(arg)
-        return self.cf(*new_args)
+        res = self.cf(*new_args)
+        if self.cf.restype == ctypes.c_char_p:
+            res = res.decode("utf-8")
+        return res
 
 def convert_to_ctypes_Union(f):
     fields = []
@@ -617,10 +474,14 @@ def convert_to_ctypes_Structure(f):
 
     return ctypes_Structure
 
-def ccall(f):
-    if isclass(f) and issubclass(f, Union):
-        return f
-    return CTypes(f)
+def ccall(f=None, header=None, c_shared_lib=None, c_shared_lib_path=None):
+    def wrap(func):
+        if not isclass(func) or not issubclass(func, Union):
+            func = CTypes(func, c_shared_lib, c_shared_lib_path)
+        return func
+    if f:
+        return wrap(f)
+    return wrap
 
 def pythoncall(*args, **kwargs):
     def inner(fn):
@@ -773,10 +634,10 @@ def empty_c_void_p():
     return ctypes_c_void_p()
 
 def cptr_to_u64(cptr):
-    return ctypes.addressof(cptr)
+    return u64(ctypes.cast(cptr, ctypes.c_void_p).value)
 
 def u64_to_cptr(ivalue):
-    return ctypes.c_void_p(ivalue)
+    return ctypes.c_void_p(i64(ivalue))
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
@@ -789,36 +650,48 @@ def ccallable(f):
 def ccallback(f):
     return f
 
-class lpython:
-    """
-    The @lpython decorator compiles a given function using LPython.
+class LpythonJITCache:
 
-    The decorator should be used from CPython mode, i.e., when the module is
-    being run using CPython. When possible, it is recommended to use LPython
-    for the main program, and use the @cpython decorator from the LPython mode
-    to access CPython features that are not supported by LPython.
-    """
+    def __init__(self):
+        self.pyfunc2compiledfunc = {}
 
-    def __init__(self, function):
+    def compile(self, function, backend, optimisation_flags):
+        if function in self.pyfunc2compiledfunc:
+            return self.pyfunc2compiledfunc[function]
+
+        if optimisation_flags is not None and backend is None:
+            raise ValueError("backend must be specified if backend_optimisation_flags are provided.")
+
+        if backend is None:
+            backend = "c"
+
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
 
-        self.fn_name = function.__name__
+        fn_name = function.__name__
         # Get the source code of the function
         source_code = getsource(function)
         source_code = source_code[source_code.find('\n'):]
 
-        dir_name = "./lpython_decorator_" + self.fn_name
+        dir_name = "./lpython_decorator_" + fn_name
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)
-        filename = dir_name + "/" + self.fn_name
+        filename = dir_name + "/" + fn_name
 
         # Open the file for writing
         with open(filename + ".py", "w") as file:
             # Write the Python source code to the file
             file.write("@pythoncallable")
             file.write(source_code)
+
+        if backend != "c":
+            raise NotImplementedError("Backend %s is not supported with @lpython yet."%(backend))
+
+        opt_flags = " "
+        if optimisation_flags is not None:
+            for opt_flag in optimisation_flags:
+                opt_flags += opt_flag + " "
 
         # ----------------------------------------------------------------------
         # Generate the shared library
@@ -829,11 +702,13 @@ class lpython:
 
         gcc_flags = ""
         if platform.system() == "Linux":
-            gcc_flags = " -shared -fPIC "
+            gcc_flags = " -shared -fPIC"
         elif platform.system() == "Darwin":
-            gcc_flags = " -bundle -flat_namespace -undefined suppress "
+            gcc_flags = " -bundle -flat_namespace -undefined suppress"
         else:
             raise NotImplementedError("Platform not implemented")
+
+        gcc_flags += opt_flags
 
         from numpy import get_include
         from distutils.sysconfig import get_python_inc, get_python_lib, \
@@ -848,14 +723,43 @@ class lpython:
 
         # ----------------------------------------------------------------------
         # Compile the C file and create a shared library
+        shared_library_name = "lpython_module_" + fn_name
         r = os.system("gcc -g" +  gcc_flags + python_path + numpy_path +
-            filename + ".c -o lpython_module_" + self.fn_name + ".so " +
+            filename + ".c -o " + shared_library_name + ".so " +
             rt_path_01 + rt_path_02 + python_lib)
         assert r == 0, "Failed to create the shared library"
+        self.pyfunc2compiledfunc[function] = (shared_library_name, fn_name)
+        return self.pyfunc2compiledfunc[function]
 
-    def __call__(self, *args, **kwargs):
-        import sys; sys.path.append('.')
-        # import the symbol from the shared library
-        function = getattr(__import__("lpython_module_" + self.fn_name),
-            self.fn_name)
-        return function(*args, **kwargs)
+lpython_jit_cache = LpythonJITCache()
+
+# Taken from https://stackoverflow.com/a/24617244
+def lpython(original_function=None, backend=None, backend_optimisation_flags=None):
+    """
+    The @lpython decorator compiles a given function using LPython.
+
+    The decorator should be used from CPython mode, i.e., when the module is
+    being run using CPython. When possible, it is recommended to use LPython
+    for the main program, and use the @cpython decorator from the LPython mode
+    to access CPython features that are not supported by LPython.
+    """
+    def _lpython(function):
+        @functools.wraps(function)
+        def __lpython(*args, **kwargs):
+            import sys; sys.path.append('.')
+            lib_name, fn_name = lpython_jit_cache.compile(
+                function, backend, backend_optimisation_flags)
+            return getattr(__import__(lib_name), fn_name)(*args, **kwargs)
+        return __lpython
+
+    if original_function:
+        return _lpython(original_function)
+    return _lpython
+
+def bitnot(x, bitsize):
+    return (~x) % (2 ** bitsize)
+
+bitnot_u8 = lambda x: bitnot(x, 8)
+bitnot_u16 = lambda x: bitnot(x, 16)
+bitnot_u32 = lambda x: bitnot(x, 32)
+bitnot_u64 = lambda x: bitnot(x, 64)

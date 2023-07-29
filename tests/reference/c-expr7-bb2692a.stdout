@@ -8,6 +8,12 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+void test_pow();
+int32_t test_pow_1(int32_t a, int32_t b);
+void main0();
+void __main____global_statements();
+
+
 
 // Implementations
 double __lpython_overloaded_0__pow(int32_t x, int32_t y)
@@ -17,9 +23,9 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
-float _lfortran_caimag(float complex x);
+float _lfortran_caimag(float_complex_t x);
 
-double _lfortran_zaimag(double complex x);
+double _lfortran_zaimag(double_complex_t x);
 
 void test_pow()
 {

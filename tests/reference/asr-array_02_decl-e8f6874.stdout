@@ -27,7 +27,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [declare_arrays]
@@ -104,7 +103,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -194,7 +192,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -287,7 +284,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -384,7 +380,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -578,7 +573,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )

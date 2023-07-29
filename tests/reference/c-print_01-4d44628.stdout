@@ -5,6 +5,10 @@
 #include <string.h>
 #include <lfortran_intrinsics.h>
 
+void f();
+void __main____global_statements();
+
+
 
 // Implementations
 void f()

@@ -251,10 +251,6 @@ public:
 
     template <typename Cond, typename Body>
     void create_loop(char *name, Cond condition, Body loop_body) {
-        dict_api_lp->set_iterators();
-        dict_api_sc->set_iterators();
-        set_api_lp->set_iterators();
-        set_api_sc->set_iterators();
 
         std::string loop_name;
         if (name) {
@@ -292,10 +288,6 @@ public:
         loop_or_block_end.pop_back();
         loop_or_block_end_names.pop_back();
         start_new_block(loopend);
-        dict_api_lp->reset_iterators();
-        dict_api_sc->reset_iterators();
-        set_api_lp->reset_iterators();
-        set_api_sc->reset_iterators();
     }
 
     void get_type_debug_info(ASR::ttype_t* t, std::string &type_name,
@@ -1695,6 +1687,49 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
+    void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(m_arg));
+        ASR::ttype_t* el_type = key_or_value == 0 ?
+                                    dict_type->m_key_type : dict_type->m_value_type;
+
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* pdict = tmp;
+
+        ptr_loads = ptr_loads_copy;
+
+        bool is_array_type_local = false, is_malloc_array_type_local = false;
+        bool is_list_local = false;
+        ASR::dimension_t* m_dims_local = nullptr;
+        int n_dims_local = -1, a_kind_local = -1;
+        llvm::Type* llvm_el_type = llvm_utils->get_type_from_ttype_t(el_type, nullptr,
+                                     ASR::storage_typeType::Default, is_array_type_local,
+                                     is_malloc_array_type_local, is_list_local, m_dims_local,
+                                     n_dims_local, a_kind_local, module.get());
+        std::string type_code = ASRUtils::get_type_code(el_type);
+        int32_t type_size = -1;
+        if( ASR::is_a<ASR::Character_t>(*el_type) ||
+            LLVM::is_llvm_struct(el_type) ||
+            ASR::is_a<ASR::Complex_t>(*el_type) ) {
+            llvm::DataLayout data_layout(module.get());
+            type_size = data_layout.getTypeAllocSize(llvm_el_type);
+        } else {
+            type_size = ASRUtils::extract_kind_from_ttype_t(el_type);
+        }
+        llvm::Type* el_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
+        llvm::Value* el_list = builder->CreateAlloca(el_list_type, nullptr, key_or_value == 0 ?
+                                                     "keys_list" : "values_list");
+        list_api->list_init(type_code, el_list, *module, 0, 0);
+
+        llvm_utils->set_dict_api(dict_type);
+        llvm_utils->dict_api->get_elements_list(pdict, el_list, dict_type->m_key_type,
+                                                dict_type->m_value_type, *module,
+                                                name2memidx, key_or_value);
+        tmp = el_list;
+    }
+
     void generate_SetAdd(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
         ASR::Set_t* set_type = ASR::down_cast<ASR::Set_t>(
                                     ASRUtils::expr_type(m_arg));
@@ -1770,6 +1805,14 @@ public:
                         generate_ListPop_1(x.m_args[0], x.m_args[1]);
                         break;
                 }
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::DictKeys: {
+                generate_DictElems(x.m_args[0], 0);
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::DictValues: {
+                generate_DictElems(x.m_args[0], 1);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::SetAdd: {
@@ -2173,7 +2216,6 @@ public:
                 llvm::Type* target_type = llvm_utils->get_type_from_ttype_t_util(x_m_array_type, module.get());
                 llvm::Value *target = builder0.CreateAlloca(
                     target_type, nullptr, "fixed_size_reshaped_array");
-                array = llvm_utils->create_gep(array, 0);
                 llvm::Value* target_ = llvm_utils->create_gep(target, 0);
                 ASR::dimension_t* asr_dims = nullptr;
                 size_t asr_n_dims = ASRUtils::extract_dimensions_from_ttype(x_m_array_type, asr_dims);
@@ -3195,6 +3237,8 @@ public:
                                 builder->CreateMemCpy(llvm_utils->create_gep(target_var, 0),
                                     llvm::MaybeAlign(), init_value, llvm::MaybeAlign(), arg_size);
                             }
+                        } else if (ASR::is_a<ASR::ArrayReshape_t>(*v->m_symbolic_value)) {
+                            builder->CreateStore(LLVM::CreateLoad(*builder, init_value), target_var);
                         } else {
                             builder->CreateStore(init_value, target_var);
                         }
@@ -6344,7 +6388,7 @@ public:
                     arg_kind != dest_kind )
                 {
                     if (dest_kind > arg_kind) {
-                        tmp = builder->CreateSExt(tmp, llvm_utils->getIntType(dest_kind));
+                        tmp = builder->CreateZExt(tmp, llvm_utils->getIntType(dest_kind));
                     } else {
                         tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
                     }
@@ -6359,7 +6403,7 @@ public:
                     arg_kind != dest_kind )
                 {
                     if (dest_kind > arg_kind) {
-                        tmp = builder->CreateSExt(tmp, llvm_utils->getIntType(dest_kind));
+                        tmp = builder->CreateZExt(tmp, llvm_utils->getIntType(dest_kind));
                     } else {
                         tmp = builder->CreateTrunc(tmp, llvm_utils->getIntType(dest_kind));
                     }

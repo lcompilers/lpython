@@ -19,6 +19,10 @@
 
 namespace LCompilers {
 
+    #define get_builder0() llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock(); \
+        llvm::IRBuilder<> builder0(context); \
+        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt()); \
+
     // Platform dependent fast unique hash:
     static inline uint64_t get_hash(ASR::asr_t *node)
     {
@@ -179,8 +183,6 @@ namespace LCompilers {
             llvm::IRBuilder<>* builder;
             llvm::AllocaInst *str_cmp_itr;
 
-            bool are_iterators_set;
-
         public:
 
             LLVMTuple* tuple_api;
@@ -241,10 +243,6 @@ namespace LCompilers {
             llvm::Value* is_ineq_by_value(llvm::Value* left, llvm::Value* right,
                                           llvm::Module& module, ASR::ttype_t* asr_type,
                                           int8_t overload_id, ASR::ttype_t* int32_type=nullptr);
-
-            void set_iterators();
-
-            void reset_iterators();
 
             void set_module(llvm::Module* module_);
 
@@ -510,7 +508,6 @@ namespace LCompilers {
             llvm::AllocaInst *old_occupancy, *old_number_of_buckets_filled;
             llvm::AllocaInst *src_itr, *dest_itr, *next_ptr, *copy_itr;
             llvm::Value *tmp_value_ptr;
-            bool are_iterators_set;
 
             std::map<std::pair<std::string, std::string>,
                      std::tuple<llvm::Type*, std::pair<int32_t, int32_t>,
@@ -605,11 +602,6 @@ namespace LCompilers {
                 llvm::Module& module, ASR::Dict_t* dict_type,
                 bool get_pointer=false) = 0;
 
-            virtual
-            void set_iterators();
-
-            virtual
-            void reset_iterators();
 
             virtual
             void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
@@ -624,6 +616,13 @@ namespace LCompilers {
 
             virtual
             void set_is_dict_present(bool value);
+
+            virtual
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value) = 0;
 
             virtual ~LLVMDictInterface() = 0;
 
@@ -716,6 +715,12 @@ namespace LCompilers {
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
+
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value);
 
             virtual ~LLVMDict();
     };
@@ -864,6 +869,12 @@ namespace LCompilers {
 
             llvm::Value* len(llvm::Value* dict);
 
+            void get_elements_list(llvm::Value* dict,
+                llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type, llvm::Module& module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx,
+                bool key_or_value);
+
             virtual ~LLVMDictSeparateChaining();
 
     };
@@ -882,7 +893,6 @@ namespace LCompilers {
             llvm::AllocaInst *old_capacity, *old_elems, *old_el_mask;
             llvm::AllocaInst *old_occupancy, *old_number_of_buckets_filled;
             llvm::AllocaInst *src_itr, *dest_itr, *next_ptr, *copy_itr;
-            bool are_iterators_set;
 
             std::map<std::string, std::tuple<llvm::Type*, int32_t, llvm::Type*>> typecode2settype;
 
@@ -911,12 +921,6 @@ namespace LCompilers {
 
             virtual
             llvm::Value* get_pointer_to_capacity(llvm::Value* set) = 0;
-
-            virtual
-            void set_iterators();
-
-            virtual
-            void reset_iterators();
 
             llvm::Value* get_el_hash(llvm::Value* capacity, llvm::Value* el,
                 ASR::ttype_t* el_asr_type, llvm::Module& module);

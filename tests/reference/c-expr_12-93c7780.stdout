@@ -19,6 +19,12 @@ struct i16
     bool is_allocated;
 };
 
+void g(struct i16* *x, struct i16* y);
+void check(struct i16* *ptr);
+void f();
+void __main____global_statements();
+
+
 
 // Implementations
 void g(struct i16* *x, struct i16* y)
