@@ -4729,11 +4729,17 @@ public:
             // Visit the statement
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
+                if (ASR::is_a<ASR::expr_t>(*tmp)) {
+                    tmp = make_dummy_assignment(ASRUtils::EXPR(tmp));
+                }
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
             } else if (!tmp_vec.empty()) {
                 for (auto t: tmp_vec) {
                     if (t != nullptr) {
+                        if (ASR::is_a<ASR::expr_t>(*t)) {
+                            t = make_dummy_assignment(ASRUtils::EXPR(t));
+                        }
                         ASR::stmt_t* tmp_stmt = ASRUtils::STMT(t);
                         body.push_back(al, tmp_stmt);
                     }
