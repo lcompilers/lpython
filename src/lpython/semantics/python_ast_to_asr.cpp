@@ -1124,6 +1124,24 @@ public:
     }
 
 
+    ASR::asr_t* make_dummy_assignment(ASR::expr_t* expr) {
+        ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
+        SetChar variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+        ASR::asr_t* variable_asr = ASR::make_Variable_t(al, expr->base.loc, current_scope,
+                                        s2c(al, dummy_ret_name), variable_dependencies_vec.p,
+                                        variable_dependencies_vec.size(), ASR::intentType::Local,
+                                        nullptr, nullptr, ASR::storage_typeType::Default,
+                                        type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
+                                        ASR::presenceType::Required, false);
+        ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
+        current_scope->add_symbol(dummy_ret_name, variable_sym);
+        ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, variable_sym));
+        return ASR::make_Assignment_t(al, expr->base.loc, variable_var, expr, nullptr);
+    }
+
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -1290,20 +1308,7 @@ public:
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
-                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
-                    SetChar variable_dependencies_vec;
-                    variable_dependencies_vec.reserve(al, 1);
-                    ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, a_type);
-                    ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
-                                                    s2c(al, dummy_ret_name), variable_dependencies_vec.p,
-                                                    variable_dependencies_vec.size(), ASR::intentType::Local,
-                                                    nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    a_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                                                    ASR::presenceType::Required, false);
-                    ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
-                    current_scope->add_symbol(dummy_ret_name, variable_sym);
-                    ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
-                    return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
+                    return make_dummy_assignment(ASRUtils::EXPR(func_call_asr));
                 } else {
                     return func_call_asr;
                 }
@@ -4724,11 +4729,17 @@ public:
             // Visit the statement
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
+                if (ASR::is_a<ASR::expr_t>(*tmp)) {
+                    tmp = make_dummy_assignment(ASRUtils::EXPR(tmp));
+                }
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
             } else if (!tmp_vec.empty()) {
                 for (auto t: tmp_vec) {
                     if (t != nullptr) {
+                        if (ASR::is_a<ASR::expr_t>(*t)) {
+                            t = make_dummy_assignment(ASRUtils::EXPR(t));
+                        }
                         ASR::stmt_t* tmp_stmt = ASRUtils::STMT(t);
                         body.push_back(al, tmp_stmt);
                     }
