@@ -697,6 +697,8 @@ R"(#include <stdio.h>
                 }
             } case ASR::ttypeType::Logical : {
                 return "p";
+            } case ASR::ttypeType::Const : {
+                return get_type_format(ASR::down_cast<ASR::Const_t>(type)->m_type);
             } case ASR::ttypeType::Array : {
                 return "O";
             } default: {
