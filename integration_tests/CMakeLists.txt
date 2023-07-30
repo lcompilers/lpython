@@ -763,3 +763,6 @@ RUN(NAME lpython_decorator_01    LABELS cpython)
 RUN(NAME lpython_decorator_02    LABELS cpython)
 
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any
+
+# LPython emulation mode
+RUN(NAME lpython_emulation_01    LABELS cpython)
