@@ -377,6 +377,7 @@ class CTypes:
             arg_ctype = convert_type_to_ctype(arg_type)
             argtypes.append(arg_ctype)
         self.cf.argtypes = argtypes
+        self.cf.restype = None
         if "return" in self.annotations:
             res_type = self.annotations["return"]
             if res_type is not None:
