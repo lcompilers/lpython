@@ -504,7 +504,8 @@ RUN(NAME test_list_section2  LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
 RUN(NAME test_list_index2    LABELS cpython llvm)
-RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
+RUN(NAME test_list_repeat    LABELS cpython llvm c NOFAST)
+RUN(NAME test_list_repeat2   LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
