@@ -1611,7 +1611,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         tmp_buffer_src.push_back(tmp_src_gen);
-        src = "* " + var_name;
+        src = "(*" + var_name + ")";
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
