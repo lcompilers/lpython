@@ -617,7 +617,7 @@ R"(#include <stdio.h>
         }
         func += ")";
         bracket_open--;
-        if (f_type->m_abi == ASR::abiType::Source) {
+        if (is_c && f_type->m_abi == ASR::abiType::Source) {
             forward_decl_functions += func + ";\n";
         }
         if( is_c || template_for_Kokkos.empty() ) {
