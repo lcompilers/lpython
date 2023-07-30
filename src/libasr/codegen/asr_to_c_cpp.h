@@ -193,8 +193,6 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
-        SymbolTable* current_scope_copy = current_scope;
-        current_scope = global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -257,7 +255,6 @@ R"(#include <stdio.h>
         }
 
         src = unit_src;
-        current_scope = current_scope_copy;
     }
 
     std::string check_tmp_buffer() {
