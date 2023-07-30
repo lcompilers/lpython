@@ -1574,7 +1574,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if (!ASR::is_a<ASR::ListConcat_t>(*x.m_right)) {
             rig = "&" + rig;
         }
-        src = check_tmp_buffer() + list_concat_func + "(" + left + ", " + rig + ")";
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = list_concat_func + "(" + left + ", " + rig + ")";
     }
 
     void visit_ListSection(const ASR::ListSection_t& x) {
