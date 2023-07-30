@@ -1308,11 +1308,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if( is_target_list && is_value_list ) {
             ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
             std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
-            if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
-                src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
-            } else {
-                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
-            }
+            src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
         } else if ( is_target_tup && is_value_tup ) {
             ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
@@ -1565,16 +1561,11 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         bracket_open++;
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
-        if (!ASR::is_a<ASR::ListConcat_t>(*x.m_left)) {
-            left = "&" + left;
-        }
         self().visit_expr(*x.m_right);
         bracket_open--;
         std::string rig = std::move(src);
-        if (!ASR::is_a<ASR::ListConcat_t>(*x.m_right)) {
-            rig = "&" + rig;
-        }
-        src = check_tmp_buffer() + list_concat_func + "(" + left + ", " + rig + ")";
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = "(*" + list_concat_func + "(&" + left + ", &" + rig + "))";
     }
 
     void visit_ListSection(const ASR::ListSection_t& x) {
@@ -1620,7 +1611,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         tmp_buffer_src.push_back(tmp_src_gen);
-        src = "* " + var_name;
+        src = "(*" + var_name + ")";
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
