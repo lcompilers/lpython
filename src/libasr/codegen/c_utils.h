@@ -594,6 +594,7 @@ class CCPPDSUtils {
             list_remove(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_clear(list_struct_type, list_type_code, list_element_type);
             list_concat(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_repeat(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_section(list_struct_type, list_type_code);
             return list_struct_type;
         }
@@ -650,6 +651,11 @@ class CCPPDSUtils {
         std::string get_list_concat_func(ASR::List_t* list_type) {
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             return typecodeToDSfuncs[list_type_code]["list_concat"];
+        }
+
+        std::string get_list_repeat_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecodeToDSfuncs[list_type_code]["list_repeat"];
         }
 
         std::string get_list_find_item_position_function(std::string list_type_code) {
@@ -930,6 +936,40 @@ class CCPPDSUtils {
                                     "right->current_end_point * sizeof(" + list_element_type + "));\n";
             }
             generated_code += indent + tab + "result->current_end_point = left->current_end_point + right->current_end_point;\n";
+            generated_code += indent + tab + "return result;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_repeat(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type, ASR::ttype_t *m_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_con_func = global_scope->get_unique_name("list_repeat_" + list_type_code);
+            typecodeToDSfuncs[list_type_code]["list_repeat"] = list_con_func;
+            std::string init_func = typecodeToDSfuncs[list_type_code]["list_init"];
+            std::string signature = list_struct_type + "* " + list_con_func + "("
+                                + list_struct_type + "* x, "
+                                + "int32_t freq)";
+            func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + list_struct_type + " *result = (" + list_struct_type + "*)malloc(sizeof(" +
+                                list_struct_type + "));\n";
+            generated_code += indent + tab + init_func + "(result, x->current_end_point * freq);\n";
+            generated_code += indent + tab + "for (int i=0; i<freq; i++) {\n";
+
+            if (ASR::is_a<ASR::List_t>(*m_type)) {
+                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
+                std::string deep_copy_func = typecodeToDSfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
+                LCOMPILERS_ASSERT(deep_copy_func.size() > 0);
+                generated_code += indent + tab + tab + "for(int j=0; j<x->current_end_point; j++)\n";
+                generated_code += indent + tab + tab + tab + deep_copy_func + "(&x->data[j], &result->data[i*x->current_end_point+j]);\n";
+            } else {
+                generated_code += indent + tab + tab + "memcpy(&result->data[i*x->current_end_point], x->data, x->current_end_point * sizeof(" + list_element_type + "));\n";
+            }
+
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + "result->current_end_point = x->current_end_point * freq;\n";
             generated_code += indent + tab + "return result;\n";
             generated_code += indent + "}\n\n";
         }

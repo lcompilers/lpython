@@ -1676,6 +1676,20 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src += indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
     }
 
+    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
+        std::string list_repeat_func = c_ds_api->get_list_repeat_func(t);
+        bracket_open++;
+        self().visit_expr(*x.m_left);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string freq = std::move(src);
+        bracket_open--;
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = "(*" + list_repeat_func + "(&" + list_var + ", " + freq + "))";
+    }
+
     void visit_ListLen(const ASR::ListLen_t& x) {
         CHECK_FAST_C_CPP(compiler_options, x)
         self().visit_expr(*x.m_arg);
