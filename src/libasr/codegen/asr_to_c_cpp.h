@@ -158,6 +158,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
+    std::unique_ptr<CUtils::CUtilFunctions> c_utils_functions;
     std::unique_ptr<BindPyUtils::BindPyUtilFunctions> bind_py_utils_functions;
     std::string const_name;
     size_t const_vars_count;
@@ -185,12 +186,63 @@ public:
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
+        c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
         bind_py_utils_functions{std::make_unique<BindPyUtils::BindPyUtilFunctions>()},
         const_name{"constname"},
         const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
         }
 
+    std::string get_final_combined_src(std::string head, std::string unit_src) {
+        std::string to_include = "";
+        for (auto &s: user_defines) {
+            to_include += "#define " + s + "\n";
+        }
+        for (auto &s: headers) {
+            to_include += "#include <" + s + ">\n";
+        }
+        for (auto &s: user_headers) {
+            to_include += "#include \"" + s + "\"\n";
+        }
+        if( c_ds_api->get_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_ds_api->get_func_decls() + "\n";
+        }
+        if( c_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
+        }
+        std::string ds_funcs_defined = "";
+        if( c_ds_api->get_generated_code().size() > 0 ) {
+            ds_funcs_defined =  "\n" + c_ds_api->get_generated_code() + "\n";
+        }
+        std::string util_funcs_defined = "";
+        if( c_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + c_utils_functions->get_generated_code() + "\n";
+        }
+        if( bind_py_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + bind_py_utils_functions->get_util_func_decls() + "\n";
+        }
+        if( bind_py_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + bind_py_utils_functions->get_generated_code() + "\n";
+        }
+        if( is_string_concat_present ) {
+            std::string strcat_def = "";
+            strcat_def += "    char* " + global_scope->get_unique_name("strcat_", false) + "(char* x, char* y) {\n";
+            strcat_def += "        char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
+            strcat_def += "        strcpy(str_tmp, x);\n";
+            strcat_def += "        return strcat(str_tmp, y);\n";
+            strcat_def += "    }\n\n";
+            head += strcat_def;
+        }
+
+        // Include dimension_descriptor definition that is used by array types
+        if (array_types_decls.size() != 0) {
+            array_types_decls = "\nstruct dimension_descriptor\n"
+                "{\n    int32_t lower_bound, length;\n};\n" + array_types_decls;
+        }
+
+        return to_include + head + array_types_decls + forward_decl_functions + unit_src +
+              ds_funcs_defined + util_funcs_defined;
+    }
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
