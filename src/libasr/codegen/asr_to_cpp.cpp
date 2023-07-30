@@ -300,6 +300,11 @@ public:
                 std::string encoded_type_name = "x" + der_type_name;
                 std::string type_name = std::string("struct ") + der_type_name;
                 handle_array(v.m_type, "struct", false)
+            } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
+                ASR::List_t* t = ASR::down_cast<ASR::List_t>(v_m_type);
+                std::string list_type_c = c_ds_api->get_list_type(t);
+                sub = format_type_c("", list_type_c, v.m_name,
+                                    false, false);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
