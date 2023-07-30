@@ -1,3 +1,4 @@
+#include <math.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -17,11 +18,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
 // Forward declarations
 void __main____global_statements();
 void test_pow();

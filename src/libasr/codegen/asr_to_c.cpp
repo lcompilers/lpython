@@ -30,14 +30,11 @@ class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 {
 public:
 
-    std::unique_ptr<CUtils::CUtilFunctions> c_utils_functions;
-
     int counter;
 
     ASRToCVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, co.platform, co, false, false, true, default_lower_bound),
-           c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
            counter{0} {
            }
 
@@ -602,12 +599,6 @@ R"(
 
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
-        std::string strcat_def = "";
-        strcat_def += indent + "char* " + global_scope->get_unique_name("strcat_", false) + "(char* x, char* y) {\n";
-        strcat_def += indent + tab + "char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
-        strcat_def += indent + tab + "strcpy(str_tmp, x);\n";
-        strcat_def += indent + tab + "return strcat(str_tmp, y);\n";
-        strcat_def += indent + "}\n\n";
 
         std::string unit_src_tmp;
         for (auto &item : x.m_global_scope->get_scope()) {
@@ -700,48 +691,10 @@ R"(
                 unit_src += src;
             }
         }
-        std::string to_include = "";
-        for (auto &s: user_defines) {
-            to_include += "#define " + s + "\n";
-        }
-        for (auto &s: headers) {
-            to_include += "#include <" + s + ">\n";
-        }
-        for (auto &s: user_headers) {
-            to_include += "#include \"" + s + "\"\n";
-        }
-        if( c_ds_api->get_func_decls().size() > 0 ) {
-            array_types_decls += "\n" + c_ds_api->get_func_decls() + "\n";
-        }
-        if( c_utils_functions->get_util_func_decls().size() > 0 ) {
-            array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
-        }
-        std::string ds_funcs_defined = "";
-        if( c_ds_api->get_generated_code().size() > 0 ) {
-            ds_funcs_defined =  "\n" + c_ds_api->get_generated_code() + "\n";
-        }
-        std::string util_funcs_defined = "";
-        if( c_utils_functions->get_generated_code().size() > 0 ) {
-            util_funcs_defined =  "\n" + c_utils_functions->get_generated_code() + "\n";
-        }
-        if( bind_py_utils_functions->get_util_func_decls().size() > 0 ) {
-            array_types_decls += "\n" + bind_py_utils_functions->get_util_func_decls() + "\n";
-        }
-        if( bind_py_utils_functions->get_generated_code().size() > 0 ) {
-            util_funcs_defined =  "\n" + bind_py_utils_functions->get_generated_code() + "\n";
-        }
-        if( is_string_concat_present ) {
-            head += strcat_def;
-        }
 
-        // Include dimension_descriptor definition that is used by array types
-        if (array_types_decls.size() != 0) {
-            array_types_decls.insert(0, "struct dimension_descriptor\n"
-                "{\n    int32_t lower_bound, length;\n};\n");
-        }
         forward_decl_functions += "\n\n";
-        src = to_include + head + array_types_decls + forward_decl_functions + unit_src +
-              ds_funcs_defined + util_funcs_defined;
+        src = get_final_combined_src(head, unit_src);
+
         if (!emit_headers.empty()) {
             std::string to_includes_1 = "";
             for (auto &s: headers) {
