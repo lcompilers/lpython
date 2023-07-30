@@ -73,16 +73,13 @@ class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
 
-    std::string array_types_decls;
     std::map<std::string, std::map<std::string,
              std::map<size_t, std::string>>> eltypedims2arraytype;
 
     ASRToCPPVisitor(diag::Diagnostics &diag, CompilerOptions &co,
                     int64_t default_lower_bound)
         : BaseCCPPVisitor(diag, co.platform, co, true, true, false,
-                          default_lower_bound),
-          array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                        "{\n    int32_t lower_bound, length;\n};\n")) {}
+                          default_lower_bound) {}
 
     std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims, size_t& size)
     {
@@ -327,11 +324,18 @@ public:
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
-        std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
 
-        std::string headers =
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = global_scope;
+        c_ds_api->set_indentation(indentation_level, indentation_spaces);
+        c_ds_api->set_global_scope(global_scope);
+        c_utils_functions->set_indentation(indentation_level, indentation_spaces);
+        c_utils_functions->set_global_scope(global_scope);
+        c_ds_api->set_c_utils_functions(c_utils_functions.get());
+
+        std::string head =
 R"(#include <iostream>
 #include <string>
 #include <vector>
@@ -356,7 +360,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
-        unit_src += "// Forward declarations\n";
+        std::string unit_src = "// Forward declarations\n";
         unit_src += declare_all_functions(*x.m_global_scope);
         // Now pre-declare all functions from modules and programs
         for (auto &item : x.m_global_scope->get_scope()) {
@@ -417,7 +421,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
-        src = headers + array_types_decls + unit_src;
+        src = get_final_combined_src(head, unit_src);
+        current_scope = current_scope_copy;
     }
 
     void visit_Program(const ASR::Program_t &x) {
