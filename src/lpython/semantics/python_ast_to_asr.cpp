@@ -5503,9 +5503,6 @@ public:
         if (!is_explicit_iterator_required) {
             a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
         }
-        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind));
-        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                                            al, x.base.base.loc, 1, a_type));
         ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
                                             x.base.base.loc);
 
@@ -5520,6 +5517,9 @@ public:
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
             LCOMPILERS_ASSERT(current_scope->get_symbol(explicit_iter_name) != nullptr);
             auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol(explicit_iter_name));
+            ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind));
+            ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                                al, x.base.base.loc, 1, a_type));
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
                 ASR::binopType::Add, constant_one, a_type, nullptr);
             ASR::expr_t* loop_src_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name)));
