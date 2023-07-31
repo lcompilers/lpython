@@ -175,7 +175,8 @@ public:
     std::unique_ptr<LLVMTuple> tuple_api;
     std::unique_ptr<LLVMDictInterface> dict_api_lp;
     std::unique_ptr<LLVMDictInterface> dict_api_sc;
-    std::unique_ptr<LLVMSetInterface> set_api;      // linear probing
+    std::unique_ptr<LLVMSetInterface> set_api_lp;
+    std::unique_ptr<LLVMSetInterface> set_api_sc;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, std::string infile,
@@ -200,7 +201,8 @@ public:
     tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
     dict_api_lp(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
     dict_api_sc(std::make_unique<LLVMDictSeparateChaining>(context, llvm_utils.get(), builder.get())),
-    set_api(std::make_unique<LLVMSetLinearProbing>(context, llvm_utils.get(), builder.get())),
+    set_api_lp(std::make_unique<LLVMSetLinearProbing>(context, llvm_utils.get(), builder.get())),
+    set_api_sc(std::make_unique<LLVMSetSeparateChaining>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(), llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor))
@@ -208,10 +210,12 @@ public:
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
         llvm_utils->dict_api = nullptr;
-        llvm_utils->set_api = set_api.get();
+        llvm_utils->set_api = nullptr;
         llvm_utils->arr_api = arr_descr.get();
         llvm_utils->dict_api_lp = dict_api_lp.get();
         llvm_utils->dict_api_sc = dict_api_sc.get();
+        llvm_utils->set_api_lp = set_api_lp.get();
+        llvm_utils->set_api_sc = set_api_sc.get();
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
@@ -1152,12 +1156,13 @@ public:
         llvm::Type* const_set_type = llvm_utils->get_set_type(x.m_type, module.get());
         llvm::Value* const_set = builder->CreateAlloca(const_set_type, nullptr, "const_set");
         ASR::Set_t* x_set = ASR::down_cast<ASR::Set_t>(x.m_type);
+        llvm_utils->set_set_api(x_set);
         std::string el_type_code = ASRUtils::get_type_code(x_set->m_type);
         llvm_utils->set_api->set_init(el_type_code, const_set, module.get(), x.n_elements);
         int64_t ptr_loads_el = !LLVM::is_llvm_struct(x_set->m_type);
         int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = ptr_loads_el;
         for( size_t i = 0; i < x.n_elements; i++ ) {
-            ptr_loads = ptr_loads_el;
             visit_expr_wrapper(x.m_elements[i], true);
             llvm::Value* element = tmp;
             llvm_utils->set_api->write_item(const_set, element, module.get(),
@@ -1516,6 +1521,8 @@ public:
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
         llvm::Value* pset = tmp;
+        ASR::Set_t* x_set = ASR::down_cast<ASR::Set_t>(ASRUtils::expr_type(x.m_arg));
+        llvm_utils->set_set_api(x_set);
         tmp = llvm_utils->set_api->len(pset);
     }
 
@@ -1724,6 +1731,8 @@ public:
     }
 
     void generate_SetAdd(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::Set_t* set_type = ASR::down_cast<ASR::Set_t>(
+                                    ASRUtils::expr_type(m_arg));
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1734,10 +1743,13 @@ public:
         this->visit_expr_wrapper(m_ele, true);
         ptr_loads = ptr_loads_copy;
         llvm::Value *el = tmp;
-        set_api->write_item(pset, el, module.get(), asr_el_type, name2memidx);
+        llvm_utils->set_set_api(set_type);
+        llvm_utils->set_api->write_item(pset, el, module.get(), asr_el_type, name2memidx);
     }
 
     void generate_SetRemove(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::Set_t* set_type = ASR::down_cast<ASR::Set_t>(
+                                    ASRUtils::expr_type(m_arg));
         ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
         int64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1748,7 +1760,8 @@ public:
         this->visit_expr_wrapper(m_ele, true);
         ptr_loads = ptr_loads_copy;
         llvm::Value *el = tmp;
-        set_api->remove_item(pset, el, *module, asr_el_type);
+        llvm_utils->set_set_api(set_type);
+        llvm_utils->set_api->remove_item(pset, el, *module, asr_el_type);
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
@@ -2773,6 +2786,10 @@ public:
         bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
         dict_api_lp->set_is_dict_present(false);
         dict_api_sc->set_is_dict_present(false);
+        bool is_set_present_copy_lp = set_api_lp->is_set_present();
+        bool is_set_present_copy_sc = set_api_sc->is_set_present();
+        set_api_lp->set_is_set_present(false);
+        set_api_sc->set_is_set_present(false);
         llvm_goto_targets.clear();
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
@@ -2832,6 +2849,8 @@ public:
         builder->CreateRet(ret_val2);
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
+        set_api_lp->set_is_set_present(is_set_present_copy_lp);
+        set_api_sc->set_is_set_present(is_set_present_copy_sc);
 
         // Finalize the debug info.
         if (compiler_options.emit_debug_info) DBuilder->finalize();
@@ -3323,6 +3342,10 @@ public:
         bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
         dict_api_lp->set_is_dict_present(false);
         dict_api_sc->set_is_dict_present(false);
+        bool is_set_present_copy_lp = set_api_lp->is_set_present();
+        bool is_set_present_copy_sc = set_api_sc->is_set_present();
+        set_api_lp->set_is_set_present(false);
+        set_api_sc->set_is_set_present(false);
         llvm_goto_targets.clear();
         instantiate_function(x);
         if (ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
@@ -3335,6 +3358,8 @@ public:
         parent_function = nullptr;
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
+        set_api_lp->set_is_set_present(is_set_present_copy_lp);
+        set_api_sc->set_is_set_present(is_set_present_copy_sc);
 
         // Finalize the debug info.
         if (compiler_options.emit_debug_info) DBuilder->finalize();
@@ -4187,6 +4212,7 @@ public:
             llvm::Value* target_set = tmp;
             ptr_loads = ptr_loads_copy;
             ASR::Set_t* value_set_type = ASR::down_cast<ASR::Set_t>(asr_value_type);
+            llvm_utils->set_set_api(value_set_type);
             llvm_utils->set_api->set_deepcopy(value_set, target_set,
                                     value_set_type, module.get(), name2memidx);
             return ;
