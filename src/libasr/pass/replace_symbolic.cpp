@@ -23,12 +23,44 @@ public:
         pass_result.reserve(al, 1);
     }
 
+    bool symbolic_replaces_with_CPtr_Function = false;
+
+    void visit_Function(const ASR::Function_t &x) {
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+        SymbolTable* current_scope_copy = this->current_scope;
+        this->current_scope = xx.m_symtab;
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
+                this->visit_Variable(*s);
+            }
+        }
+        transform_stmts(xx.m_body, xx.n_body);
+
+        // Add "basic_new_stack" to dependencies if needed
+        if (symbolic_replaces_with_CPtr_Function) {
+            SetChar function_dependencies;
+            function_dependencies.n = 0;
+            function_dependencies.reserve(al, 1);
+            for( size_t i = 0; i < xx.n_dependencies; i++ ) {
+                function_dependencies.push_back(al, xx.m_dependencies[i]);
+            }
+            function_dependencies.push_back(al, s2c(al, "basic_new_stack"));
+            xx.n_dependencies = function_dependencies.size();
+            xx.m_dependencies = function_dependencies.p;
+        }
+        this->current_scope = current_scope_copy;
+    }
+
     void visit_Variable(const ASR::Variable_t& x) {
         ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
         SymbolTable* current_scope_copy = current_scope;
         current_scope = xx.m_parent_symtab;
         if (xx.m_type->type == ASR::ttypeType::SymbolicExpression) {
             SymbolTable* module_scope = current_scope->parent;
+            symbolic_replaces_with_CPtr_Function = true;
             std::string var_name = xx.m_name;
             std::string placeholder = "_" + std::string(var_name);
 
@@ -114,14 +146,12 @@ public:
             ASR::stmt_t* stmt2 = ASRUtils::STMT(ASR::make_Assignment_t(al, xx.base.base.loc, target2, value2, nullptr));
             ASR::stmt_t* stmt3 = ASRUtils::STMT(ASR::make_Assignment_t(al, xx.base.base.loc, target2, value3, nullptr));
             ASR::stmt_t* stmt4 = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, xx.base.base.loc, basic_new_stack_sym,
-                nullptr, call_args.p, call_args.n, nullptr));
+                basic_new_stack_sym, call_args.p, call_args.n, nullptr));
 
-            // pass_result.push_back(al, stmt1);
-            // pass_result.push_back(al, stmt2);
-            // pass_result.push_back(al, stmt3);
-            // pass_result.push_back(al, stmt4);
-
-            // update function body using transform_stmts
+            pass_result.push_back(al, stmt1);
+            pass_result.push_back(al, stmt2);
+            pass_result.push_back(al, stmt3);
+            pass_result.push_back(al, stmt4);
         }
         current_scope = current_scope_copy;
     }

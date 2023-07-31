@@ -221,10 +221,6 @@ namespace LCompilers {
                             ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
                             self().visit_AssociateBlock(*s);
                         }
-                        if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                            ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
-                            self().visit_Variable(*s);
-                        }
                     }
                     this->current_scope = current_scope_copy;
                 }
