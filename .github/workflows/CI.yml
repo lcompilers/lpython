@@ -335,6 +335,7 @@ jobs:
             export CXXFLAGS="-Werror"
             cmake . -GNinja \
               -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_CXX_FLAGS_RELEASE="-Wall -Wextra -O3 -funroll-loops -DNDEBUG" \
               -DWITH_LLVM=yes \
               -DLFORTRAN_BUILD_ALL=yes \
               -DWITH_STACKTRACE=no \
@@ -349,7 +350,7 @@ jobs:
       - name: Test Linux
         shell: bash -e -l {0}
         run: |
-            ctest
+            ctest --rerun-failed --output-on-failure
             ./run_tests.py -s
             cd integration_tests
             ./run_tests.py -b llvm c
@@ -396,8 +397,8 @@ jobs:
         shell: bash -e -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b cpython c_py
-            ./run_tests.py -b cpython c_py -f
+            ./run_tests.py -b cpython c_py llvm_py
+            ./run_tests.py -b cpython c_py llvm_py -f
 
   sympy:
     name: Run SymPy tests

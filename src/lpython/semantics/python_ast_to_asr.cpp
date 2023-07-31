@@ -499,6 +499,7 @@ public:
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
     std::vector<ASR::symbol_t*> rt_vec;
+    std::map<std::string, std::string> context_map;
     SetChar dependencies;
     bool allow_implicit_casting;
     // Stores the name of imported functions and the modules they are imported from
@@ -1123,6 +1124,24 @@ public:
     }
 
 
+    ASR::asr_t* make_dummy_assignment(ASR::expr_t* expr) {
+        ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
+        SetChar variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+        ASR::asr_t* variable_asr = ASR::make_Variable_t(al, expr->base.loc, current_scope,
+                                        s2c(al, dummy_ret_name), variable_dependencies_vec.p,
+                                        variable_dependencies_vec.size(), ASR::intentType::Local,
+                                        nullptr, nullptr, ASR::storage_typeType::Default,
+                                        type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
+                                        ASR::presenceType::Required, false);
+        ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
+        current_scope->add_symbol(dummy_ret_name, variable_sym);
+        ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, variable_sym));
+        return ASR::make_Assignment_t(al, expr->base.loc, variable_var, expr, nullptr);
+    }
+
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -1213,7 +1232,7 @@ public:
 
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
                 rt_vec.push_back(s);
-            } else if (ASRUtils::get_FunctionType(func)->n_type_params > 0) {
+            } else if (ASRUtils::is_generic_function(s)) {
                 if (n_pos_args != func->n_args) {
                     std::string fnd = std::to_string(n_pos_args);
                     std::string org = std::to_string(func->n_args);
@@ -1289,20 +1308,7 @@ public:
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
-                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy", false);
-                    SetChar variable_dependencies_vec;
-                    variable_dependencies_vec.reserve(al, 1);
-                    ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, a_type);
-                    ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
-                                                    s2c(al, dummy_ret_name), variable_dependencies_vec.p,
-                                                    variable_dependencies_vec.size(), ASR::intentType::Local,
-                                                    nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    a_type, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                                                    ASR::presenceType::Required, false);
-                    ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
-                    current_scope->add_symbol(dummy_ret_name, variable_sym);
-                    ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
-                    return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
+                    return make_dummy_assignment(ASRUtils::EXPR(func_call_asr));
                 } else {
                     return func_call_asr;
                 }
@@ -1449,7 +1455,7 @@ public:
             for (size_t j=0; j<rt->n_args; j++) {
                 ASR::ttype_t* rt_type = ASRUtils::expr_type(rt->m_args[j]);
                 ASR::ttype_t* rt_arg_type = ASRUtils::expr_type(rt_arg_func->m_args[j]);
-                if (ASRUtils::is_generic(*rt_type)) {
+                if (ASRUtils::is_type_parameter(*rt_type)) {
                     std::string rt_type_param = ASR::down_cast<ASR::TypeParameter_t>(
                         ASRUtils::get_type_parameter(rt_type))->m_param;
                     /**
@@ -1469,7 +1475,7 @@ public:
                 }
                 ASR::ttype_t* rt_return = ASRUtils::expr_type(rt->m_return_var);
                 ASR::ttype_t* rt_arg_return = ASRUtils::expr_type(rt_arg_func->m_return_var);
-                if (ASRUtils::is_generic(*rt_return)) {
+                if (ASRUtils::is_type_parameter(*rt_return)) {
                     std::string rt_return_param = ASR::down_cast<ASR::TypeParameter_t>(
                         ASRUtils::get_type_parameter(rt_return))->m_param;
                     if (!ASRUtils::check_equal_type(subs[rt_return_param], rt_arg_return)) {
@@ -1527,10 +1533,10 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::symbol_t *func) {
+            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::symbol_t *sym) {
         int new_function_num;
         ASR::symbol_t *t;
-        std::string func_name = ASRUtils::symbol_name(func);
+        std::string func_name = ASRUtils::symbol_name(sym);
         if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
             new_function_num = generic_func_nums[func_name];
             for (int i=0; i<generic_func_nums[func_name]; i++) {
@@ -1562,8 +1568,15 @@ public:
         std::string new_func_name = "__asr_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_template(al, subs, rt_subs,
-            ASRUtils::symbol_parent_symtab(func), new_func_name, func);
+        SymbolTable *target_scope = ASRUtils::symbol_parent_symtab(sym);
+        t = pass_instantiate_symbol(al, context_map, subs, rt_subs,
+                target_scope, target_scope, new_func_name, sym);
+        if (ASR::is_a<ASR::Function_t>(*sym)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(sym);
+            ASR::Function_t *new_f = ASR::down_cast<ASR::Function_t>(t);
+            t = pass_instantiate_function_body(al, context_map, subs, rt_subs,
+                target_scope, target_scope, new_f, f);
+        }
         dependencies.erase(s2c(al, func_name));
         dependencies.push_back(al, s2c(al, new_func_name));
         return t;
@@ -1695,6 +1708,10 @@ public:
                 abi, is_argument);
         }
 
+        if (AST::is_a<AST::ConstantNone_t>(annotation)) {
+            return nullptr;
+        }
+
         if (AST::is_a<AST::Subscript_t>(annotation)) {
             AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(&annotation);
             if (AST::is_a<AST::Name_t>(*s->m_value)) {
@@ -1753,7 +1770,7 @@ public:
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_FunctionType_t(al, loc, arg_types.p,
                         arg_types.size(), ret_type, ASR::abiType::Source,
                         ASR::deftypeType::Interface, nullptr, false, false,
-                        false, false, false, nullptr, 0, nullptr, 0, false));
+                        false, false, false, nullptr, 0, false));
                 return type;
             } else if (var_annotation == "set") {
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
@@ -4066,8 +4083,7 @@ public:
             /* n_body */ 0,
             /* a_return_var */ to_return,
             ASR::abiType::BindC, ASR::accessType::Public, ASR::deftypeType::Interface,
-            nullptr, false, false, false, false, false, /* a_type_parameters */ nullptr,
-            /* n_type_parameters */ 0, nullptr, 0, false, false, false);
+            nullptr, false, false, false, false, false, nullptr, 0, false, false, false);
         current_scope = parent_scope;
         return ASR::down_cast<ASR::symbol_t>(tmp);
     }
@@ -4116,8 +4132,6 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool vectorize = false, is_inline = false, is_static = false;
-        Vec<ASR::ttype_t*> tps;
-        tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
         bool is_deterministic = false;
         bool is_side_effect_free = false;
@@ -4214,29 +4228,6 @@ public:
                 && !ASRUtils::is_aggregate_type(arg_type)) {
                 throw SemanticError("Simple Type " + ASRUtils::type_to_str_python(arg_type)
                     + " cannot be intent InOut/Out", loc);
-            }
-
-            // Set the function as generic if an argument is typed with a type parameter
-            if (ASRUtils::is_generic(*arg_type)) {
-                ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
-                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, arg_type_type, arg_type_type->base.loc);
-                size_t current_size = tps.size();
-                if (current_size == 0) {
-                    tps.push_back(al, new_tt);
-                } else {
-                    bool not_found = true;
-                    for (size_t i = 0; i < current_size; i++) {
-                        ASR::TypeParameter_t *added_tp = ASR::down_cast<ASR::TypeParameter_t>(tps.p[i]);
-                        std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
-                        std::string added_param = added_tp->m_param;
-                        if (added_param.compare(new_param) == 0) {
-                            not_found = false; break;
-                        }
-                    }
-                    if (not_found) {
-                        tps.push_back(al, new_tt);
-                    }
-                }
             }
 
             std::string arg_s = arg;
@@ -4341,7 +4332,8 @@ public:
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
-                    tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                    nullptr, 0,
+                    is_restriction, is_deterministic, is_side_effect_free,
                     module_file);
                     return_variable->m_type = return_type_;
             } else {
@@ -4369,7 +4361,8 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
                 false, is_pure, is_module, is_inline, is_static,
-                tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free,
+                nullptr, 0,
+                is_restriction, is_deterministic, is_side_effect_free,
                 module_file);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
@@ -4736,11 +4729,17 @@ public:
             // Visit the statement
             this->visit_stmt(*m_body[i]);
             if (tmp != nullptr) {
+                if (ASR::is_a<ASR::expr_t>(*tmp)) {
+                    tmp = make_dummy_assignment(ASRUtils::EXPR(tmp));
+                }
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
             } else if (!tmp_vec.empty()) {
                 for (auto t: tmp_vec) {
                     if (t != nullptr) {
+                        if (ASR::is_a<ASR::expr_t>(*t)) {
+                            t = make_dummy_assignment(ASRUtils::EXPR(t));
+                        }
                         ASR::stmt_t* tmp_stmt = ASRUtils::STMT(t);
                         body.push_back(al, tmp_stmt);
                     }

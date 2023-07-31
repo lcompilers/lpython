@@ -299,6 +299,10 @@ asr = true
 # integration_tests
 
 [[test]]
+filename = "../integration_tests/test_list_repeat2.py"
+cpp = true
+
+[[test]]
 filename = "../integration_tests/test_builtin.py"
 asr = true
 

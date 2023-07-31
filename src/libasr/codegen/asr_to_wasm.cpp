@@ -754,7 +754,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-                nullptr, 0, nullptr, 0, false, false, false);
+                nullptr, 0, false, false, false);
         }
         this->visit_Function(*main_func);
     }

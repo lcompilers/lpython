@@ -227,7 +227,7 @@ public:
             /* a_return_var */ result,
             ASR::abiType::Source,
             ASR::accessType::Public, ASR::deftypeType::Implementation,
-            nullptr, false, false, false, false, false, nullptr, 0, nullptr, 0,
+            nullptr, false, false, false, false, false, nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
@@ -412,7 +412,7 @@ public:
             ASR::accessType::Public, ASR::deftypeType::Implementation,
             nullptr,
             false, false, false, false, false,
-            nullptr, 0, nullptr, 0,
+            nullptr, 0,
             false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);

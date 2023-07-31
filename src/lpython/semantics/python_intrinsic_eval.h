@@ -244,6 +244,10 @@ struct IntrinsicNodeHandler {
 
         } else if (ASRUtils::is_logical(*type)) {
             return (ASR::asr_t *)arg;
+        } else if (ASR::is_a<ASR::CPtr_t>(*type)) {
+            ASR::expr_t* c_null_ptr = ASRUtils::EXPR(ASR::make_PointerNullConstant_t(
+                    al, loc, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc))));
+            return ASR::make_CPtrCompare_t(al, loc, arg, ASR::cmpopType::NotEq, c_null_ptr, to_type, nullptr);
         } else {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
@@ -448,14 +452,19 @@ struct IntrinsicNodeHandler {
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int64_t c = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-                if (! (c >= 0 && c <= 127) ) {
-                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
+                c = (uint8_t) c;
+                if (! (c >= 0 && c <= 255) ) {
+                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 255.", loc);
                 }
-                char cc = c;
                 std::string svalue;
-                svalue += cc;
+                svalue += char(c);
                 value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_StringConstant_t(al, loc, s2c(al, svalue), str_type));
+            }
+            int kind = ASRUtils::extract_kind_from_ttype_t(type);
+            if (kind != 4) {
+                ASR::ttype_t* dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4));
+                arg = ASRUtils::EXPR(ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::IntegerToInteger, dest_type, nullptr));
             }
             return ASR::make_StringChr_t(al, loc, arg, str_type, value);
         } else {
