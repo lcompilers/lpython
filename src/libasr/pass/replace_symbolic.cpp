@@ -29,7 +29,6 @@ public:
         current_scope = xx.m_parent_symtab;
         if (xx.m_type->type == ASR::ttypeType::SymbolicExpression) {
             SymbolTable* module_scope = current_scope->parent;
-            symbolic_replaces_with_CPtr_Function = true;
             std::string var_name = xx.m_name;
             std::string placeholder = "_" + std::string(var_name);
 
@@ -117,10 +116,10 @@ public:
             ASR::stmt_t* stmt4 = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, xx.base.base.loc, basic_new_stack_sym,
                 nullptr, call_args.p, call_args.n, nullptr));
 
-            pass_result.push_back(al, stmt1);
-            pass_result.push_back(al, stmt2);
-            pass_result.push_back(al, stmt3);
-            pass_result.push_back(al, stmt4);
+            // pass_result.push_back(al, stmt1);
+            // pass_result.push_back(al, stmt2);
+            // pass_result.push_back(al, stmt3);
+            // pass_result.push_back(al, stmt4);
 
             // update function body using transform_stmts
         }
