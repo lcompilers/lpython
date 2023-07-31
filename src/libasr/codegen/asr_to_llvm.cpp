@@ -1680,6 +1680,20 @@ public:
         tmp = list_api->pop_position(plist, pos, asr_el_type, module.get(), name2memidx);
     }
 
+    void generate_ListReserve(ASR::expr_t* m_arg, ASR::expr_t* m_ele) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(m_arg));
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*m_arg);
+        llvm::Value* plist = tmp;
+
+        ptr_loads = 2;
+        this->visit_expr_wrapper(m_ele, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* n = tmp;
+        list_api->reserve(plist, n, asr_el_type, module.get());
+    }
+
     void generate_DictElems(ASR::expr_t* m_arg, bool key_or_value) {
         ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
                                     ASRUtils::expr_type(m_arg));
@@ -1792,6 +1806,10 @@ public:
                         generate_ListPop_1(x.m_args[0], x.m_args[1]);
                         break;
                 }
+                break;
+            }
+            case ASRUtils::IntrinsicFunctions::ListReserve: {
+                generate_ListReserve(x.m_args[0], x.m_args[1]);
                 break;
             }
             case ASRUtils::IntrinsicFunctions::DictKeys: {

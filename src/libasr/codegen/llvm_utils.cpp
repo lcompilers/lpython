@@ -4105,6 +4105,33 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
+    void LLVMList::reserve(llvm::Value* list, llvm::Value* n,
+                           ASR::ttype_t* asr_type, llvm::Module* module) {
+        /**
+         * C++ equivalent
+         *
+         * if( n > current_capacity ) {
+         *     list_data = realloc(list_data, sizeof(el_type) * n);
+         * }
+         *
+         */
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
+        std::string type_code = ASRUtils::get_type_code(asr_type);
+        int type_size = std::get<1>(typecode2listtype[type_code]);
+        llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
+        llvm_utils->create_if_else(builder->CreateICmpSGT(n, capacity), [&]() {
+            llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
+                                                    llvm::APInt(32, type_size)), n);
+            llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
+            llvm::Value* copy_data = LLVM::CreateLoad(*builder, copy_data_ptr);
+            copy_data = LLVM::lfortran_realloc(context, *module, *builder,
+                                            copy_data, arg_size);
+            copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
+            builder->CreateStore(copy_data, copy_data_ptr);
+            builder->CreateStore(n, get_pointer_to_current_capacity(list));
+        }, []() {});
+    }
+
     void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
 
         /* Equivalent in C++:

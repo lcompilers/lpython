@@ -46,6 +46,7 @@ enum class IntrinsicFunctions : int64_t {
     Partition,
     ListReverse,
     ListPop,
+    ListReserve,
     DictKeys,
     DictValues,
     SetAdd,
@@ -102,6 +103,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
         INTRINSIC_NAME_CASE(ListPop)
+        INTRINSIC_NAME_CASE(ListReserve)
         INTRINSIC_NAME_CASE(DictKeys)
         INTRINSIC_NAME_CASE(DictValues)
         INTRINSIC_NAME_CASE(SetAdd)
@@ -1261,6 +1263,52 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
 }
 
 } // namespace ListPop
+
+namespace ListReserve {
+
+static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    ASRUtils::require_impl(x.n_args == 2, "Call to list.reserve must have exactly one argument",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
+        "Argument to list.reserve must be of list type",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(x.m_args[1])),
+        "Argument to list.reserve must be an integer",
+        x.base.base.loc, diagnostics);
+    ASRUtils::require_impl(x.m_type == nullptr,
+        "Return type of list.reserve must be empty",
+        x.base.base.loc, diagnostics);
+}
+
+static inline ASR::expr_t *eval_list_reserve(Allocator &/*al*/,
+    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    // TODO: To be implemented for ListConstant expression
+    return nullptr;
+}
+
+static inline ASR::asr_t* create_ListReserve(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    if (args.size() != 2) {
+        err("Call to list.reserve must have exactly one argument", loc);
+    }
+    if (!ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(args[1]))) {
+        err("Argument to list.reserve must be an integer", loc);
+    }
+
+    Vec<ASR::expr_t*> arg_values;
+    arg_values.reserve(al, args.size());
+    for( size_t i = 0; i < args.size(); i++ ) {
+        arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+    }
+    ASR::expr_t* compile_time_value = eval_list_reserve(al, loc, arg_values);
+    return ASR::make_Expr_t(al, loc,
+            ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, loc,
+            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReserve),
+            args.p, args.size(), 0, nullptr, compile_time_value)));
+}
+
+} // namespace ListReserve
 
 namespace DictKeys {
 
@@ -3124,6 +3172,8 @@ namespace IntrinsicFunctionRegistry {
             {nullptr, &DictValues::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             {nullptr, &ListPop::verify_args}},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReserve),
+            {nullptr, &ListReserve::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
             {nullptr, &SetAdd::verify_args}},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
@@ -3206,6 +3256,8 @@ namespace IntrinsicFunctionRegistry {
             "list.reverse"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
             "list.pop"},
+        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReserve),
+            "list.reserve"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
             "dict.keys"},
         {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
@@ -3290,6 +3342,7 @@ namespace IntrinsicFunctionRegistry {
                 {"list.index", {&ListIndex::create_ListIndex, &ListIndex::eval_list_index}},
                 {"list.reverse", {&ListReverse::create_ListReverse, &ListReverse::eval_list_reverse}},
                 {"list.pop", {&ListPop::create_ListPop, &ListPop::eval_list_pop}},
+                {"list.reserve", {&ListReserve::create_ListReserve, &ListReserve::eval_list_reserve}},
                 {"dict.keys", {&DictKeys::create_DictKeys, &DictKeys::eval_dict_keys}},
                 {"dict.values", {&DictValues::create_DictValues, &DictValues::eval_dict_values}},
                 {"set.add", {&SetAdd::create_SetAdd, &SetAdd::eval_set_add}},

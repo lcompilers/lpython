@@ -30,6 +30,7 @@ struct AttributeHandler {
             {"list@pop", &eval_list_pop},
             {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
+            {"list@reserve", &eval_list_reserve},
             {"set@pop", &eval_set_pop},
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
@@ -41,7 +42,8 @@ struct AttributeHandler {
 
         modify_attr_set = {"list@append", "list@remove",
             "list@reverse", "list@clear", "list@insert", "list@pop",
-            "set@pop", "set@add", "set@remove", "dict@pop"};
+            "list@reserve", "set@pop", "set@add", "set@remove",
+            "dict@pop"};
 
         symbolic_attribute_map = {
             {"diff", &eval_symbolic_diff},
@@ -282,6 +284,20 @@ struct AttributeHandler {
             }
 
             return make_ListClear_t(al, loc, s);
+    }
+
+    static ASR::asr_t* eval_list_reserve(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        Vec<ASR::expr_t*> args_with_list;
+        args_with_list.reserve(al, args.size() + 1);
+        args_with_list.push_back(al, s);
+        for(size_t i = 0; i < args.size(); i++) {
+            args_with_list.push_back(al, args[i]);
+        }
+        ASRUtils::create_intrinsic_function create_function =
+            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.reserve");
+        return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
+                                { throw SemanticError(msg, loc); });
     }
 
     static ASR::asr_t* eval_set_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
