@@ -5522,16 +5522,17 @@ public:
             auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol(explicit_iter_name));
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
                 ASR::binopType::Add, constant_one, a_type, nullptr);
-            auto loop_src_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name));
+            ASR::expr_t* loop_src_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name)));
+            ASR::ttype_t* loop_src_var_ttype = ASRUtils::expr_type(loop_src_var);
             ASR::asr_t* loop_src_var_element = nullptr;
             if (ASR::is_a<ASR::StringLen_t>(*for_iter_type)) {
                 loop_src_var_element = ASR::make_StringItem_t(
-                            al, x.base.base.loc, ASRUtils::EXPR(loop_src_var),
-                            ASRUtils::EXPR(index_plus_one), a_type, nullptr);
+                            al, x.base.base.loc, loop_src_var,
+                            ASRUtils::EXPR(index_plus_one), ASRUtils::get_contained_type(loop_src_var_ttype), nullptr);
             } else if (ASR::is_a<ASR::ListLen_t>(*for_iter_type)) {
                 loop_src_var_element = ASR::make_ListItem_t(
-                            al, x.base.base.loc, ASRUtils::EXPR(loop_src_var),
-                            ASRUtils::EXPR(explicit_iter_var), a_type, nullptr);
+                            al, x.base.base.loc, loop_src_var,
+                            ASRUtils::EXPR(explicit_iter_var), ASRUtils::get_contained_type(loop_src_var_ttype), nullptr);
             }
             auto loop_target_assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, ASRUtils::EXPR(loop_src_var_element), nullptr);
             body.push_back(al, ASRUtils::STMT(loop_target_assignment));
