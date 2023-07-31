@@ -1,6 +1,8 @@
 # LPython
 
-LPython is a Python compiler. It is in heavy development, currently in pre-alpha stage. LPython works on Windows, macOS and Linux. Some of the goals of LPython include:
+LPython is a Python compiler. It is in heavy development, currently in alpha
+stage. LPython works on Windows, macOS and Linux. Some of the goals of LPython
+include:
 
 - The best possible performance for numerical, array-oriented code
 - Run on all platforms
@@ -13,6 +15,13 @@ LPython is a Python compiler. It is in heavy development, currently in pre-alpha
 - Transforming Python code to C++, Fortran and other languages
 
 And more.
+
+# Sponsors
+
+LPython has been sponsored by [GSI Technology](https://www.gsitechnology.com/).
+Our summer students were sponsored by Google Summer of Code via Python Software
+Foundation. The intermediate representation and backends are shared with
+LFortran, see that project for a list of sponsors.
 
 # Installation
 

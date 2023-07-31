@@ -4455,7 +4455,7 @@ namespace LCompilers {
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
         get_builder0()
         /* Equivalent in C++:
-         * while(end_point > pos) {
+         * while(end_point > pos + 1) {
          *     tmp = pos + 1;
          *     list[pos] = list[tmp];
          *     pos = tmp;
@@ -4473,8 +4473,6 @@ namespace LCompilers {
         // Get element to return
         llvm::Value* item = read_item(list, LLVM::CreateLoad(*builder, pos_ptr),
                                       true, *module, LLVM::is_llvm_struct(list_element_type));
-        // TODO: Create a macro for the following code to allocate auxiliary variables
-        // on stack.
         if( LLVM::is_llvm_struct(list_element_type) ) {
             std::string list_element_type_code = ASRUtils::get_type_code(list_element_type);
             LCOMPILERS_ASSERT(typecode2listtype.find(list_element_type_code) != typecode2listtype.end());
@@ -4492,8 +4490,9 @@ namespace LCompilers {
         // head
         llvm_utils->start_new_block(loophead);
         {
-            llvm::Value *cond = builder->CreateICmpSGT(end_point,
-                                            LLVM::CreateLoad(*builder, pos_ptr));
+            llvm::Value *cond = builder->CreateICmpSGT(end_point, builder->CreateAdd(
+                                    LLVM::CreateLoad(*builder, pos_ptr),
+                                    llvm::ConstantInt::get(context, llvm::APInt(32, 1))));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
