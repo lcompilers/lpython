@@ -1,5 +1,5 @@
 from numpy import array
-from lpython import i32, i64, f64, lpython, TypeVar
+from lpython import i32, i64, f64, lpython, TypeVar, Const
 
 n = TypeVar("n")
 
@@ -17,6 +17,10 @@ def multiply_02(n: i32, x: i64[:], y: i64[:]) -> i64[n]:
         z[i] = x[i] * y[i]
     return z
 
+@lpython
+def const_arg_sum(x: Const[i32]) -> i32:
+    return 10 + x
+
 
 def test_01():
     size = 5
@@ -30,5 +34,6 @@ def test_01():
     z = multiply_02(size, x, y)
     for i in range(size):
         assert z[i] == x[i] * y[i]
+    assert const_arg_sum(size) == size + 10
 
 test_01()

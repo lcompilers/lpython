@@ -76,12 +76,13 @@ message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 
-macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
+macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOMOD RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     set(fail ${${RUN_FAIL}})
     set(name ${${RUN_NAME}})
     set(file_name ${${RUN_FILE_NAME}})
     set(labels ${${RUN_LABELS}})
     set(extra_files ${${RUN_EXTRAFILES}})
+    set(no_mod ${${RUN_NOMOD}})
     set(extra_args ${${RUN_EXTRA_ARGS}})
     set(copy_to_bin ${${RUN_COPY_TO_BIN}})
 
@@ -213,8 +214,13 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
             endif()
 
             add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${file_name}.py)
-            set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+            if (no_mod)
+                set_tests_properties(${name} PROPERTIES
+                    ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..")
+            else()
+                set_tests_properties(${name} PROPERTIES
+                    ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/lpython:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+            endif()
             if (labels)
                 set_tests_properties(${name} PROPERTIES LABELS "${labels}")
             endif()
@@ -305,7 +311,7 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXT
 endmacro(RUN_UTIL)
 
 macro(RUN)
-    set(options FAIL NOFAST ENABLE_CPYTHON LINK_NUMPY)
+    set(options FAIL NOFAST NOMOD ENABLE_CPYTHON LINK_NUMPY)
     set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
@@ -329,14 +335,14 @@ macro(RUN)
     endif()
 
     if (NOT FAST)
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOMOD RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 
     if ((FAST) AND (NOT RUN_NOFAST))
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} --fast)
         set(RUN_NAME "${RUN_NAME}_FAST")
         list(REMOVE_ITEM RUN_LABELS cpython cpython_sym) # remove cpython, cpython_sym, from --fast test
-        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
+        RUN_UTIL(RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOMOD RUN_EXTRA_ARGS RUN_COPY_TO_BIN)
     endif()
 endmacro(RUN)
 
@@ -466,7 +472,6 @@ RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
 RUN(NAME expr_19             LABELS cpython llvm c)
 RUN(NAME expr_20             LABELS cpython llvm c)
 RUN(NAME expr_21             LABELS cpython llvm c)
-RUN(NAME expr_22             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm c NOFAST)
@@ -479,6 +484,7 @@ RUN(NAME loop_03             LABELS cpython llvm c wasm wasm_x64)
 RUN(NAME loop_04             LABELS cpython llvm c)
 RUN(NAME loop_05             LABELS cpython llvm c)
 RUN(NAME loop_06             LABELS cpython llvm c NOFAST)
+RUN(NAME loop_07             LABELS cpython llvm c)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_03    FAIL       LABELS cpython llvm c NOFAST)
@@ -500,14 +506,18 @@ RUN(NAME test_list_09        LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_10        LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_11        LABELS cpython llvm c)
 RUN(NAME test_list_section   LABELS cpython llvm c NOFAST)
+RUN(NAME test_list_section2  LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_count     LABELS cpython llvm)
 RUN(NAME test_list_index     LABELS cpython llvm)
 RUN(NAME test_list_index2    LABELS cpython llvm)
-RUN(NAME test_list_repeat    LABELS cpython llvm NOFAST)
+RUN(NAME test_list_repeat    LABELS cpython llvm c NOFAST)
+RUN(NAME test_list_repeat2   LABELS cpython llvm c NOFAST)
 RUN(NAME test_list_reverse   LABELS cpython llvm)
 RUN(NAME test_list_pop       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
 RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST from here.
+RUN(NAME test_list_pop3      LABELS cpython llvm)
 RUN(NAME test_list_compare   LABELS cpython llvm)
+RUN(NAME test_list_concat    LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)
@@ -662,7 +672,6 @@ RUN(NAME structs_31          LABELS cpython llvm c)
 RUN(NAME structs_32          LABELS cpython llvm c)
 RUN(NAME structs_33          LABELS cpython llvm c)
 RUN(NAME structs_34          LABELS cpython llvm c)
-RUN(NAME structs_35          LABELS cpython llvm c)
 
 RUN(NAME symbolics_01        LABELS cpython_sym c_sym)
 RUN(NAME symbolics_02        LABELS cpython_sym c_sym)
@@ -709,7 +718,7 @@ RUN(NAME test_package_01     LABELS cpython llvm NOFAST)
 RUN(NAME test_pkg_lpdraw     LABELS cpython llvm wasm)
 RUN(NAME test_pkg_lnn_01        LABELS cpython llvm NOFAST)
 RUN(NAME test_pkg_lnn_02        LABELS cpython llvm NOFAST)
-RUN(NAME test_pkg_lpconvexhull  LABELS cpython c)
+RUN(NAME test_pkg_lpconvexhull  LABELS cpython llvm c NOFAST)
 
 RUN(NAME generics_01         LABELS cpython llvm c)
 RUN(NAME generics_02         LABELS cpython llvm c)
@@ -760,3 +769,6 @@ RUN(NAME lpython_decorator_01    LABELS cpython)
 RUN(NAME lpython_decorator_02    LABELS cpython)
 
 COMPILE(NAME import_order_01     LABELS cpython llvm c) # any
+
+# LPython emulation mode
+RUN(NAME lpython_emulation_01    LABELS cpython NOMOD)

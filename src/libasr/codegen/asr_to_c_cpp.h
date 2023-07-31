@@ -158,6 +158,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
+    std::unique_ptr<CUtils::CUtilFunctions> c_utils_functions;
     std::unique_ptr<BindPyUtils::BindPyUtilFunctions> bind_py_utils_functions;
     std::string const_name;
     size_t const_vars_count;
@@ -185,16 +186,65 @@ public:
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
+        c_utils_functions{std::make_unique<CUtils::CUtilFunctions>()},
         bind_py_utils_functions{std::make_unique<BindPyUtils::BindPyUtilFunctions>()},
         const_name{"constname"},
         const_vars_count{0}, loop_end_count{0}, bracket_open{0},
         is_string_concat_present{false} {
         }
 
+    std::string get_final_combined_src(std::string head, std::string unit_src) {
+        std::string to_include = "";
+        for (auto &s: user_defines) {
+            to_include += "#define " + s + "\n";
+        }
+        for (auto &s: headers) {
+            to_include += "#include <" + s + ">\n";
+        }
+        for (auto &s: user_headers) {
+            to_include += "#include \"" + s + "\"\n";
+        }
+        if( c_ds_api->get_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_ds_api->get_func_decls() + "\n";
+        }
+        if( c_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
+        }
+        std::string ds_funcs_defined = "";
+        if( c_ds_api->get_generated_code().size() > 0 ) {
+            ds_funcs_defined =  "\n" + c_ds_api->get_generated_code() + "\n";
+        }
+        std::string util_funcs_defined = "";
+        if( c_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + c_utils_functions->get_generated_code() + "\n";
+        }
+        if( bind_py_utils_functions->get_util_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + bind_py_utils_functions->get_util_func_decls() + "\n";
+        }
+        if( bind_py_utils_functions->get_generated_code().size() > 0 ) {
+            util_funcs_defined =  "\n" + bind_py_utils_functions->get_generated_code() + "\n";
+        }
+        if( is_string_concat_present ) {
+            std::string strcat_def = "";
+            strcat_def += "    char* " + global_scope->get_unique_name("strcat_", false) + "(char* x, char* y) {\n";
+            strcat_def += "        char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
+            strcat_def += "        strcpy(str_tmp, x);\n";
+            strcat_def += "        return strcat(str_tmp, y);\n";
+            strcat_def += "    }\n\n";
+            head += strcat_def;
+        }
+
+        // Include dimension_descriptor definition that is used by array types
+        if (array_types_decls.size() != 0) {
+            array_types_decls = "\nstruct dimension_descriptor\n"
+                "{\n    int32_t lower_bound, length;\n};\n" + array_types_decls;
+        }
+
+        return to_include + head + array_types_decls + forward_decl_functions + unit_src +
+              ds_funcs_defined + util_funcs_defined;
+    }
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
-        SymbolTable* current_scope_copy = current_scope;
-        current_scope = global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -257,7 +307,6 @@ R"(#include <stdio.h>
         }
 
         src = unit_src;
-        current_scope = current_scope_copy;
     }
 
     std::string check_tmp_buffer() {
@@ -568,7 +617,7 @@ R"(#include <stdio.h>
         }
         func += ")";
         bracket_open--;
-        if (f_type->m_abi == ASR::abiType::Source) {
+        if (is_c && f_type->m_abi == ASR::abiType::Source) {
             forward_decl_functions += func + ";\n";
         }
         if( is_c || template_for_Kokkos.empty() ) {
@@ -697,6 +746,8 @@ R"(#include <stdio.h>
                 }
             } case ASR::ttypeType::Logical : {
                 return "p";
+            } case ASR::ttypeType::Const : {
+                return get_type_format(ASR::down_cast<ASR::Const_t>(type)->m_type);
             } case ASR::ttypeType::Array : {
                 return "O";
             } default: {
@@ -1306,11 +1357,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if( is_target_list && is_value_list ) {
             ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
             std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
-            if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
-                src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
-            } else {
-                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
-            }
+            src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
         } else if ( is_target_tup && is_value_tup ) {
             ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
             std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
@@ -1563,16 +1610,11 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         bracket_open++;
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
-        if (!ASR::is_a<ASR::ListConcat_t>(*x.m_left)) {
-            left = "&" + left;
-        }
         self().visit_expr(*x.m_right);
         bracket_open--;
         std::string rig = std::move(src);
-        if (!ASR::is_a<ASR::ListConcat_t>(*x.m_right)) {
-            rig = "&" + rig;
-        }
-        src = check_tmp_buffer() + list_concat_func + "(" + left + ", " + rig + ")";
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = "(*" + list_concat_func + "(&" + left + ", &" + rig + "))";
     }
 
     void visit_ListSection(const ASR::ListSection_t& x) {
@@ -1618,7 +1660,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         tmp_buffer_src.push_back(tmp_src_gen);
-        src = "* " + var_name;
+        src = "(*" + var_name + ")";
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
@@ -1681,6 +1723,20 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = check_tmp_buffer();
         src += indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
+    }
+
+    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
+        std::string list_repeat_func = c_ds_api->get_list_repeat_func(t);
+        bracket_open++;
+        self().visit_expr(*x.m_left);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string freq = std::move(src);
+        bracket_open--;
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = "(*" + list_repeat_func + "(&" + list_var + ", " + freq + "))";
     }
 
     void visit_ListLen(const ASR::ListLen_t& x) {
