@@ -19,12 +19,9 @@ And more.
 # Sponsors
 
 LPython has been sponsored by [GSI Technology](https://www.gsitechnology.com/).
-Other sponsors:
-
-* Google Summer of Code via Python Software Foundation
-
-The intermediate representation and backends are shared with LFortran, see that
-project for a list of sponsors.
+Our summer students were sponsored by Google Summer of Code via Python Software
+Foundation. The intermediate representation and backends are shared with
+LFortran, see that project for a list of sponsors.
 
 # Installation
 
