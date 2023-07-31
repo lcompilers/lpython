@@ -1791,6 +1791,9 @@ public:
                     throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
                         " annotation", loc);
                 }
+            } else if (var_annotation == "Literal") {
+                this->visit_expr(*s->m_slice);
+                return ASRUtils::expr_type(ASRUtils::EXPR(tmp));
             } else if (var_annotation == "Allocatable") {
                 ASR::ttype_t *type = nullptr;
                 if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
@@ -1799,7 +1802,7 @@ public:
                     is_allocatable = true;
                     return type;
                 } else {
-                    throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
+                    throw SemanticError("Only Name or Subscript inside Subscript supported for now in `Allocatable`"
                         " annotation", loc);
                 }
             } else if (var_annotation == "dict") {
