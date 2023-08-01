@@ -5,6 +5,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/pass/replace_symbolic.h>
 #include <libasr/pass/pass_utils.h>
+#include <libasr/pass/intrinsic_function_registry.h>
 
 #include <vector>
 
@@ -23,7 +24,8 @@ public:
         pass_result.reserve(al, 1);
     }
 
-    bool symbolic_replaces_with_CPtr_Function = false;
+    bool symbolic_stack_required = false;
+    bool symbolic_pi_required = false;
 
     void visit_Function(const ASR::Function_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
@@ -39,32 +41,31 @@ public:
         }
         transform_stmts(xx.m_body, xx.n_body);
 
-        // Add "basic_new_stack" to dependencies if needed
-        if (symbolic_replaces_with_CPtr_Function) {
-            SetChar function_dependencies;
-            function_dependencies.n = 0;
-            function_dependencies.reserve(al, 1);
-            for( size_t i = 0; i < xx.n_dependencies; i++ ) {
-                function_dependencies.push_back(al, xx.m_dependencies[i]);
-            }
-            function_dependencies.push_back(al, s2c(al, "basic_new_stack"));
-            xx.n_dependencies = function_dependencies.size();
-            xx.m_dependencies = function_dependencies.p;
+        SetChar function_dependencies;
+        function_dependencies.n = 0;
+        function_dependencies.reserve(al, 1);
+        for( size_t i = 0; i < xx.n_dependencies; i++ ) {
+            function_dependencies.push_back(al, xx.m_dependencies[i]);
         }
+        if (symbolic_stack_required) {
+            function_dependencies.push_back(al, s2c(al, "basic_new_stack"));
+        }
+        if (symbolic_pi_required) {
+            function_dependencies.push_back(al, s2c(al, "basic_const_pi"));
+        }
+        xx.n_dependencies = function_dependencies.size();
+        xx.m_dependencies = function_dependencies.p;
         this->current_scope = current_scope_copy;
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
         ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
-        SymbolTable* current_scope_copy = current_scope;
-        current_scope = xx.m_parent_symtab;
         if (xx.m_type->type == ASR::ttypeType::SymbolicExpression) {
             SymbolTable* module_scope = current_scope->parent;
-            symbolic_replaces_with_CPtr_Function = true;
+            symbolic_stack_required = true;
             std::string var_name = xx.m_name;
             std::string placeholder = "_" + std::string(var_name);
 
-            // defining CPtr variable
             ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = type1;
 
@@ -153,7 +154,70 @@ public:
             pass_result.push_back(al, stmt3);
             pass_result.push_back(al, stmt4);
         }
-        current_scope = current_scope_copy;
+    }
+
+    void visit_Assignment(const ASR::Assignment_t &x) {
+        if (ASR::is_a<ASR::IntrinsicFunction_t>(*x.m_value)) {
+            ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(x.m_value);
+            int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
+            SymbolTable* module_scope = current_scope->parent;
+            if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
+                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                        symbolic_pi_required = true;
+                        std::string new_name = "basic_const_pi";
+                        if (!module_scope->get_symbol(new_name)) {
+                            std::string header = "symengine/cwrapper.h";
+                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+                            Vec<ASR::expr_t*> args;
+                            args.reserve(al, 1);
+                            ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
+                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                            fn_symtab->add_symbol(s2c(al, "x"), arg);
+                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
+
+                            Vec<ASR::stmt_t*> body;
+                            body.reserve(al, 1);
+
+                            Vec<char*> dep;
+                            dep.reserve(al, 1);
+
+                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
+                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                                false, false, nullptr, 0, false, false, false, s2c(al, header));
+                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                        }
+
+                        // Extract the symbol from the target (Var)
+                        ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
+                        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+                        // Create the function call statement for basic_const_pi
+                        ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
+                        Vec<ASR::call_arg_t> call_args;
+                        call_args.reserve(al, 1);
+                        ASR::call_arg_t call_arg;
+                        call_arg.loc = x.base.base.loc;
+                        call_arg.m_value = target;
+                        call_args.push_back(al, call_arg);
+
+                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
+                            basic_const_pi_sym, call_args.p, call_args.n, nullptr));
+                        pass_result.push_back(al, stmt);
+                        break;
+                    }
+                    default: {
+                        // TODO
+                    }
+                }
+            }
+        }
     }
 };
 
