@@ -6510,6 +6510,9 @@ public:
             // Keyword arguments to be handled in make_call_helper
             args.reserve(al, c->n_args);
             visit_expr_list(c->m_args, c->n_args, args);
+            // TODO: Avoid overriding of user defined functions with same name as
+            // intrinsics like print, quit and reserve. Right now, user defined
+            // functions will never be considered.
             if (call_name == "print") {
                 ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
@@ -6569,6 +6572,17 @@ public:
                 }
                 tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
                 return;
+            } else if( call_name == "reserve" ) {
+                ASRUtils::create_intrinsic_function create_func =
+                    ASRUtils::IntrinsicFunctionRegistry::get_create_function("reserve");
+                Vec<ASR::expr_t*> args_exprs; args_exprs.reserve(al, args.size());
+                for( size_t i = 0; i < args.size(); i++ ) {
+                    args_exprs.push_back(al, args[i].m_value);
+                }
+                tmp = create_func(al, x.base.base.loc, args_exprs,
+                    [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
+                return ;
             }
             ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
             if (!s) {
