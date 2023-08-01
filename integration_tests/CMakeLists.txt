@@ -518,6 +518,7 @@ RUN(NAME test_list_pop2       LABELS cpython llvm NOFAST) # TODO: Remove NOFAST 
 RUN(NAME test_list_pop3      LABELS cpython llvm)
 RUN(NAME test_list_compare   LABELS cpython llvm)
 RUN(NAME test_list_concat    LABELS cpython llvm c NOFAST)
+RUN(NAME test_list_reserve   LABELS cpython llvm)
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
 RUN(NAME test_tuple_02       LABELS cpython llvm c NOFAST)
 RUN(NAME test_tuple_03       LABELS cpython llvm c)

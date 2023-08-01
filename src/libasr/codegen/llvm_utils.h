@@ -407,6 +407,9 @@ namespace LCompilers {
                             llvm::Module* module,
                             std::map<std::string, std::map<std::string, int>>& name2memidx);
 
+            void reserve(llvm::Value* list, llvm::Value* n,
+                         ASR::ttype_t* asr_type, llvm::Module* module);
+
             void remove(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* item_type, llvm::Module& module);
 
