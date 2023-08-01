@@ -1935,6 +1935,15 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         throw CodeGenError("String Types not yet supported");
     }
 
+    void visit_StringLen(const ASR::StringLen_t & x) {
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_arg);
+        m_wa.emit_i32_load(wasm::mem_align::b8, 4);
+    }
+
     void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
         if (x.m_value) {
             visit_expr(*x.m_value);
