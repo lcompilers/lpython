@@ -164,6 +164,9 @@ namespace CastingUtil {
             }
             cast_kind = type_rules.at(cast_key);
         }
+        if( ASRUtils::check_equal_type(src, dest, true) ) {
+            return expr;
+        }
         // TODO: Fix loc
         return ASRUtils::EXPR(ASRUtils::make_Cast_t_value(al, loc, expr,
                                                           cast_kind, dest));
