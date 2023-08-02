@@ -3075,10 +3075,6 @@ namespace X {                                                                   
         const Location& loc = x.base.base.loc;                                            \
         ASRUtils::require_impl(x.n_args == 1,                                             \
             #X " must have exactly 1 input argument", loc, diagnostics);                  \
-                                                                                          \
-        ASR::ttype_t* input_type = ASRUtils::expr_type(x.m_args[0]);                      \
-        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*input_type),         \
-            #X " expects an argument of type SymbolicExpression", loc, diagnostics);      \
     }                                                                                     \
                                                                                           \
     static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,       \
