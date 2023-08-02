@@ -207,6 +207,64 @@ public:
                         pass_result.push_back(al, stmt);
                         break;
                     }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
+                        std::string new_name = "symbol_set";
+                        symbolic_dependcies.push_back(new_name);
+                        if (!module_scope->get_symbol(new_name)) {
+                            std::string header = "symengine/cwrapper.h";
+                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+                            Vec<ASR::expr_t*> args;
+                            args.reserve(al, 1);
+                            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
+                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                            fn_symtab->add_symbol(s2c(al, "x"), arg1);
+                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
+                            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                                al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
+                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
+                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                            fn_symtab->add_symbol(s2c(al, "s"), arg2);
+                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
+
+                            Vec<ASR::stmt_t*> body;
+                            body.reserve(al, 1);
+
+                            Vec<char*> dep;
+                            dep.reserve(al, 1);
+
+                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
+                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                                false, false, nullptr, 0, false, false, false, s2c(al, header));
+                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                        }
+
+                        // Extract the symbol from the target (Var)
+                        ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
+                        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+                        // Create the function call statement for symbol_set
+                        ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
+                        Vec<ASR::call_arg_t> call_args;
+                        call_args.reserve(al, 2);
+                        ASR::call_arg_t call_arg1, call_arg2;
+                        call_arg1.loc = x.base.base.loc;
+                        call_arg1.m_value = target;
+                        call_arg2.loc = x.base.base.loc;
+                        call_arg2.m_value = intrinsic_func->m_args[0];
+                        call_args.push_back(al, call_arg1);
+                        call_args.push_back(al, call_arg2);
+
+                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
+                            symbol_set_sym, call_args.p, call_args.n, nullptr));
+                        pass_result.push_back(al, stmt);
+                        break;
+                    }
                     default: {
                         // TODO
                     }
