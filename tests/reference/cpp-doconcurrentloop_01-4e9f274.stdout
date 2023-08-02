@@ -33,7 +33,7 @@ struct f32_10000_1
 };
 
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 void main0();
 
 template <typename T0, typename T1, typename T2>
@@ -84,7 +84,7 @@ void main0()
     std::cout << "End Stream Triad" << std::endl;
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     main0();
 }
@@ -92,7 +92,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }

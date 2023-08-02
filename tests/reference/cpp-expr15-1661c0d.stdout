@@ -18,7 +18,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 }
 
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 double test1();
 std::complex<double> test2();
 int32_t test3();
@@ -69,7 +69,7 @@ int32_t test3()
     return _lpython_return_variable;
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     std::cout << test1() << std::endl;
     std::cout << test2() << std::endl;
@@ -79,7 +79,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }

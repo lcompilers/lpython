@@ -7,14 +7,14 @@
                     (SymbolTable
                         2
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
                                         8
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -1446,22 +1446,22 @@
                     (SymbolTable
                         9
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
                                     9
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        9 __main____global_statements
-                        2 __main____global_statements
+                        9 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

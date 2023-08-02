@@ -19,7 +19,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 }
 
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 void test_pow();
 double __lpython_overloaded_0__pow(int32_t x, int32_t y);
 int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z);
@@ -280,7 +280,7 @@ void test_pow()
     c1 = __lpython_overloaded_9__pow(c1, 4);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     test_pow();
 }
@@ -288,7 +288,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }

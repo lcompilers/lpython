@@ -18,7 +18,7 @@ source_filename = "LFortran"
 @10 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @11 = private unnamed_addr constant [7 x i8] c"%hhi%s\00", align 1
 
-define void @__module___main_____main____global_statements() {
+define void @__module___main_____main__global_stmts() {
 .entry:
   %0 = load i64, i64* @u, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i64 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
@@ -39,7 +39,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module___main_____main____global_statements()
+  call void @__module___main_____main__global_stmts()
   ret i32 0
 }
 
