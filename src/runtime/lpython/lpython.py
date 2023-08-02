@@ -760,6 +760,11 @@ def lpython(original_function=None, backend=None, backend_optimisation_flags=Non
 def bitnot(x, bitsize):
     return (~x) % (2 ** bitsize)
 
+def reserve(data_structure, n):
+    if isinstance(data_structure, list):
+        data_structure = [None] * n
+    # no-op
+
 bitnot_u8 = lambda x: bitnot(x, 8)
 bitnot_u16 = lambda x: bitnot(x, 16)
 bitnot_u32 = lambda x: bitnot(x, 32)
