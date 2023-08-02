@@ -9,7 +9,7 @@
 int32_t add(int32_t x, int32_t y);
 int32_t multiply(int32_t x, int32_t y);
 void f();
-void __main____global_statements();
+void __main__global_stmts();
 
 
 
@@ -40,7 +40,7 @@ void f()
     ASSERT(multiply(10, 20) == 200);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     f();
 }
@@ -48,6 +48,6 @@ void __main____global_statements()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    __main____global_statements();
+    __main__global_stmts();
     return 0;
 }

@@ -10,7 +10,7 @@ int32_t test_factorial_1(int32_t x);
 int32_t test_factorial_2(int32_t x);
 int64_t test_factorial_3(int32_t x);
 void main0();
-void __main____global_statements();
+void __main__global_stmts();
 
 
 
@@ -72,7 +72,7 @@ void main0()
     j = test_factorial_3(5);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     main0();
 }
@@ -80,6 +80,6 @@ void __main____global_statements()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    __main____global_statements();
+    __main__global_stmts();
     return 0;
 }

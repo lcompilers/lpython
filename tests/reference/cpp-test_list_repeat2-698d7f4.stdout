@@ -46,7 +46,7 @@ inline struct list_r32* list_repeat_r32(struct list_r32* x, int32_t freq);
 inline struct list_r32* list_section_r32(struct list_r32* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present);
 
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 float add_list(struct list_r32 x);
 struct list_r32 create_list(int32_t n);
 void main0();
@@ -95,7 +95,7 @@ void main0()
     std::cout << add_list(x) << std::endl;
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     main0();
 }
@@ -103,7 +103,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }

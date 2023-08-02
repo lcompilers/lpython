@@ -9,7 +9,7 @@
 int64_t fib(int64_t n);
 void main0();
 void _xx_lcompilers_changed_main_xx();
-void __main____global_statements();
+void __main__global_stmts();
 
 
 
@@ -41,7 +41,7 @@ void _xx_lcompilers_changed_main_xx()
     ASSERT(ans == 55);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     main0();
     _xx_lcompilers_changed_main_xx();
@@ -50,6 +50,6 @@ void __main____global_statements()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    __main____global_statements();
+    __main__global_stmts();
     return 0;
 }
