@@ -2971,14 +2971,6 @@ namespace X{                                                                    
             diag::Diagnostics& diagnostics) {                                              \
         ASRUtils::require_impl(x.n_args == 2, "Intrinsic function `"#X"` accepts           \
             exactly 2 arguments", x.base.base.loc, diagnostics);                           \
-                                                                                           \
-        ASR::ttype_t* left_type = ASRUtils::expr_type(x.m_args[0]);                        \
-        ASR::ttype_t* right_type = ASRUtils::expr_type(x.m_args[1]);                       \
-                                                                                           \
-        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*left_type) &&         \
-            ASR::is_a<ASR::SymbolicExpression_t>(*right_type),                             \
-            "Both arguments of `"#X"` must be of type SymbolicExpression",                 \
-            x.base.base.loc, diagnostics);                                                 \
     }                                                                                      \
                                                                                            \
     static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,        \

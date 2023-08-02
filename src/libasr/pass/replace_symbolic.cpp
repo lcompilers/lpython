@@ -152,6 +152,69 @@ public:
         }
     }
 
+    void perform_symbolic_binary_operation(Allocator &al, const Location &loc, SymbolTable* module_scope,
+        const std::string& new_name, ASR::expr_t* value1, ASR::expr_t* value2, ASR::expr_t* value3) {
+        symbolic_dependencies.push_back(new_name);
+        if (!module_scope->get_symbol(new_name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 3);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg1);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+            ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "z"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "z"), arg3);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+            module_scope->add_symbol(s2c(al, new_name), new_symbol);
+        }
+
+        // Create the function call statement for symbol_set
+        ASR::symbol_t* func_sym = module_scope->get_symbol(new_name);
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 3);
+        ASR::call_arg_t call_arg1, call_arg2, call_arg3;
+        call_arg1.loc = loc;
+        call_arg1.m_value = value1;
+        call_arg2.loc = loc;
+        call_arg2.m_value = value2;
+        call_arg3.loc = loc;
+        call_arg3.m_value = value3;
+        call_args.push_back(al, call_arg1);
+        call_args.push_back(al, call_arg2);
+        call_args.push_back(al, call_arg3);
+
+        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, func_sym,
+            func_sym, call_args.p, call_args.n, nullptr));
+        pass_result.push_back(al, stmt);
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         if (ASR::is_a<ASR::IntrinsicFunction_t>(*x.m_value)) {
             ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(x.m_value);
@@ -190,17 +253,13 @@ public:
                             module_scope->add_symbol(s2c(al, new_name), new_symbol);
                         }
 
-                        // Extract the symbol from the target (Var)
-                        ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
-                        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-
                         // Create the function call statement for basic_const_pi
                         ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
                         Vec<ASR::call_arg_t> call_args;
                         call_args.reserve(al, 1);
                         ASR::call_arg_t call_arg;
                         call_arg.loc = x.base.base.loc;
-                        call_arg.m_value = target;
+                        call_arg.m_value = x.m_target;
                         call_args.push_back(al, call_arg);
 
                         ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
@@ -245,17 +304,13 @@ public:
                             module_scope->add_symbol(s2c(al, new_name), new_symbol);
                         }
 
-                        // Extract the symbol from the target (Var)
-                        ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_target)->m_v;
-                        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-
                         // Create the function call statement for symbol_set
                         ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
                         Vec<ASR::call_arg_t> call_args;
                         call_args.reserve(al, 2);
                         ASR::call_arg_t call_arg1, call_arg2;
                         call_arg1.loc = x.base.base.loc;
-                        call_arg1.m_value = target;
+                        call_arg1.m_value = x.m_target;
                         call_arg2.loc = x.base.base.loc;
                         call_arg2.m_value = intrinsic_func->m_args[0];
                         call_args.push_back(al, call_arg1);
@@ -264,6 +319,36 @@ public:
                         ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
                             symbol_set_sym, call_args.p, call_args.n, nullptr));
                         pass_result.push_back(al, stmt);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_add",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_sub",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_mul",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_div",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_pow",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
+                        break;
+                    }
+                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
+                        perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_diff",
+                            x.m_target, intrinsic_func->m_args[0], intrinsic_func->m_args[1]);
                         break;
                     }
                     default: {
