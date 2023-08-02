@@ -23,7 +23,7 @@ public:
     PassVisitor(al_, nullptr) {
         pass_result.reserve(al, 1);
     }
-    std::vector<std::string> symbolic_dependcies;
+    std::vector<std::string> symbolic_dependencies;
 
     void visit_Function(const ASR::Function_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
@@ -45,9 +45,10 @@ public:
         for( size_t i = 0; i < xx.n_dependencies; i++ ) {
             function_dependencies.push_back(al, xx.m_dependencies[i]);
         }
-        for( size_t i = 0; i < symbolic_dependcies.size(); i++ ) {
-            function_dependencies.push_back(al, s2c(al, symbolic_dependcies[i]));
+        for( size_t i = 0; i < symbolic_dependencies.size(); i++ ) {
+            function_dependencies.push_back(al, s2c(al, symbolic_dependencies[i]));
         }
+        symbolic_dependencies.clear();
         xx.n_dependencies = function_dependencies.size();
         xx.m_dependencies = function_dependencies.p;
         this->current_scope = current_scope_copy;
@@ -76,7 +77,7 @@ public:
             current_scope->add_symbol(s2c(al, placeholder), sym2);
 
             std::string new_name = "basic_new_stack";
-            symbolic_dependcies.push_back(new_name);
+            symbolic_dependencies.push_back(new_name);
             if (!module_scope->get_symbol(new_name)) {
                 std::string header = "symengine/cwrapper.h";
                 SymbolTable *fn_symtab = al.make_new<SymbolTable>(module_scope);
@@ -160,7 +161,7 @@ public:
                 switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
                     case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
                         std::string new_name = "basic_const_pi";
-                        symbolic_dependcies.push_back(new_name);
+                        symbolic_dependencies.push_back(new_name);
                         if (!module_scope->get_symbol(new_name)) {
                             std::string header = "symengine/cwrapper.h";
                             SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
@@ -209,7 +210,7 @@ public:
                     }
                     case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
                         std::string new_name = "symbol_set";
-                        symbolic_dependcies.push_back(new_name);
+                        symbolic_dependencies.push_back(new_name);
                         if (!module_scope->get_symbol(new_name)) {
                             std::string header = "symengine/cwrapper.h";
                             SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
@@ -281,7 +282,7 @@ public:
 
             if (ASR::is_a<ASR::Var_t>(*value) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(value))) {
                 std::string new_name = "basic_str";
-                symbolic_dependcies.push_back(new_name);
+                symbolic_dependencies.push_back(new_name);
                 if (!module_scope->get_symbol(new_name)) {
                     std::string header = "symengine/cwrapper.h";
                     SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
