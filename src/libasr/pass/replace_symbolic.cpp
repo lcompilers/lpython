@@ -24,6 +24,7 @@ public:
         pass_result.reserve(al, 1);
     }
     std::vector<std::string> symbolic_dependencies;
+    std::set<ASR::symbol_t*> symbolic_vars;
 
     void visit_Function(const ASR::Function_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
@@ -63,6 +64,7 @@ public:
 
             ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = type1;
+            symbolic_vars.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
 
             ASR::ttype_t *type2 = ASRUtils::TYPE(ASR::make_Integer_t(al, xx.base.base.loc, 8));
             ASR::symbol_t* sym2 = ASR::down_cast<ASR::symbol_t>(
@@ -434,7 +436,9 @@ public:
                         break;
                     }
                     default: {
-                        // TODO
+                        throw LCompilersException("IntrinsicFunction: `"
+                            + ASRUtils::get_intrinsic_name(intrinsic_id)
+                            + "` is not implemented");
                     }
                 }
             }
@@ -446,8 +450,9 @@ public:
         SymbolTable* module_scope = current_scope->parent;
         for (size_t i=0; i<x.n_values; i++) {
             ASR::expr_t* value = x.m_values[i];
-
             if (ASR::is_a<ASR::Var_t>(*value) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(value))) {
+                ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(value)->m_v;
+                if (symbolic_vars.find(v) == symbolic_vars.end()) return;
                 std::string new_name = "basic_str";
                 symbolic_dependencies.push_back(new_name);
                 if (!module_scope->get_symbol(new_name)) {
