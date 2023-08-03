@@ -40,6 +40,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     bool intrinsic_symbols_mangling;
     bool all_symbols_mangling;
     bool should_mangle = false;
+    std::string module_name = "";
 
     SymbolRenameVisitor(
     bool mm, bool gm, bool im, bool am) : module_name_mangling(mm),
@@ -51,7 +52,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         if (startswith(curr_name, "_lpython") || startswith(curr_name, "_lfortran") ) {
             return curr_name;
         }
-        return curr_name + "_" + lcompilers_unique_ID;
+        return module_name + curr_name + "_" + lcompilers_unique_ID;
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -71,6 +72,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
     void visit_Module(const ASR::Module_t &x) {
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         bool should_mangle_copy = should_mangle;
+        std::string mod_name_copy = module_name;
+        module_name = std::string(x.m_name) + "_";
         if (all_symbols_mangling || module_name_mangling || should_mangle) {
             sym_to_renamed[sym] = update_name(x.m_name);
         }
@@ -82,6 +85,7 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
             visit_symbol(*a.second);
         }
         should_mangle = should_mangle_copy;
+        module_name = mod_name_copy;
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -97,25 +101,28 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
     }
 
-    void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
+    template <typename T>
+    void visit_symbols_1(T &x) {
         if (all_symbols_mangling || should_mangle) {
             ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
             sym_to_renamed[sym] = update_name(x.m_name);
         }
+    }
+
+    void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
+        visit_symbols_1(x);
     }
 
     void visit_CustomOperator(const ASR::CustomOperator_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
+        visit_symbols_1(x);
     }
 
     void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
+        visit_symbols_1(x);
+    }
+
+    void visit_Variable(const ASR::Variable_t &x) {
+        visit_symbols_1(x);
     }
 
     void visit_StructType(const ASR::StructType_t &x) {
@@ -154,12 +161,6 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
     }
 
-    void visit_Variable(const ASR::Variable_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
-    }
 
     void visit_ClassType(const ASR::ClassType_t &x) {
         if (x.m_abi != ASR::abiType::BindC) {
