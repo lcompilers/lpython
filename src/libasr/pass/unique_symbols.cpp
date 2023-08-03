@@ -163,7 +163,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         }
     }
 
-    void visit_AssociateBlock(const ASR::AssociateBlock_t &x) {
+    template <typename T>
+    void visit_symbols_3(T &x) {
         if (all_symbols_mangling || should_mangle) {
             ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
             sym_to_renamed[sym] = update_name(x.m_name);
@@ -171,36 +172,22 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
+    }
+
+    void visit_AssociateBlock(const ASR::AssociateBlock_t &x) {
+        visit_symbols_3(x);
     }
 
     void visit_Block(const ASR::Block_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_3(x);
     }
 
     void visit_Requirement(const ASR::Requirement_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_3(x);
     }
 
     void visit_Template(const ASR::Template_t &x) {
-        if (all_symbols_mangling || should_mangle) {
-            ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-            sym_to_renamed[sym] = update_name(x.m_name);
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_3(x);
     }
 
 };
