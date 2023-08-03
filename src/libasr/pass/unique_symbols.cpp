@@ -295,8 +295,9 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
         }
     }
 
-    void visit_StructType(const ASR::StructType_t &x) {
-        ASR::StructType_t& xx = const_cast<ASR::StructType_t&>(x);
+    template <typename T>
+    void update_symbols_2(const T &x) {
+        T& xx = const_cast<T&>(x);
         ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
         if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
             xx.m_name = s2c(al, sym_to_new_name[sym]);
@@ -329,78 +330,18 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
             }
         }
         current_scope = current_scope_copy;
+    }
+
+    void visit_StructType(const ASR::StructType_t &x) {
+        update_symbols_2(x);
     }
 
     void visit_EnumType(const ASR::EnumType_t &x) {
-        ASR::EnumType_t& xx = const_cast<ASR::EnumType_t&>(x);
-        ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-        if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-            xx.m_name = s2c(al, sym_to_new_name[sym]);
-        }
-        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
-        for (size_t i=0; i<xx.n_dependencies; i++) {
-            if (current_scope.find(xx.m_dependencies[i]) != current_scope.end()) {
-                sym = current_scope[xx.m_dependencies[i]];
-                if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-                    xx.m_dependencies[i] = s2c(al, sym_to_new_name[sym]);
-                }
-            }
-        }
-        current_scope = x.m_symtab->get_scope();
-        for (size_t i=0; i<xx.n_members; i++) {
-            if (current_scope.find(xx.m_members[i]) != current_scope.end()) {
-                sym = current_scope[xx.m_members[i]];
-                if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-                    xx.m_members[i] = s2c(al, sym_to_new_name[sym]);
-                }
-            }
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            visit_symbol(*a.second);
-        }
-        for (auto &a: current_scope) {
-            if (sym_to_new_name.find(a.second) != sym_to_new_name.end()) {
-                xx.m_symtab->erase_symbol(a.first);
-                xx.m_symtab->add_symbol(sym_to_new_name[a.second], a.second);
-            }
-        }
-        current_scope = current_scope_copy;
+        update_symbols_2(x);
     }
 
     void visit_UnionType(const ASR::UnionType_t &x) {
-        ASR::UnionType_t& xx = const_cast<ASR::UnionType_t&>(x);
-        ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-        if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-            xx.m_name = s2c(al, sym_to_new_name[sym]);
-        }
-        std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
-        for (size_t i=0; i<xx.n_dependencies; i++) {
-            if (current_scope.find(xx.m_dependencies[i]) != current_scope.end()) {
-                sym = current_scope[xx.m_dependencies[i]];
-                if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-                    xx.m_dependencies[i] = s2c(al, sym_to_new_name[sym]);
-                }
-            }
-        }
-        current_scope = x.m_symtab->get_scope();
-        for (size_t i=0; i<xx.n_members; i++) {
-            if (current_scope.find(xx.m_members[i]) != current_scope.end()) {
-                sym = current_scope[xx.m_members[i]];
-                if (sym_to_new_name.find(sym) != sym_to_new_name.end()) {
-                    xx.m_members[i] = s2c(al, sym_to_new_name[sym]);
-                }
-            }
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            visit_symbol(*a.second);
-        }
-        for (auto &a: current_scope) {
-            if (sym_to_new_name.find(a.second) != sym_to_new_name.end()) {
-                xx.m_symtab->erase_symbol(a.first);
-                xx.m_symtab->add_symbol(sym_to_new_name[a.second], a.second);
-            }
-        }
-        current_scope = current_scope_copy;
+        update_symbols_2(x);
     }
 
     void visit_Variable(const ASR::Variable_t &x) {
