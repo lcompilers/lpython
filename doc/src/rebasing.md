@@ -1,5 +1,5 @@
 
-You should clean your branch's commits, and we have two approach for this.
+You should clean your branch's commits, and we have two approaches for this.
 
 # Rebasing
 ```bash
@@ -56,9 +56,9 @@ Date:   Sat Jul 30 15:46:28 2022 +0530
     Implementing tuples in LLVM backend
 
 ```
-here, we want make our commits as a bunch of batches.
+here, we want to make our commits as a bunch of batches.
 
-we will rebasing with main with interactive option `git rebase main -i`.
+we will rebase with main with the interactive option `git rebase main -i`.
 
 but first create a backup branch before doing this interactive rebase.
 
@@ -111,8 +111,8 @@ s 122a02bf3 refactor
 s 663edf45b refactor
 ...
 ```
-and it will open windows for every change you made to rename commit's message.
-- first window to rename commit `Added add3.py` because we squashed the commit after it, and by default the message would be the original message of `Added add3.py` and messages of squashed commits, here i will not change anything i will leave message like that. 
+and it will open windows for every change you made to rename the commit's message.
+- first window to rename commit `Added add3.py` because we squashed the commit after it, and by default the message would be the original message of `Added add3.py` and messages of squashed commits, here I will not change anything I will leave message like that. 
 ```bash
 # This is a combination of 2 commits.
 # This is the 1st commit message:
@@ -143,7 +143,7 @@ Refactor
 # Untracked files:
 ...
 ```
-- second window: rename(rewword) `Added add4.py`, you can edit the message as you want, i will rename it: `Added add4.py and edit it ` . 
+- second window: rename(reword) `Added add4.py`, you can edit the message as you want, I will rename it: `Added add4.py and edit it ` . 
 ```
 Added add4.py
 
@@ -187,7 +187,7 @@ Added add4.py and edit it
 # with '#' will be ignored, and an empty message aborts the commit.
 ...
 ```
-- third window will be the same as dirst one because of squashing two commits to commit:`Added add4.py`, i will leave it with out changing message.
+- third window will be the same as the first one because of squashing two commits to commit:`Added add4.py`, I will leave it without changing the message.
 
 Log now:
 ```bash
@@ -223,7 +223,7 @@ Date:   Sat Jul 30 23:36:27 2022 +0200
     Added add.py
 
 ``` 
-and if you  want to push to remote branch you must push with `--force` option.
+and if you  want to push to the remote branch you must push with `--force` option.
 
 
 This [video](https://drive.google.com/file/d/1506h86_RLgwtjLi_uKWbdVNDsSVusIbr/view?usp=sharing) by *Naman Gera* he was rebasing a branch.
@@ -232,7 +232,7 @@ This [video](https://drive.google.com/file/d/1506h86_RLgwtjLi_uKWbdVNDsSVusIbr/v
 # Merging
 by *Gagandeep Singh* from [#783 comment](https://github.com/lcompilers/lpython/pull/783#issuecomment-1188875210)
 
-Assuming initial state is your current branch (say `xyz_branch`),
+Assuming the initial state is your current branch (say `xyz_branch`),
 
 1. git checkout main or git checkout master (whichever is being used in a certain project as the lead branch).
 2. git pull origin main (origin is the project remote say for lpython it will be pointing to (https://github.com/lcompilers/lpython).
