@@ -125,7 +125,8 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         visit_symbols_1(x);
     }
 
-    void visit_StructType(const ASR::StructType_t &x) {
+    template <typename T>
+    void visit_symbols_2(T &x) {
         if (x.m_abi != ASR::abiType::BindC) {
             if (all_symbols_mangling || should_mangle) {
                 ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
@@ -135,43 +136,22 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
+    }
+
+    void visit_StructType(const ASR::StructType_t &x) {
+        visit_symbols_2(x);
     }
 
     void visit_EnumType(const ASR::EnumType_t &x) {
-        if (x.m_abi != ASR::abiType::BindC) {
-            if (all_symbols_mangling || should_mangle) {
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = update_name(x.m_name);
-            }
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_2(x);
     }
 
     void visit_UnionType(const ASR::UnionType_t &x) {
-        if (x.m_abi != ASR::abiType::BindC) {
-            if (all_symbols_mangling || should_mangle) {
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = update_name(x.m_name);
-            }
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_2(x);
     }
 
-
     void visit_ClassType(const ASR::ClassType_t &x) {
-        if (x.m_abi != ASR::abiType::BindC) {
-            if (all_symbols_mangling || should_mangle) {
-                ASR::symbol_t *sym = ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&x);
-                sym_to_renamed[sym] = update_name(x.m_name);
-            }
-        }
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
+        visit_symbols_2(x);
     }
 
     void visit_ClassProcedure(const ASR::ClassProcedure_t &x) {
