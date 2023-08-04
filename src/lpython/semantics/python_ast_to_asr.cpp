@@ -4472,10 +4472,6 @@ public:
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
         }
         std::string msym = x.m_module; // Module name
-        std::vector<std::string> mod_symbols;
-        for (size_t i=0; i<x.n_names; i++) {
-            mod_symbols.push_back(x.m_names[i].m_name);
-        }
 
         // Get the module, for now assuming it is not loaded, so we load it:
         ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
@@ -4518,13 +4514,17 @@ public:
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
-        int i=-1;
-        for (auto &remote_sym : mod_symbols) {
+        int i = -1;
+        for (size_t j=0; j<x.n_names; j++) {
+            std::string remote_sym = x.m_names[j].m_name;
             i++;
             if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
                 continue ;
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
+            if (x.m_names[j].m_asname) {
+                new_sym_name = ASRUtils::get_mangled_name(m, x.m_names[j].m_asname);
+            }
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, new_sym_name, x.m_names[i].loc, true);
             if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
@@ -4914,7 +4914,12 @@ public:
         // Handled by SymbolTableVisitor already
         std::string mod_name = x.m_module;
         for (size_t i = 0; i < x.n_names; i++) {
-            imported_functions[x.m_names[i].m_name] = mod_name;
+            if (x.m_names[i].m_asname) {
+                imported_functions[x.m_names[i].m_asname] = mod_name;
+            }
+            else {
+                imported_functions[x.m_names[i].m_name] = mod_name;
+            }
         }
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {

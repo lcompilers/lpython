@@ -556,6 +556,7 @@ RUN(NAME test_import_04      IMPORT_PATH ..
         LABELS cpython llvm c)
 RUN(NAME test_import_05      LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME test_import_06      LABELS cpython llvm)
+RUN(NAME test_import_07      LABELS cpython llvm c)
 RUN(NAME test_math           LABELS cpython llvm NOFAST)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
