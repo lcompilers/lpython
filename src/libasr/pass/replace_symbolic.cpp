@@ -620,7 +620,7 @@ public:
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t &x) {
-        if(x.m_type->type == ASR::ttypeType::SymbolicExpression) return;
+        if(x.m_type->type != ASR::ttypeType::SymbolicExpression) return;
         SymbolTable* module_scope = current_scope->parent;
         for (size_t i=0; i<x.n_args; i++) {
             ASR::expr_t* value = x.m_args[i];
