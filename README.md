@@ -231,3 +231,7 @@ chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfo
 or our [mailinglist](https://groups.io/g/lfortran).
 
 See the [CONTRIBUTING](CONTRIBUTING.md) document for more information.
+
+# Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=lcompilers/lpython&type=Date)](https://star-history.com/#lcompilers/lpython&Date)
