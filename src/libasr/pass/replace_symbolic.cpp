@@ -1807,6 +1807,126 @@ public:
             }
         }
     }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        if (!ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) return;
+        ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_test);
+        SymbolTable* module_scope = current_scope->parent;
+        ASR::expr_t* left_tmp;
+        ASR::expr_t* right_tmp;
+
+        std::string new_name = "basic_str";
+        symbolic_dependencies.push_back(new_name);
+        if (!module_scope->get_symbol(new_name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, x.base.base.loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, fn_symtab->get_symbol("_lpython_return_variable")));
+            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
+                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+            module_scope->add_symbol(s2c(al, new_name), new_symbol);
+        }
+        ASR::symbol_t* basic_str_sym = module_scope->get_symbol(new_name);
+
+        if(ASR::is_a<ASR::Var_t>(*s->m_left)) {
+            ASR::symbol_t *var_sym = ASR::down_cast<ASR::Var_t>(s->m_left)->m_v;
+            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args1;
+            call_args1.reserve(al, 1);
+            ASR::call_arg_t call_arg1;
+            call_arg1.loc = x.base.base.loc;
+            call_arg1.m_value = target;
+            call_args1.push_back(al, call_arg1);
+            ASR::expr_t* function_call1 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args1.p, call_args1.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            left_tmp = function_call1;
+        } else if(ASR::is_a<ASR::IntrinsicFunction_t>(*s->m_left)) {
+            ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(s->m_left);
+            this->visit_IntrinsicFunction(*intrinsic_func);
+            ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+            ASR::expr_t* left_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args1;
+            call_args1.reserve(al, 1);
+            ASR::call_arg_t call_arg1;
+            call_arg1.loc = x.base.base.loc;
+            call_arg1.m_value = left_var;
+            call_args1.push_back(al, call_arg1);
+            ASR::expr_t* function_call1 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args1.p, call_args1.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            left_tmp = function_call1;
+        }
+
+        if(ASR::is_a<ASR::IntrinsicFunction_t>(*s->m_right)) {
+            ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(s->m_right);
+            this->visit_IntrinsicFunction(*intrinsic_func);
+            ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+            ASR::expr_t* right_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args2;
+            call_args2.reserve(al, 1);
+            ASR::call_arg_t call_arg2;
+            call_arg2.loc = x.base.base.loc;
+            call_arg2.m_value = right_var;
+            call_args2.push_back(al, call_arg2);
+            ASR::expr_t* function_call2 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args2.p, call_args2.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            right_tmp = function_call2;
+        } else if (ASR::is_a<ASR::Cast_t>(*s->m_right)) {
+            ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(s->m_right);
+            this->visit_Cast(*cast_t);
+            ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+            ASR::expr_t* right_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args2;
+            call_args2.reserve(al, 1);
+            ASR::call_arg_t call_arg2;
+            call_arg2.loc = x.base.base.loc;
+            call_arg2.m_value = right_var;
+            call_args2.push_back(al, call_arg2);
+            ASR::expr_t* function_call2 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args2.p, call_args2.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            right_tmp = function_call2;
+        }
+        ASR::expr_t* test =  ASRUtils::EXPR(ASR::make_StringCompare_t(al, x.base.base.loc, left_tmp,
+            s->m_op, right_tmp, s->m_type, s->m_value));
+
+        ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+        pass_result.push_back(al, assert_stmt);
+    }
 };
 
 void pass_replace_symbolic(Allocator &al, ASR::TranslationUnit_t &unit,
