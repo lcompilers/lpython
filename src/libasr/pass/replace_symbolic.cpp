@@ -1305,410 +1305,411 @@ public:
     }
 
     void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t &x) {
-        if(x.m_type->type != ASR::ttypeType::SymbolicExpression) return;
-        SymbolTable* module_scope = current_scope->parent;
+        if(x.m_type && x.m_type->type == ASR::ttypeType::SymbolicExpression) {
+            SymbolTable* module_scope = current_scope->parent;
 
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
-        std::string symengine_var = symengine_stack.push();
-        ASR::symbol_t *arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-            al, x.base.base.loc, current_scope, s2c(al, symengine_var), nullptr, 0, ASR::intentType::Local,
-            nullptr, nullptr, ASR::storage_typeType::Default, type, nullptr,
-            ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
-        current_scope->add_symbol(s2c(al, symengine_var), arg);
-        for (auto &item : current_scope->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
-                this->visit_Variable(*s);
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
+            std::string symengine_var = symengine_stack.push();
+            ASR::symbol_t *arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, x.base.base.loc, current_scope, s2c(al, symengine_var), nullptr, 0, ASR::intentType::Local,
+                nullptr, nullptr, ASR::storage_typeType::Default, type, nullptr,
+                ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            current_scope->add_symbol(s2c(al, symengine_var), arg);
+            for (auto &item : current_scope->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
+                    this->visit_Variable(*s);
+                }
             }
-        }
 
-        int64_t intrinsic_id = x.m_intrinsic_id;
-        ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-        switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
-                std::string new_name = "basic_const_pi";
-                symbolic_dependencies.push_back(new_name);
-                if (!module_scope->get_symbol(new_name)) {
-                    std::string header = "symengine/cwrapper.h";
-                    SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+            int64_t intrinsic_id = x.m_intrinsic_id;
+            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
+            switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                    std::string new_name = "basic_const_pi";
+                    symbolic_dependencies.push_back(new_name);
+                    if (!module_scope->get_symbol(new_name)) {
+                        std::string header = "symengine/cwrapper.h";
+                        SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
 
-                    Vec<ASR::expr_t*> args;
-                    args.reserve(al, 1);
-                    ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                        al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                    fn_symtab->add_symbol(s2c(al, "x"), arg);
-                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
+                        Vec<ASR::expr_t*> args;
+                        args.reserve(al, 1);
+                        ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                            al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
+                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                        fn_symtab->add_symbol(s2c(al, "x"), arg);
+                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
 
-                    Vec<ASR::stmt_t*> body;
-                    body.reserve(al, 1);
+                        Vec<ASR::stmt_t*> body;
+                        body.reserve(al, 1);
 
-                    Vec<char*> dep;
-                    dep.reserve(al, 1);
+                        Vec<char*> dep;
+                        dep.reserve(al, 1);
 
-                    ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                        fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                        nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                        ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                        false, false, nullptr, 0, false, false, false, s2c(al, header));
-                    ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                    module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                }
+                        ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
+                            fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                            nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                            ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                            false, false, nullptr, 0, false, false, false, s2c(al, header));
+                        ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                        module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                    }
 
-                // Create the function call statement for basic_const_pi
-                ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
-                Vec<ASR::call_arg_t> call_args;
-                call_args.reserve(al, 1);
-                ASR::call_arg_t call_arg;
-                call_arg.loc = x.base.base.loc;
-                call_arg.m_value = target;
-                call_args.push_back(al, call_arg);
+                    // Create the function call statement for basic_const_pi
+                    ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = x.base.base.loc;
+                    call_arg.m_value = target;
+                    call_args.push_back(al, call_arg);
 
-                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
-                    basic_const_pi_sym, call_args.p, call_args.n, nullptr));
-                pass_result.push_back(al, stmt);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                std::string new_name = "symbol_set";
-                symbolic_dependencies.push_back(new_name);
-                if (!module_scope->get_symbol(new_name)) {
-                    std::string header = "symengine/cwrapper.h";
-                    SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
+                        basic_const_pi_sym, call_args.p, call_args.n, nullptr));
+                    pass_result.push_back(al, stmt);
+                    break;
+                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
+                    std::string new_name = "symbol_set";
+                    symbolic_dependencies.push_back(new_name);
+                    if (!module_scope->get_symbol(new_name)) {
+                        std::string header = "symengine/cwrapper.h";
+                        SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
 
-                    Vec<ASR::expr_t*> args;
-                    args.reserve(al, 1);
-                    ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                        al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                    fn_symtab->add_symbol(s2c(al, "x"), arg1);
-                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
-                    ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                        al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
-                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
-                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                    fn_symtab->add_symbol(s2c(al, "s"), arg2);
-                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
+                        Vec<ASR::expr_t*> args;
+                        args.reserve(al, 1);
+                        ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                            al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
+                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                        fn_symtab->add_symbol(s2c(al, "x"), arg1);
+                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
+                        ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                            al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
+                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
+                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                        fn_symtab->add_symbol(s2c(al, "s"), arg2);
+                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
 
-                    Vec<ASR::stmt_t*> body;
-                    body.reserve(al, 1);
+                        Vec<ASR::stmt_t*> body;
+                        body.reserve(al, 1);
 
-                    Vec<char*> dep;
-                    dep.reserve(al, 1);
+                        Vec<char*> dep;
+                        dep.reserve(al, 1);
 
-                    ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                        fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                        nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                        ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                        false, false, nullptr, 0, false, false, false, s2c(al, header));
-                    ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                    module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                }
+                        ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
+                            fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                            nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                            ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                            false, false, nullptr, 0, false, false, false, s2c(al, header));
+                        ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                        module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                    }
 
-                ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
-                Vec<ASR::call_arg_t> call_args;
-                call_args.reserve(al, 2);
-                ASR::call_arg_t call_arg1, call_arg2;
-                call_arg1.loc = x.base.base.loc;
-                call_arg1.m_value = target;
-                call_arg2.loc = x.base.base.loc;
-                call_arg2.m_value = x.m_args[0];
-                call_args.push_back(al, call_arg1);
-                call_args.push_back(al, call_arg2);
+                    ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 2);
+                    ASR::call_arg_t call_arg1, call_arg2;
+                    call_arg1.loc = x.base.base.loc;
+                    call_arg1.m_value = target;
+                    call_arg2.loc = x.base.base.loc;
+                    call_arg2.m_value = x.m_args[0];
+                    call_args.push_back(al, call_arg1);
+                    call_args.push_back(al, call_arg2);
 
-                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
-                    symbol_set_sym, call_args.p, call_args.n, nullptr));
-                pass_result.push_back(al, stmt);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
+                        symbol_set_sym, call_args.p, call_args.n, nullptr));
+                    pass_result.push_back(al, stmt);
+                    break;
                 }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_add",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_add",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_sub",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_sub",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_mul",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_mul",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_div",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_div",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_pow",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_pow",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
-                ASR::expr_t* value1 = x.m_args[0];
-                ASR::expr_t* value2 = x.m_args[1];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                    value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
-                }
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
+                    ASR::expr_t* value1 = x.m_args[0];
+                    ASR::expr_t* value2 = x.m_args[1];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value1);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value1)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value1);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+                        value1 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+                    }
 
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
-                } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                    value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value2);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value2)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value2);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
+                        value2 = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym2));
+                    }
+                    perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_diff",
+                        target, value1, value2);
+                    break;
                 }
-                perform_symbolic_binary_operation(al, x.base.base.loc, module_scope, "basic_diff",
-                    target, value1, value2);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_sin",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_sin",
-                    target, value);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_cos",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_cos",
-                    target, value);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_log",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_log",
-                    target, value);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_exp",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_exp",
-                    target, value);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_abs",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_abs",
-                    target, value);
-                break;
-            }
-            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
-                ASR::expr_t* value = x.m_args[0];
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
-                    ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
-                    this->visit_IntrinsicFunction(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
-                } else if (ASR::is_a<ASR::Cast_t>(*value)) {
-                    ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
-                    this->visit_Cast(*s);
-                    ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-                    value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
+                    ASR::expr_t* value = x.m_args[0];
+                    if (ASR::is_a<ASR::IntrinsicFunction_t>(*value)) {
+                        ASR::IntrinsicFunction_t *s = ASR::down_cast<ASR::IntrinsicFunction_t>(value);
+                        this->visit_IntrinsicFunction(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    } else if (ASR::is_a<ASR::Cast_t>(*value)) {
+                        ASR::Cast_t* s = ASR::down_cast<ASR::Cast_t>(value);
+                        this->visit_Cast(*s);
+                        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+                        value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+                    }
+                    perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_expand",
+                        target, value);
+                    break;
                 }
-                perform_symbolic_unary_operation(al, x.base.base.loc, module_scope, "basic_expand",
-                    target, value);
-                break;
-            }
-            default: {
-                throw LCompilersException("IntrinsicFunction: `"
-                    + ASRUtils::get_intrinsic_name(intrinsic_id)
-                    + "` is not implemented");
+                default: {
+                    throw LCompilersException("IntrinsicFunction: `"
+                        + ASRUtils::get_intrinsic_name(intrinsic_id)
+                        + "` is not implemented");
+                }
             }
         }
     }
