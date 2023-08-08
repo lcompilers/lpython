@@ -1812,8 +1812,8 @@ public:
         if (!ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) return;
         ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_test);
         SymbolTable* module_scope = current_scope->parent;
-        ASR::expr_t* left_tmp;
-        ASR::expr_t* right_tmp;
+        ASR::expr_t* left_tmp = nullptr;
+        ASR::expr_t* right_tmp = nullptr;
 
         std::string new_name = "basic_str";
         symbolic_dependencies.push_back(new_name);
