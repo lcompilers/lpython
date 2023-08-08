@@ -36,7 +36,6 @@ public:
         std::string top = stack[stack_top];
         stack_top--;
         stack.pop_back();
-        if (stack_top == -1) stack.clear();
         return top;
     }
 };
@@ -1853,8 +1852,8 @@ public:
         ASR::symbol_t* basic_str_sym = module_scope->get_symbol(new_name);
 
         if(ASR::is_a<ASR::Var_t>(*s->m_left)) {
-            ASR::symbol_t *var_sym = ASR::down_cast<ASR::Var_t>(s->m_left)->m_v;
-            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+            ASR::symbol_t *var_sym1 = ASR::down_cast<ASR::Var_t>(s->m_left)->m_v;
+            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
 
             // Now create the FunctionCall node for basic_str
             Vec<ASR::call_arg_t> call_args1;
@@ -1884,9 +1883,41 @@ public:
                 basic_str_sym, basic_str_sym, call_args1.p, call_args1.n,
                 ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
             left_tmp = function_call1;
+        } else if (ASR::is_a<ASR::Cast_t>(*s->m_left)) {
+            ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(s->m_left);
+            this->visit_Cast(*cast_t);
+            ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
+            ASR::expr_t* left_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args1;
+            call_args1.reserve(al, 1);
+            ASR::call_arg_t call_arg1;
+            call_arg1.loc = x.base.base.loc;
+            call_arg1.m_value = left_var;
+            call_args1.push_back(al, call_arg1);
+            ASR::expr_t* function_call1 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args1.p, call_args1.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            left_tmp = function_call1;
         }
 
-        if(ASR::is_a<ASR::IntrinsicFunction_t>(*s->m_right)) {
+        if(ASR::is_a<ASR::Var_t>(*s->m_right)) {
+            ASR::symbol_t *var_sym1 = ASR::down_cast<ASR::Var_t>(s->m_right)->m_v;
+            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym1));
+
+            // Now create the FunctionCall node for basic_str
+            Vec<ASR::call_arg_t> call_args2;
+            call_args2.reserve(al, 1);
+            ASR::call_arg_t call_arg2;
+            call_arg2.loc = x.base.base.loc;
+            call_arg2.m_value = target;
+            call_args2.push_back(al, call_arg2);
+            ASR::expr_t* function_call2 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                basic_str_sym, basic_str_sym, call_args2.p, call_args2.n,
+                ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+            right_tmp = function_call2;
+        } else if(ASR::is_a<ASR::IntrinsicFunction_t>(*s->m_right)) {
             ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(s->m_right);
             this->visit_IntrinsicFunction(*intrinsic_func);
             ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
