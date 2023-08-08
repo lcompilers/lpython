@@ -48,6 +48,7 @@ set(SRC
     pass/unused_functions.cpp
     pass/flip_sign.cpp
     pass/div_to_mul.cpp
+    pass/replace_symbolic.cpp
     pass/intrinsic_function.cpp
     pass/fma.cpp
     pass/loop_vectorise.cpp

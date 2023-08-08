@@ -12,6 +12,7 @@ passes = [
         "replace_implied_do_loops",
         "replace_init_expr",
         "inline_function_calls",
+        "replace_symbolic",
         "replace_intrinsic_function",
         "loop_unroll",
         "loop_vectorise",
