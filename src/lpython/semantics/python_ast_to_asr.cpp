@@ -164,6 +164,9 @@ namespace CastingUtil {
             }
             cast_kind = type_rules.at(cast_key);
         }
+        if( ASRUtils::check_equal_type(src, dest, true) ) {
+            return expr;
+        }
         // TODO: Fix loc
         return ASRUtils::EXPR(ASRUtils::make_Cast_t_value(al, loc, expr,
                                                           cast_kind, dest));
@@ -425,7 +428,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
     ASR::Module_t* mod, std::vector<ASR::asr_t *> &tmp_vec) {
 
     std::string mod_name = mod->m_name;
-    std::string g_func_name = mod_name + "__global_initializer";
+    std::string g_func_name = mod_name + "global_init";
     ASR::symbol_t *g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
@@ -438,7 +441,7 @@ void get_calls_to_global_init_and_stmts(Allocator &al, const Location &loc, Symb
             es, g_func, nullptr, 0, nullptr, nullptr, false));
     }
 
-    g_func_name = mod_name + "__global_statements";
+    g_func_name = mod_name + "global_stmts";
     g_func = mod->m_symtab->get_symbol(g_func_name);
     if (g_func && !scope->get_symbol(g_func_name)) {
         ASR::symbol_t *es = ASR::down_cast<ASR::symbol_t>(
@@ -504,6 +507,10 @@ public:
     bool allow_implicit_casting;
     // Stores the name of imported functions and the modules they are imported from
     std::map<std::string, std::string> imported_functions;
+
+    std::map<std::string, std::string> numpy2lpythontypes = {
+        {"int8", "i8"},
+    };
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module, std::string module_name,
@@ -4465,10 +4472,6 @@ public:
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
         }
         std::string msym = x.m_module; // Module name
-        std::vector<std::string> mod_symbols;
-        for (size_t i=0; i<x.n_names; i++) {
-            mod_symbols.push_back(x.m_names[i].m_name);
-        }
 
         // Get the module, for now assuming it is not loaded, so we load it:
         ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
@@ -4511,13 +4514,17 @@ public:
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
-        int i=-1;
-        for (auto &remote_sym : mod_symbols) {
+        int i = -1;
+        for (size_t j=0; j<x.n_names; j++) {
+            std::string remote_sym = x.m_names[j].m_name;
             i++;
             if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
                 continue ;
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
+            if (x.m_names[j].m_asname) {
+                new_sym_name = ASRUtils::get_mangled_name(m, x.m_names[j].m_asname);
+            }
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, new_sym_name, x.m_names[i].loc, true);
             if (current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
@@ -4796,7 +4803,7 @@ public:
             // `pass_wrap_global_stmts_into_function` pass
             unit->m_items = global_init.p;
             unit->n_items = global_init.size();
-            std::string func_name = module_name + "__global_initializer";
+            std::string func_name = module_name + "global_init";
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
@@ -4819,7 +4826,7 @@ public:
         if (items.n > 0) {
             unit->m_items = items.p;
             unit->n_items = items.size();
-            std::string func_name = module_name + "__global_statements";
+            std::string func_name = module_name + "global_stmts";
             // Wrap all the global statements into a Function
             LCompilers::PassOptions pass_options;
             pass_options.run_fun = func_name;
@@ -4907,7 +4914,12 @@ public:
         // Handled by SymbolTableVisitor already
         std::string mod_name = x.m_module;
         for (size_t i = 0; i < x.n_names; i++) {
-            imported_functions[x.m_names[i].m_name] = mod_name;
+            if (x.m_names[i].m_asname) {
+                imported_functions[x.m_names[i].m_asname] = mod_name;
+            }
+            else {
+                imported_functions[x.m_names[i].m_name] = mod_name;
+            }
         }
         ASR::symbol_t *mod_sym = current_scope->resolve_symbol(mod_name);
         if (mod_sym) {
@@ -5015,6 +5027,97 @@ public:
         }
     }
 
+    bool visit_SubscriptUtil(const AST::Subscript_t &x, const AST::Assign_t &assign_node,
+                             ASR::expr_t *tmp_value, int32_t recursion_level) {
+        if (AST::is_a<AST::Name_t>(*x.m_value)) {
+            std::string name = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            ASR::symbol_t *s = current_scope->resolve_symbol(name);
+            if (!s) {
+                throw SemanticError("Variable: '" + name + "' is not declared",
+                        x.base.base.loc);
+            }
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+            ASR::ttype_t *type = v->m_type;
+            if (ASR::is_a<ASR::Dict_t>(*type)) {
+                this->visit_expr(*x.m_slice);
+                ASR::expr_t *key = ASRUtils::EXPR(tmp);
+                ASR::expr_t* se = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_Var_t(al, x.base.base.loc, s));
+                if( recursion_level == 0 ) {
+                    // dict insert case;
+                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
+                    ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
+                        std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(key));
+                        std::string totype = ASRUtils::type_to_str_python(key_type);
+                        diag.add(diag::Diagnostic(
+                            "Type mismatch in dictionary key, the types must be compatible",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
+                                        {key->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
+                    if (tmp_value == nullptr) {
+                        if (AST::is_a<AST::List_t>(*assign_node.m_value)) {
+                            LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(assign_node.m_value)->n_elts == 0);
+                            Vec<ASR::expr_t*> list_ele;
+                            list_ele.reserve(al, 1);
+                            tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, assign_node.base.base.loc,
+                                                        list_ele.p, list_ele.size(), value_type));
+                        } else if (AST::is_a<AST::Dict_t>(*assign_node.m_value)) {
+                            LCOMPILERS_ASSERT(AST::down_cast<AST::Dict_t>(assign_node.m_value)->n_keys == 0);
+                            Vec<ASR::expr_t*> dict_ele;
+                            dict_ele.reserve(al, 1);
+                            tmp_value = ASRUtils::EXPR(ASR::make_DictConstant_t(al, assign_node.base.base.loc,
+                                            dict_ele.p, dict_ele.size(), dict_ele.p, dict_ele.size(), value_type));
+                        }
+                    }
+                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
+                        std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
+                        std::string totype = ASRUtils::type_to_str_python(value_type);
+                        diag.add(diag::Diagnostic(
+                            "Type mismatch in dictionary value, the types must be compatible",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
+                                        {tmp_value->base.loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
+                    tmp = nullptr;
+                    tmp_vec.push_back(make_DictInsert_t(al, x.base.base.loc, se, key, tmp_value));
+                }
+                else {
+                    tmp = make_DictItem_t(al, x.base.base.loc, se, key, nullptr,
+                                        ASR::down_cast<ASR::Dict_t>(type)->m_value_type, nullptr);
+                }
+                return true;
+            } else if (ASRUtils::is_immutable(type)) {
+                throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object does not support"
+                    " item assignment", x.base.base.loc);
+            }
+        } else if( AST::is_a<AST::Subscript_t>(*x.m_value) ) {
+            AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_value);
+            bool return_val = visit_SubscriptUtil(*sb, assign_node, tmp_value, recursion_level + 1);
+            if( return_val && tmp ) {
+                ASR::expr_t *dict = ASRUtils::EXPR(tmp);
+                this->visit_expr(*x.m_slice);
+                ASR::expr_t *key = ASRUtils::EXPR(tmp);
+                if( recursion_level == 0 ) {
+                    tmp_vec.push_back(make_DictInsert_t(al, x.base.base.loc, dict, key, tmp_value));
+                }
+                else {
+                    tmp = make_DictItem_t(al, x.base.base.loc, dict, key, nullptr,
+                                        ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(dict))->m_value_type, nullptr);
+                }
+            }
+            return return_val;
+        }
+        return false;
+    }
+
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
         bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
@@ -5049,61 +5152,8 @@ public:
             check_is_assign_to_input_param(x.m_targets[i]);
             if (AST::is_a<AST::Subscript_t>(*x.m_targets[i])) {
                 AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[i]);
-                if (AST::is_a<AST::Name_t>(*sb->m_value)) {
-                    std::string name = AST::down_cast<AST::Name_t>(sb->m_value)->m_id;
-                    ASR::symbol_t *s = current_scope->resolve_symbol(name);
-                    if (!s) {
-                        throw SemanticError("Variable: '" + name + "' is not declared",
-                                x.base.base.loc);
-                    }
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-                    ASR::ttype_t *type = v->m_type;
-                    if (ASR::is_a<ASR::Dict_t>(*type)) {
-                        // dict insert case;
-                        this->visit_expr(*sb->m_slice);
-                        ASR::expr_t *key = ASRUtils::EXPR(tmp);
-                        ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
-                        ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
-                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
-                            std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(key));
-                            std::string totype = ASRUtils::type_to_str_python(key_type);
-                            diag.add(diag::Diagnostic(
-                                "Type mismatch in dictionary key, the types must be compatible",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
-                                            {key->base.loc})
-                                })
-                            );
-                            throw SemanticAbort();
-                        }
-                        if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
-                            LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
-                            Vec<ASR::expr_t*> list_ele;
-                            list_ele.reserve(al, 1);
-                            tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
-                                            list_ele.size(), value_type));
-                        }
-                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
-                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
-                            std::string totype = ASRUtils::type_to_str_python(value_type);
-                            diag.add(diag::Diagnostic(
-                                "Type mismatch in dictionary value, the types must be compatible",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
-                                            {tmp_value->base.loc})
-                                })
-                            );
-                            throw SemanticAbort();
-                        }
-                        ASR::expr_t* se = ASR::down_cast<ASR::expr_t>(
-                                ASR::make_Var_t(al, x.base.base.loc, s));
-                        tmp = nullptr;
-                        tmp_vec.push_back(make_DictInsert_t(al, x.base.base.loc, se, key, tmp_value));
-                        continue;
-                    } else if (ASRUtils::is_immutable(type)) {
-                        throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object does not support"
-                            " item assignment", x.base.base.loc);
-                    }
+                if( visit_SubscriptUtil(*sb, x, tmp_value, 0) ) {
+                    continue;
                 }
             } else if (AST::is_a<AST::Attribute_t>(*x.m_targets[i])) {
                 AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_targets[i]);
@@ -5124,12 +5174,20 @@ public:
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            if (tmp_value == nullptr && AST::is_a<AST::List_t>(*x.m_value)) {
-                LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
-                Vec<ASR::expr_t*> list_ele;
-                list_ele.reserve(al, 1);
-                tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
-                                list_ele.size(), target_type));
+            if (tmp_value == nullptr) {
+                if (AST::is_a<AST::List_t>(*x.m_value)) {
+                    LCOMPILERS_ASSERT(AST::down_cast<AST::List_t>(x.m_value)->n_elts == 0);
+                    Vec<ASR::expr_t*> list_ele;
+                    list_ele.reserve(al, 1);
+                    tmp_value = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, list_ele.p,
+                                    list_ele.size(), target_type));
+                } else if (AST::is_a<AST::Dict_t>(*x.m_value)) {
+                    LCOMPILERS_ASSERT(AST::down_cast<AST::Dict_t>(x.m_value)->n_keys == 0);
+                    Vec<ASR::expr_t*> dict_ele;
+                    dict_ele.reserve(al, 1);
+                    tmp_value = ASRUtils::EXPR(ASR::make_DictConstant_t(al, x.base.base.loc, dict_ele.p,
+                                    dict_ele.size(), dict_ele.p, dict_ele.size(), target_type));
+                }
             }
             if (tmp_value == nullptr && ASR::is_a<ASR::Var_t>(*target)) {
                 ASR::Var_t *var_tar = ASR::down_cast<ASR::Var_t>(target);
@@ -6011,9 +6069,14 @@ public:
 
     void visit_Dict(const AST::Dict_t &x) {
         LCOMPILERS_ASSERT(x.n_keys == x.n_values);
-        if( x.n_keys == 0 && ann_assign_target_type != nullptr ) {
-            tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
-                                           nullptr, 0, ann_assign_target_type);
+        if( x.n_keys == 0 ) {
+            if( ann_assign_target_type != nullptr ) {
+                tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
+                                            nullptr, 0, ann_assign_target_type);
+            }
+            else {
+                tmp = nullptr;
+            }
             return ;
         }
         Vec<ASR::expr_t*> keys;
@@ -7520,16 +7583,45 @@ public:
                 tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
                 return;
             } else if( call_name == "array" ) {
-                parse_args(x, args);
+                ASR::ttype_t* type = nullptr;
+                if( x.n_keywords == 0 ) {
+                    parse_args(x, args);
+                } else {
+                    args.reserve(al, 1);
+                    visit_expr_list(x.m_args, x.n_args, args);
+                    if( x.n_keywords > 1 ) {
+                        throw SemanticError("More than one keyword "
+                            "arguments aren't recognised by array",
+                            x.base.base.loc);
+                    }
+                    if( std::string(x.m_keywords[0].m_arg) != "dtype" ) {
+                        throw SemanticError("Unrecognised keyword argument, " +
+                            std::string(x.m_keywords[0].m_arg), x.base.base.loc);
+                    }
+                    std::string dtype_np = "";
+                    if( AST::is_a<AST::Name_t>(*x.m_keywords[0].m_value) ) {
+                        AST::Name_t* name_t = AST::down_cast<AST::Name_t>(x.m_keywords[0].m_value);
+                        dtype_np = name_t->m_id;
+                    } else {
+                        LCOMPILERS_ASSERT(false);
+                    }
+                    LCOMPILERS_ASSERT(numpy2lpythontypes.find(dtype_np) != numpy2lpythontypes.end());
+                    Vec<ASR::dimension_t> dims;
+                    dims.n = 0;
+                    type = get_type_from_var_annotation(
+                        numpy2lpythontypes[dtype_np], x.base.base.loc, dims);
+                }
                 if( args.size() != 1 ) {
                     throw SemanticError("array accepts only 1 argument for now, got " +
                                         std::to_string(args.size()) + " arguments instead.",
                                         x.base.base.loc);
                 }
                 ASR::expr_t *arg = args[0].m_value;
-                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                if( type == nullptr ) {
+                    type = ASRUtils::expr_type(arg);
+                }
                 if(ASR::is_a<ASR::ListConstant_t>(*arg)) {
-                    type = ASR::down_cast<ASR::List_t>(type)->m_type;
+                    type = ASRUtils::get_contained_type(type);
                     ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
                     ASR::expr_t **m_args = list->m_args;
                     size_t n_args = list->n_args;
@@ -7544,6 +7636,10 @@ public:
                     dims.push_back(al, dim);
                     type = ASRUtils::make_Array_t_util(al, x.base.base.loc, type, dims.p, dims.size(),
                         ASR::abiType::Source, false, ASR::array_physical_typeType::PointerToDataArray, true);
+                    for( size_t i = 0; i < n_args; i++ ) {
+                        m_args[i] = CastingUtil::perform_casting(m_args[i], ASRUtils::expr_type(m_args[i]),
+                                        ASRUtils::type_get_past_array(type), al, x.base.base.loc);
+                    }
                     tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
                 } else {
                     throw SemanticError("array accepts only list for now, got " +

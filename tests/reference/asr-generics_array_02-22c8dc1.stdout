@@ -445,14 +445,14 @@
                                     .false.
                                     ()
                                 ),
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
                                         208
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -1264,22 +1264,22 @@
                     (SymbolTable
                         209
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
                                     209
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        209 __main____global_statements
-                        2 __main____global_statements
+                        209 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

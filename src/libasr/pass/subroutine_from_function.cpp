@@ -15,11 +15,11 @@ namespace LCompilers {
 using ASR::down_cast;
 using ASR::is_a;
 
-class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunctionFromSubroutine> {
+class CreateSubroutineFromFunction: public PassUtils::PassVisitor<CreateSubroutineFromFunction> {
 
     public:
 
-        CreateFunctionFromSubroutine(Allocator &al_) :
+        CreateSubroutineFromFunction(Allocator &al_) :
         PassVisitor(al_, nullptr)
         {
             pass_result.reserve(al, 1);
@@ -228,7 +228,7 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
 
 void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t &unit,
                                           const LCompilers::PassOptions& /*pass_options*/) {
-    CreateFunctionFromSubroutine v(al);
+    CreateSubroutineFromFunction v(al);
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallWithSubroutineCallVisitor u(al);
     u.visit_TranslationUnit(unit);

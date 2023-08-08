@@ -10,14 +10,14 @@
                         "symtab": {
                             "node": "SymbolTable2",
                             "fields": {
-                                "__main____global_statements": {
+                                "__main__global_stmts": {
                                     "node": "Function",
                                     "fields": {
                                         "symtab": {
                                             "node": "SymbolTable8",
                                             "fields": {}
                                         },
-                                        "name": "__main____global_statements",
+                                        "name": "__main__global_stmts",
                                         "function_signature": {
                                             "node": "FunctionType",
                                             "fields": {
@@ -609,15 +609,15 @@
                         "symtab": {
                             "node": "SymbolTable9",
                             "fields": {
-                                "__main____global_statements": {
+                                "__main__global_stmts": {
                                     "node": "ExternalSymbol",
                                     "fields": {
                                         "parent_symtab": 9,
-                                        "name": "__main____global_statements",
-                                        "external": "__main____global_statements (SymbolTable2)",
+                                        "name": "__main__global_stmts",
+                                        "external": "__main__global_stmts (SymbolTable2)",
                                         "module_name": "__main__",
                                         "scope_names": [],
-                                        "original_name": "__main____global_statements",
+                                        "original_name": "__main__global_stmts",
                                         "access": "Public"
                                     },
                                     "loc": {
@@ -641,8 +641,8 @@
                             {
                                 "node": "SubroutineCall",
                                 "fields": {
-                                    "name": "__main____global_statements (SymbolTable9)",
-                                    "original_name": "__main____global_statements (SymbolTable2)",
+                                    "name": "__main__global_stmts (SymbolTable9)",
+                                    "original_name": "__main__global_stmts (SymbolTable2)",
                                     "args": [],
                                     "dt": []
                                 },

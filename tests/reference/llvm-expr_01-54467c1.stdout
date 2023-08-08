@@ -5,7 +5,7 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
 @2 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
 
-define void @__module___main_____main____global_statements() {
+define void @__module___main_____main__global_stmts() {
 .entry:
   call void @__module___main___main0()
   br label %return
@@ -34,7 +34,7 @@ declare void @_lfortran_printf(i8*, ...)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module___main_____main____global_statements()
+  call void @__module___main_____main__global_stmts()
   ret i32 0
 }
 

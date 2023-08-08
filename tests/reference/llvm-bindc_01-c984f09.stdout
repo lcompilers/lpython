@@ -9,7 +9,7 @@ source_filename = "LFortran"
 @3 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 @4 = private unnamed_addr constant [16 x i8] c"AssertionError\0A\00", align 1
 
-define void @__module___main_____main____global_statements() {
+define void @__module___main_____main__global_stmts() {
 .entry:
   %0 = load void*, void** @queries, align 8
   %1 = bitcast void* %0 to i16*
@@ -74,7 +74,7 @@ declare void @exit(i32)
 define i32 @main(i32 %0, i8** %1) {
 .entry:
   call void @_lpython_set_argv(i32 %0, i8** %1)
-  call void @__module___main_____main____global_statements()
+  call void @__module___main_____main__global_stmts()
   ret i32 0
 }
 

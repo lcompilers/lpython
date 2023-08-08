@@ -18,7 +18,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 }
 
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 int32_t check();
 void main0();
 int32_t test(int32_t a, int32_t b);
@@ -48,7 +48,7 @@ void main0()
     x = check();
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     main0();
 }
@@ -56,7 +56,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }
