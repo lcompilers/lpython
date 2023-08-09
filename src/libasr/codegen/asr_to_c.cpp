@@ -1045,11 +1045,7 @@ R"(    // Initialise Numpy
         bracket_open++;
         visit_expr(*x.m_test);
         std::string test_condition = src;
-        if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)){
-            out = symengine_src;
-            symengine_src = "";
-            out += indent;
-        }
+
         if (x.m_msg) {
             this->visit_expr(*x.m_msg);
             std::string tmp_gen = "";
@@ -1065,19 +1061,10 @@ R"(    // Initialise Numpy
                 if( ASRUtils::is_array(value_type) ) {
                     src += "->data";
                 }
-                if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
-                    src += symengine_src;
-                    symengine_src = "";
-                }
                 if (ASR::is_a<ASR::Complex_t>(*value_type)) {
                     tmp_gen += "creal(" + src + ")";
                     tmp_gen += ", ";
                     tmp_gen += "cimag(" + src + ")";
-                } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
-                    tmp_gen += "basic_str(" + src + ")";
-                    if(ASR::is_a<ASR::Var_t>(*x.m_msg)) {
-                        symengine_queue.pop();
-                    }
                 } else {
                     tmp_gen += src;
                 }
@@ -1152,10 +1139,6 @@ R"(    // Initialise Numpy
             if( ASRUtils::is_array(value_type) ) {
                 src += "->data";
             }
-            if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)) {
-                out += symengine_src;
-                symengine_src = "";
-            }
             if( ASR::is_a<ASR::List_t>(*value_type) ||
                 ASR::is_a<ASR::Tuple_t>(*value_type)) {
                 tmp_gen += "\"";
@@ -1178,12 +1161,6 @@ R"(    // Initialise Numpy
                 v.pop_back();
                 v.push_back("creal(" + src + ")");
                 v.push_back("cimag(" + src + ")");
-            } else if(ASR::is_a<ASR::SymbolicExpression_t>(*value_type)){
-                v.pop_back();
-                v.push_back("basic_str(" + src + ")");
-                if(ASR::is_a<ASR::Var_t>(*x.m_values[i])) {
-                    symengine_queue.pop();
-                }
             }
             if (i+1!=x.n_values) {
                 tmp_gen += "\%s";
