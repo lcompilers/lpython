@@ -291,49 +291,30 @@ public:
         pass_result.push_back(al, stmt);
     }
 
+    ASR::expr_t* handle_argument(Allocator &al, const Location &loc, ASR::expr_t* arg) {
+        if (ASR::is_a<ASR::IntrinsicFunction_t>(*arg) || ASR::is_a<ASR::Cast_t>(*arg)) {
+            if (ASR::is_a<ASR::IntrinsicFunction_t>(*arg)) {
+                this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(arg));
+            } else if (ASR::is_a<ASR::Cast_t>(*arg)) {
+                this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(arg));
+            }
+            ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+            return ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym));
+        }
+        return arg;
+    }
+
     void process_binary_operator(Allocator &al,  const Location &loc, ASR::IntrinsicFunction_t* x, SymbolTable* module_scope,
         const std::string& new_name, ASR::expr_t* target) {
-            ASR::expr_t* value1 = x->m_args[0];
-            ASR::expr_t* value2 = x->m_args[1];
-
-            if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1) || ASR::is_a<ASR::Cast_t>(*value1)) {
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(value1));
-                } else {
-                    this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(value1));
-                }
-                ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                value1 = ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym1));
-            }
-
-            if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2) || ASR::is_a<ASR::Cast_t>(*value2)) {
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value2)) {
-                    this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(value2));
-                } else {
-                    this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(value2));
-                }
-                ASR::symbol_t* var_sym2 = current_scope->get_symbol(symengine_stack.pop());
-                value2 = ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym2));
-            }
-
-        perform_symbolic_binary_operation(al, loc, module_scope, new_name, target, value1, value2);
+            ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
+            ASR::expr_t* value2 = handle_argument(al, loc, x->m_args[1]);
+            perform_symbolic_binary_operation(al, loc, module_scope, new_name, target, value1, value2);
     }
 
     void process_unary_operator(Allocator &al,  const Location &loc, ASR::IntrinsicFunction_t* x, SymbolTable* module_scope,
         const std::string& new_name, ASR::expr_t* target) {
-            ASR::expr_t* value1 = x->m_args[0];
-
-            if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1) || ASR::is_a<ASR::Cast_t>(*value1)) {
-                if (ASR::is_a<ASR::IntrinsicFunction_t>(*value1)) {
-                    this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(value1));
-                } else {
-                    this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(value1));
-                }
-                ASR::symbol_t* var_sym1 = current_scope->get_symbol(symengine_stack.pop());
-                value1 = ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym1));
-            }
-
-        perform_symbolic_unary_operation(al, loc, module_scope, new_name, target, value1);
+            ASR::expr_t* value1 = handle_argument(al, loc, x->m_args[0]);
+            perform_symbolic_unary_operation(al, loc, module_scope, new_name, target, value1);
     }
 
     void process_intrinsic_function(Allocator &al,  const Location &loc, ASR::IntrinsicFunction_t* x, SymbolTable* module_scope,
