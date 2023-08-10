@@ -336,165 +336,170 @@ public:
         perform_symbolic_unary_operation(al, loc, module_scope, new_name, target, value1);
     }
 
+    void process_intrinsic_function(Allocator &al,  const Location &loc, ASR::IntrinsicFunction_t* x, SymbolTable* module_scope,
+        ASR::expr_t* target){
+        int64_t intrinsic_id = x->m_intrinsic_id;
+        switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
+                std::string new_name = "basic_const_pi";
+                symbolic_dependencies.push_back(new_name);
+                if (!module_scope->get_symbol(new_name)) {
+                    std::string header = "symengine/cwrapper.h";
+                    SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+                    Vec<ASR::expr_t*> args;
+                    args.reserve(al, 1);
+                    ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                        al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                    fn_symtab->add_symbol(s2c(al, "x"), arg);
+                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)));
+
+                    Vec<ASR::stmt_t*> body;
+                    body.reserve(al, 1);
+
+                    Vec<char*> dep;
+                    dep.reserve(al, 1);
+
+                    ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, loc,
+                        fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                        nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                        ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                        false, false, nullptr, 0, false, false, false, s2c(al, header));
+                    ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                    module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                }
+
+                // Create the function call statement for basic_const_pi
+                ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 1);
+                ASR::call_arg_t call_arg;
+                call_arg.loc = loc;
+                call_arg.m_value = target;
+                call_args.push_back(al, call_arg);
+
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, basic_const_pi_sym,
+                    basic_const_pi_sym, call_args.p, call_args.n, nullptr));
+                pass_result.push_back(al, stmt);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
+                std::string new_name = "symbol_set";
+                symbolic_dependencies.push_back(new_name);
+                if (!module_scope->get_symbol(new_name)) {
+                    std::string header = "symengine/cwrapper.h";
+                    SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+                    Vec<ASR::expr_t*> args;
+                    args.reserve(al, 1);
+                    ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                        al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                    fn_symtab->add_symbol(s2c(al, "x"), arg1);
+                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
+                    ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                        al, loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
+                        nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr)),
+                        nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                    fn_symtab->add_symbol(s2c(al, "s"), arg2);
+                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+                    Vec<ASR::stmt_t*> body;
+                    body.reserve(al, 1);
+
+                    Vec<char*> dep;
+                    dep.reserve(al, 1);
+
+                    ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, loc,
+                        fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                        nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                        ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                        false, false, nullptr, 0, false, false, false, s2c(al, header));
+                    ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                    module_scope->add_symbol(s2c(al, new_name), new_symbol);
+                }
+
+                ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 2);
+                ASR::call_arg_t call_arg1, call_arg2;
+                call_arg1.loc = loc;
+                call_arg1.m_value = target;
+                call_arg2.loc = loc;
+                call_arg2.m_value = x->m_args[0];
+                call_args.push_back(al, call_arg1);
+                call_args.push_back(al, call_arg2);
+
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, symbol_set_sym,
+                    symbol_set_sym, call_args.p, call_args.n, nullptr));
+                pass_result.push_back(al, stmt);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
+                process_binary_operator(al, loc, x, module_scope, "basic_add", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
+                process_binary_operator(al, loc, x, module_scope, "basic_sub", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
+                process_binary_operator(al, loc, x, module_scope, "basic_mul", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
+                process_binary_operator(al, loc, x, module_scope, "basic_div", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
+                process_binary_operator(al, loc, x, module_scope, "basic_pow", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
+                process_binary_operator(al, loc, x, module_scope, "basic_diff", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
+                process_unary_operator(al, loc, x, module_scope, "basic_sin", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
+                process_unary_operator(al, loc, x, module_scope, "basic_cos", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
+                process_unary_operator(al, loc, x, module_scope, "basic_log", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
+                process_unary_operator(al, loc, x, module_scope, "basic_exp", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
+                process_unary_operator(al, loc, x, module_scope, "basic_abs", target);
+                break;
+            }
+            case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
+                process_unary_operator(al, loc, x, module_scope, "basic_expand", target);
+                break;
+            }
+            default: {
+                throw LCompilersException("IntrinsicFunction: `"
+                    + ASRUtils::get_intrinsic_name(intrinsic_id)
+                    + "` is not implemented");
+            }
+        }
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         SymbolTable* module_scope = current_scope->parent;
         if (ASR::is_a<ASR::IntrinsicFunction_t>(*x.m_value)) {
             ASR::IntrinsicFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicFunction_t>(x.m_value);
-            int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
             if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
-                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
-                        std::string new_name = "basic_const_pi";
-                        symbolic_dependencies.push_back(new_name);
-                        if (!module_scope->get_symbol(new_name)) {
-                            std::string header = "symengine/cwrapper.h";
-                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                            Vec<ASR::expr_t*> args;
-                            args.reserve(al, 1);
-                            ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "x"), arg);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
-
-                            Vec<ASR::stmt_t*> body;
-                            body.reserve(al, 1);
-
-                            Vec<char*> dep;
-                            dep.reserve(al, 1);
-
-                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                                false, false, nullptr, 0, false, false, false, s2c(al, header));
-                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                        }
-
-                        // Create the function call statement for basic_const_pi
-                        ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
-                        Vec<ASR::call_arg_t> call_args;
-                        call_args.reserve(al, 1);
-                        ASR::call_arg_t call_arg;
-                        call_arg.loc = x.base.base.loc;
-                        call_arg.m_value = x.m_target;
-                        call_args.push_back(al, call_arg);
-
-                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
-                            basic_const_pi_sym, call_args.p, call_args.n, nullptr));
-                        pass_result.push_back(al, stmt);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                        std::string new_name = "symbol_set";
-                        symbolic_dependencies.push_back(new_name);
-                        if (!module_scope->get_symbol(new_name)) {
-                            std::string header = "symengine/cwrapper.h";
-                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                            Vec<ASR::expr_t*> args;
-                            args.reserve(al, 1);
-                            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "x"), arg1);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
-                            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "s"), arg2);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
-
-                            Vec<ASR::stmt_t*> body;
-                            body.reserve(al, 1);
-
-                            Vec<char*> dep;
-                            dep.reserve(al, 1);
-
-                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                                false, false, nullptr, 0, false, false, false, s2c(al, header));
-                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                        }
-
-                        ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
-                        Vec<ASR::call_arg_t> call_args;
-                        call_args.reserve(al, 2);
-                        ASR::call_arg_t call_arg1, call_arg2;
-                        call_arg1.loc = x.base.base.loc;
-                        call_arg1.m_value = x.m_target;
-                        call_arg2.loc = x.base.base.loc;
-                        call_arg2.m_value = intrinsic_func->m_args[0];
-                        call_args.push_back(al, call_arg1);
-                        call_args.push_back(al, call_arg2);
-
-                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
-                            symbol_set_sym, call_args.p, call_args.n, nullptr));
-                        pass_result.push_back(al, stmt);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_add", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_sub", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_mul", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_div", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_pow", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_diff", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_sin", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_cos", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_log", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_exp", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_abs", x.m_target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_expand", x.m_target);
-                        break;
-                    }
-                    default: {
-                        throw LCompilersException("IntrinsicFunction: `"
-                            + ASRUtils::get_intrinsic_name(intrinsic_id)
-                            + "` is not implemented");
-                    }
-                }
+                process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, x.m_target);
             }
         } else if (ASR::is_a<ASR::Cast_t>(*x.m_value)) {
             ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(x.m_value);
@@ -653,160 +658,8 @@ public:
                 }
 
                 ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-                int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
-                switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
-                        std::string new_name = "basic_const_pi";
-                        symbolic_dependencies.push_back(new_name);
-                        if (!module_scope->get_symbol(new_name)) {
-                            std::string header = "symengine/cwrapper.h";
-                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+                process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, target);
 
-                            Vec<ASR::expr_t*> args;
-                            args.reserve(al, 1);
-                            ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "x"), arg);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
-
-                            Vec<ASR::stmt_t*> body;
-                            body.reserve(al, 1);
-
-                            Vec<char*> dep;
-                            dep.reserve(al, 1);
-
-                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                                false, false, nullptr, 0, false, false, false, s2c(al, header));
-                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                        }
-
-                        // Create the function call statement for basic_const_pi
-                        ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
-                        Vec<ASR::call_arg_t> call_args;
-                        call_args.reserve(al, 1);
-                        ASR::call_arg_t call_arg;
-                        call_arg.loc = x.base.base.loc;
-                        call_arg.m_value = target;
-                        call_args.push_back(al, call_arg);
-
-                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
-                            basic_const_pi_sym, call_args.p, call_args.n, nullptr));
-                        pass_result.push_back(al, stmt);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                        std::string new_name = "symbol_set";
-                        symbolic_dependencies.push_back(new_name);
-                        if (!module_scope->get_symbol(new_name)) {
-                            std::string header = "symengine/cwrapper.h";
-                            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                            Vec<ASR::expr_t*> args;
-                            args.reserve(al, 1);
-                            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "x"), arg1);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
-                            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                                al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
-                                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
-                                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                            fn_symtab->add_symbol(s2c(al, "s"), arg2);
-                            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
-
-                            Vec<ASR::stmt_t*> body;
-                            body.reserve(al, 1);
-
-                            Vec<char*> dep;
-                            dep.reserve(al, 1);
-
-                            ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                                fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                                ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                                false, false, nullptr, 0, false, false, false, s2c(al, header));
-                            ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                            module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                        }
-
-                        ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
-                        Vec<ASR::call_arg_t> call_args;
-                        call_args.reserve(al, 2);
-                        ASR::call_arg_t call_arg1, call_arg2;
-                        call_arg1.loc = x.base.base.loc;
-                        call_arg1.m_value = target;
-                        call_arg2.loc = x.base.base.loc;
-                        call_arg2.m_value = intrinsic_func->m_args[0];
-                        call_args.push_back(al, call_arg1);
-                        call_args.push_back(al, call_arg2);
-
-                        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
-                            symbol_set_sym, call_args.p, call_args.n, nullptr));
-                        pass_result.push_back(al, stmt);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_add", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_sub", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_mul", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_div", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_pow", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
-                        process_binary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_diff", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_sin", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_cos", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_log", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_exp", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_abs", target);
-                        break;
-                    }
-                    case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
-                        process_unary_operator(al, x.base.base.loc, intrinsic_func, module_scope, "basic_expand", target);
-                        break;
-                    }
-                    default: {
-                        throw LCompilersException("IntrinsicFunction: `"
-                            + ASRUtils::get_intrinsic_name(intrinsic_id)
-                            + "` is not implemented");
-                    }
-                }
                 std::string new_name = "basic_str";
                 symbolic_dependencies.push_back(new_name);
                 if (!module_scope->get_symbol(new_name)) {
@@ -891,161 +744,8 @@ public:
             }
 
             ASR::IntrinsicFunction_t &xx = const_cast<ASR::IntrinsicFunction_t&>(x);
-            int64_t intrinsic_id = xx.m_intrinsic_id;
             ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
-            switch (static_cast<LCompilers::ASRUtils::IntrinsicFunctions>(intrinsic_id)) {
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPi: {
-                    std::string new_name = "basic_const_pi";
-                    symbolic_dependencies.push_back(new_name);
-                    if (!module_scope->get_symbol(new_name)) {
-                        std::string header = "symengine/cwrapper.h";
-                        SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                        Vec<ASR::expr_t*> args;
-                        args.reserve(al, 1);
-                        ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                        fn_symtab->add_symbol(s2c(al, "x"), arg);
-                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg)));
-
-                        Vec<ASR::stmt_t*> body;
-                        body.reserve(al, 1);
-
-                        Vec<char*> dep;
-                        dep.reserve(al, 1);
-
-                        ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                            fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                            nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                            ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                            false, false, nullptr, 0, false, false, false, s2c(al, header));
-                        ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                        module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                    }
-
-                    // Create the function call statement for basic_const_pi
-                    ASR::symbol_t* basic_const_pi_sym = module_scope->get_symbol(new_name);
-                    Vec<ASR::call_arg_t> call_args;
-                    call_args.reserve(al, 1);
-                    ASR::call_arg_t call_arg;
-                    call_arg.loc = x.base.base.loc;
-                    call_arg.m_value = target;
-                    call_args.push_back(al, call_arg);
-
-                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_const_pi_sym,
-                        basic_const_pi_sym, call_args.p, call_args.n, nullptr));
-                    pass_result.push_back(al, stmt);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSymbol: {
-                    std::string new_name = "symbol_set";
-                    symbolic_dependencies.push_back(new_name);
-                    if (!module_scope->get_symbol(new_name)) {
-                        std::string header = "symengine/cwrapper.h";
-                        SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
-
-                        Vec<ASR::expr_t*> args;
-                        args.reserve(al, 1);
-                        ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, x.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                        fn_symtab->add_symbol(s2c(al, "x"), arg1);
-                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg1)));
-                        ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                            al, x.base.base.loc, fn_symtab, s2c(al, "s"), nullptr, 0, ASR::intentType::In,
-                            nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)),
-                            nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
-                        fn_symtab->add_symbol(s2c(al, "s"), arg2);
-                        args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg2)));
-
-                        Vec<ASR::stmt_t*> body;
-                        body.reserve(al, 1);
-
-                        Vec<char*> dep;
-                        dep.reserve(al, 1);
-
-                        ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, x.base.base.loc,
-                            fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
-                            nullptr, ASR::abiType::BindC, ASR::accessType::Public,
-                            ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
-                            false, false, nullptr, 0, false, false, false, s2c(al, header));
-                        ASR::symbol_t* new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
-                        module_scope->add_symbol(s2c(al, new_name), new_symbol);
-                    }
-
-                    ASR::symbol_t* symbol_set_sym = module_scope->get_symbol(new_name);
-                    Vec<ASR::call_arg_t> call_args;
-                    call_args.reserve(al, 2);
-                    ASR::call_arg_t call_arg1, call_arg2;
-                    call_arg1.loc = x.base.base.loc;
-                    call_arg1.m_value = target;
-                    call_arg2.loc = x.base.base.loc;
-                    call_arg2.m_value = x.m_args[0];
-                    call_args.push_back(al, call_arg1);
-                    call_args.push_back(al, call_arg2);
-
-                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, symbol_set_sym,
-                        symbol_set_sym, call_args.p, call_args.n, nullptr));
-                    pass_result.push_back(al, stmt);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAdd: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_add", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSub: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_sub", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicMul: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_mul", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiv: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_div", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicPow: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_pow", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicDiff: {
-                    process_binary_operator(al, x.base.base.loc, &xx, module_scope, "basic_diff", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicSin: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_sin", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicCos: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_cos", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicLog: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_log", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExp: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_exp", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicAbs: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_abs", target);
-                    break;
-                }
-                case LCompilers::ASRUtils::IntrinsicFunctions::SymbolicExpand: {
-                    process_unary_operator(al, x.base.base.loc, &xx, module_scope, "basic_expand", target);
-                    break;
-                }
-                default: {
-                    throw LCompilersException("IntrinsicFunction: `"
-                        + ASRUtils::get_intrinsic_name(intrinsic_id)
-                        + "` is not implemented");
-                }
-            }
+            process_intrinsic_function(al, x.base.base.loc, &xx, module_scope, target);
         }
     }
 
