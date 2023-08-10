@@ -845,7 +845,7 @@ public:
 
     ASR::expr_t* process_with_basic_str(Allocator &al, const Location &loc, const ASR::expr_t* expr,
         ASR::symbol_t* basic_str_sym) {
-            ASR::symbol_t *var_sym;
+            ASR::symbol_t *var_sym = nullptr;
             if (ASR::is_a<ASR::Var_t>(*expr)) {
                 var_sym = ASR::down_cast<ASR::Var_t>(expr)->m_v;
             } else if (ASR::is_a<ASR::IntrinsicFunction_t>(*expr)) {
