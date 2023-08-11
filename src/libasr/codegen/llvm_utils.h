@@ -588,7 +588,7 @@ namespace LCompilers {
             void write_item(llvm::Value* dict, llvm::Value* key,
                 llvm::Value* value, llvm::Module* module,
                 ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
-                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             virtual
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
@@ -692,11 +692,6 @@ namespace LCompilers {
                                               ASR::ttype_t* key_asr_type,
                                               ASR::ttype_t* value_asr_type,
                                               std::map<std::string, std::map<std::string, int>>& name2memidx);
-
-            void write_item(llvm::Value* dict, llvm::Value* key,
-                            llvm::Value* value, llvm::Module* module,
-                            ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
-                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
                                    llvm::Module& module, ASR::Dict_t* key_asr_type, bool enable_bounds_checking,
@@ -845,11 +840,6 @@ namespace LCompilers {
                 llvm::Module* module,
                 ASR::ttype_t* key_asr_type,
                 ASR::ttype_t* value_asr_type,
-                std::map<std::string, std::map<std::string, int>>& name2memidx);
-
-            void write_item(llvm::Value* dict, llvm::Value* key,
-                llvm::Value* value, llvm::Module* module,
-                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
                 std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
