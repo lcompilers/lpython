@@ -292,16 +292,17 @@ public:
     }
 
     ASR::expr_t* handle_argument(Allocator &al, const Location &loc, ASR::expr_t* arg) {
-        if (ASR::is_a<ASR::IntrinsicFunction_t>(*arg) || ASR::is_a<ASR::Cast_t>(*arg)) {
-            if (ASR::is_a<ASR::IntrinsicFunction_t>(*arg)) {
-                this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(arg));
-            } else if (ASR::is_a<ASR::Cast_t>(*arg)) {
-                this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(arg));
-            }
-            ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
-            return ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym));
+        if (ASR::is_a<ASR::Var_t>(*arg)) {
+            return arg;
+        } else if (ASR::is_a<ASR::IntrinsicFunction_t>(*arg)) {
+            this->visit_IntrinsicFunction(*ASR::down_cast<ASR::IntrinsicFunction_t>(arg));
+        } else if (ASR::is_a<ASR::Cast_t>(*arg)) {
+            this->visit_Cast(*ASR::down_cast<ASR::Cast_t>(arg));
+        } else {
+            LCOMPILERS_ASSERT(false);
         }
-        return arg;
+        ASR::symbol_t* var_sym = current_scope->get_symbol(symengine_stack.pop());
+        return ASRUtils::EXPR(ASR::make_Var_t(al, loc, var_sym));
     }
 
     void process_binary_operator(Allocator &al,  const Location &loc, ASR::IntrinsicFunction_t* x, SymbolTable* module_scope,
