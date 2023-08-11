@@ -375,6 +375,7 @@ macro(COMPILE)
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_library(${name} OBJECT ${name}.o)
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
         elseif(KIND STREQUAL "c")
             add_custom_command(
                 OUTPUT ${name}.c
@@ -382,6 +383,7 @@ macro(COMPILE)
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_library(${name} OBJECT ${name}.c)
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
         elseif(KIND STREQUAL "cpython")
             # CPython test
