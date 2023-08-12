@@ -81,11 +81,7 @@ public:
         std::string new_name = "basic_free_stack";
         ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
         Vec<ASR::stmt_t*> func_body;
-        func_body.n = 0;
-        func_body.reserve(al, 1);
-        for (size_t i = 0; i < xx.n_body; i++) {
-            func_body.push_back(al, xx.m_body[i]);
-        }
+        func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
         for (ASR::symbol_t* symbol : symbolic_vars) {
             Vec<ASR::call_arg_t> call_args;
