@@ -346,6 +346,16 @@ namespace LCompilers {
                             }
                         }
                     }
+
+                    if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
+                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
+                        ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+
+                        if (f->m_symtab->parent == external_symbol->m_parent_symtab) {
+                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                        }
+                    }
+
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
                         fill_module_dependencies ) {
                         ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
@@ -381,6 +391,16 @@ namespace LCompilers {
                             }
                         }
                     }
+
+                    if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
+                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
+                        ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+
+                        if (f->m_symtab->parent == external_symbol->m_parent_symtab) {
+                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                        }
+                    }
+
                     if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
                         fill_module_dependencies ) {
                         ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);

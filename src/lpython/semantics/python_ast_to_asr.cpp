@@ -1288,6 +1288,17 @@ public:
                 if(ASRUtils::symbol_parent_symtab(stemp) == func->m_symtab->parent) {
                     dependencies.push_back(al, ASRUtils::symbol_name(stemp));
                 }   
+
+                // Check if stemp is an External Symbol.
+                if( ASR::is_a<ASR::ExternalSymbol_t>(*stemp) ) {
+                    ASR::ExternalSymbol_t* es = ASR::down_cast<ASR::ExternalSymbol_t>(stemp);
+                    if( es->m_external ) {
+                        // Only add dependency if both belong to same parent symbol table.
+                        if(ASRUtils::symbol_parent_symtab(es->m_external) == func->m_symtab->parent) {
+                            dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                        }
+                    }
+                }
                 ASR::asr_t* func_call_asr = ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
