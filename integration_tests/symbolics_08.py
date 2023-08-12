@@ -6,6 +6,10 @@ def basic_new_stack(x: CPtr) -> None:
     pass
 
 @ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
+def basic_free_stack(x: CPtr) -> None:
+    pass
+
+@ccall(header="symengine/cwrapper.h", c_shared_lib="symengine", c_shared_lib_path=f"{os.environ['CONDA_PREFIX']}/lib")
 def basic_const_pi(x: CPtr) -> None:
     pass
 
@@ -22,5 +26,6 @@ def main0():
     s: str = basic_str(x)
     print(s)
     assert s == "pi"
+    basic_free_stack(x)
 
 main0()

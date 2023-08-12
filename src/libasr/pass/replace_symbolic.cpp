@@ -101,6 +101,7 @@ public:
 
         xx.n_body = func_body.size();
         xx.m_body = func_body.p;
+        symbolic_vars.clear();
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
