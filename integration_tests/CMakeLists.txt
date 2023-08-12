@@ -626,6 +626,7 @@ RUN(NAME test_global         LABELS cpython llvm c)
 RUN(NAME test_global_decl    LABELS cpython llvm c)
 RUN(NAME test_ifexp_01          LABELS cpython llvm c)
 RUN(NAME test_ifexp_02          LABELS cpython llvm c)
+RUN(NAME test_ifexp_03          LABELS cpython llvm c)
 RUN(NAME test_unary_op_01    LABELS cpython llvm c) # unary minus
 RUN(NAME test_unary_op_02    LABELS cpython llvm c) # unary plus
 RUN(NAME test_unary_op_03    LABELS cpython llvm c wasm) # unary bitinvert
