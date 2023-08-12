@@ -1831,6 +1831,12 @@ static inline bool is_fixed_size_array(ASR::dimension_t* m_dims, size_t n_dims) 
     return true;
 }
 
+static inline ASR::ttype_t *extract_type(ASR::ttype_t *type) {
+    return type_get_past_array(
+            type_get_past_allocatable(
+                type_get_past_pointer(type)));
+}
+
 static inline bool is_fixed_size_array(ASR::ttype_t* type) {
     ASR::dimension_t* m_dims = nullptr;
     size_t n_dims = ASRUtils::extract_dimensions_from_ttype(type, m_dims);

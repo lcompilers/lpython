@@ -20,6 +20,7 @@
 #include <libasr/pass/instantiate_template.h>
 #include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 #include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>

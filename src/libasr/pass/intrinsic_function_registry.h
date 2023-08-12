@@ -1504,7 +1504,7 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
 }
 
 static inline ASR::expr_t *eval_reserve(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for ListConstant expression
     return nullptr;
 }
@@ -1527,7 +1527,7 @@ static inline ASR::asr_t* create_Reserve(Allocator& al, const Location& loc,
     for( size_t i = 0; i < args.size(); i++ ) {
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
-    ASR::expr_t* compile_time_value = eval_reserve(al, loc, arg_values);
+    ASR::expr_t* compile_time_value = eval_reserve(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
             ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Reserve),
@@ -1552,7 +1552,7 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
 }
 
 static inline ASR::expr_t *eval_dict_keys(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for DictConstant expression
     return nullptr;
 }
@@ -1573,8 +1573,8 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
     for( size_t i = 0; i < args.size(); i++ ) {
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
-    ASR::expr_t* compile_time_value = eval_dict_keys(al, loc, arg_values);
     ASR::ttype_t *to_type = List(dict_keys_type);
+    ASR::expr_t* compile_time_value = eval_dict_keys(al, loc, to_type, arg_values);
     return ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
             args.p, args.size(), 0, to_type, compile_time_value);
@@ -1598,7 +1598,7 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
 }
 
 static inline ASR::expr_t *eval_dict_values(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for DictConstant expression
     return nullptr;
 }
@@ -1619,8 +1619,8 @@ static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
     for( size_t i = 0; i < args.size(); i++ ) {
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
-    ASR::expr_t* compile_time_value = eval_dict_values(al, loc, arg_values);
     ASR::ttype_t *to_type = List(dict_values_type);
+    ASR::expr_t* compile_time_value = eval_dict_values(al, loc, to_type, arg_values);
     return ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
             args.p, args.size(), 0, to_type, compile_time_value);
@@ -1646,7 +1646,7 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
 }
 
 static inline ASR::expr_t *eval_set_add(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for SetConstant expression
     return nullptr;
 }
@@ -1668,7 +1668,7 @@ static inline ASR::asr_t* create_SetAdd(Allocator& al, const Location& loc,
     for( size_t i = 0; i < args.size(); i++ ) {
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
-    ASR::expr_t* compile_time_value = eval_set_add(al, loc, arg_values);
+    ASR::expr_t* compile_time_value = eval_set_add(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
             ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
@@ -1695,7 +1695,7 @@ static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnost
 }
 
 static inline ASR::expr_t *eval_set_remove(Allocator &/*al*/,
-    const Location &/*loc*/, Vec<ASR::expr_t*>& /*args*/) {
+    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
     // TODO: To be implemented for SetConstant expression
     return nullptr;
 }
@@ -1717,7 +1717,7 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
     for( size_t i = 0; i < args.size(); i++ ) {
         arg_values.push_back(al, ASRUtils::expr_value(args[i]));
     }
-    ASR::expr_t* compile_time_value = eval_set_remove(al, loc, arg_values);
+    ASR::expr_t* compile_time_value = eval_set_remove(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
             ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
             static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
