@@ -1738,7 +1738,7 @@ static inline bool is_generic_function(ASR::symbol_t *x) {
                     return true;
                 }
             }
-            return func_type->m_return_var_type 
+            return func_type->m_return_var_type
                    && is_type_parameter(*func_type->m_return_var_type);
         }
         default: return false;
@@ -4181,6 +4181,29 @@ static inline ASR::asr_t* make_IntrinsicFunction_t_util(
     }
 
     return ASR::make_IntrinsicFunction_t(al, a_loc, a_intrinsic_id,
+        a_args, n_args, a_overload_id, a_type, a_value);
+}
+
+static inline ASR::asr_t* make_IntrinsicArrayFunction_t_util(
+    Allocator &al, const Location &a_loc, int64_t arr_intrinsic_id,
+    ASR::expr_t** a_args, size_t n_args, int64_t a_overload_id,
+    ASR::ttype_t* a_type, ASR::expr_t* a_value) {
+
+    for( size_t i = 0; i < n_args; i++ ) {
+        if( a_args[i] == nullptr ||
+            ASR::is_a<ASR::IntegerBOZ_t>(*a_args[i]) ) {
+            continue;
+        }
+        ASR::expr_t* arg = a_args[i];
+        ASR::ttype_t* arg_type = ASRUtils::type_get_past_allocatable(
+            ASRUtils::type_get_past_pointer(ASRUtils::expr_type(arg)));
+
+        if( ASRUtils::is_array(arg_type) ) {
+            a_args[i] = cast_to_descriptor(al, arg);
+        }
+    }
+
+    return ASR::make_IntrinsicArrayFunction_t(al, a_loc, arr_intrinsic_id,
         a_args, n_args, a_overload_id, a_type, a_value);
 }
 

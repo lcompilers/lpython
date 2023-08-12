@@ -6,6 +6,7 @@
 #include <libasr/pass/replace_array_op.h>
 #include <libasr/pass/pass_utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 
 #include <vector>
 #include <utility>
@@ -915,10 +916,8 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         replace_ArrayOpCommon<ASR::StringCompare_t>(x, "_string_comp_op_res");
     }
 
-    void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
-        if( !ASRUtils::IntrinsicFunctionRegistry::is_elemental(x->m_intrinsic_id) ) {
-            return ;
-        }
+    template <typename T>
+    void replace_intrinsic_function(T* x) {
         LCOMPILERS_ASSERT(current_scope != nullptr);
         const Location& loc = x->base.base.loc;
         std::vector<bool> array_mask(x->n_args, false);
@@ -1003,15 +1002,30 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             Vec<ASR::dimension_t> empty_dim;
             empty_dim.reserve(al, 1);
             ASR::ttype_t* dim_less_type = ASRUtils::duplicate_type(al, x->m_type, &empty_dim);
-            ASR::expr_t* op_el_wise = ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, loc,
-                x->m_intrinsic_id, ref_args.p, ref_args.size(), x->m_overload_id,
-                dim_less_type, nullptr));
+            x->m_args = ref_args.p;
+            x->n_args = ref_args.size();
+            x->m_type = dim_less_type;
+            ASR::expr_t* op_el_wise = ASRUtils::EXPR((ASR::asr_t *)
             ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
             ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res, op_el_wise, nullptr));
             doloop_body.push_back(al, assign);
         });
         use_custom_loop_params = false;
         result_var = nullptr;
+    }
+
+    void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
+        if(!ASRUtils::IntrinsicFunctionRegistry::is_elemental(x->m_intrinsic_id)) {
+            return ;
+        }
+        replace_intrinsic_function(x);
+    }
+
+    void replace_IntrinsicArrayFunction(ASR::IntrinsicArrayFunction_t* x) {
+        if(!ASRUtils::IntrinsicArrayFunctionRegistry::is_elemental(x->m_arr_intrinsic_id)) {
+            return ;
+        }
+        replace_intrinsic_function(x);
     }
 
     void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
