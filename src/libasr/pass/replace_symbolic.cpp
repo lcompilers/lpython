@@ -54,6 +54,7 @@ public:
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
         SymbolTable* current_scope_copy = this->current_scope;
         this->current_scope = xx.m_symtab;
+        SymbolTable* module_scope = this->current_scope->parent;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
@@ -75,6 +76,28 @@ public:
         xx.n_dependencies = function_dependencies.size();
         xx.m_dependencies = function_dependencies.p;
         this->current_scope = current_scope_copy;
+
+        // freeing out variables
+        std::string new_name = "basic_free_stack";
+        ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
+        Vec<ASR::stmt_t*> func_body;
+        func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
+
+        for (ASR::symbol_t* symbol : symbolic_vars) {
+            Vec<ASR::call_arg_t> call_args;
+            call_args.reserve(al, 1);
+            ASR::call_arg_t call_arg;
+            call_arg.loc = xx.base.base.loc;
+            call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, xx.base.base.loc, symbol));
+            call_args.push_back(al, call_arg);
+            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, xx.base.base.loc, basic_free_stack_sym,
+                basic_free_stack_sym, call_args.p, call_args.n, nullptr));
+            func_body.push_back(al, stmt);
+        }
+
+        xx.n_body = func_body.size();
+        xx.m_body = func_body.p;
+        symbolic_vars.clear();
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
@@ -132,6 +155,38 @@ public:
                 module_scope->add_symbol(new_name, new_symbol);
             }
 
+            new_name = "basic_free_stack";
+            symbolic_dependencies.push_back(new_name);
+            if (!module_scope->get_symbol(new_name)) {
+                std::string header = "symengine/cwrapper.h";
+                SymbolTable *fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+                Vec<ASR::expr_t*> args;
+                {
+                    args.reserve(al, 1);
+                    ASR::symbol_t *arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                        al, xx.base.base.loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                        nullptr, nullptr, ASR::storage_typeType::Default, type1, nullptr,
+                        ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+                    fn_symtab->add_symbol(s2c(al, "x"), arg);
+                    args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, xx.base.base.loc, arg)));
+                }
+
+                Vec<ASR::stmt_t*> body;
+                body.reserve(al, 1);
+
+                Vec<char *> dep;
+                dep.reserve(al, 1);
+
+                ASR::asr_t* new_subrout = ASRUtils::make_Function_t_util(al, xx.base.base.loc,
+                    fn_symtab, s2c(al, new_name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                    nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                    ASR::deftypeType::Interface, s2c(al, new_name), false, false, false,
+                    false, false, nullptr, 0, false, false, false, s2c(al, header));
+                ASR::symbol_t *new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
+                module_scope->add_symbol(new_name, new_symbol);
+            }
+
             ASR::symbol_t* var_sym = current_scope->get_symbol(var_name);
             ASR::symbol_t* placeholder_sym = current_scope->get_symbol(placeholder);
             ASR::expr_t* target1 = ASRUtils::EXPR(ASR::make_Var_t(al, xx.base.base.loc, placeholder_sym));
@@ -154,7 +209,7 @@ public:
                 type1, nullptr));
 
             // statement 4
-            ASR::symbol_t* basic_new_stack_sym = module_scope->get_symbol(new_name);
+            ASR::symbol_t* basic_new_stack_sym = module_scope->get_symbol("basic_new_stack");
             Vec<ASR::call_arg_t> call_args;
             call_args.reserve(al, 1);
             ASR::call_arg_t call_arg;
