@@ -231,7 +231,7 @@
                                                 (Real 8)
                                                 (RealConstant
                                                     6.577424
-                                                    (Complex 8)
+                                                    (Real 8)
                                                 )
                                             )
                                             RealToReal

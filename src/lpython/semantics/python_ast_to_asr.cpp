@@ -20,6 +20,7 @@
 #include <libasr/pass/instantiate_template.h>
 #include <libasr/pass/wrap_global_stmts.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 #include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>
@@ -7426,11 +7427,16 @@ public:
                 imported_functions[call_name] == "sympy"){
                 intrinsic_name = "Symbolic" + std::string(1, std::toupper(call_name[0])) + call_name.substr(1);
             }
-            if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name) &&
+            if ((ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name) ||
+                ASRUtils::IntrinsicArrayFunctionRegistry::is_intrinsic_function(intrinsic_name)) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
                 imported_functions.find(call_name) != imported_functions.end() )) {
-                ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicFunctionRegistry::get_create_function(intrinsic_name);
+                ASRUtils::create_intrinsic_function create_func;
+                if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name)) {
+                    create_func = ASRUtils::IntrinsicFunctionRegistry::get_create_function(intrinsic_name);
+                } else {
+                    create_func = ASRUtils::IntrinsicArrayFunctionRegistry::get_create_function(intrinsic_name);
+                }
                 Vec<ASR::expr_t*> args_; args_.reserve(al, x.n_args);
                 visit_expr_list(x.m_args, x.n_args, args_);
                 if (ASRUtils::is_array(ASRUtils::expr_type(args_[0])) &&

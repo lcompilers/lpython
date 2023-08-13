@@ -7,6 +7,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/location.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 
 namespace LCompilers::LPython {
 
@@ -114,6 +115,20 @@ public:
             s.append(color(fg::green));
         }
         s.append(ASRUtils::get_impure_intrinsic_name(x));
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        return s;
+    }
+
+    std::string convert_array_intrinsic_id(int x) {
+        std::string s;
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::green));
+        }
+        s.append(ASRUtils::get_array_intrinsic_name(x));
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));

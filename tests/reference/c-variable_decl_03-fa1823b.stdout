@@ -27,7 +27,7 @@ double _lcompilers_abs_f64(double x)
 double f()
 {
     double _lpython_return_variable;
-    _lpython_return_variable = _lcompilers_abs_f64(-  5.50000000000000000e+00);
+    _lpython_return_variable =   5.50000000000000000e+00;
     return _lpython_return_variable;
 }
 

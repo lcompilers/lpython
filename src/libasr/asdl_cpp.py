@@ -1682,6 +1682,8 @@ class PickleVisitorVisitor(ASDLVisitor):
                         self.emit('s.append(self().convert_intrinsic_id(x.m_%s));' % field.name, 2)
                     elif field.name == "impure_intrinsic_id":
                         self.emit('s.append(self().convert_impure_intrinsic_id(x.m_%s));' % field.name, 2)
+                    elif field.name == "arr_intrinsic_id":
+                        self.emit('s.append(self().convert_array_intrinsic_id(x.m_%s));' % field.name, 2)
                     else:
                         self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "float" and not field.seq and not field.opt:

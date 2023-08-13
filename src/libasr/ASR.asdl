@@ -237,6 +237,8 @@ expr
             ttype type, expr? value, expr? dt)
     | IntrinsicFunction(int intrinsic_id, expr* args, int overload_id,
             ttype? type, expr? value)
+    | IntrinsicArrayFunction(int arr_intrinsic_id, expr* args, int overload_id,
+            ttype? type, expr? value)
     | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id,
             ttype? type, expr? value)
     | StructTypeConstructor(symbol dt_sym, call_arg* args, ttype type, expr? value)
