@@ -25,7 +25,7 @@ def run_test(backend):
     run_cmd(f"mkdir {BASE_DIR}/_lpython-tmp-test-{backend}", cwd=BASE_DIR)
     cwd = f"{BASE_DIR}/_lpython-tmp-test-{backend}"
     run_cmd(f"cmake -DKIND={backend} -DFAST={fast_tests} -DPYTHON_LIBS_REQ={python_libs_req} ..", cwd=cwd)
-    run_cmd(f"make -j{DEFAULT_THREADS_TO_USE}", cwd=cwd)
+    run_cmd(f"cmake --build . --parallel {DEFAULT_THREADS_TO_USE}", cwd=cwd)
     run_cmd(f"ctest -j{DEFAULT_THREADS_TO_USE} --output-on-failure",
             cwd=cwd)
 
