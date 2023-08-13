@@ -569,7 +569,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(Var 6 d)
                                                 (Var 6 e)
@@ -587,7 +587,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(Var 6 e)
                                                 (Var 6 f)]
@@ -696,7 +696,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(Var 5 a)
                                                 (Var 5 b)]
@@ -713,7 +713,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(Var 5 a)
                                                 (Var 5 b)
@@ -731,7 +731,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(IntegerConstant 1 (Integer 4))
                                                 (IntegerConstant 2 (Integer 4))
@@ -752,7 +752,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Min
                                                 [(IntegerConstant 1 (Integer 4))
                                                 (IntegerConstant 6 (Integer 4))]

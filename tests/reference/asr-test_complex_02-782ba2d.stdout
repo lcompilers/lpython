@@ -220,11 +220,11 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
-                                                        (IntrinsicFunction
+                                                        (IntrinsicScalarFunction
                                                             Abs
                                                             [(Var 3 x)]
                                                             0
@@ -273,10 +273,10 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
-                                                    (IntrinsicFunction
+                                                    (IntrinsicScalarFunction
                                                         Abs
                                                         [(Var 3 y)]
                                                         0

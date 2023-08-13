@@ -2739,12 +2739,12 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         src = indent + sym_name + "(" + construct_call_args(x.n_args, x.m_args) + ");\n";
     }
 
-    #define SET_INTRINSIC_NAME(X, func_name)                             \
-        case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X)) : { \
-            out += func_name; break;                                     \
+    #define SET_INTRINSIC_NAME(X, func_name)                                    \
+        case (static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::X)) : {  \
+            out += func_name; break;                                            \
         }
 
-    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t &x) {
+    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
         std::string out;
         std::string indent(4, ' ');
         switch (x.m_intrinsic_id) {
@@ -2762,7 +2762,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
             default : {
-                throw LCompilersException("IntrinsicFunction: `"
+                throw LCompilersException("IntrinsicScalarFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
                     + "` is not implemented");
             }

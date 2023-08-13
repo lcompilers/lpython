@@ -2312,23 +2312,23 @@ public:
             ASRUtils::create_intrinsic_function create_function;
             switch (op) {
                 case (ASR::binopType::Add): {
-                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicAdd");
+                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicAdd");
                     break;
                 }
                 case (ASR::binopType::Sub): {
-                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicSub");
+                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicSub");
                     break;
                 }
                 case (ASR::binopType::Mul): {
-                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicMul");
+                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicMul");
                     break;
                 }
                 case (ASR::binopType::Div): {
-                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicDiv");
+                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicDiv");
                     break;
                 }
                 case (ASR::binopType::Pow): {
-                    create_function = ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicPow");
+                    create_function = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicPow");
                     break;
                 }
                 default: {
@@ -3321,11 +3321,11 @@ public:
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LCOMPILERS_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
-        } else if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(name) &&
+        } else if (ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(name) &&
                    (not_cpython_builtin.find(name) == not_cpython_builtin.end() ||
                    imported_functions.find(name) != imported_functions.end() )) {
                     ASRUtils::create_intrinsic_function create_func =
-                        ASRUtils::IntrinsicFunctionRegistry::get_create_function(name);
+                        ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(name);
                     Vec<ASR::expr_t*> args_;
                     tmp = create_func(al, x.base.base.loc, args_, [&](const std::string &msg, const Location &loc) {
                     throw SemanticError(msg, loc); });
@@ -6639,7 +6639,7 @@ public:
                 return;
             } else if( call_name == "reserve" ) {
                 ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicFunctionRegistry::get_create_function("reserve");
+                    ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("reserve");
                 Vec<ASR::expr_t*> args_exprs; args_exprs.reserve(al, args.size());
                 for( size_t i = 0; i < args.size(); i++ ) {
                     args_exprs.push_back(al, args[i].m_value);
@@ -7427,13 +7427,13 @@ public:
                 imported_functions[call_name] == "sympy"){
                 intrinsic_name = "Symbolic" + std::string(1, std::toupper(call_name[0])) + call_name.substr(1);
             }
-            if ((ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name) ||
+            if ((ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(intrinsic_name) ||
                 ASRUtils::IntrinsicArrayFunctionRegistry::is_intrinsic_function(intrinsic_name)) &&
                 (not_cpython_builtin.find(call_name) == not_cpython_builtin.end() ||
                 imported_functions.find(call_name) != imported_functions.end() )) {
                 ASRUtils::create_intrinsic_function create_func;
-                if (ASRUtils::IntrinsicFunctionRegistry::is_intrinsic_function(intrinsic_name)) {
-                    create_func = ASRUtils::IntrinsicFunctionRegistry::get_create_function(intrinsic_name);
+                if (ASRUtils::IntrinsicScalarFunctionRegistry::is_intrinsic_function(intrinsic_name)) {
+                    create_func = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(intrinsic_name);
                 } else {
                     create_func = ASRUtils::IntrinsicArrayFunctionRegistry::get_create_function(intrinsic_name);
                 }

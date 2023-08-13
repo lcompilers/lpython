@@ -181,7 +181,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -214,7 +214,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -247,7 +247,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ArrayItem
@@ -371,7 +371,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
@@ -406,7 +406,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
@@ -441,7 +441,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(IntegerBinOp
                                                         (ArrayItem
