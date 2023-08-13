@@ -4167,7 +4167,7 @@ static inline ASR::expr_t* cast_to_descriptor(Allocator& al, ASR::expr_t* arg) {
     return arg;
 }
 
-static inline ASR::asr_t* make_IntrinsicFunction_t_util(
+static inline ASR::asr_t* make_IntrinsicScalarFunction_t_util(
     Allocator &al, const Location &a_loc, int64_t a_intrinsic_id,
     ASR::expr_t** a_args, size_t n_args, int64_t a_overload_id,
     ASR::ttype_t* a_type, ASR::expr_t* a_value) {
@@ -4186,7 +4186,7 @@ static inline ASR::asr_t* make_IntrinsicFunction_t_util(
         }
     }
 
-    return ASR::make_IntrinsicFunction_t(al, a_loc, a_intrinsic_id,
+    return ASR::make_IntrinsicScalarFunction_t(al, a_loc, a_intrinsic_id,
         a_args, n_args, a_overload_id, a_type, a_value);
 }
 

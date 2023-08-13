@@ -25,7 +25,7 @@ in the backend.
 
 */
 
-class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFunction> {
+class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFunctions> {
 
     private:
 
@@ -35,14 +35,14 @@ class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFun
 
     public:
 
-    ReplaceIntrinsicFunction(Allocator& al_, SymbolTable* global_scope_,
+    ReplaceIntrinsicFunctions(Allocator& al_, SymbolTable* global_scope_,
     std::map<ASR::symbol_t*, ASRUtils::IntrinsicArrayFunctions>& func2intrinsicid_) :
         al(al_), global_scope(global_scope_), func2intrinsicid(func2intrinsicid_) {}
 
 
-    void replace_IntrinsicFunction(ASR::IntrinsicFunction_t* x) {
+    void replace_IntrinsicScalarFunction(ASR::IntrinsicScalarFunction_t* x) {
         Vec<ASR::call_arg_t> new_args;
-        // Replace any IntrinsicFunctions in the argument first:
+        // Replace any IntrinsicScalarFunctions in the argument first:
         {
             new_args.reserve(al, x->n_args);
             for( size_t i = 0; i < x->n_args; i++ ) {
@@ -63,7 +63,7 @@ class ReplaceIntrinsicFunction: public ASR::BaseExprReplacer<ReplaceIntrinsicFun
         // We could maintain a mapping of type -> id and look it up.
 
         ASRUtils::impl_function instantiate_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_instantiate_function(x->m_intrinsic_id);
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_instantiate_function(x->m_intrinsic_id);
         if( instantiate_function == nullptr ) {
             return ;
         }
@@ -137,15 +137,15 @@ The following visitor calls the above replacer i.e., ReplaceFunctionCalls
 on expressions present in ASR so that FunctionCall get replaced everywhere
 and we don't end up with false positives.
 */
-class ReplaceIntrinsicFunctionVisitor : public ASR::CallReplacerOnExpressionsVisitor<ReplaceIntrinsicFunctionVisitor>
+class ReplaceIntrinsicFunctionsVisitor : public ASR::CallReplacerOnExpressionsVisitor<ReplaceIntrinsicFunctionsVisitor>
 {
     private:
 
-        ReplaceIntrinsicFunction replacer;
+        ReplaceIntrinsicFunctions replacer;
 
     public:
 
-        ReplaceIntrinsicFunctionVisitor(Allocator& al_, SymbolTable* global_scope_,
+        ReplaceIntrinsicFunctionsVisitor(Allocator& al_, SymbolTable* global_scope_,
             std::map<ASR::symbol_t*, ASRUtils::IntrinsicArrayFunctions>& func2intrinsicid_) :
             replacer(al_, global_scope_, func2intrinsicid_) {}
 
@@ -377,7 +377,7 @@ class ReplaceFunctionCallReturningArrayVisitor : public ASR::CallReplacerOnExpre
 void pass_replace_intrinsic_function(Allocator &al, ASR::TranslationUnit_t &unit,
                              const LCompilers::PassOptions& /*pass_options*/) {
     std::map<ASR::symbol_t*, ASRUtils::IntrinsicArrayFunctions> func2intrinsicid;
-    ReplaceIntrinsicFunctionVisitor v(al, unit.m_global_scope, func2intrinsicid);
+    ReplaceIntrinsicFunctionsVisitor v(al, unit.m_global_scope, func2intrinsicid);
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallReturningArrayVisitor u(al, func2intrinsicid);
     u.visit_TranslationUnit(unit);

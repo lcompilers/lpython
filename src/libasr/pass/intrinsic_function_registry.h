@@ -19,13 +19,13 @@ To add a new function implementation,
 
 1. Create a new namespace like, `Sin`, `LogGamma` in this file.
 2. In the above created namespace add `eval_*`, `instantiate_*`, and `create_*`.
-3. Then register in the maps present in `IntrinsicFunctionRegistry`.
+3. Then register in the maps present in `IntrinsicScalarFunctionRegistry`.
 
 You can use helper macros and define your own helper macros to reduce
 the code size.
 */
 
-enum class IntrinsicFunctions : int64_t {
+enum class IntrinsicScalarFunctions : int64_t {
     Sin,
     Cos,
     Tan,
@@ -71,9 +71,9 @@ enum class IntrinsicFunctions : int64_t {
     // ...
 };
 
-#define INTRINSIC_NAME_CASE(X)                                         \
-    case (static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X)) : {   \
-        return #X;                                                     \
+#define INTRINSIC_NAME_CASE(X)                                                  \
+    case (static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::X)) : {      \
+        return #X;                                                              \
     }
 
 inline std::string get_intrinsic_name(int x) {
@@ -141,7 +141,7 @@ typedef ASR::asr_t* (*create_intrinsic_function)(
     const std::function<void (const std::string &, const Location &)>);
 
 typedef void (*verify_function)(
-    const ASR::IntrinsicFunction_t&,
+    const ASR::IntrinsicScalarFunction_t&,
     diag::Diagnostics&);
 
 typedef ASR::expr_t* (*get_initial_value_func)(Allocator&, ASR::ttype_t*);
@@ -166,7 +166,7 @@ class ASRBuilder {
         ASR::Constructor(al, loc, value, type)) \
 
     #define declare_basic_variables(name)                                       \
-        std::string fn_name = scope->get_unique_name(name, false);                     \
+        std::string fn_name = scope->get_unique_name(name, false);              \
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);               \
         ASRBuilder b(al, loc);                                                  \
         Vec<ASR::expr_t*> args; args.reserve(al, 1);                            \
@@ -188,7 +188,7 @@ class ASRBuilder {
     #define declare(var_name, type, intent)                                     \
         b.Variable(fn_symtab, var_name, type, ASR::intentType::intent)
 
-    #define fill_func_arg(arg_name, type) {                              \
+    #define fill_func_arg(arg_name, type) {                                     \
         auto arg = declare(arg_name, type, In);                                 \
         args.push_back(al, arg); }
 
@@ -295,8 +295,8 @@ class ASRBuilder {
         ASR::binopType::Mul, right, int32, nullptr))
     #define iSub(left, right) EXPR(ASR::make_IntegerBinOp_t(al, loc, left,      \
         ASR::binopType::Sub, right, int32, nullptr))
-    #define iDiv(left, right) r2i32(EXPR(ASR::make_RealBinOp_t(al, loc, i2r32(left),\
-        ASR::binopType::Div, i2r32(right), real32, nullptr)))
+    #define iDiv(left, right) r2i32(EXPR(ASR::make_RealBinOp_t(al, loc,         \
+        i2r32(left), ASR::binopType::Div, i2r32(right), real32, nullptr)))
 
     #define rDiv(left, right) EXPR(ASR::make_RealBinOp_t(al, loc, left,         \
         ASR::binopType::Div, right, real32, nullptr))
@@ -323,16 +323,16 @@ class ASRBuilder {
     #define iGt(x, y) EXPR(ASR::make_IntegerCompare_t(al, loc, x,               \
         ASR::cmpopType::Gt, y, logical, nullptr))
 
-    #define ArraySize_1(x, dim) EXPR(make_ArraySize_t_util(al, loc, x, dim,       \
+    #define ArraySize_1(x, dim) EXPR(make_ArraySize_t_util(al, loc, x, dim,     \
         int32, nullptr))
-    #define ArraySize_2(x, dim, t) EXPR(make_ArraySize_t_util(al, loc, x, dim,   \
+    #define ArraySize_2(x, dim, t) EXPR(make_ArraySize_t_util(al, loc, x, dim,  \
         t, nullptr))
 
     #define fGtE(x, y) EXPR(ASR::make_RealCompare_t(al, loc, x,                 \
         ASR::cmpopType::GtE, y, logical, nullptr))
     #define fLt(x, y) EXPR(ASR::make_RealCompare_t(al, loc, x,                  \
         ASR::cmpopType::Lt, y, logical, nullptr))
-    #define fGt(x, y) EXPR(ASR::make_RealCompare_t(al, loc, x,                 \
+    #define fGt(x, y) EXPR(ASR::make_RealCompare_t(al, loc, x,                  \
         ASR::cmpopType::Gt, y, logical, nullptr))
 
     #define sEq(x, y) EXPR(ASR::make_StringCompare_t(al, loc, x,                \
@@ -781,7 +781,7 @@ static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& lo
         value = eval_function(al, loc, type, arg_values);
     }
 
-    return ASRUtils::make_IntrinsicFunction_t_util(al, loc, intrinsic_id,
+    return ASRUtils::make_IntrinsicScalarFunction_t_util(al, loc, intrinsic_id,
         args.p, args.n, overload_id, type, value);
 }
 
@@ -871,7 +871,8 @@ static inline ASR::symbol_t *create_KMP_function(Allocator &al,
     return fn_sym;
 }
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+        diag::Diagnostics& diagnostics) {
     const Location& loc = x.base.base.loc;
     ASRUtils::require_impl(x.n_args == 1,
         "Elemental intrinsics must have only 1 input argument",
@@ -907,7 +908,7 @@ static inline ASR::asr_t* create_LogGamma(Allocator& al, const Location& loc,
     }
 
     return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,
-            eval_log_gamma, static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
+            eval_log_gamma, static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             0, type);
 }
 
@@ -924,8 +925,8 @@ static inline ASR::expr_t* instantiate_LogGamma (Allocator &al,
 
 } // namespace LogGamma
 
-// `X` is the name of the function in the IntrinsicFunctions enum and we use
-// the same name for `create_X` and other places
+// `X` is the name of the function in the IntrinsicScalarFunctions enum and
+// we use the same name for `create_X` and other places
 // `stdeval` is the name of the function in the `std` namespace for compile
 //  numerical time evaluation
 // `lcompilers_name` is the name that we use in the C runtime library
@@ -958,7 +959,7 @@ namespace X {                                                                   
                 args[0]->base.loc);                                             \
         }                                                                       \
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,      \
-                eval_##X, static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X),\
+                eval_##X, static_cast<int64_t>(IntrinsicScalarFunctions::X),    \
                 0, type);                                                       \
     }                                                                           \
     static inline ASR::expr_t* instantiate_##X (Allocator &al,                  \
@@ -987,7 +988,7 @@ create_trig(Tanh, tanh, tanh)
 
 namespace Abs {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         const Location& loc = x.base.base.loc;
         ASRUtils::require_impl(x.n_args == 1,
             "Elemental intrinsics must have only 1 input argument",
@@ -1060,7 +1061,7 @@ namespace Abs {
                 ASRUtils::extract_kind_from_ttype_t(type)));
         }
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_Abs,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs), 0, type);
+            static_cast<int64_t>(IntrinsicScalarFunctions::Abs), 0, type);
     }
 
     static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
@@ -1175,7 +1176,7 @@ namespace Abs {
 
 namespace Sign {
 
-     static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args == 2,
             "ASR Verify: Call to sign must have exactly two arguments",
             x.base.base.loc, diagnostics);
@@ -1228,8 +1229,8 @@ namespace Sign {
             arg_values.push_back(al, expr_value(args[1]));
             m_value = eval_Sign(al, loc, expr_type(args[0]), arg_values);
         }
-        return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sign),
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Sign),
             args.p, args.n, 0, ASRUtils::expr_type(args[0]), m_value);
     }
 
@@ -1304,7 +1305,7 @@ namespace X {                                                                   
                 args[0]->base.loc);                                                       \
         }                                                                                 \
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_##X,      \
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X), 0, type);              \
+            static_cast<int64_t>(IntrinsicScalarFunctions::X), 0, type);                  \
     }                                                                                     \
 } // namespace X
 
@@ -1314,7 +1315,7 @@ create_exp_macro(Expm1, expm1)
 
 namespace ListIndex {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 4, "Call to list.index must have at most four arguments",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])) &&
@@ -1381,8 +1382,8 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
     }
     ASR::ttype_t *to_type = int32;
     ASR::expr_t* compile_time_value = eval_list_index(al, loc, to_type, arg_values);
-    return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
+    return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),
             args.p, args.size(), overload_id, to_type, compile_time_value);
 }
 
@@ -1390,7 +1391,7 @@ static inline ASR::asr_t* create_ListIndex(Allocator& al, const Location& loc,
 
 namespace ListReverse {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to list.reverse must have exactly one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1421,8 +1422,8 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_list_reverse(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
+            ASRUtils::EXPR(ASRUtils::make_IntrinsicScalarFunction_t_util(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::ListReverse),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 
@@ -1430,7 +1431,7 @@ static inline ASR::asr_t* create_ListReverse(Allocator& al, const Location& loc,
 
 namespace ListPop {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args <= 2, "Call to list.pop must have at most one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1480,8 +1481,8 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
     ASR::ttype_t *to_type = list_type;
     ASR::expr_t* compile_time_value = eval_list_pop(al, loc, to_type, arg_values);
     int64_t overload_id = (args.size() == 2);
-    return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+    return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::ListPop),
             args.p, args.size(), overload_id, to_type, compile_time_value);
 }
 
@@ -1489,7 +1490,7 @@ static inline ASR::asr_t* create_ListPop(Allocator& al, const Location& loc,
 
 namespace Reserve {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 2, "Call to reserve must have exactly one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1529,8 +1530,8 @@ static inline ASR::asr_t* create_Reserve(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_reserve(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASRUtils::make_IntrinsicFunction_t_util(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Reserve),
+            ASRUtils::EXPR(ASRUtils::make_IntrinsicScalarFunction_t_util(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Reserve),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 
@@ -1538,7 +1539,7 @@ static inline ASR::asr_t* create_Reserve(Allocator& al, const Location& loc,
 
 namespace DictKeys {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.keys must have no argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1575,8 +1576,8 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
     }
     ASR::ttype_t *to_type = List(dict_keys_type);
     ASR::expr_t* compile_time_value = eval_dict_keys(al, loc, to_type, arg_values);
-    return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
+    return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::DictKeys),
             args.p, args.size(), 0, to_type, compile_time_value);
 }
 
@@ -1584,7 +1585,7 @@ static inline ASR::asr_t* create_DictKeys(Allocator& al, const Location& loc,
 
 namespace DictValues {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 1, "Call to dict.values must have no argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::Dict_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1621,8 +1622,8 @@ static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
     }
     ASR::ttype_t *to_type = List(dict_values_type);
     ASR::expr_t* compile_time_value = eval_dict_values(al, loc, to_type, arg_values);
-    return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+    return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::DictValues),
             args.p, args.size(), 0, to_type, compile_time_value);
 }
 
@@ -1630,7 +1631,7 @@ static inline ASR::asr_t* create_DictValues(Allocator& al, const Location& loc,
 
 namespace SetAdd {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 2, "Call to set.add must have exactly one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1670,8 +1671,8 @@ static inline ASR::asr_t* create_SetAdd(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_set_add(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+            ASRUtils::EXPR(ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::SetAdd),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 
@@ -1679,7 +1680,7 @@ static inline ASR::asr_t* create_SetAdd(Allocator& al, const Location& loc,
 
 namespace SetRemove {
 
-static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
     ASRUtils::require_impl(x.n_args == 2, "Call to set.remove must have exactly one argument",
         x.base.base.loc, diagnostics);
     ASRUtils::require_impl(ASR::is_a<ASR::Set_t>(*ASRUtils::expr_type(x.m_args[0])),
@@ -1719,8 +1720,8 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
     }
     ASR::expr_t* compile_time_value = eval_set_remove(al, loc, nullptr, arg_values);
     return ASR::make_Expr_t(al, loc,
-            ASRUtils::EXPR(ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+            ASRUtils::EXPR(ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::SetRemove),
             args.p, args.size(), 0, nullptr, compile_time_value)));
 }
 
@@ -1728,7 +1729,7 @@ static inline ASR::asr_t* create_SetRemove(Allocator& al, const Location& loc,
 
 namespace Max {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args > 1, "ASR Verify: Call to max0 must have at least two arguments",
             x.base.base.loc, diagnostics);
         ASRUtils::require_impl(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(x.m_args[0])) ||
@@ -1789,12 +1790,12 @@ namespace Max {
         }
         if (is_compile_time) {
             ASR::expr_t *value = eval_Max(al, loc, expr_type(args[0]), arg_values);
-            return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Max),
+            return ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::Max),
                 args.p, args.n, 0, ASRUtils::expr_type(args[0]), value);
         } else {
-            return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Max),
+            return ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::Max),
                 args.p, args.n, 0, ASRUtils::expr_type(args[0]), nullptr);
         }
     }
@@ -1843,7 +1844,7 @@ namespace Max {
 
 namespace Min {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args > 1, "ASR Verify: Call to min0 must have at least two arguments",
             x.base.base.loc, diagnostics);
         ASRUtils::require_impl(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(x.m_args[0])) ||
@@ -1904,12 +1905,12 @@ namespace Min {
         }
         if (is_compile_time) {
             ASR::expr_t *value = eval_Min(al, loc, expr_type(args[0]), arg_values);
-            return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Min),
+            return ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::Min),
                 args.p, args.n, 0, ASRUtils::expr_type(args[0]), value);
         } else {
-            return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Min),
+            return ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::Min),
                 args.p, args.n, 0, ASRUtils::expr_type(args[0]), nullptr);
         }
     }
@@ -1970,7 +1971,7 @@ namespace Min {
 
 namespace Partition {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args == 2, "Call to partition must have exactly two arguments",
             x.base.base.loc, diagnostics);
         ASRUtils::require_impl(ASR::is_a<ASR::Character_t>(*ASRUtils::expr_type(x.m_args[0])) &&
@@ -2043,8 +2044,8 @@ namespace Partition {
             value = eval_Partition(al, loc, s_str, s_sep);
         }
 
-        return ASR::make_IntrinsicFunction_t(al, loc,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::Partition),
             e_args.p, e_args.n, 0, return_type, value);
     }
 
@@ -2087,7 +2088,7 @@ namespace Partition {
 
 namespace SymbolicSymbol {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         const Location& loc = x.base.base.loc;
         ASRUtils::require_impl(x.n_args == 1,
             "SymbolicSymbol intrinsic must have exactly 1 input argument",
@@ -2120,14 +2121,14 @@ namespace SymbolicSymbol {
 
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicSymbol,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol), 0, to_type);
+            static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSymbol), 0, to_type);
     }
 
 } // namespace SymbolicSymbol
 
 #define create_symbolic_binary_macro(X)                                                    \
 namespace X{                                                                               \
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x,                      \
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,                \
             diag::Diagnostics& diagnostics) {                                              \
         ASRUtils::require_impl(x.n_args == 2, "Intrinsic function `"#X"` accepts"          \
             "exactly 2 arguments", x.base.base.loc, diagnostics);                          \
@@ -2169,8 +2170,8 @@ namespace X{                                                                    
         }                                                                                  \
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));   \
         ASR::expr_t* compile_time_value = eval_##X(al, loc, to_type, arg_values);          \
-        return ASR::make_IntrinsicFunction_t(al, loc,                                      \
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X),                     \
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,                                \
+                static_cast<int64_t>(IntrinsicScalarFunctions::X),                         \
                 args.p, args.size(), 0, to_type, compile_time_value);                      \
     }                                                                                      \
 } // namespace X
@@ -2184,7 +2185,7 @@ create_symbolic_binary_macro(SymbolicDiff)
 
 namespace SymbolicPi {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args == 0, "SymbolicPi does not take arguments",
             x.base.base.loc, diagnostics);
     }
@@ -2200,8 +2201,8 @@ namespace SymbolicPi {
             const std::function<void (const std::string &, const Location &)> /*err*/) {
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         ASR::expr_t* compile_time_value = eval_SymbolicPi(al, loc, to_type, args);
-        return ASR::make_IntrinsicFunction_t(al, loc,
-                static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+                static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
                 nullptr, 0, 0, to_type, compile_time_value);
     }
 
@@ -2209,7 +2210,7 @@ namespace SymbolicPi {
 
 namespace SymbolicInteger {
 
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x, diag::Diagnostics& diagnostics) {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
         ASRUtils::require_impl(x.n_args == 1,
             "SymbolicInteger intrinsic must have exactly 1 input argument",
             x.base.base.loc, diagnostics);
@@ -2231,14 +2232,14 @@ namespace SymbolicInteger {
             const std::function<void (const std::string &, const Location &)> /*err*/) {
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicInteger,
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger), 0, to_type);
+            static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicInteger), 0, to_type);
     }
 
 } // namespace SymbolicInteger
 
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \
-    static inline void verify_args(const ASR::IntrinsicFunction_t& x,                     \
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
             diag::Diagnostics& diagnostics) {                                             \
         const Location& loc = x.base.base.loc;                                            \
         ASRUtils::require_impl(x.n_args == 1,                                             \
@@ -2270,7 +2271,7 @@ namespace X {                                                                   
                                                                                           \
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));  \
         return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_##X,      \
-            static_cast<int64_t>(ASRUtils::IntrinsicFunctions::X), 0, to_type);           \
+            static_cast<int64_t>(IntrinsicScalarFunctions::X), 0, to_type);               \
     }                                                                                     \
 } // namespace X
 
@@ -2282,176 +2283,176 @@ create_symbolic_unary_macro(SymbolicAbs)
 create_symbolic_unary_macro(SymbolicExpand)
 
 
-namespace IntrinsicFunctionRegistry {
+namespace IntrinsicScalarFunctionRegistry {
 
     static const std::map<int64_t,
         std::tuple<impl_function,
                    verify_function>>& intrinsic_function_by_id_db = {
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
             {&Sin::instantiate_Sin, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Cos),
             {&Cos::instantiate_Cos, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Tan),
             {&Tan::instantiate_Tan, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Asin),
             {&Asin::instantiate_Asin, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Acos),
             {&Acos::instantiate_Acos, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Atan),
             {&Atan::instantiate_Atan, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sinh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sinh),
             {&Sinh::instantiate_Sinh, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cosh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Cosh),
             {&Cosh::instantiate_Cosh, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tanh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Tanh),
             {&Tanh::instantiate_Tanh, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Exp),
             {nullptr, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Exp2),
             {nullptr, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Expm1),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
             {nullptr, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
             {&Abs::instantiate_Abs, &Abs::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Partition),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Partition),
             {&Partition::instantiate_Partition, &Partition::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),
             {nullptr, &ListIndex::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListReverse),
             {nullptr, &ListReverse::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::DictKeys),
             {nullptr, &DictKeys::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::DictValues),
             {nullptr, &DictValues::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListPop),
             {nullptr, &ListPop::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Reserve),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Reserve),
             {nullptr, &Reserve::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetAdd),
             {nullptr, &SetAdd::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetRemove),
             {nullptr, &SetRemove::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Max),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Max),
             {&Max::instantiate_Max, &Max::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Min),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Min),
             {&Min::instantiate_Min, &Min::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sign),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sign),
             {&Sign::instantiate_Sign, &Sign::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSymbol),
             {nullptr, &SymbolicSymbol::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAdd),
             {nullptr, &SymbolicAdd::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSub),
             {nullptr, &SymbolicSub::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicMul),
             {nullptr, &SymbolicMul::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiv),
             {nullptr, &SymbolicDiv::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPow),
             {nullptr, &SymbolicPow::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
             {nullptr, &SymbolicPi::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicInteger),
             {nullptr, &SymbolicInteger::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiff),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiff),
             {nullptr, &SymbolicDiff::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicExpand),
             {nullptr, &SymbolicExpand::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSin),
             {nullptr, &SymbolicSin::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicCos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicCos),
             {nullptr, &SymbolicCos::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicLog),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicLog),
             {nullptr, &SymbolicLog::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExp),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicExp),
             {nullptr, &SymbolicExp::verify_args}},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAbs),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAbs),
             {nullptr, &SymbolicAbs::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::LogGamma),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             "log_gamma"},
 
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
             "sin"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Cos),
             "cos"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tan),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Tan),
             "tan"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Asin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Asin),
             "asin"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Acos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Acos),
             "acos"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Atan),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Atan),
             "atan"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sinh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sinh),
             "sinh"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Cosh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Cosh),
             "cosh"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Tanh),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Tanh),
             "tanh"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Abs),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
             "abs"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Exp),
             "exp"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Exp2),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Exp2),
             "exp2"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Expm1),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
             "expm1"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListIndex),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),
             "list.index"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListReverse),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListReverse),
             "list.reverse"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::ListPop),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::ListPop),
             "list.pop"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Reserve),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Reserve),
             "reserve"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictKeys),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::DictKeys),
             "dict.keys"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::DictValues),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::DictValues),
             "dict.values"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetAdd),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetAdd),
             "set.add"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SetRemove),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SetRemove),
             "set.remove"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Max),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Max),
             "max"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Min),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Min),
             "min"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::Sign),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sign),
             "sign"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSymbol),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSymbol),
             "Symbol"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAdd),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAdd),
             "SymbolicAdd"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSub),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSub),
             "SymbolicSub"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicMul),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicMul),
             "SymbolicMul"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiv),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiv),
             "SymbolicDiv"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPow),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPow),
             "SymbolicPow"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicPi),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
             "pi"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicInteger),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicInteger),
             "SymbolicInteger"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicDiff),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiff),
             "SymbolicDiff"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExpand),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicExpand),
             "SymbolicExpand"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicSin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSin),
             "SymbolicSin"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicCos),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicCos),
             "SymbolicCos"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicLog),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicLog),
             "SymbolicLog"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicExp),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicExp),
             "SymbolicExp"},
-        {static_cast<int64_t>(ASRUtils::IntrinsicFunctions::SymbolicAbs),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAbs),
             "SymbolicAbs"},
     };
 
@@ -2511,16 +2512,16 @@ namespace IntrinsicFunctionRegistry {
     }
 
     static inline bool is_elemental(int64_t id) {
-        ASRUtils::IntrinsicFunctions id_ = static_cast<ASRUtils::IntrinsicFunctions>(id);
-        return ( id_ == ASRUtils::IntrinsicFunctions::Abs ||
-                 id_ == ASRUtils::IntrinsicFunctions::Cos ||
-                 id_ == ASRUtils::IntrinsicFunctions::Gamma ||
-                 id_ == ASRUtils::IntrinsicFunctions::LogGamma ||
-                 id_ == ASRUtils::IntrinsicFunctions::Sin ||
-                 id_ == ASRUtils::IntrinsicFunctions::Exp ||
-                 id_ == ASRUtils::IntrinsicFunctions::Exp2 ||
-                 id_ == ASRUtils::IntrinsicFunctions::Expm1 ||
-                 id_ == ASRUtils::IntrinsicFunctions::SymbolicSymbol);
+        IntrinsicScalarFunctions id_ = static_cast<IntrinsicScalarFunctions>(id);
+        return ( id_ == IntrinsicScalarFunctions::Abs ||
+                 id_ == IntrinsicScalarFunctions::Cos ||
+                 id_ == IntrinsicScalarFunctions::Gamma ||
+                 id_ == IntrinsicScalarFunctions::LogGamma ||
+                 id_ == IntrinsicScalarFunctions::Sin ||
+                 id_ == IntrinsicScalarFunctions::Exp ||
+                 id_ == IntrinsicScalarFunctions::Exp2 ||
+                 id_ == IntrinsicScalarFunctions::Expm1 ||
+                 id_ == IntrinsicScalarFunctions::SymbolicSymbol);
     }
 
     static inline create_intrinsic_function get_create_function(const std::string& name) {
@@ -2555,7 +2556,7 @@ namespace IntrinsicFunctionRegistry {
         return true;
     }
 
-} // namespace IntrinsicFunctionRegistry
+} // namespace IntrinsicScalarFunctionRegistry
 
 /************************* Intrinsic Impure Function **************************/
 enum class IntrinsicImpureFunctions : int64_t {

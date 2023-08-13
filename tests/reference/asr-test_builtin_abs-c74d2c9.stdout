@@ -188,7 +188,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -222,7 +222,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -241,7 +241,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealConstant
                                                     5.500000
@@ -269,7 +269,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealUnaryMinus
                                                     (RealConstant
@@ -327,7 +327,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x2)]
                                                 0
@@ -363,7 +363,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i)]
                                                 0
@@ -379,7 +379,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(IntegerUnaryMinus
                                                     (IntegerConstant 1 (Integer 4))
@@ -416,7 +416,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i2)]
                                                 0
@@ -451,7 +451,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i3)]
                                                 0
@@ -486,7 +486,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i4)]
                                                 0
@@ -515,7 +515,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)
@@ -544,7 +544,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)

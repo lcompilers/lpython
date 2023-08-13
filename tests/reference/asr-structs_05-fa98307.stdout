@@ -1061,7 +1061,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1108,7 +1108,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1277,7 +1277,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember
@@ -1324,7 +1324,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (StructInstanceMember

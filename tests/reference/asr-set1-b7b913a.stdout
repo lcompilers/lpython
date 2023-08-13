@@ -109,7 +109,7 @@
                                         ()
                                     )
                                     (Expr
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             SetAdd
                                             [(Var 3 a)
                                             (IntegerConstant 9 (Integer 4))]
@@ -119,7 +119,7 @@
                                         )
                                     )
                                     (Expr
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             SetRemove
                                             [(Var 3 a)
                                             (IntegerConstant 4 (Integer 4))]

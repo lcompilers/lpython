@@ -403,7 +403,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -432,7 +432,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -482,7 +482,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -518,7 +518,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -567,7 +567,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -596,7 +596,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -645,7 +645,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -674,7 +674,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -728,7 +728,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -757,7 +757,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -846,7 +846,7 @@
                                     (Assert
                                         (RealCompare
                                             (Cast
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (ComplexIm
@@ -1341,7 +1341,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1385,7 +1385,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1468,7 +1468,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1512,7 +1512,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Cast
@@ -1595,7 +1595,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -1627,7 +1627,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -1696,7 +1696,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexRe
@@ -1735,7 +1735,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (ComplexIm
@@ -1921,7 +1921,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 a)
@@ -1946,7 +1946,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealBinOp
                                                     (Var 3 b)

@@ -1779,9 +1779,9 @@ public:
         llvm_utils->set_api->remove_item(pset, el, *module, asr_el_type);
     }
 
-    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
-        switch (static_cast<ASRUtils::IntrinsicFunctions>(x.m_intrinsic_id)) {
-            case ASRUtils::IntrinsicFunctions::ListIndex: {
+    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t& x) {
+        switch (static_cast<ASRUtils::IntrinsicScalarFunctions>(x.m_intrinsic_id)) {
+            case ASRUtils::IntrinsicScalarFunctions::ListIndex: {
                 ASR::expr_t* m_arg = x.m_args[0];
                 ASR::expr_t* m_ele = x.m_args[1];
                 ASR::expr_t* m_start = nullptr;
@@ -1807,11 +1807,11 @@ public:
                 generate_ListIndex(m_arg, m_ele, m_start, m_end);
                 break ;
             }
-            case ASRUtils::IntrinsicFunctions::ListReverse: {
+            case ASRUtils::IntrinsicScalarFunctions::ListReverse: {
                 generate_ListReverse(x.m_args[0]);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::ListPop: {
+            case ASRUtils::IntrinsicScalarFunctions::ListPop: {
                 switch(x.m_overload_id) {
                     case 0:
                         generate_ListPop_0(x.m_args[0]);
@@ -1822,27 +1822,27 @@ public:
                 }
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::Reserve: {
+            case ASRUtils::IntrinsicScalarFunctions::Reserve: {
                 generate_Reserve(x.m_args[0], x.m_args[1]);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::DictKeys: {
+            case ASRUtils::IntrinsicScalarFunctions::DictKeys: {
                 generate_DictElems(x.m_args[0], 0);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::DictValues: {
+            case ASRUtils::IntrinsicScalarFunctions::DictValues: {
                 generate_DictElems(x.m_args[0], 1);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::SetAdd: {
+            case ASRUtils::IntrinsicScalarFunctions::SetAdd: {
                 generate_SetAdd(x.m_args[0], x.m_args[1]);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::SetRemove: {
+            case ASRUtils::IntrinsicScalarFunctions::SetRemove: {
                 generate_SetRemove(x.m_args[0], x.m_args[1]);
                 break;
             }
-            case ASRUtils::IntrinsicFunctions::Exp: {
+            case ASRUtils::IntrinsicScalarFunctions::Exp: {
                 switch (x.m_overload_id) {
                     case 0: {
                         ASR::expr_t* m_arg = x.m_args[0];
@@ -1856,7 +1856,7 @@ public:
                 }
                 break ;
             }
-            case ASRUtils::IntrinsicFunctions::Exp2: {
+            case ASRUtils::IntrinsicScalarFunctions::Exp2: {
                 switch (x.m_overload_id) {
                     case 0: {
                         ASR::expr_t* m_arg = x.m_args[0];
@@ -1870,7 +1870,7 @@ public:
                 }
                 break ;
             }
-            case ASRUtils::IntrinsicFunctions::Expm1: {
+            case ASRUtils::IntrinsicScalarFunctions::Expm1: {
                 switch (x.m_overload_id) {
                     case 0: {
                         ASR::expr_t* m_arg = x.m_args[0];
@@ -1885,7 +1885,7 @@ public:
                 break ;
             }
             default: {
-                throw CodeGenError( ASRUtils::IntrinsicFunctionRegistry::
+                throw CodeGenError( ASRUtils::IntrinsicScalarFunctionRegistry::
                         get_intrinsic_function_name(x.m_intrinsic_id) +
                         " is not implemented by LLVM backend.", x.base.base.loc);
             }

@@ -203,7 +203,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.index");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.index");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -217,7 +217,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.reverse");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.reverse");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -231,7 +231,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("list.pop");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("list.pop");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -304,7 +304,7 @@ struct AttributeHandler {
             args_with_set.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("set.add");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("set.add");
         return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -318,7 +318,7 @@ struct AttributeHandler {
             args_with_set.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("set.remove");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("set.remove");
         return create_function(al, loc, args_with_set, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -395,7 +395,7 @@ struct AttributeHandler {
             args_with_dict.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("dict.keys");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("dict.keys");
         return create_function(al, loc, args_with_dict, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -409,7 +409,7 @@ struct AttributeHandler {
             args_with_dict.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("dict.values");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("dict.values");
         return create_function(al, loc, args_with_dict, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -423,7 +423,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("diff");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("diff");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -437,7 +437,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicFunctionRegistry::get_create_function("expand");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("expand");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
