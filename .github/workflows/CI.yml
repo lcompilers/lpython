@@ -444,3 +444,58 @@ jobs:
             cd integration_tests
             ./run_tests.py -b c_sym cpython_sym llvm_sym
             ./run_tests.py -b c_sym cpython_sym llvm_sym -f
+
+  python_3_11:
+    name: Run Integration tests with Python 3.11
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/setup-micromamba@v1
+        with:
+          environment-name: lp
+          condarc: |
+            channels:
+              - conda-forge
+          create-args: >-
+            llvmdev=11.1.0
+            bison=3.4
+            re2c
+            zlib
+            cmake
+            make
+            python=3.11.4
+            numpy
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Show Python version
+        shell: bash -e -l {0}
+        run: python --version
+
+      - name: Build
+        shell: bash -e -l {0}
+        run: |
+            ./build0.sh
+            cmake . -G"Unix Makefiles" \
+              -DCMAKE_BUILD_TYPE=Debug \
+              -DWITH_LLVM=yes \
+              -DLPYTHON_BUILD_ALL=yes \
+              -DWITH_STACKTRACE=no \
+              -DWITH_RUNTIME_STACKTRACE=no \
+              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
+              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+            cmake --build . -j16 --target install
+
+      - name: Test
+        shell: bash -e -l {0}
+        run: |
+            cd integration_tests
+            ./run_tests.py -b cpython
