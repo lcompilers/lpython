@@ -54,7 +54,8 @@ def test_emit_header_ccallable() -> i32:
 def run():
     a: CPtr
     array_wrapped: ArrayWrapped = ArrayWrapped(a)
-    array_wrapped1: ArrayWrapped = ArrayWrapped()
+    b: CPtr = empty_c_void_p()
+    array_wrapped1: ArrayWrapped = ArrayWrapped(b)
     size: i32
     size = 10
     a = get_array(size)
