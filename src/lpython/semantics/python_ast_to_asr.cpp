@@ -920,20 +920,20 @@ public:
                 if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                     ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                     type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, type_param->m_param));
-                    return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                    type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                 }
             } else {
                 ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                 if( der_sym ) {
                     if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     }
                 }
             }
