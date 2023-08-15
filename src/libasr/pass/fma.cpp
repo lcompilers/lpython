@@ -118,8 +118,7 @@ public:
         }
 
         fma_var = PassUtils::get_fma(other_expr, first_arg, second_arg,
-                                     al, unit, pass_options, current_scope, x.base.base.loc,
-                                     [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
+                                     al, unit, x.base.base.loc);
         from_fma = false;
     }
 
@@ -170,6 +169,8 @@ void pass_replace_fma(Allocator &al, ASR::TranslationUnit_t &unit,
                       const LCompilers::PassOptions& pass_options) {
     FMAVisitor v(al, unit, pass_options);
     v.visit_TranslationUnit(unit);
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
 }
 
 
