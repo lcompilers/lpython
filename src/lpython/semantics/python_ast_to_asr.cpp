@@ -510,7 +510,22 @@ public:
     std::map<std::string, std::string> imported_functions;
 
     std::map<std::string, std::string> numpy2lpythontypes = {
+        {"bool", "bool"},
+        {"bool_", "bool"},
         {"int8", "i8"},
+        {"int16", "i16"},
+        {"int32", "i32"},
+        {"int64", "i64"},
+        {"uint8", "u8"},
+        {"uint16", "u16"},
+        {"uint32", "u32"},
+        {"uint64", "u64"},
+        {"float32", "f32"},
+        {"float64", "f64"},
+        {"float_", "f64"},
+        {"complex64", "c32"},
+        {"complex128", "c64"},
+        {"complex_", "c64"},
     };
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
@@ -920,20 +935,20 @@ public:
                 if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                     ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                     type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, type_param->m_param));
-                    return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                    type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                 }
             } else {
                 ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                 if( der_sym ) {
                     if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
                         type = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s));
-                        return ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
+                        type = ASRUtils::make_Array_t_util(al, loc, type, dims.p, dims.size(), abi, is_argument);
                     }
                 }
             }
@@ -7589,10 +7604,9 @@ public:
                 tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
                 return;
             } else if( call_name == "array" ) {
+                parse_args(x, args);
                 ASR::ttype_t* type = nullptr;
-                if( x.n_keywords == 0 ) {
-                    parse_args(x, args);
-                } else {
+                if( x.n_keywords > 0) {
                     args.reserve(al, 1);
                     visit_expr_list(x.m_args, x.n_args, args);
                     if( x.n_keywords > 1 ) {

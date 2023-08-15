@@ -408,6 +408,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::Integer: {
             return "integer";
         }
+        case ASR::ttypeType::UnsignedInteger: {
+            return "unsigned integer";
+        }
         case ASR::ttypeType::Real: {
             return "real";
         }
