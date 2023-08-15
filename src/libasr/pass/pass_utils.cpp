@@ -665,12 +665,91 @@ namespace LCompilers {
             return var;
         }
 
+        #define create_args(x, type, symtab) { \
+            ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
+                ASR::make_Variable_t(al, loc, symtab, \
+                s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
+                ASR::storage_typeType::Default, type, nullptr, \
+                ASR::abiType::Source, ASR::accessType::Public, \
+                ASR::presenceType::Required, false)); \
+            ASR::expr_t* arg_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg)); \
+            arg_exprs.push_back(al, arg_expr); \
+            symtab->add_symbol(x, arg); \
+        }
+
+        ASR::symbol_t* create_fma_func(Allocator& al, Location& loc,
+                    SymbolTable*& global_scope, ASR::ttype_t* type) {
+            /*
+                elemental real(real32) function _lcompilers_optimization__function__fma__real32(a, b, c) result(d)
+                    real(real32), intent(in) :: a, b, c
+                    d = a + b * c
+                end function
+            */
+
+            std::string type_name = ASRUtils::get_type_code(type, true);
+            std::string func_name = "_lcompilers_optimization__function__fma__" + type_name;
+            if (global_scope->get_symbol(func_name) != nullptr) {
+                return global_scope->get_symbol(func_name);
+            }
+            SymbolTable* fma_func = al.make_new<SymbolTable>(global_scope);
+            Vec<ASR::expr_t*> arg_exprs;
+            arg_exprs.reserve(al, 3);
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            // Declare `a_list`, `start`, `end` and `step`
+            create_args("a", type, fma_func)
+            create_args("b", type, fma_func)
+            create_args("c", type, fma_func)
+
+            ASR::symbol_t* result_var = ASR::down_cast<ASR::symbol_t>(
+                ASR::make_Variable_t(al, loc, fma_func,
+                s2c(al, "result_var"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
+                ASR::storage_typeType::Default, type, nullptr,
+                ASR::abiType::Source, ASR::accessType::Public,
+                ASR::presenceType::Required, false));
+            ASR::expr_t* result = ASRUtils::EXPR(ASR::make_Var_t(al, loc, result_var));
+            fma_func->add_symbol("result_var", result_var);
+
+            ASR::expr_t* b_c = ASRUtils::EXPR(ASR::make_RealBinOp_t(al, loc, arg_exprs[1],
+                        ASR::binopType::Mul, arg_exprs[2], type, nullptr));
+            ASR::expr_t* a_b_c = ASRUtils::EXPR(ASR::make_RealBinOp_t(al, loc, arg_exprs[0],
+                        ASR::binopType::Mul, b_c, type, nullptr));
+
+            ASR::stmt_t* res_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, result, a_b_c, nullptr));
+            body.push_back(al, res_stmt);
+
+            // Return
+            res_stmt = ASRUtils::STMT(ASR::make_Return_t(al, loc));
+            body.push_back(al, res_stmt);
+
+            ASR::asr_t *fn = ASRUtils::make_Function_t_util(
+                al, loc,
+                /* a_symtab */ fma_func,
+                /* a_name */ s2c(al, func_name),
+                nullptr, 0,
+                /* a_args */ arg_exprs.p,
+                /* n_args */ arg_exprs.n,
+                /* a_body */ body.p,
+                /* n_body */ body.n,
+                /* a_return_var */ result,
+                ASR::abiType::Source,
+                ASR::accessType::Public, ASR::deftypeType::Implementation,
+                nullptr,
+                false, true, false, false, false,
+                nullptr, 0,
+                false, false, false);
+            ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
+            global_scope->add_symbol(func_name, fn_sym);
+            return fn_sym;
+        }
+
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
-            Allocator& al, ASR::TranslationUnit_t& unit, LCompilers::PassOptions& pass_options,
-            SymbolTable*& current_scope, Location& loc,
-            const std::function<void (const std::string &, const Location &)> err) {
-            ASR::symbol_t *v = import_generic_procedure("fma", "lfortran_intrinsic_optimization",
-                                                        al, unit, pass_options, current_scope, arg0->base.loc);
+            Allocator& al, ASR::TranslationUnit_t& unit, Location& loc) {
+            ASR::ttype_t *t = ASRUtils::expr_type(arg0);
+            ASR::symbol_t *v = create_fma_func(al, loc, unit.m_global_scope, t);
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 3);
             ASR::call_arg_t arg0_, arg1_, arg2_;
@@ -681,8 +760,10 @@ namespace LCompilers {
             arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
             args.push_back(al, arg2_);
             return ASRUtils::EXPR(
-                        ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
-                        loc, v, args, current_scope, al, err));
+                        ASRUtils::make_FunctionCall_t_util(al, loc, v,
+                                        v, args.p, args.size(),
+                                        t,
+                                        nullptr, nullptr));
         }
 
         ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
