@@ -7589,10 +7589,9 @@ public:
                 tmp = ASR::make_UnsignedIntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
                 return;
             } else if( call_name == "array" ) {
+                parse_args(x, args);
                 ASR::ttype_t* type = nullptr;
-                if( x.n_keywords == 0 ) {
-                    parse_args(x, args);
-                } else {
+                if( x.n_keywords > 0) {
                     args.reserve(al, 1);
                     visit_expr_list(x.m_args, x.n_args, args);
                     if( x.n_keywords > 1 ) {
