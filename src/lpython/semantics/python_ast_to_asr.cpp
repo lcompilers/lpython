@@ -510,7 +510,22 @@ public:
     std::map<std::string, std::string> imported_functions;
 
     std::map<std::string, std::string> numpy2lpythontypes = {
+        {"bool", "bool"},
+        {"bool_", "bool"},
         {"int8", "i8"},
+        {"int16", "i16"},
+        {"int32", "i32"},
+        {"int64", "i64"},
+        {"uint8", "u8"},
+        {"uint16", "u16"},
+        {"uint32", "u32"},
+        {"uint64", "u64"},
+        {"float32", "f32"},
+        {"float64", "f64"},
+        {"float_", "f64"},
+        {"complex64", "c32"},
+        {"complex128", "c64"},
+        {"complex_", "c64"},
     };
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,

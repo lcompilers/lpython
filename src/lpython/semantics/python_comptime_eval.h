@@ -28,7 +28,7 @@ struct ProceduresDatabase {
                                     "complex64", "complex128",
                                     "int8", "exp", "exp2",
                                     "uint8", "uint16", "uint32", "uint64",
-                                    "size"}},
+                                    "size", "bool_"}},
                          {"math", {"sin", "cos", "tan",
                                     "asin", "acos", "atan",
                                     "exp", "exp2", "expm1"}},
