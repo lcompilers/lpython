@@ -639,6 +639,10 @@ filename = "parser/tuple1.py"
 ast_new = true
 
 [[test]]
+filename = "errors/lambda_01.py"
+asr = true
+
+[[test]]
 filename = "errors/test_bit_length.py"
 asr = true
 
