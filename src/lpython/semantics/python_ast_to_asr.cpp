@@ -2873,6 +2873,91 @@ public:
         return nullptr;
     }
 
+    void handle_lambda_function_declaration(std::string &var_name, ASR::FunctionType_t* fn_type, AST::expr_t* value, const Location &loc) {
+        if (value == nullptr) {
+            throw SemanticError("Callback functions must have a value", loc);
+        }
+
+        if (!AST::is_a<AST::Lambda_t>(*value)) {
+            throw SemanticError("Callback functions supports only lambda expressions as value", value->base.loc);
+        }
+
+        const AST::Lambda_t &x = *AST::down_cast<AST::Lambda_t>(value);
+        if (fn_type->n_arg_types != x.m_args.n_args) {
+            diag.add(diag::Diagnostic(
+                "The number of args to lambda function much match the number of args declared in function type",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("",
+                            {fn_type->base.base.loc, x.m_args.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        // Add the lambda function to the current scope
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, fn_type->n_arg_types);
+        for (size_t i=0; i<fn_type->n_arg_types; i++) {
+            std::string arg_name = x.m_args.m_args[i].m_arg;
+            ASR::symbol_t *v;
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec,
+                    fn_type->m_arg_types[i]);
+            v = ASR::down_cast<ASR::symbol_t>(
+                ASR::make_Variable_t(al, x.m_args.m_args[i].loc,
+                current_scope, s2c(al, arg_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(), ASRUtils::intent_unspecified,
+                nullptr, nullptr, ASR::storage_typeType::Default, fn_type->m_arg_types[i],
+                nullptr, ASR::abiType::Source, ASR::Public, ASR::presenceType::Required,
+                false));
+            current_scope->add_symbol(arg_name, v);
+            LCOMPILERS_ASSERT(v != nullptr)
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.m_args.m_args[i].loc, v)));
+        }
+
+        this->visit_expr(*x.m_body);
+        ASR::asr_t* return_var_assign_stmt = make_dummy_assignment(ASRUtils::EXPR(tmp));
+        ASR::expr_t *return_var = ASR::down_cast2<ASR::Assignment_t>(return_var_assign_stmt)->m_target;
+
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(return_var), fn_type->m_return_var_type)) {
+            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(return_var));
+            std::string rtype = ASRUtils::type_to_str_python(fn_type->m_return_var_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in lambda expression return value",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                            {ASRUtils::expr_type(return_var)->base.loc, fn_type->m_return_var_type->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, 0);
+        body.push_back(al, ASRUtils::STMT(return_var_assign_stmt));
+
+        ASR::asr_t* fn_sym_util = ASRUtils::make_Function_t_util(
+            al, x.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ s2c(al, var_name),
+            nullptr, 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
+            /* a_body */ body.p,
+            /* n_body */ body.size(),
+            /* a_return_var */ return_var,
+            ASR::abiType::BindC, ASR::accessType::Public, ASR::deftypeType::Implementation,
+            nullptr, false, false, false, false, false, nullptr, 0, false, false, false);
+        current_scope = parent_scope;
+        ASR::symbol_t* fn_sym = ASR::down_cast<ASR::symbol_t>(fn_sym_util);
+        current_scope->add_symbol(var_name, fn_sym);
+        tmp = nullptr;
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              ASR::expr_t* &init_expr,
                              bool wrap_derived_type_in_pointer=false,
@@ -2881,9 +2966,14 @@ public:
         bool is_allocatable = false;
         ASR::ttype_t *type = nullptr;
         if( inside_struct ) {
-            type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable, true);
+            type = ast_expr_to_asr_type(x.m_annotation->base.loc, *x.m_annotation, is_allocatable, true);
         } else {
-            type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable, true, abi);
+            type = ast_expr_to_asr_type(x.m_annotation->base.loc, *x.m_annotation, is_allocatable, true, abi);
+        }
+        if (ASR::is_a<ASR::FunctionType_t>(*type)) {
+            ASR::FunctionType_t* fn_type = ASR::down_cast<ASR::FunctionType_t>(type);
+            handle_lambda_function_declaration(var_name, fn_type, x.m_value, x.base.base.loc);
+            return;
         }
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
         ann_assign_target_type = type;
