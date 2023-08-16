@@ -2,7 +2,7 @@
     "basename": "asr-structs_04-387747b",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/structs_04.py",
-    "infile_hash": "c19af3c3fbac1430c22c5aaf69aea7c622faa9d7c4e7734edbd0066d",
+    "infile_hash": "1e20c2ac044ab88183c50ecb481ac7c50992ed622f8bb94772c6df25",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-structs_04-387747b.stdout",
