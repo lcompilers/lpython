@@ -1,4 +1,4 @@
-from lpython import i32, f32, f64, dataclass
+from lpython import i32, f32, f64, dataclass, field
 from copy import deepcopy
 
 @dataclass
@@ -9,7 +9,7 @@ class A:
 @dataclass
 class B:
     z: i32
-    a: A = A(f32(0.0), 0)
+    a: A = field(default_factory=lambda: A(f32(0.0), 0))
 
 def f(b: B):
     print(b.z, b.a.x, b.a.y)

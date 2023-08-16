@@ -1,4 +1,4 @@
-from lpython import packed, dataclass, i32, ccallback, CPtr, ccall
+from lpython import packed, dataclass, field, i32
 
 # test issue 2125
 
@@ -11,7 +11,7 @@ class inner_struct:
 @packed
 @dataclass
 class outer_struct:
-    inner_s : inner_struct = inner_struct()
+    inner_s : inner_struct = field(default_factory=lambda: inner_struct())
 
 
 def check() -> None:

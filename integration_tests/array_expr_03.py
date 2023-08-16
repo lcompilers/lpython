@@ -1,11 +1,11 @@
-from lpython import i8, i32, dataclass
+from lpython import i8, i32, dataclass, field
 from numpy import empty, int8, array
 
 
 @dataclass
 class LPBHV_small:
     dim: i32 = 4
-    a: i8[4] = empty(4, dtype=int8)
+    a: i8[4] = field(default_factory=lambda: empty(4, dtype=int8))
 
 
 def g():
