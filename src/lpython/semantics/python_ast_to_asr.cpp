@@ -2966,9 +2966,9 @@ public:
         bool is_allocatable = false;
         ASR::ttype_t *type = nullptr;
         if( inside_struct ) {
-            type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable, true);
+            type = ast_expr_to_asr_type(x.m_annotation->base.loc, *x.m_annotation, is_allocatable, true);
         } else {
-            type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation, is_allocatable, true, abi);
+            type = ast_expr_to_asr_type(x.m_annotation->base.loc, *x.m_annotation, is_allocatable, true, abi);
         }
         if (ASR::is_a<ASR::FunctionType_t>(*type)) {
             ASR::FunctionType_t* fn_type = ASR::down_cast<ASR::FunctionType_t>(type);
