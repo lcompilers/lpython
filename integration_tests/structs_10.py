@@ -1,18 +1,18 @@
-from lpython import i32, f64, dataclass
+from lpython import i32, f64, dataclass, field
 from numpy import empty, float64
 
 @dataclass
 class Mat:
-    mat: f64[2, 2] = empty((2, 2), dtype=float64)
+    mat: f64[2, 2] = field(default_factory=lambda: empty((2, 2), dtype=float64))
 
 @dataclass
 class Vec:
-    vec: f64[2] = empty(2, dtype=float64)
+    vec: f64[2] = field(default_factory=lambda: empty(2, dtype=float64))
 
 @dataclass
 class MatVec:
-    mat: Mat = Mat()
-    vec: Vec = Vec()
+    mat: Mat = field(default_factory=lambda: Mat())
+    vec: Vec = field(default_factory=lambda: Vec())
 
 def rotate(mat_vec: MatVec) -> f64[2]:
     rotated_vec: f64[2] = empty(2, dtype=float64)

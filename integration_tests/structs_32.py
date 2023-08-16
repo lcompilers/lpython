@@ -1,4 +1,4 @@
-from lpython import packed, dataclass, i32, InOut
+from lpython import packed, dataclass, field, i32, InOut
 
 
 @packed
@@ -10,7 +10,7 @@ class inner_struct:
 @packed
 @dataclass
 class outer_struct:
-    b: inner_struct = inner_struct(0)
+    b: inner_struct = field(default_factory=lambda: inner_struct(0))
 
 
 def update_my_inner_struct(my_inner_struct: InOut[inner_struct]) -> None:
