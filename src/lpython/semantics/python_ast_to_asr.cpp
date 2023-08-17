@@ -7802,6 +7802,35 @@ public:
                 tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
                                              arg_type, size_type, nullptr);
                 return ;
+            }  else if( call_name == "field" ) {
+                if (x.n_args != 0) {
+                    throw SemanticError("'field' expects only keyword arguments", x.base.base.loc);
+                }
+
+                if (x.n_keywords != 1) {
+                    throw SemanticError("'field' expects one keyword argument", x.base.base.loc);
+                }
+
+                args.reserve(al, 1);
+                visit_expr_list(x.m_args, x.n_args, args);
+
+                if( std::string(x.m_keywords[0].m_arg) != "default_factory" && std::string(x.m_keywords[0].m_arg) != "default" ) {
+                    throw SemanticError("Unrecognised keyword argument, " +
+                        std::string(x.m_keywords[0].m_arg), x.base.base.loc);
+                }
+
+                if ( std::string(x.m_keywords[0].m_arg) == "default_factory") {
+                    if (!AST::is_a<AST::Lambda_t>(*x.m_keywords[0].m_value)) {
+                        throw SemanticError("Only lambda functions currently supported as default_factory value", x.base.base.loc);
+                    }
+
+                    AST::Lambda_t* lambda_fn = AST::down_cast<AST::Lambda_t>(x.m_keywords[0].m_value);
+                    this->visit_expr(*lambda_fn->m_body);
+                } else {
+                    // field has default argument provided
+                    this->visit_expr(*x.m_keywords[0].m_value);
+                }
+                return ;
             } else if(
                         call_name == "f64" ||
                         call_name == "f32" ||

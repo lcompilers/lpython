@@ -2,7 +2,7 @@ from inspect import getfullargspec, getcallargs, isclass, getsource
 import os
 import ctypes
 import platform
-from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass
+from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass, field
 import functools
 
 
@@ -11,7 +11,7 @@ __slots__ = ["i8", "i16", "i32", "i64", "u8", "u16", "u32", "u64", "f32", "f64",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static",
         "packed", "Const", "sizeof", "ccallable", "ccallback", "Callable",
-        "Allocatable", "In", "Out", "InOut", "dataclass", "S"]
+        "Allocatable", "In", "Out", "InOut", "dataclass", "field", "S"]
 
 # data-types
 
