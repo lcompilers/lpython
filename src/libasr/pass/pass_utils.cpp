@@ -666,11 +666,17 @@ namespace LCompilers {
         }
 
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
-            Allocator& al, ASR::TranslationUnit_t& unit, LCompilers::PassOptions& pass_options,
-            SymbolTable*& current_scope, Location& loc,
-            const std::function<void (const std::string &, const Location &)> err) {
-            ASR::symbol_t *v = import_generic_procedure("fma", "lfortran_intrinsic_optimization",
-                                                        al, unit, pass_options, current_scope, arg0->base.loc);
+            Allocator& al, ASR::TranslationUnit_t& unit, Location& loc){
+
+            ASRUtils::impl_function instantiate_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_instantiate_function(
+                    static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FMA));
+            Vec<ASR::ttype_t*> arg_types;
+            ASR::ttype_t* type = ASRUtils::expr_type(arg0);
+            arg_types.reserve(al, 3);
+            arg_types.push_back(al, ASRUtils::expr_type(arg0));
+            arg_types.push_back(al, ASRUtils::expr_type(arg1));
+            arg_types.push_back(al, ASRUtils::expr_type(arg2));
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 3);
             ASR::call_arg_t arg0_, arg1_, arg2_;
@@ -680,9 +686,9 @@ namespace LCompilers {
             args.push_back(al, arg1_);
             arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
             args.push_back(al, arg2_);
-            return ASRUtils::EXPR(
-                        ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
-                        loc, v, args, current_scope, al, err));
+            return instantiate_function(al, loc,
+                unit.m_global_scope, arg_types, type, args, 0,
+                nullptr);
         }
 
         ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
