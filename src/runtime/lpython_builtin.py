@@ -928,3 +928,13 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+
+def _lpython_bit_length(i: int) -> int:
+    x: str
+    x = bin(i)
+
+    if i == 0: return 0
+    if i < 0: x = x[3:]
+    else: x = x[2:] 
+    
+    return len(x)
