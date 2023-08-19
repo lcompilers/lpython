@@ -929,7 +929,7 @@ def list(s: str) -> list[str]:
         l.append(s[i])
     return l
 
-def _lpython_bit_length(i: int) -> int:
+def _lpython_bit_length(i: i32) -> int:
     x: str
     x = bin(i)
 
