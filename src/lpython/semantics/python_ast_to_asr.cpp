@@ -1851,17 +1851,35 @@ public:
                     is_allocatable, raise_error, abi, is_argument);
                 return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
+                AST::expr_t* dim_info = s->m_slice;
+
+                if (var_annotation == "Array") {
+                    LCOMPILERS_ASSERT(AST::is_a<AST::Tuple_t>(*s->m_slice));
+                    AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
+                    LCOMPILERS_ASSERT(t->n_elts >= 2);
+                    LCOMPILERS_ASSERT(AST::is_a<AST::Name_t>(*t->m_elts[0]));
+                    var_annotation = AST::down_cast<AST::Name_t>(t->m_elts[0])->m_id;
+                    Vec<AST::expr_t*> dims;
+                    dims.reserve(al, 0);
+                    for (size_t i = 1; i < t->n_elts; i++) {
+                        dims.push_back(al, t->m_elts[i]);
+                    }
+                    AST::ast_t* dim_tuple = AST::make_Tuple_t(al, t->base.base.loc, dims.p, dims.size(),
+                        AST::expr_contextType::Load);
+                    dim_info = AST::down_cast<AST::expr_t>(dim_tuple);
+                }
+
                 ASR::ttype_t* type = get_type_from_var_annotation(var_annotation,
                     annotation.base.loc, dims, m_args, n_args, raise_error, abi, is_argument);
 
-                if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
+                if (AST::is_a<AST::Slice_t>(*dim_info)) {
                     ASR::dimension_t dim;
                     dim.loc = loc;
                     dim.m_start = nullptr;
                     dim.m_length = nullptr;
                     dims.push_back(al, dim);
-                } else if( is_runtime_array(s->m_slice) ) {
-                    AST::Tuple_t* tuple_multidim = AST::down_cast<AST::Tuple_t>(s->m_slice);
+                } else if( is_runtime_array(dim_info) ) {
+                    AST::Tuple_t* tuple_multidim = AST::down_cast<AST::Tuple_t>(dim_info);
                     for( size_t i = 0; i < tuple_multidim->n_elts; i++ ) {
                         if( AST::is_a<AST::Slice_t>(*tuple_multidim->m_elts[i]) ) {
                             ASR::dimension_t dim;
@@ -1872,7 +1890,7 @@ public:
                         }
                     }
                 } else {
-                    this->visit_expr(*s->m_slice);
+                    this->visit_expr(*dim_info);
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
                     fill_dims_for_asr_type(dims, value, loc);
                 }

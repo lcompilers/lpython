@@ -77,6 +77,9 @@ class Array:
         self._type = type
         self._dims = dims
 
+    def __class_getitem__(self, params):
+        return Array(params[0], params[1:])
+
 i1 = Type("i1")
 i8 = Type("i8")
 i16 = Type("i16")
