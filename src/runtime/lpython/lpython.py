@@ -2,7 +2,7 @@ from inspect import getfullargspec, getcallargs, isclass, getsource
 import os
 import ctypes
 import platform
-from dataclasses import dataclass as py_dataclass, is_dataclass as py_is_dataclass, field
+from dataclasses import dataclass, field, is_dataclass as py_is_dataclass
 import functools
 
 
@@ -47,13 +47,6 @@ class Type:
 
     def __call__(self, arg):
         return self._convert(arg)
-
-def dataclass(arg):
-    def __class_getitem__(key):
-        return Array(arg, key)
-    arg.__class_getitem__ = __class_getitem__
-
-    return py_dataclass(arg)
 
 def is_ctypes_Structure(obj):
     return (isclass(obj) and issubclass(obj, ctypes.Structure))
