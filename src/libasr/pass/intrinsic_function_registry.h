@@ -900,7 +900,9 @@ static inline ASR::asr_t* create_LogGamma(Allocator& al, const Location& loc,
     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
 
-    if (!ASRUtils::is_real(*type)) {
+    if (args.n != 1) {
+            err("Intrinsic `log_gamma` accepts exactly one argument", loc);
+    } else if (!ASRUtils::is_real(*type)) {
         err("`x` argument of `log_gamma` must be real",
             args[0]->base.loc);
     }
@@ -951,7 +953,9 @@ namespace X {                                                                   
         const std::function<void (const std::string &, const Location &)> err)  \
     {                                                                           \
         ASR::ttype_t *type = ASRUtils::expr_type(args[0]);                      \
-        if (!ASRUtils::is_real(*type) && !ASRUtils::is_complex(*type)) {        \
+        if (args.n != 1) {                                                      \
+            err("Intrinsic `"#X"` accepts exactly one argument", loc);          \
+        } else if (!ASRUtils::is_real(*type) && !ASRUtils::is_complex(*type)) { \
             err("`x` argument of `"#X"` must be real or complex",               \
                 args[0]->base.loc);                                             \
         }                                                                       \
@@ -963,7 +967,6 @@ namespace X {                                                                   
             const Location &loc, SymbolTable *scope,                            \
             Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,           \
             Vec<ASR::call_arg_t>& new_args,int64_t overload_id)  {              \
-        LCOMPILERS_ASSERT(arg_types.size() == 1);                               \
         ASR::ttype_t* arg_type = arg_types[0];                                  \
         return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,    \
             #lcompilers_name, arg_type, return_type, new_args, overload_id);    \
