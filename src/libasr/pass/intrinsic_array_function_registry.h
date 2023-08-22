@@ -809,11 +809,7 @@ namespace Shape {
 
     static inline ASR::expr_t* instantiate_Shape(Allocator &al,
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
-            ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-            int64_t, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args, int64_t) {
         declare_basic_variables("_lcompilers_shape");
         fill_func_arg("source", arg_types[0]);
         auto result = declare(fn_name, return_type, ReturnVar);
@@ -1020,11 +1016,7 @@ namespace Any {
 
     static inline ASR::expr_t* instantiate_Any(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *logical_return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t overload_id,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t overload_id) {
         ASRBuilder builder(al, loc);
         ASRBuilder& b = builder;
         ASR::ttype_t* arg_type = arg_types[0];
@@ -1142,10 +1134,7 @@ namespace Sum {
     static inline ASR::expr_t* instantiate_Sum(Allocator &al,
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-            int64_t overload_id, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            int64_t overload_id) {
         return ArrIntrinsic::instantiate_ArrIntrinsic(al, loc, scope, arg_types,
             return_type, new_args, overload_id, IntrinsicArrayFunctions::Sum,
             &get_constant_zero_with_given_type, &ASRBuilder::ElementalAdd);
@@ -1176,10 +1165,7 @@ namespace Product {
     static inline ASR::expr_t* instantiate_Product(Allocator &al,
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-            int64_t overload_id, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            int64_t overload_id) {
         return ArrIntrinsic::instantiate_ArrIntrinsic(al, loc, scope, arg_types,
             return_type, new_args, overload_id, IntrinsicArrayFunctions::Product,
             &get_constant_one_with_given_type, &ASRBuilder::ElementalMul);
@@ -1210,10 +1196,7 @@ namespace MaxVal {
     static inline ASR::expr_t* instantiate_MaxVal(Allocator &al,
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-            int64_t overload_id, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            int64_t overload_id) {
         return ArrIntrinsic::instantiate_ArrIntrinsic(al, loc, scope, arg_types,
             return_type, new_args, overload_id, IntrinsicArrayFunctions::MaxVal,
             &get_minimum_value_with_given_type, &ASRBuilder::ElementalMax);
@@ -1238,11 +1221,7 @@ namespace MaxLoc {
     static inline ASR::expr_t *instantiate_MaxLoc(Allocator &al,
             const Location &loc, SymbolTable *scope,
             Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& m_args, int64_t overload_id,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& m_args, int64_t overload_id) {
         return ArrIntrinsic::instantiate_MaxMinLoc(al, loc, scope,
             static_cast<int>(IntrinsicArrayFunctions::MaxLoc), arg_types, return_type,
             m_args, overload_id);
@@ -1366,11 +1345,7 @@ namespace Merge {
     static inline ASR::expr_t* instantiate_Merge(Allocator &al,
             const Location &loc, SymbolTable *scope,
             Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         LCOMPILERS_ASSERT(arg_types.size() == 3);
 
         // Array inputs should be elementalised in array_op pass already
@@ -1442,10 +1417,7 @@ namespace MinVal {
     static inline ASR::expr_t* instantiate_MinVal(Allocator &al,
             const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
             ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-            int64_t overload_id, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            int64_t overload_id) {
         return ArrIntrinsic::instantiate_ArrIntrinsic(al, loc, scope, arg_types,
             return_type, new_args, overload_id, IntrinsicArrayFunctions::MinVal,
             &get_maximum_value_with_given_type, &ASRBuilder::ElementalMin);
@@ -1470,11 +1442,7 @@ namespace MinLoc {
     static inline ASR::expr_t *instantiate_MinLoc(Allocator &al,
             const Location &loc, SymbolTable *scope,
             Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& m_args, int64_t overload_id,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& m_args, int64_t overload_id) {
         return ArrIntrinsic::instantiate_MaxMinLoc(al, loc, scope,
             static_cast<int>(IntrinsicArrayFunctions::MinLoc), arg_types, return_type,
             m_args, overload_id);

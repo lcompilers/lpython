@@ -687,8 +687,7 @@ namespace LCompilers {
             arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
             args.push_back(al, arg2_);
             return instantiate_function(al, loc,
-                unit.m_global_scope, arg_types, type, args, 0,
-                nullptr);
+                unit.m_global_scope, arg_types, type, args, 0);
         }
 
         ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
