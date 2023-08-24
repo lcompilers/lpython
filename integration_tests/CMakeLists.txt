@@ -454,8 +454,8 @@ RUN(NAME print_list_tuple_02    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_03    LABELS cpython llvm c NOFAST)
 
 # CPython and LLVM
-RUN(NAME const_01            LABELS cpython llvm c)
-RUN(NAME const_02            LABELS cpython llvm c)
+RUN(NAME const_01            LABELS cpython llvm c wasm)
+RUN(NAME const_02            LABELS cpython llvm c wasm)
 RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
 RUN(NAME const_04            LABELS cpython llvm c)
