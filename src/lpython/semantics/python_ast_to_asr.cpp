@@ -3051,7 +3051,7 @@ public:
                     underlying_type = ASRUtils::get_contained_type(type);
                 }
                 cast_helper(underlying_type, value, value->base.loc);
-                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value))) {
+                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value), true)) {
                     std::string ltype = ASRUtils::type_to_str_python(underlying_type);
                     std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
                     diag.add(diag::Diagnostic(
