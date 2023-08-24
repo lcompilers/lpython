@@ -233,6 +233,22 @@
                                     update_2]
                                     []
                                     [(=
+                                        (Var 204 y)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Struct
+                                                    2 A
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (ArrayItem
                                             (Var 204 y)
                                             [(()

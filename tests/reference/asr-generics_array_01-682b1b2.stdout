@@ -370,6 +370,20 @@
                                     [__asr_generic_f_0]
                                     []
                                     [(=
+                                        (Var 201 array)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (Var 201 x)
                                         (IntegerConstant 69 (Integer 4))
                                         ()
