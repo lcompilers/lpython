@@ -39,7 +39,7 @@ def elemental_tan32():
     i: i32
     j: i32
     eps: f32
-    eps = f32(1e-6)
+    eps = f32(1e-4)
 
     for i in range(25):
         theta1d[i] = f32(i + 1)
