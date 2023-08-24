@@ -2492,6 +2492,13 @@ inline bool types_equal(ASR::ttype_t *a, ASR::ttype_t *b,
                             a2->m_dims, a2->n_dims,
                             b2->m_dims, b2->n_dims);
             }
+            case (ASR::ttypeType::TypeParameter) : {
+                ASR::TypeParameter_t* left_tp = ASR::down_cast<ASR::TypeParameter_t>(a);
+                ASR::TypeParameter_t* right_tp = ASR::down_cast<ASR::TypeParameter_t>(b);
+                std::string left_param = left_tp->m_param;
+                std::string right_param = right_tp->m_param;
+                return left_param == right_param;
+            }
             case (ASR::ttypeType::Integer) : {
                 ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(a);
                 ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(b);
