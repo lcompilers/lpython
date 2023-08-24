@@ -2430,21 +2430,13 @@ inline bool dimension_expr_equal(ASR::expr_t* dim_a, ASR::expr_t* dim_b) {
     if( !(dim_a && dim_b) ) {
         return true;
     }
-    ASR::expr_t* dim_a_fallback = nullptr;
-    ASR::expr_t* dim_b_fallback = nullptr;
-    if( ASR::is_a<ASR::Var_t>(*dim_a) &&
-        ASR::is_a<ASR::Variable_t>(
-            *ASR::down_cast<ASR::Var_t>(dim_a)->m_v) ) {
-        dim_a_fallback = ASRUtils::EXPR2VAR(dim_a)->m_symbolic_value;
+    int dim_a_int, dim_b_int;
+    if (ASRUtils::extract_value(ASRUtils::expr_value(dim_a), dim_a_int)
+        && ASRUtils::extract_value(ASRUtils::expr_value(dim_b), dim_b_int)) {
+        return dim_a_int == dim_b_int;
     }
-    if( ASR::is_a<ASR::Var_t>(*dim_b) &&
-        ASR::is_a<ASR::Variable_t>(
-            *ASR::down_cast<ASR::Var_t>(dim_b)->m_v) ) {
-        dim_b_fallback = ASRUtils::EXPR2VAR(dim_b)->m_symbolic_value;
-    }
-    if( !ASRUtils::expr_equal(dim_a, dim_b) &&
-        !(dim_a_fallback && ASRUtils::expr_equal(dim_a_fallback, dim_b)) &&
-        !(dim_b_fallback && ASRUtils::expr_equal(dim_a, dim_b_fallback)) ) {
+
+    if( !ASRUtils::expr_equal(dim_a, dim_b) ) {
         return false;
     }
     return true;
