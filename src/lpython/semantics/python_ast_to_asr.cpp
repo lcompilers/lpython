@@ -525,6 +525,7 @@ public:
         {"complex64", "c32"},
         {"complex128", "c64"},
         {"complex_", "c64"},
+        {"object", "T"}
     };
 
     CommonVisitor(Allocator &al, LocationManager &lm, SymbolTable *symbol_table,
