@@ -445,9 +445,13 @@ jobs:
             ./run_tests.py -b c_sym cpython_sym llvm_sym
             ./run_tests.py -b c_sym cpython_sym llvm_sym -f
 
-  python_3_11:
-    name: Run Integration tests with Python 3.11
+  integration_tests_cpython:
+    name: Run Integration tests with Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -466,16 +470,20 @@ jobs:
             zlib
             cmake
             make
-            python=3.11.4
+            python=${{ matrix.python-version }}
             numpy
 
       - uses: hendrikmuhs/ccache-action@main
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          key: ${{ github.job }}-${{ matrix.python-version }}
 
-      - name: Show Python version
+      - name: Show Python Info
         shell: bash -e -l {0}
-        run: python --version
+        run: |
+          which python
+          python -m pip -V
+          python -m pip list
+          python --version
 
       - name: Build
         shell: bash -e -l {0}
