@@ -1645,6 +1645,12 @@ public:
                 ASR::expr_t *value = tuple_constant->m_elements[i];
                 fill_dims_for_asr_type(dims, value, loc);
             }
+        } else if(ASR::is_a<ASR::ListConstant_t>(*value)) {
+            ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(value);
+            for( size_t i = 0; i < list_constant->n_args; i++ ) {
+                ASR::expr_t *value = list_constant->m_args[i];
+                fill_dims_for_asr_type(dims, value, loc);
+            }
         } else if(ASR::is_a<ASR::EnumValue_t>(*value)) {
             ASR::expr_t* enum_value = ASRUtils::expr_value(
                  ASR::down_cast<ASR::EnumValue_t>(value)->m_value);
