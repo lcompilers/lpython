@@ -7510,9 +7510,41 @@ public:
                 tmp = ASRUtils::make_ArraySize_t_util(al, loc, var, dim, int_type, nullptr);
                 return;
             } else if (call_name == "empty") {
-                // TODO: check that the `empty` arguments are compatible
-                // with the type
-                tmp = nullptr;
+                if (x.n_args != 1 || x.n_keywords != 1) {
+                    throw SemanticError("empty() expects 1 positional argument for shape"
+                        " and 1 keyword argument for 'dtype'",
+                        x.base.base.loc);
+                }
+
+                ASR::ttype_t* type = nullptr;
+                Vec<ASR::dimension_t> dims;
+                dims.reserve(al, 0);
+
+                visit_expr(*x.m_args[0]);
+                ASR::expr_t* shape = ASRUtils::EXPR(tmp);
+                fill_dims_for_asr_type(dims, shape, shape->base.loc);
+
+                std::string keyword_arg = x.m_keywords[0].m_arg;
+                if (keyword_arg != "dtype") {
+                    throw SemanticError("Unexpected keyword argument '" + keyword_arg + "', expected 'dtype'",
+                                x.m_keywords[0].loc);
+                }
+
+                std::string dtype_np = "";
+                if( AST::is_a<AST::Name_t>(*x.m_keywords[0].m_value) ) {
+                    AST::Name_t* name_t = AST::down_cast<AST::Name_t>(x.m_keywords[0].m_value);
+                    dtype_np = name_t->m_id;
+                } else {
+                    LCOMPILERS_ASSERT(false);
+                }
+                LCOMPILERS_ASSERT(numpy2lpythontypes.find(dtype_np) != numpy2lpythontypes.end());
+                type = get_type_from_var_annotation(
+                    numpy2lpythontypes[dtype_np], x.base.base.loc, dims);
+
+                Vec<ASR::expr_t*> arr_args;
+                arr_args.reserve(al, 0);
+                tmp = ASRUtils::make_ArrayConstant_t_util(al, x.base.base.loc,
+                    arr_args.p, arr_args.size(), type, ASR::arraystorageType::RowMajor);
                 return;
             } else if (call_name == "c_p_pointer") {
                 tmp = create_CPtrToPointer(x);
