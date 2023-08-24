@@ -647,9 +647,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
 
         using namespace wasm;
-        int kind = ASRUtils::extract_kind_from_ttype_t(v->m_type);
         uint32_t global_var_idx = UINT_MAX;
-        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(v->m_type);
+        ASR::ttype_t* ttype = ASRUtils::type_get_past_const(v->m_type);
+        ASR::ttype_t* v_m_type = ASRUtils::type_get_past_array(ttype);
+        int kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         switch (v_m_type->type){
             case ASR::ttypeType::Integer: {
                 uint64_t init_val = 0;
@@ -877,9 +878,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 throw CodeGenAbort();
             }
         } else {
-            if (ASRUtils::is_integer(*v->m_type)) {
+            ASR::ttype_t* ttype = v->m_type;
+            ttype = ASRUtils::type_get_past_const(ttype);
+            if (ASRUtils::is_integer(*ttype)) {
                 ASR::Integer_t *v_int =
-                    ASR::down_cast<ASR::Integer_t>(ASRUtils::type_get_past_array(v->m_type));
+                    ASR::down_cast<ASR::Integer_t>(ASRUtils::type_get_past_array(ttype));
                 if (is_array) {
                     type_vec.push_back(i32);
                 } else {
@@ -892,9 +895,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Integers of kind 4 and 8 only supported");
                     }
                 }
-            } else if (ASRUtils::is_real(*v->m_type)) {
+            } else if (ASRUtils::is_real(*ttype)) {
                 ASR::Real_t *v_float = ASR::down_cast<ASR::Real_t>(
-                    ASRUtils::type_get_past_array(v->m_type));
+                    ASRUtils::type_get_past_array(ttype));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -908,10 +911,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Floating Points of kind 4 and 8 only supported");
                     }
                 }
-            } else if (ASRUtils::is_logical(*v->m_type)) {
+            } else if (ASRUtils::is_logical(*ttype)) {
                 ASR::Logical_t *v_logical =
                     ASR::down_cast<ASR::Logical_t>(
-                        ASRUtils::type_get_past_array(v->m_type));
+                        ASRUtils::type_get_past_array(ttype));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -923,10 +926,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         throw CodeGenError("Logicals of kind 4 only supported");
                     }
                 }
-            } else if (ASRUtils::is_character(*v->m_type)) {
+            } else if (ASRUtils::is_character(*ttype)) {
                 ASR::Character_t *v_int =
                     ASR::down_cast<ASR::Character_t>(
-                        ASRUtils::type_get_past_array(v->m_type));
+                        ASRUtils::type_get_past_array(ttype));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -941,10 +944,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "Characters of kind 1 only supported");
                     }
                 }
-            } else if (ASRUtils::is_complex(*v->m_type)) {
+            } else if (ASRUtils::is_complex(*ttype)) {
                 ASR::Complex_t *v_comp =
                     ASR::down_cast<ASR::Complex_t>(
-                        ASRUtils::type_get_past_array(v->m_type));
+                        ASRUtils::type_get_past_array(ttype));
 
                 if (is_array) {
                     type_vec.push_back(i32);
@@ -2132,7 +2135,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         auto v = ASR::down_cast<ASR::Variable_t>(s);
-        switch (ASRUtils::type_get_past_array(v->m_type)->type) {
+        ASR::ttype_t* ttype = ASRUtils::type_get_past_array(v->m_type);
+        ttype = ASRUtils::type_get_past_const(ttype);
+        switch (ttype->type) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Real:
@@ -2263,7 +2268,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         int64_t val = x.m_n;
-        int a_kind = ((ASR::Integer_t *)(&(x.m_type->base)))->m_kind;
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch (a_kind) {
             case 4: {
                 m_wa.emit_i32_const(val);
@@ -2940,6 +2945,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = ASRUtils::expr_type(v);
+            t = ASRUtils::type_get_past_const(t);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
 
             if (ASRUtils::is_integer(*t) || ASRUtils::is_logical(*t)) {
