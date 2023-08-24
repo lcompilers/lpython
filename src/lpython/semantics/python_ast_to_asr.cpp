@@ -7543,10 +7543,12 @@ public:
                 } else {
                     LCOMPILERS_ASSERT(false);
                 }
-                LCOMPILERS_ASSERT(numpy2lpythontypes.find(dtype_np) != numpy2lpythontypes.end());
-                type = get_type_from_var_annotation(
-                    numpy2lpythontypes[dtype_np], x.base.base.loc, dims);
 
+                if (numpy2lpythontypes.find(dtype_np) != numpy2lpythontypes.end()) {
+                    dtype_np = numpy2lpythontypes[dtype_np];
+                }
+
+                type = get_type_from_var_annotation(dtype_np, x.m_keywords[0].m_value->base.loc, dims);
                 Vec<ASR::expr_t*> arr_args;
                 arr_args.reserve(al, 0);
                 tmp = ASRUtils::make_ArrayConstant_t_util(al, x.base.base.loc,
