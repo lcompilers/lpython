@@ -1,5 +1,5 @@
 from lpython import i32, f32, f64
-from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians
+from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians, float32, float64
 from math import pi
 
 def verify1d_same(array: f32[:], result: f32[:], size: i32):
@@ -60,15 +60,15 @@ def verify_arctan_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
 def elemental_arcsin():
     i: i32
     j: i32
-    array1d: f32[201] = empty(201)
-    arcsin1d: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    arcsin1d: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32((i - 100)/100)
     arcsin1d = arcsin(array1d) ** f32(2.0)
     verify_arcsin_1d(array1d, arcsin1d, 201)
 
-    array2d: f64[64, 64] = empty((64, 64))
-    arcsin2d: f64[64, 64] = empty((64, 64))
+    array2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    arcsin2d: f64[64, 64] = empty((64, 64), dtype=float64)
     for i in range(64):
         for j in range(64): # 2048 = 64 * 32
             array2d[i,j]= float((i * 64 + j - 2048 )/2048)
@@ -79,15 +79,15 @@ def elemental_arcsin():
 def elemental_arccos():
     i: i32
     j: i32
-    array1d: f32[201] = empty(201)
-    arccos1d: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    arccos1d: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32((i - 100)/100)
     arccos1d = arccos(array1d) ** f32(2.0)
     verify_arccos_1d(array1d, arccos1d, 201)
 
-    array2d: f64[64, 64] = empty((64, 64))
-    arccos2d: f64[64, 64] = empty((64, 64))
+    array2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    arccos2d: f64[64, 64] = empty((64, 64), dtype=float64)
     for i in range(64):
         for j in range(64): # 2048 = 64 * 32
             array2d[i,j]= float((i * 64 + j - 2048 )/2048)
@@ -100,9 +100,9 @@ def elemental_arctan():
     j: i32
     eps: f32
     eps = f32(1e-6)
-    array1d: f32[201] = empty(201)
-    array1d_rec: f32[201] = empty(201)
-    arctan1d: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    array1d_rec: f32[201] = empty(201, dtype=float32)
+    arctan1d: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32(i - 100)
     arctan1d = arctan(array1d) ** f32(2.0)
@@ -115,8 +115,8 @@ def elemental_arctan():
     for i in range(201):
         assert abs(arctan1d[i] - f32(f64(pi) / 2.0)) <= eps
 
-    array2d: f64[64, 64] = empty((64, 64))
-    arctan2d: f64[64, 64] = empty((64, 64))
+    array2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    arctan2d: f64[64, 64] = empty((64, 64), dtype=float64)
     for i in range(64):
         for j in range(64):
             array2d[i,j]= float(64*i + j - 2048)
@@ -128,8 +128,8 @@ def elemental_trig_identity():
     i: i32
     eps: f32
     eps = f32(1e-6)
-    array1d: f32[201] = empty(201)
-    observed1d: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    observed1d: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32((i - 100)/100)
 
@@ -139,8 +139,8 @@ def elemental_trig_identity():
 
 def elemental_reverse():
     i: i32
-    array1d: f32[201] = empty(201)
-    observed1d: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    observed1d: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32((i - 100)/100)
     observed1d = sin(arcsin(array1d))
@@ -157,9 +157,9 @@ def elemental_reverse():
 
 def elemental_trig_identity_extra():
     i: i32
-    array1d: f32[201] = empty(201)
-    array_x: f32[201] = empty(201)
-    array_y: f32[201] = empty(201)
+    array1d: f32[201] = empty(201, dtype=float32)
+    array_x: f32[201] = empty(201, dtype=float32)
+    array_y: f32[201] = empty(201, dtype=float32)
     for i in range(201):
         array1d[i] =  f32((i - 100)/100)
     array_x = sin(arccos(array1d))
@@ -177,8 +177,8 @@ def elemental_degrees():
     eps_64: f64
     eps_32 = f32(1e-6)
     eps_64 = 1e-12
-    array1d: f32[200] = empty(200)
-    degrees1d: f32[200] = empty(200)
+    array1d: f32[200] = empty(200, dtype=float32)
+    degrees1d: f32[200] = empty(200, dtype=float32)
     for i in range(200):
         array1d[i] =  f32(i)
     degrees1d = sin(degrees(array1d))
@@ -186,8 +186,8 @@ def elemental_degrees():
     for i in range(200):
         assert abs(degrees1d[i] - sin(degrees(array1d[i]))) <= eps_32
 
-    array2d: f64[64, 64] = empty((64, 64))
-    degrees2d: f64[64, 64] = empty((64, 64))
+    array2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    degrees2d: f64[64, 64] = empty((64, 64), dtype=float64)
     for i in range(64):
         for j in range(64):
             array2d[i,j]= float(i*64+j)
@@ -203,8 +203,8 @@ def elemental_radians():
     eps_64: f64
     eps_32 = f32(1e-6)
     eps_64 = 1e-12
-    array1d: f32[200] = empty(200)
-    radians1d: f32[200] = empty(200)
+    array1d: f32[200] = empty(200, dtype=float32)
+    radians1d: f32[200] = empty(200, dtype=float32)
     for i in range(200):
         array1d[i] =  f32(i)
     radians1d = cos(radians(array1d))
@@ -212,8 +212,8 @@ def elemental_radians():
     for i in range(200):
         assert abs(radians1d[i] - cos(radians(array1d[i]))) <= eps_32
 
-    array2d: f64[64, 64] = empty((64, 64))
-    radians2d: f64[64, 64] = empty((64, 64))
+    array2d: f64[64, 64] = empty((64, 64), dtype=float64)
+    radians2d: f64[64, 64] = empty((64, 64), dtype=float64)
     for i in range(64):
         for j in range(64):
             array2d[i,j]= float(i*64+j)

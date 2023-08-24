@@ -1,11 +1,11 @@
 # This test handles various aspects of local arrays using the `numpy.empty()`
 # function
 from lpython import f64, i32
-from numpy import empty
+from numpy import empty, float64
 
 def test_local_arrays():
     a: f64[16]
-    a = empty(16)
+    a = empty(16, dtype=float64)
     i: i32
     for i in range(16):
         a[i] = f64(i) + 0.5
@@ -18,7 +18,7 @@ def test_local_arrays():
 
 def f() -> f64[4]:
     a: f64[4]
-    a = empty(4)
+    a = empty(4, dtype=float64)
     i: i32
     for i in range(4):
         a[i] = 1.0 * f64(i)

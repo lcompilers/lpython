@@ -1,12 +1,12 @@
 from lpython import i32, f64, f32
-from numpy import empty, tan, sin, cos, reshape
+from numpy import empty, tan, sin, cos, reshape, int32, float32, float64
 
 def elemental_tan64():
-    theta: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1))
-    theta1d: f64[1024] = empty(1024)
-    tantheta: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1))
-    observed: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1))
-    shapend: i32[5] = empty(5, dtype=int)
+    theta: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1), dtype=float64)
+    theta1d: f64[1024] = empty(1024, dtype=float64)
+    tantheta: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1), dtype=float64)
+    observed: f64[16, 8, 4, 2, 1] = empty((16, 8, 4, 2, 1), dtype=float64)
+    shapend: i32[5] = empty(5, dtype=int32)
     i: i32
     j: i32
     k: i32
@@ -31,11 +31,11 @@ def elemental_tan64():
                     assert abs(tantheta[i, j, k, l, 0] - observed[i, j, k, l, 0]) <= eps
 
 def elemental_tan32():
-    theta: f32[5, 5] = empty((5, 5))
-    theta1d: f32[25] = empty(25)
-    tantheta: f32[5, 5] = empty((5, 5))
-    observed: f32[5, 5] = empty((5, 5))
-    shapend: i32[2] = empty(2, dtype=int)
+    theta: f32[5, 5] = empty((5, 5), dtype=float32)
+    theta1d: f32[25] = empty(25, dtype=float32)
+    tantheta: f32[5, 5] = empty((5, 5), dtype=float32)
+    observed: f32[5, 5] = empty((5, 5), dtype=float32)
+    shapend: i32[2] = empty(2, dtype=int32)
     i: i32
     j: i32
     eps: f32

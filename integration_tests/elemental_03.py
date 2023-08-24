@@ -1,10 +1,10 @@
 from lpython import i32, f32, f64
-from numpy import empty, sqrt, reshape
+from numpy import empty, sqrt, reshape, int32, float32, float64
 
 def elemental_sqrt64():
-    array: f64[16, 16, 16] = empty((16, 16, 16))
-    observed: f64[4096] = empty(4096)
-    shape: i32[1] = empty(1, dtype=int)
+    array: f64[16, 16, 16] = empty((16, 16, 16), dtype=float64)
+    observed: f64[4096] = empty(4096, dtype=float64)
+    shape: i32[1] = empty(1, dtype=int32)
     eps: f64
     eps = 1e-12
     i: i32
@@ -26,9 +26,9 @@ def elemental_sqrt64():
         assert abs(observed[l]**2.0 - f64(i + j + k)) <= eps
 
 def elemental_sqrt32():
-    array: f32[16, 16] = empty((16, 16))
-    observed: f32[256] = empty(256)
-    shape: i32[1] = empty(1, dtype=int)
+    array: f32[16, 16] = empty((16, 16), dtype=float32)
+    observed: f32[256] = empty(256, dtype=float32)
+    shape: i32[1] = empty(1, dtype=int32)
     eps: f32
     eps = f32(5e-6)
     i: i32
@@ -48,9 +48,9 @@ def elemental_sqrt32():
 
 
 def elemental_norm():
-    array_a: f64[100] = empty(100)
-    array_b: f64[100] = empty(100)
-    array_c: f64[100] = empty(100)
+    array_a: f64[100] = empty(100, dtype=float64)
+    array_b: f64[100] = empty(100, dtype=float64)
+    array_c: f64[100] = empty(100, dtype=float64)
 
     i: i32
     j: i32
