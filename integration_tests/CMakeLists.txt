@@ -286,10 +286,10 @@ macro(RUN_UTIL RUN_FAIL RUN_NAME RUN_FILE_NAME RUN_LABELS RUN_EXTRAFILES RUN_NOM
             execute_process(COMMAND "${WASM_EXEC_RUNTIME}" --version
                             OUTPUT_VARIABLE WASM_EXEC_VERSION
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
-            string(COMPARE GREATER_EQUAL "${WASM_EXEC_VERSION}"
-                                    "v16.0.0" IS_NODE_ABOVE_16)
 
-            if (NOT IS_NODE_ABOVE_16)
+            string(REGEX REPLACE "v([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\1" NODE_MAJOR_VERSION "${WASM_EXEC_VERSION}")
+
+            if (NODE_MAJOR_VERSION LESS 16)
                 message(STATUS "${WASM_EXEC_RUNTIME} version: ${WASM_EXEC_VERSION}")
                 set(WASM_EXEC_FLAGS "--experimental-wasm-bigint")
             endif()
