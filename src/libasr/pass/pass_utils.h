@@ -323,7 +323,10 @@ namespace LCompilers {
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    if( fill_function_dependencies && ASRUtils::symbol_symtab(x.m_name) != nullptr && ASRUtils::symbol_parent_symtab(x.m_name) == ASRUtils::symbol_symtab(x.m_name)->parent) {
+                    if( fill_function_dependencies &&
+                        ASRUtils::symbol_symtab(x.m_name) != nullptr &&
+                        ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() !=
+                        current_scope->get_counter()) {
                         if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
                             ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
 
@@ -346,10 +349,9 @@ namespace LCompilers {
                     }
 
                     if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
-                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
                         ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
 
-                        if (f->m_symtab->parent == external_symbol->m_parent_symtab) {
+                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter()) {
                             function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                         }
                     }
@@ -365,7 +367,10 @@ namespace LCompilers {
                 }
 
                 void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
-                    if( fill_function_dependencies && ASRUtils::symbol_symtab(x.m_name) != nullptr && ASRUtils::symbol_parent_symtab(x.m_name) == ASRUtils::symbol_symtab(x.m_name)->parent) {
+                    if( fill_function_dependencies &&
+                        ASRUtils::symbol_symtab(x.m_name) != nullptr &&
+                        ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() !=
+                        current_scope->get_counter()) {
                         if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
                             // Get the function type from x.
                             ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
@@ -391,10 +396,8 @@ namespace LCompilers {
                     }
 
                     if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
-                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
                         ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-
-                        if (f->m_symtab->parent == external_symbol->m_parent_symtab) {
+                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter()) {
                             function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                         }
                     }

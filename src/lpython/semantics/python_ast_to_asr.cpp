@@ -1620,7 +1620,7 @@ public:
                 target_scope, target_scope, new_f, f);
         }
         dependencies.erase(s2c(al, func_name));
-        if(ASRUtils::symbol_parent_symtab(func) == current_scope->parent) {
+        if(ASRUtils::symbol_parent_symtab(sym) == current_scope->parent) {
             dependencies.push_back(al, s2c(al, new_func_name));
         }
         return t;
