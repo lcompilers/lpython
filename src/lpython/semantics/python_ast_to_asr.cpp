@@ -2793,27 +2793,33 @@ public:
                 ASR::arraystorageType::RowMajor)); \
         } \
 
-    ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
-        AST::expr_t* ast_type_expr, AST::expr_t* ast_target_shape, const Location& loc) {
-        this->visit_expr(*ast_cptr);
+    ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
+        if( x.n_args != 2 && x.n_args != 3 ) {
+            throw SemanticError("c_p_pointer accepts maximum three positional arguments, "
+                                "first a variable of c_ptr type, second "
+                                "the target type of the first variable and "
+                                "third optionally the shape of the target variable "
+                                "if target variable is an array",
+                                x.base.base.loc);
+        }
+        this->visit_expr(*x.m_args[0]);
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
-        this->visit_expr(*ast_pptr);
+        this->visit_expr(*assign_ast_target);
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
         ASR::expr_t* target_shape = nullptr;
-        if( ast_target_shape ) {
-            this->visit_expr(*ast_target_shape);
+        if( x.n_args == 3 ) {
+            this->visit_expr(*x.m_args[2]);
             target_shape = ASRUtils::EXPR(tmp);
         }
         bool is_allocatable = false;
-        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(ast_type_expr->base.loc, *ast_type_expr,
-            is_allocatable, true);
+        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1], is_allocatable);
         ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
         if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
             diag.add(diag::Diagnostic(
                 "Type mismatch in c_p_pointer and target variable, the types must match",
                 diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch between target variable type "
-                                "and c_p_pointer allocation type)",
+                    diag::Label("type mismatch ('" + ASRUtils::type_to_str_python(target_type) +
+                                "' and '" + ASRUtils::type_to_str_python(asr_alloc_type) + "')",
                             {target_type->base.loc, asr_alloc_type->base.loc})
                 })
             );
@@ -2837,8 +2843,10 @@ public:
                 }
             }
         }
+        const Location& loc = x.base.base.loc;
         fill_shape_and_lower_bound_for_CPtrToPointer();
-        return ASR::make_CPtrToPointer_t(al, loc, cptr, pptr, target_shape, lower_bounds);
+        return ASR::make_CPtrToPointer_t(al, loc, cptr,
+            pptr, target_shape, lower_bounds);
     }
 
     ASR::asr_t* check_to_allocate_array(AST::expr_t *value, std::string var_name,
@@ -3022,18 +3030,7 @@ public:
                 create_add_variable_to_scope(var_name, nullptr, type,
                     x.base.base.loc, abi, storage_type);
                 AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-                AST::expr_t* cptr = c_p_pointer_call->m_args[0];
-                AST::expr_t* pptr = assign_ast_target;
-                AST::expr_t* pptr_shape = nullptr;
-                if( c_p_pointer_call->n_args == 3 &&
-                    c_p_pointer_call->m_args[2] != nullptr ) {
-                    pptr_shape = c_p_pointer_call->m_args[2];
-                }
-                tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
-                        pptr_shape, x.base.base.loc);
-                // if( current_body ) {
-                //     current_body->push_back(al, ASRUtils::STMT(tmp));
-                // }
+                tmp = create_CPtrToPointer(*c_p_pointer_call);
             } else if (tmp) {
                 value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
@@ -5244,24 +5241,19 @@ public:
 
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
+        AST::expr_t* assign_ast_target_copy = assign_ast_target;
+        assign_ast_target = x.m_targets[0];
         bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
         is_c_p_pointer_call = false;
         this->visit_expr(*x.m_value);
         if( is_c_p_pointer_call ) {
             LCOMPILERS_ASSERT(x.n_targets == 1);
             AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-            AST::expr_t* cptr = c_p_pointer_call->m_args[0];
-            AST::expr_t* pptr = x.m_targets[0];
-            AST::expr_t* target_shape = nullptr;
-            if( c_p_pointer_call->n_args == 3 ) {
-                target_shape = c_p_pointer_call->m_args[2];
-            }
-            tmp = create_CPtrToPointerFromArgs(cptr, pptr, c_p_pointer_call->m_args[1],
-                                               target_shape, x.base.base.loc);
-            is_c_p_pointer_call = is_c_p_pointer_call;
+            tmp = create_CPtrToPointer(*c_p_pointer_call);
             return ;
         }
         is_c_p_pointer_call = is_c_p_pointer_call_copy;
+        assign_ast_target = assign_ast_target_copy;
         if (tmp) {
             // This happens if `m.m_value` is `empty`, such as in:
             // a = empty(16)
@@ -6675,10 +6667,6 @@ public:
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
                 call_name = n->m_id;
                 ASR::symbol_t* s = current_scope->resolve_symbol(call_name);
-                if( call_name == "c_p_pointer" && !s ) {
-                    tmp = create_CPtrToPointer(*c);
-                    return;
-                }
                 if( call_name == "p_c_pointer" && !s ) {
                     tmp = create_PointerToCPtr(*c);
                     return;
@@ -6791,45 +6779,6 @@ public:
             LCOMPILERS_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
             tmp = nullptr;
         }
-    }
-
-
-    ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
-        if( x.n_args != 2 && x.n_args != 3 ) {
-            throw SemanticError("c_p_pointer accepts maximum three positional arguments, "
-                                "first a variable of c_ptr type, second "
-                                "the target type of the first variable and "
-                                "third optionally the shape of the target variable "
-                                "if target variable is an array",
-                                x.base.base.loc);
-        }
-        visit_expr(*x.m_args[0]);
-        ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
-        visit_expr(*x.m_args[1]);
-        ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
-        ASR::expr_t* target_shape = nullptr;
-        if( x.n_args == 3 ) {
-            visit_expr(*x.m_args[2]);
-            target_shape = ASRUtils::EXPR(tmp);
-        }
-        bool is_allocatable = false;
-        ASR::ttype_t* asr_alloc_type = ast_expr_to_asr_type(x.m_args[1]->base.loc, *x.m_args[1], is_allocatable);
-        ASR::ttype_t* target_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(pptr));
-        if( !ASRUtils::types_equal(target_type, asr_alloc_type, true) ) {
-            diag.add(diag::Diagnostic(
-                "Type mismatch in c_p_pointer and target variable, the types must match",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch ('" + ASRUtils::type_to_str_python(target_type) +
-                                "' and '" + ASRUtils::type_to_str_python(asr_alloc_type) + "')",
-                            {target_type->base.loc, asr_alloc_type->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-        const Location& loc = x.base.base.loc;
-        fill_shape_and_lower_bound_for_CPtrToPointer();
-        return ASR::make_CPtrToPointer_t(al, loc, cptr,
-            pptr, target_shape, lower_bounds);
     }
 
     ASR::asr_t* create_PointerToCPtr(const AST::Call_t& x) {
