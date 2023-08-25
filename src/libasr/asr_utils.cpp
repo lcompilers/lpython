@@ -1273,6 +1273,14 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
             int64_t int_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                 ASRUtils::expr_value(a_arg))->m_n;
             value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(al, a_loc, int_value, a_type));
+        } else if (a_kind == ASR::cast_kindType::UnsignedIntegerToInteger) {
+            int64_t int_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                ASRUtils::expr_value(a_arg))->m_n;
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, a_loc, int_value, a_type));
+        } else if (a_kind == ASR::cast_kindType::UnsignedIntegerToUnsignedInteger) {
+            int64_t int_value = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(
+                                ASRUtils::expr_value(a_arg))->m_n;
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_UnsignedIntegerConstant_t(al, a_loc, int_value, a_type));
         } else if (a_kind == ASR::cast_kindType::IntegerToLogical) {
             // TODO: implement
         } else if (a_kind == ASR::cast_kindType::ComplexToComplex) {
@@ -1293,7 +1301,7 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
             args.reserve(al, 1);
             args.push_back(al, a_arg);
             LCompilers::ASRUtils::create_intrinsic_function create_function =
-                LCompilers::ASRUtils::IntrinsicFunctionRegistry::get_create_function("SymbolicInteger");
+                LCompilers::ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("SymbolicInteger");
             value = ASR::down_cast<ASR::expr_t>(create_function(al, a_loc, args,
                 [](const std::string&, const Location&) {
             }));

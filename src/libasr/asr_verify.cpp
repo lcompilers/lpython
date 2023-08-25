@@ -4,6 +4,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/utils.h>
 #include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 
 namespace LCompilers {
 
@@ -1004,16 +1005,28 @@ public:
         }
     }
 
-    void visit_IntrinsicFunction(const ASR::IntrinsicFunction_t& x) {
+    void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t& x) {
         if( !check_external ) {
-            BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicFunction(x);
+            BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicScalarFunction(x);
             return ;
         }
-        ASRUtils::verify_function verify_ = ASRUtils::IntrinsicFunctionRegistry
+        ASRUtils::verify_function verify_ = ASRUtils::IntrinsicScalarFunctionRegistry
             ::get_verify_function(x.m_intrinsic_id);
         LCOMPILERS_ASSERT(verify_ != nullptr);
         verify_(x, diagnostics);
-        BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicFunction(x);
+        BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicScalarFunction(x);
+    }
+
+    void visit_IntrinsicArrayFunction(const ASR::IntrinsicArrayFunction_t& x) {
+        if( !check_external ) {
+            BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicArrayFunction(x);
+            return ;
+        }
+        ASRUtils::verify_array_function verify_ = ASRUtils::IntrinsicArrayFunctionRegistry
+            ::get_verify_function(x.m_arr_intrinsic_id);
+        LCOMPILERS_ASSERT(verify_ != nullptr);
+        verify_(x, diagnostics);
+        BaseWalkVisitor<VerifyVisitor>::visit_IntrinsicArrayFunction(x);
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {

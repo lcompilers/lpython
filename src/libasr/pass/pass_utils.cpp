@@ -666,11 +666,17 @@ namespace LCompilers {
         }
 
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
-            Allocator& al, ASR::TranslationUnit_t& unit, LCompilers::PassOptions& pass_options,
-            SymbolTable*& current_scope, Location& loc,
-            const std::function<void (const std::string &, const Location &)> err) {
-            ASR::symbol_t *v = import_generic_procedure("fma", "lfortran_intrinsic_optimization",
-                                                        al, unit, pass_options, current_scope, arg0->base.loc);
+            Allocator& al, ASR::TranslationUnit_t& unit, Location& loc){
+
+            ASRUtils::impl_function instantiate_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_instantiate_function(
+                    static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FMA));
+            Vec<ASR::ttype_t*> arg_types;
+            ASR::ttype_t* type = ASRUtils::expr_type(arg0);
+            arg_types.reserve(al, 3);
+            arg_types.push_back(al, ASRUtils::expr_type(arg0));
+            arg_types.push_back(al, ASRUtils::expr_type(arg1));
+            arg_types.push_back(al, ASRUtils::expr_type(arg2));
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 3);
             ASR::call_arg_t arg0_, arg1_, arg2_;
@@ -680,9 +686,8 @@ namespace LCompilers {
             args.push_back(al, arg1_);
             arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
             args.push_back(al, arg2_);
-            return ASRUtils::EXPR(
-                        ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
-                        loc, v, args, current_scope, al, err));
+            return instantiate_function(al, loc,
+                unit.m_global_scope, arg_types, type, args, 0);
         }
 
         ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
@@ -743,7 +748,7 @@ namespace LCompilers {
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation,
                 nullptr, false, false, false, false, false,
-                nullptr, 0, nullptr, 0, false, false, false);
+                nullptr, 0, false, false, false);
             global_scope->add_symbol(vector_copy_name, ASR::down_cast<ASR::symbol_t>(vector_copy_asr));
             return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
         }
@@ -939,7 +944,7 @@ namespace LCompilers {
                 #define increment_by_one(var, body) ASR::expr_t* inc_by_one = builder.ElementalAdd(var, \
                     make_ConstantWithType(make_IntegerConstant_t, 1, \
                         ASRUtils::expr_type(var), loc), loc); \
-                    ASR::stmt_t* assign_inc = Assignment(var, inc_by_one); \
+                    ASR::stmt_t* assign_inc = builder.Assignment(var, inc_by_one); \
                     body->push_back(al, assign_inc); \
 
             const Location& loc = arr_var->base.loc;
@@ -962,13 +967,13 @@ namespace LCompilers {
                             [=, &idx_vars, &doloop_body, &builder, &al] () {
                             ASR::expr_t* ref = PassUtils::create_array_ref(curr_init, idx_vars, al, current_scope);
                             ASR::expr_t* res = PassUtils::create_array_ref(arr_var, idx_var, al, current_scope);
-                            ASR::stmt_t* assign = Assignment(res, ref);
+                            ASR::stmt_t* assign = builder.Assignment(res, ref);
                             doloop_body.push_back(al, assign);
                             increment_by_one(idx_var, (&doloop_body))
                         }, current_scope, result_vec);
                     } else {
                         ASR::expr_t* res = PassUtils::create_array_ref(arr_var, idx_var, al, current_scope);
-                        ASR::stmt_t* assign = Assignment(res, curr_init);
+                        ASR::stmt_t* assign = builder.Assignment(res, curr_init);
                         result_vec->push_back(al, assign);
                         increment_by_one(idx_var, result_vec)
                     }
@@ -980,13 +985,13 @@ namespace LCompilers {
                         [=, &idx_vars, &doloop_body, &builder, &al] () {
                         ASR::expr_t* ref = PassUtils::create_array_ref(array_section, idx_vars, al);
                         ASR::expr_t* res = PassUtils::create_array_ref(arr_var, idx_var, al, current_scope);
-                        ASR::stmt_t* assign = Assignment(res, ref);
+                        ASR::stmt_t* assign = builder.Assignment(res, ref);
                         doloop_body.push_back(al, assign);
                         increment_by_one(idx_var, (&doloop_body))
                     }, current_scope, result_vec);
                 } else {
                     ASR::expr_t* res = PassUtils::create_array_ref(arr_var, idx_var, al, current_scope);
-                    ASR::stmt_t* assign = Assignment(res, curr_init);
+                    ASR::stmt_t* assign = builder.Assignment(res, curr_init);
                     result_vec->push_back(al, assign);
                     increment_by_one(idx_var, result_vec)
                 }

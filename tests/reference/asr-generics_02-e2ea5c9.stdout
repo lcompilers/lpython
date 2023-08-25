@@ -28,11 +28,11 @@
                             __asr_generic_swap_0:
                                 (Function
                                     (SymbolTable
-                                        4
+                                        5
                                         {
                                             temp:
                                                 (Variable
-                                                    4
+                                                    5
                                                     temp
                                                     []
                                                     Local
@@ -48,7 +48,7 @@
                                                 ),
                                             x:
                                                 (Variable
-                                                    4
+                                                    5
                                                     x
                                                     []
                                                     InOut
@@ -64,7 +64,7 @@
                                                 ),
                                             y:
                                                 (Variable
-                                                    4
+                                                    5
                                                     y
                                                     []
                                                     InOut
@@ -93,36 +93,35 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
-                                    [(Var 4 x)
-                                    (Var 4 y)]
+                                    [(Var 5 x)
+                                    (Var 5 y)]
                                     [(=
-                                        (Var 4 temp)
-                                        (Var 4 x)
+                                        (Var 5 temp)
+                                        (Var 5 x)
                                         ()
                                     )
                                     (=
-                                        (Var 4 x)
-                                        (Var 4 y)
+                                        (Var 5 x)
+                                        (Var 5 y)
                                         ()
                                     )
                                     (=
-                                        (Var 4 y)
-                                        (Var 4 temp)
+                                        (Var 5 y)
+                                        (Var 5 temp)
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 4 x)]
+                                        [(Var 5 x)]
                                         ()
                                         ()
                                     )
                                     (Print
                                         ()
-                                        [(Var 4 y)]
+                                        [(Var 5 y)]
                                         ()
                                         ()
                                     )]
@@ -132,14 +131,14 @@
                                     .false.
                                     ()
                                 ),
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        5
+                                        6
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -152,16 +151,106 @@
                                         .false.
                                         .false.
                                         []
+                                        .false.
+                                    )
+                                    [main0]
+                                    []
+                                    [(SubroutineCall
+                                        2 main0
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            main0:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            a:
+                                                (Variable
+                                                    4
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    4
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    main0
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
                                         []
                                         .false.
                                     )
                                     [__asr_generic_swap_0]
                                     []
-                                    [(SubroutineCall
+                                    [(=
+                                        (Var 4 a)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 b)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 4 a)
+                                        (Var 4 b)]
+                                        ()
+                                        ()
+                                    )
+                                    (SubroutineCall
                                         2 __asr_generic_swap_0
                                         ()
-                                        [((IntegerConstant 1 (Integer 4)))
-                                        ((IntegerConstant 2 (Integer 4)))]
+                                        [((Var 4 a))
+                                        ((Var 4 b))]
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 4 a)
+                                        (Var 4 b)]
+                                        ()
                                         ()
                                     )]
                                     ()
@@ -247,9 +336,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        [(TypeParameter
-                                            T
-                                        )]
                                         []
                                         .false.
                                     )
@@ -298,24 +384,24 @@
             main_program:
                 (Program
                     (SymbolTable
-                        6
+                        7
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
-                                    6
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    7
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        6 __main____global_statements
-                        2 __main____global_statements
+                        7 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

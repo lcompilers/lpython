@@ -235,7 +235,9 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | FunctionCall(symbol name, symbol? original_name, call_arg* args,
             ttype type, expr? value, expr? dt)
-    | IntrinsicFunction(int intrinsic_id, expr* args, int overload_id,
+    | IntrinsicScalarFunction(int intrinsic_id, expr* args, int overload_id,
+            ttype? type, expr? value)
+    | IntrinsicArrayFunction(int arr_intrinsic_id, expr* args, int overload_id,
             ttype? type, expr? value)
     | IntrinsicImpureFunction(int impure_intrinsic_id, expr* args, int overload_id,
             ttype? type, expr? value)
@@ -408,7 +410,7 @@ ttype
     | Array(ttype type, dimension* dims, array_physical_type physical_type)
     | FunctionType(ttype* arg_types, ttype? return_var_type,
         abi abi, deftype deftype, string? bindc_name, bool elemental,
-        bool pure, bool module, bool inline, bool static, ttype* type_params,
+        bool pure, bool module, bool inline, bool static,
         symbol* restrictions, bool is_restriction)
 
 -- TODO: prefix the enumerators here, improve the names

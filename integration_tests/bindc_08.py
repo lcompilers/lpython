@@ -1,5 +1,5 @@
 # file: main.py
-from lpython import CPtr, i32, dataclass, c_p_pointer, Pointer, empty_c_void_p, p_c_pointer
+from lpython import CPtr, i32, dataclass, c_p_pointer, Pointer, empty_c_void_p, p_c_pointer, Array
 
 from numpy import empty, array
 
@@ -9,11 +9,11 @@ class Foo:
      y: i32
 
 def init(foos_ptr: CPtr) -> None:
-    foos: Pointer[Foo[:]] = c_p_pointer(foos_ptr, Foo[:], array([1]))
+    foos: Pointer[Array[Foo, :]] = c_p_pointer(foos_ptr, Array[Foo, :], array([1]))
     foos[0] = Foo(3, 2)
 
 def main() -> None:
-    foos: Foo[1] = empty(1, dtype=Foo)
+    foos: Array[Foo, 1] = empty(1, dtype=Foo)
     foos_ptr: CPtr = empty_c_void_p()
     foos[0] = Foo(0, 1)
     p_c_pointer(foos, foos_ptr)

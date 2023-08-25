@@ -1,0 +1,13 @@
+{
+    "basename": "asr-unsigned_03-f785652",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/unsigned_03.py",
+    "infile_hash": "72dd2c6e17b137b6b9f66deeaab0af4ebe3044cb16009e0fab25f05a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-unsigned_03-f785652.stderr",
+    "stderr_hash": "d90013a25d9aaa91fbbf2b1193cd06be94a4e716f0fe99771cde5601",
+    "returncode": 2
+}

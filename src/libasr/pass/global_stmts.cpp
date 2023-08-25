@@ -123,7 +123,7 @@ void pass_wrap_global_stmts(Allocator &al,
         ASR::Public, ASR::Implementation,
         nullptr,
         false, false, false, false, false,
-        nullptr, 0, nullptr, 0,
+        nullptr, 0,
         false, false, false);
     std::string sym_name = fn_name;
     if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {

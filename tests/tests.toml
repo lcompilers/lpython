@@ -299,6 +299,10 @@ asr = true
 # integration_tests
 
 [[test]]
+filename = "../integration_tests/test_list_repeat2.py"
+cpp = true
+
+[[test]]
 filename = "../integration_tests/test_builtin.py"
 asr = true
 
@@ -633,6 +637,10 @@ ast_new = true
 [[test]]
 filename = "parser/tuple1.py"
 ast_new = true
+
+[[test]]
+filename = "errors/lambda_01.py"
+asr = true
 
 [[test]]
 filename = "errors/test_bit_length.py"
@@ -1192,6 +1200,22 @@ asr = true
 
 [[test]]
 filename = "errors/func_08.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_01.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_02.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_03.py"
+asr = true
+
+[[test]]
+filename = "errors/unsigned_04.py"
 asr = true
 
 # tests/runtime_errors

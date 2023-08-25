@@ -17,13 +17,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-
-struct dimension_descriptor
-{
-    int32_t lower_bound, length;
-};
 // Forward declarations
-void __main____global_statements();
+void __main__global_stmts();
 void f();
 namespace {
 }
@@ -40,7 +35,7 @@ void f()
     assert (~i == 235345);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     f();
 }
@@ -48,7 +43,7 @@ void __main____global_statements()
 namespace {
 
 void main2() {
-    __main____global_statements();
+    __main__global_stmts();
 }
 
 }

@@ -116,12 +116,12 @@ namespace LCompilers {
         CompilerOptions &compiler_options_,
         std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>>& arr_arg_type_cache_,
         std::map<std::string, std::pair<llvm::Type*, llvm::Type*>>& fname2arg_type_):
-        context(context), builder(std::move(_builder)), str_cmp_itr(nullptr),
-        are_iterators_set(false), der_type_name(der_type_name_),
+        context(context), builder(std::move(_builder)), str_cmp_itr(nullptr), der_type_name(der_type_name_),
         name2dertype(name2dertype_), name2dercontext(name2dercontext_),
         struct_type_stack(struct_type_stack_), dertype2parent(dertype2parent_),
         name2memidx(name2memidx_), arr_arg_type_cache(arr_arg_type_cache_), fname2arg_type(fname2arg_type_),
-        dict_api_lp(nullptr), dict_api_sc(nullptr), compiler_options(compiler_options_) {
+        dict_api_lp(nullptr), dict_api_sc(nullptr),
+        set_api_lp(nullptr), set_api_sc(nullptr), compiler_options(compiler_options_) {
             std::vector<llvm::Type*> els_4 = {
             llvm::Type::getFloatTy(context),
             llvm::Type::getFloatTy(context)};
@@ -600,6 +600,7 @@ namespace LCompilers {
                                                             local_a_kind, module);
         int32_t el_type_size = get_type_size(asr_set->m_type, el_llvm_type, local_a_kind, module);
         std::string el_type_code = ASRUtils::get_type_code(asr_set->m_type);
+        set_set_api(asr_set);
         return set_api->get_set_type(el_type_code, el_type_size,
                                                  el_llvm_type);
     }
@@ -851,6 +852,7 @@ namespace LCompilers {
                                                                   is_list, m_dims, n_dims,
                                                                   a_kind, module, m_abi);
                 int32_t el_type_size = get_type_size(asr_set->m_type, el_llvm_type, a_kind, module);
+                set_set_api(asr_set);
                 type = set_api->get_set_type(el_type_code, el_type_size, el_llvm_type)->getPointerTo();
                 break;
             }
@@ -872,6 +874,13 @@ namespace LCompilers {
         } else {
             dict_api = dict_api_lp;
         }
+    }
+
+    void LLVMUtils::set_set_api(ASR::Set_t* /*set_type*/) {
+        // As per benchmarks, separate chaining
+        // does not provide significant gains over
+        // linear probing.
+        set_api = set_api_lp;
     }
 
     std::vector<llvm::Type*> LLVMUtils::convert_args(const ASR::Function_t& x, llvm::Module* module) {
@@ -1100,6 +1109,8 @@ namespace LCompilers {
                         nullptr, local_m_storage, is_local_array_type, is_local_malloc_array_type,
                         is_local_list, local_m_dims, local_n_dims, local_a_kind, module);
                     int32_t el_type_size = get_type_size(asr_set->m_type, el_llvm_type, local_a_kind, module);
+
+                    set_set_api(asr_set);
 
                     return_type = set_api->get_set_type(el_type_code, el_type_size, el_llvm_type);
                     break;
@@ -1392,21 +1403,6 @@ namespace LCompilers {
         builder->SetInsertPoint(bb);
     }
 
-    void LLVMUtils::set_iterators() {
-        if( are_iterators_set ) {
-            return ;
-        }
-        str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "str_cmp_itr");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), str_cmp_itr);
-        are_iterators_set = true;
-    }
-
-    void LLVMUtils::reset_iterators() {
-        str_cmp_itr = nullptr;
-        are_iterators_set = false;
-    }
-
     llvm::Value* LLVMUtils::lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
                                              std::string runtime_func_name, llvm::Module& module)
     {
@@ -1421,9 +1417,10 @@ namespace LCompilers {
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, module);
         }
-        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type, nullptr);
+        get_builder0()
+        llvm::AllocaInst *pleft_arg = builder0.CreateAlloca(character_type, nullptr);
         LLVM::CreateStore(*builder, left_arg, pleft_arg);
-        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type, nullptr);
+        llvm::AllocaInst *pright_arg = builder0.CreateAlloca(character_type, nullptr);
         LLVM::CreateStore(*builder, right_arg, pright_arg);
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg};
         return builder->CreateCall(fn, args);
@@ -1436,15 +1433,16 @@ namespace LCompilers {
                 return builder->CreateICmpEQ(left, right);
             }
             case ASR::ttypeType::Logical: {
-                return builder->CreateICmpEQ(left, right);
+                llvm::Value* left_i32 = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
+                llvm::Value* right_i32 = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
+                return builder->CreateICmpEQ(left_i32, right_i32);
             }
             case ASR::ttypeType::Real: {
                 return builder->CreateFCmpOEQ(left, right);
             }
             case ASR::ttypeType::Character: {
-                if( !are_iterators_set ) {
-                    str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-                }
+                get_builder0()
+                str_cmp_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
                 llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
                                                             llvm::APInt(8, '\0'));
                 llvm::Value* idx = str_cmp_itr;
@@ -1519,6 +1517,10 @@ namespace LCompilers {
         switch( asr_type->type ) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Logical: {
+                if( asr_type->type == ASR::ttypeType::Logical ) {
+                    left = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
+                    right = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
+                }
                 switch( overload_id ) {
                     case 0: {
                         pred = llvm::CmpInst::Predicate::ICMP_SLT;
@@ -1567,9 +1569,8 @@ namespace LCompilers {
                 return builder->CreateFCmp(pred, left, right);
             }
             case ASR::ttypeType::Character: {
-                if( !are_iterators_set ) {
-                    str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-                }
+                get_builder0()
+                str_cmp_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
                 llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
                                                             llvm::APInt(8, '\0'));
                 llvm::Value* idx = str_cmp_itr;
@@ -1645,7 +1646,7 @@ namespace LCompilers {
                                                      overload_id, int32_type);
             }
             default: {
-                throw LCompilersException("LLVMUtils::is_equal_by_value isn't implemented for " +
+                throw LCompilersException("LLVMUtils::is_ineq_by_value isn't implemented for " +
                                           ASRUtils::type_to_str_python(asr_type));
             }
         }
@@ -1708,6 +1709,12 @@ namespace LCompilers {
                 list_api->list_deepcopy(src, dest, list_type, module, name2memidx);
                 break ;
             }
+            case ASR::ttypeType::Dict: {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(asr_type);
+                set_dict_api(dict_type);
+                dict_api->dict_deepcopy(src, dest, dict_type, module, name2memidx);
+                break ;
+            }
             case ASR::ttypeType::Struct: {
                 ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
                 ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
@@ -1766,8 +1773,7 @@ namespace LCompilers {
         hash_value(nullptr), polynomial_powers(nullptr),
         chain_itr(nullptr), chain_itr_prev(nullptr),
         old_capacity(nullptr), old_key_value_pairs(nullptr),
-        old_key_mask(nullptr), are_iterators_set(false),
-        is_dict_present_(false) {
+        old_key_mask(nullptr), is_dict_present_(false) {
     }
 
     LLVMDict::LLVMDict(llvm::LLVMContext& context_,
@@ -1987,7 +1993,7 @@ namespace LCompilers {
 
     void LLVMDictSeparateChaining::dict_init(std::string key_type_code, std::string value_type_code,
         llvm::Value* dict, llvm::Module* module, size_t initial_capacity) {
-        llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, initial_capacity + 1));
+        llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, initial_capacity));
         llvm::Value* rehash_flag_ptr = get_pointer_to_rehash_flag(dict);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), llvm::APInt(1, 1)), rehash_flag_ptr);
         dict_init_given_initial_capacity(key_type_code, value_type_code, dict, module, llvm_capacity);
@@ -2073,7 +2079,8 @@ namespace LCompilers {
             // TODO: Should be created outside the user loop and not here.
             // LLVMList should treat them as data members and create them
             // only if they are NULL
-            llvm::AllocaInst *pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context),
+            get_builder0()
+            llvm::AllocaInst *pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context),
                                                               nullptr);
             LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
                                                                llvm::APInt(32, 0)), pos_ptr);
@@ -2152,10 +2159,9 @@ namespace LCompilers {
         llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_key_value_pairs,
         ASR::Dict_t* dict_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        if( !are_iterators_set ) {
-            src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        }
+        get_builder0()
+        src_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        dest_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
         llvm::Type* key_value_pair_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo();
         LLVM::CreateStore(*builder,
             builder->CreateBitCast(srci, llvm::Type::getInt8PtrTy(context)),
@@ -2239,9 +2245,8 @@ namespace LCompilers {
         llvm::Value* kv_ll, llvm::Value* dict, llvm::Value* capacity,
         ASR::ttype_t* m_key_type, ASR::ttype_t* m_value_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        if( !are_iterators_set ) {
-            src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        }
+        get_builder0()
+        src_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
         llvm::Type* key_value_pair_type = get_key_value_pair_type(m_key_type, m_value_type)->getPointerTo();
         LLVM::CreateStore(*builder,
             builder->CreateBitCast(kv_ll, llvm::Type::getInt8PtrTy(context)),
@@ -2321,10 +2326,9 @@ namespace LCompilers {
         dest_key_value_pairs = builder->CreateBitCast(
             dest_key_value_pairs,
             get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo());
-        if( !are_iterators_set ) {
-            copy_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        get_builder0()
+        copy_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        next_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
         LLVM::CreateStore(*builder, llvm_zero, copy_itr);
         LLVM::CreateStore(*builder, src_capacity, next_ptr);
@@ -2434,99 +2438,14 @@ namespace LCompilers {
         return llvm_utils->create_gep(dict, 4);
     }
 
-    void LLVMDictInterface::set_iterators() {
-        if( are_iterators_set || !is_dict_present_ ) {
-            return ;
-        }
-        llvm_utils->set_iterators();
-        pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "pos_ptr");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), pos_ptr);
-        is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr,
-                                "is_key_matching_var");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
-            llvm::APInt(1, 0)), is_key_matching_var);
-        idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "idx_ptr");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), idx_ptr);
-        hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 0)), hash_value);
-        hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 0)), hash_iter);
-        polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 1)), polynomial_powers);
-        chain_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr);
-        chain_itr_prev = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr_prev);
-        old_capacity = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), old_capacity);
-        old_occupancy = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), old_occupancy);
-        old_number_of_buckets_filled = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), old_number_of_buckets_filled);
-        old_key_value_pairs = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), old_key_value_pairs);
-        old_key_mask = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), old_key_mask);
-        src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), src_itr);
-        dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        LLVM::CreateStore(*builder,
-            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), dest_itr);
-        next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), next_ptr);
-        copy_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), copy_itr);
-        tmp_value_ptr = builder->CreateAlloca(llvm::Type::getInt8Ty(context), nullptr);
-        are_iterators_set = true;
-    }
-
-    void LLVMDictInterface::reset_iterators() {
-        llvm_utils->reset_iterators();
-        pos_ptr = nullptr;
-        is_key_matching_var = nullptr;
-        idx_ptr = nullptr;
-        hash_iter = nullptr;
-        hash_value = nullptr;
-        polynomial_powers = nullptr;
-        chain_itr = nullptr;
-        chain_itr_prev = nullptr;
-        old_capacity = nullptr;
-        old_occupancy = nullptr;
-        old_number_of_buckets_filled = nullptr;
-        old_key_value_pairs = nullptr;
-        old_key_mask = nullptr;
-        src_itr = nullptr;
-        dest_itr = nullptr;
-        next_ptr = nullptr;
-        copy_itr = nullptr;
-        tmp_value_ptr = nullptr;
-        are_iterators_set = false;
-    }
-
     void LLVMDict::resolve_collision(
         llvm::Value* capacity, llvm::Value* key_hash,
         llvm::Value* key, llvm::Value* key_list,
         llvm::Value* key_mask, llvm::Module& module,
         ASR::ttype_t* key_asr_type, bool for_read) {
-        if( !are_iterators_set ) {
-            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
-        }
+        get_builder0()
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        is_key_matching_var = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, key_hash, pos_ptr);
 
 
@@ -2601,12 +2520,51 @@ namespace LCompilers {
         llvm::Value* key, llvm::Value* key_list,
         llvm::Value* key_mask, llvm::Module& module,
         ASR::ttype_t* key_asr_type, bool for_read) {
-        if( !are_iterators_set ) {
-            if( !for_read ) {
-                pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            }
-            is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+
+        /**
+         * C++ equivalent:
+         *
+         * pos = key_hash;
+         *
+         * while( true ) {
+         *     is_key_skip = key_mask_value == 3;     // tombstone
+         *     is_key_set = key_mask_value != 0;
+         *     is_key_matching = 0;
+         *
+         *     compare_keys = is_key_set && !is_key_skip;
+         *     if( compare_keys ) {
+         *         original_key = key_list[pos];
+         *         is_key_matching = key == original_key;
+         *     }
+         *
+         *     cond;
+         *     if( for_read ) {
+         *         // for reading, continue to next pos
+         *         // even if current pos is tombstone
+         *         cond = (is_key_set && !is_key_matching) || is_key_skip;
+         *     }
+         *     else {
+         *         // for writing, do not continue
+         *         // if current pos is tombstone
+         *         cond = is_key_set && !is_key_matching && !is_key_skip;
+         *     }
+         *
+         *     if( cond ) {
+         *         pos += 1;
+         *         pos %= capacity;
+         *     }
+         *     else {
+         *         break;
+         *     }
+         * }
+         *
+         */
+
+        get_builder0()
+        if( !for_read ) {
+            pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
+        is_key_matching_var = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         LLVM::CreateStore(*builder, key_hash, pos_ptr);
 
@@ -2676,20 +2634,53 @@ namespace LCompilers {
         llvm::Value* key, llvm::Value* key_value_pair_linked_list,
         llvm::Type* kv_pair_type, llvm::Value* key_mask,
         llvm::Module& module, ASR::ttype_t* key_asr_type) {
-        if( !are_iterators_set ) {
-            chain_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            chain_itr_prev = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
-        }
+        /**
+         * C++ equivalent:
+         *
+         * chain_itr_prev = nullptr;
+         *
+         * ll_exists = key_mask_value == 1;
+         * if( ll_exists ) {
+         *     chain_itr = ll_head;
+         * }
+         * else {
+         *     chain_itr = nullptr;
+         * }
+         * is_key_matching = 0;
+         *
+         * while( chain_itr != nullptr && !is_key_matching ) {
+         *     is_key_matching = (key == kv_struct_key);
+         *     if( !is_key_matching ) {
+         *         // update for next iteration
+         *         chain_itr_prev = chain_itr;
+         *         chain_itr = next_kv_struct;  // (*chain_itr)[2]
+         *     }
+         * }
+         *
+         * // now, chain_itr either points to kv or is nullptr
+         *
+         */
+
+        get_builder0()
+        chain_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        chain_itr_prev = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        is_key_matching_var = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         LLVM::CreateStore(*builder,
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr_prev);
-        llvm::Value* kv_ll_i8 = builder->CreateBitCast(key_value_pair_linked_list, llvm::Type::getInt8PtrTy(context));
-        LLVM::CreateStore(*builder, kv_ll_i8, chain_itr);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
+        llvm_utils->create_if_else(builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1))), [&]() {
+            llvm::Value* kv_ll_i8 = builder->CreateBitCast(key_value_pair_linked_list,
+                                                            llvm::Type::getInt8PtrTy(context));
+            LLVM::CreateStore(*builder, kv_ll_i8, chain_itr);
+        }, [&]() {
+            LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr);
+        });
         LLVM::CreateStore(*builder,
-            builder->CreateICmpEQ(key_mask_value, llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1))),
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(1, 0)),
             is_key_matching_var
         );
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -2703,7 +2694,8 @@ namespace LCompilers {
                 LLVM::CreateLoad(*builder, chain_itr),
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
             );
-            cond = builder->CreateAnd(cond, LLVM::CreateLoad(*builder, is_key_matching_var));
+            cond = builder->CreateAnd(cond, builder->CreateNot(LLVM::CreateLoad(
+                                      *builder, is_key_matching_var)));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
@@ -2711,27 +2703,24 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopbody);
         {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
-            LLVM::CreateStore(*builder, kv_struct_i8, chain_itr_prev);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_pair_type->getPointerTo());
-            llvm::Value* kv_key = llvm_utils->create_gep(kv_struct, 0);
+            llvm::Value* kv_struct_key = llvm_utils->create_gep(kv_struct, 0);
             if( !LLVM::is_llvm_struct(key_asr_type) ) {
-                kv_key = LLVM::CreateLoad(*builder, kv_key);
+                kv_struct_key = LLVM::CreateLoad(*builder, kv_struct_key);
             }
-            llvm::Value* break_signal = llvm_utils->is_equal_by_value(key, kv_key, module, key_asr_type);
-            break_signal = builder->CreateNot(break_signal);
-            LLVM::CreateStore(*builder, break_signal, is_key_matching_var);
-            llvm_utils->create_if_else(break_signal, [&]() {
+            LLVM::CreateStore(*builder, llvm_utils->is_equal_by_value(key, kv_struct_key,
+                                module, key_asr_type), is_key_matching_var);
+            llvm_utils->create_if_else(builder->CreateNot(LLVM::CreateLoad(*builder, is_key_matching_var)), [&]() {
+                LLVM::CreateStore(*builder, kv_struct_i8, chain_itr_prev);
                 llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
                 LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
-            }, [=]() {
-            });
+            }, []() {});
         }
 
         builder->CreateBr(loophead);
 
         // end
         llvm_utils->start_new_block(loopend);
-
     }
 
     void LLVMDict::resolve_collision_for_write(
@@ -2772,6 +2761,26 @@ namespace LCompilers {
         llvm::Module* module, ASR::ttype_t* key_asr_type,
         ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /**
+         * C++ equivalent:
+         *
+         * resolve_collision();     // modifies pos
+
+         * key_list[pos] = key;
+         * value_list[pos] = value;
+
+         * key_mask_value = key_mask[pos];
+         * is_slot_empty = key_mask_value == 0 || key_mask_value == 3;
+         * occupancy += is_slot_empty;
+
+         * linear_prob_happened = (key_hash != pos) || (key_mask[key_hash] == 2);
+         * set_max_2 = linear_prob_happened ? 2 : 1;
+         * key_mask[key_hash] = set_max_2;
+         * key_mask[pos] = set_max_2;
+         *
+         */
+
         llvm::Value* key_list = get_key_list(dict);
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
@@ -2787,6 +2796,8 @@ namespace LCompilers {
             llvm_utils->create_ptr_gep(key_mask, pos));
         llvm::Value* is_slot_empty = builder->CreateICmpEQ(key_mask_value,
             llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+        is_slot_empty = builder->CreateOr(is_slot_empty, builder->CreateICmpEQ(key_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3))));
         llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
         is_slot_empty = builder->CreateZExt(is_slot_empty, llvm::Type::getInt32Ty(context));
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
@@ -2813,6 +2824,40 @@ namespace LCompilers {
         llvm::Module* module, ASR::ttype_t* key_asr_type,
         ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /**
+         * C++ equivalent:
+         *
+         * kv_linked_list = key_value_pairs[key_hash];
+         * resolve_collision(key);   // modifies chain_itr
+         * do_insert = chain_itr == nullptr;
+         *
+         * if( do_insert ) {
+         *     if( chain_itr_prev != nullptr ) {
+         *         new_kv_struct = malloc(kv_struct_size);
+         *         new_kv_struct[0] = key;
+         *         new_kv_struct[1] = value;
+         *         new_kv_struct[2] = nullptr;
+         *         chain_itr_prev[2] = new_kv_struct;
+         *     }
+         *     else {
+         *         kv_linked_list[0] = key;
+         *         kv_linked_list[1] = value;
+         *         kv_linked_list[2] = nullptr;
+         *     }
+         *     occupancy += 1;
+         * }
+         * else {
+         *     kv_struct[0] = key;
+         *     kv_struct[1] = value;
+         * }
+         *
+         * buckets_filled_delta = key_mask[key_hash] == 0;
+         * buckets_filled += buckets_filled_delta;
+         * key_mask[key_hash] = 1;
+         *
+         */
+
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
         llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
@@ -2821,6 +2866,7 @@ namespace LCompilers {
         this->resolve_collision(capacity, key_hash, key, key_value_pair_linked_list,
                                 kv_struct_type, key_mask, *module, key_asr_type);
         llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -2828,21 +2874,38 @@ namespace LCompilers {
         llvm::Value* do_insert = builder->CreateICmpEQ(kv_struct_i8,
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)));
         builder->CreateCondBr(do_insert, thenBB, elseBB);
+
         builder->SetInsertPoint(thenBB);
         {
-            llvm::DataLayout data_layout(module);
-            size_t kv_struct_size = data_layout.getTypeAllocSize(kv_struct_type);
-            llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), kv_struct_size);
-            llvm::Value* new_kv_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
-            llvm::Value* new_kv_struct = builder->CreateBitCast(new_kv_struct_i8, kv_struct_type->getPointerTo());
-            llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, module, name2memidx);
-            llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, module, name2memidx);
-            LLVM::CreateStore(*builder,
-                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
-                llvm_utils->create_gep(new_kv_struct, 2));
-            llvm::Value* kv_struct_prev_i8 = LLVM::CreateLoad(*builder, chain_itr_prev);
-            llvm::Value* kv_struct_prev = builder->CreateBitCast(kv_struct_prev_i8, kv_struct_type->getPointerTo());
-            LLVM::CreateStore(*builder, new_kv_struct_i8, llvm_utils->create_gep(kv_struct_prev, 2));
+            llvm_utils->create_if_else(builder->CreateICmpNE(
+                    LLVM::CreateLoad(*builder, chain_itr_prev),
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))), [&]() {
+                llvm::DataLayout data_layout(module);
+                size_t kv_struct_size = data_layout.getTypeAllocSize(kv_struct_type);
+                llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), kv_struct_size);
+                llvm::Value* new_kv_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+                llvm::Value* new_kv_struct = builder->CreateBitCast(new_kv_struct_i8, kv_struct_type->getPointerTo());
+                llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, module, name2memidx);
+                llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(new_kv_struct, 2));
+                llvm::Value* kv_struct_prev_i8 = LLVM::CreateLoad(*builder, chain_itr_prev);
+                llvm::Value* kv_struct_prev = builder->CreateBitCast(kv_struct_prev_i8, kv_struct_type->getPointerTo());
+                LLVM::CreateStore(*builder, new_kv_struct_i8, llvm_utils->create_gep(kv_struct_prev, 2));
+            }, [&]() {
+                llvm_utils->deepcopy(key, llvm_utils->create_gep(key_value_pair_linked_list, 0), key_asr_type, module, name2memidx);
+                llvm_utils->deepcopy(value, llvm_utils->create_gep(key_value_pair_linked_list, 1), value_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(key_value_pair_linked_list, 2));
+            });
+
+            llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
+            llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+            occupancy = builder->CreateAdd(occupancy,
+                llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 1));
+            LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
         }
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
@@ -2852,12 +2915,7 @@ namespace LCompilers {
             llvm_utils->deepcopy(value, llvm_utils->create_gep(kv_struct, 1), value_asr_type, module, name2memidx);
         }
         llvm_utils->start_new_block(mergeBB);
-        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
         llvm::Value* buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(dict);
-        llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
-        occupancy = builder->CreateAdd(occupancy,
-            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
-        LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
         llvm::Value* key_mask_value_ptr = llvm_utils->create_ptr_gep(key_mask, key_hash);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder, key_mask_value_ptr);
         llvm::Value* buckets_filled_delta = builder->CreateICmpEQ(key_mask_value,
@@ -2947,8 +3005,9 @@ namespace LCompilers {
             ASRUtils::get_type_code(key_asr_type),
             ASRUtils::get_type_code(value_asr_type)
         );
+        get_builder0()
         llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
-        llvm::Value* result = builder->CreateAlloca(value_type, nullptr);
+        llvm::Value* result = builder0.CreateAlloca(value_type, nullptr);
         _check_key_present_or_default(module, key, key_list, key_asr_type, value_list,
                                         pos, def_value, result);
         return result;
@@ -2963,8 +3022,8 @@ namespace LCompilers {
          * C++ equivalent:
          *
          * key_mask_value = key_mask[key_hash];
-         * is_prob_needed = key_mask_value == 1;
-         * if( is_prob_needed ) {
+         * is_prob_not_needed = key_mask_value == 1;
+         * if( is_prob_not_needed ) {
          *     is_key_matching = key == key_list[key_hash];
          *     if( is_key_matching ) {
          *         pos = key_hash;
@@ -2989,9 +3048,8 @@ namespace LCompilers {
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        if( !are_iterators_set ) {
-            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        get_builder0()
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -3064,9 +3122,8 @@ namespace LCompilers {
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        if( !are_iterators_set ) {
-            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        get_builder0()
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -3116,15 +3173,14 @@ namespace LCompilers {
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        if( !are_iterators_set ) {
-            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        get_builder0()
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         std::pair<std::string, std::string> llvm_key = std::make_pair(
             ASRUtils::get_type_code(key_asr_type),
             ASRUtils::get_type_code(value_asr_type)
         );
         llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
-        llvm::Value* result = builder->CreateAlloca(value_type, nullptr);
+        llvm::Value* result = builder0.CreateAlloca(value_type, nullptr);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -3174,17 +3230,12 @@ namespace LCompilers {
             ASRUtils::get_type_code(value_asr_type)
         );
         llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
-        llvm::Value* tmp_value_ptr_local = nullptr;
-        if( !are_iterators_set ) {
-            tmp_value_ptr = builder->CreateAlloca(value_type, nullptr);
-            tmp_value_ptr_local = tmp_value_ptr;
-        } else {
-            tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
-        }
+        get_builder0()
+        tmp_value_ptr = builder0.CreateAlloca(value_type, nullptr);
         llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
         llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
         llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
-        LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
+        LLVM::CreateStore(*builder, value, tmp_value_ptr);
         return tmp_value_ptr;
     }
 
@@ -3192,6 +3243,17 @@ namespace LCompilers {
         llvm::Value* dict, llvm::Value* key_hash,
         llvm::Value* key, llvm::Module& module,
         ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * resolve_collision(key);   // modified chain_itr
+         * does_kv_exist = key_mask[key_hash] == 1 && chain_itr != nullptr;
+         * if( !does_key_exist ) {
+         *     exit(1); // KeyError
+         * }
+         *
+         */
+
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
         llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
@@ -3204,13 +3266,8 @@ namespace LCompilers {
             ASRUtils::get_type_code(value_asr_type)
         );
         llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
-        llvm::Value* tmp_value_ptr_local = nullptr;
-        if( !are_iterators_set ) {
-            tmp_value_ptr = builder->CreateAlloca(value_type, nullptr);
-            tmp_value_ptr_local = tmp_value_ptr;
-        } else {
-            tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
-        }
+        get_builder0()
+        tmp_value_ptr = builder0.CreateAlloca(value_type, nullptr);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
@@ -3220,11 +3277,11 @@ namespace LCompilers {
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
         );
 
-        llvm_utils->create_if_else(does_kv_exists, [=]() {
+        llvm_utils->create_if_else(does_kv_exists, [&]() {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
             llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
-            LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
+            LLVM::CreateStore(*builder, value, tmp_value_ptr);
         }, [&]() {
             std::string message = "The dict does not contain the specified key";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
@@ -3254,13 +3311,8 @@ namespace LCompilers {
             ASRUtils::get_type_code(value_asr_type)
         );
         llvm::Type* value_type = std::get<2>(typecode2dicttype[llvm_key]).second;
-        llvm::Value* tmp_value_ptr_local = nullptr;
-        if( !are_iterators_set ) {
-            tmp_value_ptr = builder->CreateAlloca(value_type, nullptr);
-            tmp_value_ptr_local = tmp_value_ptr;
-        } else {
-            tmp_value_ptr_local = builder->CreateBitCast(tmp_value_ptr, value_type->getPointerTo());
-        }
+        get_builder0()
+        tmp_value_ptr = builder0.CreateAlloca(value_type, nullptr);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, key_hash));
         llvm::Value* does_kv_exists = builder->CreateICmpEQ(key_mask_value,
@@ -3270,13 +3322,13 @@ namespace LCompilers {
             llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
         );
 
-        llvm_utils->create_if_else(does_kv_exists, [=]() {
+        llvm_utils->create_if_else(does_kv_exists, [&]() {
             llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
             llvm::Value* value = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 1));
-            LLVM::CreateStore(*builder, value, tmp_value_ptr_local);
+            LLVM::CreateStore(*builder, value, tmp_value_ptr);
         }, [&]() {
-            LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), tmp_value_ptr_local);
+            LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, def_value), tmp_value_ptr);
         });
         return tmp_value_ptr;
     }
@@ -3305,11 +3357,10 @@ namespace LCompilers {
                                                                 llvm::APInt(8, '\0'));
                 llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
                 llvm::Value* m = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 100000009));
-                if( !are_iterators_set ) {
-                    hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
-                    hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
-                    polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
-                }
+                get_builder0()
+                hash_value = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+                hash_iter = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+                polynomial_powers = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
                 LLVM::CreateStore(*builder,
                     llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
                     hash_value);
@@ -3377,7 +3428,15 @@ namespace LCompilers {
                 return tuple_hash;
             }
             case ASR::ttypeType::Logical: {
-                return builder->CreateZExt(key, llvm::Type::getInt32Ty(context));
+                // (int32_t)key % capacity
+                // modulo is required for the case when dict has a single key, `True`
+                llvm::Value* key_i32 = builder->CreateZExt(key, llvm::Type::getInt32Ty(context));
+                llvm::Value* logical_hash = builder->CreateZExtOrTrunc(
+                    builder->CreateURem(key_i32,
+                    builder->CreateZExtOrTrunc(capacity, key_i32->getType())),
+                    capacity->getType()
+                );
+                return logical_hash;
             }
             default: {
                 throw LCompilersException("Hashing " + ASRUtils::type_to_str_python(key_asr_type) +
@@ -3390,6 +3449,8 @@ namespace LCompilers {
         ASR::ttype_t* key_asr_type,
         ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        get_builder0()
+
         llvm::Value* capacity_ptr = get_pointer_to_capacity(dict);
         llvm::Value* old_capacity = LLVM::CreateLoad(*builder, capacity_ptr);
         llvm::Value* capacity = builder->CreateMul(old_capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
@@ -3407,12 +3468,12 @@ namespace LCompilers {
         int32_t value_type_size = std::get<1>(typecode2dicttype[dict_type_key]).second;
 
         llvm::Value* key_list = get_key_list(dict);
-        llvm::Value* new_key_list = builder->CreateAlloca(llvm_utils->list_api->get_list_type(key_llvm_type,
+        llvm::Value* new_key_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(key_llvm_type,
                                                           key_type_code, key_type_size), nullptr);
         llvm_utils->list_api->list_init(key_type_code, new_key_list, *module, capacity, capacity);
 
         llvm::Value* value_list = get_value_list(dict);
-        llvm::Value* new_value_list = builder->CreateAlloca(llvm_utils->list_api->get_list_type(value_llvm_type,
+        llvm::Value* new_value_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(value_llvm_type,
                                                             value_type_code, value_type_size), nullptr);
         llvm_utils->list_api->list_init(value_type_code, new_value_list, *module, capacity, capacity);
 
@@ -3425,9 +3486,7 @@ namespace LCompilers {
                                                           llvm_mask_size);
 
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        if( !are_iterators_set ) {
-            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
             llvm::APInt(32, 0)), idx_ptr);
 
@@ -3506,14 +3565,13 @@ namespace LCompilers {
         ASR::ttype_t* key_asr_type,
         ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-        if( !are_iterators_set ) {
-            old_capacity = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            old_occupancy = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            old_number_of_buckets_filled = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            old_key_value_pairs = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-            old_key_mask = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
-        }
+        get_builder0()
+        old_capacity = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_occupancy = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_number_of_buckets_filled = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_key_value_pairs = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        old_key_mask = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
         llvm::Value* capacity_ptr = get_pointer_to_capacity(dict);
         llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
         llvm::Value* number_of_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(dict);
@@ -3624,48 +3682,61 @@ namespace LCompilers {
     void LLVMDict::rehash_all_at_once_if_needed(llvm::Value* dict, llvm::Module* module,
         ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * // this condition will be true with 0 capacity too
+         * rehash_condition = 5 * occupancy >= 3 * capacity;
+         * if( rehash_condition ) {
+         *     rehash();
+         * }
+         *
+         */
+
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        llvm::Value* rehash_condition = builder->CreateICmpEQ(capacity,
-            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)));
-        occupancy = builder->CreateAdd(occupancy, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                                                         llvm::APInt(32, 1)));
-        occupancy = builder->CreateSIToFP(occupancy, llvm::Type::getFloatTy(context));
-        capacity = builder->CreateSIToFP(capacity, llvm::Type::getFloatTy(context));
-        llvm::Value* load_factor = builder->CreateFDiv(occupancy, capacity);
         // Threshold hash is chosen from https://en.wikipedia.org/wiki/Hash_table#Load_factor
-        llvm::Value* load_factor_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
-                                                                   llvm::APFloat((float) 0.6));
-        rehash_condition = builder->CreateOr(rehash_condition, builder->CreateFCmpOGE(load_factor, load_factor_threshold));
-        llvm_utils->create_if_else(rehash_condition, [&]() {
+        // occupancy / capacity >= 0.6 is same as 5 * occupancy >= 3 * capacity
+        llvm::Value* occupancy_times_5 = builder->CreateMul(occupancy, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 5)));
+        llvm::Value* capacity_times_3 = builder->CreateMul(capacity, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 3)));
+        llvm_utils->create_if_else(builder->CreateICmpSGE(occupancy_times_5,
+                                    capacity_times_3), [&]() {
             rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
-        }, [=]() {
-        });
+        }, []() {});
     }
 
     void LLVMDictSeparateChaining::rehash_all_at_once_if_needed(
         llvm::Value* dict, llvm::Module* module,
         ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
+
+        /**
+         * C++ equivalent:
+         *
+         * // this condition will be true with 0 buckets_filled too
+         * rehash_condition = rehash_flag && (occupancy >= 2 * buckets_filled);
+         * if( rehash_condition ) {
+         *     rehash();
+         * }
+         *
+         */
+
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(dict));
         llvm::Value* buckets_filled = LLVM::CreateLoad(*builder, get_pointer_to_number_of_filled_buckets(dict));
         llvm::Value* rehash_condition = LLVM::CreateLoad(*builder, get_pointer_to_rehash_flag(dict));
-        rehash_condition = builder->CreateAnd(rehash_condition, builder->CreateICmpNE(buckets_filled,
-            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0))));
-        occupancy = builder->CreateSIToFP(occupancy, llvm::Type::getFloatTy(context));
-        buckets_filled = builder->CreateSIToFP(buckets_filled, llvm::Type::getFloatTy(context));
-        llvm::Value* avg_ll_length = builder->CreateFDiv(occupancy, buckets_filled);
-        llvm::Value* avg_ll_length_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
-                                                                   llvm::APFloat((float) 2.0));
+        llvm::Value* buckets_filled_times_2 = builder->CreateMul(buckets_filled, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 2)));
         rehash_condition = builder->CreateAnd(rehash_condition,
-            builder->CreateFCmpOGE(avg_ll_length, avg_ll_length_threshold));
+            builder->CreateICmpSGE(occupancy, buckets_filled_times_2));
         llvm_utils->create_if_else(rehash_condition, [&]() {
             rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
         }, [=]() {
         });
     }
 
-    void LLVMDict::write_item(llvm::Value* dict, llvm::Value* key,
+    void LLVMDictInterface::write_item(llvm::Value* dict, llvm::Value* key,
                               llvm::Value* value, llvm::Module* module,
                               ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
                               std::map<std::string, std::map<std::string, int>>& name2memidx) {
@@ -3674,17 +3745,10 @@ namespace LCompilers {
         llvm::Value* key_hash = get_key_hash(current_capacity, key, key_asr_type, *module);
         this->resolve_collision_for_write(dict, key_hash, key, value, module,
                                           key_asr_type, value_asr_type, name2memidx);
-    }
-
-    void LLVMDictSeparateChaining::write_item(llvm::Value* dict, llvm::Value* key,
-        llvm::Value* value, llvm::Module* module,
-        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
-        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        // A second rehash ensures that the threshold is not breached at any point.
+        // It can be shown mathematically that rehashing twice would only occur for small dictionaries,
+        // for example, for threshold set in linear probing, it occurs only when len(dict) <= 2
         rehash_all_at_once_if_needed(dict, module, key_asr_type, value_asr_type, name2memidx);
-        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        llvm::Value* key_hash = get_key_hash(current_capacity, key, key_asr_type, *module);
-        this->resolve_collision_for_write(dict, key_hash, key, value, module,
-                                          key_asr_type, value_asr_type, name2memidx);
     }
 
     llvm::Value* LLVMDict::read_item(llvm::Value* dict, llvm::Value* key,
@@ -3766,9 +3830,17 @@ namespace LCompilers {
     llvm::Value* LLVMDict::pop_item(llvm::Value* dict, llvm::Value* key,
         llvm::Module& module, ASR::Dict_t* dict_type,
         bool get_pointer) {
+        /**
+         * C++ equivalent:
+         *
+         * resolve_collision_for_read_with_bound_check(key);  // modifies pos
+         * key_mask[pos] = 3;    // tombstone marker
+         * occupancy -= 1;
+         */
+
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
-        llvm::Value* value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+        llvm::Value* value_ptr = this->resolve_collision_for_read_with_bound_check(dict, key_hash, key, module,
                                                                   dict_type->m_key_type, dict_type->m_value_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
@@ -3787,7 +3859,8 @@ namespace LCompilers {
             std::string value_type_code = ASRUtils::get_type_code(dict_type->m_value_type);
             llvm::Type* llvm_value_type = std::get<2>(typecode2dicttype[std::make_pair(
                 key_type_code, value_type_code)]).second;
-            llvm::Value* return_ptr = builder->CreateAlloca(llvm_value_type, nullptr);
+            get_builder0()
+            llvm::Value* return_ptr = builder0.CreateAlloca(llvm_value_type, nullptr);
             LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, value_ptr), return_ptr);
             return return_ptr;
         }
@@ -3799,9 +3872,35 @@ namespace LCompilers {
         llvm::Value* dict, llvm::Value* key,
         llvm::Module& module, ASR::Dict_t* dict_type,
         bool get_pointer) {
+        /**
+         * C++ equivalent:
+         *
+         * // modifies chain_itr and chain_itr_prev
+         * resolve_collision_for_read_with_bound_check(key);
+         *
+         * if(chain_itr_prev != nullptr) {
+         *     chain_itr_prev[2] = chain_itr[2]; // next
+         * }
+         * else {
+         *     // head of linked list removed
+         *     if( chain_itr[2] == nullptr ) {
+         *         // this linked list is now empty
+         *         key_mask[key_hash] = 0;
+         *         num_buckets_filled--;
+         *     }
+         *     else {
+         *         // not empty yet
+         *         key_value_pairs[key_hash] = chain_itr[2];
+         *     }
+         * }
+         *
+         * occupancy--;
+         *
+         */
+
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
-        llvm::Value* value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+        llvm::Value* value_ptr = this->resolve_collision_for_read_with_bound_check(dict, key_hash, key, module,
                                                                   dict_type->m_key_type, dict_type->m_value_type);
         std::pair<std::string, std::string> llvm_key = std::make_pair(
             ASRUtils::get_type_code(dict_type->m_key_type),
@@ -3811,40 +3910,35 @@ namespace LCompilers {
         value_ptr = builder->CreateBitCast(value_ptr, value_type->getPointerTo());
         llvm::Value* prev = LLVM::CreateLoad(*builder, chain_itr_prev);
         llvm::Value* found = LLVM::CreateLoad(*builder, chain_itr);
+        llvm::Type* kv_struct_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type);
+        found = builder->CreateBitCast(found, kv_struct_type->getPointerTo());
+        llvm::Value* found_next = LLVM::CreateLoad(*builder, llvm_utils->create_gep(found, 2));
 
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-
-        builder->CreateCondBr(
-            builder->CreateICmpNE(prev, llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))),
-            thenBB, elseBB
-        );
-        builder->SetInsertPoint(thenBB);
-        {
-            llvm::Type* kv_struct_type = get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type);
-            found = builder->CreateBitCast(found, kv_struct_type->getPointerTo());
-            llvm::Value* found_next = LLVM::CreateLoad(*builder, llvm_utils->create_gep(found, 2));
+        llvm_utils->create_if_else(builder->CreateICmpNE(prev,
+                        llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))), [&]() {
             prev = builder->CreateBitCast(prev, kv_struct_type->getPointerTo());
             LLVM::CreateStore(*builder, found_next, llvm_utils->create_gep(prev, 2));
-        }
-        builder->CreateBr(mergeBB);
-        llvm_utils->start_new_block(elseBB);
-        {
-            llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
-            LLVM::CreateStore(
-                *builder,
-                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)),
-                llvm_utils->create_ptr_gep(key_mask, key_hash)
-            );
-            llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(dict);
-            llvm::Value* num_buckets_filled = LLVM::CreateLoad(*builder, num_buckets_filled_ptr);
-            num_buckets_filled = builder->CreateSub(num_buckets_filled, llvm::ConstantInt::get(
-                        llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
-            LLVM::CreateStore(*builder, num_buckets_filled, num_buckets_filled_ptr);
-        }
-        llvm_utils->start_new_block(mergeBB);
+        }, [&]() {
+            llvm_utils->create_if_else(builder->CreateICmpEQ(found_next,
+                        llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))), [&]() {
+                llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+                LLVM::CreateStore(
+                    *builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)),
+                    llvm_utils->create_ptr_gep(key_mask, key_hash)
+                );
+                llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(dict);
+                llvm::Value* num_buckets_filled = LLVM::CreateLoad(*builder, num_buckets_filled_ptr);
+                num_buckets_filled = builder->CreateSub(num_buckets_filled, llvm::ConstantInt::get(
+                            llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, num_buckets_filled, num_buckets_filled_ptr);
+            }, [&]() {
+                found_next = builder->CreateBitCast(found_next, kv_struct_type->getPointerTo());
+                llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
+                LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, found_next),
+                                    llvm_utils->create_ptr_gep(key_value_pairs, key_hash));
+            });
+        });
 
         llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
@@ -3857,12 +3951,183 @@ namespace LCompilers {
             std::string value_type_code = ASRUtils::get_type_code(dict_type->m_value_type);
             llvm::Type* llvm_value_type = std::get<2>(typecode2dicttype[std::make_pair(
                 key_type_code, value_type_code)]).second;
-            llvm::Value* return_ptr = builder->CreateAlloca(llvm_value_type, nullptr);
+            get_builder0()
+            llvm::Value* return_ptr = builder0.CreateAlloca(llvm_value_type, nullptr);
             LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, value_ptr), return_ptr);
             return return_ptr;
         }
 
         return LLVM::CreateLoad(*builder, value_ptr);
+    }
+
+    void LLVMDict::get_elements_list(llvm::Value* dict,
+        llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+        ASR::ttype_t* value_asr_type, llvm::Module& module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx,
+        bool key_or_value) {
+
+        /**
+         * C++ equivalent:
+         *
+         * // key_or_value = 0 for keys, 1 for values
+         *
+         * idx = 0;
+         *
+         * while( capacity > idx ) {
+         *     el = key_or_value_list[idx];
+         *     key_mask_value = key_mask[idx];
+         *
+         *     is_key_skip = key_mask_value == 3;     // tombstone
+         *     is_key_set = key_mask_value != 0;
+         *     add_el = is_key_set && !is_key_skip;
+         *     if( add_el ) {
+         *         elements_list.append(el);
+         *     }
+         *
+         *     idx++;
+         * }
+         *
+         */
+
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* el_list = key_or_value == 0 ? get_key_list(dict) : get_value_list(dict);
+        ASR::ttype_t* el_asr_type = key_or_value == 0 ? key_asr_type : value_asr_type;
+        get_builder0();
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), idx_ptr);
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(capacity, LLVM::CreateLoad(*builder, idx_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* idx = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(key_mask, idx));
+            llvm::Value* is_key_skip = builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3)));
+            llvm::Value* is_key_set = builder->CreateICmpNE(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+
+            llvm::Value* add_el = builder->CreateAnd(is_key_set,
+                                            builder->CreateNot(is_key_skip));
+            llvm_utils->create_if_else(add_el, [&]() {
+                llvm::Value* el = llvm_utils->list_api->read_item(el_list, idx,
+                        false, module, LLVM::is_llvm_struct(el_asr_type));
+                llvm_utils->list_api->append(elements_list, el,
+                                             el_asr_type, &module, name2memidx);
+            }, [=]() {
+            });
+
+            idx = builder->CreateAdd(idx, llvm::ConstantInt::get(
+                    llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, idx, idx_ptr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
+    void LLVMDictSeparateChaining::get_elements_list(llvm::Value* dict,
+        llvm::Value* elements_list, ASR::ttype_t* key_asr_type,
+        ASR::ttype_t* value_asr_type, llvm::Module& module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx,
+        bool key_or_value) {
+        get_builder0()
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        chain_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                            llvm::APInt(32, 0)), idx_ptr);
+
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
+        llvm::Type* kv_pair_type = get_key_value_pair_type(key_asr_type, value_asr_type);
+        ASR::ttype_t* el_asr_type = key_or_value == 0 ? key_asr_type : value_asr_type;
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(
+                                        capacity,
+                                        LLVM::CreateLoad(*builder, idx_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* idx = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(key_mask, idx));
+            llvm::Value* is_key_set = builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+
+            llvm_utils->create_if_else(is_key_set, [&]() {
+                llvm::Value* dict_i = llvm_utils->create_ptr_gep(key_value_pairs, idx);
+                llvm::Value* kv_ll_i8 = builder->CreateBitCast(dict_i, llvm::Type::getInt8PtrTy(context));
+                LLVM::CreateStore(*builder, kv_ll_i8, chain_itr);
+
+                llvm::BasicBlock *loop2head = llvm::BasicBlock::Create(context, "loop2.head");
+                llvm::BasicBlock *loop2body = llvm::BasicBlock::Create(context, "loop2.body");
+                llvm::BasicBlock *loop2end = llvm::BasicBlock::Create(context, "loop2.end");
+
+                // head
+                llvm_utils->start_new_block(loop2head);
+                {
+                    llvm::Value *cond = builder->CreateICmpNE(
+                        LLVM::CreateLoad(*builder, chain_itr),
+                        llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
+                    );
+                    builder->CreateCondBr(cond, loop2body, loop2end);
+                }
+
+                // body
+                llvm_utils->start_new_block(loop2body);
+                {
+                    llvm::Value* kv_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+                    llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_pair_type->getPointerTo());
+                    llvm::Value* kv_el = llvm_utils->create_gep(kv_struct, key_or_value);
+                    if( !LLVM::is_llvm_struct(el_asr_type) ) {
+                        kv_el = LLVM::CreateLoad(*builder, kv_el);
+                    }
+                    llvm_utils->list_api->append(elements_list, kv_el,
+                                                 el_asr_type, &module, name2memidx);
+                    llvm::Value* next_kv_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(kv_struct, 2));
+                    LLVM::CreateStore(*builder, next_kv_struct, chain_itr);
+                }
+
+                builder->CreateBr(loop2head);
+
+                // end
+                llvm_utils->start_new_block(loop2end);
+            }, [=]() {
+            });
+            llvm::Value* tmp = builder->CreateAdd(idx,
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, idx_ptr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
     }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
@@ -3995,14 +4260,15 @@ namespace LCompilers {
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
-        llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
+        get_builder0()
+        llvm::AllocaInst *tmp_ptr = builder0.CreateAlloca(el_type, nullptr);
         LLVM::CreateStore(*builder, read_item(list, pos, false, *module, false), tmp_ptr);
         llvm::Value* tmp = nullptr;
 
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
-        llvm::AllocaInst *pos_ptr = builder->CreateAlloca(
+        llvm::AllocaInst *pos_ptr = builder0.CreateAlloca(
                                     llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, pos, pos_ptr);
 
@@ -4043,6 +4309,33 @@ namespace LCompilers {
         shift_end_point_by_one(list);
     }
 
+    void LLVMList::reserve(llvm::Value* list, llvm::Value* n,
+                           ASR::ttype_t* asr_type, llvm::Module* module) {
+        /**
+         * C++ equivalent
+         *
+         * if( n > current_capacity ) {
+         *     list_data = realloc(list_data, sizeof(el_type) * n);
+         * }
+         *
+         */
+        llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
+        std::string type_code = ASRUtils::get_type_code(asr_type);
+        int type_size = std::get<1>(typecode2listtype[type_code]);
+        llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
+        llvm_utils->create_if_else(builder->CreateICmpSGT(n, capacity), [&]() {
+            llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
+                                                    llvm::APInt(32, type_size)), n);
+            llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
+            llvm::Value* copy_data = LLVM::CreateLoad(*builder, copy_data_ptr);
+            copy_data = LLVM::lfortran_realloc(context, *module, *builder,
+                                            copy_data, arg_size);
+            copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
+            builder->CreateStore(copy_data, copy_data_ptr);
+            builder->CreateStore(n, get_pointer_to_current_capacity(list));
+        }, []() {});
+    }
+
     void LLVMList::reverse(llvm::Value* list, llvm::Module& module) {
 
         /* Equivalent in C++:
@@ -4065,10 +4358,11 @@ namespace LCompilers {
                                         get_pointer_to_current_end_point(list));
 
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
-        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        get_builder0()
+        llvm::AllocaInst *i = builder0.CreateAlloca(pos_type, nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), i);       // i = 0
-        llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
+        llvm::AllocaInst *j = builder0.CreateAlloca(pos_type, nullptr);
         llvm::Value* tmp = nullptr;
         tmp = builder->CreateSub(end_point, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
         LLVM::CreateStore(*builder, tmp, j);        // j = end_point - 1
@@ -4119,7 +4413,8 @@ namespace LCompilers {
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
-        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        get_builder0()
+        llvm::AllocaInst *i = builder0.CreateAlloca(pos_type, nullptr);
         if(start) {
             LLVM::CreateStore(*builder, start, i);
         }
@@ -4211,10 +4506,11 @@ namespace LCompilers {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
-        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        get_builder0()
+        llvm::AllocaInst *i = builder0.CreateAlloca(pos_type, nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), i);
-        llvm::AllocaInst *cnt = builder->CreateAlloca(pos_type, nullptr);
+        llvm::AllocaInst *cnt = builder0.CreateAlloca(pos_type, nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), cnt);
         llvm::Value* tmp = nullptr;
@@ -4274,13 +4570,15 @@ namespace LCompilers {
 
     void LLVMList::remove(llvm::Value* list, llvm::Value* item,
                           ASR::ttype_t* item_type, llvm::Module& module) {
+        get_builder0()
+
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
         // TODO: Should be created outside the user loop and not here.
         // LLVMList should treat them as data members and create them
         // only if they are NULL
-        llvm::AllocaInst *item_pos = builder->CreateAlloca(pos_type, nullptr);
+        llvm::AllocaInst *item_pos = builder0.CreateAlloca(pos_type, nullptr);
         llvm::Value* tmp = LLVMList::find_item_position(list, item, item_type, module);
         LLVM::CreateStore(*builder, tmp, item_pos);
 
@@ -4363,9 +4661,9 @@ namespace LCompilers {
     llvm::Value* LLVMList::pop_position(llvm::Value* list, llvm::Value* pos,
         ASR::ttype_t* list_element_type, llvm::Module* module,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
-
+        get_builder0()
         /* Equivalent in C++:
-         * while(end_point > pos) {
+         * while(end_point > pos + 1) {
          *     tmp = pos + 1;
          *     list[pos] = list[tmp];
          *     pos = tmp;
@@ -4375,7 +4673,7 @@ namespace LCompilers {
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
         llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
 
-        llvm::AllocaInst *pos_ptr = builder->CreateAlloca(
+        llvm::AllocaInst *pos_ptr = builder0.CreateAlloca(
                                     llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, pos, pos_ptr);
         llvm::Value* tmp = nullptr;
@@ -4383,13 +4681,8 @@ namespace LCompilers {
         // Get element to return
         llvm::Value* item = read_item(list, LLVM::CreateLoad(*builder, pos_ptr),
                                       true, *module, LLVM::is_llvm_struct(list_element_type));
-        // TODO: Create a macro for the following code to allocate auxiliary variables
-        // on stack.
         if( LLVM::is_llvm_struct(list_element_type) ) {
             std::string list_element_type_code = ASRUtils::get_type_code(list_element_type);
-            llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
-            llvm::IRBuilder<> builder0(context);
-            builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
             LCOMPILERS_ASSERT(typecode2listtype.find(list_element_type_code) != typecode2listtype.end());
             llvm::AllocaInst *target = builder0.CreateAlloca(
                 std::get<2>(typecode2listtype[list_element_type_code]), nullptr,
@@ -4405,8 +4698,9 @@ namespace LCompilers {
         // head
         llvm_utils->start_new_block(loophead);
         {
-            llvm::Value *cond = builder->CreateICmpSGT(end_point,
-                                            LLVM::CreateLoad(*builder, pos_ptr));
+            llvm::Value *cond = builder->CreateICmpSGT(end_point, builder->CreateAdd(
+                                    LLVM::CreateLoad(*builder, pos_ptr),
+                                    llvm::ConstantInt::get(context, llvm::APInt(32, 1))));
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
@@ -4450,7 +4744,8 @@ namespace LCompilers {
                                                  llvm::LLVMContext& context,
                                                  llvm::IRBuilder<>* builder,
                                                  llvm::Module& module) {
-        llvm::AllocaInst *is_equal = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        get_builder0()
+        llvm::AllocaInst *is_equal = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)), is_equal);
         llvm::Value *a_len = llvm_utils->list_api->len(l1);
         llvm::Value *b_len = llvm_utils->list_api->len(l2);
@@ -4461,7 +4756,7 @@ namespace LCompilers {
         llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
-        llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        llvm::AllocaInst *idx = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), idx);
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -4530,18 +4825,19 @@ namespace LCompilers {
          *
          */
 
-        llvm::AllocaInst *equality_holds = builder->CreateAlloca(
+        get_builder0()
+        llvm::AllocaInst *equality_holds = builder0.CreateAlloca(
                                                 llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)),
                           equality_holds);
-        llvm::AllocaInst *inequality_holds = builder->CreateAlloca(
+        llvm::AllocaInst *inequality_holds = builder0.CreateAlloca(
                                                 llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)),
                           inequality_holds);
 
         llvm::Value *a_len = llvm_utils->list_api->len(l1);
         llvm::Value *b_len = llvm_utils->list_api->len(l2);
-        llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        llvm::AllocaInst *idx = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), idx);
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -4603,12 +4899,12 @@ namespace LCompilers {
     void LLVMList::list_repeat_copy(llvm::Value* repeat_list, llvm::Value* init_list,
                                     llvm::Value* num_times, llvm::Value* init_list_len,
                                     llvm::Module* module) {
-
+        get_builder0()
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
-        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        llvm::AllocaInst *i = builder0.CreateAlloca(pos_type, nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(
                                     context, llvm::APInt(32, 0)), i);       // i = 0
-        llvm::AllocaInst *j = builder->CreateAlloca(pos_type, nullptr);
+        llvm::AllocaInst *j = builder0.CreateAlloca(pos_type, nullptr);
         llvm::Value* tmp = nullptr;
 
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -4769,11 +5065,12 @@ namespace LCompilers {
          *
          */
 
-        llvm::AllocaInst *equality_holds = builder->CreateAlloca(
+        get_builder0()
+        llvm::AllocaInst *equality_holds = builder0.CreateAlloca(
                                                 llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)),
                           equality_holds);
-        llvm::AllocaInst *inequality_holds = builder->CreateAlloca(
+        llvm::AllocaInst *inequality_holds = builder0.CreateAlloca(
                                                 llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)),
                           inequality_holds);
@@ -4820,11 +5117,30 @@ namespace LCompilers {
         context(context_),
         llvm_utils(std::move(llvm_utils_)),
         builder(std::move(builder_)),
-        pos_ptr(nullptr), are_iterators_set(false),
-        is_set_present_(false) {
+        pos_ptr(nullptr), is_el_matching_var(nullptr),
+        idx_ptr(nullptr), hash_iter(nullptr),
+        hash_value(nullptr), polynomial_powers(nullptr),
+        chain_itr(nullptr), chain_itr_prev(nullptr),
+        old_capacity(nullptr), old_elems(nullptr),
+        old_el_mask(nullptr), is_set_present_(false) {
+    }
+
+    bool LLVMSetInterface::is_set_present() {
+        return is_set_present_;
+    }
+
+    void LLVMSetInterface::set_is_set_present(bool value) {
+        is_set_present_ = value;
     }
 
     LLVMSetLinearProbing::LLVMSetLinearProbing(llvm::LLVMContext& context_,
+        LLVMUtils* llvm_utils_,
+        llvm::IRBuilder<>* builder_):
+        LLVMSetInterface(context_, llvm_utils_, builder_) {
+    }
+
+    LLVMSetSeparateChaining::LLVMSetSeparateChaining(
+        llvm::LLVMContext& context_,
         LLVMUtils* llvm_utils_,
         llvm::IRBuilder<>* builder_):
         LLVMSetInterface(context_, llvm_utils_, builder_) {
@@ -4835,6 +5151,9 @@ namespace LCompilers {
     }
 
     LLVMSetLinearProbing::~LLVMSetLinearProbing() {
+    }
+
+    LLVMSetSeparateChaining::~LLVMSetSeparateChaining() {
     }
 
     llvm::Value* LLVMSetLinearProbing::get_pointer_to_occupancy(llvm::Value* set) {
@@ -4854,6 +5173,34 @@ namespace LCompilers {
         return llvm_utils->create_gep(set, 2);
     }
 
+    llvm::Value* LLVMSetSeparateChaining::get_el_list(llvm::Value* /*set*/) {
+        return nullptr;
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_occupancy(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 0);
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_number_of_filled_buckets(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 1);
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_capacity(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 2);
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_elems(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 3);
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_mask(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 4);
+    }
+
+    llvm::Value* LLVMSetSeparateChaining::get_pointer_to_rehash_flag(llvm::Value* set) {
+        return llvm_utils->create_gep(set, 5);
+    }
+
     llvm::Type* LLVMSetLinearProbing::get_set_type(std::string type_code, int32_t type_size,
         llvm::Type* el_type) {
         is_set_present_ = true;
@@ -4868,6 +5215,27 @@ namespace LCompilers {
                                                 llvm::Type::getInt8PtrTy(context)};
         llvm::Type* set_desc = llvm::StructType::create(context, set_type_vec, "set");
         typecode2settype[type_code] = std::make_tuple(set_desc, type_size, el_type);
+        return set_desc;
+    }
+
+    llvm::Type* LLVMSetSeparateChaining::get_set_type(
+        std::string el_type_code, int32_t el_type_size, llvm::Type* el_type) {
+        is_set_present_ = true;
+        if( typecode2settype.find(el_type_code) != typecode2settype.end() ) {
+            return std::get<0>(typecode2settype[el_type_code]);
+        }
+
+        std::vector<llvm::Type*> el_vec = {el_type, llvm::Type::getInt8PtrTy(context)};
+        llvm::Type* elstruct = llvm::StructType::create(context, el_vec, "el");
+        std::vector<llvm::Type*> set_type_vec = {llvm::Type::getInt32Ty(context),
+                                                  llvm::Type::getInt32Ty(context),
+                                                  llvm::Type::getInt32Ty(context),
+                                                  elstruct->getPointerTo(),
+                                                  llvm::Type::getInt8PtrTy(context),
+                                                  llvm::Type::getInt1Ty(context)};
+        llvm::Type* set_desc = llvm::StructType::create(context, set_type_vec, "set");
+        typecode2settype[el_type_code] = std::make_tuple(set_desc, el_type_size, el_type);
+        typecode2elstruct[el_type_code] = elstruct;
         return set_desc;
     }
 
@@ -4890,42 +5258,55 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, el_mask, get_pointer_to_mask(set));
     }
 
-    void LLVMSetInterface::set_iterators() {
-        if( are_iterators_set || !is_set_present_ ) {
-            return ;
-        }
-        llvm_utils->set_iterators();
-        pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "pos_ptr");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), pos_ptr);
-        is_el_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr,
-                                "is_el_matching_var");
+    void LLVMSetSeparateChaining::set_init(
+        std::string el_type_code, llvm::Value* set,
+        llvm::Module* module, size_t initial_capacity) {
+        llvm::Value* llvm_capacity = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                        llvm::APInt(32, initial_capacity));
+        llvm::Value* rehash_flag_ptr = get_pointer_to_rehash_flag(set);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
-            llvm::APInt(1, 0)), is_el_matching_var);
-        idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "idx_ptr");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-            llvm::APInt(32, 0)), idx_ptr);
-        hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 0)), hash_value);
-        hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 0)), hash_iter);
-        polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
-        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
-            llvm::APInt(64, 1)), polynomial_powers);
-        are_iterators_set = true;
+                            llvm::APInt(1, 1)), rehash_flag_ptr);
+        set_init_given_initial_capacity(el_type_code, set, module, llvm_capacity);
     }
 
-    void LLVMSetInterface::reset_iterators() {
-        llvm_utils->reset_iterators();
-        pos_ptr = nullptr;
-        is_el_matching_var = nullptr;
-        idx_ptr = nullptr;
-        hash_iter = nullptr;
-        hash_value = nullptr;
-        polynomial_powers = nullptr;
-        are_iterators_set = false;
+    void LLVMSetSeparateChaining::set_init_given_initial_capacity(
+        std::string el_type_code, llvm::Value* set,
+        llvm::Module* module, llvm::Value* llvm_capacity) {
+        llvm::Value* rehash_flag_ptr = get_pointer_to_rehash_flag(set);
+        llvm::Value* rehash_flag = LLVM::CreateLoad(*builder, rehash_flag_ptr);
+        llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
+        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+        LLVM::CreateStore(*builder, llvm_zero, occupancy_ptr);
+        llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
+        LLVM::CreateStore(*builder, llvm_zero, num_buckets_filled_ptr);
+
+        llvm::DataLayout data_layout(module);
+        llvm::Type* el_type = typecode2elstruct[el_type_code];
+        size_t el_type_size = data_layout.getTypeAllocSize(el_type);
+        llvm::Value* llvm_el_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, el_type_size));
+        llvm::Value* malloc_size = builder->CreateMul(llvm_capacity, llvm_el_size);
+        llvm::Value* el_ptr = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+        rehash_flag = builder->CreateAnd(rehash_flag,
+                        builder->CreateICmpNE(el_ptr,
+                        llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+                    );
+        el_ptr = builder->CreateBitCast(el_ptr, el_type->getPointerTo());
+        LLVM::CreateStore(*builder, el_ptr, get_pointer_to_elems(set));
+
+        size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
+        llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, mask_size));
+        llvm::Value* el_mask = LLVM::lfortran_calloc(context, *module, *builder, llvm_capacity,
+                                                      llvm_mask_size);
+        rehash_flag = builder->CreateAnd(rehash_flag,
+                        builder->CreateICmpNE(el_mask,
+                        llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+                    );
+        LLVM::CreateStore(*builder, el_mask, get_pointer_to_mask(set));
+
+        llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
+        LLVM::CreateStore(*builder, llvm_capacity, capacity_ptr);
+        LLVM::CreateStore(*builder, rehash_flag, rehash_flag_ptr);
     }
 
     llvm::Value* LLVMSetInterface::get_el_hash(
@@ -4953,11 +5334,10 @@ namespace LCompilers {
                                                                 llvm::APInt(8, '\0'));
                 llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
                 llvm::Value* m = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 100000009));
-                if( !are_iterators_set ) {
-                    hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
-                    hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
-                    polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
-                }
+                get_builder0()
+                hash_value = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+                hash_iter = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+                polynomial_powers = builder0.CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
                 LLVM::CreateStore(*builder,
                     llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
                     hash_value);
@@ -5079,12 +5459,11 @@ namespace LCompilers {
          *
          */
 
-        if( !are_iterators_set ) {
-            if( !for_read ) {
-                pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            }
-            is_el_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        get_builder0()
+        if( !for_read ) {
+            pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
+        is_el_matching_var = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
 
         LLVM::CreateStore(*builder, el_hash, pos_ptr);
 
@@ -5149,6 +5528,96 @@ namespace LCompilers {
         llvm_utils->start_new_block(loopend);
     }
 
+    void LLVMSetSeparateChaining::resolve_collision(
+        llvm::Value* el_hash, llvm::Value* el, llvm::Value* el_linked_list,
+        llvm::Type* el_struct_type, llvm::Value* el_mask,
+        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * ll_exists = el_mask_value == 1;
+         * if( ll_exists ) {
+         *     chain_itr = ll_head;
+         * }
+         * else {
+         *     chain_itr = nullptr;
+         * }
+         * is_el_matching = 0;
+         *
+         * while( chain_itr != nullptr && !is_el_matching ) {
+         *     chain_itr_prev = chain_itr;
+         *     is_el_matching = (el == el_struct_el);
+         *     if( !is_el_matching ) {
+         *         chain_itr = next_el_struct;  // (*chain_itr)[1]
+         *     }
+         * }
+         *
+         * // now, chain_itr either points to element or is nullptr
+         *
+         */
+
+        get_builder0()
+        chain_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        chain_itr_prev = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        is_el_matching_var = builder0.CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+
+        LLVM::CreateStore(*builder,
+                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr_prev);
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(el_mask, el_hash));
+        llvm_utils->create_if_else(builder->CreateICmpEQ(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1))), [&]() {
+            llvm::Value* el_ll_i8 = builder->CreateBitCast(el_linked_list, llvm::Type::getInt8PtrTy(context));
+            LLVM::CreateStore(*builder, el_ll_i8, chain_itr);
+        }, [&]() {
+            LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)), chain_itr);
+        });
+        LLVM::CreateStore(*builder,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(1, 0)),
+            is_el_matching_var
+        );
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpNE(
+                LLVM::CreateLoad(*builder, chain_itr),
+                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
+            );
+            cond = builder->CreateAnd(cond, builder->CreateNot(LLVM::CreateLoad(
+                                      *builder, is_el_matching_var)));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* el_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+            LLVM::CreateStore(*builder, el_struct_i8, chain_itr_prev);
+            llvm::Value* el_struct = builder->CreateBitCast(el_struct_i8, el_struct_type->getPointerTo());
+            llvm::Value* el_struct_el = llvm_utils->create_gep(el_struct, 0);
+            if( !LLVM::is_llvm_struct(el_asr_type) ) {
+                el_struct_el = LLVM::CreateLoad(*builder, el_struct_el);
+            }
+            LLVM::CreateStore(*builder, llvm_utils->is_equal_by_value(el, el_struct_el,
+                                module, el_asr_type), is_el_matching_var);
+            llvm_utils->create_if_else(builder->CreateNot(LLVM::CreateLoad(*builder, is_el_matching_var)), [&]() {
+                llvm::Value* next_el_struct = LLVM::CreateLoad(*builder, llvm_utils->create_gep(el_struct, 1));
+                LLVM::CreateStore(*builder, next_el_struct, chain_itr);
+            }, []() {});
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+    }
+
     void LLVMSetLinearProbing::resolve_collision_for_write(
         llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
         llvm::Module* module, ASR::ttype_t* el_asr_type,
@@ -5203,6 +5672,109 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, set_max_2, llvm_utils->create_ptr_gep(el_mask, pos));
     }
 
+    void LLVMSetSeparateChaining::resolve_collision_for_write(
+        llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+        llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * el_linked_list = elems[el_hash];
+         * resolve_collision(el);   // modifies chain_itr
+         * do_insert = chain_itr == nullptr;
+         *
+         * if( do_insert ) {
+         *     if( chain_itr_prev != nullptr ) {
+         *         new_el_struct = malloc(el_struct_size);
+         *         new_el_struct[0] = el;
+         *         new_el_struct[1] = nullptr;
+         *         chain_itr_prev[1] = new_el_struct;
+         *     }
+         *     else {
+         *         el_linked_list[0] = el;
+         *         el_linked_list[1] = nullptr;
+         *     }
+         *     occupancy += 1;
+         * }
+         * else {
+         *     el_struct[0] = el;
+         * }
+         *
+         * buckets_filled_delta = el_mask[el_hash] == 0;
+         * buckets_filled += buckets_filled_delta;
+         * el_mask[el_hash] = 1;
+         *
+         */
+
+        llvm::Value* elems = LLVM::CreateLoad(*builder, get_pointer_to_elems(set));
+        llvm::Value* el_linked_list = llvm_utils->create_ptr_gep(elems, el_hash);
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(el_asr_type)];
+        this->resolve_collision(el_hash, el, el_linked_list, el_struct_type,
+                                el_mask, *module, el_asr_type);
+        llvm::Value* el_struct_i8 = LLVM::CreateLoad(*builder, chain_itr);
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* do_insert = builder->CreateICmpEQ(el_struct_i8,
+            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)));
+        builder->CreateCondBr(do_insert, thenBB, elseBB);
+
+        builder->SetInsertPoint(thenBB);
+        {
+            llvm_utils->create_if_else(builder->CreateICmpNE(
+                    LLVM::CreateLoad(*builder, chain_itr_prev),
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))), [&]() {
+                llvm::DataLayout data_layout(module);
+                size_t el_struct_size = data_layout.getTypeAllocSize(el_struct_type);
+                llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), el_struct_size);
+                llvm::Value* new_el_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+                llvm::Value* new_el_struct = builder->CreateBitCast(new_el_struct_i8, el_struct_type->getPointerTo());
+                llvm_utils->deepcopy(el, llvm_utils->create_gep(new_el_struct, 0), el_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(new_el_struct, 1));
+                llvm::Value* el_struct_prev_i8 = LLVM::CreateLoad(*builder, chain_itr_prev);
+                llvm::Value* el_struct_prev = builder->CreateBitCast(el_struct_prev_i8, el_struct_type->getPointerTo());
+                LLVM::CreateStore(*builder, new_el_struct_i8, llvm_utils->create_gep(el_struct_prev, 1));
+            }, [&]() {
+                llvm_utils->deepcopy(el, llvm_utils->create_gep(el_linked_list, 0), el_asr_type, module, name2memidx);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    llvm_utils->create_gep(el_linked_list, 1));
+            });
+
+            llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+            llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+            occupancy = builder->CreateAdd(occupancy,
+                llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 1));
+            LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            llvm::Value* el_struct = builder->CreateBitCast(el_struct_i8, el_struct_type->getPointerTo());
+            llvm_utils->deepcopy(el, llvm_utils->create_gep(el_struct, 0), el_asr_type, module, name2memidx);
+        }
+        llvm_utils->start_new_block(mergeBB);
+        llvm::Value* buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
+        llvm::Value* el_mask_value_ptr = llvm_utils->create_ptr_gep(el_mask, el_hash);
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder, el_mask_value_ptr);
+        llvm::Value* buckets_filled_delta = builder->CreateICmpEQ(el_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
+        llvm::Value* buckets_filled = LLVM::CreateLoad(*builder, buckets_filled_ptr);
+        buckets_filled = builder->CreateAdd(
+            buckets_filled,
+            builder->CreateZExt(buckets_filled_delta, llvm::Type::getInt32Ty(context))
+        );
+        LLVM::CreateStore(*builder, buckets_filled, buckets_filled_ptr);
+        LLVM::CreateStore(*builder,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)),
+            el_mask_value_ptr);
+    }
+
     void LLVMSetLinearProbing::rehash(
         llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
@@ -5236,6 +5808,7 @@ namespace LCompilers {
          *
          */
 
+        get_builder0()
         llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
         llvm::Value* old_capacity = LLVM::CreateLoad(*builder, capacity_ptr);
         llvm::Value* capacity = builder->CreateMul(old_capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
@@ -5249,7 +5822,7 @@ namespace LCompilers {
         int32_t el_type_size = std::get<1>(typecode2settype[el_type_code]);
 
         llvm::Value* el_list = get_el_list(set);
-        llvm::Value* new_el_list = builder->CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
+        llvm::Value* new_el_list = builder0.CreateAlloca(llvm_utils->list_api->get_list_type(el_llvm_type,
                                                           el_type_code, el_type_size), nullptr);
         llvm_utils->list_api->list_init(el_type_code, new_el_list, *module, capacity, capacity);
 
@@ -5262,9 +5835,7 @@ namespace LCompilers {
                                                           llvm_mask_size);
 
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
-        if( !are_iterators_set ) {
-            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
             llvm::APInt(32, 0)), idx_ptr);
 
@@ -5330,6 +5901,203 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, new_el_mask, get_pointer_to_mask(set));
     }
 
+    void LLVMSetSeparateChaining::rehash(
+        llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * capacity = 3 * capacity + 1;
+         *
+         * if( rehash_flag ) {
+         *     while( old_capacity > idx ) {
+         *         if( el_mask[el_hash] == 1 ) {
+         *             write_el_linked_list(old_elems_value[idx]);
+         *         }
+         *         idx++;
+         *     }
+         * }
+         * else {
+         *     // set to old values
+         * }
+         *
+         */
+
+        get_builder0()
+        old_capacity = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_occupancy = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_number_of_buckets_filled = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        idx_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        old_elems = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        old_el_mask = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+
+        llvm::Value* capacity_ptr = get_pointer_to_capacity(set);
+        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+        llvm::Value* number_of_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
+        llvm::Value* old_capacity_value = LLVM::CreateLoad(*builder, capacity_ptr);
+        LLVM::CreateStore(*builder, old_capacity_value, old_capacity);
+        LLVM::CreateStore(*builder,
+            LLVM::CreateLoad(*builder, occupancy_ptr),
+            old_occupancy
+        );
+        LLVM::CreateStore(*builder,
+            LLVM::CreateLoad(*builder, number_of_buckets_filled_ptr),
+            old_number_of_buckets_filled
+        );
+        llvm::Value* old_el_mask_value = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        llvm::Value* old_elems_value = LLVM::CreateLoad(*builder, get_pointer_to_elems(set));
+        old_elems_value = builder->CreateBitCast(old_elems_value, llvm::Type::getInt8PtrTy(context));
+        LLVM::CreateStore(*builder, old_el_mask_value, old_el_mask);
+        LLVM::CreateStore(*builder, old_elems_value, old_elems);
+
+        llvm::Value* capacity = builder->CreateMul(old_capacity_value, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                                       llvm::APInt(32, 3)));
+        capacity = builder->CreateAdd(capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                                       llvm::APInt(32, 1)));
+        set_init_given_initial_capacity(ASRUtils::get_type_code(el_asr_type),
+                                         set, module, capacity);
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB_rehash = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB_rehash = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB_rehash = llvm::BasicBlock::Create(context, "ifcont");
+        llvm::Value* rehash_flag = LLVM::CreateLoad(*builder, get_pointer_to_rehash_flag(set));
+        builder->CreateCondBr(rehash_flag, thenBB_rehash, elseBB_rehash);
+
+        builder->SetInsertPoint(thenBB_rehash);
+        old_elems_value = LLVM::CreateLoad(*builder, old_elems);
+        old_elems_value = builder->CreateBitCast(old_elems_value,
+            typecode2elstruct[ASRUtils::get_type_code(el_asr_type)]->getPointerTo());
+        old_el_mask_value = LLVM::CreateLoad(*builder, old_el_mask);
+        old_capacity_value = LLVM::CreateLoad(*builder, old_capacity);
+        capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)), idx_ptr);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(
+                                        old_capacity_value,
+                                        LLVM::CreateLoad(*builder, idx_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* itr = LLVM::CreateLoad(*builder, idx_ptr);
+            llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(old_el_mask_value, itr));
+            llvm::Value* is_el_set = builder->CreateICmpEQ(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+
+            llvm_utils->create_if_else(is_el_set, [&]() {
+                llvm::Value* srci = llvm_utils->create_ptr_gep(old_elems_value, itr);
+                write_el_linked_list(srci, set, capacity, el_asr_type, module, name2memidx);
+            }, [=]() {
+            });
+            llvm::Value* tmp = builder->CreateAdd(
+                        itr,
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, idx_ptr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+        builder->CreateBr(mergeBB_rehash);
+        llvm_utils->start_new_block(elseBB_rehash);
+        {
+            LLVM::CreateStore(*builder,
+                LLVM::CreateLoad(*builder, old_capacity),
+                get_pointer_to_capacity(set)
+            );
+            LLVM::CreateStore(*builder,
+                LLVM::CreateLoad(*builder, old_occupancy),
+                get_pointer_to_occupancy(set)
+            );
+            LLVM::CreateStore(*builder,
+                LLVM::CreateLoad(*builder, old_number_of_buckets_filled),
+                get_pointer_to_number_of_filled_buckets(set)
+            );
+            LLVM::CreateStore(*builder,
+                builder->CreateBitCast(
+                    LLVM::CreateLoad(*builder, old_elems),
+                    typecode2elstruct[ASRUtils::get_type_code(el_asr_type)]->getPointerTo()
+                ),
+                get_pointer_to_elems(set)
+            );
+            LLVM::CreateStore(*builder,
+                LLVM::CreateLoad(*builder, old_el_mask),
+                get_pointer_to_mask(set)
+            );
+        }
+        llvm_utils->start_new_block(mergeBB_rehash);
+    }
+
+    void LLVMSetSeparateChaining::write_el_linked_list(
+        llvm::Value* el_ll, llvm::Value* set, llvm::Value* capacity,
+        ASR::ttype_t* m_el_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * while( src_itr != nullptr ) {
+         *     resolve_collision_for_write(el_struct[0]);
+         *     src_itr = el_struct[1];
+         * }
+         *
+         */
+
+        get_builder0()
+        src_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+
+        llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(m_el_type)]->getPointerTo();
+        LLVM::CreateStore(*builder,
+            builder->CreateBitCast(el_ll, llvm::Type::getInt8PtrTy(context)),
+            src_itr);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpNE(
+                LLVM::CreateLoad(*builder, src_itr),
+                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
+            );
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* curr_src = builder->CreateBitCast(LLVM::CreateLoad(*builder, src_itr),
+                el_struct_type);
+            llvm::Value* src_el_ptr = llvm_utils->create_gep(curr_src, 0);
+            llvm::Value* src_el = src_el_ptr;
+            if( !LLVM::is_llvm_struct(m_el_type) ) {
+                src_el = LLVM::CreateLoad(*builder, src_el_ptr);
+            }
+            llvm::Value* el_hash = get_el_hash(capacity, src_el, m_el_type, *module);
+            resolve_collision_for_write(
+                set, el_hash, src_el, module,
+                m_el_type, name2memidx);
+
+            llvm::Value* src_next_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(curr_src, 1));
+            LLVM::CreateStore(*builder, src_next_ptr, src_itr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
     void LLVMSetLinearProbing::rehash_all_at_once_if_needed(
         llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
@@ -5337,10 +6105,8 @@ namespace LCompilers {
         /**
          * C++ equivalent:
          *
-         * occupancy += 1;
-         * load_factor = occupancy / capacity;
-         * load_factor_threshold = 0.6;
-         * rehash_condition = (capacity == 0) || (load_factor >= load_factor_threshold);
+         * // this condition will be true with 0 capacity too
+         * rehash_condition = 5 * occupancy >= 3 * capacity;
          * if( rehash_condition ) {
          *     rehash();
          * }
@@ -5349,24 +6115,43 @@ namespace LCompilers {
 
         llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
-        llvm::Value* rehash_condition = builder->CreateICmpEQ(capacity,
-            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)));
-        occupancy = builder->CreateAdd(occupancy, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
-                                                                         llvm::APInt(32, 1)));
-        occupancy = builder->CreateSIToFP(occupancy, llvm::Type::getFloatTy(context));
-        capacity = builder->CreateSIToFP(capacity, llvm::Type::getFloatTy(context));
-        llvm::Value* load_factor = builder->CreateFDiv(occupancy, capacity);
         // Threshold hash is chosen from https://en.wikipedia.org/wiki/Hash_table#Load_factor
-        llvm::Value* load_factor_threshold = llvm::ConstantFP::get(llvm::Type::getFloatTy(context),
-                                                                   llvm::APFloat((float) 0.6));
-        rehash_condition = builder->CreateOr(rehash_condition, builder->CreateFCmpOGE(load_factor, load_factor_threshold));
-        llvm_utils->create_if_else(rehash_condition, [&]() {
+        // occupancy / capacity >= 0.6 is same as 5 * occupancy >= 3 * capacity
+        llvm::Value* occupancy_times_5 = builder->CreateMul(occupancy, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 5)));
+        llvm::Value* capacity_times_3 = builder->CreateMul(capacity, llvm::ConstantInt::get(
+                                llvm::Type::getInt32Ty(context), llvm::APInt(32, 3)));
+        llvm_utils->create_if_else(builder->CreateICmpSGE(occupancy_times_5,
+                                    capacity_times_3), [&]() {
             rehash(set, module, el_asr_type, name2memidx);
-        }, [=]() {
-        });
+        }, []() {});
     }
 
-    void LLVMSetLinearProbing::write_item(
+    void LLVMSetSeparateChaining::rehash_all_at_once_if_needed(
+        llvm::Value* set, llvm::Module* module, ASR::ttype_t* el_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * rehash_condition = rehash_flag && occupancy >= 2 * buckets_filled;
+         * if( rehash_condition ) {
+         *     rehash();
+         * }
+         *
+         */
+        llvm::Value* occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
+        llvm::Value* buckets_filled = LLVM::CreateLoad(*builder, get_pointer_to_number_of_filled_buckets(set));
+        llvm::Value* rehash_condition = LLVM::CreateLoad(*builder, get_pointer_to_rehash_flag(set));
+        llvm::Value* buckets_filled_times_2 = builder->CreateMul(buckets_filled,
+            llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 2)));
+        rehash_condition = builder->CreateAnd(rehash_condition,
+            builder->CreateICmpSGE(occupancy, buckets_filled_times_2));
+        llvm_utils->create_if_else(rehash_condition, [&]() {
+            rehash(set, module, el_asr_type, name2memidx);
+        }, []() {});
+    }
+
+    void LLVMSetInterface::write_item(
         llvm::Value* set, llvm::Value* el,
         llvm::Module* module, ASR::ttype_t* el_asr_type,
         std::map<std::string, std::map<std::string, int>>& name2memidx) {
@@ -5406,12 +6191,11 @@ namespace LCompilers {
          *
          */
 
+        get_builder0()
         llvm::Value* el_list = get_el_list(set);
         llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
-        if( !are_iterators_set ) {
-            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        }
+        pos_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -5455,8 +6239,48 @@ namespace LCompilers {
                 llvm_utils->list_api->read_item(el_list, pos, false, module,
                     LLVM::is_llvm_struct(el_asr_type)), module, el_asr_type);
 
-        llvm_utils->create_if_else(is_el_matching, [&]() {
-        }, [&]() {
+        llvm_utils->create_if_else(is_el_matching, []() {}, [&]() {
+            std::string message = "The set does not contain the specified element";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        });
+    }
+
+    void LLVMSetSeparateChaining::resolve_collision_for_read_with_bound_check(
+        llvm::Value* set, llvm::Value* el_hash, llvm::Value* el,
+        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * resolve_collision(el);   // modified chain_itr
+         * does_el_exist = el_mask[el_hash] == 1 && chain_itr != nullptr;
+         * if( !does_el_exist ) {
+         *     exit(1); // KeyError
+         * }
+         *
+         */
+        llvm::Value* elems = LLVM::CreateLoad(*builder, get_pointer_to_elems(set));
+        llvm::Value* el_linked_list = llvm_utils->create_ptr_gep(elems, el_hash);
+        llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+        std::string el_type_code = ASRUtils::get_type_code(el_asr_type);
+        llvm::Type* el_struct_type = typecode2elstruct[el_type_code];
+        this->resolve_collision(el_hash, el, el_linked_list,
+                                el_struct_type, el_mask, module, el_asr_type);
+        llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+            llvm_utils->create_ptr_gep(el_mask, el_hash));
+        llvm::Value* does_el_exist = builder->CreateICmpEQ(el_mask_value,
+            llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+        does_el_exist = builder->CreateAnd(does_el_exist,
+            builder->CreateICmpNE(LLVM::CreateLoad(*builder, chain_itr),
+            llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)))
+        );
+
+        llvm_utils->create_if_else(does_el_exist, []() {}, [&]() {
             std::string message = "The set does not contain the specified element";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
@@ -5494,6 +6318,75 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
     }
 
+    void LLVMSetSeparateChaining::remove_item(
+        llvm::Value* set, llvm::Value* el,
+        llvm::Module& module, ASR::ttype_t* el_asr_type) {
+        /**
+         * C++ equivalent:
+         *
+         * // modifies chain_itr and chain_itr_prev
+         * resolve_collision_for_read_with_bound_check(el);
+         *
+         * if(chain_itr_prev != nullptr) {
+         *     chain_itr_prev[1] = chain_itr[1]; // next
+         * }
+         * else {
+         *     // this linked list is now empty
+         *     el_mask[el_hash] = 0;
+         *     num_buckets_filled--;
+         * }
+         *
+         * occupancy--;
+         *
+         */
+
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(set));
+        llvm::Value* el_hash = get_el_hash(current_capacity, el, el_asr_type, module);
+        this->resolve_collision_for_read_with_bound_check(set, el_hash, el, module, el_asr_type);
+        llvm::Value* prev = LLVM::CreateLoad(*builder, chain_itr_prev);
+        llvm::Value* found = LLVM::CreateLoad(*builder, chain_itr);
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        builder->CreateCondBr(
+            builder->CreateICmpNE(prev, llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))),
+            thenBB, elseBB
+        );
+        builder->SetInsertPoint(thenBB);
+        {
+            llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(el_asr_type)];
+            found = builder->CreateBitCast(found, el_struct_type->getPointerTo());
+            llvm::Value* found_next = LLVM::CreateLoad(*builder, llvm_utils->create_gep(found, 1));
+            prev = builder->CreateBitCast(prev, el_struct_type->getPointerTo());
+            LLVM::CreateStore(*builder, found_next, llvm_utils->create_gep(prev, 1));
+        }
+        builder->CreateBr(mergeBB);
+        llvm_utils->start_new_block(elseBB);
+        {
+            llvm::Value* el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(set));
+            LLVM::CreateStore(
+                *builder,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)),
+                llvm_utils->create_ptr_gep(el_mask, el_hash)
+            );
+            llvm::Value* num_buckets_filled_ptr = get_pointer_to_number_of_filled_buckets(set);
+            llvm::Value* num_buckets_filled = LLVM::CreateLoad(*builder, num_buckets_filled_ptr);
+            num_buckets_filled = builder->CreateSub(num_buckets_filled, llvm::ConstantInt::get(
+                        llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, num_buckets_filled, num_buckets_filled_ptr);
+        }
+        llvm_utils->start_new_block(mergeBB);
+
+        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(set);
+        llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+        occupancy = builder->CreateSub(occupancy, llvm::ConstantInt::get(
+                        llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+        LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
+    }
+
     void LLVMSetLinearProbing::set_deepcopy(
         llvm::Value* src, llvm::Value* dest,
         ASR::Set_t* set_type, llvm::Module* module,
@@ -5523,7 +6416,179 @@ namespace LCompilers {
         LLVM::CreateStore(*builder, dest_el_mask, dest_el_mask_ptr);
     }
 
-    llvm::Value* LLVMSetLinearProbing::len(llvm::Value* set) {
+    void LLVMSetSeparateChaining::set_deepcopy(
+        llvm::Value* src, llvm::Value* dest,
+        ASR::Set_t* set_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        llvm::Value* src_occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(src));
+        llvm::Value* src_filled_buckets = LLVM::CreateLoad(*builder, get_pointer_to_number_of_filled_buckets(src));
+        llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(src));
+        llvm::Value* src_el_mask = LLVM::CreateLoad(*builder, get_pointer_to_mask(src));
+        llvm::Value* src_rehash_flag = LLVM::CreateLoad(*builder, get_pointer_to_rehash_flag(src));
+        LLVM::CreateStore(*builder, src_occupancy, get_pointer_to_occupancy(dest));
+        LLVM::CreateStore(*builder, src_filled_buckets, get_pointer_to_number_of_filled_buckets(dest));
+        LLVM::CreateStore(*builder, src_capacity, get_pointer_to_capacity(dest));
+        LLVM::CreateStore(*builder, src_rehash_flag, get_pointer_to_rehash_flag(dest));
+        llvm::DataLayout data_layout(module);
+        size_t mask_size = data_layout.getTypeAllocSize(llvm::Type::getInt8Ty(context));
+        llvm::Value* llvm_mask_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, mask_size));
+        llvm::Value* malloc_size = builder->CreateMul(src_capacity, llvm_mask_size);
+        llvm::Value* dest_el_mask = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+        LLVM::CreateStore(*builder, dest_el_mask, get_pointer_to_mask(dest));
+
+        // number of elements to be copied = capacity + (occupancy - filled_buckets)
+        malloc_size = builder->CreateSub(src_occupancy, src_filled_buckets);
+        malloc_size = builder->CreateAdd(src_capacity, malloc_size);
+        llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(set_type->m_type)];
+        size_t el_struct_size = data_layout.getTypeAllocSize(el_struct_type);
+        llvm::Value* llvm_el_struct_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, el_struct_size));
+        malloc_size = builder->CreateMul(malloc_size, llvm_el_struct_size);
+        llvm::Value* dest_elems = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
+        dest_elems = builder->CreateBitCast(dest_elems, el_struct_type->getPointerTo());
+        get_builder0()
+        copy_itr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        next_ptr = builder0.CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
+        LLVM::CreateStore(*builder, llvm_zero, copy_itr);
+        LLVM::CreateStore(*builder, src_capacity, next_ptr);
+
+        llvm::Value* src_elems = LLVM::CreateLoad(*builder, get_pointer_to_elems(src));
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(
+                                        src_capacity,
+                                        LLVM::CreateLoad(*builder, copy_itr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* itr = LLVM::CreateLoad(*builder, copy_itr);
+            llvm::Value* el_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(src_el_mask, itr));
+            LLVM::CreateStore(*builder, el_mask_value,
+                llvm_utils->create_ptr_gep(dest_el_mask, itr));
+            llvm::Value* is_el_set = builder->CreateICmpEQ(el_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
+
+            llvm_utils->create_if_else(is_el_set, [&]() {
+                llvm::Value* srci = llvm_utils->create_ptr_gep(src_elems, itr);
+                llvm::Value* desti = llvm_utils->create_ptr_gep(dest_elems, itr);
+                deepcopy_el_linked_list(srci, desti, dest_elems,
+                    set_type, module, name2memidx);
+            }, []() {});
+            llvm::Value* tmp = builder->CreateAdd(
+                        itr,
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, copy_itr);
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+        LLVM::CreateStore(*builder, dest_elems, get_pointer_to_elems(dest));
+    }
+
+    void LLVMSetSeparateChaining::deepcopy_el_linked_list(
+        llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_elems,
+        ASR::Set_t* set_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        /**
+         * C++ equivalent:
+         *
+         * // memory allocation done before calling this function
+         *
+         * while( src_itr != nullptr ) {
+         *     deepcopy(src_el, curr_dest_ptr);
+         *     src_itr = src_itr_next;
+         *     if( src_next_exists ) {
+         *         *next_ptr = *next_ptr + 1;
+         *         curr_dest[1] = &dest_elems[*next_ptr];
+         *         curr_dest = *curr_dest[1];
+         *     }
+         *     else {
+         *         curr_dest[1] = nullptr;
+         *     }
+         * }
+         *
+         */
+        get_builder0()
+        src_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+        dest_itr = builder0.CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
+
+        llvm::Type* el_struct_type = typecode2elstruct[ASRUtils::get_type_code(set_type->m_type)]->getPointerTo();
+        LLVM::CreateStore(*builder,
+            builder->CreateBitCast(srci, llvm::Type::getInt8PtrTy(context)),
+            src_itr);
+        LLVM::CreateStore(*builder,
+            builder->CreateBitCast(desti, llvm::Type::getInt8PtrTy(context)),
+            dest_itr);
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpNE(
+                LLVM::CreateLoad(*builder, src_itr),
+                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context))
+            );
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* curr_src = builder->CreateBitCast(LLVM::CreateLoad(*builder, src_itr),
+                el_struct_type);
+            llvm::Value* curr_dest = builder->CreateBitCast(LLVM::CreateLoad(*builder, dest_itr),
+                el_struct_type);
+            llvm::Value* src_el_ptr = llvm_utils->create_gep(curr_src, 0);
+            llvm::Value *src_el = src_el_ptr;
+            if( !LLVM::is_llvm_struct(set_type->m_type) ) {
+                src_el = LLVM::CreateLoad(*builder, src_el_ptr);
+            }
+            llvm::Value* dest_el_ptr = llvm_utils->create_gep(curr_dest, 0);
+            llvm_utils->deepcopy(src_el, dest_el_ptr, set_type->m_type, module, name2memidx);
+
+            llvm::Value* src_next_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(curr_src, 1));
+            llvm::Value* curr_dest_next_ptr = llvm_utils->create_gep(curr_dest, 1);
+            LLVM::CreateStore(*builder, src_next_ptr, src_itr);
+
+            llvm::Value* src_next_exists = builder->CreateICmpNE(src_next_ptr,
+                llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)));
+            llvm_utils->create_if_else(src_next_exists, [&]() {
+                llvm::Value* next_idx = LLVM::CreateLoad(*builder, next_ptr);
+                llvm::Value* dest_next_ptr = llvm_utils->create_ptr_gep(dest_elems, next_idx);
+                dest_next_ptr = builder->CreateBitCast(dest_next_ptr, llvm::Type::getInt8PtrTy(context));
+                LLVM::CreateStore(*builder, dest_next_ptr, curr_dest_next_ptr);
+                LLVM::CreateStore(*builder, dest_next_ptr, dest_itr);
+                next_idx = builder->CreateAdd(next_idx, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                              llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, next_idx, next_ptr);
+            }, [&]() {
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
+                    curr_dest_next_ptr
+                );
+            });
+        }
+
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+    }
+
+    llvm::Value* LLVMSetInterface::len(llvm::Value* set) {
         return LLVM::CreateLoad(*builder, get_pointer_to_occupancy(set));
     }
 

@@ -8,7 +8,7 @@
 double _lcompilers_abs_f64(double x);
 double f();
 void _xx_lcompilers_changed_main_xx();
-void __main____global_statements();
+void __main__global_stmts();
 
 
 
@@ -27,7 +27,7 @@ double _lcompilers_abs_f64(double x)
 double f()
 {
     double _lpython_return_variable;
-    _lpython_return_variable = _lcompilers_abs_f64(-  5.50000000000000000e+00);
+    _lpython_return_variable =   5.50000000000000000e+00;
     return _lpython_return_variable;
 }
 
@@ -39,7 +39,7 @@ void _xx_lcompilers_changed_main_xx()
     ASSERT(_lcompilers_abs_f64(t1 -   5.50000000000000000e+00*  1.00000000000000000e+06) <=   9.99999999999999955e-07);
 }
 
-void __main____global_statements()
+void __main__global_stmts()
 {
     _xx_lcompilers_changed_main_xx();
 }
@@ -47,6 +47,6 @@ void __main____global_statements()
 int main(int argc, char* argv[])
 {
     _lpython_set_argv(argc, argv);
-    __main____global_statements();
+    __main__global_stmts();
     return 0;
 }

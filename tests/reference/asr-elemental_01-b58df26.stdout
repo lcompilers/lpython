@@ -7,14 +7,14 @@
                     (SymbolTable
                         2
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
                                         233
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -26,7 +26,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -188,7 +187,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -453,7 +451,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -811,7 +808,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1199,7 +1195,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1594,7 +1589,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [sin@__lpython_overloaded_1__sin
@@ -1874,7 +1868,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Assert
                                             (RealCompare
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (ArrayItem
@@ -1975,7 +1969,7 @@
                                                     block
                                                     [(Assert
                                                         (RealCompare
-                                                            (IntrinsicFunction
+                                                            (IntrinsicScalarFunction
                                                                 Abs
                                                                 [(RealBinOp
                                                                     (FunctionCall
@@ -2120,7 +2114,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -2315,7 +2308,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -2345,7 +2337,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Assert
                                             (RealCompare
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (RealBinOp
@@ -2577,7 +2569,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -2607,7 +2598,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Assert
                                             (RealCompare
-                                                (IntrinsicFunction
+                                                (IntrinsicScalarFunction
                                                     Abs
                                                     [(RealBinOp
                                                         (RealBinOp
@@ -2743,7 +2734,7 @@
                                                                     block
                                                                     [(Assert
                                                                         (RealCompare
-                                                                            (IntrinsicFunction
+                                                                            (IntrinsicScalarFunction
                                                                                 Abs
                                                                                 [(RealBinOp
                                                                                     (RealBinOp
@@ -2956,7 +2947,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [cos@__lpython_overloaded_0__cos]
@@ -3054,7 +3044,7 @@
                                                                                     block
                                                                                     [(Assert
                                                                                         (RealCompare
-                                                                                            (IntrinsicFunction
+                                                                                            (IntrinsicScalarFunction
                                                                                                 Abs
                                                                                                 [(RealBinOp
                                                                                                     (RealBinOp
@@ -3332,7 +3322,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [sin@__lpython_overloaded_0__sin]
@@ -3385,22 +3374,22 @@
                     (SymbolTable
                         234
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
                                     234
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        234 __main____global_statements
-                        2 __main____global_statements
+                        234 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

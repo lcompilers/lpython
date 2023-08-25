@@ -28,10 +28,14 @@ def test_list_repeat():
         l_str_3 = l_str_1 * i
         assert l_str_3 == l_str_2
         l_str_2 += l_str_1
-    
+
     for i in range(5):
         assert l_int_1 * i + l_int_1 * (i + 1) == l_int_1 * (2 * i + 1)
         assert l_tuple_1 * i + l_tuple_1 * (i + 1) == l_tuple_1 * (2 * i + 1)
         assert l_str_1 * i + l_str_1 * (i + 1) == l_str_1 * (2 * i + 1)
+
+    print(l_int_1)
+    print(l_tuple_1)
+    print(l_tuple_1)
 
 test_list_repeat()

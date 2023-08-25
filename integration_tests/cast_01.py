@@ -1,10 +1,10 @@
-from lpython import i32, u8, u32, dataclass
+from lpython import i32, u8, u32, dataclass, field
 from numpy import empty, uint8
 
 @dataclass
 class LPBHV_small:
     dim : i32 = 4
-    a : u8[4] = empty(4, dtype=uint8)
+    a : u8[4] = field(default_factory=lambda: empty(4, dtype=uint8))
 
 def main0():
     lphv_small : LPBHV_small = LPBHV_small()

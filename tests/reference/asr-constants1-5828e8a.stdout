@@ -78,14 +78,13 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [complex@__lpython_overloaded_5__complex]
                                     []
                                     [(=
                                         (Var 5 a)
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             Abs
                                             [(IntegerConstant 5 (Integer 4))]
                                             0
@@ -96,7 +95,7 @@
                                     )
                                     (=
                                         (Var 5 a)
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             Abs
                                             [(IntegerUnaryMinus
                                                 (IntegerConstant 500 (Integer 4))
@@ -111,7 +110,7 @@
                                     )
                                     (=
                                         (Var 5 a)
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             Abs
                                             [(Cast
                                                 (LogicalConstant
@@ -130,7 +129,7 @@
                                     )
                                     (=
                                         (Var 5 a)
-                                        (IntrinsicFunction
+                                        (IntrinsicScalarFunction
                                             Abs
                                             [(Cast
                                                 (LogicalConstant
@@ -150,7 +149,7 @@
                                     (=
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealConstant
                                                     3.450000
@@ -175,7 +174,7 @@
                                     (=
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealUnaryMinus
                                                     (RealConstant
@@ -207,7 +206,7 @@
                                     (=
                                         (Var 5 b)
                                         (Cast
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(FunctionCall
                                                     5 complex@__lpython_overloaded_5__complex
@@ -232,7 +231,7 @@
                                                 (Real 8)
                                                 (RealConstant
                                                     6.577424
-                                                    (Complex 8)
+                                                    (Real 8)
                                                 )
                                             )
                                             RealToReal
@@ -304,7 +303,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -509,7 +507,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -721,7 +718,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -847,7 +843,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1013,7 +1008,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -1136,7 +1130,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1279,7 +1272,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1604,7 +1596,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -1673,7 +1664,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )

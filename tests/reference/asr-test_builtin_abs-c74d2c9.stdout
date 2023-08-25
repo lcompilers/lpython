@@ -7,14 +7,14 @@
                     (SymbolTable
                         2
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
                                         4
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -26,7 +26,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -175,7 +174,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     []
@@ -190,7 +188,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -224,7 +222,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x)]
                                                 0
@@ -243,7 +241,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealConstant
                                                     5.500000
@@ -271,7 +269,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(RealUnaryMinus
                                                     (RealConstant
@@ -329,7 +327,7 @@
                                     )
                                     (Assert
                                         (RealCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 x2)]
                                                 0
@@ -365,7 +363,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i)]
                                                 0
@@ -381,7 +379,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(IntegerUnaryMinus
                                                     (IntegerConstant 1 (Integer 4))
@@ -418,7 +416,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i2)]
                                                 0
@@ -453,7 +451,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i3)]
                                                 0
@@ -488,7 +486,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Var 3 i4)]
                                                 0
@@ -517,7 +515,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)
@@ -546,7 +544,7 @@
                                     )
                                     (Assert
                                         (IntegerCompare
-                                            (IntrinsicFunction
+                                            (IntrinsicScalarFunction
                                                 Abs
                                                 [(Cast
                                                     (Var 3 b)
@@ -582,22 +580,22 @@
                     (SymbolTable
                         5
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
                                     5
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        5 __main____global_statements
-                        2 __main____global_statements
+                        5 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

@@ -1,4 +1,4 @@
-from lpython import i32, f64, i64, i16, i8, f32, dataclass, InOut
+from lpython import i32, f64, i64, i16, i8, f32, dataclass, InOut, Array
 from numpy import empty
 
 @dataclass
@@ -11,7 +11,7 @@ class A:
     c: i8
     d: bool
 
-def verify(s: A[:], x1: i32, y1: f64, x2: i32, y2: f64):
+def verify(s: Array[A, :], x1: i32, y1: f64, x2: i32, y2: f64):
     eps: f64 = 1e-12
     s0: A = s[0]
     print(s0.x, s0.y, s0.z, s0.a, s0.b, s0.c, s0.d)
@@ -41,7 +41,7 @@ def update_1(s: InOut[A]):
     s.b = i16(2)
     s.c = i8(2)
 
-def update_2(s: A[:]):
+def update_2(s: Array[A, :]):
     s[1].x = 3
     s[1].y = 2.3
     s[1].z = i64(3)
@@ -50,7 +50,7 @@ def update_2(s: A[:]):
     s[1].c = i8(3)
 
 def g():
-    y: A[2] = empty([2], dtype=A)
+    y: Array[A, 2] = empty([2], dtype=A)
     y[0] = A(1.1, 1, i64(1), f32(1.1), i16(1), i8(1), True)
     y[1] = A(2.2, 2, i64(2), f32(2.2), i16(2), i8(2), True)
     verify(y, 1, 1.1, 2, 2.2)

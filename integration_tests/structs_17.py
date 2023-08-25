@@ -1,4 +1,4 @@
-from lpython import i32, f32, f64, dataclass
+from lpython import i32, f32, f64, dataclass, field
 
 @dataclass
 class B:
@@ -6,13 +6,13 @@ class B:
     @dataclass
     class C:
         cz: f32
-    bc: C = C(f32(0.0))
+    bc: C = field(default_factory=lambda: C(f32(0.0)))
 
 @dataclass
 class A:
     y: f32
     x: i32
-    b: B = B(0, B.C(f32(0.0)))
+    b: B = field(default_factory=lambda: B(0, B.C(f32(0.0))))
 
 
 def f(a: A):

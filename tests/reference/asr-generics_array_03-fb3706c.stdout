@@ -252,7 +252,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [add_integer]
@@ -582,7 +581,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [add_float]
@@ -685,14 +683,14 @@
                                     .false.
                                     ()
                                 ),
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (Function
                                     (SymbolTable
                                         209
                                         {
                                             
                                         })
-                                    __main____global_statements
+                                    __main__global_stmts
                                     (FunctionType
                                         []
                                         ()
@@ -704,7 +702,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -801,9 +798,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        [(TypeParameter
-                                            T
-                                        )]
                                         []
                                         .true.
                                     )
@@ -884,7 +878,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -976,7 +969,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
                                         []
                                         .false.
                                     )
@@ -1241,9 +1233,6 @@
                                         .false.
                                         .false.
                                         .false.
-                                        [(TypeParameter
-                                            T
-                                        )]
                                         [2 add]
                                         .false.
                                     )
@@ -1532,7 +1521,6 @@
                                         .false.
                                         .false.
                                         []
-                                        []
                                         .false.
                                     )
                                     [__asr_generic_g_0
@@ -1751,22 +1739,22 @@
                     (SymbolTable
                         210
                         {
-                            __main____global_statements:
+                            __main__global_stmts:
                                 (ExternalSymbol
                                     210
-                                    __main____global_statements
-                                    2 __main____global_statements
+                                    __main__global_stmts
+                                    2 __main__global_stmts
                                     __main__
                                     []
-                                    __main____global_statements
+                                    __main__global_stmts
                                     Public
                                 )
                         })
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        210 __main____global_statements
-                        2 __main____global_statements
+                        210 __main__global_stmts
+                        2 __main__global_stmts
                         []
                         ()
                     )]

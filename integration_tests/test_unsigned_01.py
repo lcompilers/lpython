@@ -4,9 +4,9 @@ def f():
 
     h: u8
     h = u8(5)
-    print(h << u8(4), h << u8(7), h >> u8(4), h >> u8(7))
+    print(h << u8(4), h << u8(2), h >> u8(4), h >> u8(7))
     assert h << u8(4) == u8(80)
-    assert h << u8(7) == u8(128)
+    assert h << u8(2) == u8(20)
     assert h >> u8(4) == u8(0)
     assert h >> u8(7) == u8(0)
 

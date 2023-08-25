@@ -1,4 +1,4 @@
-from lpython import i32, dataclass
+from lpython import i32, dataclass, Array
 from numpy import empty
 
 @dataclass
@@ -6,11 +6,11 @@ class Foo:
      x: i32
      y: i32
 
-def init(foos: Foo[:]) -> None:
+def init(foos: Array[Foo, :]) -> None:
     foos[0] = Foo(5, 21)
 
 def main0() -> None:
-    foos: Foo[1] = empty(1, dtype=Foo)
+    foos: Array[Foo, 1] = empty(1, dtype=Foo)
     init(foos)
     print("foos[0].x =", foos[0].x)
 
