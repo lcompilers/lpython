@@ -312,7 +312,7 @@ endmacro(RUN_UTIL)
 
 macro(RUN)
     set(options FAIL NOFAST NOMOD ENABLE_CPYTHON LINK_NUMPY)
-    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN)
+    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN REQ_PY_VER)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN} )
@@ -332,6 +332,18 @@ macro(RUN)
         # Only one import path supported for now
         # Later add support for multiple import paths by looping over and appending to extra args
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
+    endif()
+
+    if (RUN_REQ_PY_VER)
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\1" PY_MAJOR_VERSION "${Python_VERSION}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\2" PY_MINOR_VERSION "${Python_VERSION}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\1" REQ_PY_MAJOR_VERSION "${RUN_REQ_PY_VER}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\2" REQ_PY_MINOR_VERSION "${RUN_REQ_PY_VER}")
+
+        if (PY_MINOR_VERSION LESS REQ_PY_MINOR_VERSION)
+            # remove backends from the test that depend on CPython
+            list(REMOVE_ITEM RUN_LABELS cpython cpython_sym c_py c_sym llvm_sym llvm_py)
+        endif()
     endif()
 
     if (NOT FAST)
