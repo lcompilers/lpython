@@ -506,4 +506,4 @@ jobs:
         shell: bash -e -l {0}
         run: |
             cd integration_tests
-            ./run_tests.py -b cpython
+            ./run_tests.py -b cpython c_py
