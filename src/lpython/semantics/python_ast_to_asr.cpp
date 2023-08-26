@@ -498,7 +498,6 @@ public:
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
     AST::expr_t* assign_ast_target;
-    bool is_c_p_pointer_call;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -535,7 +534,7 @@ public:
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module}, module_name{module_name},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
             current_body{nullptr}, ann_assign_target_type{nullptr},
-            assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
+            assign_ast_target{nullptr}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
         global_init.reserve(al, 1);
     }
@@ -3023,14 +3022,12 @@ public:
             type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, type->base.loc,
                 ASRUtils::type_get_past_pointer(type)));
         }
-        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
-        ASR::expr_t *value = nullptr;
+
         create_add_variable_to_scope(var_name, type,
                 x.base.base.loc, abi, storage_type);
 
         if( !init_expr ) {
             tmp = nullptr;
-            is_c_p_pointer_call = false;
             if (x.m_value) {
                 this->visit_expr(*x.m_value);
             } else {
@@ -3040,13 +3037,8 @@ public:
                             ASRUtils::type_to_str_python(type), x.base.base.loc);
                 }
             }
-            if( is_c_p_pointer_call ) {
-                create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
-                AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-                tmp = create_CPtrToPointer(*c_p_pointer_call);
-            } else if (tmp) {
-                value = ASRUtils::EXPR(tmp);
+            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
+                ASR::expr_t* value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
                     underlying_type = ASRUtils::get_contained_type(type);
@@ -3070,10 +3062,8 @@ public:
             cast_helper(type, init_expr, init_expr->base.loc);
         }
 
-        if( !is_c_p_pointer_call ) {
-            if (!inside_struct || ASR::is_a<ASR::Const_t>(*type)) {
-                process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
-            }
+        if (!inside_struct || ASR::is_a<ASR::Const_t>(*type)) {
+            process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
         }
 
         if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
@@ -3083,10 +3073,10 @@ public:
             }
         }
 
-        if( !is_c_p_pointer_call ) {
+        if ( !(tmp && ASR::is_a<ASR::stmt_t>(*tmp) &&
+            ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp))) ) {
             tmp = nullptr;
         }
-        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
@@ -5253,18 +5243,13 @@ public:
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
         AST::expr_t* assign_ast_target_copy = assign_ast_target;
         assign_ast_target = x.m_targets[0];
-        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
-        is_c_p_pointer_call = false;
         this->visit_expr(*x.m_value);
-        if( is_c_p_pointer_call ) {
-            LCOMPILERS_ASSERT(x.n_targets == 1);
-            AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-            tmp = create_CPtrToPointer(*c_p_pointer_call);
-            return ;
-        }
-        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         assign_ast_target = assign_ast_target_copy;
         if (tmp) {
+            if (ASR::is_a<ASR::stmt_t>(*tmp)) {
+                // This happens for c_p_pointer()
+                return;
+            }
             // This happens if `m.m_value` is `empty`, such as in:
             // a = empty(16)
             // We skip this statement for now, the array is declared
@@ -7472,20 +7457,12 @@ public:
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
-        }
-        if (call_name == "c_p_pointer" &&
-            !current_scope->resolve_symbol(call_name)) {
-            is_c_p_pointer_call = true;
-            tmp = nullptr;
-            return ;
-        }
-
-        if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+        } else if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
             parse_args(x, args);
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             handle_attribute(at, args, x.base.base.loc);
             return;
-        } else if( call_name == "" ) {
+        } else {
             throw SemanticError("Only Name or Attribute type supported in Call",
                 x.base.base.loc);
         }
@@ -7574,6 +7551,9 @@ public:
                 // TODO: check that the `empty` arguments are compatible
                 // with the type
                 tmp = nullptr;
+                return;
+            } else if (call_name == "c_p_pointer") {
+                tmp = create_CPtrToPointer(x);
                 return;
             } else if (call_name == "empty_c_void_p") {
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
