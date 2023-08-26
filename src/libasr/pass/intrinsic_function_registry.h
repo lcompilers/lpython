@@ -1358,6 +1358,14 @@ namespace FlipSign {
             x.base.base.loc, diagnostics);
     }
 
+    static ASR::expr_t *eval_FlipSign(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+        if (a % 2 == 1) b = -b;
+        return make_ConstantWithType(make_RealConstant_t, b, t1, loc);
+    }
+
     static inline ASR::asr_t* create_FlipSign(Allocator& al, const Location& loc,
             Vec<ASR::expr_t*>& args,
             const std::function<void (const std::string &, const Location &)> err) {
@@ -1371,6 +1379,12 @@ namespace FlipSign {
                 args[0]->base.loc);
         }
         ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
+            arg_values.push_back(al, expr_value(args[0]));
+            arg_values.push_back(al, expr_value(args[1]));
+            m_value = eval_FlipSign(al, loc, expr_type(args[1]), arg_values);
+        }
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
             args.p, args.n, 0, ASRUtils::expr_type(args[1]), m_value);
@@ -1383,9 +1397,20 @@ namespace FlipSign {
         fill_func_arg("signal", arg_types[0]);
         fill_func_arg("variable", arg_types[1]);
         auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        real(real32) function flipsigni32r32(signal, variable)
+            integer(int32), intent(in) :: signal
+            real(real32), intent(out) :: variable
+            integer(int32) :: q
+            q = signal/2
+            flipsigni32r32 = variable
+            if (signal - 2*q == 1 ) flipsigni32r32 = -variable
+        end subroutine
+        */
+
         ASR::expr_t *two = i(2, arg_types[0]);
         ASR::expr_t *q = iDiv(args[0], two);
-        ASR::expr_t *cond = iMul(args[0], iMul(two, q));
+        ASR::expr_t *cond = iSub(args[0], iMul(two, q));
         body.push_back(al, b.If(iEq(cond, i(1, arg_types[0])), {
             b.Assignment(result, f32_neg(args[1], arg_types[1]))
         }, {
