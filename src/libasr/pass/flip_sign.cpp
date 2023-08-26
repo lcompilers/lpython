@@ -99,10 +99,10 @@ public:
             // xi = xor(shiftl(int(Nd),63), xi)
             LCOMPILERS_ASSERT(flip_sign_signal_variable);
             LCOMPILERS_ASSERT(flip_sign_variable);
-            ASR::stmt_t* flip_sign_call = PassUtils::get_flipsign(flip_sign_signal_variable,
-                                            flip_sign_variable, al, unit, pass_options, current_scope,
-                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
-            pass_result.push_back(al, flip_sign_call);
+            ASR::expr_t* flip_sign_result = PassUtils::get_flipsign(flip_sign_signal_variable,
+                                            flip_sign_variable, al, unit, x.base.base.loc);
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc,
+                    flip_sign_variable, flip_sign_result, nullptr)));
         }
     }
 
@@ -212,6 +212,8 @@ void pass_replace_flip_sign(Allocator &al, ASR::TranslationUnit_t &unit,
                             const LCompilers::PassOptions& pass_options) {
     FlipSignVisitor v(al, unit, pass_options);
     v.visit_TranslationUnit(unit);
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
 }
 
 

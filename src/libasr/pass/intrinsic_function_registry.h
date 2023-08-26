@@ -42,6 +42,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     Exp2,
     Expm1,
     FMA,
+    FlipSign,
     ListIndex,
     Partition,
     ListReverse,
@@ -95,6 +96,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Exp2)
         INTRINSIC_NAME_CASE(Expm1)
         INTRINSIC_NAME_CASE(FMA)
+        INTRINSIC_NAME_CASE(FlipSign)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
@@ -1343,6 +1345,86 @@ namespace FMA {
 
 } // namespace FMA
 
+namespace FlipSign {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2,
+            "ASR Verify: Call to FlipSign must have exactly 2 arguments",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
+        ASRUtils::require_impl((is_integer(*type1) && is_real(*type2)),
+            "ASR Verify: Arguments to FlipSign must be of int and real type respectively",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_FlipSign(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+        if (a % 2 == 1) b = -b;
+        return make_ConstantWithType(make_RealConstant_t, b, t1, loc);
+    }
+
+    static inline ASR::asr_t* create_FlipSign(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Intrinsic FlipSign function accepts exactly 2 arguments", loc);
+        }
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        if (!ASRUtils::is_integer(*type1) || !ASRUtils::is_real(*type2)) {
+            err("Argument of the FlipSign function must be int and real respectively",
+                args[0]->base.loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
+            arg_values.push_back(al, expr_value(args[0]));
+            arg_values.push_back(al, expr_value(args[1]));
+            m_value = eval_FlipSign(al, loc, expr_type(args[1]), arg_values);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            args.p, args.n, 0, ASRUtils::expr_type(args[1]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_FlipSign(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_flipsign_" + type_to_str_python(arg_types[1]));
+        fill_func_arg("signal", arg_types[0]);
+        fill_func_arg("variable", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        real(real32) function flipsigni32r32(signal, variable)
+            integer(int32), intent(in) :: signal
+            real(real32), intent(out) :: variable
+            integer(int32) :: q
+            q = signal/2
+            flipsigni32r32 = variable
+            if (signal - 2*q == 1 ) flipsigni32r32 = -variable
+        end subroutine
+        */
+
+        ASR::expr_t *two = i(2, arg_types[0]);
+        ASR::expr_t *q = iDiv(args[0], two);
+        ASR::expr_t *cond = iSub(args[0], iMul(two, q));
+        body.push_back(al, b.If(iEq(cond, i(1, arg_types[0])), {
+            b.Assignment(result, f32_neg(args[1], arg_types[1]))
+        }, {
+            b.Assignment(result, args[1])
+        }));
+
+        ASR::symbol_t *f_sym = make_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, Source, Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace FlipSign
+
 #define create_exp_macro(X, stdeval)                                                      \
 namespace X {                                                                             \
     static inline ASR::expr_t* eval_##X(Allocator &al, const Location &loc,               \
@@ -2368,6 +2450,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FMA),
             {&FMA::instantiate_FMA, &FMA::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            {&FlipSign::instantiate_FlipSign, &FMA::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
             {&Abs::instantiate_Abs, &Abs::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Partition),
@@ -2456,6 +2540,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "exp2"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FMA),
             "fma"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            "flipsign"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
             "expm1"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),
