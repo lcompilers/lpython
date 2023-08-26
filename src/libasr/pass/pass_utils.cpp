@@ -588,13 +588,16 @@ namespace LCompilers {
         }
 
 
-        ASR::stmt_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
-                              Allocator& al, ASR::TranslationUnit_t& unit,
-                              LCompilers::PassOptions& pass_options,
-                              SymbolTable*& current_scope,
-                              const std::function<void (const std::string &, const Location &)> err) {
-            ASR::symbol_t *v = import_generic_procedure("flipsign", "lfortran_intrinsic_optimization",
-                                                        al, unit, pass_options, current_scope, arg0->base.loc);
+        ASR::expr_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
+            Allocator& al, ASR::TranslationUnit_t& unit, Location& loc){
+            ASRUtils::impl_function instantiate_function =
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_instantiate_function(
+                    static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FlipSign));
+            Vec<ASR::ttype_t*> arg_types;
+            ASR::ttype_t* type = ASRUtils::expr_type(arg1);
+            arg_types.reserve(al, 2);
+            arg_types.push_back(al, ASRUtils::expr_type(arg0));
+            arg_types.push_back(al, ASRUtils::expr_type(arg1));
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 2);
             ASR::call_arg_t arg0_, arg1_;
@@ -602,10 +605,8 @@ namespace LCompilers {
             args.push_back(al, arg0_);
             arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
             args.push_back(al, arg1_);
-            return ASRUtils::STMT(
-                    ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
-                        arg0->base.loc, v, args, current_scope, al,
-                        err));
+            return instantiate_function(al, loc,
+                unit.m_global_scope, arg_types, type, args, 0);
         }
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
