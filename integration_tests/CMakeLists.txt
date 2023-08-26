@@ -487,7 +487,7 @@ RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c NOFAST)
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME expr_15             LABELS cpython llvm c)
-RUN(NAME expr_16             LABELS cpython c)
+RUN(NAME expr_16             LABELS cpython llvm c)
 RUN(NAME expr_17             LABELS cpython llvm c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
 RUN(NAME expr_19             LABELS cpython llvm c)
