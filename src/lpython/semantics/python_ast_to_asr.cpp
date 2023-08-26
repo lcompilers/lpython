@@ -2674,14 +2674,22 @@ public:
         return std::string(base_name->m_id) == "Union";
     }
 
-    void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
-        ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
-        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
-
+    void process_variable_init_val(ASR::symbol_t* v_sym, const Location& loc, ASR::expr_t* init_expr=nullptr) {
         ASR::expr_t* value = nullptr;
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
+        std::string var_name = v_variable->m_name;
+        ASR::ttype_t* type = v_variable->m_type;
         if( init_expr ) {
             value = ASRUtils::expr_value(init_expr);
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
+            v_variable->m_dependencies = variable_dependencies_vec.p;
+            v_variable->n_dependencies = variable_dependencies_vec.size();
+            v_variable->m_symbolic_value = init_expr;
+            v_variable->m_value = value;
         }
+
         bool is_runtime_expression = !ASRUtils::is_value_constant(value);
         bool is_variable_const = ASR::is_a<ASR::Const_t>(*type);
 
@@ -2689,27 +2697,6 @@ public:
             throw SemanticError("Constant variable " + var_name +
                 " is not initialised at declaration.", loc);
         }
-
-        ASR::intentType s_intent = ASRUtils::intent_local;
-        if( ASR::is_a<ASR::Const_t>(*type) ) {
-            storage_type = ASR::storage_typeType::Parameter;
-        }
-        ASR::abiType current_procedure_abi_type = abi;
-        ASR::accessType s_access = ASR::accessType::Public;
-        ASR::presenceType s_presence = ASR::presenceType::Required;
-        bool value_attr = false;
-        SetChar variable_dependencies_vec;
-        variable_dependencies_vec.reserve(al, 1);
-        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
-        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, var_name), variable_dependencies_vec.p,
-                variable_dependencies_vec.size(),
-                s_intent, init_expr, value, storage_type, type,
-                nullptr,
-                current_procedure_abi_type, s_access, s_presence,
-                value_attr);
-        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
-        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
         if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type) ||
                 is_runtime_expression) && !is_variable_const) {
@@ -2738,7 +2725,31 @@ public:
               current_body ) {
             throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
+    }
 
+    void create_add_variable_to_scope(std::string& var_name,
+        ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
+        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
+
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        if( ASR::is_a<ASR::Const_t>(*type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
+        ASR::abiType current_procedure_abi_type = abi;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        SetChar variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(),
+                s_intent, nullptr, nullptr, storage_type, type,
+                nullptr,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
         current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
 
@@ -3014,6 +3025,9 @@ public:
         }
         bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
         ASR::expr_t *value = nullptr;
+        create_add_variable_to_scope(var_name, type,
+                x.base.base.loc, abi, storage_type);
+
         if( !init_expr ) {
             tmp = nullptr;
             is_c_p_pointer_call = false;
@@ -3057,12 +3071,8 @@ public:
         }
 
         if( !is_c_p_pointer_call ) {
-            if (inside_struct && !ASR::is_a<ASR::Const_t>(*type)) {
-                create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
-            } else {
-                create_add_variable_to_scope(var_name, init_expr, type,
-                    x.base.base.loc, abi, storage_type);
+            if (!inside_struct || ASR::is_a<ASR::Const_t>(*type)) {
+                process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
             }
         }
 
