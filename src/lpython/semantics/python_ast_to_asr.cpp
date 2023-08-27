@@ -498,7 +498,6 @@ public:
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
     AST::expr_t* assign_ast_target;
-    bool is_c_p_pointer_call;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -535,7 +534,7 @@ public:
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module}, module_name{module_name},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
             current_body{nullptr}, ann_assign_target_type{nullptr},
-            assign_ast_target{nullptr}, is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
+            assign_ast_target{nullptr}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
         global_init.reserve(al, 1);
     }
@@ -2674,14 +2673,22 @@ public:
         return std::string(base_name->m_id) == "Union";
     }
 
-    void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
-        ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
-        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
-
+    void process_variable_init_val(ASR::symbol_t* v_sym, const Location& loc, ASR::expr_t* init_expr=nullptr) {
         ASR::expr_t* value = nullptr;
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
+        std::string var_name = v_variable->m_name;
+        ASR::ttype_t* type = v_variable->m_type;
         if( init_expr ) {
             value = ASRUtils::expr_value(init_expr);
+            SetChar variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
+            v_variable->m_dependencies = variable_dependencies_vec.p;
+            v_variable->n_dependencies = variable_dependencies_vec.size();
+            v_variable->m_symbolic_value = init_expr;
+            v_variable->m_value = value;
         }
+
         bool is_runtime_expression = !ASRUtils::is_value_constant(value);
         bool is_variable_const = ASR::is_a<ASR::Const_t>(*type);
 
@@ -2689,27 +2696,6 @@ public:
             throw SemanticError("Constant variable " + var_name +
                 " is not initialised at declaration.", loc);
         }
-
-        ASR::intentType s_intent = ASRUtils::intent_local;
-        if( ASR::is_a<ASR::Const_t>(*type) ) {
-            storage_type = ASR::storage_typeType::Parameter;
-        }
-        ASR::abiType current_procedure_abi_type = abi;
-        ASR::accessType s_access = ASR::accessType::Public;
-        ASR::presenceType s_presence = ASR::presenceType::Required;
-        bool value_attr = false;
-        SetChar variable_dependencies_vec;
-        variable_dependencies_vec.reserve(al, 1);
-        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
-        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, var_name), variable_dependencies_vec.p,
-                variable_dependencies_vec.size(),
-                s_intent, init_expr, value, storage_type, type,
-                nullptr,
-                current_procedure_abi_type, s_access, s_presence,
-                value_attr);
-        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
-        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
 
         if( init_expr && (current_body || ASR::is_a<ASR::List_t>(*type) ||
                 is_runtime_expression) && !is_variable_const) {
@@ -2738,7 +2724,31 @@ public:
               current_body ) {
             throw SemanticError("Initialisation of " + var_name + " must reduce to a compile time constant.", loc);
         }
+    }
 
+    void create_add_variable_to_scope(std::string& var_name,
+        ASR::ttype_t* type, const Location& loc, ASR::abiType abi,
+        ASR::storage_typeType storage_type=ASR::storage_typeType::Default) {
+
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        if( ASR::is_a<ASR::Const_t>(*type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
+        ASR::abiType current_procedure_abi_type = abi;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        SetChar variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(),
+                s_intent, nullptr, nullptr, storage_type, type,
+                nullptr,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
         current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
 
@@ -3012,11 +3022,12 @@ public:
             type = ASRUtils::TYPE(ASR::make_Allocatable_t(al, type->base.loc,
                 ASRUtils::type_get_past_pointer(type)));
         }
-        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
-        ASR::expr_t *value = nullptr;
+
+        create_add_variable_to_scope(var_name, type,
+                x.base.base.loc, abi, storage_type);
+
         if( !init_expr ) {
             tmp = nullptr;
-            is_c_p_pointer_call = false;
             if (x.m_value) {
                 this->visit_expr(*x.m_value);
             } else {
@@ -3026,13 +3037,8 @@ public:
                             ASRUtils::type_to_str_python(type), x.base.base.loc);
                 }
             }
-            if( is_c_p_pointer_call ) {
-                create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
-                AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-                tmp = create_CPtrToPointer(*c_p_pointer_call);
-            } else if (tmp) {
-                value = ASRUtils::EXPR(tmp);
+            if (tmp && ASR::is_a<ASR::expr_t>(*tmp)) {
+                ASR::expr_t* value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
                     underlying_type = ASRUtils::get_contained_type(type);
@@ -3056,14 +3062,8 @@ public:
             cast_helper(type, init_expr, init_expr->base.loc);
         }
 
-        if( !is_c_p_pointer_call ) {
-            if (inside_struct && !ASR::is_a<ASR::Const_t>(*type)) {
-                create_add_variable_to_scope(var_name, nullptr, type,
-                    x.base.base.loc, abi, storage_type);
-            } else {
-                create_add_variable_to_scope(var_name, init_expr, type,
-                    x.base.base.loc, abi, storage_type);
-            }
+        if (!inside_struct || ASR::is_a<ASR::Const_t>(*type)) {
+            process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
         }
 
         if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
@@ -3073,10 +3073,10 @@ public:
             }
         }
 
-        if( !is_c_p_pointer_call ) {
+        if ( !(tmp && ASR::is_a<ASR::stmt_t>(*tmp) &&
+            ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp))) ) {
             tmp = nullptr;
         }
-        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
@@ -5243,18 +5243,13 @@ public:
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
         AST::expr_t* assign_ast_target_copy = assign_ast_target;
         assign_ast_target = x.m_targets[0];
-        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
-        is_c_p_pointer_call = false;
         this->visit_expr(*x.m_value);
-        if( is_c_p_pointer_call ) {
-            LCOMPILERS_ASSERT(x.n_targets == 1);
-            AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
-            tmp = create_CPtrToPointer(*c_p_pointer_call);
-            return ;
-        }
-        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         assign_ast_target = assign_ast_target_copy;
         if (tmp) {
+            if (ASR::is_a<ASR::stmt_t>(*tmp)) {
+                // This happens for c_p_pointer()
+                return;
+            }
             // This happens if `m.m_value` is `empty`, such as in:
             // a = empty(16)
             // We skip this statement for now, the array is declared
@@ -7462,20 +7457,12 @@ public:
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
-        }
-        if (call_name == "c_p_pointer" &&
-            !current_scope->resolve_symbol(call_name)) {
-            is_c_p_pointer_call = true;
-            tmp = nullptr;
-            return ;
-        }
-
-        if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+        } else if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
             parse_args(x, args);
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             handle_attribute(at, args, x.base.base.loc);
             return;
-        } else if( call_name == "" ) {
+        } else {
             throw SemanticError("Only Name or Attribute type supported in Call",
                 x.base.base.loc);
         }
@@ -7564,6 +7551,9 @@ public:
                 // TODO: check that the `empty` arguments are compatible
                 // with the type
                 tmp = nullptr;
+                return;
+            } else if (call_name == "c_p_pointer") {
+                tmp = create_CPtrToPointer(x);
                 return;
             } else if (call_name == "empty_c_void_p") {
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
