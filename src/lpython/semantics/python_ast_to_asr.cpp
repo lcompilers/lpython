@@ -496,8 +496,7 @@ public:
         current_body does not exist for Modules, ClassDef/Structs.
     */
     Vec<ASR::stmt_t*> *current_body;
-    ASR::ttype_t* ann_assign_target_type;
-    AST::expr_t* assign_ast_target;
+    ASR::expr_t* assign_asr_target;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -534,8 +533,7 @@ public:
             std::vector<std::string> import_paths, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module}, module_name{module_name},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_paths{import_paths},
-            current_body{nullptr}, ann_assign_target_type{nullptr},
-            assign_ast_target{nullptr}, allow_implicit_casting{allow_implicit_casting_} {
+            current_body{nullptr}, assign_asr_target{nullptr}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
         global_init.reserve(al, 1);
     }
@@ -1177,8 +1175,9 @@ public:
         }
 
         if (call_name == "list" && (args.size() == 0 ||  args[0].m_value == nullptr)) {
-            if (ann_assign_target_type) {
-                ASR::ttype_t *type = ASRUtils::get_contained_type(ann_assign_target_type);
+            if (assign_asr_target) {
+                ASR::ttype_t *type = ASRUtils::get_contained_type(
+                    ASRUtils::type_get_past_const(ASRUtils::expr_type(assign_asr_target)));
                 ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
                 Vec<ASR::expr_t*> list;
                 list.reserve(al, 1);
@@ -2821,8 +2820,7 @@ public:
         }
         this->visit_expr(*x.m_args[0]);
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
-        this->visit_expr(*assign_ast_target);
-        ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        ASR::expr_t* pptr = assign_asr_target;
         ASR::expr_t* target_shape = nullptr;
         if( x.n_args == 3 ) {
             this->visit_expr(*x.m_args[2]);
@@ -3020,8 +3018,6 @@ public:
             handle_lambda_function_declaration(var_name, fn_type, x.m_value, x.base.base.loc);
             return;
         }
-        ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
-        ann_assign_target_type = type;
         if( ASR::is_a<ASR::Struct_t>(*type) &&
             wrap_derived_type_in_pointer ) {
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
@@ -3034,6 +3030,10 @@ public:
 
         create_add_variable_to_scope(var_name, type,
                 x.base.base.loc, abi, storage_type);
+
+        ASR::expr_t* assign_asr_target_copy = assign_asr_target;
+        this->visit_expr(*x.m_target);
+        assign_asr_target = ASRUtils::EXPR(tmp);
 
         if( !init_expr ) {
             tmp = nullptr;
@@ -3086,7 +3086,7 @@ public:
             ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp))) ) {
             tmp = nullptr;
         }
-        ann_assign_target_type = ann_assign_target_type_copy;
+        assign_asr_target = assign_asr_target_copy;
     }
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
@@ -5063,8 +5063,6 @@ public:
         // We treat this as a declaration
         std::string var_name;
         std::string var_annotation;
-        AST::expr_t* assign_ast_target_copy = assign_ast_target;
-        assign_ast_target = x.m_target;
         if (AST::is_a<AST::Name_t>(*x.m_target)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
             var_name = n->m_id;
@@ -5085,7 +5083,6 @@ public:
         }
         ASR::expr_t *init_expr = nullptr;
         visit_AnnAssignUtil(x, var_name, init_expr);
-        assign_ast_target = assign_ast_target_copy;
     }
 
     void visit_Delete(const AST::Delete_t &x) {
@@ -5250,10 +5247,11 @@ public:
 
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
-        AST::expr_t* assign_ast_target_copy = assign_ast_target;
-        assign_ast_target = x.m_targets[0];
+        ASR::expr_t* assign_asr_target_copy = assign_asr_target;
+        this->visit_expr(*x.m_targets[0]);
+        assign_asr_target = ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_value);
-        assign_ast_target = assign_ast_target_copy;
+        assign_asr_target = assign_asr_target_copy;
         if (tmp) {
             if (ASR::is_a<ASR::stmt_t>(*tmp)) {
                 // This happens for c_p_pointer()
@@ -5406,11 +5404,12 @@ public:
                 list.push_back(al, expr);
             }
         } else {
-            if( ann_assign_target_type == nullptr ) {
+            if( assign_asr_target == nullptr ) {
                 tmp = nullptr;
                 return ;
             }
-            type = ASRUtils::get_contained_type(ann_assign_target_type);
+            type = ASRUtils::get_contained_type(
+                ASRUtils::type_get_past_const(ASRUtils::expr_type(assign_asr_target)));
         }
         ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
         tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
@@ -6190,9 +6189,9 @@ public:
     void visit_Dict(const AST::Dict_t &x) {
         LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         if( x.n_keys == 0 ) {
-            if( ann_assign_target_type != nullptr ) {
+            if( assign_asr_target != nullptr ) {
                 tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
-                                            nullptr, 0, ann_assign_target_type);
+                                            nullptr, 0, ASRUtils::expr_type(assign_asr_target));
             }
             else {
                 tmp = nullptr;
@@ -6584,10 +6583,10 @@ public:
         if( ASR::is_a<ASR::Const_t>(*target_type) ) {
             target_type = ASRUtils::get_contained_type(target_type);
         }
-        ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
-        ann_assign_target_type = target_type;
+        ASR::expr_t* assign_asr_target_copy = assign_asr_target;
+        assign_asr_target = target;
         this->visit_expr(*x.m_value);
-        ann_assign_target_type = ann_assign_target_type_copy;
+        assign_asr_target = assign_asr_target_copy;
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
         if( ASR::is_a<ASR::Const_t>(*value_type) ) {
@@ -7567,8 +7566,8 @@ public:
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
                 // with the type
                 ASR::ttype_t* type;
-                if (ann_assign_target_type) {
-                    type = ann_assign_target_type;
+                if (assign_asr_target) {
+                    type = ASRUtils::expr_type(assign_asr_target);
                 } else {
                     type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
                 }
