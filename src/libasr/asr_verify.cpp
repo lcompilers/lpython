@@ -894,7 +894,7 @@ public:
             }
         }
 
-        if ((ASRUtils::symbol_parent_symtab(x.m_name) == current_symtab->parent) ||
+        if ((current_symtab->get_counter() !=  ASRUtils::symbol_parent_symtab(x.m_name)->get_counter()) ||
             (ASRUtils::symbol_parent_symtab(x.m_name)->parent == nullptr)) {
             // add to dependencies
             function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
@@ -1033,7 +1033,7 @@ public:
         require(x.m_name,
             "FunctionCall::m_name must be present");
         // Check x.m_name is from parent sym tab.
-        if ((ASRUtils::symbol_parent_symtab(x.m_name) == current_symtab->parent) ||
+        if ((ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() != current_symtab->get_counter()) ||
             (ASRUtils::symbol_parent_symtab(x.m_name)->parent == nullptr)) {
             // add to dependencies
             function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));

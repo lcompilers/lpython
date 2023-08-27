@@ -352,7 +352,8 @@ namespace LCompilers {
                         ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
                         ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
 
-                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter() && external_symbol->m_parent_symtab->resolve_symbol_parent(f->m_name) == nullptr) {
+                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter() 
+                                && external_symbol->m_parent_symtab->resolve_symbol_parent(f->m_name) == nullptr) {
                             function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                         }
                     }
