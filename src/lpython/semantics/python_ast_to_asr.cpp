@@ -6658,112 +6658,7 @@ public:
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
-            std::string call_name;
-            if (AST::is_a<AST::Name_t>(*c->m_func)) {
-                AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
-                call_name = n->m_id;
-                ASR::symbol_t* s = current_scope->resolve_symbol(call_name);
-                if( call_name == "p_c_pointer" && !s ) {
-                    tmp = create_PointerToCPtr(*c);
-                    return;
-                }
-            } else if (AST::is_a<AST::Attribute_t>(*c->m_func)) {
-                Vec<ASR::call_arg_t> args;
-                parse_args(*c, args);
-                AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
-                handle_attribute(at, args, x.base.base.loc);
-                return;
-            } else {
-                throw SemanticError("Only Name/Attribute supported in Call",
-                    x.base.base.loc);
-            }
-
-            Vec<ASR::call_arg_t> args;
-            // Keyword arguments to be handled in make_call_helper
-            args.reserve(al, c->n_args);
-            visit_expr_list(c->m_args, c->n_args, args);
-            // TODO: Avoid overriding of user defined functions with same name as
-            // intrinsics like print, quit and reserve. Right now, user defined
-            // functions will never be considered.
-            if (call_name == "print") {
-                ASR::expr_t *fmt = nullptr;
-                Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
-                ASR::expr_t *separator = nullptr;
-                ASR::expr_t *end = nullptr;
-                if (c->n_keywords > 0) {
-                    std::string arg_name;
-                    for (size_t i = 0; i < c->n_keywords; i++) {
-                        arg_name = c->m_keywords[i].m_arg;
-                        if (arg_name == "sep") {
-                            visit_expr(*c->m_keywords[i].m_value);
-                            separator = ASRUtils::EXPR(tmp);
-                            ASR::ttype_t *type = ASRUtils::expr_type(separator);
-                            if (!ASRUtils::is_character(*type)) {
-                                std::string found = ASRUtils::type_to_str(type);
-                                diag.add(diag::Diagnostic(
-                                    "Separator is expected to be of string type",
-                                    diag::Level::Error, diag::Stage::Semantic, {
-                                        diag::Label("Expected string, found: " + found,
-                                                {separator->base.loc})
-                                    })
-                                );
-                                throw SemanticAbort();
-                            }
-                        }
-                        if (arg_name == "end") {
-                            visit_expr(*c->m_keywords[i].m_value);
-                            end = ASRUtils::EXPR(tmp);
-                            ASR::ttype_t *type = ASRUtils::expr_type(end);
-                            if (!ASRUtils::is_character(*type)) {
-                                std::string found = ASRUtils::type_to_str(type);
-                                diag.add(diag::Diagnostic(
-                                    "End is expected to be of string type",
-                                    diag::Level::Error, diag::Stage::Semantic, {
-                                        diag::Label("Expected string, found: " + found,
-                                                {end->base.loc})
-                                    })
-                                );
-                                throw SemanticAbort();
-                            }
-                        }
-                    }
-                }
-                tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args_expr.p, args_expr.size(), separator, end);
-                return;
-
-            } else if (call_name == "quit") {
-                ASR::expr_t *code;
-                if (args.size() == 0) {
-                    code = nullptr;
-                } else if (args.size() == 1) {
-                    code = args[0].m_value;
-                } else {
-                    throw SemanticError("The function quit() requires 0 or 1 arguments",
-                        x.base.base.loc);
-                }
-                tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
-                return;
-            } else if( call_name == "reserve" ) {
-                ASRUtils::create_intrinsic_function create_func =
-                    ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("reserve");
-                Vec<ASR::expr_t*> args_exprs; args_exprs.reserve(al, args.size());
-                for( size_t i = 0; i < args.size(); i++ ) {
-                    args_exprs.push_back(al, args[i].m_value);
-                }
-                tmp = create_func(al, x.base.base.loc, args_exprs,
-                    [&](const std::string &msg, const Location &loc) {
-                    throw SemanticError(msg, loc); });
-                return ;
-            }
-            ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
-            if (!s) {
-                throw SemanticError("Function '" + call_name + "' is not declared",
-                    x.base.base.loc);
-            }
-            tmp = make_call_helper(al, s, current_scope, args, call_name,
-                    x.base.base.loc, c->m_args, c->n_args, c->m_keywords,
-                    c->n_keywords);
+            visit_Call(*c);
             return;
         }
         this->visit_expr(*x.m_value);
@@ -7525,12 +7420,78 @@ public:
                 /*
                 throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
                     x.base.base.loc);
-            }
-            if (false) {
                 */
-                // This will all be removed once we port it to intrinsic functions
-            // Intrinsic functions
-            if (call_name == "size") {
+            if (call_name == "print") {
+                args.reserve(al, x.n_args);
+                visit_expr_list(x.m_args, x.n_args, args);
+                ASR::expr_t *fmt = nullptr;
+                Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
+                ASR::expr_t *separator = nullptr;
+                ASR::expr_t *end = nullptr;
+                if (x.n_keywords > 0) {
+                    std::string arg_name;
+                    for (size_t i = 0; i < x.n_keywords; i++) {
+                        arg_name = x.m_keywords[i].m_arg;
+                        if (arg_name == "sep") {
+                            visit_expr(*x.m_keywords[i].m_value);
+                            separator = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(separator);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "Separator is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {separator->base.loc})
+                                    })
+                                );
+                                throw SemanticAbort();
+                            }
+                        }
+                        if (arg_name == "end") {
+                            visit_expr(*x.m_keywords[i].m_value);
+                            end = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(end);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "End is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {end->base.loc})
+                                    })
+                                );
+                                throw SemanticAbort();
+                            }
+                        }
+                    }
+                }
+                tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
+                    args_expr.p, args_expr.size(), separator, end);
+                return;
+            } else if (call_name == "quit") {
+                parse_args(x, args);
+                ASR::expr_t *code;
+                if (args.size() == 0) {
+                    code = nullptr;
+                } else if (args.size() == 1) {
+                    code = args[0].m_value;
+                } else {
+                    throw SemanticError("The function quit() requires 0 or 1 arguments",
+                        x.base.base.loc);
+                }
+                tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
+                return;
+            } else if( call_name == "reserve" ) {
+                parse_args(x, args);
+                ASRUtils::create_intrinsic_function create_func =
+                    ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("reserve");
+                Vec<ASR::expr_t*> args_exprs = ASRUtils::call_arg2expr(al, args);
+                tmp = create_func(al, x.base.base.loc, args_exprs,
+                    [&](const std::string &msg, const Location &loc) {
+                    throw SemanticError(msg, loc); });
+                return ;
+            } else if (call_name == "size") {
                 parse_args(x, args);
                 if( args.size() < 1 || args.size() > 2 ) {
                     throw SemanticError("array accepts only 1 (arr) or 2 (arr, axis) arguments, got " +
@@ -7555,6 +7516,9 @@ public:
                 return;
             } else if (call_name == "c_p_pointer") {
                 tmp = create_CPtrToPointer(x);
+                return;
+            } else if( call_name == "p_c_pointer" && !s ) {
+                tmp = create_PointerToCPtr(x);
                 return;
             } else if (call_name == "empty_c_void_p") {
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
