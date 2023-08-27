@@ -2752,56 +2752,60 @@ public:
         current_scope->add_or_overwrite_symbol(var_name, v_sym);
     }
 
-    #define fill_shape_and_lower_bound_for_CPtrToPointer() ASR::dimension_t* target_dims = nullptr; \
-        int target_n_dims = ASRUtils::extract_dimensions_from_ttype(target_type, target_dims); \
-        ASR::expr_t* lower_bounds = nullptr; \
-        if( target_n_dims > 0 ) { \
-            ASR::dimension_t* alloc_asr_type_dims = nullptr; \
-            int alloc_asr_type_n_dims = ASRUtils::extract_dimensions_from_ttype( \
-                asr_alloc_type, alloc_asr_type_dims); \
-            for( int i = 0; i < alloc_asr_type_n_dims; i++ ) { \
-                if( alloc_asr_type_dims[i].m_length != nullptr || \
-                    alloc_asr_type_dims[i].m_start != nullptr ) { \
-                    throw SemanticError("Target type specified in " \
-                        "c_p_pointer must have deferred shape.", \
-                        loc); \
-                } \
-            } \
-            if( target_shape == nullptr ) { \
-                throw SemanticError("shape argument not specified in c_f_pointer " \
-                                    "even though pptr is an array.", \
-                                    loc); \
-            } \
-            int shape_rank = ASRUtils::extract_n_dims_from_ttype( \
-                ASRUtils::expr_type(target_shape)); \
-            if( shape_rank != 1 ) { \
-                throw SemanticError("shape array passed to c_p_pointer " \
-                                    "must be of rank 1 but given rank is " + \
-                                    std::to_string(shape_rank), loc); \
-            } \
-            Vec<ASR::expr_t*> lbs; \
-            lbs.reserve(al, target_n_dims); \
-            for( int i = 0; i < target_n_dims; i++ ) { \
-                lbs.push_back(al, ASRUtils::EXPR(ASR::make_IntegerConstant_t( \
-                    al, loc, 0, ASRUtils::TYPE( \
-                        ASR::make_Integer_t(al, loc, 4))))); \
-            } \
-            Vec<ASR::dimension_t> dims; \
-            dims.reserve(al, 1); \
-            ASR::dimension_t dim; \
-            dim.loc = loc; \
-            dim.m_length = make_ConstantWithKind(make_IntegerConstant_t, \
-                make_Integer_t, target_n_dims, 4, loc); \
-            dim.m_start = make_ConstantWithKind(make_IntegerConstant_t, \
-                make_Integer_t, 0, 4, loc); \
-            dims.push_back(al, dim); \
-            ASR::ttype_t* type = ASRUtils::make_Array_t_util(al, loc, \
-                ASRUtils::expr_type(lbs[0]), dims.p, dims.size(), ASR::abiType::Source, \
-                false, ASR::array_physical_typeType::PointerToDataArray, true); \
-            lower_bounds = ASRUtils::EXPR(ASR::make_ArrayConstant_t(al, \
-                loc, lbs.p, lbs.size(), type, \
-                ASR::arraystorageType::RowMajor)); \
-        } \
+    ASR::expr_t* fill_shape_and_lower_bound_for_CPtrToPointer(ASR::ttype_t* target_type,
+                ASR::ttype_t* asr_alloc_type,
+                ASR::expr_t* target_shape, const Location& loc) {
+        ASR::dimension_t* target_dims = nullptr;
+        int target_n_dims = ASRUtils::extract_dimensions_from_ttype(target_type, target_dims);
+        if( target_n_dims <= 0 ) {
+            return nullptr;
+        }
+        ASR::dimension_t* alloc_asr_type_dims = nullptr;
+        int alloc_asr_type_n_dims = ASRUtils::extract_dimensions_from_ttype(
+            asr_alloc_type, alloc_asr_type_dims);
+        for( int i = 0; i < alloc_asr_type_n_dims; i++ ) {
+            if( alloc_asr_type_dims[i].m_length != nullptr ||
+                alloc_asr_type_dims[i].m_start != nullptr ) {
+                throw SemanticError("Target type specified in "
+                    "c_p_pointer must have deferred shape.",
+                    loc);
+            }
+        }
+        if( target_shape == nullptr ) {
+            throw SemanticError("shape argument not specified in c_f_pointer "
+                                "even though pptr is an array.",
+                                loc);
+        }
+        int shape_rank = ASRUtils::extract_n_dims_from_ttype(
+            ASRUtils::expr_type(target_shape));
+        if( shape_rank != 1 ) {
+            throw SemanticError("shape array passed to c_p_pointer "
+                                "must be of rank 1 but given rank is " +
+                                std::to_string(shape_rank), loc);
+        }
+        Vec<ASR::expr_t*> lbs;
+        lbs.reserve(al, target_n_dims);
+        for( int i = 0; i < target_n_dims; i++ ) {
+            lbs.push_back(al, ASRUtils::EXPR(ASR::make_IntegerConstant_t(
+                al, loc, 0, ASRUtils::TYPE(
+                    ASR::make_Integer_t(al, loc, 4)))));
+        }
+        Vec<ASR::dimension_t> dims;
+        dims.reserve(al, 1);
+        ASR::dimension_t dim;
+        dim.loc = loc;
+        dim.m_length = make_ConstantWithKind(make_IntegerConstant_t,
+            make_Integer_t, target_n_dims, 4, loc);
+        dim.m_start = make_ConstantWithKind(make_IntegerConstant_t,
+            make_Integer_t, 0, 4, loc);
+        dims.push_back(al, dim);
+        ASR::ttype_t* type = ASRUtils::make_Array_t_util(al, loc,
+            ASRUtils::expr_type(lbs[0]), dims.p, dims.size(), ASR::abiType::Source,
+            false, ASR::array_physical_typeType::PointerToDataArray, true);
+        return ASRUtils::EXPR(ASR::make_ArrayConstant_t(al,
+            loc, lbs.p, lbs.size(), type,
+            ASR::arraystorageType::RowMajor));
+    }
 
     ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
         if( x.n_args != 2 && x.n_args != 3 ) {
@@ -2854,7 +2858,9 @@ public:
             }
         }
         const Location& loc = x.base.base.loc;
-        fill_shape_and_lower_bound_for_CPtrToPointer();
+        ASR::expr_t* lower_bounds = fill_shape_and_lower_bound_for_CPtrToPointer(
+            target_type, asr_alloc_type,
+            target_shape, loc);
         return ASR::make_CPtrToPointer_t(al, loc, cptr,
             pptr, target_shape, lower_bounds);
     }
