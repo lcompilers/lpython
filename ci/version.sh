@@ -9,10 +9,10 @@
 # Each tag starts with "v", so we strip the "v", and the final version becomes:
 #
 #     0.6.0-37-g3878937f-dirty
-#
 
 set -ex
 
-version=$(git describe --tags --dirty)
+version=$(git describe --tags --dirty 2>/dev/null || echo "0.0.0-0")
 version="${version:1}"
-echo $version > version
+echo "$version" > version
+
