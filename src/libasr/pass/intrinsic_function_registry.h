@@ -42,6 +42,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     Exp2,
     Expm1,
     FMA,
+    FlipSign,
     ListIndex,
     Partition,
     ListReverse,
@@ -95,6 +96,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Exp2)
         INTRINSIC_NAME_CASE(Expm1)
         INTRINSIC_NAME_CASE(FMA)
+        INTRINSIC_NAME_CASE(FlipSign)
         INTRINSIC_NAME_CASE(ListIndex)
         INTRINSIC_NAME_CASE(Partition)
         INTRINSIC_NAME_CASE(ListReverse)
@@ -131,7 +133,7 @@ inline std::string get_intrinsic_name(int x) {
 typedef ASR::expr_t* (*impl_function)(
     Allocator&, const Location &,
     SymbolTable*, Vec<ASR::ttype_t*>&, ASR::ttype_t *,
-    Vec<ASR::call_arg_t>&, int64_t, ASR::expr_t*);
+    Vec<ASR::call_arg_t>&, int64_t);
 
 typedef ASR::expr_t* (*eval_intrinsic_function)(
     Allocator&, const Location &, ASR::ttype_t *,
@@ -709,11 +711,7 @@ namespace UnaryIntrinsicFunction {
 static inline ASR::expr_t* instantiate_functions(Allocator &al,
         const Location &loc, SymbolTable *scope, std::string new_name,
         ASR::ttype_t *arg_type, ASR::ttype_t *return_type,
-        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-        ASR::expr_t *value) {
-    if (value) {
-        return value;
-    }
+        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
     std::string c_func_name;
     switch (arg_type->type) {
         case ASR::ttypeType::Complex : {
@@ -738,7 +736,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     if (scope->get_symbol(new_name)) {
         ASR::symbol_t *s = scope->get_symbol(new_name);
         ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
-        return b.Call(s, new_args, expr_type(f->m_return_var), value);
+        return b.Call(s, new_args, expr_type(f->m_return_var));
     }
     fill_func_arg("x", arg_type);
     auto result = declare(new_name, return_type, ReturnVar);
@@ -768,7 +766,7 @@ static inline ASR::expr_t* instantiate_functions(Allocator &al,
     ASR::symbol_t *new_symbol = make_Function_t(fn_name, fn_symtab, dep, args,
         body, result, Source, Implementation, nullptr);
     scope->add_symbol(fn_name, new_symbol);
-    return b.Call(new_symbol, new_args, return_type, value);
+    return b.Call(new_symbol, new_args, return_type);
 }
 
 static inline ASR::asr_t* create_UnaryFunction(Allocator& al, const Location& loc,
@@ -904,7 +902,9 @@ static inline ASR::asr_t* create_LogGamma(Allocator& al, const Location& loc,
     const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
 
-    if (!ASRUtils::is_real(*type)) {
+    if (args.n != 1) {
+            err("Intrinsic `log_gamma` accepts exactly one argument", loc);
+    } else if (!ASRUtils::is_real(*type)) {
         err("`x` argument of `log_gamma` must be real",
             args[0]->base.loc);
     }
@@ -917,12 +917,11 @@ static inline ASR::asr_t* create_LogGamma(Allocator& al, const Location& loc,
 static inline ASR::expr_t* instantiate_LogGamma (Allocator &al,
         const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
         ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-        int64_t overload_id,ASR::expr_t* compile_time_value) {
-    if (compile_time_value) return compile_time_value;
+        int64_t overload_id) {
     LCOMPILERS_ASSERT(arg_types.size() == 1);
     ASR::ttype_t* arg_type = arg_types[0];
     return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,
-        "log_gamma", arg_type, return_type, new_args, overload_id, nullptr);
+        "log_gamma", arg_type, return_type, new_args, overload_id);
 }
 
 } // namespace LogGamma
@@ -956,7 +955,9 @@ namespace X {                                                                   
         const std::function<void (const std::string &, const Location &)> err)  \
     {                                                                           \
         ASR::ttype_t *type = ASRUtils::expr_type(args[0]);                      \
-        if (!ASRUtils::is_real(*type) && !ASRUtils::is_complex(*type)) {        \
+        if (args.n != 1) {                                                      \
+            err("Intrinsic `"#X"` accepts exactly one argument", loc);          \
+        } else if (!ASRUtils::is_real(*type) && !ASRUtils::is_complex(*type)) { \
             err("`x` argument of `"#X"` must be real or complex",               \
                 args[0]->base.loc);                                             \
         }                                                                       \
@@ -967,14 +968,10 @@ namespace X {                                                                   
     static inline ASR::expr_t* instantiate_##X (Allocator &al,                  \
             const Location &loc, SymbolTable *scope,                            \
             Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,           \
-            Vec<ASR::call_arg_t>& new_args,int64_t overload_id,                 \
-            ASR::expr_t* compile_time_value)  {                                 \
-        if (compile_time_value) return compile_time_value;                      \
-        LCOMPILERS_ASSERT(arg_types.size() == 1);                               \
+            Vec<ASR::call_arg_t>& new_args,int64_t overload_id)  {              \
         ASR::ttype_t* arg_type = arg_types[0];                                  \
         return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,    \
-            #lcompilers_name, arg_type, return_type, new_args, overload_id,     \
-            nullptr);                                                           \
+            #lcompilers_name, arg_type, return_type, new_args, overload_id);    \
     }                                                                           \
 } // namespace X
 
@@ -1068,10 +1065,7 @@ namespace Abs {
 
     static inline ASR::expr_t* instantiate_Abs(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         std::string func_name = "_lcompilers_abs_" + type_to_str_python(arg_types[0]);
         declare_basic_variables(func_name);
         if (scope->get_symbol(func_name)) {
@@ -1238,11 +1232,7 @@ namespace Sign {
 
     static inline ASR::expr_t* instantiate_Sign(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         declare_basic_variables("_lcompilers_sign_" + type_to_str_python(arg_types[0]));
         fill_func_arg("x", arg_types[0]);
         fill_func_arg("y", arg_types[0]);
@@ -1333,11 +1323,7 @@ namespace FMA {
 
     static inline ASR::expr_t* instantiate_FMA(Allocator &al, const Location &loc,
             SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         declare_basic_variables("_lcompilers_optimization_fma_" + type_to_str_python(arg_types[0]));
         fill_func_arg("a", arg_types[0]);
         fill_func_arg("b", arg_types[0]);
@@ -1358,6 +1344,86 @@ namespace FMA {
     }
 
 } // namespace FMA
+
+namespace FlipSign {
+
+     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2,
+            "ASR Verify: Call to FlipSign must have exactly 2 arguments",
+            x.base.base.loc, diagnostics);
+        ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
+        ASRUtils::require_impl((is_integer(*type1) && is_real(*type2)),
+            "ASR Verify: Arguments to FlipSign must be of int and real type respectively",
+            x.base.base.loc, diagnostics);
+    }
+
+    static ASR::expr_t *eval_FlipSign(Allocator &al, const Location &loc,
+            ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
+        int a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
+        double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
+        if (a % 2 == 1) b = -b;
+        return make_ConstantWithType(make_RealConstant_t, b, t1, loc);
+    }
+
+    static inline ASR::asr_t* create_FlipSign(Allocator& al, const Location& loc,
+            Vec<ASR::expr_t*>& args,
+            const std::function<void (const std::string &, const Location &)> err) {
+        if (args.size() != 2) {
+            err("Intrinsic FlipSign function accepts exactly 2 arguments", loc);
+        }
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        if (!ASRUtils::is_integer(*type1) || !ASRUtils::is_real(*type2)) {
+            err("Argument of the FlipSign function must be int and real respectively",
+                args[0]->base.loc);
+        }
+        ASR::expr_t *m_value = nullptr;
+        if (all_args_evaluated(args)) {
+            Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
+            arg_values.push_back(al, expr_value(args[0]));
+            arg_values.push_back(al, expr_value(args[1]));
+            m_value = eval_FlipSign(al, loc, expr_type(args[1]), arg_values);
+        }
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            args.p, args.n, 0, ASRUtils::expr_type(args[1]), m_value);
+    }
+
+    static inline ASR::expr_t* instantiate_FlipSign(Allocator &al, const Location &loc,
+            SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
+        declare_basic_variables("_lcompilers_optimization_flipsign_" + type_to_str_python(arg_types[1]));
+        fill_func_arg("signal", arg_types[0]);
+        fill_func_arg("variable", arg_types[1]);
+        auto result = declare(fn_name, return_type, ReturnVar);
+        /*
+        real(real32) function flipsigni32r32(signal, variable)
+            integer(int32), intent(in) :: signal
+            real(real32), intent(out) :: variable
+            integer(int32) :: q
+            q = signal/2
+            flipsigni32r32 = variable
+            if (signal - 2*q == 1 ) flipsigni32r32 = -variable
+        end subroutine
+        */
+
+        ASR::expr_t *two = i(2, arg_types[0]);
+        ASR::expr_t *q = iDiv(args[0], two);
+        ASR::expr_t *cond = iSub(args[0], iMul(two, q));
+        body.push_back(al, b.If(iEq(cond, i(1, arg_types[0])), {
+            b.Assignment(result, f32_neg(args[1], arg_types[1]))
+        }, {
+            b.Assignment(result, args[1])
+        }));
+
+        ASR::symbol_t *f_sym = make_Function_t(fn_name, fn_symtab, dep, args,
+            body, result, Source, Implementation, nullptr);
+        scope->add_symbol(fn_name, f_sym);
+        return b.Call(f_sym, new_args, return_type, nullptr);
+    }
+
+} // namespace FlipSign
 
 #define create_exp_macro(X, stdeval)                                                      \
 namespace X {                                                                             \
@@ -1880,10 +1946,7 @@ namespace Max {
 
     static inline ASR::expr_t* instantiate_Max(Allocator &al, const Location &loc,
         SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         std::string func_name = "_lcompilers_max0_" + type_to_str_python(arg_types[0]);
         std::string fn_name = scope->get_unique_name(func_name);
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
@@ -1995,10 +2058,7 @@ namespace Min {
 
     static inline ASR::expr_t* instantiate_Min(Allocator &al, const Location &loc,
         SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, ASR::ttype_t *return_type,
-        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/, ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+        Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         std::string func_name = "_lcompilers_min0_" + type_to_str_python(arg_types[0]);
         std::string fn_name = scope->get_unique_name(func_name);
         SymbolTable *fn_symtab = al.make_new<SymbolTable>(scope);
@@ -2130,11 +2190,7 @@ namespace Partition {
     static inline ASR::expr_t *instantiate_Partition(Allocator &al,
             const Location &loc, SymbolTable *scope,
             Vec<ASR::ttype_t*>& /*arg_types*/, ASR::ttype_t *return_type,
-            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/,
-            ASR::expr_t* compile_time_value) {
-        if (compile_time_value) {
-            return compile_time_value;
-        }
+            Vec<ASR::call_arg_t>& new_args, int64_t /*overload_id*/) {
         // TODO: show runtime error for empty separator or pattern
         declare_basic_variables("_lpython_str_partition");
         fill_func_arg("target_string", character(-2));
@@ -2394,6 +2450,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FMA),
             {&FMA::instantiate_FMA, &FMA::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            {&FlipSign::instantiate_FlipSign, &FMA::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Abs),
             {&Abs::instantiate_Abs, &Abs::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Partition),
@@ -2482,6 +2540,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "exp2"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::FMA),
             "fma"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::FlipSign),
+            "flipsign"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Expm1),
             "expm1"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::ListIndex),

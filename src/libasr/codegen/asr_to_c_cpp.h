@@ -1041,15 +1041,21 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
          this->visit_expr(*x.m_arg);
      }
 
-    std::string construct_call_args(size_t n_args, ASR::call_arg_t* m_args) {
+    std::string construct_call_args(ASR::Function_t* f, size_t n_args, ASR::call_arg_t* m_args) {
         bracket_open++;
         std::string args = "";
         for (size_t i=0; i<n_args; i++) {
             self().visit_expr(*m_args[i].m_value);
             ASR::ttype_t* type = ASRUtils::expr_type(m_args[i].m_value);
-            if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value)) {
-                if( ASRUtils::is_array(type) &&
-                    ASRUtils::is_pointer(type) ) {
+            if (ASR::is_a<ASR::Var_t>(*m_args[i].m_value) &&
+                ASR::is_a<ASR::Variable_t>(
+                    *(ASR::down_cast<ASR::Var_t>(m_args[i].m_value)->m_v))) {
+                ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
+                if( (ASRUtils::is_array(type) &&
+                    ASRUtils::is_pointer(type))
+                    || (is_c && (param->m_intent == ASRUtils::intent_inout
+                    || param->m_intent == ASRUtils::intent_out)
+                    && !ASRUtils::is_aggregate_type(param->m_type))) {
                     args += "&" + src;
                 } else {
                     args += src;
@@ -1107,7 +1113,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                         + "' not implemented");
             }
         } else {
-            src = fn_name + "(" + construct_call_args(x.n_args, x.m_args) + ")";
+            src = fn_name + "(" + construct_call_args(fn, x.n_args, x.m_args) + ")";
         }
         last_expr_precedence = 2;
         if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
@@ -1762,11 +1768,19 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             return;
         }
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
-        if( (sv->m_intent == ASRUtils::intent_in ||
-            sv->m_intent == ASRUtils::intent_inout) &&
-            is_c && ASRUtils::is_array(sv->m_type) &&
-            ASRUtils::is_pointer(sv->m_type)) {
-            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+        if (is_c) {
+            if ((sv->m_intent == ASRUtils::intent_in
+                || sv->m_intent == ASRUtils::intent_inout)
+                && ASRUtils::is_array(sv->m_type)
+                && ASRUtils::is_pointer(sv->m_type)) {
+                src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+            } else if ((sv->m_intent == ASRUtils::intent_inout
+                || sv->m_intent == ASRUtils::intent_out)
+                && !ASRUtils::is_aggregate_type(sv->m_type)) {
+                src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+            } else {
+                src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+            }
         } else {
             src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
         }
@@ -2736,7 +2750,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
-        src = indent + sym_name + "(" + construct_call_args(x.n_args, x.m_args) + ");\n";
+        src = indent + sym_name + "(" + construct_call_args(s, x.n_args, x.m_args) + ");\n";
     }
 
     #define SET_INTRINSIC_NAME(X, func_name)                                    \

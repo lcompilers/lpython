@@ -312,7 +312,7 @@ endmacro(RUN_UTIL)
 
 macro(RUN)
     set(options FAIL NOFAST NOMOD ENABLE_CPYTHON LINK_NUMPY)
-    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN)
+    set(oneValueArgs NAME IMPORT_PATH COPY_TO_BIN REQ_PY_VER)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
                         "${multiValueArgs}" ${ARGN} )
@@ -332,6 +332,18 @@ macro(RUN)
         # Only one import path supported for now
         # Later add support for multiple import paths by looping over and appending to extra args
         set(RUN_EXTRA_ARGS ${RUN_EXTRA_ARGS} -I${CMAKE_CURRENT_SOURCE_DIR}/${RUN_IMPORT_PATH})
+    endif()
+
+    if (RUN_REQ_PY_VER)
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\1" PY_MAJOR_VERSION "${Python_VERSION}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+)" "\\2" PY_MINOR_VERSION "${Python_VERSION}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\1" REQ_PY_MAJOR_VERSION "${RUN_REQ_PY_VER}")
+        string(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\2" REQ_PY_MINOR_VERSION "${RUN_REQ_PY_VER}")
+
+        if (PY_MINOR_VERSION LESS REQ_PY_MINOR_VERSION)
+            # remove backends from the test that depend on CPython
+            list(REMOVE_ITEM RUN_LABELS cpython cpython_sym c_py c_sym llvm_sym llvm_py)
+        endif()
     endif()
 
     if (NOT FAST)
@@ -454,8 +466,8 @@ RUN(NAME print_list_tuple_02    LABELS cpython llvm c NOFAST)
 RUN(NAME print_list_tuple_03    LABELS cpython llvm c NOFAST)
 
 # CPython and LLVM
-RUN(NAME const_01            LABELS cpython llvm c)
-RUN(NAME const_02            LABELS cpython llvm c)
+RUN(NAME const_01            LABELS cpython llvm c wasm)
+RUN(NAME const_02            LABELS cpython llvm c wasm)
 RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
 RUN(NAME const_04            LABELS cpython llvm c)
@@ -475,13 +487,14 @@ RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c NOFAST)
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME expr_15             LABELS cpython llvm c)
-RUN(NAME expr_16             LABELS cpython c)
+RUN(NAME expr_16             LABELS cpython llvm c)
 RUN(NAME expr_17             LABELS cpython llvm c)
 RUN(NAME expr_18    FAIL     LABELS cpython llvm c)
 RUN(NAME expr_19             LABELS cpython llvm c)
 RUN(NAME expr_20             LABELS cpython llvm c)
 RUN(NAME expr_21             LABELS cpython llvm c)
 RUN(NAME expr_22             LABELS cpython llvm c)
+RUN(NAME expr_23             LABELS cpython llvm c)
 
 RUN(NAME expr_01u            LABELS cpython llvm c NOFAST)
 RUN(NAME expr_02u            LABELS cpython llvm c NOFAST)
@@ -562,8 +575,7 @@ RUN(NAME modules_02          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME test_import_01      LABELS cpython llvm c)
 RUN(NAME test_import_02      LABELS cpython llvm c)
 RUN(NAME test_import_03      LABELS cpython llvm c)
-RUN(NAME test_import_04      IMPORT_PATH ..
-        LABELS cpython llvm c)
+RUN(NAME test_import_04      LABELS cpython llvm c)
 RUN(NAME test_import_05      LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME test_import_06      LABELS cpython llvm)
 RUN(NAME test_import_07      LABELS cpython llvm c)
@@ -624,7 +636,7 @@ RUN(NAME bindpy_01           LABELS cpython c_py ENABLE_CPYTHON NOFAST COPY_TO_B
 RUN(NAME bindpy_02           LABELS cpython c_py LINK_NUMPY COPY_TO_BIN bindpy_02_module.py)
 RUN(NAME bindpy_03           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_03_module.py)
 RUN(NAME bindpy_04           LABELS cpython c_py LINK_NUMPY NOFAST COPY_TO_BIN bindpy_04_module.py)
-RUN(NAME bindpy_05           LABELS llvm_py c_py ENABLE_CPYTHON COPY_TO_BIN bindpy_05_module.py)
+RUN(NAME bindpy_05           LABELS llvm_py c_py ENABLE_CPYTHON COPY_TO_BIN bindpy_05_module.py REQ_PY_VER 3.10)
 RUN(NAME test_generics_01    LABELS cpython llvm c NOFAST)
 RUN(NAME test_cmath          LABELS cpython llvm c NOFAST)
 RUN(NAME test_complex_01        LABELS cpython llvm c wasm wasm_x64)
@@ -742,7 +754,8 @@ RUN(NAME generics_array_01   LABELS cpython llvm c)
 RUN(NAME generics_array_02   LABELS cpython llvm c)
 RUN(NAME generics_array_03   LABELS cpython llvm c)
 RUN(NAME generics_list_01    LABELS cpython llvm c)
-RUN(NAME test_statistics     LABELS cpython llvm NOFAST)
+RUN(NAME test_statistics_01  LABELS cpython llvm NOFAST)
+RUN(NAME test_statistics_02  LABELS cpython llvm NOFAST REQ_PY_VER 3.10)
 RUN(NAME test_str_attributes LABELS cpython llvm c)
 RUN(NAME kwargs_01           LABELS cpython llvm c NOFAST)
 

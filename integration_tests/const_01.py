@@ -13,6 +13,11 @@ def test_const_variables():
     ycf: Const[f64] = 3.0
     yf: f64 = 3.0
 
+    print(xci, xi)
+    print(yci, yi)
+    print(xcf, xf)
+    print(ycf, yf)
+
     assert xci == xi
     assert yci == yi
     assert xcf == xf

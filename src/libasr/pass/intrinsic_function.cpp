@@ -41,20 +41,21 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
 
 
     void replace_IntrinsicScalarFunction(ASR::IntrinsicScalarFunction_t* x) {
-        Vec<ASR::call_arg_t> new_args;
+        if (x->m_value) {
+            *current_expr = x->m_value;
+            return;
+        }
+        Vec<ASR::call_arg_t> new_args; new_args.reserve(al, x->n_args);
         // Replace any IntrinsicScalarFunctions in the argument first:
-        {
-            new_args.reserve(al, x->n_args);
-            for( size_t i = 0; i < x->n_args; i++ ) {
-                ASR::expr_t** current_expr_copy_ = current_expr;
-                current_expr = &(x->m_args[i]);
-                replace_expr(x->m_args[i]);
-                ASR::call_arg_t arg0;
-                arg0.loc = (*current_expr)->base.loc;
-                arg0.m_value = *current_expr; // Use the converted arg
-                new_args.push_back(al, arg0);
-                current_expr = current_expr_copy_;
-            }
+        for( size_t i = 0; i < x->n_args; i++ ) {
+            ASR::expr_t** current_expr_copy_ = current_expr;
+            current_expr = &(x->m_args[i]);
+            replace_expr(x->m_args[i]);
+            ASR::call_arg_t arg0;
+            arg0.loc = (*current_expr)->base.loc;
+            arg0.m_value = *current_expr; // Use the converted arg
+            new_args.push_back(al, arg0);
+            current_expr = current_expr_copy_;
         }
         // TODO: currently we always instantiate a new function.
         // Rather we should reuse the old instantiation if it has
@@ -73,7 +74,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
             arg_types.push_back(al, ASRUtils::expr_type(x->m_args[i]));
         }
         ASR::expr_t* current_expr_ = instantiate_function(al, x->base.base.loc,
-            global_scope, arg_types, x->m_type, new_args, x->m_overload_id, x->m_value);
+            global_scope, arg_types, x->m_type, new_args, x->m_overload_id);
         if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*(*current_expr)) ) {
             ASR::ArrayPhysicalCast_t* array_physical_cast_t = ASR::down_cast<ASR::ArrayPhysicalCast_t>(*current_expr);
             array_physical_cast_t->m_arg = current_expr_;
@@ -83,21 +84,23 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
     }
 
     void replace_IntrinsicArrayFunction(ASR::IntrinsicArrayFunction_t* x) {
-        Vec<ASR::call_arg_t> new_args;
-        // Replace any IntrinsicArrayFunctions in the argument first:
-        {
-            new_args.reserve(al, x->n_args);
-            for( size_t i = 0; i < x->n_args; i++ ) {
-                ASR::expr_t** current_expr_copy_ = current_expr;
-                current_expr = &(x->m_args[i]);
-                replace_expr(x->m_args[i]);
-                ASR::call_arg_t arg0;
-                arg0.loc = (*current_expr)->base.loc;
-                arg0.m_value = *current_expr; // Use the converted arg
-                new_args.push_back(al, arg0);
-                current_expr = current_expr_copy_;
-            }
+        if (x->m_value) {
+            *current_expr = x->m_value;
+            return;
         }
+        Vec<ASR::call_arg_t> new_args; new_args.reserve(al, x->n_args);
+        // Replace any IntrinsicArrayFunctions in the argument first:
+        for( size_t i = 0; i < x->n_args; i++ ) {
+            ASR::expr_t** current_expr_copy_ = current_expr;
+            current_expr = &(x->m_args[i]);
+            replace_expr(x->m_args[i]);
+            ASR::call_arg_t arg0;
+            arg0.loc = (*current_expr)->base.loc;
+            arg0.m_value = *current_expr; // Use the converted arg
+            new_args.push_back(al, arg0);
+            current_expr = current_expr_copy_;
+        }
+
         // TODO: currently we always instantiate a new function.
         // Rather we should reuse the old instantiation if it has
         // exactly the same arguments. For that we could use the
@@ -115,7 +118,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
             arg_types.push_back(al, ASRUtils::expr_type(x->m_args[i]));
         }
         ASR::expr_t* current_expr_ = instantiate_function(al, x->base.base.loc,
-            global_scope, arg_types, x->m_type, new_args, x->m_overload_id, x->m_value);
+            global_scope, arg_types, x->m_type, new_args, x->m_overload_id);
         ASR::expr_t* func_call = current_expr_;
         if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*(*current_expr)) ) {
             ASR::ArrayPhysicalCast_t* array_physical_cast_t = ASR::down_cast<ASR::ArrayPhysicalCast_t>(*current_expr);
