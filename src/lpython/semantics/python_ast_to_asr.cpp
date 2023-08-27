@@ -1615,7 +1615,8 @@ public:
     }
 
     void fill_dims_for_asr_type(Vec<ASR::dimension_t>& dims,
-                                ASR::expr_t* value, const Location& loc) {
+                                ASR::expr_t* value, const Location& loc,
+                                bool is_allocatable=false) {
         ASR::dimension_t dim;
         dim.loc = loc;
         if (ASR::is_a<ASR::IntegerConstant_t>(*value) ||
@@ -1627,7 +1628,7 @@ public:
             ASR::expr_t* comptime_val = nullptr;
             int64_t value_int = -1;
             if( !ASRUtils::extract_value(ASRUtils::expr_value(value), value_int) &&
-                contains_local_variable(value) ) {
+                contains_local_variable(value) && !is_allocatable) {
                 throw SemanticError("Only those local variables which can be reduced to compile "
                                     "time constant should be used in dimensions of an array.",
                                     value->base.loc);
@@ -1644,13 +1645,13 @@ public:
             ASR::TupleConstant_t* tuple_constant = ASR::down_cast<ASR::TupleConstant_t>(value);
             for( size_t i = 0; i < tuple_constant->n_elements; i++ ) {
                 ASR::expr_t *value = tuple_constant->m_elements[i];
-                fill_dims_for_asr_type(dims, value, loc);
+                fill_dims_for_asr_type(dims, value, loc, is_allocatable);
             }
         } else if(ASR::is_a<ASR::ListConstant_t>(*value)) {
             ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(value);
             for( size_t i = 0; i < list_constant->n_args; i++ ) {
                 ASR::expr_t *value = list_constant->m_args[i];
-                fill_dims_for_asr_type(dims, value, loc);
+                fill_dims_for_asr_type(dims, value, loc, is_allocatable);
             }
         } else if(ASR::is_a<ASR::EnumValue_t>(*value)) {
             ASR::expr_t* enum_value = ASRUtils::expr_value(
@@ -1659,7 +1660,7 @@ public:
                 throw SemanticError("Only constant enumeration values are "
                                     "supported as array dimensions.", loc);
             }
-            fill_dims_for_asr_type(dims, enum_value, loc);
+            fill_dims_for_asr_type(dims, enum_value, loc, is_allocatable);
         } else {
             throw SemanticError("Only Integer, `:` or identifier in [] in "
                                 "Subscript supported for now in annotation "
@@ -7524,12 +7525,13 @@ public:
                 }
 
                 ASR::ttype_t* type = nullptr;
+                bool is_allocatable = ASRUtils::is_allocatable(assign_asr_target);
                 Vec<ASR::dimension_t> dims;
                 dims.reserve(al, 0);
 
                 visit_expr(*x.m_args[0]);
                 ASR::expr_t* shape = ASRUtils::EXPR(tmp);
-                fill_dims_for_asr_type(dims, shape, shape->base.loc);
+                fill_dims_for_asr_type(dims, shape, shape->base.loc, is_allocatable);
 
                 std::string keyword_arg = x.m_keywords[0].m_arg;
                 if (keyword_arg != "dtype") {
