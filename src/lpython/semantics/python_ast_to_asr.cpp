@@ -1168,7 +1168,7 @@ public:
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
                     Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc,
-                    bool ignore_return_value=false, AST::expr_t** pos_args=nullptr, size_t n_pos_args=0,
+                    AST::expr_t** pos_args=nullptr, size_t n_pos_args=0,
                     AST::keyword_t* kwargs=nullptr, size_t n_kwargs=0) {
         if (intrinsic_node_handler.is_present(call_name)) {
             return intrinsic_node_handler.get_intrinsic_node(call_name, al, loc,
@@ -1293,7 +1293,7 @@ public:
                     new_call_arg.loc = args.p[i].loc;
                     new_args.push_back(al, new_call_arg);
                 }
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);
+                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
@@ -1326,14 +1326,9 @@ public:
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
                     !ASRUtils::is_intrinsic_function2(func));
                 dependencies.push_back(al, ASRUtils::symbol_name(stemp));
-                ASR::asr_t* func_call_asr = ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
+                return ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
-                if( ignore_return_value ) {
-                    return make_dummy_assignment(ASRUtils::EXPR(func_call_asr));
-                } else {
-                    return func_call_asr;
-                }
             } else {
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
@@ -6761,7 +6756,7 @@ public:
                     x.base.base.loc);
             }
             tmp = make_call_helper(al, s, current_scope, args, call_name,
-                    x.base.base.loc, true, c->m_args, c->n_args, c->m_keywords,
+                    x.base.base.loc, c->m_args, c->n_args, c->m_keywords,
                     c->n_keywords);
             return;
         }
@@ -7860,7 +7855,7 @@ public:
 
         parse_args(x, args);
         tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc,
-                               false, x.m_args, x.n_args, x.m_keywords, x.n_keywords);
+                               x.m_args, x.n_args, x.m_keywords, x.n_keywords);
     }
 
     void visit_Global(const AST::Global_t &/*x*/) {
