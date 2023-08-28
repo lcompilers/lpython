@@ -2,4 +2,4 @@ semantic error: Type mismatch in annotation-assignment, the types must be compat
  --> tests/errors/arrays_08.py:9:5
   |
 9 |     x: i64[p, q, r] = empty([q, p, r], dtype=int64)
-  |     ^                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i64[100][120][200]' and 'i64[120][100][200]')
+  |     ^                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i64[100,120,200]' and 'i64[120,100,200]')
