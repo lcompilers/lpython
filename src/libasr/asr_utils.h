@@ -544,6 +544,17 @@ static inline std::pair<char**, size_t> symbol_dependencies(const ASR::symbol_t 
     }
 }
 
+static inline bool is_present_in_current_scope(ASR::ExternalSymbol_t* external_symbol, SymbolTable* current_scope) {
+        SymbolTable* scope = external_symbol->m_parent_symtab;
+        while (scope != nullptr) {
+            if (scope->get_counter() == current_scope->get_counter()) {
+                return true;
+            }
+            scope = scope->parent;
+        }
+        return false;
+    }
+
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
 {
     switch (f->type) {
