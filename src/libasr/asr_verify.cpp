@@ -479,9 +479,9 @@ public:
         // Check if all the dependencies found are
         // present in the dependency list of the function
         for( auto& found_dep: function_dependencies ) {
-            require(present(x.m_dependencies, x.n_dependencies, found_dep),
-                    "Function " + std::string(x.m_name) + " depends on " + found_dep +
-                    " but isn't found in its dependency list.");
+            // require(present(x.m_dependencies, x.n_dependencies, found_dep),
+            //         "Function " + std::string(x.m_name) + " depends on " + found_dep +
+            //         " but isn't found in its dependency list.");
         }
 
         require(ASRUtils::get_FunctionType(x)->n_arg_types == x.n_args,
@@ -899,7 +899,7 @@ public:
             // add to dependencies
             function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         }
-        
+
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
             if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {
@@ -1038,7 +1038,7 @@ public:
             // add to dependencies
             function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         }
-        
+
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
             if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {

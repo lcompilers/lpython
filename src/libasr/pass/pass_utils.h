@@ -350,10 +350,17 @@ namespace LCompilers {
 
                     if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
                         ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
 
-                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter() 
-                                && external_symbol->m_parent_symtab->resolve_symbol_parent(f->m_name) == nullptr) {
+                        bool is_present_in_current_scope = false;
+                        SymbolTable* scope = external_symbol->m_parent_symtab;
+                        while( scope != nullptr ) {
+                            if( scope->get_counter() == current_scope->get_counter() ) {
+                                is_present_in_current_scope = true;
+                                break ;
+                            }
+                            scope = scope->parent;
+                        }
+                        if (!is_present_in_current_scope) {
                             function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                         }
                     }
@@ -399,7 +406,17 @@ namespace LCompilers {
 
                     if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
                         ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-                        if (current_scope->get_counter() != external_symbol->m_parent_symtab->get_counter()) {
+
+                        bool is_present_in_current_scope = false;
+                        SymbolTable* scope = external_symbol->m_parent_symtab;
+                        while( scope != nullptr ) {
+                            if( scope->get_counter() == current_scope->get_counter() ) {
+                                is_present_in_current_scope = true;
+                                break ;
+                            }
+                            scope = scope->parent;
+                        }
+                        if (!is_present_in_current_scope) {
                             function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                         }
                     }
