@@ -49,16 +49,6 @@ struct SymbolTable {
         return scope[name];
     }
 
-    // Look for symbol in only parent scopes.
-    // Returns `nullptr` if symbol not found.
-    ASR::symbol_t* resolve_symbol_parent(const std::string &name) {
-        if (parent) {
-            return parent->resolve_symbol(name);
-        } else {
-            return nullptr;
-        }
-    }
-
     const std::map<std::string, ASR::symbol_t*>& get_scope() const {
         return scope;
     }
