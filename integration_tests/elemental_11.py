@@ -1,5 +1,5 @@
 from lpython import i32, f64, f32
-from numpy import empty, arctanh, reshape, float64, sinh, sqrt, sin,  cosh
+from numpy import empty, arctanh, reshape, int32, float32, float64, sinh, sqrt, sin,  cosh
 
 def verify1d_arctanh(array: f32[:], result: f32[:], size: i32):
     i: i32
@@ -27,8 +27,8 @@ def elemental_arctanh():
     j: i32
     k: i32
 
-    array1d: f32[999] = empty(999)
-    arctanh1d: f32[999] = empty(999)
+    array1d: f32[999] = empty(999, dtype=float32)
+    arctanh1d: f32[999] = empty(999, dtype=float32)
 
     for i in range(999):
         array1d[i] = f32(f64((-1)**i) * (float(i)/1000.0))
@@ -36,8 +36,8 @@ def elemental_arctanh():
     arctanh1d = arctanh(array1d)
     verify1d_arctanh(array1d, arctanh1d, 999)
 
-    arraynd: f64[100, 50, 10] = empty((100, 50, 10))
-    arctanhnd: f64[100, 50, 10] = empty((100, 50, 10))
+    arraynd: f64[100, 50, 10] = empty((100, 50, 10), dtype=float64)
+    arctanhnd: f64[100, 50, 10] = empty((100, 50, 10), dtype=float64)
 
     for i in range(100):
         for j in range(50):
@@ -70,7 +70,7 @@ def elemental_trig_identity():
     identity1 = 2.0 * arctanh(arraynd) - arctanh((2.0 * arraynd) / ( 1.0 + arraynd**2.0))
     identity2 =  cosh(arctanh(arraynd)) - (sqrt(1.0 - (arraynd**2.0)))**(-1.0)
 
-    newshape: i32[1] = empty(1, dtype=int)
+    newshape: i32[1] = empty(1, dtype=int32)
     newshape[0] = 400
 
     observed1d_1 = reshape(identity1, newshape)

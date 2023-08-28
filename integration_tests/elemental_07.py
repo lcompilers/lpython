@@ -1,5 +1,5 @@
 from lpython import i32, f64, f32
-from numpy import empty, tanh, reshape, int32, float64, sin, log10
+from numpy import empty, tanh, reshape, int32, float32, float64, sin
 
 def verify1d(array: f32[:], result: f32[:], size: i32):
     i: i32
@@ -24,8 +24,8 @@ def verifynd(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2:
 def elemental_tanh():
     i: i32; j: i32; k: i32; l: i32; size: i32;
 
-    array1d: f32[80] = empty(80)
-    tanh1d: f32[80] = empty(80)
+    array1d: f32[80] = empty(80, dtype=float32)
+    tanh1d: f32[80] = empty(80, dtype=float32)
 
     for i in range(80):
         array1d[i] = f32(f64(i) / 10.0)
@@ -33,8 +33,8 @@ def elemental_tanh():
     tanh1d = tanh(sin(array1d))
     verify1d(array1d, tanh1d, 10)
 
-    arraynd: f64[16, 8, 4, 2] = empty((16, 8, 4, 2))
-    tanhnd: f64[16, 8, 4, 2] = empty((16, 8, 4, 2))
+    arraynd: f64[16, 8, 4, 2] = empty((16, 8, 4, 2), dtype=float64)
+    tanhnd: f64[16, 8, 4, 2] = empty((16, 8, 4, 2), dtype=float64)
     size = 16 * 8 * 4 * 2
 
     for i in range(16):

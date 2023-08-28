@@ -165,7 +165,23 @@
                                     [(Var 206 n)
                                     (Var 206 a)
                                     (Var 206 b)]
-                                    [(DoLoop
+                                    [(=
+                                        (Var 206 r)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (TypeParameter
+                                                    T
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (Var 206 n))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 206 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -375,7 +391,23 @@
                                     [(Var 207 n)
                                     (Var 207 a)
                                     (Var 207 b)]
-                                    [(DoLoop
+                                    [(=
+                                        (Var 207 r)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (TypeParameter
+                                                    T
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (Var 207 n))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 207 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -905,7 +937,23 @@
                                     [(Var 203 n)
                                     (Var 203 a)
                                     (Var 203 b)]
-                                    [(DoLoop
+                                    [(=
+                                        (Var 203 r)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (TypeParameter
+                                                    T
+                                                )
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (Var 203 n))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 203 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -1094,6 +1142,20 @@
                                     __asr_generic_g_1]
                                     []
                                     [(=
+                                        (Var 204 a_int)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (ArrayItem
                                             (Var 204 a_int)
                                             [(()
@@ -1104,6 +1166,20 @@
                                             ()
                                         )
                                         (IntegerConstant 400 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 b_int)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
                                         ()
                                     )
                                     (=
@@ -1150,6 +1226,20 @@
                                         ()
                                     )
                                     (=
+                                        (Var 204 a_float)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (ArrayItem
                                             (Var 204 a_float)
                                             [(()
@@ -1170,6 +1260,20 @@
                                                 400.000000
                                                 (Real 4)
                                             )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 b_float)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
                                         )
                                         ()
                                     )

@@ -12,8 +12,8 @@ class Truck:
     wheels: i32
 
 def declare_struct_array():
-    cars: Car[1] = empty(10, dtype=Car)
-    trucks: Truck[2] = empty(20, dtype=Truck)
+    cars: Car[1] = empty(1, dtype=Car)
+    trucks: Truck[2] = empty(2, dtype=Truck)
     cars[0] = Car(100000, 800.0)
     trucks[0] = Truck(1000000, 8)
     trucks[1] = Truck(5000000, 12)

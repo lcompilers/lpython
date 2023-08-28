@@ -1,5 +1,5 @@
 from lpython import i32, f64, f32
-from numpy import empty, arcsinh, arccosh, reshape, float64, sinh, sqrt, sin,  cosh
+from numpy import empty, arcsinh, arccosh, reshape, int32, float32, float64, sinh, sqrt, sin
 
 def verify1d_arcsinh(array: f32[:], result: f32[:], size: i32):
     i: i32
@@ -27,8 +27,8 @@ def elemental_arcsinh():
     j: i32
     k: i32
 
-    array1d: f32[256] = empty(256)
-    arcsinh1d: f32[256] = empty(256)
+    array1d: f32[256] = empty(256, dtype=float32)
+    arcsinh1d: f32[256] = empty(256, dtype=float32)
 
     for i in range(256):
         array1d[i] = f32(i)
@@ -36,8 +36,8 @@ def elemental_arcsinh():
     arcsinh1d = arcsinh(arcsinh(array1d))
     verify1d_arcsinh(array1d, arcsinh1d, 256)
 
-    arraynd: f64[256, 64, 16] = empty((256, 64, 16))
-    arcsinhnd: f64[256, 64, 16] = empty((256, 64, 16))
+    arraynd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
+    arcsinhnd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
 
     for i in range(256):
         for j in range(64):
@@ -77,8 +77,8 @@ def elemental_arccosh():
     k: i32
     l: i32
 
-    array2d: f64[256, 64] = empty((256, 64))
-    arccosh2d: f64[256, 64] = empty((256, 64))
+    array2d: f64[256, 64] = empty((256, 64), dtype=float64)
+    arccosh2d: f64[256, 64] = empty((256, 64), dtype=float64)
 
     for i in range(256):
         for j in range(64):
@@ -87,8 +87,8 @@ def elemental_arccosh():
     arccosh2d = arccosh(array2d)**2.0
     verify2d_arccosh(array2d, arccosh2d, 256, 64)
 
-    arraynd: f64[32, 16, 4, 2] = empty((32, 16, 4, 2))
-    arccosh_nd: f64[32, 16, 4, 2] = empty((32, 16, 4, 2))
+    arraynd: f64[32, 16, 4, 2] = empty((32, 16, 4, 2), dtype=float64)
+    arccosh_nd: f64[32, 16, 4, 2] = empty((32, 16, 4, 2), dtype=float64)
 
     for i in range(32):
         for j in range(16):
@@ -126,7 +126,7 @@ def elemental_trig_identity():
     identity3 =  2.0 * arcsinh(arraynd) - arccosh((arraynd**2.0) * 2.0 + 1.0)
 
 
-    newshape: i32[1] = empty(1, dtype=int)
+    newshape: i32[1] = empty(1, dtype=int32)
     newshape[0] = 400
 
     observed1d_1 = reshape(identity1, newshape)

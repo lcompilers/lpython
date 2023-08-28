@@ -1,10 +1,10 @@
 from lpython import i32, f32, f64
-from numpy import empty, log, log10, log2, reshape
+from numpy import empty, log, log10, log2, reshape, int32, float32, float64
 from math import exp
 
 def elemental_log():
-    array: f64[100] = empty(100)
-    observed: f64[100] = empty(100)
+    array: f64[100] = empty(100, dtype=float64)
+    observed: f64[100] = empty(100, dtype=float64)
     i: i32
     eps: f64
     eps = 1e-12
@@ -28,9 +28,9 @@ def verify(observed: f32[:], base: i32, eps: f32):
         assert abs(f32(base)**(observed[k]) - f32(i + j + 1)) <= eps
 
 def elemental_log2_log10():
-    array: f32[10, 10] = empty((10, 10))
-    observed: f32[100] = empty(100)
-    shape: i32[1] = empty(1, dtype=int)
+    array: f32[10, 10] = empty((10, 10), dtype=float32)
+    observed: f32[100] = empty(100, dtype=float32)
+    shape: i32[1] = empty(1, dtype=int32)
     i: i32
     j: i32
     eps: f32
