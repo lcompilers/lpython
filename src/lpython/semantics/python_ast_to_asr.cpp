@@ -2866,56 +2866,6 @@ public:
             pptr, target_shape, lower_bounds);
     }
 
-    ASR::asr_t* check_to_allocate_array(AST::expr_t *value, std::string var_name,
-                                            const Location &loc) {
-        if (AST::is_a<AST::Call_t>(*value)) {
-            AST::Call_t *ct = AST::down_cast<AST::Call_t>(value);
-            if (AST::is_a<AST::Name_t>(*ct->m_func)) {
-                std::string call_name = AST::down_cast<AST::Name_t>(ct->m_func)->m_id;
-                if (call_name == "empty") {
-                    LCOMPILERS_ASSERT(ct->n_args > 0);
-                    if (AST::is_a<AST::Tuple_t>(*ct->m_args[0])) {
-                        AST::Tuple_t *tt = AST::down_cast<AST::Tuple_t>(ct->m_args[0]);
-                        Vec<ASR::alloc_arg_t> alloc_args_vec;
-                        alloc_args_vec.reserve(al, 1);
-                        ASR::alloc_arg_t new_arg;
-                        new_arg.loc = loc;
-                        new_arg.m_len_expr = nullptr;
-                        new_arg.m_type = nullptr;
-                        ASR::ttype_t *int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
-                        ASR::expr_t* const_0 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
-                                                    loc, 0, int32_type));
-                        Vec<ASR::dimension_t> dims_vec;
-                        dims_vec.reserve(al, tt->n_elts);
-                        for (size_t i=0; i<tt->n_elts; i++) {
-                            ASR::dimension_t new_dim;
-                            new_dim.loc = loc;
-                            this->visit_expr(*tt->m_elts[0]);
-                            new_dim.m_start = const_0;
-                            new_dim.m_length = ASRUtils::EXPR(tmp);
-                            dims_vec.push_back(al, new_dim);
-                        }
-                        new_arg.m_dims = dims_vec.p;
-                        new_arg.n_dims = dims_vec.size();
-                        ASR::symbol_t *v_sym = current_scope->resolve_symbol(var_name);
-                        ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al,
-                                        loc, v_sym));
-                        new_arg.m_a = v_expr;
-                        alloc_args_vec.push_back(al, new_arg);
-                        tmp = ASR::make_Allocate_t(al, loc,
-                                    alloc_args_vec.p, alloc_args_vec.size(),
-                                    nullptr, nullptr, nullptr);
-                        return tmp;
-                    } else {
-                        throw SemanticError("Only tuple argument is accepted as dimensions "
-                            "for allocating using empty()", ct->base.base.loc);
-                    }
-                }
-            }
-        }
-        return nullptr;
-    }
-
     void handle_lambda_function_declaration(std::string &var_name, ASR::FunctionType_t* fn_type, AST::expr_t* value, const Location &loc) {
         if (value == nullptr) {
             throw SemanticError("Callback functions must have a value", loc);
@@ -3075,15 +3025,9 @@ public:
             process_variable_init_val(current_scope->get_symbol(var_name), x.base.base.loc, init_expr);
         }
 
-        if (is_allocatable && x.m_value && AST::is_a<AST::Call_t>(*x.m_value)) {
-            tmp = check_to_allocate_array(x.m_value, var_name, x.base.base.loc);
-            if( current_body && tmp) {
-                current_body->push_back(al, ASRUtils::STMT(tmp));
-            }
-        }
-
         if ( !(tmp && ASR::is_a<ASR::stmt_t>(*tmp) &&
-            ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp))) ) {
+            (ASR::is_a<ASR::CPtrToPointer_t>(*ASR::down_cast<ASR::stmt_t>(tmp)) ||
+             ASR::is_a<ASR::Allocate_t>(*ASR::down_cast<ASR::stmt_t>(tmp)))) ) {
             tmp = nullptr;
         }
         assign_asr_target = assign_asr_target_copy;
@@ -5254,7 +5198,8 @@ public:
         assign_asr_target = assign_asr_target_copy;
         if (tmp) {
             if (ASR::is_a<ASR::stmt_t>(*tmp)) {
-                // This happens for c_p_pointer()
+                // This happens for c_p_pointer() and
+                // empty() (if target is of type allocatable)
                 return;
             }
             // This happens if `m.m_value` is `empty`, such as in:
@@ -5305,19 +5250,6 @@ public:
                     dict_ele.reserve(al, 1);
                     tmp_value = ASRUtils::EXPR(ASR::make_DictConstant_t(al, x.base.base.loc, dict_ele.p,
                                     dict_ele.size(), dict_ele.p, dict_ele.size(), target_type));
-                }
-            }
-            if (tmp_value == nullptr && ASR::is_a<ASR::Var_t>(*target)) {
-                ASR::Var_t *var_tar = ASR::down_cast<ASR::Var_t>(target);
-                if (ASR::is_a<ASR::Variable_t>(*var_tar->m_v)) {
-                    if ( ASR::is_a<ASR::Allocatable_t>(*ASR::down_cast<ASR::Variable_t>(var_tar->m_v)->m_type) ) {
-                        ASR::asr_t *st = check_to_allocate_array(x.m_value, ASRUtils::symbol_name(var_tar->m_v),
-                                            x.base.base.loc);
-                        if (st) {
-                            tmp_vec.push_back(st);
-                            continue;
-                        }
-                    }
                 }
             }
             if (!tmp_value) continue;
@@ -7551,10 +7483,27 @@ public:
                 }
 
                 type = get_type_from_var_annotation(dtype_np, x.m_keywords[0].m_value->base.loc, dims);
-                Vec<ASR::expr_t*> arr_args;
-                arr_args.reserve(al, 0);
-                tmp = ASRUtils::make_ArrayConstant_t_util(al, x.base.base.loc,
-                    arr_args.p, arr_args.size(), type, ASR::arraystorageType::RowMajor);
+                if (is_allocatable) {
+                    const Location& loc = x.base.base.loc;
+                    Vec<ASR::alloc_arg_t> alloc_args_vec;
+                    alloc_args_vec.reserve(al, 1);
+                    ASR::alloc_arg_t new_arg;
+                    new_arg.loc = loc;
+                    new_arg.m_len_expr = nullptr;
+                    new_arg.m_type = nullptr;
+                    new_arg.m_dims = dims.p;
+                    new_arg.n_dims = dims.size();
+                    new_arg.m_a = assign_asr_target;
+                    alloc_args_vec.push_back(al, new_arg);
+                    tmp = ASR::make_Allocate_t(al, loc,
+                                alloc_args_vec.p, alloc_args_vec.size(),
+                                nullptr, nullptr, nullptr);
+                } else {
+                    Vec<ASR::expr_t*> arr_args;
+                    arr_args.reserve(al, 0);
+                    tmp = ASRUtils::make_ArrayConstant_t_util(al, x.base.base.loc,
+                        arr_args.p, arr_args.size(), type, ASR::arraystorageType::RowMajor);
+                }
                 return;
             } else if (call_name == "c_p_pointer") {
                 tmp = create_CPtrToPointer(x);
