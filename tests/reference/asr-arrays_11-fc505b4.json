@@ -1,0 +1,13 @@
+{
+    "basename": "asr-arrays_11-fc505b4",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/arrays_11.py",
+    "infile_hash": "111b4224a1988a90dc091fda4e0b1ebfd096f25f7b4ccc2f13728c1c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-arrays_11-fc505b4.stderr",
+    "stderr_hash": "ef5e89392b20ad345ba9bcf862ab71b19e56c85d9838db742be117a1",
+    "returncode": 2
+}

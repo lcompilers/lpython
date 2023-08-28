@@ -1,0 +1,5 @@
+semantic error: Type mismatch in annotation-assignment, the types must be compatible
+ --> tests/errors/arrays_06.py:6:5
+  |
+6 |     x: i16[5, 4] = empty([5, 4], dtype=int32)
+  |     ^              ^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i16[5][4]' and 'i32[5][4]')

@@ -663,6 +663,54 @@ filename = "errors/arrays_02.py"
 asr = true
 
 [[test]]
+filename = "errors/arrays_03.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_04.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_05.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_06.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_07.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_08.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_09.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_10.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_11.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_12.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_13.py"
+asr = true
+
+[[test]]
+filename = "errors/arrays_14.py"
+asr = true
+
+[[test]]
 filename = "errors/structs_02.py"
 asr = true
 
