@@ -1,0 +1,13 @@
+{
+    "basename": "asr-arrays_14-78be00e",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/arrays_14.py",
+    "infile_hash": "f724b8a5dfe7bc481f465e6f9105c9a2e6a8b7a5985a63ba52b58db2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-arrays_14-78be00e.stderr",
+    "stderr_hash": "267aea8e48708230a9b2bc61c37c849a0b75cb45294ca25ee11fe632",
+    "returncode": 2
+}
