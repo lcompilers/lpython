@@ -479,9 +479,9 @@ public:
         // Check if all the dependencies found are
         // present in the dependency list of the function
         for( auto& found_dep: function_dependencies ) {
-            // require(present(x.m_dependencies, x.n_dependencies, found_dep),
-            //         "Function " + std::string(x.m_name) + " depends on " + found_dep +
-            //         " but isn't found in its dependency list.");
+            require(present(x.m_dependencies, x.n_dependencies, found_dep),
+                    "Function " + std::string(x.m_name) + " depends on " + found_dep +
+                    " but isn't found in its dependency list.");
         }
 
         require(ASRUtils::get_FunctionType(x)->n_arg_types == x.n_args,
