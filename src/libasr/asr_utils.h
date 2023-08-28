@@ -813,6 +813,15 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
             }
         }
         return true;
+    } else if(ASR::is_a<ASR::ListConstant_t>(*a_value)) {
+        ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(a_value);
+        for( size_t i = 0; i < list_constant->n_args; i++ ) {
+            if( !ASRUtils::is_value_constant(list_constant->m_args[i]) &&
+                !ASRUtils::is_value_constant(ASRUtils::expr_value(list_constant->m_args[i])) ) {
+                return false;
+            }
+        }
+        return true;
     } else if(ASR::is_a<ASR::FunctionCall_t>(*a_value)) {
         ASR::FunctionCall_t* func_call_t = ASR::down_cast<ASR::FunctionCall_t>(a_value);
         if( !ASRUtils::is_intrinsic_symbol(ASRUtils::symbol_get_past_external(func_call_t->m_name)) ) {
