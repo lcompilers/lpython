@@ -1091,15 +1091,15 @@ static inline std::string extract_dim_value(ASR::expr_t* dim) {
 
 static inline std::string type_encode_dims(size_t n_dims, ASR::dimension_t* m_dims )
 {
-    std::string dims_str = "";
+    std::string dims_str = "[";
     for( size_t i = 0; i < n_dims; i++ ) {
         ASR::dimension_t dim = m_dims[i];
-        dims_str += "[";
-        // dims_str += extract_dim_value(dim.m_start);
-        // dims_str += ",";
         dims_str += extract_dim_value(dim.m_length);
-        dims_str += "]";
+        if (i + 1 < n_dims) {
+            dims_str += ",";
+        }
     }
+    dims_str += "]";
     return dims_str;
 }
 
