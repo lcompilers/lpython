@@ -372,7 +372,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
+                                    []
                                     [(Var 201 d)]
                                     [(=
                                         (Var 201 eps)
@@ -1217,7 +1217,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
+                                    []
                                     [(Var 200 a)]
                                     [(=
                                         (Var 200 eps)
@@ -1708,8 +1708,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                    test_nd_to_1d
+                                    [test_nd_to_1d
                                     test_1d_to_nd]
                                     []
                                     [(DoLoop

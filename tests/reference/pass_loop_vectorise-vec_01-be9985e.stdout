@@ -352,7 +352,7 @@
                                         []
                                         .false.
                                     )
-                                    [vector_copy_f64f64i32@IntrinsicOptimization]
+                                    []
                                     []
                                     [(DoLoop
                                         ()

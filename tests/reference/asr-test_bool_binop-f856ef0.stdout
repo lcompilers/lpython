@@ -148,7 +148,7 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_10___lpython_floordiv]
+                                    []
                                     []
                                     [(=
                                         (Var 3 i)
