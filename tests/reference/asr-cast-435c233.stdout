@@ -187,6 +187,40 @@
                                     )
                                     (=
                                         (Var 3 x)
+                                        (ListConstant
+                                            []
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (FunctionCall
+                                            3 list
+                                            ()
+                                            [((ListConstant
+                                                []
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                            ))]
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                            (ListConstant
+                                                []
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
                                         (FunctionCall
                                             3 list
                                             ()

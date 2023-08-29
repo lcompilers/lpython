@@ -1,9 +1,9 @@
 from lpython import i32
-from numpy import empty
+from numpy import empty, int32
 
 def main0():
     Nx: i32 = 60; Ny: i32 = 45; Nz: i32 = 20
-    arr: i32[45, 60, 20] = empty([Ny, Nx, Nz])
+    arr: i32[45, 60, 20] = empty([45, 60, 20], dtype=int32)
     i: i32
     j: i32
     k: i32

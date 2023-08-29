@@ -1,5 +1,5 @@
 from lpython import i32, f64, pythoncall, Const
-from numpy import empty
+from numpy import empty, int32, float64
 
 @pythoncall(module = "bindpy_02_module")
 def get_cpython_version() -> str:
@@ -28,7 +28,7 @@ def show_array_dot_product(a: i32[:], b: f64[:]):
 # Integers:
 def test_array_ints():
     n: Const[i32] = 5
-    a: i32[n] = empty([n], dtype=int)
+    a: i32[n] = empty([n], dtype=int32)
 
     i: i32
     for i in range(n):
@@ -41,7 +41,7 @@ def test_array_ints():
 def test_array_floats():
     n: Const[i32] = 3
     m: Const[i32] = 5
-    b: f64[n, m] = empty([n, m], dtype=float)
+    b: f64[n, m] = empty([n, m], dtype=float64)
 
     i: i32
     j: i32
@@ -56,8 +56,8 @@ def test_array_floats():
 def test_array_broadcast():
     n: Const[i32] = 3
     m: Const[i32] = 5
-    a: i32[n] = empty([n], dtype=int)
-    b: f64[n, m] = empty([n, m], dtype=float)
+    a: i32[n] = empty([n], dtype=int32)
+    b: f64[n, m] = empty([n, m], dtype=float64)
 
     i: i32
     j: i32

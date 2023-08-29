@@ -86,7 +86,7 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
     ASR::expr_t* get_ArrayConstant_size(ASR::ArrayConstant_t* x, bool& is_allocatable) {
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x->base.base.loc, 4));
         ASR::expr_t* array_size = nullptr;
-        size_t constant_size = 0;
+        int64_t constant_size = 0;
         const Location& loc = x->base.base.loc;
         ASRUtils::ASRBuilder builder(al, loc);
         for( size_t i = 0; i < x->n_args; i++ ) {
@@ -162,7 +162,10 @@ class ReplaceArrayConstant: public ASR::BaseExprReplacer<ReplaceArrayConstant> {
             }
         }
         ASR::expr_t* constant_size_asr = nullptr;
-        if( constant_size != 0 ) {
+        if (constant_size == 0) {
+            constant_size = ASRUtils::get_fixed_size_of_array(x->m_type);
+        }
+        if( constant_size > 0 ) {
             constant_size_asr = make_ConstantWithType(make_IntegerConstant_t,
                                     constant_size, int_type, x->base.base.loc);
             if( array_size == nullptr ) {

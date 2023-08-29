@@ -165,6 +165,20 @@
                                         ()
                                     )
                                     (=
+                                        (Var 200 y)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 2)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
                                         (ArrayItem
                                             (Var 200 y)
                                             [(()

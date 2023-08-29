@@ -192,7 +192,39 @@
                                     )
                                     [verify2d]
                                     []
-                                    [(DoLoop
+                                    [(=
+                                        (Var 208 array2d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 208 cos2d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 208 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -455,7 +487,49 @@
                                     )
                                     [verify1d_mul]
                                     []
-                                    [(DoLoop
+                                    [(=
+                                        (Var 206 array_a)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 206 array_b)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 206 array_c)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 206 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -813,7 +887,35 @@
                                     [verify1d
                                     verifynd]
                                     []
-                                    [(DoLoop
+                                    [(=
+                                        (Var 207 array1d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 207 sin1d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 207 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -901,6 +1003,42 @@
                                             ()
                                         ))
                                         ((IntegerConstant 256 (Integer 4)))]
+                                        ()
+                                    )
+                                    (=
+                                        (Var 207 arraynd)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 207 sinnd)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
                                         ()
                                     )
                                     (DoLoop
@@ -1197,7 +1335,49 @@
                                     )
                                     [verify1d_sum]
                                     []
-                                    [(DoLoop
+                                    [(=
+                                        (Var 205 array_a)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 205 array_b)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 205 array_c)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 100 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 205 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -1606,6 +1786,60 @@
                                         )
                                         ()
                                     )
+                                    (=
+                                        (Var 209 arraynd)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 32 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 209 observed)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 64 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 32 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 8 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 209 observed1d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 65536 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
                                     (DoLoop
                                         ()
                                         ((Var 209 i)
@@ -1808,6 +2042,20 @@
                                                 FixedSizeArray
                                             )
                                             ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 209 newshape)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
                                         )
                                         ()
                                     )

@@ -1,5 +1,5 @@
 from lpython import i32, f64, f32
-from numpy import empty, sin, cos, reshape
+from numpy import empty, sin, cos, reshape, int32, float32, float64
 
 def verify1d(array: f32[:], result: f32[:], size: i32):
     i: i32
@@ -55,9 +55,9 @@ def elemental_sum():
     j: i32
     k: i32
 
-    array_a: f64[100] = empty(100)
-    array_b: f64[100] = empty(100)
-    array_c: f64[100] = empty(100)
+    array_a: f64[100] = empty(100, dtype=float64)
+    array_b: f64[100] = empty(100, dtype=float64)
+    array_c: f64[100] = empty(100, dtype=float64)
 
     for i in range(100):
         array_a[i] = float(i)
@@ -74,9 +74,9 @@ def elemental_mul():
     j: i32
     k: i32
 
-    array_a: f64[100] = empty(100)
-    array_b: f64[100] = empty(100)
-    array_c: f64[100] = empty(100)
+    array_a: f64[100] = empty(100, dtype=float64)
+    array_b: f64[100] = empty(100, dtype=float64)
+    array_c: f64[100] = empty(100, dtype=float64)
 
     for i in range(100):
         array_a[i] = float(i)
@@ -93,8 +93,8 @@ def elemental_sin():
     j: i32
     k: i32
 
-    array1d: f32[256] = empty(256)
-    sin1d: f32[256] = empty(256)
+    array1d: f32[256] = empty(256, dtype=float32)
+    sin1d: f32[256] = empty(256, dtype=float32)
 
     for i in range(256):
         array1d[i] = f32(i)
@@ -103,8 +103,8 @@ def elemental_sin():
 
     verify1d(array1d, sin1d, 256)
 
-    arraynd: f64[256, 64, 16] = empty((256, 64, 16))
-    sinnd: f64[256, 64, 16] = empty((256, 64, 16))
+    arraynd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
+    sinnd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
 
     for i in range(256):
         for j in range(64):
@@ -119,8 +119,8 @@ def elemental_cos():
     i: i32
     j: i32
 
-    array2d: f64[256, 64] = empty((256, 64))
-    cos2d: f64[256, 64] = empty((256, 64))
+    array2d: f64[256, 64] = empty((256, 64), dtype=float64)
+    cos2d: f64[256, 64] = empty((256, 64), dtype=float64)
 
     for i in range(256):
         for j in range(64):
@@ -138,9 +138,9 @@ def elemental_trig_identity():
     eps: f32
     eps = f32(1e-6)
 
-    arraynd: f32[64, 32, 8, 4] = empty((64, 32, 8, 4))
-    observed: f32[64, 32, 8, 4] = empty((64, 32, 8, 4))
-    observed1d: f32[65536] = empty(65536)
+    arraynd: f32[64, 32, 8, 4] = empty((64, 32, 8, 4), dtype=float32)
+    observed: f32[64, 32, 8, 4] = empty((64, 32, 8, 4), dtype=float32)
+    observed1d: f32[65536] = empty(65536, dtype=float32)
 
     for i in range(64):
         for j in range(32):
@@ -150,7 +150,7 @@ def elemental_trig_identity():
 
     observed = sin(arraynd)**f32(2) + cos(arraynd)**f32(2)
 
-    newshape: i32[1] = empty(1, dtype=int)
+    newshape: i32[1] = empty(1, dtype=int32)
     newshape[0] = 65536
     observed1d = reshape(observed, newshape)
 

@@ -1,5 +1,5 @@
 from lpython import i1, i32, u32, f64, c64, pythoncall, Const, TypeVar
-from numpy import empty, uint32, complex64
+from numpy import empty, uint32, complex128
 
 n = TypeVar("n")
 m = TypeVar("m")
@@ -102,8 +102,8 @@ def test_2D_array_bools():
 # Complex
 def test_array_complexes():
     n: Const[i32] = 5
-    a: c64[n] = empty([n], dtype=complex64)
-    b: c64[n] = empty([n], dtype=complex64)
+    a: c64[n] = empty([n], dtype=complex128)
+    b: c64[n] = empty([n], dtype=complex128)
 
     i: i32
     for i in range(n):
@@ -122,8 +122,8 @@ def test_array_complexes():
 def test_2D_array_complexes():
     n: Const[i32] = 3
     m: Const[i32] = 4
-    a: c64[n, m] = empty([n, m], dtype=complex64)
-    b: c64[n, m] = empty([n, m], dtype=complex64)
+    a: c64[n, m] = empty([n, m], dtype=complex128)
+    b: c64[n, m] = empty([n, m], dtype=complex128)
 
     i: i32
     j: i32

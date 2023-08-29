@@ -1,7 +1,7 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
 from lpython import i32, i64, f32, f64, c32, c64, TypeVar, overload
-from numpy import empty, int64
+from numpy import empty, int64, float64
 
 e: f64 = 2.718281828459045
 pi: f64 = 3.141592653589793
@@ -16,7 +16,7 @@ n = TypeVar("n")
 
 def zeros(n: i32) -> f64[n]:
     A: f64[n]
-    A = empty(n)
+    A = empty(n, dtype=float64)
     i: i32
     for i in range(n):
         A[i] = 0.0
@@ -24,7 +24,7 @@ def zeros(n: i32) -> f64[n]:
 
 def ones(n: i32) -> f64[n]:
     A: f64[n]
-    A = empty(n)
+    A = empty(n, dtype=float64)
     i: i32
     for i in range(n):
         A[i] = 1.0
@@ -128,7 +128,7 @@ def fabs(b: bool) -> f64:
 num = TypeVar("num")
 def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
     A: f64[num]
-    A = empty(num)
+    A = empty(num, dtype=float64)
     i: i32
     for i in range(num):
         A[i] = start + (stop-start)*f64(i)/f64(num-1)
