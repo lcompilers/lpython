@@ -106,7 +106,7 @@
                                                     Required
                                                     .false.
                                                 ),
-                                            vector_copy_f64f64i32@IntrinsicOptimization:
+                                            vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization:
                                                 (Function
                                                     (SymbolTable
                                                         206
@@ -234,7 +234,7 @@
                                                                     .false.
                                                                 )
                                                         })
-                                                    vector_copy_f64f64i32@IntrinsicOptimization
+                                                    vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization
                                                     (FunctionType
                                                         [(Array
                                                             (Real 8)
@@ -352,9 +352,37 @@
                                         []
                                         .false.
                                     )
-                                    [vector_copy_f64f64i32@IntrinsicOptimization]
+                                    [vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization]
                                     []
-                                    [(DoLoop
+                                    [(=
+                                        (Var 200 a)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 9216 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 200 b)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 9216 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
                                         ()
                                         ((Var 200 i)
                                         (IntegerConstant 0 (Integer 4))
@@ -390,7 +418,7 @@
                                         (IntegerConstant 1151 (Integer 4))
                                         (IntegerConstant 1 (Integer 4)))
                                         [(SubroutineCall
-                                            200 vector_copy_f64f64i32@IntrinsicOptimization
+                                            200 vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization
                                             ()
                                             [((Var 200 a))
                                             ((Var 200 b))

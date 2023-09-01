@@ -1,11 +1,11 @@
 from lpython import i32, f32, f64
-from numpy import empty, cos, sin
+from numpy import empty, cos, sin, int32
 
 def main0():
     x: i32 = 25
     y: i32 = (2 + 3) * 5
     z: f32 = (f32(2.0) + f32(3)) * f32(5.0)
-    xa: i32[3] = empty(3)
+    xa: i32[3] = empty(3, dtype=int32)
     assert x == 25
     assert y == 25
     assert z == f32(25.0)

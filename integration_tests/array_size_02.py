@@ -1,9 +1,9 @@
-from lpython import i32, f64, c32, c64, u32
-from numpy import empty, size
+from lpython import i32, f64, c32, c64, u32, u64
+from numpy import empty, size, int32, uint32, uint64, float64, complex64, complex128
 
 def main0():
-    x: i32[4, 5, 2] = empty([4, 5, 2])
-    y: f64[24, 100, 2, 5] = empty([24, 100, 2, 5])
+    x: i32[4, 5, 2] = empty([4, 5, 2], dtype=int32)
+    y: f64[24, 100, 2, 5] = empty([24, 100, 2, 5], dtype=float64)
     z: i32
     w: i32
     z = 2
@@ -29,8 +29,8 @@ def main0():
     assert size(y, w) == 5
 
 def main1():
-    a: c32[12] = empty([12])
-    b: c64[15, 15, 10] = empty([15, 15, 10])
+    a: c32[12] = empty([12], dtype=complex64)
+    b: c64[15, 15, 10] = empty([15, 15, 10], dtype=complex128)
     c: i32
     d: i32
     c = 1
@@ -50,7 +50,7 @@ def main1():
     assert size(b, d) == 10
 
 def main2():
-    a: i32[2, 3] = empty([2, 3])
+    a: i32[2, 3] = empty([2, 3], dtype=int32)
     print(size(a))
     print(size(a, 0))
     print(size(a, 1))
@@ -60,8 +60,8 @@ def main2():
     assert size(a, 1) == 3
 
 def main3():
-    a: u32[2, 3, 4] = empty([2, 3, 4])
-    b: u64[10, 5] = empty([10, 5])
+    a: u32[2, 3, 4] = empty([2, 3, 4], dtype=uint32)
+    b: u64[10, 5] = empty([10, 5], dtype=uint64)
     c: i32
     d: i32
     c = 1
