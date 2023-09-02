@@ -319,35 +319,14 @@ namespace LCompilers {
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    if( fill_function_dependencies &&
-                        ASRUtils::symbol_symtab(x.m_name) != nullptr &&
-                        ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() !=
-                        current_scope->get_counter()) {
-                        if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
-                            ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
-
-                            // Check is x.m_name is not an argument.
-                            bool is_arg = false;
-
-                            for (size_t i=0; i<f->n_args; i++) {
-                                ASR::Var_t *arg = ASR::down_cast<ASR::Var_t>(f->m_args[i]);
-
-                                if (arg->m_v == x.m_name) {
-                                    is_arg = true;
-                                    break;
-                                }
-                            }
-
-                            if (!is_arg) {
+                    if (fill_function_dependencies) {
+                        if (ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
+                            ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+                            if (!ASRUtils::is_present_in_current_scope(external_symbol, current_scope)) {
                                 function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                             }
-                        }
-                    }
-
-                    if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
-                        ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-                        if (!ASRUtils::is_present_in_current_scope(external_symbol, current_scope)) {
-                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                        } else if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
+                            process_dependency(x.m_name, function_dependencies, current_scope);
                         }
                     }
 
@@ -362,39 +341,14 @@ namespace LCompilers {
                 }
 
                 void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
-                    if( fill_function_dependencies &&
-                        ASRUtils::symbol_symtab(x.m_name) != nullptr &&
-                        ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() !=
-                        current_scope->get_counter()) {
-                        if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
-                            // Get the function type from x.
-                            ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
-
-                            // Check is x.m_name is not an argument.
-                            bool is_arg = false;
-
-                            for (size_t i=0; i<f->n_args; i++) {
-                                // Cast f->m_args[i] to Var.
-                                ASR::Var_t *arg = ASR::down_cast<ASR::Var_t>(f->m_args[i]);
-
-                                // Check if x.m_name is an argument.
-                                if (arg->m_v == x.m_name) {
-                                    is_arg = true;
-                                    break;
-                                }
-                            }
-
-                            if (!is_arg) {
+                    if (fill_function_dependencies) {
+                        if (ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
+                            ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+                            if (!ASRUtils::is_present_in_current_scope(external_symbol, current_scope)) {
                                 function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
                             }
-                        }
-                    }
-
-                    if (fill_function_dependencies && ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
-                        ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-
-                        if (!ASRUtils::is_present_in_current_scope(external_symbol, current_scope)) {
-                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                        } else if (ASR::is_a<ASR::Function_t>(*x.m_name)) {
+                            process_dependency(x.m_name, function_dependencies, current_scope);
                         }
                     }
 
@@ -412,6 +366,31 @@ namespace LCompilers {
                     ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
                     for (size_t i=0; i<block->n_body; i++) {
                         visit_stmt(*(block->m_body[i]));
+                    }
+                }
+
+                void process_dependency(const ASR::symbol_t *x, SetChar& function_dependencies, SymbolTable* current_scope) {
+                    if (ASRUtils::symbol_symtab(x) != nullptr &&
+                        ASRUtils::symbol_parent_symtab(x)->get_counter() !=
+                        current_scope->get_counter()) {
+                        
+                        ASR::Function_t *f = ASR::down_cast2<ASR::Function_t>(current_scope->asr_owner);
+
+                        // Check is x.m_name is not an argument.
+                        bool is_arg = false;
+
+                        for (size_t i=0; i<f->n_args; i++) {
+                            ASR::Var_t *arg = ASR::down_cast<ASR::Var_t>(f->m_args[i]);
+
+                            if (arg->m_v == x) {
+                                is_arg = true;
+                                break;
+                            }
+                        }
+
+                        if (!is_arg) {
+                            function_dependencies.push_back(al, ASRUtils::symbol_name(x));
+                        }
                     }
                 }
         };
