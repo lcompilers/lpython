@@ -87,6 +87,11 @@ LFORTRAN_API void _lfortran_random_number(int n, double *v)
     }
 }
 
+LFORTRAN_API double _lfortran_random()
+{
+    return (rand() / (double) RAND_MAX);
+}
+
 LFORTRAN_API int _lfortran_randrange(int lower, int upper)
 {
     int rr = lower + (rand() % (upper - lower));
