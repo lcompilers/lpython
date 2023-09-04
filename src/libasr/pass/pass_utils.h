@@ -74,7 +74,8 @@ namespace LCompilers {
                                 Allocator& al);
 
         ASR::expr_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
-                             Allocator& al, ASR::TranslationUnit_t& unit, const Location& loc);
+                             Allocator& al, ASR::TranslationUnit_t& unit, const Location& loc,
+                             PassOptions pass_options);
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int32type, Allocator& al);
 
@@ -86,7 +87,8 @@ namespace LCompilers {
             ASR::intentType var_intent=ASR::intentType::Local);
 
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
-                             Allocator& al, ASR::TranslationUnit_t& unit, Location& loc);
+                             Allocator& al, ASR::TranslationUnit_t& unit, Location& loc,
+                              PassOptions pass_options);
 
         ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,
                                          Allocator& al, ASR::TranslationUnit_t& unit,
