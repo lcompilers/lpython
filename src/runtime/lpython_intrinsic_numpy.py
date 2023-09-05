@@ -410,3 +410,25 @@ def ceil(x: f32) -> f32:
     if x <= f32(0) or x == resultf:
         return resultf
     return resultf + f32(1)
+
+
+########## arcsinh ##########
+
+
+@ccall
+def _lfortran_darcsinh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arcsinh(x: f64) -> f64:
+    return _lfortran_darcsinh(x)
+
+@ccall
+def _lfortran_sarcsinh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arcsinh(x: f32) -> f32:
+    return _lfortran_sarcsinh(x)
