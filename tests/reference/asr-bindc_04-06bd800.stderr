@@ -1,5 +1,5 @@
 semantic error: Only those local variables which can be reduced to compile time constant should be used in dimensions of an array.
   --> tests/errors/bindc_04.py:20:12
    |
-20 |     C: i16[nk] = empty(nk, dtype=int32)
+20 |     C: i16[nk] = empty(nk, dtype=int16)
    |            ^^ 

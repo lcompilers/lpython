@@ -581,7 +581,109 @@
                                     accept_multidim_f32_array
                                     accept_multidim_f64_array]
                                     []
-                                    [(Print
+                                    [(=
+                                        (Var 204 ai32)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 ai64)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 af32)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 af64)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 4 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 ac32)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Complex 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 99 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 ac64)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Complex 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 10 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 13 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 11 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (Print
                                         ()
                                         [(FunctionCall
                                             2 accept_multidim_i32_array

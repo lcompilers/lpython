@@ -157,7 +157,17 @@ if (WITH_LLVM)
         add_definitions("-DHAVE_TARGET_X86=1")
     endif()
 
-    llvm_map_components_to_libnames(llvm_libs ${LPYTHON_LLVM_COMPONENTS})
+    if (TARGET LLVMCore)
+        # If `LLVMCore` target is present, then LLVM is distributed as separate
+        # libraries and llvm_map_components_to_libnames() should work:
+        llvm_map_components_to_libnames(llvm_libs ${LPYTHON_LLVM_COMPONENTS})
+    else()
+        # Workaround for https://github.com/llvm/llvm-project/issues/34593
+        # If LLVM is distributed as a single library (the LLVMCore target is
+        # missing), we set `llvm_libs` to "LLVM" which links against the single
+        # `libLLVM.so` shared library.
+        set(llvm_libs "LLVM")
+    endif()
     unset(LPYTHON_LLVM_COMPONENTS)
 
     add_library(p::llvm INTERFACE IMPORTED)
