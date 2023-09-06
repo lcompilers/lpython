@@ -158,6 +158,33 @@ public:
     std::string get_str() {
         return s;
     }
+    void visit_Module(const AST::Module_t &x) {
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("Module");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append("\n├─body=↧");
+        for (size_t i=0; i<x.n_body; i++) {
+            inc_lindent();
+            last = i == x.n_body-1;
+            attached = false;
+            this->visit_stmt(*x.m_body[i]);
+            dec_indent();
+        }
+        s.append("\n╰─type_ignores=↧");
+        for (size_t i=0; i<x.n_type_ignores; i++) {
+            inc_indent();
+            last = i == x.n_type_ignores-1;
+            attached = false;
+            this->visit_type_ignore(*x.m_type_ignores[i]);
+            dec_indent();
+        }
+    }
 };
 
 std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
@@ -176,6 +203,52 @@ public:
 
     std::string get_str() {
         return s;
+    }
+
+    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        if(!attached) {
+            attached = true;
+        }
+        if (use_colors) {
+            s.append(color(style::bold));
+            s.append(color(fg::magenta));
+        }
+        s.append("TranslationUnit");
+        if (use_colors) {
+            s.append(color(fg::reset));
+            s.append(color(style::reset));
+        }
+        s.append("\n├─");
+        inc_lindent();
+        if (use_colors) {
+            s.append(color(fg::yellow));
+        }
+        s.append("SymbolTable");
+        if (use_colors) {
+            s.append(color(fg::reset));
+        }
+        s.append("\n" + indtd + "├─counter=");
+        s.append(x.m_global_scope->get_counter());
+        size_t i = 0;
+        s.append("\n" + indtd + "╰─scope=↧");
+        for (auto &a : x.m_global_scope->get_scope()) {
+            i++;
+            inc_indent();
+            last = i == x.m_global_scope->get_scope().size();
+            s.append("\n" + indtd + (last ? "╰─" : "├─") + a.first + ": ");
+            this->visit_symbol(*a.second);
+            dec_indent();
+        }
+        dec_indent();
+        s.append("\n╰─items=↧");
+        attached = false;
+        for (size_t i=0; i<x.n_items; i++) {
+            inc_indent();
+            last = i == x.n_items-1;
+            attached = false;
+            this->visit_asr(*x.m_items[i]);
+            dec_indent();
+        }
     }
 
 };
