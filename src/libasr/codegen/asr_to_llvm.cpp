@@ -1884,6 +1884,30 @@ public:
                 }
                 break ;
             }
+            case ASRUtils::IntrinsicScalarFunctions::FlipSign: {
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 2);
+                ASR::call_arg_t arg0_, arg1_;
+                arg0_.loc = x.m_args[0]->base.loc, arg0_.m_value = x.m_args[0];
+                args.push_back(al, arg0_);
+                arg1_.loc = x.m_args[1]->base.loc, arg1_.m_value = x.m_args[1];
+                args.push_back(al, arg1_);
+                generate_flip_sign(args.p);
+                break;
+            }
+            case ASRUtils::IntrinsicScalarFunctions::FMA: {
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 3);
+                ASR::call_arg_t arg0_, arg1_, arg2_;
+                arg0_.loc = x.m_args[0]->base.loc, arg0_.m_value = x.m_args[0];
+                args.push_back(al, arg0_);
+                arg1_.loc = x.m_args[1]->base.loc, arg1_.m_value = x.m_args[1];
+                args.push_back(al, arg1_);
+                arg2_.loc = x.m_args[2]->base.loc, arg2_.m_value = x.m_args[2];
+                args.push_back(al, arg2_);
+                generate_fma(args.p);
+                break;
+            }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicScalarFunctionRegistry::
                         get_intrinsic_function_name(x.m_intrinsic_id) +
@@ -7372,7 +7396,7 @@ public:
         llvm::Value* int_var = builder->CreateBitCast(CreateLoad(variable), shifted_signal->getType());
         tmp = builder->CreateXor(shifted_signal, int_var);
         llvm::Type* variable_type = llvm_utils->get_type_from_ttype_t_util(asr_variable->m_type, module.get());
-        builder->CreateStore(builder->CreateBitCast(tmp, variable_type->getPointerTo()), variable);
+        tmp = builder->CreateBitCast(tmp, variable_type);
     }
 
     void generate_fma(ASR::call_arg_t* m_args) {
@@ -8300,7 +8324,12 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
     pass_options.verbose = co.verbose;
+    std::vector<int64_t> skip_optimization_func_instantiation;
+    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FlipSign));
+    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FMA));
+    pass_options.skip_optimization_func_instantiation = skip_optimization_func_instantiation;
     pass_manager.rtlib = co.rtlib;
+
     pass_manager.apply_passes(al, &asr, pass_options, diagnostics);
 
     // Uncomment for debugging the ASR after the transformation
