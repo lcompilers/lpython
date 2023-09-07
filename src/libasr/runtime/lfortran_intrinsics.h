@@ -168,6 +168,8 @@ LFORTRAN_API float _lfortran_satanh(float x);
 LFORTRAN_API double _lfortran_datanh(double x);
 LFORTRAN_API float_complex_t _lfortran_catanh(float_complex_t x);
 LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x);
+LFORTRAN_API float _lfortran_strunc(float x);
+LFORTRAN_API double _lfortran_dtrunc(double x);
 LFORTRAN_API float _lfortran_cphase(float_complex_t x);
 LFORTRAN_API double _lfortran_zphase(double_complex_t x);
 LFORTRAN_API bool _lpython_str_compare_eq(char** s1, char** s2);
