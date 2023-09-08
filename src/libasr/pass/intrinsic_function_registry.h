@@ -92,7 +92,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Tanh)
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
-	INTRINSIC_NAME_CASE(Trunc)
+        INTRINSIC_NAME_CASE(Trunc)
         INTRINSIC_NAME_CASE(Abs)
         INTRINSIC_NAME_CASE(Exp)
         INTRINSIC_NAME_CASE(Exp2)
@@ -2466,7 +2466,7 @@ namespace IntrinsicScalarFunctionRegistry {
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
             {&Trunc::instantiate_Trunc, &UnaryIntrinsicFunction::verify_args}},
-	{static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
             {&Sin::instantiate_Sin, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Cos),
             {&Cos::instantiate_Cos, &UnaryIntrinsicFunction::verify_args}},
@@ -2648,7 +2648,7 @@ namespace IntrinsicScalarFunctionRegistry {
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
                 {"trunc", {&Trunc::create_Trunc, &Trunc::eval_trunc}},
-		{"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
+                {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
                 {"tan", {&Tan::create_Tan, &Tan::eval_Tan}},
                 {"asin", {&Asin::create_Asin, &Asin::eval_Asin}},
