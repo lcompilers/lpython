@@ -1908,6 +1908,17 @@ public:
                 generate_fma(args.p);
                 break;
             }
+            case ASRUtils::IntrinsicScalarFunctions::SignFromValue: {
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 2);
+                ASR::call_arg_t arg0_, arg1_;
+                arg0_.loc = x.m_args[0]->base.loc, arg0_.m_value = x.m_args[0];
+                args.push_back(al, arg0_);
+                arg1_.loc = x.m_args[1]->base.loc, arg1_.m_value = x.m_args[1];
+                args.push_back(al, arg1_);
+                generate_sign_from_value(args.p);
+                break;
+            }
             default: {
                 throw CodeGenError( ASRUtils::IntrinsicScalarFunctionRegistry::
                         get_intrinsic_function_name(x.m_intrinsic_id) +
@@ -8325,8 +8336,13 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_options.always_run = false;
     pass_options.verbose = co.verbose;
     std::vector<int64_t> skip_optimization_func_instantiation;
-    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FlipSign));
-    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FMA));
+    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(
+                    ASRUtils::IntrinsicScalarFunctions::FlipSign));
+    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(
+                    ASRUtils::IntrinsicScalarFunctions::FMA));
+    skip_optimization_func_instantiation.push_back(static_cast<int64_t>(
+                    ASRUtils::IntrinsicScalarFunctions::SignFromValue));
+
     pass_options.skip_optimization_func_instantiation = skip_optimization_func_instantiation;
     pass_manager.rtlib = co.rtlib;
 
