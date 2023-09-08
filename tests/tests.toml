@@ -1001,6 +1001,14 @@ filename = "errors/test_dict14.py"
 run = true
 
 [[test]]
+filename = "errors/test_dict15.py"
+run = true
+
+[[test]]
+filename = "errors/test_dict16.py"
+run = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 

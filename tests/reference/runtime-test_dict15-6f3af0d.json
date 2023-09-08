@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_dict15-6f3af0d",
+    "cmd": "lpython {infile}",
+    "infile": "tests/errors/test_dict15.py",
+    "infile_hash": "6a0e507b9a9cf659cb433abbdc3435b4c63a6079eadcd7d2c765def1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "runtime-test_dict15-6f3af0d.stderr",
+    "stderr_hash": "cb46ef04db0862506d688ebe8830a50afaaead9b0d29b0c007dd149a",
+    "returncode": 1
+}
