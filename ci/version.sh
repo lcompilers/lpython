@@ -11,18 +11,8 @@
 #     0.6.0-37-g3878937f-dirty
 #
 
-git_describe_output=$(git describe --tags --dirty 2>&1)
-exit_code=$?
+set -ex
 
-set -ex 
-if [ $exit_code -ne 0 ]; then
-  echo "There were errors while getting the tags. Defaulting to 0.0.0-0"
-  version="0.0.0-0"
-  echo $version > version
-  exit 1
-else
-  echo "Tags captured successfully."
-  version="${git_describe_output:1}"
-  echo $version > version
-  exit 0
-fi
+version=$(git describe --tags --dirty)
+version="${version:1}"
+echo $version > version
