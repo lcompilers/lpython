@@ -118,7 +118,7 @@ public:
         }
 
         fma_var = PassUtils::get_fma(other_expr, first_arg, second_arg,
-                                     al, unit, x.base.base.loc);
+                                     al, unit, x.base.base.loc, pass_options);
         from_fma = false;
     }
 

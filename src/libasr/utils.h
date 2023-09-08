@@ -97,6 +97,7 @@ namespace LCompilers {
         bool verbose = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
         bool disable_main = false;
+        std::vector<int64_t> skip_optimization_func_instantiation;
         bool module_name_mangling = false;
         bool global_symbols_mangling = false;
         bool intrinsic_symbols_mangling = false;
