@@ -600,7 +600,7 @@ namespace LCompilers {
 
         ASR::expr_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
             Allocator& al, ASR::TranslationUnit_t& unit, const Location& loc,
-            PassOptions pass_options){
+            PassOptions& pass_options){
             ASR::ttype_t* type = ASRUtils::expr_type(arg1);
             int64_t fp_s = static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FlipSign);
             if (skip_instantiation(pass_options, fp_s)) {
@@ -688,7 +688,7 @@ namespace LCompilers {
 
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
             Allocator& al, ASR::TranslationUnit_t& unit, Location& loc,
-            PassOptions pass_options){
+            PassOptions& pass_options){
             int64_t fma_id = static_cast<int64_t>(ASRUtils::IntrinsicScalarFunctions::FMA);
             ASR::ttype_t* type = ASRUtils::expr_type(arg0);
             if (skip_instantiation(pass_options, fma_id)) {
