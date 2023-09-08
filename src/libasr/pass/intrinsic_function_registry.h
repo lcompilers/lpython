@@ -37,6 +37,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     Tanh,
     Gamma,
     LogGamma,
+    Trunc,
     Abs,
     Exp,
     Exp2,
@@ -91,6 +92,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(Tanh)
         INTRINSIC_NAME_CASE(Gamma)
         INTRINSIC_NAME_CASE(LogGamma)
+	INTRINSIC_NAME_CASE(Trunc)
         INTRINSIC_NAME_CASE(Abs)
         INTRINSIC_NAME_CASE(Exp)
         INTRINSIC_NAME_CASE(Exp2)
@@ -925,6 +927,44 @@ static inline ASR::expr_t* instantiate_LogGamma (Allocator &al,
 }
 
 } // namespace LogGamma
+
+namespace Trunc {
+
+static inline ASR::expr_t *eval_trunc(Allocator &al, const Location &loc,
+        ASR::ttype_t *t, Vec<ASR::expr_t*>& args) {
+    double rv = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
+    double val = trunc(rv);
+    return make_ConstantWithType(make_RealConstant_t, val, t, loc);
+}
+
+static inline ASR::asr_t* create_Trunc(Allocator& al, const Location& loc,
+    Vec<ASR::expr_t*>& args,
+    const std::function<void (const std::string &, const Location &)> err) {
+    ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
+
+    if (args.n != 1) {
+            err("Intrinsic `trunc` accepts exactly one argument", loc);
+    } else if (!ASRUtils::is_real(*type)) {
+        err("`x` argument of `trunc` must be real",
+            args[0]->base.loc);
+    }
+
+    return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,
+            eval_trunc, static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
+            0, type);
+}
+
+static inline ASR::expr_t* instantiate_Trunc (Allocator &al,
+        const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
+        ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
+        int64_t overload_id) {
+    LCOMPILERS_ASSERT(arg_types.size() == 1);
+    ASR::ttype_t* arg_type = arg_types[0];
+    return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,
+        "trunc", arg_type, return_type, new_args, overload_id);
+}
+
+} // namespace Trunc
 
 // `X` is the name of the function in the IntrinsicScalarFunctions enum and
 // we use the same name for `create_X` and other places
@@ -2424,7 +2464,9 @@ namespace IntrinsicScalarFunctionRegistry {
                    verify_function>>& intrinsic_function_by_id_db = {
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             {&LogGamma::instantiate_LogGamma, &UnaryIntrinsicFunction::verify_args}},
-        {static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
+            {&Trunc::instantiate_Trunc, &UnaryIntrinsicFunction::verify_args}},
+	{static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
             {&Sin::instantiate_Sin, &UnaryIntrinsicFunction::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Cos),
             {&Cos::instantiate_Cos, &UnaryIntrinsicFunction::verify_args}},
@@ -2514,6 +2556,8 @@ namespace IntrinsicScalarFunctionRegistry {
         {static_cast<int64_t>(IntrinsicScalarFunctions::LogGamma),
             "log_gamma"},
 
+        {static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
+            "trunc"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Sin),
             "sin"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::Cos),
@@ -2603,7 +2647,8 @@ namespace IntrinsicScalarFunctionRegistry {
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
-                {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
+                {"trunc", {&Trunc::create_Trunc, &Trunc::eval_trunc}},
+		{"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
                 {"tan", {&Tan::create_Tan, &Tan::eval_Tan}},
                 {"asin", {&Asin::create_Asin, &Asin::eval_Asin}},
@@ -2660,6 +2705,7 @@ namespace IntrinsicScalarFunctionRegistry {
                  id_ == IntrinsicScalarFunctions::Cos ||
                  id_ == IntrinsicScalarFunctions::Gamma ||
                  id_ == IntrinsicScalarFunctions::LogGamma ||
+                 id_ == IntrinsicScalarFunctions::Trunc ||
                  id_ == IntrinsicScalarFunctions::Sin ||
                  id_ == IntrinsicScalarFunctions::Exp ||
                  id_ == IntrinsicScalarFunctions::Exp2 ||
