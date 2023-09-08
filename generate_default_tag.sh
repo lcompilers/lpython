@@ -5,6 +5,4 @@
 # It allows local development with a mocked tag
 echo "Generating default tag..."
 set -ex
-version="v0.0.0=0"
-git tag $version
-
+git tag "v0.0.0=0"
