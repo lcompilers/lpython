@@ -52,6 +52,15 @@ def test_weibullvariate():
     r = random.weibullvariate(-5.6, 1.2)
     print(r)
 
+def test_seed():
+    random.seed(123)
+    t1: f64
+    t1 = random.random()
+    random.seed(321)
+    t2: f64
+    t2 = random.random()
+    assert t1 != t2
+
 def check():
     test_random()
     test_randrange()
@@ -60,5 +69,6 @@ def check():
     test_paretovariate()
     test_expovariate()
     test_weibullvariate()
+    test_seed()
 
 check()
