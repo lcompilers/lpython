@@ -96,6 +96,15 @@ LFORTRAN_API void _lfortran_random_number(int n, double *v)
     }
 }
 
+LFORTRAN_API void _lfortran_init_random(unsigned seed) 
+{
+    if (seed == 0) {
+        srand((unsigned int)clock());
+    } else {
+        srand(seed);
+    }
+}
+
 LFORTRAN_API double _lfortran_random()
 {
     return (rand() / (double) RAND_MAX);
