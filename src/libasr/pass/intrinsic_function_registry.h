@@ -928,43 +928,43 @@ static inline ASR::expr_t* instantiate_LogGamma (Allocator &al,
 
 } // namespace LogGamma
 
-namespace Trunc {
+#define create_trunc_macro(X, stdeval)                                              \
+namespace X {                                                                       \
+    static inline ASR::expr_t *eval_##X(Allocator &al, const Location &loc,         \
+            ASR::ttype_t *t, Vec<ASR::expr_t*>& args) {                             \
+        LCOMPILERS_ASSERT(args.size() == 1);                                        \
+        double rv;                                                                  \
+        if (ASRUtils::extract_value(args[0], rv)) {                                 \
+            double val = std::stdeval(rv);                                          \
+            return make_ConstantWithType(make_RealConstant_t, val, t, loc);         \
+        }                                                                           \
+        return nullptr;                                                             \
+    }                                                                               \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,        \
+        Vec<ASR::expr_t*>& args,                                                    \
+        const std::function<void (const std::string &, const Location &)> err) {    \
+        ASR::ttype_t *type = ASRUtils::expr_type(args[0]);                          \
+        if (args.n != 1) {                                                          \
+            err("Intrinsic `#X` accepts exactly one argument", loc);                \
+        } else if (!ASRUtils::is_real(*type)) {                                     \
+            err("`x` argument of `#X` must be real",                                \
+                args[0]->base.loc);                                                 \
+        }                                                                           \
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,          \
+                eval_##X, static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),    \
+                0, type);                                                           \
+    }                                                                               \
+    static inline ASR::expr_t* instantiate_##X (Allocator &al,                      \
+            const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types, \
+            ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,              \
+            int64_t overload_id) {                                                  \
+        ASR::ttype_t* arg_type = arg_types[0];                                      \
+        return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,        \
+            "#X", arg_type, return_type, new_args, overload_id);                    \
+    }                                                                               \
+} // namespace X
 
-static inline ASR::expr_t *eval_trunc(Allocator &al, const Location &loc,
-        ASR::ttype_t *t, Vec<ASR::expr_t*>& args) {
-    double rv = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
-    double val = trunc(rv);
-    return make_ConstantWithType(make_RealConstant_t, val, t, loc);
-}
-
-static inline ASR::asr_t* create_Trunc(Allocator& al, const Location& loc,
-    Vec<ASR::expr_t*>& args,
-    const std::function<void (const std::string &, const Location &)> err) {
-    ASR::ttype_t *type = ASRUtils::expr_type(args[0]);
-
-    if (args.n != 1) {
-            err("Intrinsic `trunc` accepts exactly one argument", loc);
-    } else if (!ASRUtils::is_real(*type)) {
-        err("`x` argument of `trunc` must be real",
-            args[0]->base.loc);
-    }
-
-    return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args,
-            eval_trunc, static_cast<int64_t>(IntrinsicScalarFunctions::Trunc),
-            0, type);
-}
-
-static inline ASR::expr_t* instantiate_Trunc (Allocator &al,
-        const Location &loc, SymbolTable *scope, Vec<ASR::ttype_t*>& arg_types,
-        ASR::ttype_t *return_type, Vec<ASR::call_arg_t>& new_args,
-        int64_t overload_id) {
-    LCOMPILERS_ASSERT(arg_types.size() == 1);
-    ASR::ttype_t* arg_type = arg_types[0];
-    return UnaryIntrinsicFunction::instantiate_functions(al, loc, scope,
-        "trunc", arg_type, return_type, new_args, overload_id);
-}
-
-} // namespace Trunc
+create_trunc_macro(Trunc, trunc)
 
 // `X` is the name of the function in the IntrinsicScalarFunctions enum and
 // we use the same name for `create_X` and other places
@@ -2647,7 +2647,7 @@ namespace IntrinsicScalarFunctionRegistry {
         std::tuple<create_intrinsic_function,
                     eval_intrinsic_function>>& intrinsic_function_by_name_db = {
                 {"log_gamma", {&LogGamma::create_LogGamma, &LogGamma::eval_log_gamma}},
-                {"trunc", {&Trunc::create_Trunc, &Trunc::eval_trunc}},
+                {"trunc", {&Trunc::create_Trunc, &Trunc::eval_Trunc}},
                 {"sin", {&Sin::create_Sin, &Sin::eval_Sin}},
                 {"cos", {&Cos::create_Cos, &Cos::eval_Cos}},
                 {"tan", {&Tan::create_Tan, &Tan::eval_Tan}},
