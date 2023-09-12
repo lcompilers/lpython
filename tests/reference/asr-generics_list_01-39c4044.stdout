@@ -127,7 +127,9 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
+                                        [2 zero
+                                        2 add
+                                        2 div]
                                         .false.
                                     )
                                     [empty_integer
@@ -332,7 +334,9 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
+                                        [2 zero
+                                        2 add
+                                        2 div]
                                         .false.
                                     )
                                     [empty_float
@@ -537,7 +541,9 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
+                                        [2 zero
+                                        2 add
+                                        2 div]
                                         .false.
                                     )
                                     [empty_string

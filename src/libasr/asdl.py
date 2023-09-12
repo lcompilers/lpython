@@ -194,7 +194,7 @@ def check(mod):
 
 def parse(filename):
     """Parse ASDL from the given file and return a Module node describing it."""
-    with open(filename) as f:
+    with open(filename, encoding='utf8') as f:
         parser = ASDLParser()
         return parser.parse(f.read())
 

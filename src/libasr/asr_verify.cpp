@@ -841,8 +841,10 @@ public:
 
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
         BaseWalkVisitor<VerifyVisitor>::visit_ArrayPhysicalCast(x);
-        require(x.m_new != x.m_old, "ArrayPhysicalCast is redundant, "
-            "the old physical type and new physical type must be different.");
+        if( x.m_old != ASR::array_physical_typeType::DescriptorArray ) {
+            require(x.m_new != x.m_old, "ArrayPhysicalCast is redundant, "
+                "the old physical type and new physical type must be different.");
+        }
         require(x.m_new == ASRUtils::extract_physical_type(x.m_type),
             "Destination physical type conflicts with the physical type of target");
         require(x.m_old == ASRUtils::extract_physical_type(ASRUtils::expr_type(x.m_arg)),
@@ -1027,7 +1029,8 @@ public:
         if( fn && ASR::is_a<ASR::Function_t>(*fn) ) {
             ASR::Function_t* fn_ = ASR::down_cast<ASR::Function_t>(fn);
             require(fn_->m_return_var != nullptr,
-                    "FunctionCall::m_name must be returning a non-void value.");
+                    "FunctionCall::m_name " + std::string(fn_->m_name) +
+                    " must be returning a non-void value.");
         }
         verify_args(x);
         visit_ttype(*x.m_type);
@@ -1102,7 +1105,8 @@ public:
         for( size_t i = 0; i < x.n_args; i++ ) {
             require(ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(x.m_args[i].m_a)) ||
                     ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_args[i].m_a)),
-                "Allocate should only be called with  Allocatable or Pointer type inputs");
+                "Allocate should only be called with  Allocatable or Pointer type inputs, found " +
+                std::string(ASRUtils::get_type_code(ASRUtils::expr_type(x.m_args[i].m_a))));
         }
         BaseWalkVisitor<VerifyVisitor>::visit_Allocate(x);
     }

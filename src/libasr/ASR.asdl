@@ -170,6 +170,7 @@ abi                   -- External     ABI
 
 stmt
     = Allocate(alloc_arg* args, expr? stat, expr? errmsg, expr? source)
+    | ReAlloc(alloc_arg* args)
     | Assign(int label, identifier variable)
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
@@ -193,7 +194,7 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(expr? fmt, expr* values, expr? separator, expr? end)
-    | FileOpen(int label, expr? newunit, expr? filename, expr? status)
+    | FileOpen(int label, expr? newunit, expr? filename, expr? status, expr? form)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
     | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
@@ -221,6 +222,8 @@ stmt
     | SelectType(expr selector, type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape, expr? lower_bounds)
     | BlockCall(int label, symbol m)
+    | SetInsert(expr a, expr ele)
+    | SetRemove(expr a, expr ele)
     | ListInsert(expr a, expr pos, expr ele)
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)
@@ -261,6 +264,7 @@ expr
     | RealUnaryMinus(expr arg, ttype type, expr? value)
     | RealCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | RealBinOp(expr left, binop op, expr right, ttype type, expr? value)
+    | RealCopySign(expr target, expr source, ttype type, expr? value)
     | ComplexConstant(float re, float im, ttype type)
     | ComplexUnaryMinus(expr arg, ttype type, expr? value)
     | ComplexCompare(expr left, cmpop op, expr right, ttype type, expr? value)
@@ -311,10 +315,8 @@ expr
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
                  expr? value)
     | ArrayTranspose(expr matrix, ttype type, expr? value)
-    | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
-    | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
     | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
@@ -417,6 +419,7 @@ ttype
 array_physical_type
     = DescriptorArray
     | PointerToDataArray
+    | UnboundedPointerToDataArray
     | FixedSizeArray
     | NumPyArray
     | ISODescriptorArray

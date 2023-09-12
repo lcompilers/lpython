@@ -133,8 +133,7 @@ public:
         }
 
         sign_from_value_var = PassUtils::get_sign_from_value(first_arg, second_arg,
-                                     al, unit, pass_options, current_scope, x.base.base.loc,
-                                     [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
+                                     al, unit, x.base.base.loc, pass_options);
         from_sign_from_value = false;
     }
 

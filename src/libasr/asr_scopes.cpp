@@ -4,8 +4,8 @@
 #include <libasr/asr_scopes.h>
 #include <libasr/asr_utils.h>
 
-
 std::string lcompilers_unique_ID;
+
 namespace LCompilers  {
 
 template< typename T >
@@ -52,7 +52,6 @@ void SymbolTable::mark_all_variables_external(Allocator &al) {
         }
     }
 }
-
 
 ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
         size_t n_scope_names, char **m_scope_names) {

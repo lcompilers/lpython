@@ -88,7 +88,8 @@ namespace LCompilers {
         if (!fn_printf) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getInt8PtrTy(context),
-                    {llvm::Type::getInt8PtrTy(context)}, true);
+                    {llvm::Type::getInt32Ty(context),
+                    llvm::Type::getInt8PtrTy(context)}, true);
             fn_printf = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, "_lcompilers_string_format_fortran", &module);
         }

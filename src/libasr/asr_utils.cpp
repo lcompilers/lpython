@@ -1345,6 +1345,47 @@ ASR::symbol_t* import_class_procedure(Allocator &al, const Location& loc,
     return original_sym;
 }
 
+ASR::asr_t* make_Binop_util(Allocator &al, const Location& loc, ASR::binopType binop,
+                        ASR::expr_t* lexpr, ASR::expr_t* rexpr, ASR::ttype_t* ttype) {
+    switch (ttype->type) {
+        case ASR::ttypeType::Real: {
+            return ASR::make_RealBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        case ASR::ttypeType::Integer: {
+            return ASR::make_IntegerBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::make_ComplexBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        default:
+            throw LCompilersException("Not implemented " + std::to_string(ttype->type));
+    }
+}
+
+ASR::asr_t* make_Cmpop_util(Allocator &al, const Location& loc, ASR::cmpopType cmpop,
+                        ASR::expr_t* lexpr, ASR::expr_t* rexpr, ASR::ttype_t* ttype) {
+    ASR::ttype_t* expr_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+    switch (ttype->type) {
+        case ASR::ttypeType::Real: {
+            return ASR::make_RealCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Integer: {
+            return ASR::make_IntegerCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::make_ComplexCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Character: {
+            return ASR::make_StringCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        default:
+            throw LCompilersException("Not implemented " + std::to_string(ttype->type));
+    }
+}
+
 //Initialize pointer to zero so that it can be initialized in first call to get_instance
 ASRUtils::LabelGenerator* ASRUtils::LabelGenerator::label_generator = nullptr;
 

@@ -22,7 +22,7 @@
 // #define SHOW_ASR
 
 #ifdef SHOW_ASR
-#include <lfortran/pickle.h>
+#include <libasr/pickle.h>
 #endif
 
 namespace LCompilers {
@@ -834,17 +834,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        // Generate the bodies of functions and subroutines
-        declare_all_functions(*x.m_symtab);
-
         // Generate main program code
         if (main_func == nullptr) {
-            main_func = (ASR::Function_t *)ASRUtils::make_Function_t_util(
+            main_func = ASR::down_cast2<ASR::Function_t>(ASRUtils::make_Function_t_util(
                 m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
                 nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-                nullptr, 0, false, false, false);
+                nullptr, 0, false, false, false));
         }
         this->visit_Function(*main_func);
     }
@@ -1155,9 +1152,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     bool is_unsupported_function(const ASR::Function_t &x) {
         if (strcmp(x.m_name, "_start") == 0) return false;
 
-        if (!x.n_body) {
-            return true;
-        }
         if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
             ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
             if (ASRUtils::is_intrinsic_function2(&x)) {
@@ -1188,6 +1182,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        declare_all_functions(*x.m_symtab);
         if (is_unsupported_function(x)) {
             return;
         }
@@ -1578,6 +1573,24 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
         else{
             throw CodeGenError("IntegerBitNot: Only kind 4 and 8 supported");
+        }
+    }
+
+    void visit_RealCopySign(const ASR::RealCopySign_t& x) {
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_target);
+        this->visit_expr(*x.m_source);
+
+        int kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        if (kind == 4) {
+            m_wa.emit_f32_copysign();
+        } else if (kind == 8) {
+            m_wa.emit_f64_copysign();
+        } else {
+            throw CodeGenError("visit_RealCopySign: Only kind 4 and 8 reals supported");
         }
     }
 
@@ -3096,11 +3109,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_ArrayBound(const ASR::ArrayBound_t& x) {
-        ASR::ttype_t *ttype = ASRUtils::expr_type(x.m_v);
-        uint32_t kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         ASR::dimension_t *m_dims;
-        int n_dims = ASRUtils::extract_dimensions_from_ttype(ttype, m_dims);
-        if (kind != 4) {
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
+        if (ASRUtils::extract_kind_from_ttype_t(x.m_type) != 4) {
             throw CodeGenError("ArrayBound: Kind 4 only supported currently");
         }
 
@@ -3209,15 +3220,16 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
     LCompilers::PassOptions pass_options;
     pass_options.always_run = true;
     pass_options.verbose = co.verbose;
+    pass_options.dumb_all_passes = co.dumb_all_passes;
     std::vector<std::string> passes = {"pass_array_by_data", "array_op",
                 "implied_do_loops", "print_arr", "do_loops", "select_case",
-                "intrinsic_function", "unused_functions"};
+                "intrinsic_function", "nested_vars", "unused_functions"};
     LCompilers::PassManager pass_manager;
     pass_manager.apply_passes(al, &asr, passes, pass_options, diagnostics);
 
 
 #ifdef SHOW_ASR
-    std::cout << LCompilers::LFortran::pickle(asr, false /* use colors */, true /* indent */,
+    std::cout << LCompilers::pickle(asr, false /* use colors */, true /* indent */,
                         true /* with_intrinsic_modules */)
               << std::endl;
 #endif
