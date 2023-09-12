@@ -1149,7 +1149,7 @@ namespace X {                                                                   
     static inline ASR::expr_t *eval_##X(Allocator &al, const Location &loc,         \
             ASR::ttype_t *t, Vec<ASR::expr_t*>& args) {                             \
         LCOMPILERS_ASSERT(args.size() == 1);                                        \
-        double rv;                                                                  \
+        double rv = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;              \
         if (ASRUtils::extract_value(args[0], rv)) {                                 \
             double val = std::stdeval(rv);                                          \
             return make_ConstantWithType(make_RealConstant_t, val, t, loc);         \
