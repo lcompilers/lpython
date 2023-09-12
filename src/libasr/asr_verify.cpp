@@ -94,19 +94,19 @@ public:
     }
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
-        current_symtab = x.m_global_scope;
-        require(x.m_global_scope != nullptr,
-            "The TranslationUnit::m_global_scope cannot be nullptr");
-        require(x.m_global_scope->parent == nullptr,
-            "The TranslationUnit::m_global_scope->parent must be nullptr");
-        require(id_symtab_map.find(x.m_global_scope->counter) == id_symtab_map.end(),
-            "TranslationUnit::m_global_scope->counter must be unique");
-        require(x.m_global_scope->asr_owner == (ASR::asr_t*)&x,
-            "The TranslationUnit::m_global_scope::asr_owner must point to itself");
-        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_global_scope == current_symtab,
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The TranslationUnit::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == nullptr,
+            "The TranslationUnit::m_symtab->parent must be nullptr");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "TranslationUnit::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The TranslationUnit::m_symtab::asr_owner must point to itself");
+        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_symtab == current_symtab,
             "The asr_owner invariant failed");
-        id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
-        for (auto &a : x.m_global_scope->get_scope()) {
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_items; i++) {

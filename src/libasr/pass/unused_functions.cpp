@@ -198,7 +198,7 @@ public:
     bool program_present=false;
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        for (auto &a : x.m_global_scope->get_scope()) {
+        for (auto &a : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*a.second)) {
                 this->visit_symbol(*a.second);
                 break;
@@ -244,7 +244,7 @@ public:
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        remove_unused_fn(x.m_global_scope);
+        remove_unused_fn(x.m_symtab);
     }
     void visit_Program(const ASR::Program_t &x) {
         remove_unused_fn(x.m_symtab);

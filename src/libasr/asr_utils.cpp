@@ -52,7 +52,7 @@ std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit)
 {
     std::map<std::string, std::vector<std::string>> deps;
-    for (auto &item : unit.m_global_scope->get_scope()) {
+    for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Module_t>(*item.second)) {
             std::string name = item.first;
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
@@ -116,7 +116,7 @@ void extract_module_python(const ASR::TranslationUnit_t &m,
                 std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
                 std::string module_name) {
     bool module_found = false;
-    for (auto &a : m.m_global_scope->get_scope()) {
+    for (auto &a : m.m_symtab->get_scope()) {
         if( ASR::is_a<ASR::Module_t>(*a.second) ) {
             if( a.first == "__main__" ) {
                 module_found = true;
@@ -219,8 +219,8 @@ void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_i
 }
 
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
-    LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
-    for (auto &a : m.m_global_scope->get_scope()) {
+    LCOMPILERS_ASSERT(m.m_symtab->get_scope().size()== 1);
+    for (auto &a : m.m_symtab->get_scope()) {
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         return ASR::down_cast<ASR::Module_t>(a.second);
     }
@@ -370,7 +370,7 @@ void set_intrinsic(ASR::symbol_t* sym) {
 }
 
 void set_intrinsic(ASR::TranslationUnit_t* trans_unit) {
-    for( auto& itr: trans_unit->m_global_scope->get_scope() ) {
+    for( auto& itr: trans_unit->m_symtab->get_scope() ) {
         set_intrinsic(itr.second);
     }
 }

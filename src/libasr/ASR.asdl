@@ -29,7 +29,7 @@
 module ASR {
 
 unit
-    = TranslationUnit(symbol_table global_scope, node* items)
+    = TranslationUnit(symbol_table symtab, node* items)
 
 -- # Documentation for the symbol type
 

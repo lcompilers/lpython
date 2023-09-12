@@ -577,7 +577,7 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         is_string_concat_present = false;
-        global_scope = x.m_global_scope;
+        global_scope = x.m_symtab;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -605,7 +605,7 @@ R"(
         std::string tab(indentation_spaces, ' ');
 
         std::string unit_src_tmp;
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 unit_src_tmp = convert_variable_decl(*v);
@@ -618,7 +618,7 @@ R"(
 
 
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::StructType_t>(*item.second) ||
                 ASR::is_a<ASR::EnumType_t>(*item.second) ||
                 ASR::is_a<ASR::UnionType_t>(*item.second)) {
@@ -634,14 +634,14 @@ R"(
         std::vector<std::string> struct_deps = ASRUtils::order_deps(struct_dep_graph);
 
         for (auto &item : struct_deps) {
-            ASR::symbol_t* struct_sym = x.m_global_scope->get_symbol(item);
+            ASR::symbol_t* struct_sym = x.m_symtab->get_symbol(item);
             visit_symbol(*struct_sym);
             array_types_decls += src;
         }
 
         // Topologically sort all global functions
         // and then define them in the right order
-        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_global_scope);
+        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
 
         unit_src += "\n";
         unit_src += "// Implementations\n";
@@ -651,10 +651,10 @@ R"(
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                    != x.m_global_scope->get_scope().end());
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                    != x.m_symtab->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                    ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                     if( ASRUtils::get_body_size(mod) != 0 ) {
                         visit_symbol(*mod);
                         unit_src += src;
@@ -666,7 +666,7 @@ R"(
         // Process global functions
         size_t i;
         for (i = 0; i < global_func_order.size(); i++) {
-            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(global_func_order[i]);
             // Ignore external symbols because they are already defined by the loop above.
             if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
                 continue ;
@@ -679,17 +679,17 @@ R"(
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                != x.m_global_scope->get_scope().end());
+            LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                != x.m_symtab->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 visit_symbol(*mod);
                 unit_src += src;
             }
         }
 
         // Then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;

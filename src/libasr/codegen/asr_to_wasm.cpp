@@ -717,18 +717,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             std::vector<std::string> build_order =
                 ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
-                                x.m_global_scope->get_scope().end());
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item) !=
+                                x.m_symtab->get_scope().end());
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 this->visit_symbol(*mod);
             }
         }
 
         // Process procedures first:
-        declare_all_functions(*x.m_global_scope);
+        declare_all_functions(*x.m_symtab);
 
         // then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -740,7 +740,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
 
-        emit_imports(x.m_global_scope);
+        emit_imports(x.m_symtab);
 
         m_wa.emit_declare_mem(min_no_pages, max_no_pages);
         m_wa.emit_export_mem("memory", 0 /* mem_idx */);

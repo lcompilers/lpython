@@ -1640,7 +1640,7 @@ static inline bool is_arg_dummy(int intent) {
 
 static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
 {
-    for (auto &a : unit.m_global_scope->get_scope()) {
+    for (auto &a : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Program_t>(*a.second)) return true;
     }
     return false;

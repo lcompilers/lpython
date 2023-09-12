@@ -260,7 +260,7 @@ public:
         call_arg.m_value = x->m_right;
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_tuple_compare_func(unit.base.base.loc,
-                unit.m_global_scope, ASRUtils::expr_type(x->m_left));
+                unit.m_symtab, ASRUtils::expr_type(x->m_left));
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
@@ -445,7 +445,7 @@ public:
         call_arg.m_value = x->m_right;
         args.push_back(al, call_arg);
         ASR::symbol_t *fn_sym = get_list_compare_func(unit.base.base.loc,
-                unit.m_global_scope, ASRUtils::expr_type(x->m_left));
+                unit.m_symtab, ASRUtils::expr_type(x->m_left));
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
         if (x->m_op == ASR::cmpopType::NotEq) {
