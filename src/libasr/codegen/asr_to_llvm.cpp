@@ -8910,7 +8910,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
     pass_options.verbose = co.verbose;
-    pass_options.dumb_all_passes = co.dumb_all_passes;
+    pass_options.dump_all_passes = co.dump_all_passes;
     pass_options.use_loop_variable_after_loop = co.use_loop_variable_after_loop;
     pass_options.realloc_lhs = co.realloc_lhs;
     pass_options.skip_optimization_func_instantiation = skip_optimization_func_instantiation;
