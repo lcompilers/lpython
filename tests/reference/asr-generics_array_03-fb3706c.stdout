@@ -251,7 +251,7 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
+                                        [2 add]
                                         .false.
                                     )
                                     [add_integer]
@@ -264,9 +264,7 @@
                                         (ArrayConstant
                                             []
                                             (Array
-                                                (TypeParameter
-                                                    T
-                                                )
+                                                (Integer 4)
                                                 [((IntegerConstant 0 (Integer 4))
                                                 (Var 211 n))
                                                 ((IntegerConstant 0 (Integer 4))
@@ -598,7 +596,7 @@
                                         .false.
                                         .false.
                                         .false.
-                                        []
+                                        [2 add]
                                         .false.
                                     )
                                     [add_float]
@@ -611,9 +609,7 @@
                                         (ArrayConstant
                                             []
                                             (Array
-                                                (TypeParameter
-                                                    T
-                                                )
+                                                (Real 4)
                                                 [((IntegerConstant 0 (Integer 4))
                                                 (Var 212 n))
                                                 ((IntegerConstant 0 (Integer 4))

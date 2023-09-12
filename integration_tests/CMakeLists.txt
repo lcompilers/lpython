@@ -724,7 +724,7 @@ RUN(NAME enum_06             LABELS cpython llvm c)
 RUN(NAME enum_07             IMPORT_PATH ..
                              LABELS cpython llvm c)
 RUN(NAME union_01            LABELS cpython llvm c)
-RUN(NAME union_02            LABELS cpython llvm c)
+RUN(NAME union_02            LABELS cpython llvm c NOFAST)
 RUN(NAME union_03            LABELS cpython llvm c)
 RUN(NAME union_04            IMPORT_PATH ..
                              LABELS cpython llvm c)

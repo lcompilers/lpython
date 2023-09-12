@@ -36,20 +36,22 @@ The comparison is >= for c<0.
 class DoLoopVisitor : public ASR::StatementWalkVisitor<DoLoopVisitor>
 {
 public:
+    bool use_loop_variable_after_loop = false;
     DoLoopVisitor(Allocator &al) : StatementWalkVisitor(al) {
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
-        pass_result = PassUtils::replace_doloop(al, x);
+        pass_result = PassUtils::replace_doloop(al, x, -1, use_loop_variable_after_loop);
     }
 };
 
 void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
-                           const LCompilers::PassOptions& /*pass_options*/) {
+                           const LCompilers::PassOptions& pass_options) {
     DoLoopVisitor v(al);
     // Each call transforms only one layer of nested loops, so we call it twice
     // to transform doubly nested loops:
     v.asr_changed = true;
+    v.use_loop_variable_after_loop = pass_options.use_loop_variable_after_loop;
     while( v.asr_changed ) {
         v.asr_changed = false;
         v.visit_TranslationUnit(unit);

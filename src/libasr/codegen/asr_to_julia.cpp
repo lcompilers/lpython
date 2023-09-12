@@ -921,8 +921,8 @@ public:
         }
     }
 
-    void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& /*x*/) {
-
+    void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t &x) {
+        this->visit_expr(*x.m_arg);
     }
 
     void visit_Allocate(const ASR::Allocate_t& x)
@@ -1810,18 +1810,6 @@ public:
         src = out;
     }
 
-    void visit_ArrayMatMul(const ASR::ArrayMatMul_t& x)
-    {
-        visit_expr(*x.m_matrix_a);
-        std::string left = std::move(src);
-        int left_precedence = last_expr_precedence;
-        visit_expr(*x.m_matrix_b);
-        std::string right = std::move(src);
-        int right_precedence = last_expr_precedence;
-        last_expr_precedence = julia_prec::Mul;
-        src = format_binop(left, "*", right, left_precedence, right_precedence);
-    }
-
     void visit_TupleLen(const ASR::TupleLen_t& x)
     {
         visit_expr(*x.m_arg);
@@ -1913,7 +1901,7 @@ public:
             SET_INTRINSIC_NAME(Expm1, "expm1");
             SET_INTRINSIC_NAME(Trunc, "trunc");
             default : {
-                throw LCompilersException("IntrinsicScalarFunction: `"
+                throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
                     + "` is not implemented");
             }
@@ -1924,15 +1912,25 @@ public:
 
     #define SET_ARR_INTRINSIC_NAME(X, func_name)                                \
         case (static_cast<int64_t>(ASRUtils::IntrinsicArrayFunctions::X)) : {   \
+            visit_expr(*x.m_args[0]);                                           \
             out += func_name; break;                                            \
         }
 
     void visit_IntrinsicArrayFunction(const ASR::IntrinsicArrayFunction_t &x) {
         std::string out;
-        LCOMPILERS_ASSERT(x.n_args == 1);
-        visit_expr(*x.m_args[0]);
         switch (x.m_arr_intrinsic_id) {
             SET_ARR_INTRINSIC_NAME(Sum, "sum");
+            case (static_cast<int64_t>(ASRUtils::IntrinsicArrayFunctions::MatMul)) : {
+                visit_expr(*x.m_args[0]);
+                std::string left = std::move(src);
+                int left_precedence = last_expr_precedence;
+                visit_expr(*x.m_args[1]);
+                std::string right = std::move(src);
+                int right_precedence = last_expr_precedence;
+                last_expr_precedence = julia_prec::Mul;
+                src = format_binop(left, "*", right, left_precedence, right_precedence);
+                return;
+            }
             default : {
                 throw LCompilersException("IntrinsicFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_arr_intrinsic_id)

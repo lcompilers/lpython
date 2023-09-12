@@ -23,12 +23,17 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
 
     SymbolTable* current_scope;
     ASR::expr_t* result_var;
+    ASR::cast_kindType cast_kind;
+    ASR::ttype_t* casted_type;
+    bool perform_cast;
 
     ReplaceInitExpr(
         Allocator& al_,
         std::map<SymbolTable*, Vec<ASR::stmt_t*>>& symtab2decls_) :
     al(al_), symtab2decls(symtab2decls_),
-    current_scope(nullptr), result_var(nullptr) {}
+    current_scope(nullptr), result_var(nullptr),
+    cast_kind(ASR::cast_kindType::IntegerToInteger),
+    casted_type(nullptr), perform_cast(false) {}
 
     void replace_ArrayConstant(ASR::ArrayConstant_t* x) {
         if( symtab2decls.find(current_scope) == symtab2decls.end() ) {
@@ -38,8 +43,13 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         }
         Vec<ASR::stmt_t*>* result_vec = &symtab2decls[current_scope];
         bool remove_original_statement = false;
+        if( casted_type != nullptr ) {
+            casted_type = ASRUtils::type_get_past_array(casted_type);
+        }
         PassUtils::ReplacerUtils::replace_ArrayConstant(x, this,
-            remove_original_statement, result_vec);
+            remove_original_statement, result_vec,
+            perform_cast, cast_kind, casted_type);
+        *current_expr = nullptr;
     }
 
     void replace_StructTypeConstructor(ASR::StructTypeConstructor_t* x) {
@@ -51,7 +61,24 @@ class ReplaceInitExpr: public ASR::BaseExprReplacer<ReplaceInitExpr> {
         Vec<ASR::stmt_t*>* result_vec = &symtab2decls[current_scope];
         bool remove_original_statement = false;
         PassUtils::ReplacerUtils::replace_StructTypeConstructor(
-            x, this, true, remove_original_statement, result_vec);
+            x, this, true, remove_original_statement, result_vec,
+            perform_cast, cast_kind, casted_type);
+        *current_expr = nullptr;
+    }
+
+    void replace_Cast(ASR::Cast_t* x) {
+        bool perform_cast_copy = perform_cast;
+        ASR::cast_kindType cast_kind_copy = cast_kind;
+        ASR::ttype_t* casted_type_copy = casted_type;
+        perform_cast = true;
+        cast_kind = x->m_kind;
+        LCOMPILERS_ASSERT(x->m_type != nullptr);
+        casted_type = ASRUtils::type_get_past_allocatable(
+            ASRUtils::type_get_past_pointer(x->m_type));
+        BaseExprReplacer<ReplaceInitExpr>::replace_Cast(x);
+        perform_cast = perform_cast_copy;
+        cast_kind = cast_kind_copy;
+        casted_type = casted_type_copy;
         *current_expr = nullptr;
     }
 
@@ -132,11 +159,15 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
 
         void visit_Variable(const ASR::Variable_t &x) {
             ASR::symbol_t* asr_owner = ASRUtils::get_asr_owner(&(x.base));
-            if( !(x.m_symbolic_value &&
-                  (ASR::is_a<ASR::ArrayConstant_t>(*x.m_symbolic_value) ||
-                   ASR::is_a<ASR::StructTypeConstructor_t>(*x.m_symbolic_value))) ||
+            ASR::expr_t* symbolic_value = x.m_symbolic_value;
+            if( symbolic_value && ASR::is_a<ASR::Cast_t>(*symbolic_value) ) {
+                symbolic_value = ASR::down_cast<ASR::Cast_t>(symbolic_value)->m_arg;
+            }
+            if( !(symbolic_value &&
+                  (ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value) ||
+                   ASR::is_a<ASR::StructTypeConstructor_t>(*symbolic_value))) ||
                  (ASR::is_a<ASR::Module_t>(*asr_owner) &&
-                  ASR::is_a<ASR::ArrayConstant_t>(*x.m_symbolic_value))) {
+                  ASR::is_a<ASR::ArrayConstant_t>(*symbolic_value))) {
                 return ;
             }
 
@@ -151,8 +182,12 @@ class InitExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<InitExprVis
                 current_expr = const_cast<ASR::expr_t**>(&(x.m_symbolic_value));
                 call_replacer();
                 current_expr = current_expr_copy;
-                if( x.m_symbolic_value )
-                visit_expr(*x.m_symbolic_value);
+                if( x.m_symbolic_value ) {
+                    LCOMPILERS_ASSERT(x.m_value != nullptr);
+                    visit_expr(*x.m_symbolic_value);
+                } else {
+                    xx.m_value = nullptr;
+                }
             }
             visit_ttype(*x.m_type);
             current_scope = current_scope_copy;
