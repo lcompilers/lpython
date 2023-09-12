@@ -1134,6 +1134,18 @@ LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x)
     return catanh(x);
 }
 
+// trunc -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_strunc(float x)
+{
+    return truncf(x);
+}
+
+LFORTRAN_API double _lfortran_dtrunc(double x)
+{
+    return trunc(x);
+}
+
 // phase --------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_cphase(float_complex_t x)

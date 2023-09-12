@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        217
+                                        221
                                         {
                                             
                                         })
@@ -46,11 +46,11 @@
                             test_1d_to_nd:
                                 (Function
                                     (SymbolTable
-                                        201
+                                        205
                                         {
                                             a:
                                                 (Variable
-                                                    201
+                                                    205
                                                     a
                                                     []
                                                     Local
@@ -73,7 +73,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    201
+                                                    205
                                                     b
                                                     []
                                                     Local
@@ -95,13 +95,13 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        208
+                                                        212
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    208
+                                                                    212
                                                                     _lpython_floordiv
-                                                                    78 _lpython_floordiv
+                                                                    82 _lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     _lpython_floordiv
@@ -109,9 +109,9 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    208
+                                                                    212
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                                    78 __lpython_overloaded_6___lpython_floordiv
+                                                                    82 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     __lpython_overloaded_6___lpython_floordiv
@@ -120,11 +120,11 @@
                                                         })
                                                     block
                                                     [(=
-                                                        (Var 201 i)
+                                                        (Var 205 i)
                                                         (FunctionCall
-                                                            208 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            208 _lpython_floordiv
-                                                            [((Var 201 k))
+                                                            212 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            212 _lpython_floordiv
+                                                            [((Var 205 k))
                                                             ((IntegerConstant 16 (Integer 4)))]
                                                             (Integer 4)
                                                             ()
@@ -133,12 +133,12 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 201 j)
+                                                        (Var 205 j)
                                                         (IntegerBinOp
-                                                            (Var 201 k)
+                                                            (Var 205 k)
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 201 i)
+                                                                (Var 205 i)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -151,9 +151,9 @@
                                                     )
                                                     (=
                                                         (ArrayItem
-                                                            (Var 201 b)
+                                                            (Var 205 b)
                                                             [(()
-                                                            (Var 201 k)
+                                                            (Var 205 k)
                                                             ())]
                                                             (Real 8)
                                                             RowMajor
@@ -162,9 +162,9 @@
                                                         (RealBinOp
                                                             (Cast
                                                                 (IntegerBinOp
-                                                                    (Var 201 i)
+                                                                    (Var 205 i)
                                                                     Add
-                                                                    (Var 201 j)
+                                                                    (Var 205 j)
                                                                     (Integer 4)
                                                                     ()
                                                                 )
@@ -185,7 +185,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    201
+                                                    205
                                                     c
                                                     []
                                                     Local
@@ -210,7 +210,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    201
+                                                    205
                                                     d
                                                     []
                                                     InOut
@@ -231,7 +231,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    201
+                                                    205
                                                     eps
                                                     []
                                                     Local
@@ -247,7 +247,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    201
+                                                    205
                                                     i
                                                     []
                                                     Local
@@ -263,7 +263,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    201
+                                                    205
                                                     j
                                                     []
                                                     Local
@@ -279,7 +279,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    201
+                                                    205
                                                     k
                                                     []
                                                     Local
@@ -295,7 +295,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    201
+                                                    205
                                                     l
                                                     []
                                                     Local
@@ -311,7 +311,7 @@
                                                 ),
                                             newshape:
                                                 (Variable
-                                                    201
+                                                    205
                                                     newshape
                                                     []
                                                     Local
@@ -332,7 +332,7 @@
                                                 ),
                                             newshape1:
                                                 (Variable
-                                                    201
+                                                    205
                                                     newshape1
                                                     []
                                                     Local
@@ -373,9 +373,9 @@
                                         .false.
                                     )
                                     [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
-                                    [(Var 201 d)]
+                                    [(Var 205 d)]
                                     [(=
-                                        (Var 201 eps)
+                                        (Var 205 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -383,7 +383,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 b)
+                                        (Var 205 b)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -398,7 +398,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 201 k)
+                                        ((Var 205 k)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4))
@@ -410,11 +410,11 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            201 block
+                                            205 block
                                         )]
                                     )
                                     (=
-                                        (Var 201 a)
+                                        (Var 205 a)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -430,7 +430,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 newshape)
+                                        (Var 205 newshape)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -445,7 +445,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 201 newshape)
+                                            (Var 205 newshape)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -458,7 +458,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 201 newshape)
+                                            (Var 205 newshape)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -470,11 +470,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 a)
+                                        (Var 205 a)
                                         (ArrayReshape
-                                            (Var 201 b)
+                                            (Var 205 b)
                                             (ArrayPhysicalCast
-                                                (Var 201 newshape)
+                                                (Var 205 newshape)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -497,7 +497,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 201 i)
+                                        ((Var 205 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -509,7 +509,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 201 j)
+                                            ((Var 205 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -526,12 +526,12 @@
                                                         [(RealBinOp
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 201 a)
+                                                                    (Var 205 a)
                                                                     [(()
-                                                                    (Var 201 i)
+                                                                    (Var 205 i)
                                                                     ())
                                                                     (()
-                                                                    (Var 201 j)
+                                                                    (Var 205 j)
                                                                     ())]
                                                                     (Real 8)
                                                                     RowMajor
@@ -540,9 +540,9 @@
                                                                 Sub
                                                                 (Cast
                                                                     (IntegerBinOp
-                                                                        (Var 201 i)
+                                                                        (Var 205 i)
                                                                         Add
-                                                                        (Var 201 j)
+                                                                        (Var 205 j)
                                                                         (Integer 4)
                                                                         ()
                                                                     )
@@ -566,7 +566,7 @@
                                                         ()
                                                     )
                                                     LtE
-                                                    (Var 201 eps)
+                                                    (Var 205 eps)
                                                     (Logical 4)
                                                     ()
                                                 )
@@ -575,7 +575,7 @@
                                         )]
                                     )
                                     (=
-                                        (Var 201 c)
+                                        (Var 205 c)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -593,7 +593,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 newshape1)
+                                        (Var 205 newshape1)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -608,7 +608,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 201 newshape1)
+                                            (Var 205 newshape1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -621,7 +621,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 201 newshape1)
+                                            (Var 205 newshape1)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -634,7 +634,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 201 newshape1)
+                                            (Var 205 newshape1)
                                             [(()
                                             (IntegerConstant 2 (Integer 4))
                                             ())]
@@ -646,11 +646,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 201 c)
+                                        (Var 205 c)
                                         (ArrayReshape
-                                            (Var 201 d)
+                                            (Var 205 d)
                                             (ArrayPhysicalCast
-                                                (Var 201 newshape1)
+                                                (Var 205 newshape1)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -673,7 +673,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 201 i)
+                                        ((Var 205 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -685,7 +685,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 201 j)
+                                            ((Var 205 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -697,7 +697,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(DoLoop
                                                 ()
-                                                ((Var 201 k)
+                                                ((Var 205 k)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (IntegerConstant 16 (Integer 4))
@@ -714,15 +714,15 @@
                                                             [(RealBinOp
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 201 c)
+                                                                        (Var 205 c)
                                                                         [(()
-                                                                        (Var 201 i)
+                                                                        (Var 205 i)
                                                                         ())
                                                                         (()
-                                                                        (Var 201 j)
+                                                                        (Var 205 j)
                                                                         ())
                                                                         (()
-                                                                        (Var 201 k)
+                                                                        (Var 205 k)
                                                                         ())]
                                                                         (Real 8)
                                                                         RowMajor
@@ -732,14 +732,14 @@
                                                                     (Cast
                                                                         (IntegerBinOp
                                                                             (IntegerBinOp
-                                                                                (Var 201 i)
+                                                                                (Var 205 i)
                                                                                 Add
-                                                                                (Var 201 j)
+                                                                                (Var 205 j)
                                                                                 (Integer 4)
                                                                                 ()
                                                                             )
                                                                             Add
-                                                                            (Var 201 k)
+                                                                            (Var 205 k)
                                                                             (Integer 4)
                                                                             ()
                                                                         )
@@ -763,7 +763,7 @@
                                                             ()
                                                         )
                                                         LtE
-                                                        (Var 201 eps)
+                                                        (Var 205 eps)
                                                         (Logical 4)
                                                         ()
                                                     )
@@ -781,11 +781,11 @@
                             test_nd_to_1d:
                                 (Function
                                     (SymbolTable
-                                        200
+                                        204
                                         {
                                             a:
                                                 (Variable
-                                                    200
+                                                    204
                                                     a
                                                     []
                                                     InOut
@@ -808,7 +808,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    200
+                                                    204
                                                     b
                                                     []
                                                     Local
@@ -830,13 +830,13 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        203
+                                                        207
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    203
+                                                                    207
                                                                     _lpython_floordiv
-                                                                    78 _lpython_floordiv
+                                                                    82 _lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     _lpython_floordiv
@@ -844,9 +844,9 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    203
+                                                                    207
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                                    78 __lpython_overloaded_6___lpython_floordiv
+                                                                    82 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     __lpython_overloaded_6___lpython_floordiv
@@ -855,11 +855,11 @@
                                                         })
                                                     block
                                                     [(=
-                                                        (Var 200 i)
+                                                        (Var 204 i)
                                                         (FunctionCall
-                                                            203 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            203 _lpython_floordiv
-                                                            [((Var 200 k))
+                                                            207 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            207 _lpython_floordiv
+                                                            [((Var 204 k))
                                                             ((IntegerConstant 16 (Integer 4)))]
                                                             (Integer 4)
                                                             ()
@@ -868,12 +868,12 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 200 j)
+                                                        (Var 204 j)
                                                         (IntegerBinOp
-                                                            (Var 200 k)
+                                                            (Var 204 k)
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 200 i)
+                                                                (Var 204 i)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -891,9 +891,9 @@
                                                                 [(RealBinOp
                                                                     (RealBinOp
                                                                         (ArrayItem
-                                                                            (Var 200 b)
+                                                                            (Var 204 b)
                                                                             [(()
-                                                                            (Var 200 k)
+                                                                            (Var 204 k)
                                                                             ())]
                                                                             (Real 8)
                                                                             RowMajor
@@ -902,9 +902,9 @@
                                                                         Sub
                                                                         (Cast
                                                                             (IntegerBinOp
-                                                                                (Var 200 i)
+                                                                                (Var 204 i)
                                                                                 Add
-                                                                                (Var 200 j)
+                                                                                (Var 204 j)
                                                                                 (Integer 4)
                                                                                 ()
                                                                             )
@@ -928,7 +928,7 @@
                                                                 ()
                                                             )
                                                             LtE
-                                                            (Var 200 eps)
+                                                            (Var 204 eps)
                                                             (Logical 4)
                                                             ()
                                                         )
@@ -938,13 +938,13 @@
                                             block1:
                                                 (Block
                                                     (SymbolTable
-                                                        207
+                                                        211
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    207
+                                                                    211
                                                                     _lpython_floordiv
-                                                                    78 _lpython_floordiv
+                                                                    82 _lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     _lpython_floordiv
@@ -952,9 +952,9 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    207
+                                                                    211
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                                    78 __lpython_overloaded_6___lpython_floordiv
+                                                                    82 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     __lpython_overloaded_6___lpython_floordiv
@@ -963,11 +963,11 @@
                                                         })
                                                     block1
                                                     [(=
-                                                        (Var 200 i)
+                                                        (Var 204 i)
                                                         (Cast
                                                             (RealBinOp
                                                                 (Cast
-                                                                    (Var 200 l)
+                                                                    (Var 204 l)
                                                                     IntegerToReal
                                                                     (Real 8)
                                                                     ()
@@ -992,15 +992,15 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 200 j)
+                                                        (Var 204 j)
                                                         (FunctionCall
-                                                            207 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            207 _lpython_floordiv
+                                                            211 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            211 _lpython_floordiv
                                                             [((IntegerBinOp
-                                                                (Var 200 l)
+                                                                (Var 204 l)
                                                                 Sub
                                                                 (IntegerBinOp
-                                                                    (Var 200 i)
+                                                                    (Var 204 i)
                                                                     Mul
                                                                     (IntegerConstant 256 (Integer 4))
                                                                     (Integer 4)
@@ -1017,13 +1017,13 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 200 k)
+                                                        (Var 204 k)
                                                         (IntegerBinOp
                                                             (IntegerBinOp
-                                                                (Var 200 l)
+                                                                (Var 204 l)
                                                                 Sub
                                                                 (IntegerBinOp
-                                                                    (Var 200 i)
+                                                                    (Var 204 i)
                                                                     Mul
                                                                     (IntegerConstant 256 (Integer 4))
                                                                     (Integer 4)
@@ -1034,7 +1034,7 @@
                                                             )
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 200 j)
+                                                                (Var 204 j)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -1052,9 +1052,9 @@
                                                                 [(RealBinOp
                                                                     (RealBinOp
                                                                         (ArrayItem
-                                                                            (Var 200 d)
+                                                                            (Var 204 d)
                                                                             [(()
-                                                                            (Var 200 l)
+                                                                            (Var 204 l)
                                                                             ())]
                                                                             (Real 8)
                                                                             RowMajor
@@ -1064,14 +1064,14 @@
                                                                         (Cast
                                                                             (IntegerBinOp
                                                                                 (IntegerBinOp
-                                                                                    (Var 200 i)
+                                                                                    (Var 204 i)
                                                                                     Add
-                                                                                    (Var 200 j)
+                                                                                    (Var 204 j)
                                                                                     (Integer 4)
                                                                                     ()
                                                                                 )
                                                                                 Add
-                                                                                (Var 200 k)
+                                                                                (Var 204 k)
                                                                                 (Integer 4)
                                                                                 ()
                                                                             )
@@ -1095,7 +1095,7 @@
                                                                 ()
                                                             )
                                                             LtE
-                                                            (Var 200 eps)
+                                                            (Var 204 eps)
                                                             (Logical 4)
                                                             ()
                                                         )
@@ -1104,7 +1104,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    200
+                                                    204
                                                     c
                                                     []
                                                     Local
@@ -1129,7 +1129,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    200
+                                                    204
                                                     d
                                                     []
                                                     Local
@@ -1150,7 +1150,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    200
+                                                    204
                                                     eps
                                                     []
                                                     Local
@@ -1166,7 +1166,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    200
+                                                    204
                                                     i
                                                     []
                                                     Local
@@ -1182,7 +1182,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    200
+                                                    204
                                                     j
                                                     []
                                                     Local
@@ -1198,7 +1198,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    200
+                                                    204
                                                     k
                                                     []
                                                     Local
@@ -1214,7 +1214,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    200
+                                                    204
                                                     l
                                                     []
                                                     Local
@@ -1230,7 +1230,7 @@
                                                 ),
                                             newshape:
                                                 (Variable
-                                                    200
+                                                    204
                                                     newshape
                                                     []
                                                     Local
@@ -1251,7 +1251,7 @@
                                                 ),
                                             newshape1:
                                                 (Variable
-                                                    200
+                                                    204
                                                     newshape1
                                                     []
                                                     Local
@@ -1294,9 +1294,9 @@
                                         .false.
                                     )
                                     [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
-                                    [(Var 200 a)]
+                                    [(Var 204 a)]
                                     [(=
-                                        (Var 200 eps)
+                                        (Var 204 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -1304,7 +1304,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 b)
+                                        (Var 204 b)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1318,7 +1318,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 newshape)
+                                        (Var 204 newshape)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1333,7 +1333,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 200 newshape)
+                                            (Var 204 newshape)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1345,11 +1345,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 b)
+                                        (Var 204 b)
                                         (ArrayReshape
-                                            (Var 200 a)
+                                            (Var 204 a)
                                             (ArrayPhysicalCast
-                                                (Var 200 newshape)
+                                                (Var 204 newshape)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -1372,7 +1372,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 200 k)
+                                        ((Var 204 k)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4))
@@ -1384,11 +1384,11 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            200 block
+                                            204 block
                                         )]
                                     )
                                     (=
-                                        (Var 200 c)
+                                        (Var 204 c)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1406,7 +1406,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 c)
+                                        (Var 204 c)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1425,7 +1425,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 200 i)
+                                        ((Var 204 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -1437,7 +1437,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 200 j)
+                                            ((Var 204 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -1449,7 +1449,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(DoLoop
                                                 ()
-                                                ((Var 200 k)
+                                                ((Var 204 k)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (IntegerConstant 16 (Integer 4))
@@ -1461,15 +1461,15 @@
                                                 (IntegerConstant 1 (Integer 4)))
                                                 [(=
                                                     (ArrayItem
-                                                        (Var 200 c)
+                                                        (Var 204 c)
                                                         [(()
-                                                        (Var 200 i)
+                                                        (Var 204 i)
                                                         ())
                                                         (()
-                                                        (Var 200 j)
+                                                        (Var 204 j)
                                                         ())
                                                         (()
-                                                        (Var 200 k)
+                                                        (Var 204 k)
                                                         ())]
                                                         (Real 8)
                                                         RowMajor
@@ -1479,14 +1479,14 @@
                                                         (Cast
                                                             (IntegerBinOp
                                                                 (IntegerBinOp
-                                                                    (Var 200 i)
+                                                                    (Var 204 i)
                                                                     Add
-                                                                    (Var 200 j)
+                                                                    (Var 204 j)
                                                                     (Integer 4)
                                                                     ()
                                                                 )
                                                                 Add
-                                                                (Var 200 k)
+                                                                (Var 204 k)
                                                                 (Integer 4)
                                                                 ()
                                                             )
@@ -1508,7 +1508,7 @@
                                         )]
                                     )
                                     (=
-                                        (Var 200 d)
+                                        (Var 204 d)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1522,7 +1522,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 newshape1)
+                                        (Var 204 newshape1)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1537,7 +1537,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 200 newshape1)
+                                            (Var 204 newshape1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -1549,11 +1549,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 200 d)
+                                        (Var 204 d)
                                         (ArrayReshape
-                                            (Var 200 c)
+                                            (Var 204 c)
                                             (ArrayPhysicalCast
-                                                (Var 200 newshape1)
+                                                (Var 204 newshape1)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -1576,7 +1576,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 200 l)
+                                        ((Var 204 l)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 4096 (Integer 4))
@@ -1588,7 +1588,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            200 block1
+                                            204 block1
                                         )]
                                     )]
                                     ()
@@ -1600,11 +1600,11 @@
                             test_reshape_with_argument:
                                 (Function
                                     (SymbolTable
-                                        202
+                                        206
                                         {
                                             a:
                                                 (Variable
-                                                    202
+                                                    206
                                                     a
                                                     []
                                                     Local
@@ -1628,13 +1628,13 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        216
+                                                        220
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    216
+                                                                    220
                                                                     _lpython_floordiv
-                                                                    78 _lpython_floordiv
+                                                                    82 _lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     _lpython_floordiv
@@ -1642,9 +1642,9 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    216
+                                                                    220
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                                    78 __lpython_overloaded_6___lpython_floordiv
+                                                                    82 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
                                                                     []
                                                                     __lpython_overloaded_6___lpython_floordiv
@@ -1653,11 +1653,11 @@
                                                         })
                                                     block
                                                     [(=
-                                                        (Var 202 i)
+                                                        (Var 206 i)
                                                         (Cast
                                                             (RealBinOp
                                                                 (Cast
-                                                                    (Var 202 l)
+                                                                    (Var 206 l)
                                                                     IntegerToReal
                                                                     (Real 8)
                                                                     ()
@@ -1682,15 +1682,15 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 202 j)
+                                                        (Var 206 j)
                                                         (FunctionCall
-                                                            216 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            216 _lpython_floordiv
+                                                            220 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            220 _lpython_floordiv
                                                             [((IntegerBinOp
-                                                                (Var 202 l)
+                                                                (Var 206 l)
                                                                 Sub
                                                                 (IntegerBinOp
-                                                                    (Var 202 i)
+                                                                    (Var 206 i)
                                                                     Mul
                                                                     (IntegerConstant 256 (Integer 4))
                                                                     (Integer 4)
@@ -1707,13 +1707,13 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 202 k)
+                                                        (Var 206 k)
                                                         (IntegerBinOp
                                                             (IntegerBinOp
-                                                                (Var 202 l)
+                                                                (Var 206 l)
                                                                 Sub
                                                                 (IntegerBinOp
-                                                                    (Var 202 i)
+                                                                    (Var 206 i)
                                                                     Mul
                                                                     (IntegerConstant 256 (Integer 4))
                                                                     (Integer 4)
@@ -1724,7 +1724,7 @@
                                                             )
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 202 j)
+                                                                (Var 206 j)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -1737,9 +1737,9 @@
                                                     )
                                                     (=
                                                         (ArrayItem
-                                                            (Var 202 d)
+                                                            (Var 206 d)
                                                             [(()
-                                                            (Var 202 l)
+                                                            (Var 206 l)
                                                             ())]
                                                             (Real 8)
                                                             RowMajor
@@ -1749,14 +1749,14 @@
                                                             (Cast
                                                                 (IntegerBinOp
                                                                     (IntegerBinOp
-                                                                        (Var 202 i)
+                                                                        (Var 206 i)
                                                                         Add
-                                                                        (Var 202 j)
+                                                                        (Var 206 j)
                                                                         (Integer 4)
                                                                         ()
                                                                     )
                                                                     Add
-                                                                    (Var 202 k)
+                                                                    (Var 206 k)
                                                                     (Integer 4)
                                                                     ()
                                                                 )
@@ -1777,7 +1777,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    202
+                                                    206
                                                     d
                                                     []
                                                     Local
@@ -1798,7 +1798,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    202
+                                                    206
                                                     i
                                                     []
                                                     Local
@@ -1814,7 +1814,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    202
+                                                    206
                                                     j
                                                     []
                                                     Local
@@ -1830,7 +1830,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    202
+                                                    206
                                                     k
                                                     []
                                                     Local
@@ -1846,7 +1846,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    202
+                                                    206
                                                     l
                                                     []
                                                     Local
@@ -1881,7 +1881,7 @@
                                     test_1d_to_nd]
                                     []
                                     [(=
-                                        (Var 202 a)
+                                        (Var 206 a)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1898,7 +1898,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 202 i)
+                                        ((Var 206 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -1910,7 +1910,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 202 j)
+                                            ((Var 206 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -1922,12 +1922,12 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(=
                                                 (ArrayItem
-                                                    (Var 202 a)
+                                                    (Var 206 a)
                                                     [(()
-                                                    (Var 202 i)
+                                                    (Var 206 i)
                                                     ())
                                                     (()
-                                                    (Var 202 j)
+                                                    (Var 206 j)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -1936,9 +1936,9 @@
                                                 (RealBinOp
                                                     (Cast
                                                         (IntegerBinOp
-                                                            (Var 202 i)
+                                                            (Var 206 i)
                                                             Add
-                                                            (Var 202 j)
+                                                            (Var 206 j)
                                                             (Integer 4)
                                                             ()
                                                         )
@@ -1962,7 +1962,7 @@
                                         2 test_nd_to_1d
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 202 a)
+                                            (Var 206 a)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1978,7 +1978,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 202 d)
+                                        (Var 206 d)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1993,7 +1993,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 202 l)
+                                        ((Var 206 l)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 4096 (Integer 4))
@@ -2005,14 +2005,14 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            202 block
+                                            206 block
                                         )]
                                     )
                                     (SubroutineCall
                                         2 test_1d_to_nd
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 202 d)
+                                            (Var 206 d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -2043,11 +2043,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        218
+                        222
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    218
+                                    222
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2059,7 +2059,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        218 __main__global_stmts
+                        222 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
