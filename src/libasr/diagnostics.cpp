@@ -89,8 +89,7 @@ std::string Diagnostics::render(LocationManager &lm,
                 }
                 out += "\n\n";
                 out += bold + "Note" + reset
-                    + ": if any of the above error or warning messages are not clear or are lacking\n";
-                out += "context please report it to us (we consider that a bug that must be fixed).\n";
+                    + ": Please report unclear or confusing messages as bugs at\nhttps://github.com/lcompilers/lpython/issues.\n";
             }
         }
     }

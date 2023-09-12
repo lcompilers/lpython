@@ -50,10 +50,12 @@
 #include <libasr/pass/unique_symbols.h>
 #include <libasr/pass/replace_print_struct_type.h>
 #include <libasr/asr_verify.h>
+#include <libasr/pickle.h>
 
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <fstream>
 
 namespace LCompilers {
 
@@ -152,13 +154,21 @@ namespace LCompilers {
                     std::cerr << "ASR Pass starts: '" << passes[i] << "'\n";
                 }
                 _passes_db[passes[i]](al, *asr, pass_options);
-            #if defined(WITH_LFORTRAN_ASSERT)
+                if (pass_options.dumb_all_passes) {
+                    std::string str_i = std::to_string(i+1);
+                    if ( i < 9 )  str_i = "0" + str_i;
+                    std::ofstream outfile ("pass_" + str_i + "_" + passes[i] + ".clj");
+                    outfile << ";; ASR after applying the pass: " << passes[i]
+                        << "\n" << pickle(*asr, false, true) << "\n";
+                    outfile.close();
+                }
+#if defined(WITH_LFORTRAN_ASSERT)
                 if (!asr_verify(*asr, true, diagnostics)) {
                     std::cerr << diagnostics.render2();
                     throw LCompilersException("Verify failed in the pass: "
                         + passes[i]);
                 };
-            #endif
+#endif
                 if (pass_options.verbose) {
                     std::cerr << "ASR Pass ends: '" << passes[i] << "'\n";
                 }
@@ -212,6 +222,7 @@ namespace LCompilers {
                 "print_struct_type",
                 "print_arr",
                 "print_list_tuple",
+                "print_struct_type",
                 "array_dim_intrinsics_update",
                 "do_loops",
                 "forall",
@@ -228,7 +239,7 @@ namespace LCompilers {
                 "implied_do_loops",
                 "class_constructor",
                 "pass_array_by_data",
-                "arr_slice",
+                // "arr_slice", TODO: Remove ``arr_slice.cpp`` completely
                 "subroutine_from_function",
                 "array_op",
                 "intrinsic_function",
@@ -236,6 +247,7 @@ namespace LCompilers {
                 "print_struct_type",
                 "print_arr",
                 "print_list_tuple",
+                "print_struct_type",
                 "loop_vectorise",
                 "loop_unroll",
                 "array_dim_intrinsics_update",
@@ -250,7 +262,7 @@ namespace LCompilers {
                 "div_to_mul",
                 "fma",
                 "transform_optional_argument_functions",
-                "inline_function_calls",
+                // "inline_function_calls", TODO: Uncomment later
                 "unique_symbols"
             };
 
@@ -260,6 +272,7 @@ namespace LCompilers {
                 "pass_list_expr",
                 "print_list_tuple",
                 "do_loops",
+                "select_case",
                 "inline_function_calls"
             };
             _user_defined_passes.clear();
@@ -301,6 +314,10 @@ namespace LCompilers {
         void use_default_passes(bool _c_skip_pass=false) {
             apply_default_passes = true;
             c_skip_pass = _c_skip_pass;
+        }
+
+        void skip_c_passes() {
+            c_skip_pass = true;
         }
 
         void do_not_use_default_passes() {

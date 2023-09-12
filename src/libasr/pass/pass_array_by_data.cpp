@@ -228,13 +228,13 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
             for( auto& item: xx.m_symtab->get_scope() ) {
                 if( ASR::is_a<ASR::Function_t>(*item.second) ) {
                     ASR::Function_t* subrout = ASR::down_cast<ASR::Function_t>(item.second);
+                    pass_array_by_data_functions.push_back(subrout);
                     std::vector<size_t> arg_indices;
                     if( ASRUtils::is_pass_array_by_data_possible(subrout, arg_indices) ) {
                         ASR::symbol_t* sym = insert_new_procedure(subrout, arg_indices);
                         if( sym != nullptr ) {
                             ASR::Function_t* new_subrout = ASR::down_cast<ASR::Function_t>(sym);
                             edit_new_procedure_args(new_subrout, arg_indices);
-                            pass_array_by_data_functions.push_back(new_subrout);
                         }
                     }
                 }
@@ -304,9 +304,17 @@ class EditProcedureReplacer: public ASR::BaseExprReplacer<EditProcedureReplacer>
 
     void replace_ArrayPhysicalCast(ASR::ArrayPhysicalCast_t* x) {
         ASR::BaseExprReplacer<EditProcedureReplacer>::replace_ArrayPhysicalCast(x);
-        x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
-        if( x->m_old == x->m_new) {
+        // TODO: Allow for DescriptorArray to DescriptorArray physical cast for allocatables
+        // later on
+        if( (x->m_old == x->m_new &&
+             x->m_old != ASR::array_physical_typeType::DescriptorArray) ||
+            (x->m_old == x->m_new && x->m_old == ASR::array_physical_typeType::DescriptorArray &&
+            (ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(x->m_arg)) ||
+             ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x->m_arg)))) ||
+             x->m_old != ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg)) ) {
             *current_expr = x->m_arg;
+        } else {
+            x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
         }
     }
 
@@ -420,17 +428,18 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
                     continue;
                 }
 
-                ASR::ttype_t* orig_arg_type = ASRUtils::expr_type(orig_args[i].m_value);
+                ASR::expr_t* orig_arg_i = orig_args[i].m_value;
+                ASR::ttype_t* orig_arg_type = ASRUtils::expr_type(orig_arg_i);
                 if( ASRUtils::is_array(orig_arg_type) ) {
                     ASR::Array_t* array_t = ASR::down_cast<ASR::Array_t>(
                         ASRUtils::type_get_past_allocatable(orig_arg_type));
                     if( array_t->m_physical_type != ASR::array_physical_typeType::PointerToDataArray ) {
                         ASR::expr_t* physical_cast = ASRUtils::EXPR(ASRUtils::make_ArrayPhysicalCast_t_util(
-                            al, orig_args[i].m_value->base.loc, orig_args[i].m_value, array_t->m_physical_type,
+                            al, orig_arg_i->base.loc, orig_arg_i, array_t->m_physical_type,
                             ASR::array_physical_typeType::PointerToDataArray, ASRUtils::duplicate_type(al, orig_arg_type,
                             nullptr, ASR::array_physical_typeType::PointerToDataArray, true), nullptr));
                         ASR::call_arg_t physical_cast_arg;
-                        physical_cast_arg.loc = orig_args[i].m_value->base.loc;
+                        physical_cast_arg.loc = orig_arg_i->base.loc;
                         physical_cast_arg.m_value = physical_cast;
                         new_args.push_back(al, physical_cast_arg);
                     } else {
@@ -442,7 +451,7 @@ class EditProcedureCallsVisitor : public ASR::ASRPassBaseWalkVisitor<EditProcedu
 
                 Vec<ASR::expr_t*> dim_vars;
                 dim_vars.reserve(al, 2);
-                ASRUtils::get_dimensions(orig_args[i].m_value, dim_vars, al);
+                ASRUtils::get_dimensions(orig_arg_i, dim_vars, al);
                 for( size_t j = 0; j < dim_vars.size(); j++ ) {
                     ASR::call_arg_t dim_var;
                     dim_var.loc = dim_vars[j]->base.loc;

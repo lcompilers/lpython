@@ -221,7 +221,9 @@ public:
         // Avoid inlining current function call if its a recursion.
         ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(routine);
         if( ASRUtils::is_intrinsic_function2(func) ||
-            std::string(func->m_name) == current_routine ) {
+                std::string(func->m_name) == current_routine ||
+                // Never Inline BindC Function
+                ASRUtils::get_FunctionType(func)->m_abi == ASR::abiType::BindC) {
             return ;
         }
 
@@ -357,11 +359,6 @@ public:
             } else {
                 success = false;
             }
-        }
-
-        // Never Inline BindC Function
-        if(ASRUtils::get_FunctionType(func)->m_abi == ASR::abiType::BindC){
-            return;
         }
 
         if( success ) {

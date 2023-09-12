@@ -70,6 +70,7 @@ set(SRC
     string_utils.cpp
     asr_scopes.cpp
     modfile.cpp
+    pickle.cpp
     serialization.cpp
     utils2.cpp
 )
