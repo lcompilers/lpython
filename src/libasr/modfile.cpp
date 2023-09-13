@@ -53,8 +53,8 @@ inline void save_asr(const ASR::TranslationUnit_t &m, std::string& asr_string) {
     Comments below show some possible future improvements to the mod format.
 */
 std::string save_modfile(const ASR::TranslationUnit_t &m) {
-    LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
-    for (auto &a : m.m_global_scope->get_scope()) {
+    LCOMPILERS_ASSERT(m.m_symtab->get_scope().size()== 1);
+    for (auto &a : m.m_symtab->get_scope()) {
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         if ((bool&)a) { } // Suppress unused warning in Release mode
     }

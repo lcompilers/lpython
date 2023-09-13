@@ -1,7 +1,7 @@
 {
     "node": "TranslationUnit",
     "fields": {
-        "global_scope": {
+        "symtab": {
             "node": "SymbolTable1",
             "fields": {
                 "__main__": {

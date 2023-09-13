@@ -76,9 +76,9 @@ class SymbolRenameVisitor: public ASR::BaseWalkVisitor<SymbolRenameVisitor> {
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         ASR::TranslationUnit_t& xx = const_cast<ASR::TranslationUnit_t&>(x);
-        current_scope = xx.m_global_scope;
+        current_scope = xx.m_symtab;
         std::unordered_map<ASR::symbol_t*, std::string> tmp_scope;
-        for (auto &a : xx.m_global_scope->get_scope()) {
+        for (auto &a : xx.m_symtab->get_scope()) {
             visit_symbol(*a.second);
         }
     }
@@ -251,14 +251,14 @@ class UniqueSymbolVisitor: public ASR::BaseWalkVisitor<UniqueSymbolVisitor> {
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         ASR::TranslationUnit_t& xx = const_cast<ASR::TranslationUnit_t&>(x);
         std::map<std::string, ASR::symbol_t*> current_scope_copy = current_scope;
-        current_scope = x.m_global_scope->get_scope();
-        for (auto &a : xx.m_global_scope->get_scope()) {
+        current_scope = x.m_symtab->get_scope();
+        for (auto &a : xx.m_symtab->get_scope()) {
             visit_symbol(*a.second);
         }
         for (auto &a: current_scope) {
             if (sym_to_new_name.find(a.second) != sym_to_new_name.end()) {
-                xx.m_global_scope->erase_symbol(a.first);
-                xx.m_global_scope->add_symbol(sym_to_new_name[a.second], a.second);
+                xx.m_symtab->erase_symbol(a.first);
+                xx.m_symtab->add_symbol(sym_to_new_name[a.second], a.second);
             }
         }
         current_scope = current_scope_copy;

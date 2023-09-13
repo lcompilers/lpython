@@ -247,7 +247,7 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
 
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        current_scope = x.m_global_scope;
+        current_scope = x.m_symtab;
         SymbolTable* current_scope_copy = current_scope;
 
         // Add the nested vars by creating a new module
@@ -325,12 +325,12 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
                                             0,
                                             false, false);
             ASR::symbol_t* mod_sym = ASR::down_cast<ASR::symbol_t>(tmp);
-            x.m_global_scope->add_symbol(module_name, mod_sym);
+            x.m_symtab->add_symbol(module_name, mod_sym);
         }
         replacer.nested_var_to_ext_var = nested_var_to_ext_var;
 
-        current_scope = x.m_global_scope;
-        for (auto &a : x.m_global_scope->get_scope()) {
+        current_scope = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_scope = current_scope_copy;

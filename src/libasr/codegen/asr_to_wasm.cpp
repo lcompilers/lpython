@@ -717,18 +717,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             std::vector<std::string> build_order =
                 ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
-                                x.m_global_scope->get_scope().end());
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item) !=
+                                x.m_symtab->get_scope().end());
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 this->visit_symbol(*mod);
             }
         }
 
         // Process procedures first:
-        declare_all_functions(*x.m_global_scope);
+        declare_all_functions(*x.m_symtab);
 
         // then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -740,7 +740,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
 
-        emit_imports(x.m_global_scope);
+        emit_imports(x.m_symtab);
 
         m_wa.emit_declare_mem(min_no_pages, max_no_pages);
         m_wa.emit_export_mem("memory", 0 /* mem_idx */);
@@ -3220,7 +3220,7 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
     LCompilers::PassOptions pass_options;
     pass_options.always_run = true;
     pass_options.verbose = co.verbose;
-    pass_options.dumb_all_passes = co.dumb_all_passes;
+    pass_options.dump_all_passes = co.dump_all_passes;
     std::vector<std::string> passes = {"pass_array_by_data", "array_op",
                 "implied_do_loops", "print_arr", "do_loops", "select_case",
                 "intrinsic_function", "nested_vars", "unused_functions"};

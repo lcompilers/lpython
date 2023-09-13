@@ -206,14 +206,14 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
 
         void visit_TranslationUnit(const ASR::TranslationUnit_t& x) {
             // Visit Module first so that all functions in it are updated
-            for (auto &a : x.m_global_scope->get_scope()) {
+            for (auto &a : x.m_symtab->get_scope()) {
                 if( ASR::is_a<ASR::Module_t>(*a.second) ) {
                     this->visit_symbol(*a.second);
                 }
             }
 
             // Visit all other symbols
-            for (auto &a : x.m_global_scope->get_scope()) {
+            for (auto &a : x.m_symtab->get_scope()) {
                 if( !ASR::is_a<ASR::Module_t>(*a.second) ) {
                     this->visit_symbol(*a.second);
                 }

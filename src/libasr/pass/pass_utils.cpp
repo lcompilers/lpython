@@ -421,7 +421,7 @@ namespace LCompilers {
             ASR::symbol_t *v;
             std::string remote_sym = func_name;
             SymbolTable* current_scope_copy = current_scope;
-            current_scope = unit.m_global_scope;
+            current_scope = unit.m_symtab;
             // We tell `load_module` not to run verify, since the ASR might
             // not be in valid state. We run verify at the end of this pass
             // anyway, so verify will be run no matter what.
@@ -459,7 +459,7 @@ namespace LCompilers {
             ASR::symbol_t *v;
             std::string remote_sym = func_name;
             SymbolTable* current_scope_copy = current_scope;
-            current_scope = unit.m_global_scope;
+            current_scope = unit.m_symtab;
             // We tell `load_module` not to run verify, since the ASR might
             // not be in valid state. We run verify at the end of this pass
             // anyway, so verify will be run no matter what.
@@ -491,7 +491,7 @@ namespace LCompilers {
             ASR::symbol_t *v;
             std::string remote_sym = func_name;
             SymbolTable* current_scope_copy = current_scope;
-            SymbolTable* current_scope2 = unit.m_global_scope;
+            SymbolTable* current_scope2 = unit.m_symtab;
 
             ASR::Module_t *m;
             if (current_scope2->get_symbol(module_name) != nullptr) {
@@ -609,7 +609,7 @@ namespace LCompilers {
             arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
             args.push_back(al, arg1_);
             return instantiate_function(al, loc,
-                unit.m_global_scope, arg_types, type, args, 0);
+                unit.m_symtab, arg_types, type, args, 0);
         }
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int64type, Allocator& al) {
@@ -703,7 +703,7 @@ namespace LCompilers {
             arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
             args.push_back(al, arg2_);
             return instantiate_function(al, loc,
-                unit.m_global_scope, arg_types, type, args, 0);
+                unit.m_symtab, arg_types, type, args, 0);
         }
 
         ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
@@ -831,7 +831,7 @@ namespace LCompilers {
             arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
             args.push_back(al, arg1_);
             return instantiate_function(al, loc,
-                unit.m_global_scope, arg_types, type, args, 0);
+                unit.m_symtab, arg_types, type, args, 0);
         }
 
         Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,

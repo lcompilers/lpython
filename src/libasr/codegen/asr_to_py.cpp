@@ -358,7 +358,7 @@ public:
         pyx_tmp += "cimport " + pxdf + " \n\n";
 
         // Process loose procedures first
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
 
@@ -372,10 +372,10 @@ public:
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                    != x.m_global_scope->get_scope().end());
+            LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                    != x.m_symtab->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 visit_symbol(*mod);
 
                 chdr_tmp += chdr;

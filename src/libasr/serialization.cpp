@@ -159,9 +159,9 @@ private:
     SymbolTable *current_symtab;
 public:
     void visit_TranslationUnit(const TranslationUnit_t &x) {
-        current_symtab = x.m_global_scope;
-        x.m_global_scope->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_global_scope->get_scope()) {
+        current_symtab = x.m_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
     }
@@ -260,8 +260,8 @@ public:
     attempt{0}, fixed_external_syms{true} {}
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
-        global_symtab = x.m_global_scope;
-        for (auto &a : x.m_global_scope->get_scope()) {
+        global_symtab = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
     }
