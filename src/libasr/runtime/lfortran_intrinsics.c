@@ -1965,7 +1965,7 @@ LFORTRAN_API void _lfortran_rewind(int32_t unit_num)
 }
 
 
-LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_int32([[maybe_unused]] int32_t *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -1987,7 +1987,7 @@ LFORTRAN_API void _lfortran_read_int32(int32_t *p, int32_t unit_num)
     }
 }
 
-LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_int64([[maybe_unused]] int64_t *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2021,7 +2021,7 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
     }
 }
 
-LFORTRAN_API void _lfortran_read_array_int8(int8_t *p, int array_size, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_array_int8([[maybe_unused]] int8_t *p, int array_size, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2047,7 +2047,7 @@ LFORTRAN_API void _lfortran_read_array_int8(int8_t *p, int array_size, int32_t u
     }
 }
 
-LFORTRAN_API void _lfortran_read_array_int32(int32_t *p, int array_size, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_array_int32([[maybe_unused]] int32_t *p, int array_size, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2073,7 +2073,7 @@ LFORTRAN_API void _lfortran_read_array_int32(int32_t *p, int array_size, int32_t
     }
 }
 
-LFORTRAN_API void _lfortran_read_char(char **p, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_char([[maybe_unused]] char **p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2098,7 +2098,7 @@ LFORTRAN_API void _lfortran_read_char(char **p, int32_t unit_num)
     }
 }
 
-LFORTRAN_API void _lfortran_read_float(float *p, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_float([[maybe_unused]] float *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2120,7 +2120,7 @@ LFORTRAN_API void _lfortran_read_float(float *p, int32_t unit_num)
     }
 }
 
-LFORTRAN_API void _lfortran_read_array_float(float *p, int array_size, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_array_float([[maybe_unused]] float *p, int array_size, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2146,7 +2146,7 @@ LFORTRAN_API void _lfortran_read_array_float(float *p, int array_size, int32_t u
     }
 }
 
-LFORTRAN_API void _lfortran_read_array_double(double *p, int array_size, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_array_double([[maybe_unused]] double *p, int array_size, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2172,7 +2172,7 @@ LFORTRAN_API void _lfortran_read_array_double(double *p, int array_size, int32_t
     }
 }
 
-LFORTRAN_API void _lfortran_read_array_char(char **p, int array_size, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_array_char([[maybe_unused]] char **p, int array_size, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
@@ -2202,7 +2202,7 @@ LFORTRAN_API void _lfortran_read_array_char(char **p, int array_size, int32_t un
     }
 }
 
-LFORTRAN_API void _lfortran_read_double(double *p, int32_t unit_num)
+LFORTRAN_API void _lfortran_read_double([[maybe_unused]] double *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
