@@ -1993,9 +1993,9 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
         // Read from stdin
         scanf(
 #ifdef HAVE_LFORTRAN_MACHO
-            "line %lld\n"
+            "%lld\n"
 #else
-            "line %ld\n"
+            "%ld\n"
 #endif
             , p);
         return;
@@ -2013,9 +2013,9 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
     } else {
         fscanf(filep,
 #ifdef HAVE_LFORTRAN_MACHO
-            "line %lld\n"
+            "%lld\n"
 #else
-            "line %ld\n"
+            "%ld\n"
 #endif
             , p);
     }
