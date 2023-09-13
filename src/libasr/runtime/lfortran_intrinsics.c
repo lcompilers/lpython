@@ -1991,7 +1991,13 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
-        scanf("%" PRId64, p);
+        scanf(
+#ifdef HAVE_LFORTRAN_MACHO
+            "line %lld\n"
+#else
+            "line %ld\n"
+#endif
+            , p);
         return;
     }
 
@@ -2005,7 +2011,13 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
     if (unit_file_bin) {
         fread(p, sizeof(*p), 1, filep);
     } else {
-        fscanf(filep, "%" PRId64, p);
+        fscanf(filep,
+#ifdef HAVE_LFORTRAN_MACHO
+            "line %lld\n"
+#else
+            "line %ld\n"
+#endif
+            , p);
     }
 }
 
