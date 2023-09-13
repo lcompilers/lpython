@@ -1991,7 +1991,7 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
 {
     if (unit_num == -1) {
         // Read from stdin
-        scanf("%lld", p);
+        scanf("%ld", p);
         return;
     }
 
@@ -2005,7 +2005,7 @@ LFORTRAN_API void _lfortran_read_int64(int64_t *p, int32_t unit_num)
     if (unit_file_bin) {
         fread(p, sizeof(*p), 1, filep);
     } else {
-        fscanf(filep, "%lld", p);
+        fscanf(filep, "%ld", p);
     }
 }
 

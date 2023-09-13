@@ -1,4 +1,4 @@
-from modules_02b import f, f
+from modules_02b import f
 from lpython import i32
 
 def main0():
