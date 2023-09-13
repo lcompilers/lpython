@@ -4836,7 +4836,7 @@ public:
 
     void visit_Module(const AST::Module_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
-        current_scope = unit->m_global_scope;
+        current_scope = unit->m_symtab;
         LCOMPILERS_ASSERT(current_scope != nullptr);
         ASR::symbol_t* module_sym = nullptr;
         ASR::Module_t* mod = nullptr;
@@ -4882,7 +4882,7 @@ public:
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
 
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
             if (f_sym) {
                 // Add the `global_initilaizer` function into the
                 // module and later call this function to initialize the
@@ -4891,7 +4891,7 @@ public:
                 f->m_symtab->parent = mod->m_symtab;
                 mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
                 // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+                unit->m_symtab->erase_symbol(func_name);
             }
             global_init.p = nullptr;
             global_init.n = 0;
@@ -4906,7 +4906,7 @@ public:
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
 
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
             if (f_sym) {
                 // Add the `global_statements` function into the
                 // module and later call this function to execute the
@@ -4915,7 +4915,7 @@ public:
                 f->m_symtab->parent = mod->m_symtab;
                 mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
                 // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+                unit->m_symtab->erase_symbol(func_name);
             }
             items.p = nullptr;
             items.n = 0;
@@ -7903,10 +7903,10 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         prog_body.reserve(al, 1);
         SetChar prog_dep;
         prog_dep.reserve(al, 1);
-        SymbolTable *program_scope = al.make_new<SymbolTable>(tu->m_global_scope);
+        SymbolTable *program_scope = al.make_new<SymbolTable>(tu->m_symtab);
 
         std::string mod_name = "__main__";
-        ASR::symbol_t *mod_sym = tu->m_global_scope->resolve_symbol(mod_name);
+        ASR::symbol_t *mod_sym = tu->m_symtab->resolve_symbol(mod_name);
         LCOMPILERS_ASSERT(mod_sym);
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
         LCOMPILERS_ASSERT(mod);
@@ -7930,7 +7930,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
             prog_dep.n,
             /* a_body */ prog_body.p,
             /* n_body */ prog_body.n);
-        tu->m_global_scope->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
+        tu->m_symtab->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
 
         #if defined(WITH_LFORTRAN_ASSERT)
             diag::Diagnostics diagnostics;

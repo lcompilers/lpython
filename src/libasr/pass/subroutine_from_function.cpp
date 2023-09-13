@@ -27,7 +27,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
 
         void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
             // Transform functions returning arrays to subroutines
-            for (auto &item : x.m_global_scope->get_scope()) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (is_a<ASR::Function_t>(*item.second)) {
                     PassUtils::handle_fn_return_var(al,
                         ASR::down_cast<ASR::Function_t>(item.second),
@@ -38,12 +38,12 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_symbol(item));
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                LCOMPILERS_ASSERT(x.m_symtab->get_symbol(item));
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 visit_symbol(*mod);
             }
             // Now visit everything else
-            for (auto &item : x.m_global_scope->get_scope()) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (!ASR::is_a<ASR::Module_t>(*item.second)) {
                     this->visit_symbol(*item.second);
                 }

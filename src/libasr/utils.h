@@ -62,7 +62,7 @@ struct CompilerOptions {
     bool emit_debug_info = false;
     bool emit_debug_line_column = false;
     bool verbose = false;
-    bool dumb_all_passes = false;
+    bool dump_all_passes = false;
     bool pass_cumulative = false;
     bool enable_cpython = false;
     bool enable_symengine = false;
@@ -102,7 +102,7 @@ namespace LCompilers {
         int64_t unroll_factor = 32; // for loop_unroll pass
         bool fast = false; // is fast flag enabled.
         bool verbose = false; // For developer debugging
-        bool dumb_all_passes = false; // For developer debugging
+        bool dump_all_passes = false; // For developer debugging
         bool pass_cumulative = false; // Apply passes cumulatively
         bool disable_main = false;
         bool use_loop_variable_after_loop = false;

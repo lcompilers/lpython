@@ -154,7 +154,7 @@ namespace LCompilers {
                     std::cerr << "ASR Pass starts: '" << passes[i] << "'\n";
                 }
                 _passes_db[passes[i]](al, *asr, pass_options);
-                if (pass_options.dumb_all_passes) {
+                if (pass_options.dump_all_passes) {
                     std::string str_i = std::to_string(i+1);
                     if ( i < 9 )  str_i = "0" + str_i;
                     std::ofstream outfile ("pass_" + str_i + "_" + passes[i] + ".clj");

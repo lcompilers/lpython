@@ -509,7 +509,7 @@ int get_symbols (const std::string &infile,
            }
            std::vector<LCompilers::document_symbols> symbol_lists;
            LCompilers::document_symbols loc;
-           for (auto &a : x.result->m_global_scope->get_scope()) {
+           for (auto &a : x.result->m_symtab->get_scope()) {
                std::string symbol_name = a.first;
                uint32_t first_line;
                uint32_t last_line;

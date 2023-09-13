@@ -405,7 +405,7 @@ public:
         std::string list_type_name = ASRUtils::get_type_code(x->m_type, true);
         if (list_section_func_map.find(list_type_name) == list_section_func_map.end()) {
             create_list_section_func(unit.base.base.loc,
-                unit.m_global_scope, x->m_type);
+                unit.m_symtab, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
@@ -529,7 +529,7 @@ public:
         std::string list_type_name =  ASRUtils::get_type_code(x->m_type, true);
         if (list_concat_func_map.find(list_type_name) == list_concat_func_map.end()) {
             create_concat_function(unit.base.base.loc,
-                unit.m_global_scope, x->m_type);
+                unit.m_symtab, x->m_type);
         }
         ASR::symbol_t *fn_sym = list_concat_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,

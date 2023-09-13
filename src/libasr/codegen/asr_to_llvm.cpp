@@ -832,7 +832,7 @@ public:
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
         // Process Variables first:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second) ||
                 is_a<ASR::EnumType_t>(*item.second)) {
                 visit_symbol(*item.second);
@@ -840,7 +840,7 @@ public:
         }
 
         prototype_only = false;
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Module_t>(*item.second) &&
                 item.first.find("lfortran_intrinsic_optimization") != std::string::npos) {
                 ASR::Module_t* mod = ASR::down_cast<ASR::Module_t>(item.second);
@@ -855,7 +855,7 @@ public:
 
         prototype_only = true;
         // Generate function prototypes
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
             }
@@ -868,21 +868,21 @@ public:
         std::vector<std::string> build_order
             = determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_symbol(item)
+            LCOMPILERS_ASSERT(x.m_symtab->get_symbol(item)
                 != nullptr);
-            ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+            ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
             visit_symbol(*mod);
         }
 
         // Then do all the procedures
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if( ASR::is_a<ASR::Function_t>(*item.second) ) {
                 visit_symbol(*item.second);
             }
         }
 
         // Then the main program
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -8910,7 +8910,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
     pass_options.verbose = co.verbose;
-    pass_options.dumb_all_passes = co.dumb_all_passes;
+    pass_options.dump_all_passes = co.dump_all_passes;
     pass_options.use_loop_variable_after_loop = co.use_loop_variable_after_loop;
     pass_options.realloc_lhs = co.realloc_lhs;
     pass_options.skip_optimization_func_instantiation = skip_optimization_func_instantiation;

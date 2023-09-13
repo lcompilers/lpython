@@ -144,7 +144,7 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
         }
 
         void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-            for (auto &item : x.m_global_scope->get_scope()) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
                     if (is_optional_argument_present(s)) {
@@ -154,7 +154,7 @@ class TransformFunctionsWithOptionalArguments: public PassUtils::PassVisitor<Tra
             }
 
             // Now visit everything else
-            for (auto &item : x.m_global_scope->get_scope()) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 this->visit_symbol(*item.second);
             }
         }
