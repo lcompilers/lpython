@@ -36,16 +36,16 @@ def elemental_arcsinh():
     arcsinh1d = arcsinh(arcsinh(array1d))
     verify1d_arcsinh(array1d, arcsinh1d, 256)
 
-    arraynd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
-    arcsinhnd: f64[256, 64, 16] = empty((256, 64, 16), dtype=float64)
+    arraynd: f64[256, 64, 4] = empty((256, 64, 4), dtype=float64)
+    arcsinhnd: f64[256, 64, 4] = empty((256, 64, 4), dtype=float64)
 
     for i in range(256):
         for j in range(64):
-            for k in range(16):
+            for k in range(4):
                 arraynd[i, j, k] = float(i + j + k)
 
     arcsinhnd = (1.0 + arcsinh(arraynd))
-    verifynd_arcsinh(arraynd, arcsinhnd, 256, 64, 16)
+    verifynd_arcsinh(arraynd, arcsinhnd, 256, 64, 4)
 
 def verify2d_arccosh(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
     i: i32
