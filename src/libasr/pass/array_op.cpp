@@ -69,7 +69,6 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
     Vec<ASR::stmt_t*>& pass_result;
     size_t result_counter;
     bool& use_custom_loop_params;
-    bool& apply_again;
     bool& remove_original_statement;
     Vec<ASR::expr_t*>& result_lbound;
     Vec<ASR::expr_t*>& result_ubound;
@@ -87,7 +86,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
     ReplaceArrayOp(Allocator& al_, Vec<ASR::stmt_t*>& pass_result_,
                    bool& use_custom_loop_params_,
-                   bool& apply_again_, bool& remove_original_statement_,
+                   bool& remove_original_statement_,
                    Vec<ASR::expr_t*>& result_lbound_,
                    Vec<ASR::expr_t*>& result_ubound_,
                    Vec<ASR::expr_t*>& result_inc_,
@@ -95,7 +94,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                    bool realloc_lhs_) :
     al(al_), pass_result(pass_result_),
     result_counter(0), use_custom_loop_params(use_custom_loop_params_),
-    apply_again(apply_again_), remove_original_statement(remove_original_statement_),
+    remove_original_statement(remove_original_statement_),
     result_lbound(result_lbound_), result_ubound(result_ubound_),
     result_inc(result_inc_), op_dims(nullptr), op_n_dims(0),
     op_expr(nullptr), resultvar2value(resultvar2value_),
@@ -207,8 +206,12 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
         }
 
         const Location& loc = x->base.base.loc;
-        if( ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var)) &&
-            ASRUtils::is_array(ASRUtils::expr_type(*current_expr)) && realloc_lhs ) {
+        if( (ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var)) &&
+            ASRUtils::is_array(ASRUtils::expr_type(*current_expr)) && realloc_lhs &&
+            !use_custom_loop_params) ||
+            (ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var)) &&
+             ASRUtils::is_array(ASRUtils::expr_type(*current_expr)) &&
+             ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(*current_expr))) ) {
             ASR::ttype_t* result_var_type = ASRUtils::expr_type(result_var);
             Vec<ASR::dimension_t> result_var_m_dims;
             size_t result_var_n_dims = ASRUtils::extract_n_dims_from_ttype(result_var_type);
@@ -248,6 +251,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             } else {
                 ref = *current_expr;
             }
+            LCOMPILERS_ASSERT(result_var != nullptr);
             ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al, current_scope);
             ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res, ref, nullptr));
             doloop_body.push_back(al, assign);
@@ -341,6 +345,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 loop_vars, idx_vars_value, loop_var_indices, doloop_body,
                 op_expr, 2, [=, &arr_expr, &idx_vars, &idx_vars_value, &doloop_body]() {
                 ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars_value, al);
+                LCOMPILERS_ASSERT(result_var != nullptr);
                 ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
                 ASR::expr_t* op_el_wise = ASRUtils::EXPR(ASR::make_StructInstanceMember_t(
                     al, loc, ref, x->m_m, ASRUtils::extract_type(x->m_type), nullptr));
@@ -405,6 +410,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
             } else {
                 if( ASRUtils::is_array(ASRUtils::expr_type(op_expr)) ) {
                     ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, i + 1, "lbound", al);
+                    LCOMPILERS_ASSERT(idx_vars_value[i + 1] != nullptr);
                     ASR::stmt_t* set_to_one = ASRUtils::STMT(ASR::make_Assignment_t(
                         al, loc, idx_vars_value[i + 1], idx_lb, nullptr));
                     doloop_body.push_back(al, set_to_one);
@@ -1123,6 +1129,7 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                 ASRUtils::expr_type(*current_expr), op_dims);
         }
 
+
         Vec<ASR::expr_t*> idx_vars, loop_vars, idx_vars_value;
         std::vector<int> loop_var_indices;
         Vec<ASR::stmt_t*> doloop_body;
@@ -1184,255 +1191,121 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
     }
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
-        // The following checks if the name of a function actually
-        // points to a subroutine. If true this would mean that the
-        // original function returned an array and is now a subroutine.
-        // So the current function call will be converted to a subroutine
-        // call. In short, this check acts as a signal whether to convert
-        // a function call to a subroutine call.
-        if (current_scope == nullptr) {
-            return ;
-        }
-        if (x->m_value) {
-            remove_original_statement = false;
-            *current_expr = x->m_value;
-            return;
-        }
-
-        const Location& loc = x->base.base.loc;
-        bool is_return_var_handled = false;
-        ASR::symbol_t *fn_name = ASRUtils::symbol_get_past_external(x->m_name);
-        if (ASR::is_a<ASR::Function_t>(*fn_name)) {
-            ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(fn_name);
-            is_return_var_handled = fn->m_return_var == nullptr;
-        }
-        if (is_return_var_handled) {
-            ASR::ttype_t* result_var_type = x->m_type;
-            bool is_allocatable = false;
-            bool is_func_call_allocatable = false;
-            bool is_result_var_allocatable = false;
-            ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(fn_name);
-            {
-                // Assuming the `m_return_var` is appended to the `args`.
-                ASR::symbol_t *v_sym = ASR::down_cast<ASR::Var_t>(
-                    fn->m_args[fn->n_args-1])->m_v;
-                if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(v_sym);
-                    is_func_call_allocatable = ASR::is_a<ASR::Allocatable_t>(*v->m_type);
-                    if( result_var != nullptr ) {
-                        is_result_var_allocatable = ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var));
-                        is_allocatable = is_func_call_allocatable || is_result_var_allocatable;
-                    }
-                    if( is_allocatable ) {
-                        result_var_type = ASRUtils::duplicate_type_with_empty_dims(al, result_var_type);
-                        result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(
-                            al, loc, ASRUtils::type_get_past_allocatable(result_var_type)));
-                    }
-                }
-
-                // Don't always create this temporary variable
-                ASR::expr_t* result_var_ = PassUtils::create_var(result_counter,
-                    "_func_call_res", loc, result_var_type, al, current_scope);
-                result_counter += 1;
-                if( result_var == nullptr ) {
-                    result_var = result_var_;
-                    *current_expr = result_var;
-                } else {
-                    *current_expr = result_var_;
-                }
-            }
-            if( op_expr == &(x->base) ) {
-                op_dims = nullptr;
-                op_n_dims = ASRUtils::extract_dimensions_from_ttype(
-                    ASRUtils::expr_type(*current_expr), op_dims);
-            }
-
-            if( !is_func_call_allocatable && is_result_var_allocatable ) {
-                Vec<ASR::alloc_arg_t> vec_alloc;
-                vec_alloc.reserve(al, 1);
-                ASR::alloc_arg_t alloc_arg;
-                alloc_arg.m_len_expr = nullptr;
-                alloc_arg.m_type = nullptr;
-                alloc_arg.loc = loc;
-                alloc_arg.m_a = *current_expr;
-
-                ASR::FunctionType_t* fn_type = ASRUtils::get_FunctionType(fn);
-                ASR::ttype_t* output_type = fn_type->m_arg_types[fn_type->n_arg_types - 1];
-                ASR::dimension_t* m_dims = nullptr;
-                size_t n_dims = ASRUtils::extract_dimensions_from_ttype(output_type, m_dims);
-                Vec<ASR::dimension_t> vec_dims;
-                vec_dims.reserve(al, n_dims);
-                ASRUtils::ReplaceFunctionParamVisitor replace_function_param_visitor(x->m_args);
-                ASRUtils::ExprStmtDuplicator expr_duplicator(al);
-                for( size_t i = 0; i < n_dims; i++ ) {
-                    ASR::dimension_t dim;
-                    dim.loc = loc;
-                    dim.m_start = expr_duplicator.duplicate_expr(m_dims[i].m_start);
-                    dim.m_length = expr_duplicator.duplicate_expr(m_dims[i].m_length);
-                    replace_function_param_visitor.current_expr = &dim.m_start;
-                    replace_function_param_visitor.replace_expr(dim.m_start);
-                    replace_function_param_visitor.current_expr = &dim.m_length;
-                    replace_function_param_visitor.replace_expr(dim.m_length);
-                    vec_dims.push_back(al, dim);
-                }
-
-                alloc_arg.m_dims = vec_dims.p;
-                alloc_arg.n_dims = vec_dims.n;
-                vec_alloc.push_back(al, alloc_arg);
-                pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
-                    al, loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
-            }
-
-            Vec<ASR::call_arg_t> s_args;
-            s_args.reserve(al, x->n_args + 1);
-            ASR::expr_t* result_var_copy = result_var;
-            result_var = nullptr;
-            for( size_t i = 0; i < x->n_args; i++ ) {
-                ASR::expr_t** current_expr_copy_9 = current_expr;
-                current_expr = &(x->m_args[i].m_value);
-                self().replace_expr(x->m_args[i].m_value);
-                current_expr = current_expr_copy_9;
-                s_args.push_back(al, x->m_args[i]);
-            }
-            result_var = result_var_copy;
-            ASR::call_arg_t result_arg;
-            result_arg.loc = result_var->base.loc;
-            result_arg.m_value = *current_expr;
-            s_args.push_back(al, result_arg);
-            ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, loc,
-                                            x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
-                                            nullptr, false));
-            pass_result.push_back(al, subrout_call);
-
-            if (is_allocatable && result_var != *current_expr &&
-                ASRUtils::is_allocatable(result_var)) { // Add realloc-lhs later
-                Vec<ASR::alloc_arg_t> vec_alloc;
-                vec_alloc.reserve(al, 1);
-                ASR::alloc_arg_t alloc_arg;
-                alloc_arg.m_len_expr = nullptr;
-                alloc_arg.m_type = nullptr;
-                alloc_arg.loc = loc;
-                alloc_arg.m_a = result_var;
-
-                ASR::dimension_t* m_dims = nullptr;
-                size_t n_dims = ASRUtils::extract_dimensions_from_ttype(
-                    ASRUtils::expr_type(*current_expr), m_dims);
-                Vec<ASR::dimension_t> vec_dims;
-                vec_dims.reserve(al, n_dims);
-                for( size_t i = 0; i < n_dims; i++ ) {
-                    ASR::dimension_t dim;
-                    dim.loc = loc;
-                    dim.m_start = PassUtils::get_bound(*current_expr, i + 1, "lbound", al);
-                    dim.m_length = ASRUtils::get_size(*current_expr, i + 1, al);
-                    vec_dims.push_back(al, dim);
-                }
-
-                alloc_arg.m_dims = vec_dims.p;
-                alloc_arg.n_dims = vec_dims.n;
-                vec_alloc.push_back(al, alloc_arg);
-                pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
-                    al, loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
-            }
-            apply_again = true;
-            remove_original_statement = false;
-        } else if( PassUtils::is_elemental(x->m_name) ) {
-            std::vector<bool> array_mask(x->n_args, false);
-            bool at_least_one_array = false;
-            for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
-                array_mask[iarg] = (x->m_args[iarg].m_value != nullptr &&
-                    ASRUtils::is_array(ASRUtils::expr_type(x->m_args[iarg].m_value)));
-                at_least_one_array = at_least_one_array || array_mask[iarg];
-            }
-            if (!at_least_one_array) {
+            // The following checks if the name of a function actually
+            // points to a subroutine. If true this would mean that the
+            // original function returned an array and is now a subroutine.
+            // So the current function call will be converted to a subroutine
+            // call. In short, this check acts as a signal whether to convert
+            // a function call to a subroutine call.
+            if (current_scope == nullptr) {
                 return ;
             }
-            std::string res_prefix = "_elemental_func_call_res";
-            ASR::expr_t* result_var_copy = result_var;
-            bool is_all_rank_0 = true;
-            std::vector<ASR::expr_t*> operands;
-            ASR::expr_t* operand = nullptr, *first_array_operand = nullptr;
-            int common_rank = 0;
-            bool are_all_rank_same = true;
-            for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
-                result_var = nullptr;
-                ASR::expr_t** current_expr_copy_9 = current_expr;
-                current_expr = &(x->m_args[iarg].m_value);
-                self().replace_expr(x->m_args[iarg].m_value);
-                operand = *current_expr;
-                current_expr = current_expr_copy_9;
-                operands.push_back(operand);
-                int rank_operand = PassUtils::get_rank(operand);
-                if( rank_operand > 0 && first_array_operand == nullptr ) {
-                    first_array_operand = operand;
-                }
-                if( common_rank == 0 ) {
-                    common_rank = rank_operand;
-                }
-                if( common_rank != rank_operand &&
-                    rank_operand > 0 ) {
-                    are_all_rank_same = false;
-                }
-                array_mask[iarg] = (rank_operand > 0);
-                is_all_rank_0 = is_all_rank_0 && (rank_operand <= 0);
-            }
-            if( is_all_rank_0 ) {
-                return ;
-            }
-            if( !are_all_rank_same ) {
-                throw LCompilersException("Broadcasting support not yet available "
-                                          "for different shape arrays.");
-            }
-            result_var = result_var_copy;
-            bool result_var_created = false;
-            if( result_var == nullptr ) {
-                result_var = PassUtils::create_var(result_counter, res_prefix,
-                                loc, operand, al, current_scope);
-                result_counter += 1;
-                result_var_created = true;
-            }
-            *current_expr = result_var;
-            if( op_expr == &(x->base) ) {
-                op_dims = nullptr;
-                op_n_dims = ASRUtils::extract_dimensions_from_ttype(
-                    ASRUtils::expr_type(*current_expr), op_dims);
-            }
-            Vec<ASR::expr_t*> idx_vars, loop_vars, idx_vars_value;
-            std::vector<int> loop_var_indices;
-            Vec<ASR::stmt_t*> doloop_body;
-            create_do_loop(loc, common_rank, idx_vars, idx_vars_value,
-                loop_vars, loop_var_indices, doloop_body, first_array_operand,
-                [=, &operands, &idx_vars, &idx_vars_value, &doloop_body] () {
-                Vec<ASR::call_arg_t> ref_args;
-                ref_args.reserve(al, x->n_args);
+
+            const Location& loc = x->base.base.loc;
+            if( PassUtils::is_elemental(x->m_name) ) {
+                std::vector<bool> array_mask(x->n_args, false);
+                bool at_least_one_array = false;
                 for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
-                    ASR::expr_t* ref = operands[iarg];
-                    if( array_mask[iarg] ) {
-                        ref = PassUtils::create_array_ref(operands[iarg], idx_vars_value, al, current_scope);
-                    }
-                    ASR::call_arg_t ref_arg;
-                    ref_arg.loc = ref->base.loc;
-                    ref_arg.m_value = ref;
-                    ref_args.push_back(al, ref_arg);
+                    array_mask[iarg] = (x->m_args[iarg].m_value != nullptr &&
+                        ASRUtils::is_array(ASRUtils::expr_type(x->m_args[iarg].m_value)));
+                    at_least_one_array = at_least_one_array || array_mask[iarg];
                 }
-                Vec<ASR::dimension_t> empty_dim;
-                empty_dim.reserve(al, 1);
-                ASR::ttype_t* dim_less_type = ASRUtils::duplicate_type(al, x->m_type, &empty_dim);
-                ASR::expr_t* op_el_wise = nullptr;
-                op_el_wise = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
-                                x->m_name, x->m_original_name, ref_args.p, ref_args.size(), dim_less_type,
-                                nullptr, x->m_dt));
-                ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al, current_scope);
-                ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res, op_el_wise, nullptr));
-                doloop_body.push_back(al, assign);
-            });
-            if( !result_var_created ) {
-                use_custom_loop_params = false;
+                if (!at_least_one_array) {
+                    return ;
+                }
+                ASR::expr_t* result_var_copy = result_var;
+                std::string res_prefix = "_elemental_func_call_res";
+                bool is_all_rank_0 = true;
+                std::vector<ASR::expr_t*> operands;
+                ASR::expr_t* operand = nullptr, *first_array_operand = nullptr;
+                int common_rank = 0;
+                bool are_all_rank_same = true;
+                for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = &(x->m_args[iarg].m_value);
+                    self().replace_expr(x->m_args[iarg].m_value);
+                    operand = *current_expr;
+                    current_expr = current_expr_copy_9;
+                    operands.push_back(operand);
+                    int rank_operand = PassUtils::get_rank(operand);
+                    if( rank_operand > 0 && first_array_operand == nullptr ) {
+                        first_array_operand = operand;
+                    }
+                    if( common_rank == 0 ) {
+                        common_rank = rank_operand;
+                    }
+                    if( common_rank != rank_operand &&
+                        rank_operand > 0 ) {
+                        are_all_rank_same = false;
+                    }
+                    array_mask[iarg] = (rank_operand > 0);
+                    is_all_rank_0 = is_all_rank_0 && (rank_operand <= 0);
+                }
+                if( is_all_rank_0 ) {
+                    return ;
+                }
+                if( !are_all_rank_same ) {
+                    throw LCompilersException("Broadcasting support not yet available "
+                                            "for different shape arrays.");
+                }
+                result_var = result_var_copy;
+                bool result_var_created = false;
+                if( result_var == nullptr ) {
+                    result_var = PassUtils::create_var(result_counter, res_prefix,
+                                    loc, operand, al, current_scope);
+                    result_counter += 1;
+                    result_var_created = true;
+                }
+                *current_expr = result_var;
+                if( op_expr == &(x->base) ) {
+                    op_dims = nullptr;
+                    op_n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(*current_expr), op_dims);
+                }
+                ASR::dimension_t* m_dims;
+                int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                    ASRUtils::expr_type(operand), m_dims);
+                allocate_result_var(operand, m_dims, n_dims);
+                *current_expr = result_var;
+
+                Vec<ASR::expr_t*> idx_vars, loop_vars, idx_vars_value;
+                std::vector<int> loop_var_indices;
+                Vec<ASR::stmt_t*> doloop_body;
+                create_do_loop(loc, common_rank, idx_vars, idx_vars_value,
+                    loop_vars, loop_var_indices, doloop_body, first_array_operand,
+                    [=, &operands, &idx_vars, &idx_vars_value, &doloop_body] () {
+                    Vec<ASR::call_arg_t> ref_args;
+                    ref_args.reserve(al, x->n_args);
+                    for( size_t iarg = 0; iarg < x->n_args; iarg++ ) {
+                        ASR::expr_t* ref = operands[iarg];
+                        if( array_mask[iarg] ) {
+                            ref = PassUtils::create_array_ref(operands[iarg], idx_vars_value, al, current_scope);
+                        }
+                        ASR::call_arg_t ref_arg;
+                        ref_arg.loc = ref->base.loc;
+                        ref_arg.m_value = ref;
+                        ref_args.push_back(al, ref_arg);
+                    }
+                    Vec<ASR::dimension_t> empty_dim;
+                    empty_dim.reserve(al, 1);
+                    ASR::ttype_t* dim_less_type = ASRUtils::duplicate_type(al, x->m_type, &empty_dim);
+                    ASR::expr_t* op_el_wise = nullptr;
+                    op_el_wise = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                                    x->m_name, x->m_original_name, ref_args.p, ref_args.size(), dim_less_type,
+                                    nullptr, x->m_dt));
+                    ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al, current_scope);
+                    ASR::stmt_t* assign = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, res, op_el_wise, nullptr));
+                    doloop_body.push_back(al, assign);
+                });
+                if( !result_var_created ) {
+                    use_custom_loop_params = false;
+                }
             }
+            result_var = nullptr;
         }
-        result_var = nullptr;
+
+    void replace_Array(ASR::Array_t* /*x*/) {
     }
-
-
 };
 
 class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisitor>
@@ -1447,19 +1320,18 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         Vec<ASR::expr_t*> result_lbound, result_ubound, result_inc;
         Vec<ASR::stmt_t*>* parent_body;
         std::map<ASR::expr_t*, ASR::expr_t*> resultvar2value;
+        bool realloc_lhs;
 
     public:
-
-        bool apply_again;
 
         ArrayOpVisitor(Allocator& al_, bool realloc_lhs_) :
         al(al_), use_custom_loop_params(false),
         remove_original_statement(false),
         replacer(al_, pass_result, use_custom_loop_params,
-                 apply_again, remove_original_statement,
+                 remove_original_statement,
                  result_lbound, result_ubound, result_inc,
                  resultvar2value, realloc_lhs_),
-        parent_body(nullptr), apply_again(false) {
+        parent_body(nullptr), realloc_lhs(realloc_lhs_) {
             pass_result.n = 0;
             result_lbound.n = 0;
             result_ubound.n = 0;
@@ -1513,14 +1385,6 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
             SymbolTable* current_scope_copy = current_scope;
             current_scope = x.m_symtab;
-            // Transform functions returning arrays to subroutines
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (is_a<ASR::Function_t>(*item.second)) {
-                    PassUtils::handle_fn_return_var(al,
-                        ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_array);
-                }
-            }
 
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
@@ -1544,13 +1408,6 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
             // which requires to generate a TransformVisitor.
             SymbolTable* current_scope_copy = current_scope;
             current_scope = x.m_symtab;
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (is_a<ASR::Function_t>(*item.second)) {
-                    PassUtils::handle_fn_return_var(al,
-                        ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_array);
-                }
-            }
 
             // Now visit everything else
             for (auto &item : x.m_symtab->get_scope()) {
@@ -1565,14 +1422,6 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
             ASR::Program_t& xx = const_cast<ASR::Program_t&>(x);
             SymbolTable* current_scope_copy = current_scope;
             current_scope = xx.m_symtab;
-
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (is_a<ASR::Function_t>(*item.second)) {
-                    PassUtils::handle_fn_return_var(al,
-                        ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_array);
-                }
-            }
 
             for (auto &item : x.m_symtab->get_scope()) {
                 if (is_a<ASR::AssociateBlock_t>(*item.second)) {
@@ -1611,13 +1460,48 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         }
 
         void visit_Assignment(const ASR::Assignment_t &x) {
-            if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-                ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
-                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ||
+            bool is_target_struct_member_array_and_value_array =
                 (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) &&
                  ASRUtils::is_array(ASRUtils::expr_type(x.m_value)) &&
                  ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) &&
-                 !ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) ) { // TODO: fix for StructInstanceMember targets
+                 !ASR::is_a<ASR::FunctionCall_t>(*x.m_value));
+            if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+                ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ||
+                is_target_struct_member_array_and_value_array) { // TODO: fix for StructInstanceMember targets
+                if( is_target_struct_member_array_and_value_array ) {
+                    if (realloc_lhs && ASRUtils::is_allocatable(x.m_target)) { // Add realloc-lhs later
+                        Vec<ASR::alloc_arg_t> vec_alloc;
+                        vec_alloc.reserve(al, 1);
+                        ASR::alloc_arg_t alloc_arg;
+                        alloc_arg.m_len_expr = nullptr;
+                        alloc_arg.m_type = nullptr;
+                        alloc_arg.loc = x.m_target->base.loc;
+                        alloc_arg.m_a = x.m_target;
+
+
+                        ASR::dimension_t* m_dims = nullptr;
+                        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(
+                            ASRUtils::expr_type(x.m_value), m_dims);
+                        Vec<ASR::dimension_t> vec_dims;
+                        vec_dims.reserve(al, n_dims);
+                        for( size_t i = 0; i < n_dims; i++ ) {
+                            ASR::dimension_t dim;
+                            dim.loc = x.m_value->base.loc;
+                            dim.m_start = PassUtils::get_bound(x.m_value, i + 1, "lbound", al);
+                            dim.m_length = ASRUtils::get_size(x.m_value, i + 1, al);
+                            vec_dims.push_back(al, dim);
+                        }
+
+
+                        alloc_arg.m_dims = vec_dims.p;
+                        alloc_arg.n_dims = vec_dims.n;
+                        vec_alloc.push_back(al, alloc_arg);
+                        pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
+                            al, x.base.base.loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
+                        remove_original_statement = false;
+                    }
+                }
                 return ;
             }
 
@@ -1670,15 +1554,16 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         void visit_Associate(const ASR::Associate_t& /*x*/) {
         }
 
+        void visit_Array(const ASR::Array_t& /*x*/) {
+
+        }
+
 };
 
 void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit,
                            const LCompilers::PassOptions& pass_options) {
     ArrayOpVisitor v(al, pass_options.realloc_lhs);
-    do {
-        v.apply_again = false;
-        v.visit_TranslationUnit(unit);
-    } while( v.apply_again );
+    v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor u(al);
     u.visit_TranslationUnit(unit);
 }

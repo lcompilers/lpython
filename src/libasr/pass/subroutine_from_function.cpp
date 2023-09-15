@@ -4,6 +4,8 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/create_subroutine_from_function.h>
+#include <libasr/pass/intrinsic_function_registry.h>
+#include <libasr/pass/intrinsic_array_function_registry.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -31,7 +33,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
                 if (is_a<ASR::Function_t>(*item.second)) {
                     PassUtils::handle_fn_return_var(al,
                         ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_aggregate_type);
+                        PassUtils::is_aggregate_or_array_type);
                 }
             }
 
@@ -56,7 +58,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
                 if (is_a<ASR::Function_t>(*item.second)) {
                     PassUtils::handle_fn_return_var(al,
                         ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_aggregate_type);
+                        PassUtils::is_aggregate_or_array_type);
                 }
             }
 
@@ -77,7 +79,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
                 if (is_a<ASR::Function_t>(*item.second)) {
                     PassUtils::handle_fn_return_var(al,
                         ASR::down_cast<ASR::Function_t>(item.second),
-                        PassUtils::is_aggregate_type);
+                        PassUtils::is_aggregate_or_array_type);
                 }
             }
 
@@ -106,17 +108,115 @@ class ReplaceFunctionCallWithSubroutineCall:
         Allocator& al;
         int result_counter;
         Vec<ASR::stmt_t*>& pass_result;
+        std::map<ASR::expr_t*, ASR::expr_t*>& resultvar2value;
 
     public:
 
-        ASR::expr_t *result_var;
         SymbolTable* current_scope;
+        ASR::expr_t* result_var;
+        bool& apply_again;
 
         ReplaceFunctionCallWithSubroutineCall(Allocator& al_,
-            Vec<ASR::stmt_t*>& pass_result_):
-        al(al_), result_counter(0),
-        pass_result(pass_result_), result_var(nullptr)
+            Vec<ASR::stmt_t*>& pass_result_,
+            std::map<ASR::expr_t*, ASR::expr_t*>& resultvar2value_,
+            bool& apply_again_):
+        al(al_), result_counter(0), pass_result(pass_result_),
+        resultvar2value(resultvar2value_), result_var(nullptr),
+        apply_again(apply_again_)
         {}
+
+        template <typename LOOP_BODY>
+        void create_do_loop(const Location& loc, int result_rank,
+            Vec<ASR::expr_t*>& idx_vars, Vec<ASR::expr_t*>& idx_vars_value,
+            Vec<ASR::expr_t*>& loop_vars, Vec<ASR::stmt_t*>& doloop_body,
+            ASR::expr_t* op_expr, ASR::expr_t* result_var_, LOOP_BODY loop_body) {
+            PassUtils::create_idx_vars(idx_vars_value, result_rank, loc, al, current_scope, "_v");
+            PassUtils::create_idx_vars(idx_vars, result_rank, loc, al, current_scope, "_t");
+            loop_vars.from_pointer_n_copy(al, idx_vars.p, idx_vars.size());
+
+            ASR::stmt_t* doloop = nullptr;
+            ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+            ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, int32_type));
+            for( int i = (int) loop_vars.size() - 1; i >= 0; i-- ) {
+                // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                ASR::do_loop_head_t head;
+                head.m_v = loop_vars[i];
+                head.m_start = PassUtils::get_bound(result_var_, i + 1, "lbound", al);
+                head.m_end = PassUtils::get_bound(result_var_, i + 1, "ubound", al);
+                head.m_increment = nullptr;
+                head.loc = head.m_v->base.loc;
+                doloop_body.reserve(al, 1);
+                if( doloop == nullptr ) {
+                    loop_body();
+                } else {
+                    if( ASRUtils::is_array(ASRUtils::expr_type(op_expr)) ) {
+                        ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, i + 1, "lbound", al);
+                        ASR::stmt_t* set_to_one = ASRUtils::STMT(ASR::make_Assignment_t(
+                            al, loc, idx_vars_value[i + 1], idx_lb, nullptr));
+                        doloop_body.push_back(al, set_to_one);
+                    }
+                    doloop_body.push_back(al, doloop);
+                }
+                if( ASRUtils::is_array(ASRUtils::expr_type(op_expr)) ) {
+                    ASR::expr_t* inc_expr = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
+                        al, loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                    ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
+                        al, loc, idx_vars_value[i], inc_expr, nullptr));
+                    doloop_body.push_back(al, assign_stmt);
+                }
+                doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, nullptr, head, doloop_body.p, doloop_body.size()));
+            }
+            if( ASRUtils::is_array(ASRUtils::expr_type(op_expr)) ) {
+                ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, 1, "lbound", al);
+                ASR::stmt_t* set_to_one = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, idx_vars_value[0], idx_lb, nullptr));
+                pass_result.push_back(al, set_to_one);
+            }
+            pass_result.push_back(al, doloop);
+        }
+
+        #define allocate_result_var(op_arg, op_dims_arg, op_n_dims_arg) if( ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var_)) || \
+            ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(result_var_)) ) { \
+            bool is_dimension_empty = false; \
+            for( int i = 0; i < op_n_dims_arg; i++ ) { \
+                if( op_dims_arg->m_length == nullptr ) { \
+                    is_dimension_empty = true; \
+                    break; \
+                } \
+            } \
+            Vec<ASR::alloc_arg_t> alloc_args; \
+            alloc_args.reserve(al, 1); \
+            if( !is_dimension_empty ) { \
+                ASR::alloc_arg_t alloc_arg; \
+                alloc_arg.loc = loc; \
+                alloc_arg.m_len_expr = nullptr; \
+                alloc_arg.m_type = nullptr; \
+                alloc_arg.m_a = result_var_; \
+                alloc_arg.m_dims = op_dims_arg; \
+                alloc_arg.n_dims = op_n_dims_arg; \
+                alloc_args.push_back(al, alloc_arg); \
+            } else { \
+                Vec<ASR::dimension_t> alloc_dims; \
+                alloc_dims.reserve(al, op_n_dims_arg); \
+                for( int i = 0; i < op_n_dims_arg; i++ ) { \
+                    ASR::dimension_t alloc_dim; \
+                    alloc_dim.loc = loc; \
+                    alloc_dim.m_start = PassUtils::get_bound(op_arg, i + 1, "lbound", al); \
+                    alloc_dim.m_length = ASRUtils::compute_length_from_start_end(al, alloc_dim.m_start, \
+                        PassUtils::get_bound(op_arg, i + 1, "ubound", al)); \
+                    alloc_dims.push_back(al, alloc_dim); \
+                } \
+                ASR::alloc_arg_t alloc_arg; \
+                alloc_arg.loc = loc; \
+                alloc_arg.m_len_expr = nullptr; \
+                alloc_arg.m_type = nullptr; \
+                alloc_arg.m_a = result_var_; \
+                alloc_arg.m_dims = alloc_dims.p; \
+                alloc_arg.n_dims = alloc_dims.size(); \
+                alloc_args.push_back(al, alloc_arg); \
+            } \
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(al, \
+                loc, alloc_args.p, alloc_args.size(), nullptr, nullptr, nullptr))); \
+        }
 
         void replace_FunctionCall(ASR::FunctionCall_t* x) {
             // The following checks if the name of a function actually
@@ -129,39 +229,130 @@ class ReplaceFunctionCallWithSubroutineCall:
                 return ;
             }
 
+            const Location& loc = x->base.base.loc;
+            if( ASR::is_a<ASR::Function_t>(*ASRUtils::symbol_get_past_external(x->m_name)) &&
+                ASRUtils::symbol_abi(x->m_name) == ASR::abiType::Source ) {
+                for( size_t i = 0; i < x->n_args; i++ ) {
+                    if( x->m_args[i].m_value && ASR::is_a<ASR::ArrayPhysicalCast_t>(*x->m_args[i].m_value) &&
+                        ASR::is_a<ASR::FunctionCall_t>(*
+                            ASR::down_cast<ASR::ArrayPhysicalCast_t>(x->m_args[i].m_value)->m_arg) ) {
+                        x->m_args[i].m_value = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x->m_args[i].m_value)->m_arg;
+                    }
+                    if( x->m_args[i].m_value && ASR::is_a<ASR::FunctionCall_t>(*x->m_args[i].m_value) &&
+                        ASRUtils::is_array(ASRUtils::expr_type(x->m_args[i].m_value)) ) {
+                        ASR::expr_t* arg_var = PassUtils::create_var(result_counter,
+                            "_func_call_arg_tmp_", loc, x->m_args[i].m_value, al, current_scope);
+                        result_counter += 1;
+                        apply_again = true;
+                        pass_result.push_back(al, ASRUtils::STMT(ASR::make_Assignment_t(al, loc,
+                            arg_var, x->m_args[i].m_value, nullptr)));
+                        x->m_args[i].m_value = arg_var;
+                    }
+                }
+            }
+
+            if (x->m_value) {
+                *current_expr = x->m_value;
+                return;
+            }
+
+            ASR::expr_t* result_var_ = nullptr;
+            if( resultvar2value.find(result_var) != resultvar2value.end() &&
+                resultvar2value[result_var] == *current_expr ) {
+                result_var_ = result_var;
+            }
+
             bool is_return_var_handled = false;
             ASR::symbol_t *fn_name = ASRUtils::symbol_get_past_external(x->m_name);
             if (ASR::is_a<ASR::Function_t>(*fn_name)) {
                 ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(fn_name);
                 is_return_var_handled = fn->m_return_var == nullptr;
             }
-            if (!is_return_var_handled) {
-                return ;
-            }
+            if (is_return_var_handled) {
+                ASR::ttype_t* result_var_type = x->m_type;
+                bool is_allocatable = false;
+                bool is_func_call_allocatable = false;
+                bool is_result_var_allocatable = false;
+                ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(fn_name);
+                {
+                    // Assuming the `m_return_var` is appended to the `args`.
+                    ASR::symbol_t *v_sym = ASR::down_cast<ASR::Var_t>(
+                        fn->m_args[fn->n_args-1])->m_v;
+                    if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
+                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(v_sym);
+                        is_func_call_allocatable = ASR::is_a<ASR::Allocatable_t>(*v->m_type);
+                        if( result_var_ != nullptr ) {
+                            is_result_var_allocatable = ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(result_var_));
+                            is_allocatable = is_func_call_allocatable || is_result_var_allocatable;
+                        }
+                        if( is_allocatable ) {
+                            result_var_type = ASRUtils::duplicate_type_with_empty_dims(al, result_var_type);
+                            result_var_type = ASRUtils::TYPE(ASR::make_Allocatable_t(
+                                al, loc, ASRUtils::type_get_past_allocatable(result_var_type)));
+                        }
+                    }
 
-            if( result_var == nullptr || !ASRUtils::is_array(x->m_type) ) {
-                result_var = PassUtils::create_var(result_counter,
-                    "_libasr_created_return_var_",
-                    x->base.base.loc, x->m_type, al, current_scope);
-                result_counter += 1;
-            }
-            LCOMPILERS_ASSERT(result_var != nullptr);
-            *current_expr = result_var;
+                    // Don't always create this temporary variable
+                    ASR::expr_t* result_var__ = PassUtils::create_var(result_counter,
+                        "_func_call_res", loc, result_var_type, al, current_scope);
+                    result_counter += 1;
+                    *current_expr = result_var__;
+                }
 
-            Vec<ASR::call_arg_t> s_args;
-            s_args.reserve(al, x->n_args + 1);
-            for( size_t i = 0; i < x->n_args; i++ ) {
-                s_args.push_back(al, x->m_args[i]);
+                if( !is_func_call_allocatable && is_result_var_allocatable ) {
+                    Vec<ASR::alloc_arg_t> vec_alloc;
+                    vec_alloc.reserve(al, 1);
+                    ASR::alloc_arg_t alloc_arg;
+                    alloc_arg.m_len_expr = nullptr;
+                    alloc_arg.m_type = nullptr;
+                    alloc_arg.loc = loc;
+                    alloc_arg.m_a = *current_expr;
+
+                    ASR::FunctionType_t* fn_type = ASRUtils::get_FunctionType(fn);
+                    ASR::ttype_t* output_type = fn_type->m_arg_types[fn_type->n_arg_types - 1];
+                    ASR::dimension_t* m_dims = nullptr;
+                    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(output_type, m_dims);
+                    Vec<ASR::dimension_t> vec_dims;
+                    vec_dims.reserve(al, n_dims);
+                    ASRUtils::ReplaceFunctionParamVisitor replace_function_param_visitor(x->m_args);
+                    ASRUtils::ExprStmtDuplicator expr_duplicator(al);
+                    for( size_t i = 0; i < n_dims; i++ ) {
+                        ASR::dimension_t dim;
+                        dim.loc = loc;
+                        dim.m_start = expr_duplicator.duplicate_expr(m_dims[i].m_start);
+                        dim.m_length = expr_duplicator.duplicate_expr(m_dims[i].m_length);
+                        replace_function_param_visitor.current_expr = &dim.m_start;
+                        replace_function_param_visitor.replace_expr(dim.m_start);
+                        replace_function_param_visitor.current_expr = &dim.m_length;
+                        replace_function_param_visitor.replace_expr(dim.m_length);
+                        vec_dims.push_back(al, dim);
+                    }
+
+                    alloc_arg.m_dims = vec_dims.p;
+                    alloc_arg.n_dims = vec_dims.n;
+                    vec_alloc.push_back(al, alloc_arg);
+                    pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
+                        al, loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
+                }
+
+                Vec<ASR::call_arg_t> s_args;
+                s_args.reserve(al, x->n_args + 1);
+                for( size_t i = 0; i < x->n_args; i++ ) {
+                    ASR::expr_t** current_expr_copy_9 = current_expr;
+                    current_expr = &(x->m_args[i].m_value);
+                    self().replace_expr(x->m_args[i].m_value);
+                    current_expr = current_expr_copy_9;
+                    s_args.push_back(al, x->m_args[i]);
+                }
+                ASR::call_arg_t result_arg;
+                result_arg.loc = loc;
+                result_arg.m_value = *current_expr;
+                s_args.push_back(al, result_arg);
+                ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(al, loc,
+                                                x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
+                                                nullptr, false));
+                pass_result.push_back(al, subrout_call);
             }
-            ASR::call_arg_t result_arg;
-            result_arg.loc = result_var->base.loc;
-            result_arg.m_value = result_var;
-            s_args.push_back(al, result_arg);
-            ASR::stmt_t* subrout_call = ASRUtils::STMT(ASRUtils::make_SubroutineCall_t_util(
-                al, x->base.base.loc, x->m_name, nullptr, s_args.p, s_args.size(), nullptr,
-                nullptr, false));
-            pass_result.push_back(al, subrout_call);
-            result_var = nullptr;
         }
 
 };
@@ -175,12 +366,15 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
         Vec<ASR::stmt_t*> pass_result;
         ReplaceFunctionCallWithSubroutineCall replacer;
         Vec<ASR::stmt_t*>* parent_body;
+        std::map<ASR::expr_t*, ASR::expr_t*> resultvar2value;
 
     public:
 
+        bool apply_again;
+
         ReplaceFunctionCallWithSubroutineCallVisitor(Allocator& al_):
-         al(al_), replacer(al, pass_result),
-         parent_body(nullptr)
+         al(al_), replacer(al, pass_result, resultvar2value, apply_again),
+         parent_body(nullptr), apply_again(false)
         {
             pass_result.n = 0;
         }
@@ -216,14 +410,31 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
             pass_result.n = 0;
         }
 
-        void visit_Assignment(const ASR::Assignment_t& x) {
-            if( PassUtils::is_aggregate_type(x.m_target) ) {
+        void visit_Assignment(const ASR::Assignment_t &x) {
+            bool is_target_struct_member_array_and_value_array =
+                (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) &&
+                 ASRUtils::is_array(ASRUtils::expr_type(x.m_value)) &&
+                 ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) &&
+                 !ASR::is_a<ASR::FunctionCall_t>(*x.m_value));
+            if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+                ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ||
+                is_target_struct_member_array_and_value_array) { // TODO: fix for StructInstanceMember targets
+                return ;
+            }
+
+            if( ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
+                ASR::CallReplacerOnExpressionsVisitor<ReplaceFunctionCallWithSubroutineCallVisitor>::visit_Assignment(x);
+                return ;
+            }
+
+            if( PassUtils::is_array(x.m_target) ) {
                 replacer.result_var = x.m_target;
+                ASR::expr_t* original_value = x.m_value;
+                resultvar2value[replacer.result_var] = original_value;
             }
             ASR::CallReplacerOnExpressionsVisitor<ReplaceFunctionCallWithSubroutineCallVisitor>::visit_Assignment(x);
-            replacer.result_var = nullptr;
         }
-
 };
 
 void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t &unit,
@@ -231,7 +442,13 @@ void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t 
     CreateFunctionFromSubroutine v(al);
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallWithSubroutineCallVisitor u(al);
-    u.visit_TranslationUnit(unit);
+    u.apply_again = true;
+    while( u.apply_again ) {
+        u.apply_again = false;
+        u.visit_TranslationUnit(unit);
+    }
+    PassUtils::UpdateDependenciesVisitor w(al);
+    w.visit_TranslationUnit(unit);
 }
 
 
