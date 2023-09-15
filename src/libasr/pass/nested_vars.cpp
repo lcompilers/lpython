@@ -215,6 +215,10 @@ public:
         ASR::BaseExprReplacer<ReplacerNestedVars>::replace_ArrayPhysicalCast(x);
         x->m_old = ASRUtils::extract_physical_type(ASRUtils::expr_type(x->m_arg));
     }
+
+    void replace_Array(ASR::Array_t* /*x*/) {
+        return ;
+    }
 };
 
 class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<ReplaceNestedVisitor> {
@@ -429,6 +433,10 @@ class ReplaceNestedVisitor: public ASR::CallReplacerOnExpressionsVisitor<Replace
             nullptr, false);
     }
 
+    void visit_Array(const ASR::Array_t& /*x*/) {
+        return ;
+    }
+
 };
 
 class AssignNestedVars: public PassUtils::PassVisitor<AssignNestedVars> {
@@ -601,6 +609,10 @@ public:
         }
         if (x.m_dt)
             visit_expr(*x.m_dt);
+    }
+
+    void visit_Array(const ASR::Array_t& /*x*/) {
+        return ;
     }
 };
 

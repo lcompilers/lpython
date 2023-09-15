@@ -114,6 +114,11 @@ namespace LCompilers {
             return ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(var));
         }
 
+        static inline bool is_aggregate_or_array_type(ASR::expr_t* var) {
+            return (ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(var)) ||
+                    ASRUtils::is_array(ASRUtils::expr_type(var)));
+        }
+
         template <class Struct>
         class PassVisitor: public ASR::ASRPassBaseWalkVisitor<Struct> {
 
