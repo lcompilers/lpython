@@ -237,6 +237,9 @@ static inline ASR::abiType symbol_abi(const ASR::symbol_t *f)
         case ASR::symbolType::ExternalSymbol: {
             return symbol_abi(ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_external);
         }
+        case ASR::symbolType::Function: {
+            return ASRUtils::get_FunctionType(*ASR::down_cast<ASR::Function_t>(f))->m_abi;
+        }
         default: {
             throw LCompilersException("Cannot return ABI of, " +
                                     std::to_string(f->type) + " symbol.");
@@ -1982,6 +1985,74 @@ static inline bool is_only_upper_bound_empty(ASR::dimension_t& dim) {
     return (dim.m_start != nullptr && dim.m_length == nullptr);
 }
 
+class ExprDependentOnlyOnArguments: public ASR::BaseWalkVisitor<ExprDependentOnlyOnArguments> {
+
+    public:
+
+        bool is_dependent_only_on_argument;
+
+        ExprDependentOnlyOnArguments(): is_dependent_only_on_argument(false)
+        {}
+
+        void visit_Var(const ASR::Var_t& x) {
+            if( ASR::is_a<ASR::Variable_t>(*x.m_v) ) {
+                ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+                is_dependent_only_on_argument = is_dependent_only_on_argument && ASRUtils::is_arg_dummy(x_m_v->m_intent);
+            } else {
+                is_dependent_only_on_argument = false;
+            }
+        }
+};
+
+static inline bool is_dimension_dependent_only_on_arguments(ASR::dimension_t* m_dims, size_t n_dims) {
+    ExprDependentOnlyOnArguments visitor;
+    for( size_t i = 0; i < n_dims; i++ ) {
+        visitor.is_dependent_only_on_argument = true;
+        if( m_dims[i].m_length == nullptr ) {
+            return false;
+        }
+        visitor.visit_expr(*m_dims[i].m_length);
+        if( !visitor.is_dependent_only_on_argument ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static inline ASR::asr_t* make_ArraySize_t_util(
+    Allocator &al, const Location &a_loc, ASR::expr_t* a_v,
+    ASR::expr_t* a_dim, ASR::ttype_t* a_type, ASR::expr_t* a_value,
+    bool for_type=true) {
+    if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*a_v) ) {
+        a_v = ASR::down_cast<ASR::ArrayPhysicalCast_t>(a_v)->m_arg;
+    }
+
+    ASR::dimension_t* m_dims = nullptr;
+    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
+    bool is_dimension_dependent_only_on_arguments_ = is_dimension_dependent_only_on_arguments(m_dims, n_dims);
+    int dim = -1;
+    bool is_dimension_constant = (a_dim != nullptr) && ASRUtils::extract_value(ASRUtils::expr_value(a_dim), dim);
+
+    bool compute_size = (is_dimension_dependent_only_on_arguments_ &&
+        (is_dimension_constant || a_dim == nullptr));
+    if( compute_size && for_type ) {
+        ASR::dimension_t* m_dims = nullptr;
+        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(a_v), m_dims);
+        if( a_dim == nullptr ) {
+            ASR::asr_t* size = ASR::make_IntegerConstant_t(al, a_loc, 1, a_type);
+            for( size_t i = 0; i < n_dims; i++ ) {
+                size = ASR::make_IntegerBinOp_t(al, a_loc, ASRUtils::EXPR(size),
+                    ASR::binopType::Mul, m_dims[i].m_length, a_type, nullptr);
+            }
+            return size;
+        } else if( is_dimension_constant ) {
+            return (ASR::asr_t*) m_dims[dim - 1].m_length;
+        }
+    }
+
+    return ASR::make_ArraySize_t(al, a_loc, a_v, a_dim, a_type, a_value);
+}
+
 inline ASR::ttype_t* make_Array_t_util(Allocator& al, const Location& loc,
     ASR::ttype_t* type, ASR::dimension_t* m_dims, size_t n_dims,
     ASR::abiType abi=ASR::abiType::Source, bool is_argument=false,
@@ -1989,6 +2060,14 @@ inline ASR::ttype_t* make_Array_t_util(Allocator& al, const Location& loc,
     bool override_physical_type=false, bool is_dimension_star=false) {
     if( n_dims == 0 ) {
         return type;
+    }
+
+    for( size_t i = 0; i < n_dims; i++ ) {
+        if( m_dims[i].m_length && ASR::is_a<ASR::ArraySize_t>(*m_dims[i].m_length) ) {
+            ASR::ArraySize_t* as = ASR::down_cast<ASR::ArraySize_t>(m_dims[i].m_length);
+            m_dims[i].m_length = ASRUtils::EXPR(ASRUtils::make_ArraySize_t_util(
+                al, as->base.base.loc, as->m_v, as->m_dim, as->m_type, nullptr));
+        }
     }
 
     if( !override_physical_type ) {
@@ -3228,40 +3307,6 @@ class ReplaceFunctionParamVisitor: public ASR::BaseExprReplacer<ReplaceFunctionP
 
 };
 
-class ExprDependentOnlyOnArguments: public ASR::BaseWalkVisitor<ExprDependentOnlyOnArguments> {
-
-    public:
-
-        bool is_dependent_only_on_argument;
-
-        ExprDependentOnlyOnArguments(): is_dependent_only_on_argument(false)
-        {}
-
-        void visit_Var(const ASR::Var_t& x) {
-            if( ASR::is_a<ASR::Variable_t>(*x.m_v) ) {
-                ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-                is_dependent_only_on_argument = is_dependent_only_on_argument && ASRUtils::is_arg_dummy(x_m_v->m_intent);
-            } else {
-                is_dependent_only_on_argument = false;
-            }
-        }
-};
-
-static inline bool is_dimension_dependent_only_on_arguments(ASR::dimension_t* m_dims, size_t n_dims) {
-    ExprDependentOnlyOnArguments visitor;
-    for( size_t i = 0; i < n_dims; i++ ) {
-        visitor.is_dependent_only_on_argument = true;
-        if( m_dims[i].m_length == nullptr ) {
-            return false;
-        }
-        visitor.visit_expr(*m_dims[i].m_length);
-        if( !visitor.is_dependent_only_on_argument ) {
-            return false;
-        }
-    }
-    return true;
-}
-
 inline ASR::asr_t* make_FunctionType_t_util(Allocator &al,
     const Location &a_loc, ASR::expr_t** a_args, size_t n_args,
     ASR::expr_t* a_return_var, ASR::abiType a_abi, ASR::deftypeType a_deftype,
@@ -3879,16 +3924,6 @@ static inline ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim,
     }
     return ASRUtils::EXPR(ASR::make_ArrayBound_t(al, arr_expr->base.loc, arr_expr, dim_expr,
                 int32_type, bound_type, bound_value));
-}
-
-static inline ASR::asr_t* make_ArraySize_t_util(
-    Allocator &al, const Location &a_loc, ASR::expr_t* a_v,
-    ASR::expr_t* a_dim, ASR::ttype_t* a_type, ASR::expr_t* a_value) {
-    if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*a_v) ) {
-        a_v = ASR::down_cast<ASR::ArrayPhysicalCast_t>(a_v)->m_arg;
-    }
-
-    return ASR::make_ArraySize_t(al, a_loc, a_v, a_dim, a_type, a_value);
 }
 
 static inline ASR::expr_t* get_size(ASR::expr_t* arr_expr, int dim,
