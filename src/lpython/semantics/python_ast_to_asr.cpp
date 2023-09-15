@@ -7446,7 +7446,7 @@ public:
                     dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
                         args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
                 }
-                tmp = ASRUtils::make_ArraySize_t_util(al, loc, var, dim, int_type, nullptr);
+                tmp = ASRUtils::make_ArraySize_t_util(al, loc, var, dim, int_type, nullptr, false);
                 return;
             } else if (call_name == "empty") {
                 if (x.n_args != 1 || x.n_keywords != 1) {
