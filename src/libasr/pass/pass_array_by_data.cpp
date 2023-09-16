@@ -199,7 +199,7 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
 
             ASR::FunctionType_t* func_type = ASRUtils::get_FunctionType(*x);
             x->m_function_signature = ASRUtils::TYPE(ASRUtils::make_FunctionType_t_util(
-                al, func_type->base.base.loc, new_args.p, new_args.size(), x->m_return_var, func_type));
+                al, func_type->base.base.loc, new_args.p, new_args.size(), x->m_return_var, func_type, current_scope));
             x->m_args = new_args.p;
             x->n_args = new_args.size();
         }
