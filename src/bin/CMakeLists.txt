@@ -48,29 +48,21 @@ set_target_properties(lpython PROPERTIES
 )
 
 if (HAVE_BUILD_TO_WASM)
-    # set(WASM_LINK_FLAGS
-    #     "-g0" # Store no debugging information in the generated wasm file. This helps reduce generated file size
-    #     "-Oz" # Optimize for size. With this code size ~ 2.4mb. Without this code size ~49mb
-    #     "-fexceptions" # Enable Cpp exception support
-    #     "--no-entry" # No start function to execute
-    #     "-s ASSERTIONS" # Compile with Assertions which (as per docs) are helpful to debug compilation process
-    #     "-s ALLOW_MEMORY_GROWTH" # Allow dynamic memory growth upto the maximum page size limit
-    #     "-s WASM_BIGINT" # Allow use of i64 integers. ASR is needing this option to be enabled.
-    #     "-s EXPORTED_RUNTIME_METHODS=['cwrap']" # Export cwarp. cwarp helps us to call our EMSCRIPTEN_KEEPALIVE functions
-    # )
-
-    # Some extra flags below that we may need in future. But these may/might increase the code size
-    # "--preload-file ./asset_dir"
-    # "-s SAFE_HEAP=1"
-    # "-s \"EXPORTED_RUNTIME_METHODS=['ccall']\""
-    # "-s EXPORTED_FUNCTIONS=\"['_free', '_malloc']\""
+    # "-g0": Store no debugging information in the generated wasm file. This helps reduce generated file size
+    # "-Oz": Optimize for size. With this code size ~ 2.4mb. Without this code size ~49mb
+    # "-fexceptions": Enable Cpp exception support
+    # "--no-entry": No start function to execute
+    # "-s ASSERTIONS": Compile with Assertions which (as per docs) are helpful to debug compilation process
+    # "-s ALLOW_MEMORY_GROWTH": Allow dynamic memory growth upto the maximum page size limit
+    # "-s WASM_BIGINT": Allow use of i64 integers. ASR is needing this option to be enabled.
+    # "-s EXPORTED_RUNTIME_METHODS=['cwrap']": Export cwarp. cwarp helps us to call our EMSCRIPTEN_KEEPALIVE functions
 
     # Notes:
     # STANDALONE_WASM is disabling support for exceptions, so it is currently omitted
     # In build_to_wasm.sh, we need CMAKE_CXX_FLAGS_DEBUG="-Wall -Wextra -fexceptions" flags for exception support
     set(WASM_COMPILE_FLAGS "-g0 -fexceptions")
     set(WASM_LINK_FLAGS
-      "-g0 -Oz -fexceptions -Wall -Wextra --no-entry -s ASSERTIONS -s ALLOW_MEMORY_GROWTH=1 -s WASM_BIGINT -s \"EXPORTED_RUNTIME_METHODS=['cwrap']\""
+      "-g0 -Oz -fexceptions --preload-file asset_dir -Wall -Wextra --no-entry -s ASSERTIONS -s ALLOW_MEMORY_GROWTH=1 -s WASM_BIGINT -s \"EXPORTED_RUNTIME_METHODS=['cwrap']\""
     )
     set_target_properties(lpython PROPERTIES COMPILE_FLAGS ${WASM_COMPILE_FLAGS})
     set_target_properties(lpython PROPERTIES LINK_FLAGS ${WASM_LINK_FLAGS})
