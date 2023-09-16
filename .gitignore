@@ -175,6 +175,7 @@ output
 *.smod
 *.js
 *.wasm
+*.data
 /.ccls-cache/
 .cache/
 ext/
