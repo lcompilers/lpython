@@ -3277,6 +3277,16 @@ class ReplaceWithFunctionParamVisitor: public ASR::BaseExprReplacer<ReplaceWithF
         }
     }
 
+    void replace_Struct(ASR::Struct_t *x) {
+        std::string derived_type_name = ASRUtils::symbol_name(x->m_derived_type);
+        ASR::symbol_t* derived_type_sym = current_scope->resolve_symbol(derived_type_name);
+        LCOMPILERS_ASSERT_MSG( derived_type_sym != nullptr,
+                    "derived_type_sym cannot be nullptr");
+        if (derived_type_sym != x->m_derived_type) {
+            x->m_derived_type = derived_type_sym;
+        }
+    }
+
     ASR::ttype_t* replace_args_with_FunctionParam(ASR::ttype_t* t, SymbolTable* current_scope) {
         this->current_scope = current_scope;
 

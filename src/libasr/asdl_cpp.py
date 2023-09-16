@@ -1303,6 +1303,8 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
                     self.emit("    self().replace_expr(x->m_%s[i]);"%(field.name), level)
                     self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
                     self.current_expr_copy_variable_count += 1
+                elif field.type == "ttype":
+                    self.emit("    self().replace_%s(x->m_%s[i]);" % (field.type, field.name), level)
                 self.emit("}", level)
             else:
                 if field.type != "symbol":
