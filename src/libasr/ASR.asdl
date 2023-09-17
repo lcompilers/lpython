@@ -147,6 +147,10 @@ presence = Required | Optional
 -- LPython manages the conversion of arguments to be passed to such symbols
 -- and also converts the return values from such symbols.
 
+-- abi=BindJS: the symbol's implementation is
+-- available with Javascript.
+-- This abi type is to be mainly used with the WASM Backend.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -164,6 +168,7 @@ abi                   -- External     ABI
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
     | BindPython      --   Yes        Python
+    | BindJS          --   Yes        Javascript
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 

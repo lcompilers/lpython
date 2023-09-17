@@ -4230,6 +4230,8 @@ public:
                     } else if (name == "pythoncall" || name == "pythoncallable") {
                         current_procedure_abi_type = ASR::abiType::BindPython;
                         current_procedure_interface = (name == "pythoncall");
+                    } else if (name == "jscall") {
+                        current_procedure_abi_type = ASR::abiType::BindJS;
                     } else if (name == "overload") {
                         overload = true;
                     } else if (name == "interface") {
