@@ -52,6 +52,9 @@ void get_executable_path(std::string &executable_path, int &dirname_length)
 
 std::string get_runtime_library_dir()
 {
+#ifdef HAVE_BUILD_TO_WASM
+    return "asset_dir";
+#endif
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
     if (env_p) return env_p;
 

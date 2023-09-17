@@ -3,6 +3,11 @@
 set -e
 set -x
 
+mkdir -p src/bin/asset_dir
+cp src/runtime/*.py src/bin/asset_dir
+cp -r src/runtime/lpython src/bin/asset_dir
+
+./build0.sh
 emcmake cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_CXX_FLAGS_DEBUG="-Wall -Wextra -fexceptions" \

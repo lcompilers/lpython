@@ -107,7 +107,7 @@
         call 0
         return
     )
-    (memory (;0;) 100 100)
+    (memory (;0;) 1000 1000)
     (export "memory" (memory 0))
     (export "__main__global_stmts" (func 2))
     (export "main0" (func 3))
