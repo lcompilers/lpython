@@ -1,8 +1,0 @@
-warning: The symbol 'f' imported from modules_02b will shadow the existing symbol 'f'
- --> tests/../integration_tests/modules_02.py:1:25
-  |
-1 | from modules_02b import f, f
-  |                         ^ old symbol
-  |
-1 | from modules_02b import f, f
-  |                            ^ new symbol

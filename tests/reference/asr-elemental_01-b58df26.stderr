@@ -1,5 +1,0 @@
-semantic error: Arguments do not match for any generic procedure, sin
-  --> tests/../integration_tests/elemental_01.py:10:24
-   |
-10 |         assert abs(sin(sin(array[i])) - result[i]) <= eps
-   |                        ^^^^^^^^^^^^^ 
