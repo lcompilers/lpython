@@ -56,13 +56,16 @@ if (HAVE_BUILD_TO_WASM)
     # "-s ALLOW_MEMORY_GROWTH": Allow dynamic memory growth upto the maximum page size limit
     # "-s WASM_BIGINT": Allow use of i64 integers. ASR is needing this option to be enabled.
     # "-s EXPORTED_RUNTIME_METHODS=['cwrap']": Export cwarp. cwarp helps us to call our EMSCRIPTEN_KEEPALIVE functions
+    # "-fsanitize=undefined": Clang's Undefined Behaviour Sanitizer. The LPython parser segfaults.
+        # This option is for debugging, but currently helps avoid the segfault in the parser.
+    # "-s INITIAL_MEMORY=536870912": Start the wasm linear memory with sufficiently large size 512Mb.
 
     # Notes:
     # STANDALONE_WASM is disabling support for exceptions, so it is currently omitted
     # In build_to_wasm.sh, we need CMAKE_CXX_FLAGS_DEBUG="-Wall -Wextra -fexceptions" flags for exception support
-    set(WASM_COMPILE_FLAGS "-g0 -fexceptions")
+    set(WASM_COMPILE_FLAGS "-g0 -fexceptions -fsanitize=undefined")
     set(WASM_LINK_FLAGS
-      "-g0 -Oz -fexceptions --preload-file asset_dir -Wall -Wextra --no-entry -s ASSERTIONS -s ALLOW_MEMORY_GROWTH=1 -s WASM_BIGINT -s \"EXPORTED_RUNTIME_METHODS=['cwrap']\""
+      "-g0 -Oz -fexceptions -fsanitize=undefined --preload-file asset_dir -Wall -Wextra --no-entry -sASSERTIONS=1 -s INITIAL_MEMORY=536870912 -s ALLOW_MEMORY_GROWTH=1 -s WASM_BIGINT -s \"EXPORTED_RUNTIME_METHODS=['cwrap']\""
     )
     set_target_properties(lpython PROPERTIES COMPILE_FLAGS ${WASM_COMPILE_FLAGS})
     set_target_properties(lpython PROPERTIES LINK_FLAGS ${WASM_LINK_FLAGS})
