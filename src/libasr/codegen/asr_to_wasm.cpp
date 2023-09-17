@@ -189,6 +189,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         import_function(fn);
                     }
                 }
+            } else if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                for (auto &item : m->m_symtab->get_scope()) {
+                    if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
+                        import_function(fn);
+                    }
+                }
             } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
                 import_function(fn);
