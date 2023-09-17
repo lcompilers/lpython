@@ -160,10 +160,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void import_function(ASR::Function_t* fn) {
-        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
-        if (ASRUtils::get_FunctionType(fn)->m_deftype != ASR::deftypeType::Interface) return;
-        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
-        if (ASRUtils::is_intrinsic_function2(fn)) return;
+        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindJS) return;
 
         emit_function_prototype(*fn);
         m_wa.emit_import_fn("js", fn->m_name,
@@ -1160,13 +1157,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     bool is_unsupported_function(const ASR::Function_t &x) {
         if (strcmp(x.m_name, "_start") == 0) return false;
 
-        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
-            ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
-            if (ASRUtils::is_intrinsic_function2(&x)) {
-                diag.codegen_warning_label(
-                    "WASM: C Intrinsic Functions not yet supported",
-                    {x.base.base.loc}, std::string(x.m_name));
-            }
+         if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindJS) {
+            return true;
+         }
+
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC) {
+            // Skip C Intrinsic Functions
             return true;
         }
         for (size_t i = 0; i < x.n_body; i++) {
@@ -1175,13 +1171,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                     ASRUtils::symbol_get_past_external(sub_call.m_name));
                 if (ASRUtils::get_FunctionType(s)->m_abi == ASR::abiType::BindC &&
-                    ASRUtils::get_FunctionType(s)->m_deftype == ASR::deftypeType::Interface &&
                     ASRUtils::is_intrinsic_function2(s)) {
-                    diag.codegen_warning_label(
-                        "WASM: Calls to C Intrinsic Functions are not yet "
-                        "supported",
-                        {x.m_body[i]->base.loc},
-                        "Function: calls " + std::string(s->m_name));
+                    // Skip functions that call into C Intrinsic Functions
                     return true;
                 }
             }
