@@ -142,8 +142,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         main_func = nullptr;
         avail_mem_loc = 0;
 
-        min_no_pages = 100;  // fixed 6.4 Mb memory currently
-        max_no_pages = 100;  // fixed 6.4 Mb memory currently
+        min_no_pages = 1000;  // fixed 64 Mb memory currently
+        max_no_pages = 1000;  // fixed 64 Mb memory currently
 
         m_compiler_globals.resize(GLOBAL_VARS_CNT);
         m_import_func_idx_map.resize(IMPORT_FUNCS_CNT);
