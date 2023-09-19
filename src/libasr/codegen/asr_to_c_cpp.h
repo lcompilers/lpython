@@ -1072,6 +1072,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                 } else {
                     args += src;
                 }
+            } else if (ASR::is_a<ASR::ArrayItem_t>(*m_args[i].m_value)) {
+                ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
+                if (param->m_intent == ASRUtils::intent_inout
+                    || param->m_intent == ASRUtils::intent_out || ASR::is_a<ASR::Struct_t>(*type)) {
+                    args += "&" + src;
+                } else {
+                    args += src;
+                }
             } else {
                 if( ASR::is_a<ASR::Struct_t>(*type) ) {
                     args += "&" + src;
