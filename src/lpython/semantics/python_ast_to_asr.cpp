@@ -7313,7 +7313,7 @@ public:
         if (!s) {
             std::string intrinsic_name = call_name;
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand", "trunc",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand", "trunc", "fix",
                 "sum" // For sum called over lists
             };
             std::set<std::string> symbolic_functions = {
