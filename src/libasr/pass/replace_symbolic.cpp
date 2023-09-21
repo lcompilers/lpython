@@ -638,7 +638,21 @@ public:
             if (cast_t->m_kind == ASR::cast_kindType::IntegerToSymbolicExpression) {
                 ASR::expr_t* cast_arg = cast_t->m_arg;
                 ASR::expr_t* cast_value = cast_t->m_value;
-                if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*cast_value)) {
+                if (ASR::is_a<ASR::Var_t>(*cast_arg)) {
+                    ASR::symbol_t* integer_set_sym = declare_integer_set_si_function(al, x.base.base.loc, module_scope);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 2);
+                    ASR::call_arg_t call_arg1, call_arg2;
+                    call_arg1.loc = x.base.base.loc;
+                    call_arg1.m_value = x.m_target;
+                    call_arg2.loc = x.base.base.loc;
+                    call_arg2.m_value = cast_arg;
+                    call_args.push_back(al, call_arg1);
+                    call_args.push_back(al, call_arg2);
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, integer_set_sym,
+                        integer_set_sym, call_args.p, call_args.n, nullptr));
+                    pass_result.push_back(al, stmt);
+                } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*cast_value)) {
                     ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(cast_value);
                     int64_t intrinsic_id = intrinsic_func->m_intrinsic_id;
                     if (static_cast<LCompilers::ASRUtils::IntrinsicScalarFunctions>(intrinsic_id) ==
