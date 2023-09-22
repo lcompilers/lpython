@@ -1460,47 +1460,39 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         }
 
         void visit_Assignment(const ASR::Assignment_t &x) {
-            bool is_target_struct_member_array_and_value_array =
-                (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) &&
-                 ASRUtils::is_array(ASRUtils::expr_type(x.m_value)) &&
-                 ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) &&
-                 !ASR::is_a<ASR::FunctionCall_t>(*x.m_value));
             if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
                 ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
-                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ||
-                is_target_struct_member_array_and_value_array) { // TODO: fix for StructInstanceMember targets
-                if( is_target_struct_member_array_and_value_array ) {
-                    if (realloc_lhs && ASRUtils::is_allocatable(x.m_target)) { // Add realloc-lhs later
-                        Vec<ASR::alloc_arg_t> vec_alloc;
-                        vec_alloc.reserve(al, 1);
-                        ASR::alloc_arg_t alloc_arg;
-                        alloc_arg.m_len_expr = nullptr;
-                        alloc_arg.m_type = nullptr;
-                        alloc_arg.loc = x.m_target->base.loc;
-                        alloc_arg.m_a = x.m_target;
+                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ) {
+                if( realloc_lhs && ASRUtils::is_allocatable(x.m_target)) { // Add realloc-lhs later
+                    Vec<ASR::alloc_arg_t> vec_alloc;
+                    vec_alloc.reserve(al, 1);
+                    ASR::alloc_arg_t alloc_arg;
+                    alloc_arg.m_len_expr = nullptr;
+                    alloc_arg.m_type = nullptr;
+                    alloc_arg.loc = x.m_target->base.loc;
+                    alloc_arg.m_a = x.m_target;
 
 
-                        ASR::dimension_t* m_dims = nullptr;
-                        size_t n_dims = ASRUtils::extract_dimensions_from_ttype(
-                            ASRUtils::expr_type(x.m_value), m_dims);
-                        Vec<ASR::dimension_t> vec_dims;
-                        vec_dims.reserve(al, n_dims);
-                        for( size_t i = 0; i < n_dims; i++ ) {
-                            ASR::dimension_t dim;
-                            dim.loc = x.m_value->base.loc;
-                            dim.m_start = PassUtils::get_bound(x.m_value, i + 1, "lbound", al);
-                            dim.m_length = ASRUtils::get_size(x.m_value, i + 1, al);
-                            vec_dims.push_back(al, dim);
-                        }
-
-
-                        alloc_arg.m_dims = vec_dims.p;
-                        alloc_arg.n_dims = vec_dims.n;
-                        vec_alloc.push_back(al, alloc_arg);
-                        pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
-                            al, x.base.base.loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
-                        remove_original_statement = false;
+                    ASR::dimension_t* m_dims = nullptr;
+                    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(x.m_value), m_dims);
+                    Vec<ASR::dimension_t> vec_dims;
+                    vec_dims.reserve(al, n_dims);
+                    for( size_t i = 0; i < n_dims; i++ ) {
+                        ASR::dimension_t dim;
+                        dim.loc = x.m_value->base.loc;
+                        dim.m_start = PassUtils::get_bound(x.m_value, i + 1, "lbound", al);
+                        dim.m_length = ASRUtils::get_size(x.m_value, i + 1, al);
+                        vec_dims.push_back(al, dim);
                     }
+
+
+                    alloc_arg.m_dims = vec_dims.p;
+                    alloc_arg.n_dims = vec_dims.n;
+                    vec_alloc.push_back(al, alloc_arg);
+                    pass_result.push_back(al, ASRUtils::STMT(ASR::make_Allocate_t(
+                        al, x.base.base.loc, vec_alloc.p, 1, nullptr, nullptr, nullptr)));
+                    remove_original_statement = false;
                 }
                 return ;
             }
