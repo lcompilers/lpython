@@ -46,7 +46,6 @@ public:
     }
     std::vector<std::string> symbolic_dependencies;
     std::set<ASR::symbol_t*> symbolic_vars_to_free;
-    std::set<ASR::symbol_t*> symbolic_vars_to_omit;
     SymEngine_Stack symengine_stack;
 
     void visit_Function(const ASR::Function_t &x) {
@@ -95,7 +94,6 @@ public:
         func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
         for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-            if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
             Vec<ASR::call_arg_t> call_args;
             call_args.reserve(al, 1);
             ASR::call_arg_t call_arg;
@@ -121,10 +119,10 @@ public:
 
             ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = type1;
-            symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
             if(xx.m_intent == ASR::intentType::In){
-                symbolic_vars_to_omit.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
+                return;
             }
+            symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
 
             if(xx.m_intent == ASR::intentType::Local){
                 ASR::ttype_t *type2 = ASRUtils::TYPE(ASR::make_Integer_t(al, xx.base.base.loc, 8));
