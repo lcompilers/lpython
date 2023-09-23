@@ -725,6 +725,17 @@ public:
                 call_arg.loc = x.base.base.loc;
                 call_arg.m_value = target;
                 call_args.push_back(al, call_arg);
+            } else if (ASR::is_a<ASR::Cast_t>(*val)) {
+                ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
+                if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
+                this->visit_Cast(*cast_t);
+                ASR::symbol_t *var_sym = current_scope->get_symbol(symengine_stack.pop());
+                ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+                ASR::call_arg_t call_arg;
+                call_arg.loc = x.base.base.loc;
+                call_arg.m_value = target;
+                call_args.push_back(al, call_arg);
             } else {
                 call_args.push_back(al, x.m_args[i]);
             }
@@ -793,9 +804,8 @@ public:
             } else if (ASR::is_a<ASR::Cast_t>(*val)) {
                 ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
                 if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
-                ASR::symbol_t *var_sym = nullptr;
                 this->visit_Cast(*cast_t);
-                var_sym = current_scope->get_symbol(symengine_stack.pop());
+                ASR::symbol_t *var_sym = current_scope->get_symbol(symengine_stack.pop());
                 ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
 
                 // Now create the FunctionCall node for basic_str

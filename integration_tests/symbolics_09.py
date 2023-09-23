@@ -13,7 +13,7 @@ def call_addInteger():
     e: S = cos(b)
     addInteger(c, d, e, 2)
     addInteger(c, sin(a), cos(b), 2)
-    addInteger(c, sin(Symbol("x")), cos(Symbol("y")), 2)
+    addInteger(pi, sin(Symbol("x")), cos(Symbol("y")), 2)
 
 def main0():
     call_addInteger()
