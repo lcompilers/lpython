@@ -792,6 +792,7 @@ public:
                 print_tmp.push_back(function_call);
             } else if (ASR::is_a<ASR::Cast_t>(*val)) {
                 ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
+                if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
                 ASR::symbol_t *var_sym = nullptr;
                 this->visit_Cast(*cast_t);
                 var_sym = current_scope->get_symbol(symengine_stack.pop());
