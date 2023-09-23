@@ -640,13 +640,16 @@ public:
                 ASR::expr_t* cast_value = cast_t->m_value;
                 if (ASR::is_a<ASR::Var_t>(*cast_arg)) {
                     ASR::symbol_t* integer_set_sym = declare_integer_set_si_function(al, x.base.base.loc, module_scope);
+                    ASR::ttype_t* cast_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8));
+                    ASR::expr_t* value = ASRUtils::EXPR(ASR::make_Cast_t(al, x.base.base.loc, cast_arg,
+                        (ASR::cast_kindType)ASR::cast_kindType::IntegerToInteger, cast_type, nullptr));
                     Vec<ASR::call_arg_t> call_args;
                     call_args.reserve(al, 2);
                     ASR::call_arg_t call_arg1, call_arg2;
                     call_arg1.loc = x.base.base.loc;
                     call_arg1.m_value = x.m_target;
                     call_arg2.loc = x.base.base.loc;
-                    call_arg2.m_value = cast_arg;
+                    call_arg2.m_value = value;
                     call_args.push_back(al, call_arg1);
                     call_args.push_back(al, call_arg2);
                     ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, integer_set_sym,
