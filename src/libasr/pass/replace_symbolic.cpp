@@ -695,6 +695,56 @@ public:
         }
     }
 
+    void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        SymbolTable* module_scope = current_scope->parent;
+        Vec<ASR::call_arg_t> call_args;
+        call_args.reserve(al, 1);
+
+        for (size_t i=0; i<x.n_args; i++) {
+            ASR::expr_t* val = x.m_args[i].m_value;
+            if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*val) && ASR::is_a<ASR::SymbolicExpression_t>(*ASRUtils::expr_type(val))) {
+                ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(val);
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, x.base.base.loc));
+                std::string symengine_var = symengine_stack.push();
+                ASR::symbol_t *arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                    al, x.base.base.loc, current_scope, s2c(al, symengine_var), nullptr, 0, ASR::intentType::Local,
+                    nullptr, nullptr, ASR::storage_typeType::Default, type, nullptr,
+                    ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+                current_scope->add_symbol(s2c(al, symengine_var), arg);
+                for (auto &item : current_scope->get_scope()) {
+                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                        ASR::Variable_t *s = ASR::down_cast<ASR::Variable_t>(item.second);
+                        this->visit_Variable(*s);
+                    }
+                }
+
+                ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
+                process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, target);
+
+                ASR::call_arg_t call_arg;
+                call_arg.loc = x.base.base.loc;
+                call_arg.m_value = target;
+                call_args.push_back(al, call_arg);
+            } else if (ASR::is_a<ASR::Cast_t>(*val)) {
+                ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
+                if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
+                this->visit_Cast(*cast_t);
+                ASR::symbol_t *var_sym = current_scope->get_symbol(symengine_stack.pop());
+                ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+                ASR::call_arg_t call_arg;
+                call_arg.loc = x.base.base.loc;
+                call_arg.m_value = target;
+                call_args.push_back(al, call_arg);
+            } else {
+                call_args.push_back(al, x.m_args[i]);
+            }
+        }
+        ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, x.m_name,
+            x.m_name, call_args.p, call_args.n, nullptr));
+        pass_result.push_back(al, stmt);
+    }
+
     void visit_Print(const ASR::Print_t &x) {
         std::vector<ASR::expr_t*> print_tmp;
         SymbolTable* module_scope = current_scope->parent;
@@ -738,6 +788,25 @@ public:
 
                 ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, arg));
                 process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, target);
+
+                // Now create the FunctionCall node for basic_str
+                ASR::symbol_t* basic_str_sym = declare_basic_str_function(al, x.base.base.loc, module_scope);
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 1);
+                ASR::call_arg_t call_arg;
+                call_arg.loc = x.base.base.loc;
+                call_arg.m_value = target;
+                call_args.push_back(al, call_arg);
+                ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                    basic_str_sym, basic_str_sym, call_args.p, call_args.n,
+                    ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+                print_tmp.push_back(function_call);
+            } else if (ASR::is_a<ASR::Cast_t>(*val)) {
+                ASR::Cast_t* cast_t = ASR::down_cast<ASR::Cast_t>(val);
+                if(cast_t->m_kind != ASR::cast_kindType::IntegerToSymbolicExpression) return;
+                this->visit_Cast(*cast_t);
+                ASR::symbol_t *var_sym = current_scope->get_symbol(symengine_stack.pop());
+                ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
 
                 // Now create the FunctionCall node for basic_str
                 ASR::symbol_t* basic_str_sym = declare_basic_str_function(al, x.base.base.loc, module_scope);
