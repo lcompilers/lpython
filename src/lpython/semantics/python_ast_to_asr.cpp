@@ -7241,6 +7241,36 @@ public:
             std::string res = n->m_value;
             handle_constant_string_attributes(res, args, at->m_attr, loc);
             return;
+        } else if (AST::is_a<AST::Call_t>(*at->m_value)) {
+            AST::Call_t* call = AST::down_cast<AST::Call_t>(at->m_value);
+            std::set<std::string> symbolic_functions = {
+                "sin", "cos", "log", "exp", "Abs"
+            };
+            if (AST::is_a<AST::Attribute_t>(*call->m_func)) {
+                visit_Call(*call);
+                Vec<ASR::expr_t*> eles;
+                eles.reserve(al, args.size());
+                for (size_t i=0; i<args.size(); i++) {
+                    eles.push_back(al, args[i].m_value);
+                }
+                handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                return;
+            } else if (AST::is_a<AST::Name_t>(*call->m_func)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(call->m_func);
+                std::string call_name = n->m_id;
+                if (symbolic_functions.find(call_name) != symbolic_functions.end()) {
+                    visit_Call(*call);
+                    Vec<ASR::expr_t*> eles;
+                    eles.reserve(al, args.size());
+                    for (size_t i=0; i<args.size(); i++) {
+                        eles.push_back(al, args[i].m_value);
+                    }
+                    handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                    return;
+                } else {
+                    throw SemanticError(std::string(call_name) + " not supported in Call", loc);
+                }
+            }
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }
