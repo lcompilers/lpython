@@ -76,7 +76,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     SymbolicLog,
     SymbolicExp,
     SymbolicAbs,
-    SymbolicHasQ,
+    SymbolicHasSymbolQ,
     // ...
 };
 
@@ -136,7 +136,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicLog)
         INTRINSIC_NAME_CASE(SymbolicExp)
         INTRINSIC_NAME_CASE(SymbolicAbs)
-        INTRINSIC_NAME_CASE(SymbolicHasQ)
+        INTRINSIC_NAME_CASE(SymbolicHasSymbolQ)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
@@ -2855,7 +2855,7 @@ create_symbolic_binary_macro(SymbolicMul)
 create_symbolic_binary_macro(SymbolicDiv)
 create_symbolic_binary_macro(SymbolicPow)
 create_symbolic_binary_macro(SymbolicDiff)
-create_symbolic_binary_macro(SymbolicHasQ)
+create_symbolic_binary_macro(SymbolicHasSymbolQ)
 
 namespace SymbolicPi {
 
@@ -3060,8 +3060,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SymbolicExp::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAbs),
             {nullptr, &SymbolicAbs::verify_args}},
-        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasQ),
-            {nullptr, &SymbolicHasQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
+            {nullptr, &SymbolicHasSymbolQ::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -3162,8 +3162,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "SymbolicExp"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAbs),
             "SymbolicAbs"},
-        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasQ),
-            "SymbolicHasQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
+            "SymbolicHasSymbolQ"},
     };
 
 
@@ -3217,7 +3217,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"SymbolicLog", {&SymbolicLog::create_SymbolicLog, &SymbolicLog::eval_SymbolicLog}},
                 {"SymbolicExp", {&SymbolicExp::create_SymbolicExp, &SymbolicExp::eval_SymbolicExp}},
                 {"SymbolicAbs", {&SymbolicAbs::create_SymbolicAbs, &SymbolicAbs::eval_SymbolicAbs}},
-                {"has", {&SymbolicHasQ::create_SymbolicHasQ, &SymbolicHasQ::eval_SymbolicHasQ}},
+                {"has", {&SymbolicHasSymbolQ::create_SymbolicHasSymbolQ, &SymbolicHasSymbolQ::eval_SymbolicHasSymbolQ}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {

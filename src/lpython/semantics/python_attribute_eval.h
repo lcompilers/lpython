@@ -46,7 +46,7 @@ struct AttributeHandler {
         symbolic_attribute_map = {
             {"diff", &eval_symbolic_diff},
             {"expand", &eval_symbolic_expand},
-            {"has", &eval_symbolic_has}
+            {"has", &eval_symbolic_has_symbol}
         };
     }
 
@@ -443,7 +443,7 @@ struct AttributeHandler {
                                 { throw SemanticError(msg, loc); });
     }
 
-    static ASR::asr_t* eval_symbolic_has(ASR::expr_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_symbolic_has_symbol(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
         Vec<ASR::expr_t*> args_with_list;
         args_with_list.reserve(al, args.size() + 1);
