@@ -1,4 +1,4 @@
-from sympy import Symbol, expand, diff
+from sympy import Symbol, expand, diff, sin, cos, exp, pi
 from lpython import S
 
 def test_operations():
@@ -20,5 +20,17 @@ def test_operations():
     assert(diff(b, x) == S(3)*(x + y + z)**S(2))
     print(a.diff(x))
     print(diff(b, x))
+
+    # test diff 2
+    c:S = sin(x)
+    d:S = cos(x)
+    assert(sin(Symbol("x")).diff(x) == d)
+    assert(sin(x).diff(Symbol("x")) == d)
+    assert(sin(x).diff(x) == d)
+    assert(sin(x).diff(x).diff(x) == S(-1)*c)
+    assert(sin(x).expand().diff(x).diff(x) == S(-1)*c)
+    assert((sin(x) + cos(x)).diff(x) == S(-1)*c + d)
+    assert((sin(x) + cos(x) + exp(x) + pi).diff(x).expand().diff(x) == exp(x) + S(-1)*c + S(-1)*d)
+
 
 test_operations()
