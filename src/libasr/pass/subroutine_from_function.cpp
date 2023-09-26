@@ -318,15 +318,9 @@ class ReplaceFunctionCallWithSubroutineCallVisitor:
         }
 
         void visit_Assignment(const ASR::Assignment_t &x) {
-            bool is_target_struct_member_array_and_value_array =
-                (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) &&
-                 ASRUtils::is_array(ASRUtils::expr_type(x.m_value)) &&
-                 ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) &&
-                 !ASR::is_a<ASR::FunctionCall_t>(*x.m_value));
             if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
                 ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
-                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value)) ||
-                is_target_struct_member_array_and_value_array) { // TODO: fix for StructInstanceMember targets
+                (ASR::is_a<ASR::ArrayConstant_t>(*x.m_value))) {
                 return ;
             }
 

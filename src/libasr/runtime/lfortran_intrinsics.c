@@ -1146,6 +1146,26 @@ LFORTRAN_API double _lfortran_dtrunc(double x)
     return trunc(x);
 }
 
+// fix -----------------------------------------------------------------------
+
+LFORTRAN_API float _lfortran_sfix(float x)
+{
+    if (x > 0.0) {
+        return floorf(x);
+    } else {
+        return ceilf(x);
+    }
+}
+
+LFORTRAN_API double _lfortran_dfix(double x)
+{
+    if (x > 0.0) {
+        return floor(x);
+    } else {
+        return ceil(x);
+    }
+}
+
 // phase --------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_cphase(float_complex_t x)
