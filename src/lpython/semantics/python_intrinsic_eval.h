@@ -76,20 +76,34 @@ struct IntrinsicNodeHandler {
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
                                     ASRUtils::expr_value(arg))->m_s;
                 int ival = 0;
+                std::string str;
                 char *ch = c;
-                if (*ch == '-') {
+                if (*ch == '-' || *ch == '+') {
                     ch++;
                 }
                 while (*ch) {
+                    if(*ch == ' '){
+                        ch++;
+                        continue;
+                    }
+                    if(*ch == '\\'){
+                        ch++;
+                        if (*ch == 'n' || *ch == 'r' || *ch == 't') {
+                            ch++;
+                            continue;
+                        }
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
                     if (*ch == '.') {
                         throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
                     }
                     if (*ch < '0' || *ch > '9') {
                         throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
                     }
+                    str+=*ch;
                     ch++;
                 }
-                ival = std::stoi(c);
+                ival = std::stoi(str);
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
                                 loc, ival, to_type));
             }
