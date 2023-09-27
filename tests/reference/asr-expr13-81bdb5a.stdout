@@ -460,7 +460,7 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        128
                         {
                             
                         })
