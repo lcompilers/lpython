@@ -575,7 +575,7 @@ public:
     }
 
 
-    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+    void visit_TranslationUnit(ASR::TranslationUnit_t x) {
         is_string_concat_present = false;
         global_scope = x.m_symtab;
         // All loose statements must be converted to a function, so the items
@@ -719,7 +719,7 @@ R"(
         }
     }
 
-    void visit_Module(const ASR::Module_t &x) {
+    void visit_Module(ASR::Module_t x) {
         if (startswith(x.m_name, "lfortran_intrinsic_")) {
             intrinsic_module = true;
         } else {
@@ -772,7 +772,7 @@ R"(
         intrinsic_module = false;
     }
 
-    void visit_Program(const ASR::Program_t &x) {
+    void visit_Program(ASR::Program_t x) {
         // Topologically sort all program functions
         // and then define them in the right order
         std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
@@ -914,18 +914,18 @@ R"(    // Initialise Numpy
         return c_type_name;
     }
 
-    void visit_StructType(const ASR::StructType_t& x) {
+    void visit_StructType(ASR::StructType_t x) {
         src = "";
         std::string c_type_name = get_StructCTypeName(x);
         visit_AggregateTypeUtil(x, c_type_name, array_types_decls);
         src = "";
     }
 
-    void visit_UnionType(const ASR::UnionType_t& x) {
+    void visit_UnionType(ASR::UnionType_t x) {
         visit_AggregateTypeUtil(x, "union", array_types_decls);
     }
 
-    void visit_EnumType(const ASR::EnumType_t& x) {
+    void visit_EnumType(ASR::EnumType_t x) {
         if( x.m_enum_value_type == ASR::enumtypeType::NonInteger ) {
             throw CodeGenError("C backend only supports integer valued Enum. " +
                 std::string(x.m_name) + " is not integer valued.");
@@ -985,7 +985,7 @@ R"(    // Initialise Numpy
         src = "";
     }
 
-    void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
+    void visit_EnumTypeConstructor(ASR::EnumTypeConstructor_t x) {
         LCOMPILERS_ASSERT(x.n_args == 1);
         ASR::expr_t* m_arg = x.m_args[0];
         this->visit_expr(*m_arg);
@@ -993,22 +993,22 @@ R"(    // Initialise Numpy
         src = "(enum " + std::string(enum_type->m_name) + ") (" + src + ")";
     }
 
-    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& /*x*/) {
+    void visit_UnionTypeConstructor(ASR::UnionTypeConstructor_t /*x*/) {
 
     }
 
-    void visit_EnumStaticMember(const ASR::EnumStaticMember_t& x) {
+    void visit_EnumStaticMember(ASR::EnumStaticMember_t x) {
         CHECK_FAST_C(compiler_options, x)
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         src = std::string(enum_var->m_name);
     }
 
-    void visit_EnumValue(const ASR::EnumValue_t& x) {
+    void visit_EnumValue(ASR::EnumValue_t x) {
         CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
     }
 
-    void visit_EnumName(const ASR::EnumName_t& x) {
+    void visit_EnumName(ASR::EnumName_t x) {
         CHECK_FAST_C(compiler_options, x)
         int64_t min_value = INT64_MAX;
         ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
@@ -1026,7 +1026,7 @@ R"(    // Initialise Numpy
                 "[" + std::string(enum_var_name) + " - " + std::to_string(min_value) + "]";
     }
 
-    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
+    void visit_ComplexConstant(ASR::ComplexConstant_t x) {
         headers.insert("complex.h");
         std::string re = std::to_string(x.m_re);
         std::string im = std::to_string(x.m_im);
@@ -1035,7 +1035,7 @@ R"(    // Initialise Numpy
         last_expr_precedence = 2;
     }
 
-    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
+    void visit_LogicalConstant(ASR::LogicalConstant_t x) {
         if (x.m_value == true) {
             src = "true";
         } else {
@@ -1044,7 +1044,7 @@ R"(    // Initialise Numpy
         last_expr_precedence = 2;
     }
 
-    void visit_Assert(const ASR::Assert_t &x) {
+    void visit_Assert(ASR::Assert_t x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
         bracket_open++;
@@ -1084,7 +1084,7 @@ R"(    // Initialise Numpy
         src = check_tmp_buffer() + out;
     }
 
-    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
+    void visit_CPtrToPointer(ASR::CPtrToPointer_t x) {
         visit_expr(*x.m_cptr);
         std::string source_src = std::move(src);
         visit_expr(*x.m_ptr);
@@ -1125,7 +1125,7 @@ R"(    // Initialise Numpy
         src += indent + dest_src + " = (" + type_src + ") " + source_src + ";\n";
     }
 
-    void visit_Print(const ASR::Print_t &x) {
+    void visit_Print(ASR::Print_t x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string tmp_gen = indent + "printf(\"", out = "";
         bracket_open++;
@@ -1189,7 +1189,7 @@ R"(    // Initialise Numpy
         src = this->check_tmp_buffer() + out;
     }
 
-    void visit_ArraySize(const ASR::ArraySize_t& x) {
+    void visit_ArraySize(ASR::ArraySize_t x) {
         CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
         std::string var_name = src;
@@ -1207,7 +1207,7 @@ R"(    // Initialise Numpy
         }
     }
 
-    void visit_ArrayReshape(const ASR::ArrayReshape_t& x) {
+    void visit_ArrayReshape(ASR::ArrayReshape_t x) {
         CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_array);
         std::string array = src;
@@ -1230,7 +1230,7 @@ R"(    // Initialise Numpy
         src = array_reshape_func + "(" + array + ", " + shape + ")";
     }
 
-    void visit_ArrayBound(const ASR::ArrayBound_t& x) {
+    void visit_ArrayBound(ASR::ArrayBound_t x) {
         CHECK_FAST_C(compiler_options, x)
         visit_expr(*x.m_v);
         std::string var_name = src;
@@ -1248,7 +1248,7 @@ R"(    // Initialise Numpy
         }
     }
 
-    void visit_ArrayConstant(const ASR::ArrayConstant_t& x) {
+    void visit_ArrayConstant(ASR::ArrayConstant_t x) {
         // TODO: Support and test for multi-dimensional array constants
         headers.insert("stdarg.h");
         std::string array_const = "";
@@ -1268,7 +1268,7 @@ R"(    // Initialise Numpy
                 "(" + std::to_string(x.n_args) + ", " + array_const + ")";
     }
 
-    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+    void visit_ArrayItem(ASR::ArrayItem_t x) {
         CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_v);
         std::string array = src;
@@ -1319,7 +1319,7 @@ R"(    // Initialise Numpy
         src = out;
     }
 
-    void visit_StringItem(const ASR::StringItem_t& x) {
+    void visit_StringItem(ASR::StringItem_t x) {
         CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_idx);
         std::string idx = std::move(src);
@@ -1328,7 +1328,7 @@ R"(    // Initialise Numpy
         src = "_lfortran_str_item(" + str + ", " + idx + ")";
     }
 
-    void visit_StringLen(const ASR::StringLen_t &x) {
+    void visit_StringLen(ASR::StringLen_t x) {
         CHECK_FAST_C(compiler_options, x)
         this->visit_expr(*x.m_arg);
         src = "strlen(" + src + ")";
