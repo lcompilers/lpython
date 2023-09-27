@@ -49,13 +49,89 @@ struct IntrinsicNodeHandler {
                                         const Location &loc) {
         ASR::expr_t *arg = nullptr, *value = nullptr;
         ASR::ttype_t *type = nullptr;
-        if (args.size() > 1) {
-            throw SemanticError("Either 0 or 1 argument is expected in 'int()'",
+        if (args.size() > 2) {
+            throw SemanticError("'int()' takes at most 2 arguments (" + std::to_string(args.size()) + " given)",
                     loc);
         }
-        if (args.size() > 0) {
+        if (args.size() >= 1) {
             arg = args[0].m_value;
             type = ASRUtils::expr_type(arg);
+            if (ASRUtils::is_character(*type)) {
+                int32_t base;
+                if (args.size() == 1) {
+                    base = 10;
+                } else {
+                    arg = args[1].m_value;
+                    type = ASRUtils::expr_type(arg);
+                    if (ASRUtils::is_integer(*type)) {
+                        base = ASR::down_cast<ASR::IntegerConstant_t>(
+                                            ASRUtils::expr_value(arg))->m_n;
+                        if ((base != 0 && base < 2) || base > 36) {
+                            throw SemanticError("int() base must be >= 2 and <= 36, or 0", loc);
+                        }
+                    } else {
+                        throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
+                                arg->base.loc);
+                    }   
+                }
+                arg = args[0].m_value;
+                type = ASRUtils::expr_type(arg);
+                ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8));
+                if (ASRUtils::expr_value(arg) != nullptr) {
+                    char *c = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_s;
+                    int ival = 0;
+                    bool zero_based = false;
+                    char *ch = c;
+                    if (*ch == '-') {
+                        ch++;
+                    }
+                    if (base == 0) {
+                        zero_based = true;
+                        if (*ch == '0') {
+                            ch++;
+                            if (*ch == 'x' || *ch == 'X') {
+                                base = 16;
+                                ch++;
+                            } else if (*ch == 'o' || *ch == 'O') {
+                                base = 8;
+                                ch++;
+                            } else if (*ch == 'b' || *ch == 'B') {
+                                base = 2;
+                                ch++;
+                            }
+                        } else {
+                            base = 10;
+                        } 
+                    } else {
+                        if (*ch == '0' &&
+                            ((base == 16 && (ch[1] == 'x'|| ch[1] == 'X')) ||
+                            (base == 8  && (ch[1] == 'o' || ch[1] == 'O')) ||
+                            (base == 2  && (ch[1] == 'b' || ch[1] == 'B')))) {
+                            ch += 2;
+                        }  
+                    }
+                    while (*ch) {
+                        if (*ch == '.') {
+                            throw SemanticError("invalid literal for int() with base " + std::to_string(zero_based ? 0: base) + ": '" + std::string(c) + "'", arg->base.loc);
+                        }
+                        if (!((*ch >= '0' && (*ch <= std::min((int)'9', '0' + base - 1))) || (*ch >= 'A' && (*ch < 'A' + base - 10)) || (*ch >= 'a' && (*ch < 'a' + base - 10)))) {
+                            throw SemanticError("invalid literal for int() with base " + std::to_string(zero_based ? 0: base) + ": '" + std::string(c) + "'", arg->base.loc);
+                        }
+                        ch++;
+                    }
+                    ival = std::stoi(c,0,base);
+                    return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
+                                    loc, ival, to_type));
+                }
+                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                    al, loc, arg, ASR::cast_kindType::CharacterToInteger,
+                    to_type, value));        
+            } else {
+                if (args.size() == 2) {
+                    throw SemanticError("int() can't convert non-string with explicit base", loc);
+                }
+            }
         }
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8));
         if (!arg) {
@@ -70,31 +146,6 @@ struct IntrinsicNodeHandler {
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                 al, loc, arg, ASR::cast_kindType::RealToInteger,
-                to_type, value));
-        } else if (ASRUtils::is_character(*type)) {
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                char *c = ASR::down_cast<ASR::StringConstant_t>(
-                                    ASRUtils::expr_value(arg))->m_s;
-                int ival = 0;
-                char *ch = c;
-                if (*ch == '-') {
-                    ch++;
-                }
-                while (*ch) {
-                    if (*ch == '.') {
-                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
-                    }
-                    if (*ch < '0' || *ch > '9') {
-                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
-                    }
-                    ch++;
-                }
-                ival = std::stoi(c);
-                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
-                                loc, ival, to_type));
-            }
-            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, arg, ASR::cast_kindType::CharacterToInteger,
                 to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
