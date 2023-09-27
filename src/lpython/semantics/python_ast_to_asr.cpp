@@ -6791,6 +6791,28 @@ public:
                 [&](const std::string &msg, const Location &loc) {
                 throw SemanticError(msg, loc); });
             return;
+        } else if(attr_name == "count") {
+            if(args.size() != 1) {
+                throw SemanticError("str.count() takes one argument for now.", loc);
+            }
+            ASR::expr_t *arg_value = args[0].m_value;
+            ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_character(*arg_value_type)) {
+                throw SemanticError("str.count() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_count";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t value;
+            value.loc = loc;
+            value.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, value);
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
