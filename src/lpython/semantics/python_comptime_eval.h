@@ -77,6 +77,7 @@ struct PythonIntrinsicProcedures {
             // The following functions for string methods are not used
             // for evaluation.
             {"_lpython_str_capitalize", {m_builtin, &not_implemented}},
+            {"_lpython_str_count", {m_builtin, &not_implemented}},
             {"_lpython_str_lower", {m_builtin, &not_implemented}},
             {"_lpython_str_upper", {m_builtin, &not_implemented}},
             {"_lpython_str_find", {m_builtin, &not_implemented}},

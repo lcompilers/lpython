@@ -6791,6 +6791,28 @@ public:
                 [&](const std::string &msg, const Location &loc) {
                 throw SemanticError(msg, loc); });
             return;
+        } else if(attr_name == "count") {
+            if(args.size() != 1) {
+                throw SemanticError("str.count() takes one argument for now.", loc);
+            }
+            ASR::expr_t *arg_value = args[0].m_value;
+            ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_character(*arg_value_type)) {
+                throw SemanticError("str.count() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_count";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t value;
+            value.loc = loc;
+            value.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, value);
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
@@ -7166,6 +7188,27 @@ public:
                 st = current_scope->get_symbol(call_name_store);
             } else {
                 st = current_scope->resolve_symbol(mod_name);
+                std::set<std::string> symbolic_attributes = {
+                    "diff", "expand"
+                };
+                std::set<std::string> symbolic_constants = {
+                    "pi"
+                };
+                if (symbolic_attributes.find(call_name) != symbolic_attributes.end() &&
+                    symbolic_constants.find(mod_name) != symbolic_constants.end()){
+                        ASRUtils::create_intrinsic_function create_func;
+                        create_func = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(mod_name);
+                        Vec<ASR::expr_t*> eles; eles.reserve(al, args.size());
+                        Vec<ASR::expr_t*> args_; args_.reserve(al, 1);
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        tmp = create_func(al, at->base.base.loc, args_,
+                            [&](const std::string &msg, const Location &loc) {
+                            throw SemanticError(msg, loc); });
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), call_name, loc, eles);
+                        return;
+                }
                 if (!st) {
                     throw SemanticError("NameError: '" + mod_name + "' is not defined", n->base.base.loc);
                 }
@@ -7220,6 +7263,32 @@ public:
             ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
             handle_builtin_attribute(expr, at->m_attr, loc, eles);
             return;
+        } else if (AST::is_a<AST::BinOp_t>(*at->m_value)) {
+            AST::BinOp_t* bop = AST::down_cast<AST::BinOp_t>(at->m_value);
+            std::set<std::string> symbolic_attributes = {
+                "diff", "expand"
+            };
+            if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
+                switch (bop->m_op) {
+                    case (AST::operatorType::Add) :
+                    case (AST::operatorType::Sub) :
+                    case (AST::operatorType::Mult) :
+                    case (AST::operatorType::Div) :
+                    case (AST::operatorType::Pow) : {
+                        visit_BinOp(*bop);
+                        Vec<ASR::expr_t*> eles;
+                        eles.reserve(al, args.size());
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                        return;
+                    }
+                    default : {
+                        throw SemanticError("Binary operator type not supported", loc);
+                    }
+                }
+            }
         } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
             if (std::string(at->m_attr) == std::string("bit_length")) {
                 //bit_length() attribute:
@@ -7241,6 +7310,41 @@ public:
             std::string res = n->m_value;
             handle_constant_string_attributes(res, args, at->m_attr, loc);
             return;
+        } else if (AST::is_a<AST::Call_t>(*at->m_value)) {
+            AST::Call_t* call = AST::down_cast<AST::Call_t>(at->m_value);
+            std::set<std::string> symbolic_attributes = {
+                "diff", "expand"
+            };
+            if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
+                std::set<std::string> symbolic_functions = {
+                    "sin", "cos", "log", "exp", "Abs", "Symbol"
+                };
+                if (AST::is_a<AST::Attribute_t>(*call->m_func)) {
+                    visit_Call(*call);
+                    Vec<ASR::expr_t*> eles;
+                    eles.reserve(al, args.size());
+                    for (size_t i=0; i<args.size(); i++) {
+                        eles.push_back(al, args[i].m_value);
+                    }
+                    handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                    return;
+                } else if (AST::is_a<AST::Name_t>(*call->m_func)) {
+                    AST::Name_t *n = AST::down_cast<AST::Name_t>(call->m_func);
+                    std::string call_name = n->m_id;
+                    if (symbolic_functions.find(call_name) != symbolic_functions.end()) {
+                        visit_Call(*call);
+                        Vec<ASR::expr_t*> eles;
+                        eles.reserve(al, args.size());
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                        return;
+                    } else {
+                        throw SemanticError(std::string(call_name) + " not supported in Call", loc);
+                    }
+                }
+            }
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }

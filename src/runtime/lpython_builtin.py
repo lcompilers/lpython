@@ -722,6 +722,23 @@ def _lpython_str_capitalize(x: str) -> str:
     res = chr(val) + res[1:]
     return res
 
+
+@overload
+def _lpython_str_count(x: str, y: str) -> i32:
+    if(len(y) == 0): return len(x) + 1
+
+    count: i32 = 0
+    curr_char: str
+    i: i32
+
+    for i in range(len(x)):
+        curr_char = x[i]
+        if curr_char == y[0]:
+            count += i32(x[i:i+len(y)] == y)
+
+    return count
+
+
 @overload
 def _lpython_str_lower(x: str) -> str:
     res: str
