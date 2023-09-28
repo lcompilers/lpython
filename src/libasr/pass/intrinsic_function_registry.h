@@ -2855,7 +2855,6 @@ create_symbolic_binary_macro(SymbolicMul)
 create_symbolic_binary_macro(SymbolicDiv)
 create_symbolic_binary_macro(SymbolicPow)
 create_symbolic_binary_macro(SymbolicDiff)
-create_symbolic_binary_macro(SymbolicHasSymbolQ)
 
 namespace SymbolicPi {
 
@@ -2910,6 +2909,57 @@ namespace SymbolicInteger {
     }
 
 } // namespace SymbolicInteger
+
+namespace SymbolicHasSymbolQ {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+        diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2, "Intrinsic function SymbolicHasSymbolQ"
+            "accepts exactly 2 arguments", x.base.base.loc, diagnostics);
+
+        ASR::ttype_t* left_type = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t* right_type = ASRUtils::expr_type(x.m_args[1]);
+
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*left_type) &&
+            ASR::is_a<ASR::SymbolicExpression_t>(*right_type),
+            "Both arguments of SymbolicHasSymbolQ must be of type SymbolicExpression",
+                x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t* eval_SymbolicHasSymbolQ(Allocator &/*al*/,
+        const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/) {
+        /*TODO*/
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicHasSymbolQ(Allocator& al,
+        const Location& loc, Vec<ASR::expr_t*>& args,
+        const std::function<void (const std::string &, const Location &)> err) {
+
+        if (args.size() != 2) {
+            err("Intrinsic function SymbolicHasSymbolQ accepts exactly 2 arguments", loc);
+        }
+
+        for (size_t i = 0; i < args.size(); i++) {
+            ASR::ttype_t* argtype = ASRUtils::expr_type(args[i]);
+            if(!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {
+                err("Arguments of SymbolicHasSymbolQ function must be of type SymbolicExpression",
+                    args[i]->base.loc);
+            }
+        }
+
+        Vec<ASR::expr_t*> arg_values;
+        arg_values.reserve(al, args.size());
+        for( size_t i = 0; i < args.size(); i++ ) {
+            arg_values.push_back(al, ASRUtils::expr_value(args[i]));
+        }
+
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+        ASR::expr_t* compile_time_value = eval_SymbolicHasSymbolQ(al, loc, to_type, arg_values);
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,
+            static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
+            args.p, args.size(), 0, to_type, compile_time_value);
+    }
+} // namespace SymbolicHasSymbolQ
 
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \

@@ -7189,7 +7189,7 @@ public:
             } else {
                 st = current_scope->resolve_symbol(mod_name);
                 std::set<std::string> symbolic_attributes = {
-                    "diff", "expand"
+                    "diff", "expand", "has"
                 };
                 std::set<std::string> symbolic_constants = {
                     "pi"
@@ -7266,7 +7266,7 @@ public:
         } else if (AST::is_a<AST::BinOp_t>(*at->m_value)) {
             AST::BinOp_t* bop = AST::down_cast<AST::BinOp_t>(at->m_value);
             std::set<std::string> symbolic_attributes = {
-                "diff", "expand"
+                "diff", "expand", "has"
             };
             if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
                 switch (bop->m_op) {
@@ -7313,7 +7313,7 @@ public:
         } else if (AST::is_a<AST::Call_t>(*at->m_value)) {
             AST::Call_t* call = AST::down_cast<AST::Call_t>(at->m_value);
             std::set<std::string> symbolic_attributes = {
-                "diff", "expand"
+                "diff", "expand", "has"
             };
             if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
                 std::set<std::string> symbolic_functions = {
