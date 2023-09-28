@@ -2953,11 +2953,10 @@ namespace SymbolicHasSymbolQ {
             arg_values.push_back(al, ASRUtils::expr_value(args[i]));
         }
 
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
-        ASR::expr_t* compile_time_value = eval_SymbolicHasSymbolQ(al, loc, to_type, arg_values);
+        ASR::expr_t* compile_time_value = eval_SymbolicHasSymbolQ(al, loc, logical, arg_values);
         return ASR::make_IntrinsicScalarFunction_t(al, loc,
             static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
-            args.p, args.size(), 0, to_type, compile_time_value);
+            args.p, args.size(), 0, logical, compile_time_value);
     }
 } // namespace SymbolicHasSymbolQ
 
