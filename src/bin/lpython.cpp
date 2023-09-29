@@ -1901,14 +1901,14 @@ int main(int argc, char *argv[])
 #else
                     cmd += "llvm-dwarfdump --debug-line " + basename + ".out > ";
 #endif
-                    cmd += basename + "_ldd.txt && (cd src/bin; ./dwarf_convert.py ../../"
+                    cmd += basename + "_ldd.txt && (cd src/libasr; ./dwarf_convert.py ../../"
                         + basename + "_ldd.txt ../../" + basename + "_lines.txt ../../"
                         + basename + "_lines.dat && ./dat_convert.py ../../"
                         + basename + "_lines.dat)";
                     int status = system(cmd.c_str());
                     if ( status != 0 ) {
                         std::cerr << "Error in creating the files used to generate "
-                            "the debug information. This might be caused because either"
+                            "the debug information. This might be caused because either "
                             "`llvm-dwarfdump` or `Python` are not available. "
                             "Please activate the CONDA environment and compile again.\n";
                         return status;
