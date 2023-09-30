@@ -50,6 +50,19 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     eval_count++;
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
+    if (compiler_options.emit_debug_info) {
+        if (!compiler_options.emit_debug_line_column) {
+            diagnostics.add(LCompilers::diag::Diagnostic(
+                "The `emit_debug_line_column` is not enabled; please use the "
+                "`--debug-with-line-column` option to get the correct "
+                "location information",
+                LCompilers::diag::Level::Error,
+                LCompilers::diag::Stage::Semantic, {})
+            );
+            Error err;
+            return err;
+        }
+    }
     // ASR -> LLVM
     std::unique_ptr<LCompilers::LLVMModule> m;
     Result<std::unique_ptr<LCompilers::LLVMModule>> res
