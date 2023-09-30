@@ -77,6 +77,9 @@ enum class IntrinsicScalarFunctions : int64_t {
     SymbolicExp,
     SymbolicAbs,
     SymbolicHasSymbolQ,
+    SymbolicAddQ,
+    SymbolicMulQ,
+    SymbolicPowQ,
     // ...
 };
 
@@ -137,6 +140,9 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicExp)
         INTRINSIC_NAME_CASE(SymbolicAbs)
         INTRINSIC_NAME_CASE(SymbolicHasSymbolQ)
+        INTRINSIC_NAME_CASE(SymbolicAddQ)
+        INTRINSIC_NAME_CASE(SymbolicMulQ)
+        INTRINSIC_NAME_CASE(SymbolicPowQ)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
@@ -2960,6 +2966,47 @@ namespace SymbolicHasSymbolQ {
     }
 } // namespace SymbolicHasSymbolQ
 
+#define create_symbolic_query_macro(X)                                                    \
+namespace X {                                                                             \
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
+            diag::Diagnostics& diagnostics) {                                             \
+        const Location& loc = x.base.base.loc;                                            \
+        ASRUtils::require_impl(x.n_args == 1,                                             \
+            #X " must have exactly 1 input argument", loc, diagnostics);                  \
+                                                                                          \
+        ASR::ttype_t* input_type = ASRUtils::expr_type(x.m_args[0]);                      \
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*input_type),         \
+            #X " expects an argument of type SymbolicExpression", loc, diagnostics);      \
+    }                                                                                     \
+                                                                                          \
+    static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,       \
+            ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/) {                                \
+        /*TODO*/                                                                          \
+        return nullptr;                                                                   \
+    }                                                                                     \
+                                                                                          \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,              \
+            Vec<ASR::expr_t*>& args,                                                      \
+            const std::function<void (const std::string &, const Location &)> err) {      \
+        if (args.size() != 1) {                                                           \
+            err("Intrinsic " #X " function accepts exactly 1 argument", loc);             \
+        }                                                                                 \
+                                                                                          \
+        ASR::ttype_t* argtype = ASRUtils::expr_type(args[0]);                             \
+        if (!ASR::is_a<ASR::SymbolicExpression_t>(*argtype)) {                            \
+            err("Argument of " #X " function must be of type SymbolicExpression",         \
+                args[0]->base.loc);                                                       \
+        }                                                                                 \
+                                                                                          \
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_##X,      \
+            static_cast<int64_t>(IntrinsicScalarFunctions::X), 0, logical);               \
+    }                                                                                     \
+} // namespace X
+
+create_symbolic_query_macro(SymbolicAddQ)
+create_symbolic_query_macro(SymbolicMulQ)
+create_symbolic_query_macro(SymbolicPowQ)
+
 #define create_symbolic_unary_macro(X)                                                    \
 namespace X {                                                                             \
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
@@ -3111,6 +3158,12 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SymbolicAbs::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
             {nullptr, &SymbolicHasSymbolQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAddQ),
+            {nullptr, &SymbolicAddQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicMulQ),
+            {nullptr, &SymbolicMulQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPowQ),
+            {nullptr, &SymbolicPowQ::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -3213,6 +3266,12 @@ namespace IntrinsicScalarFunctionRegistry {
             "SymbolicAbs"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicHasSymbolQ),
             "SymbolicHasSymbolQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicAddQ),
+            "SymbolicAddQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicMulQ),
+            "SymbolicMulQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPowQ),
+            "SymbolicPowQ"},
     };
 
 
@@ -3267,6 +3326,9 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"SymbolicExp", {&SymbolicExp::create_SymbolicExp, &SymbolicExp::eval_SymbolicExp}},
                 {"SymbolicAbs", {&SymbolicAbs::create_SymbolicAbs, &SymbolicAbs::eval_SymbolicAbs}},
                 {"has", {&SymbolicHasSymbolQ::create_SymbolicHasSymbolQ, &SymbolicHasSymbolQ::eval_SymbolicHasSymbolQ}},
+                {"is_Add", {&SymbolicAddQ::create_SymbolicAddQ, &SymbolicAddQ::eval_SymbolicAddQ}},
+                {"is_Mul", {&SymbolicMulQ::create_SymbolicMulQ, &SymbolicMulQ::eval_SymbolicMulQ}},
+                {"is_Pow", {&SymbolicPowQ::create_SymbolicPowQ, &SymbolicPowQ::eval_SymbolicPowQ}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
