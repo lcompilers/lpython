@@ -45,6 +45,14 @@ def test_str_repeat():
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
 
+def test_str_join():
+    a: str
+    a = ","
+    p:list[str] = ["a","b"]
+    res:str = a.join(p)
+    assert res == "a,b"
+
+
 def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
@@ -55,6 +63,7 @@ def check():
     test_str_index()
     test_str_slice()
     test_str_repeat()
+    test_str_join()
     test_constant_str_subscript()
 
 check()
