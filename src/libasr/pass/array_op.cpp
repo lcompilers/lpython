@@ -69,7 +69,6 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
     Vec<ASR::stmt_t*>& pass_result;
     size_t result_counter;
     bool& use_custom_loop_params;
-    // bool& remove_original_statement;
     Vec<ASR::expr_t*>& result_lbound;
     Vec<ASR::expr_t*>& result_ubound;
     Vec<ASR::expr_t*>& result_inc;
@@ -86,7 +85,6 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
 
     ReplaceArrayOp(Allocator& al_, Vec<ASR::stmt_t*>& pass_result_,
                    bool& use_custom_loop_params_,
-                //    bool& remove_original_statement_,
                    Vec<ASR::expr_t*>& result_lbound_,
                    Vec<ASR::expr_t*>& result_ubound_,
                    Vec<ASR::expr_t*>& result_inc_,
@@ -94,7 +92,6 @@ class ReplaceArrayOp: public ASR::BaseExprReplacer<ReplaceArrayOp> {
                    bool realloc_lhs_) :
     al(al_), pass_result(pass_result_),
     result_counter(0), use_custom_loop_params(use_custom_loop_params_),
-    // remove_original_statement(remove_original_statement_),
     result_lbound(result_lbound_), result_ubound(result_ubound_),
     result_inc(result_inc_), op_dims(nullptr), op_n_dims(0),
     op_expr(nullptr), resultvar2value(resultvar2value_),
@@ -1328,7 +1325,6 @@ class ArrayOpVisitor : public ASR::CallReplacerOnExpressionsVisitor<ArrayOpVisit
         al(al_), use_custom_loop_params(false),
         remove_original_statement(false),
         replacer(al_, pass_result, use_custom_loop_params,
-                //  remove_original_statement,
                  result_lbound, result_ubound, result_inc,
                  resultvar2value, realloc_lhs_),
         parent_body(nullptr), realloc_lhs(realloc_lhs_) {
