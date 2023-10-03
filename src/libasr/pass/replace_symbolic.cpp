@@ -626,6 +626,45 @@ public:
         return module_scope->get_symbol(name);
     }
 
+    ASR::symbol_t* declare_basic_get_type_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
+        std::string name = "basic_get_type";
+        symbolic_dependencies.push_back(name);
+        if (!module_scope->get_symbol(name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, fn_symtab->get_symbol("_lpython_return_variable")));
+            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
+            module_scope->add_symbol(s2c(al, name), symbol);
+        }
+        return module_scope->get_symbol(name);
+    }
+
     ASR::expr_t* process_attributes(Allocator &al, const Location &loc, ASR::expr_t* expr,
         SymbolTable* module_scope) {
         if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*expr)) {
@@ -690,6 +729,60 @@ public:
                     return ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                         basic_has_symbol, basic_has_symbol, call_args.p, call_args.n,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
+                    break;
+                }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicAddQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                    // Using 16 as the right value of the IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
+                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 16, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    break;
+                }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicMulQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                    // Using 15 as the right value of the IntegerCompare node as it represents SYMENGINE_MUL through SYMENGINE_ENUM
+                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 15, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    break;
+                }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicPowQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                    // Using 17 as the right value of the IntegerCompare node as it represents SYMENGINE_POW through SYMENGINE_ENUM
+                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 17, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
                     break;
                 }
                 default: {
