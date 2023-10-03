@@ -23,4 +23,19 @@ def test_attributes():
     assert(sin(Symbol("x")).has(Symbol("x")) != sin(Symbol("x")).has(Symbol("y")))
     assert(sin(Symbol("x")).has(Symbol("x")) == sin(Symbol("y")).has(Symbol("y")))
 
+    # test is_Add, is_Mul & is_Pow
+    a: S = x**pi
+    b: S = x + pi
+    c: S = x * pi
+    assert(a.is_Pow == True)
+    assert(b.is_Pow == False)
+    assert(c.is_Pow == False)
+    assert(a.is_Add == False)
+    assert(b.is_Add == True)
+    assert(c.is_Add == False)
+    assert(a.is_Mul == False)
+    assert(b.is_Mul == False)
+    assert(c.is_Mul == True)
+
+
 test_attributes()
