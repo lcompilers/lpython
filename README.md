@@ -111,6 +111,10 @@ Please follow the below steps for Windows:
 - Generate prerequisite files; build in Debug Mode:
 
   ```bash
+  # if you are developing on top of a forked repository; please run following command first
+  # ./generate_default_tag.sh
+
+
   ./build0.sh
   ./build1.sh
   ```
