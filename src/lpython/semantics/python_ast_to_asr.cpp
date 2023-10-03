@@ -33,7 +33,6 @@
 #include <lpython/semantics/python_intrinsic_eval.h>
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
-#include <lpython/pickle.cpp>
 
 
 namespace LCompilers::LPython {
