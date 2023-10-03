@@ -763,6 +763,14 @@ def _lpython_str_upper(x: str) -> str:
             res += i
     return res
 
+@overload
+def _lpython_str_join(s:str, lis:list[str]) -> str:
+    if len(lis) == 0: return ""
+    res:str = lis[0]
+    i:i32
+    for i in range(1, len(lis)):
+        res += s + lis[i]
+    return res
 
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:

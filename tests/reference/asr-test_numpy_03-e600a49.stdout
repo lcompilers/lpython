@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        227
+                                        229
                                         {
                                             
                                         })
@@ -46,11 +46,11 @@
                             test_1d_to_nd:
                                 (Function
                                     (SymbolTable
-                                        211
+                                        213
                                         {
                                             a:
                                                 (Variable
-                                                    211
+                                                    213
                                                     a
                                                     []
                                                     Local
@@ -73,7 +73,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    211
+                                                    213
                                                     b
                                                     []
                                                     Local
@@ -95,11 +95,11 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        218
+                                                        220
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    218
+                                                                    220
                                                                     _lpython_floordiv
                                                                     86 _lpython_floordiv
                                                                     lpython_builtin
@@ -109,7 +109,7 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    218
+                                                                    220
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
                                                                     86 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
@@ -120,11 +120,11 @@
                                                         })
                                                     block
                                                     [(=
-                                                        (Var 211 i)
+                                                        (Var 213 i)
                                                         (FunctionCall
-                                                            218 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            218 _lpython_floordiv
-                                                            [((Var 211 k))
+                                                            220 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            220 _lpython_floordiv
+                                                            [((Var 213 k))
                                                             ((IntegerConstant 16 (Integer 4)))]
                                                             (Integer 4)
                                                             ()
@@ -133,12 +133,12 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 211 j)
+                                                        (Var 213 j)
                                                         (IntegerBinOp
-                                                            (Var 211 k)
+                                                            (Var 213 k)
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 211 i)
+                                                                (Var 213 i)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -151,9 +151,9 @@
                                                     )
                                                     (=
                                                         (ArrayItem
-                                                            (Var 211 b)
+                                                            (Var 213 b)
                                                             [(()
-                                                            (Var 211 k)
+                                                            (Var 213 k)
                                                             ())]
                                                             (Real 8)
                                                             RowMajor
@@ -162,9 +162,9 @@
                                                         (RealBinOp
                                                             (Cast
                                                                 (IntegerBinOp
-                                                                    (Var 211 i)
+                                                                    (Var 213 i)
                                                                     Add
-                                                                    (Var 211 j)
+                                                                    (Var 213 j)
                                                                     (Integer 4)
                                                                     ()
                                                                 )
@@ -185,7 +185,7 @@
                                                 ),
                                             c:
                                                 (Variable
-                                                    211
+                                                    213
                                                     c
                                                     []
                                                     Local
@@ -210,7 +210,7 @@
                                                 ),
                                             d:
                                                 (Variable
-                                                    211
+                                                    213
                                                     d
                                                     []
                                                     InOut
@@ -231,7 +231,7 @@
                                                 ),
                                             eps:
                                                 (Variable
-                                                    211
+                                                    213
                                                     eps
                                                     []
                                                     Local
@@ -247,7 +247,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    211
+                                                    213
                                                     i
                                                     []
                                                     Local
@@ -263,7 +263,7 @@
                                                 ),
                                             j:
                                                 (Variable
-                                                    211
+                                                    213
                                                     j
                                                     []
                                                     Local
@@ -279,7 +279,7 @@
                                                 ),
                                             k:
                                                 (Variable
-                                                    211
+                                                    213
                                                     k
                                                     []
                                                     Local
@@ -295,7 +295,7 @@
                                                 ),
                                             l:
                                                 (Variable
-                                                    211
+                                                    213
                                                     l
                                                     []
                                                     Local
@@ -311,7 +311,7 @@
                                                 ),
                                             newshape:
                                                 (Variable
-                                                    211
+                                                    213
                                                     newshape
                                                     []
                                                     Local
@@ -332,7 +332,7 @@
                                                 ),
                                             newshape1:
                                                 (Variable
-                                                    211
+                                                    213
                                                     newshape1
                                                     []
                                                     Local
@@ -373,9 +373,9 @@
                                         .false.
                                     )
                                     [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
-                                    [(Var 211 d)]
+                                    [(Var 213 d)]
                                     [(=
-                                        (Var 211 eps)
+                                        (Var 213 eps)
                                         (RealConstant
                                             0.000000
                                             (Real 8)
@@ -383,7 +383,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 211 b)
+                                        (Var 213 b)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -398,7 +398,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 211 k)
+                                        ((Var 213 k)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 256 (Integer 4))
@@ -410,11 +410,11 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            211 block
+                                            213 block
                                         )]
                                     )
                                     (=
-                                        (Var 211 a)
+                                        (Var 213 a)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -430,7 +430,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 211 newshape)
+                                        (Var 213 newshape)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -445,7 +445,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 211 newshape)
+                                            (Var 213 newshape)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -458,7 +458,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 211 newshape)
+                                            (Var 213 newshape)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -470,11 +470,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 211 a)
+                                        (Var 213 a)
                                         (ArrayReshape
-                                            (Var 211 b)
+                                            (Var 213 b)
                                             (ArrayPhysicalCast
-                                                (Var 211 newshape)
+                                                (Var 213 newshape)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -497,7 +497,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 211 i)
+                                        ((Var 213 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -509,7 +509,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 211 j)
+                                            ((Var 213 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -526,12 +526,12 @@
                                                         [(RealBinOp
                                                             (RealBinOp
                                                                 (ArrayItem
-                                                                    (Var 211 a)
+                                                                    (Var 213 a)
                                                                     [(()
-                                                                    (Var 211 i)
+                                                                    (Var 213 i)
                                                                     ())
                                                                     (()
-                                                                    (Var 211 j)
+                                                                    (Var 213 j)
                                                                     ())]
                                                                     (Real 8)
                                                                     RowMajor
@@ -540,9 +540,9 @@
                                                                 Sub
                                                                 (Cast
                                                                     (IntegerBinOp
-                                                                        (Var 211 i)
+                                                                        (Var 213 i)
                                                                         Add
-                                                                        (Var 211 j)
+                                                                        (Var 213 j)
                                                                         (Integer 4)
                                                                         ()
                                                                     )
@@ -566,7 +566,7 @@
                                                         ()
                                                     )
                                                     LtE
-                                                    (Var 211 eps)
+                                                    (Var 213 eps)
                                                     (Logical 4)
                                                     ()
                                                 )
@@ -575,7 +575,7 @@
                                         )]
                                     )
                                     (=
-                                        (Var 211 c)
+                                        (Var 213 c)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -593,7 +593,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 211 newshape1)
+                                        (Var 213 newshape1)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -608,7 +608,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 211 newshape1)
+                                            (Var 213 newshape1)
                                             [(()
                                             (IntegerConstant 0 (Integer 4))
                                             ())]
@@ -621,7 +621,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 211 newshape1)
+                                            (Var 213 newshape1)
                                             [(()
                                             (IntegerConstant 1 (Integer 4))
                                             ())]
@@ -634,7 +634,7 @@
                                     )
                                     (=
                                         (ArrayItem
-                                            (Var 211 newshape1)
+                                            (Var 213 newshape1)
                                             [(()
                                             (IntegerConstant 2 (Integer 4))
                                             ())]
@@ -646,11 +646,11 @@
                                         ()
                                     )
                                     (=
-                                        (Var 211 c)
+                                        (Var 213 c)
                                         (ArrayReshape
-                                            (Var 211 d)
+                                            (Var 213 d)
                                             (ArrayPhysicalCast
-                                                (Var 211 newshape1)
+                                                (Var 213 newshape1)
                                                 FixedSizeArray
                                                 DescriptorArray
                                                 (Array
@@ -673,7 +673,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 211 i)
+                                        ((Var 213 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 16 (Integer 4))
@@ -685,7 +685,7 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(DoLoop
                                             ()
-                                            ((Var 211 j)
+                                            ((Var 213 j)
                                             (IntegerConstant 0 (Integer 4))
                                             (IntegerBinOp
                                                 (IntegerConstant 16 (Integer 4))
@@ -697,7 +697,7 @@
                                             (IntegerConstant 1 (Integer 4)))
                                             [(DoLoop
                                                 ()
-                                                ((Var 211 k)
+                                                ((Var 213 k)
                                                 (IntegerConstant 0 (Integer 4))
                                                 (IntegerBinOp
                                                     (IntegerConstant 16 (Integer 4))
@@ -714,15 +714,15 @@
                                                             [(RealBinOp
                                                                 (RealBinOp
                                                                     (ArrayItem
-                                                                        (Var 211 c)
+                                                                        (Var 213 c)
                                                                         [(()
-                                                                        (Var 211 i)
+                                                                        (Var 213 i)
                                                                         ())
                                                                         (()
-                                                                        (Var 211 j)
+                                                                        (Var 213 j)
                                                                         ())
                                                                         (()
-                                                                        (Var 211 k)
+                                                                        (Var 213 k)
                                                                         ())]
                                                                         (Real 8)
                                                                         RowMajor
@@ -732,14 +732,14 @@
                                                                     (Cast
                                                                         (IntegerBinOp
                                                                             (IntegerBinOp
-                                                                                (Var 211 i)
+                                                                                (Var 213 i)
                                                                                 Add
-                                                                                (Var 211 j)
+                                                                                (Var 213 j)
                                                                                 (Integer 4)
                                                                                 ()
                                                                             )
                                                                             Add
-                                                                            (Var 211 k)
+                                                                            (Var 213 k)
                                                                             (Integer 4)
                                                                             ()
                                                                         )
@@ -763,7 +763,7 @@
                                                             ()
                                                         )
                                                         LtE
-                                                        (Var 211 eps)
+                                                        (Var 213 eps)
                                                         (Logical 4)
                                                         ()
                                                     )
@@ -781,11 +781,11 @@
                             test_nd_to_1d:
                                 (Function
                                     (SymbolTable
-                                        210
+                                        212
                                         {
                                             a:
                                                 (Variable
-                                                    210
+                                                    212
                                                     a
                                                     []
                                                     InOut
@@ -808,7 +808,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    210
+                                                    212
                                                     b
                                                     []
                                                     Local
@@ -830,11 +830,11 @@
                                             block:
                                                 (Block
                                                     (SymbolTable
-                                                        213
+                                                        215
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    213
+                                                                    215
                                                                     _lpython_floordiv
                                                                     86 _lpython_floordiv
                                                                     lpython_builtin
@@ -844,7 +844,7 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    213
+                                                                    215
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
                                                                     86 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
@@ -855,11 +855,11 @@
                                                         })
                                                     block
                                                     [(=
-                                                        (Var 210 i)
+                                                        (Var 212 i)
                                                         (FunctionCall
-                                                            213 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            213 _lpython_floordiv
-                                                            [((Var 210 k))
+                                                            215 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            215 _lpython_floordiv
+                                                            [((Var 212 k))
                                                             ((IntegerConstant 16 (Integer 4)))]
                                                             (Integer 4)
                                                             ()
@@ -868,12 +868,12 @@
                                                         ()
                                                     )
                                                     (=
-                                                        (Var 210 j)
+                                                        (Var 212 j)
                                                         (IntegerBinOp
-                                                            (Var 210 k)
+                                                            (Var 212 k)
                                                             Sub
                                                             (IntegerBinOp
-                                                                (Var 210 i)
+                                                                (Var 212 i)
                                                                 Mul
                                                                 (IntegerConstant 16 (Integer 4))
                                                                 (Integer 4)
@@ -891,9 +891,9 @@
                                                                 [(RealBinOp
                                                                     (RealBinOp
                                                                         (ArrayItem
-                                                                            (Var 210 b)
+                                                                            (Var 212 b)
                                                                             [(()
-                                                                            (Var 210 k)
+                                                                            (Var 212 k)
                                                                             ())]
                                                                             (Real 8)
                                                                             RowMajor
@@ -902,9 +902,9 @@
                                                                         Sub
                                                                         (Cast
                                                                             (IntegerBinOp
-                                                                                (Var 210 i)
+                                                                                (Var 212 i)
                                                                                 Add
-                                                                                (Var 210 j)
+                                                                                (Var 212 j)
                                                                                 (Integer 4)
                                                                                 ()
                                                                             )
@@ -928,7 +928,7 @@
                                                                 ()
                                                             )
                                                             LtE
-                                                            (Var 210 eps)
+                                                            (Var 212 eps)
                                                             (Logical 4)
                                                             ()
                                                         )
@@ -938,11 +938,11 @@
                                             block1:
                                                 (Block
                                                     (SymbolTable
-                                                        217
+                                                        219
                                                         {
                                                             _lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    217
+                                                                    219
                                                                     _lpython_floordiv
                                                                     86 _lpython_floordiv
                                                                     lpython_builtin
@@ -952,7 +952,7 @@
                                                                 ),
                                                             _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
                                                                 (ExternalSymbol
-                                                                    217
+                                                                    219
                                                                     _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
                                                                     86 __lpython_overloaded_6___lpython_floordiv
                                                                     lpython_builtin
@@ -962,696 +962,6 @@
                                                                 )
                                                         })
                                                     block1
-                                                    [(=
-                                                        (Var 210 i)
-                                                        (Cast
-                                                            (RealBinOp
-                                                                (Cast
-                                                                    (Var 210 l)
-                                                                    IntegerToReal
-                                                                    (Real 8)
-                                                                    ()
-                                                                )
-                                                                Div
-                                                                (Cast
-                                                                    (IntegerConstant 256 (Integer 4))
-                                                                    IntegerToReal
-                                                                    (Real 8)
-                                                                    (RealConstant
-                                                                        256.000000
-                                                                        (Real 8)
-                                                                    )
-                                                                )
-                                                                (Real 8)
-                                                                ()
-                                                            )
-                                                            RealToInteger
-                                                            (Integer 4)
-                                                            ()
-                                                        )
-                                                        ()
-                                                    )
-                                                    (=
-                                                        (Var 210 j)
-                                                        (FunctionCall
-                                                            217 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            217 _lpython_floordiv
-                                                            [((IntegerBinOp
-                                                                (Var 210 l)
-                                                                Sub
-                                                                (IntegerBinOp
-                                                                    (Var 210 i)
-                                                                    Mul
-                                                                    (IntegerConstant 256 (Integer 4))
-                                                                    (Integer 4)
-                                                                    ()
-                                                                )
-                                                                (Integer 4)
-                                                                ()
-                                                            ))
-                                                            ((IntegerConstant 16 (Integer 4)))]
-                                                            (Integer 4)
-                                                            ()
-                                                            ()
-                                                        )
-                                                        ()
-                                                    )
-                                                    (=
-                                                        (Var 210 k)
-                                                        (IntegerBinOp
-                                                            (IntegerBinOp
-                                                                (Var 210 l)
-                                                                Sub
-                                                                (IntegerBinOp
-                                                                    (Var 210 i)
-                                                                    Mul
-                                                                    (IntegerConstant 256 (Integer 4))
-                                                                    (Integer 4)
-                                                                    ()
-                                                                )
-                                                                (Integer 4)
-                                                                ()
-                                                            )
-                                                            Sub
-                                                            (IntegerBinOp
-                                                                (Var 210 j)
-                                                                Mul
-                                                                (IntegerConstant 16 (Integer 4))
-                                                                (Integer 4)
-                                                                ()
-                                                            )
-                                                            (Integer 4)
-                                                            ()
-                                                        )
-                                                        ()
-                                                    )
-                                                    (Assert
-                                                        (RealCompare
-                                                            (IntrinsicScalarFunction
-                                                                Abs
-                                                                [(RealBinOp
-                                                                    (RealBinOp
-                                                                        (ArrayItem
-                                                                            (Var 210 d)
-                                                                            [(()
-                                                                            (Var 210 l)
-                                                                            ())]
-                                                                            (Real 8)
-                                                                            RowMajor
-                                                                            ()
-                                                                        )
-                                                                        Sub
-                                                                        (Cast
-                                                                            (IntegerBinOp
-                                                                                (IntegerBinOp
-                                                                                    (Var 210 i)
-                                                                                    Add
-                                                                                    (Var 210 j)
-                                                                                    (Integer 4)
-                                                                                    ()
-                                                                                )
-                                                                                Add
-                                                                                (Var 210 k)
-                                                                                (Integer 4)
-                                                                                ()
-                                                                            )
-                                                                            IntegerToReal
-                                                                            (Real 8)
-                                                                            ()
-                                                                        )
-                                                                        (Real 8)
-                                                                        ()
-                                                                    )
-                                                                    Sub
-                                                                    (RealConstant
-                                                                        0.500000
-                                                                        (Real 8)
-                                                                    )
-                                                                    (Real 8)
-                                                                    ()
-                                                                )]
-                                                                0
-                                                                (Real 8)
-                                                                ()
-                                                            )
-                                                            LtE
-                                                            (Var 210 eps)
-                                                            (Logical 4)
-                                                            ()
-                                                        )
-                                                        ()
-                                                    )]
-                                                ),
-                                            c:
-                                                (Variable
-                                                    210
-                                                    c
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
-                                                        (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 16 (Integer 4)))
-                                                        ((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 16 (Integer 4)))
-                                                        ((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 16 (Integer 4)))]
-                                                        FixedSizeArray
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            d:
-                                                (Variable
-                                                    210
-                                                    d
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
-                                                        (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 4096 (Integer 4)))]
-                                                        FixedSizeArray
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            eps:
-                                                (Variable
-                                                    210
-                                                    eps
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Real 8)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            i:
-                                                (Variable
-                                                    210
-                                                    i
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            j:
-                                                (Variable
-                                                    210
-                                                    j
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            k:
-                                                (Variable
-                                                    210
-                                                    k
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            l:
-                                                (Variable
-                                                    210
-                                                    l
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Integer 4)
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            newshape:
-                                                (Variable
-                                                    210
-                                                    newshape
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
-                                                        (Integer 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 1 (Integer 4)))]
-                                                        FixedSizeArray
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            newshape1:
-                                                (Variable
-                                                    210
-                                                    newshape1
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
-                                                        (Integer 4)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 1 (Integer 4)))]
-                                                        FixedSizeArray
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                )
-                                        })
-                                    test_nd_to_1d
-                                    (FunctionType
-                                        [(Array
-                                            (Real 8)
-                                            [(()
-                                            ())
-                                            (()
-                                            ())]
-                                            DescriptorArray
-                                        )]
-                                        ()
-                                        Source
-                                        Implementation
-                                        ()
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        .false.
-                                        []
-                                        .false.
-                                    )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
-                                    [(Var 210 a)]
-                                    [(=
-                                        (Var 210 eps)
-                                        (RealConstant
-                                            0.000000
-                                            (Real 8)
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 b)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 256 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 newshape)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (ArrayItem
-                                            (Var 210 newshape)
-                                            [(()
-                                            (IntegerConstant 0 (Integer 4))
-                                            ())]
-                                            (Integer 4)
-                                            RowMajor
-                                            ()
-                                        )
-                                        (IntegerConstant 256 (Integer 4))
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 b)
-                                        (ArrayReshape
-                                            (Var 210 a)
-                                            (ArrayPhysicalCast
-                                                (Var 210 newshape)
-                                                FixedSizeArray
-                                                DescriptorArray
-                                                (Array
-                                                    (Integer 4)
-                                                    [((IntegerConstant 0 (Integer 4))
-                                                    (IntegerConstant 1 (Integer 4)))]
-                                                    DescriptorArray
-                                                )
-                                                ()
-                                            )
-                                            (Array
-                                                (Real 8)
-                                                [(()
-                                                ())]
-                                                DescriptorArray
-                                            )
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (DoLoop
-                                        ()
-                                        ((Var 210 k)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerBinOp
-                                            (IntegerConstant 256 (Integer 4))
-                                            Sub
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            (IntegerConstant 255 (Integer 4))
-                                        )
-                                        (IntegerConstant 1 (Integer 4)))
-                                        [(BlockCall
-                                            -1
-                                            210 block
-                                        )]
-                                    )
-                                    (=
-                                        (Var 210 c)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))
-                                                ((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))
-                                                ((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 c)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))
-                                                ((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))
-                                                ((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 16 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (DoLoop
-                                        ()
-                                        ((Var 210 i)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerBinOp
-                                            (IntegerConstant 16 (Integer 4))
-                                            Sub
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            (IntegerConstant 15 (Integer 4))
-                                        )
-                                        (IntegerConstant 1 (Integer 4)))
-                                        [(DoLoop
-                                            ()
-                                            ((Var 210 j)
-                                            (IntegerConstant 0 (Integer 4))
-                                            (IntegerBinOp
-                                                (IntegerConstant 16 (Integer 4))
-                                                Sub
-                                                (IntegerConstant 1 (Integer 4))
-                                                (Integer 4)
-                                                (IntegerConstant 15 (Integer 4))
-                                            )
-                                            (IntegerConstant 1 (Integer 4)))
-                                            [(DoLoop
-                                                ()
-                                                ((Var 210 k)
-                                                (IntegerConstant 0 (Integer 4))
-                                                (IntegerBinOp
-                                                    (IntegerConstant 16 (Integer 4))
-                                                    Sub
-                                                    (IntegerConstant 1 (Integer 4))
-                                                    (Integer 4)
-                                                    (IntegerConstant 15 (Integer 4))
-                                                )
-                                                (IntegerConstant 1 (Integer 4)))
-                                                [(=
-                                                    (ArrayItem
-                                                        (Var 210 c)
-                                                        [(()
-                                                        (Var 210 i)
-                                                        ())
-                                                        (()
-                                                        (Var 210 j)
-                                                        ())
-                                                        (()
-                                                        (Var 210 k)
-                                                        ())]
-                                                        (Real 8)
-                                                        RowMajor
-                                                        ()
-                                                    )
-                                                    (RealBinOp
-                                                        (Cast
-                                                            (IntegerBinOp
-                                                                (IntegerBinOp
-                                                                    (Var 210 i)
-                                                                    Add
-                                                                    (Var 210 j)
-                                                                    (Integer 4)
-                                                                    ()
-                                                                )
-                                                                Add
-                                                                (Var 210 k)
-                                                                (Integer 4)
-                                                                ()
-                                                            )
-                                                            IntegerToReal
-                                                            (Real 8)
-                                                            ()
-                                                        )
-                                                        Add
-                                                        (RealConstant
-                                                            0.500000
-                                                            (Real 8)
-                                                        )
-                                                        (Real 8)
-                                                        ()
-                                                    )
-                                                    ()
-                                                )]
-                                            )]
-                                        )]
-                                    )
-                                    (=
-                                        (Var 210 d)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Real 8)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 4096 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 newshape1)
-                                        (ArrayConstant
-                                            []
-                                            (Array
-                                                (Integer 4)
-                                                [((IntegerConstant 0 (Integer 4))
-                                                (IntegerConstant 1 (Integer 4)))]
-                                                FixedSizeArray
-                                            )
-                                            RowMajor
-                                        )
-                                        ()
-                                    )
-                                    (=
-                                        (ArrayItem
-                                            (Var 210 newshape1)
-                                            [(()
-                                            (IntegerConstant 0 (Integer 4))
-                                            ())]
-                                            (Integer 4)
-                                            RowMajor
-                                            ()
-                                        )
-                                        (IntegerConstant 4096 (Integer 4))
-                                        ()
-                                    )
-                                    (=
-                                        (Var 210 d)
-                                        (ArrayReshape
-                                            (Var 210 c)
-                                            (ArrayPhysicalCast
-                                                (Var 210 newshape1)
-                                                FixedSizeArray
-                                                DescriptorArray
-                                                (Array
-                                                    (Integer 4)
-                                                    [((IntegerConstant 0 (Integer 4))
-                                                    (IntegerConstant 1 (Integer 4)))]
-                                                    DescriptorArray
-                                                )
-                                                ()
-                                            )
-                                            (Array
-                                                (Real 8)
-                                                [(()
-                                                ())]
-                                                FixedSizeArray
-                                            )
-                                            ()
-                                        )
-                                        ()
-                                    )
-                                    (DoLoop
-                                        ()
-                                        ((Var 210 l)
-                                        (IntegerConstant 0 (Integer 4))
-                                        (IntegerBinOp
-                                            (IntegerConstant 4096 (Integer 4))
-                                            Sub
-                                            (IntegerConstant 1 (Integer 4))
-                                            (Integer 4)
-                                            (IntegerConstant 4095 (Integer 4))
-                                        )
-                                        (IntegerConstant 1 (Integer 4)))
-                                        [(BlockCall
-                                            -1
-                                            210 block1
-                                        )]
-                                    )]
-                                    ()
-                                    Public
-                                    .false.
-                                    .false.
-                                    ()
-                                ),
-                            test_reshape_with_argument:
-                                (Function
-                                    (SymbolTable
-                                        212
-                                        {
-                                            a:
-                                                (Variable
-                                                    212
-                                                    a
-                                                    []
-                                                    Local
-                                                    ()
-                                                    ()
-                                                    Default
-                                                    (Array
-                                                        (Real 8)
-                                                        [((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 16 (Integer 4)))
-                                                        ((IntegerConstant 0 (Integer 4))
-                                                        (IntegerConstant 16 (Integer 4)))]
-                                                        FixedSizeArray
-                                                    )
-                                                    ()
-                                                    Source
-                                                    Public
-                                                    Required
-                                                    .false.
-                                                ),
-                                            block:
-                                                (Block
-                                                    (SymbolTable
-                                                        226
-                                                        {
-                                                            _lpython_floordiv:
-                                                                (ExternalSymbol
-                                                                    226
-                                                                    _lpython_floordiv
-                                                                    86 _lpython_floordiv
-                                                                    lpython_builtin
-                                                                    []
-                                                                    _lpython_floordiv
-                                                                    Private
-                                                                ),
-                                                            _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
-                                                                (ExternalSymbol
-                                                                    226
-                                                                    _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                                    86 __lpython_overloaded_6___lpython_floordiv
-                                                                    lpython_builtin
-                                                                    []
-                                                                    __lpython_overloaded_6___lpython_floordiv
-                                                                    Public
-                                                                )
-                                                        })
-                                                    block
                                                     [(=
                                                         (Var 212 i)
                                                         (Cast
@@ -1684,8 +994,8 @@
                                                     (=
                                                         (Var 212 j)
                                                         (FunctionCall
-                                                            226 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                                            226 _lpython_floordiv
+                                                            219 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            219 _lpython_floordiv
                                                             [((IntegerBinOp
                                                                 (Var 212 l)
                                                                 Sub
@@ -1735,45 +1045,87 @@
                                                         )
                                                         ()
                                                     )
-                                                    (=
-                                                        (ArrayItem
-                                                            (Var 212 d)
-                                                            [(()
-                                                            (Var 212 l)
-                                                            ())]
-                                                            (Real 8)
-                                                            RowMajor
-                                                            ()
-                                                        )
-                                                        (RealBinOp
-                                                            (Cast
-                                                                (IntegerBinOp
-                                                                    (IntegerBinOp
-                                                                        (Var 212 i)
-                                                                        Add
-                                                                        (Var 212 j)
-                                                                        (Integer 4)
+                                                    (Assert
+                                                        (RealCompare
+                                                            (IntrinsicScalarFunction
+                                                                Abs
+                                                                [(RealBinOp
+                                                                    (RealBinOp
+                                                                        (ArrayItem
+                                                                            (Var 212 d)
+                                                                            [(()
+                                                                            (Var 212 l)
+                                                                            ())]
+                                                                            (Real 8)
+                                                                            RowMajor
+                                                                            ()
+                                                                        )
+                                                                        Sub
+                                                                        (Cast
+                                                                            (IntegerBinOp
+                                                                                (IntegerBinOp
+                                                                                    (Var 212 i)
+                                                                                    Add
+                                                                                    (Var 212 j)
+                                                                                    (Integer 4)
+                                                                                    ()
+                                                                                )
+                                                                                Add
+                                                                                (Var 212 k)
+                                                                                (Integer 4)
+                                                                                ()
+                                                                            )
+                                                                            IntegerToReal
+                                                                            (Real 8)
+                                                                            ()
+                                                                        )
+                                                                        (Real 8)
                                                                         ()
                                                                     )
-                                                                    Add
-                                                                    (Var 212 k)
-                                                                    (Integer 4)
+                                                                    Sub
+                                                                    (RealConstant
+                                                                        0.500000
+                                                                        (Real 8)
+                                                                    )
+                                                                    (Real 8)
                                                                     ()
-                                                                )
-                                                                IntegerToReal
+                                                                )]
+                                                                0
                                                                 (Real 8)
                                                                 ()
                                                             )
-                                                            Add
-                                                            (RealConstant
-                                                                0.500000
-                                                                (Real 8)
-                                                            )
-                                                            (Real 8)
+                                                            LtE
+                                                            (Var 212 eps)
+                                                            (Logical 4)
                                                             ()
                                                         )
                                                         ()
                                                     )]
+                                                ),
+                                            c:
+                                                (Variable
+                                                    212
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
                                                 ),
                                             d:
                                                 (Variable
@@ -1790,6 +1142,22 @@
                                                         (IntegerConstant 4096 (Integer 4)))]
                                                         FixedSizeArray
                                                     )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            eps:
+                                                (Variable
+                                                    212
+                                                    eps
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
                                                     ()
                                                     Source
                                                     Public
@@ -1859,11 +1227,60 @@
                                                     Public
                                                     Required
                                                     .false.
+                                                ),
+                                            newshape:
+                                                (Variable
+                                                    212
+                                                    newshape
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            newshape1:
+                                                (Variable
+                                                    212
+                                                    newshape1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
                                                 )
                                         })
-                                    test_reshape_with_argument
+                                    test_nd_to_1d
                                     (FunctionType
-                                        []
+                                        [(Array
+                                            (Real 8)
+                                            [(()
+                                            ())
+                                            (()
+                                            ())]
+                                            DescriptorArray
+                                        )]
                                         ()
                                         Source
                                         Implementation
@@ -1876,17 +1293,127 @@
                                         []
                                         .false.
                                     )
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
-                                    test_nd_to_1d
-                                    test_1d_to_nd]
-                                    []
+                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
+                                    [(Var 212 a)]
                                     [(=
-                                        (Var 212 a)
+                                        (Var 212 eps)
+                                        (RealConstant
+                                            0.000000
+                                            (Real 8)
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 b)
                                         (ArrayConstant
                                             []
                                             (Array
                                                 (Real 8)
                                                 [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 256 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 newshape)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (ArrayItem
+                                            (Var 212 newshape)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 4)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (IntegerConstant 256 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 b)
+                                        (ArrayReshape
+                                            (Var 212 a)
+                                            (ArrayPhysicalCast
+                                                (Var 212 newshape)
+                                                FixedSizeArray
+                                                DescriptorArray
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 0 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4)))]
+                                                    DescriptorArray
+                                                )
+                                                ()
+                                            )
+                                            (Array
+                                                (Real 8)
+                                                [(()
+                                                ())]
+                                                DescriptorArray
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 212 k)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 256 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 255 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(BlockCall
+                                            -1
+                                            212 block
+                                        )]
+                                    )
+                                    (=
+                                        (Var 212 c)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 c)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
                                                 (IntegerConstant 16 (Integer 4)))
                                                 ((IntegerConstant 0 (Integer 4))
                                                 (IntegerConstant 16 (Integer 4)))]
@@ -1920,14 +1447,487 @@
                                                 (IntegerConstant 15 (Integer 4))
                                             )
                                             (IntegerConstant 1 (Integer 4)))
+                                            [(DoLoop
+                                                ()
+                                                ((Var 212 k)
+                                                (IntegerConstant 0 (Integer 4))
+                                                (IntegerBinOp
+                                                    (IntegerConstant 16 (Integer 4))
+                                                    Sub
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    (Integer 4)
+                                                    (IntegerConstant 15 (Integer 4))
+                                                )
+                                                (IntegerConstant 1 (Integer 4)))
+                                                [(=
+                                                    (ArrayItem
+                                                        (Var 212 c)
+                                                        [(()
+                                                        (Var 212 i)
+                                                        ())
+                                                        (()
+                                                        (Var 212 j)
+                                                        ())
+                                                        (()
+                                                        (Var 212 k)
+                                                        ())]
+                                                        (Real 8)
+                                                        RowMajor
+                                                        ()
+                                                    )
+                                                    (RealBinOp
+                                                        (Cast
+                                                            (IntegerBinOp
+                                                                (IntegerBinOp
+                                                                    (Var 212 i)
+                                                                    Add
+                                                                    (Var 212 j)
+                                                                    (Integer 4)
+                                                                    ()
+                                                                )
+                                                                Add
+                                                                (Var 212 k)
+                                                                (Integer 4)
+                                                                ()
+                                                            )
+                                                            IntegerToReal
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        Add
+                                                        (RealConstant
+                                                            0.500000
+                                                            (Real 8)
+                                                        )
+                                                        (Real 8)
+                                                        ()
+                                                    )
+                                                    ()
+                                                )]
+                                            )]
+                                        )]
+                                    )
+                                    (=
+                                        (Var 212 d)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 4096 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 newshape1)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (ArrayItem
+                                            (Var 212 newshape1)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 4)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (IntegerConstant 4096 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 212 d)
+                                        (ArrayReshape
+                                            (Var 212 c)
+                                            (ArrayPhysicalCast
+                                                (Var 212 newshape1)
+                                                FixedSizeArray
+                                                DescriptorArray
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 0 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4)))]
+                                                    DescriptorArray
+                                                )
+                                                ()
+                                            )
+                                            (Array
+                                                (Real 8)
+                                                [(()
+                                                ())]
+                                                FixedSizeArray
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 212 l)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 4096 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 4095 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(BlockCall
+                                            -1
+                                            212 block1
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_reshape_with_argument:
+                                (Function
+                                    (SymbolTable
+                                        214
+                                        {
+                                            a:
+                                                (Variable
+                                                    214
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))
+                                                        ((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 16 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            block:
+                                                (Block
+                                                    (SymbolTable
+                                                        228
+                                                        {
+                                                            _lpython_floordiv:
+                                                                (ExternalSymbol
+                                                                    228
+                                                                    _lpython_floordiv
+                                                                    86 _lpython_floordiv
+                                                                    lpython_builtin
+                                                                    []
+                                                                    _lpython_floordiv
+                                                                    Private
+                                                                ),
+                                                            _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv:
+                                                                (ExternalSymbol
+                                                                    228
+                                                                    _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                                    86 __lpython_overloaded_6___lpython_floordiv
+                                                                    lpython_builtin
+                                                                    []
+                                                                    __lpython_overloaded_6___lpython_floordiv
+                                                                    Public
+                                                                )
+                                                        })
+                                                    block
+                                                    [(=
+                                                        (Var 214 i)
+                                                        (Cast
+                                                            (RealBinOp
+                                                                (Cast
+                                                                    (Var 214 l)
+                                                                    IntegerToReal
+                                                                    (Real 8)
+                                                                    ()
+                                                                )
+                                                                Div
+                                                                (Cast
+                                                                    (IntegerConstant 256 (Integer 4))
+                                                                    IntegerToReal
+                                                                    (Real 8)
+                                                                    (RealConstant
+                                                                        256.000000
+                                                                        (Real 8)
+                                                                    )
+                                                                )
+                                                                (Real 8)
+                                                                ()
+                                                            )
+                                                            RealToInteger
+                                                            (Integer 4)
+                                                            ()
+                                                        )
+                                                        ()
+                                                    )
+                                                    (=
+                                                        (Var 214 j)
+                                                        (FunctionCall
+                                                            228 _lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                                            228 _lpython_floordiv
+                                                            [((IntegerBinOp
+                                                                (Var 214 l)
+                                                                Sub
+                                                                (IntegerBinOp
+                                                                    (Var 214 i)
+                                                                    Mul
+                                                                    (IntegerConstant 256 (Integer 4))
+                                                                    (Integer 4)
+                                                                    ()
+                                                                )
+                                                                (Integer 4)
+                                                                ()
+                                                            ))
+                                                            ((IntegerConstant 16 (Integer 4)))]
+                                                            (Integer 4)
+                                                            ()
+                                                            ()
+                                                        )
+                                                        ()
+                                                    )
+                                                    (=
+                                                        (Var 214 k)
+                                                        (IntegerBinOp
+                                                            (IntegerBinOp
+                                                                (Var 214 l)
+                                                                Sub
+                                                                (IntegerBinOp
+                                                                    (Var 214 i)
+                                                                    Mul
+                                                                    (IntegerConstant 256 (Integer 4))
+                                                                    (Integer 4)
+                                                                    ()
+                                                                )
+                                                                (Integer 4)
+                                                                ()
+                                                            )
+                                                            Sub
+                                                            (IntegerBinOp
+                                                                (Var 214 j)
+                                                                Mul
+                                                                (IntegerConstant 16 (Integer 4))
+                                                                (Integer 4)
+                                                                ()
+                                                            )
+                                                            (Integer 4)
+                                                            ()
+                                                        )
+                                                        ()
+                                                    )
+                                                    (=
+                                                        (ArrayItem
+                                                            (Var 214 d)
+                                                            [(()
+                                                            (Var 214 l)
+                                                            ())]
+                                                            (Real 8)
+                                                            RowMajor
+                                                            ()
+                                                        )
+                                                        (RealBinOp
+                                                            (Cast
+                                                                (IntegerBinOp
+                                                                    (IntegerBinOp
+                                                                        (Var 214 i)
+                                                                        Add
+                                                                        (Var 214 j)
+                                                                        (Integer 4)
+                                                                        ()
+                                                                    )
+                                                                    Add
+                                                                    (Var 214 k)
+                                                                    (Integer 4)
+                                                                    ()
+                                                                )
+                                                                IntegerToReal
+                                                                (Real 8)
+                                                                ()
+                                                            )
+                                                            Add
+                                                            (RealConstant
+                                                                0.500000
+                                                                (Real 8)
+                                                            )
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        ()
+                                                    )]
+                                                ),
+                                            d:
+                                                (Variable
+                                                    214
+                                                    d
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 4096 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    214
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    214
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            k:
+                                                (Variable
+                                                    214
+                                                    k
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            l:
+                                                (Variable
+                                                    214
+                                                    l
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_reshape_with_argument
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv
+                                    test_nd_to_1d
+                                    test_1d_to_nd]
+                                    []
+                                    [(=
+                                        (Var 214 a)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 214 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 16 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 15 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(DoLoop
+                                            ()
+                                            ((Var 214 j)
+                                            (IntegerConstant 0 (Integer 4))
+                                            (IntegerBinOp
+                                                (IntegerConstant 16 (Integer 4))
+                                                Sub
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant 15 (Integer 4))
+                                            )
+                                            (IntegerConstant 1 (Integer 4)))
                                             [(=
                                                 (ArrayItem
-                                                    (Var 212 a)
+                                                    (Var 214 a)
                                                     [(()
-                                                    (Var 212 i)
+                                                    (Var 214 i)
                                                     ())
                                                     (()
-                                                    (Var 212 j)
+                                                    (Var 214 j)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -1936,9 +1936,9 @@
                                                 (RealBinOp
                                                     (Cast
                                                         (IntegerBinOp
-                                                            (Var 212 i)
+                                                            (Var 214 i)
                                                             Add
-                                                            (Var 212 j)
+                                                            (Var 214 j)
                                                             (Integer 4)
                                                             ()
                                                         )
@@ -1962,7 +1962,7 @@
                                         2 test_nd_to_1d
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 212 a)
+                                            (Var 214 a)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -1978,7 +1978,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 212 d)
+                                        (Var 214 d)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -1993,7 +1993,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 212 l)
+                                        ((Var 214 l)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 4096 (Integer 4))
@@ -2005,14 +2005,14 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(BlockCall
                                             -1
-                                            212 block
+                                            214 block
                                         )]
                                     )
                                     (SubroutineCall
                                         2 test_1d_to_nd
                                         ()
                                         [((ArrayPhysicalCast
-                                            (Var 212 d)
+                                            (Var 214 d)
                                             FixedSizeArray
                                             DescriptorArray
                                             (Array
@@ -2043,11 +2043,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        228
+                        230
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    228
+                                    230
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2059,7 +2059,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        228 __main__global_stmts
+                        230 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
