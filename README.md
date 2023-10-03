@@ -173,6 +173,21 @@ Please follow the below steps for Windows:
   cd integration_tests
   ./run_tests.py
   ```
+- Troubleshooting on MacOS latest version:
+  - In case of recently updated MacOS, you may get a warning like below in some test cases:
+    ```bash
+    ld: warning: object file (test_list_index2.out.tmp.o) was built for newer macOS version (14.0) than being linked (13.3)
+    ```
+    This leads to mismatch of hashes with expected output in some test cases, this can be resolved by updating command line tools. Below is a snippet for the same.
+
+    ```bash
+    git clean -dfx
+    sudo rm -rf /Library/Developer/CommandLineTools # make sure you know what you're doing here
+    sudo xcode-select --install
+    ./build.sh
+    ./run_tests.py
+    ```
+
 
 ### Windows
 
