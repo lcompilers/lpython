@@ -372,13 +372,8 @@
                                         []
                                         .false.
                                     )
-<<<<<<< HEAD
                                     []
-                                    [(Var 201 d)]
-=======
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
                                     [(Var 213 d)]
->>>>>>> main
                                     [(=
                                         (Var 213 eps)
                                         (RealConstant
@@ -1298,13 +1293,8 @@
                                         []
                                         .false.
                                     )
-<<<<<<< HEAD
                                     []
-                                    [(Var 200 a)]
-=======
-                                    [_lpython_floordiv@__lpython_overloaded_6___lpython_floordiv]
                                     [(Var 212 a)]
->>>>>>> main
                                     [(=
                                         (Var 212 eps)
                                         (RealConstant

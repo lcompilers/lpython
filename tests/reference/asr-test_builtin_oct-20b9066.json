@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_oct-20b9066.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "c6c2ff06fab4580bb9871dd8dcf9af2e0b87c9ce0eb361ff2a57d895",
-=======
-    "stdout_hash": "04ee7955a5200e6df2403aca8f3fc666ce2cb55ccbd41a1090f8b237",
->>>>>>> main
+    "stdout_hash": "697397d8532c8acc556c5dba3974dd35e4592b1080baf9af0b7f9a7d",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

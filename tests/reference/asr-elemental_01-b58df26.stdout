@@ -2361,17 +2361,10 @@
                                         []
                                         .false.
                                     )
-<<<<<<< HEAD
                                     []
-                                    [(Var 200 array)
-                                    (Var 200 result)
-                                    (Var 200 size)]
-=======
-                                    [sin@__lpython_overloaded_1__sin]
                                     [(Var 212 array)
                                     (Var 212 result)
                                     (Var 212 size)]
->>>>>>> main
                                     [(=
                                         (Var 212 eps)
                                         (Cast
@@ -3200,19 +3193,11 @@
                                         []
                                         .false.
                                     )
-<<<<<<< HEAD
                                     []
-                                    [(Var 202 array)
-                                    (Var 202 result)
-                                    (Var 202 size1)
-                                    (Var 202 size2)]
-=======
-                                    [cos@__lpython_overloaded_0__cos]
                                     [(Var 214 array)
                                     (Var 214 result)
                                     (Var 214 size1)
                                     (Var 214 size2)]
->>>>>>> main
                                     [(=
                                         (Var 214 eps)
                                         (RealConstant
@@ -3583,21 +3568,12 @@
                                         []
                                         .false.
                                     )
-<<<<<<< HEAD
                                     []
-                                    [(Var 201 array)
-                                    (Var 201 result)
-                                    (Var 201 size1)
-                                    (Var 201 size2)
-                                    (Var 201 size3)]
-=======
-                                    [sin@__lpython_overloaded_0__sin]
                                     [(Var 213 array)
                                     (Var 213 result)
                                     (Var 213 size1)
                                     (Var 213 size2)
                                     (Var 213 size3)]
->>>>>>> main
                                     [(=
                                         (Var 213 eps)
                                         (RealConstant
