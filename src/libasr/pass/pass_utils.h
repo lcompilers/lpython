@@ -319,7 +319,7 @@ namespace LCompilers {
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    if (fill_function_dependencies) {
+                    if (fill_function_dependencies) { 
                         if (ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name)) {
                             ASR::ExternalSymbol_t* external_symbol = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
                             if (!ASRUtils::is_present_in_current_scope(external_symbol, current_scope)) {

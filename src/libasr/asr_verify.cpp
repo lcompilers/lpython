@@ -449,7 +449,7 @@ public:
             std::string found_dep = x.m_dependencies[i];
 
             // Get the symbol of the found_dep.
-            ASR::symbol_t* dep_sym = sym->get_symbol(found_dep);
+            ASR::symbol_t* dep_sym = sym->resolve_symbol(found_dep);
 
             if (dep_sym == nullptr) {
                 // The symbol `dep_sym` is not in the parent symbol table. For
@@ -462,7 +462,7 @@ public:
                     // This is not a global scope symbol and not in the parent symbol table,
                     // Return an error:
                     require(dep_sym != nullptr,
-                            "Dependency " + found_dep +  " was not found in the parent symbol table " + std::string(x.m_name));
+                            "Dependency " + found_dep +  " is inside symbol table " + std::string(x.m_name));
                 }
             }
         }
@@ -894,16 +894,21 @@ public:
             }
         }
 
-        if ((current_symtab->get_counter() !=  ASRUtils::symbol_parent_symtab(x.m_name)->get_counter()) ||
+        if ((current_symtab->get_counter() !=  ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() && !ASR::is_a<ASR::Variable_t>(*x.m_name)) ||
             (ASRUtils::symbol_parent_symtab(x.m_name)->parent == nullptr)) {
-            // add to dependencies
-            function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
-        }
+            ASR::symbol_t* asr_owner_sym = nullptr;
+            if( ASR::is_a<ASR::symbol_t>(*current_symtab->asr_owner) ) {
+                asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_symtab->asr_owner);
+            }
 
-        if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
-            ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-            if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {
-                module_dependencies.push_back(std::string(x_m_name->m_module_name));
+            // check if asr owner is associate block.
+            if( asr_owner_sym && (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) ||
+                ASR::is_a<ASR::Block_t>(*asr_owner_sym)) ) {
+                if (ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() != current_symtab->parent->get_counter()) {
+                    function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+                }
+            } else {
+                function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
             }
         }
 
@@ -1033,16 +1038,21 @@ public:
         require(x.m_name,
             "FunctionCall::m_name must be present");
         // Check x.m_name is from parent sym tab.
-        if ((ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() != current_symtab->get_counter()) ||
-            (ASRUtils::symbol_parent_symtab(x.m_name)->parent == nullptr)) {
-            // add to dependencies
-            function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
-        }
+        if (ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() != current_symtab->get_counter() ||
+            ASRUtils::symbol_parent_symtab(x.m_name)->parent == nullptr) {
+            ASR::symbol_t* asr_owner_sym = nullptr;
+            if( ASR::is_a<ASR::symbol_t>(*current_symtab->asr_owner) ) {
+                asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_symtab->asr_owner);
+            }
 
-        if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
-            ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
-            if( x_m_name->m_external && ASR::is_a<ASR::Module_t>(*ASRUtils::get_asr_owner(x_m_name->m_external)) ) {
-                module_dependencies.push_back(std::string(x_m_name->m_module_name));
+            // check if asr owner is associate block.
+            if( asr_owner_sym && (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) ||
+                ASR::is_a<ASR::Block_t>(*asr_owner_sym)) ) {
+                if (ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() != current_symtab->parent->get_counter()) {
+                    function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+                }
+            } else {
+                function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
             }
         }
 
