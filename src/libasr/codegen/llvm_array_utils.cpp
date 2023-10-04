@@ -22,6 +22,24 @@ namespace LCompilers {
             return builder.CreateCall(fn, args);
         }
 
+        llvm::Value* lfortran_realloc(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* ptr, llvm::Value* arg_size) {
+            std::string func_name = "_lfortran_realloc";
+            llvm::Function *fn = module.getFunction(func_name);
+            if (!fn) {
+                llvm::FunctionType *function_type = llvm::FunctionType::get(
+                        llvm::Type::getInt8PtrTy(context), {
+                            llvm::Type::getInt8PtrTy(context),
+                            llvm::Type::getInt32Ty(context)
+                        }, true);
+                fn = llvm::Function::Create(function_type,
+                        llvm::Function::ExternalLinkage, func_name, module);
+            }
+            std::vector<llvm::Value*> args = {
+                builder.CreateBitCast(ptr, llvm::Type::getInt8PtrTy(context)), arg_size};
+            return builder.CreateCall(fn, args);
+        }
+
         bool compile_time_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
             if( n_dims <= 0 ) {
                 return false;
@@ -302,7 +320,7 @@ namespace LCompilers {
         void SimpleCMODescriptor::fill_malloc_array_details(
             llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
             std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-            llvm::Module* module) {
+            llvm::Module* module, bool realloc) {
             arr = LLVM::CreateLoad(*builder, arr);
             llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
@@ -328,7 +346,15 @@ namespace LCompilers {
             llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
             prod = builder->CreateMul(prod, llvm_size);
             builder->CreateStore(prod, arg_size);
-            llvm::Value* ptr_as_char_ptr = lfortran_malloc(context, *module, *builder, LLVM::CreateLoad(*builder, arg_size));
+            llvm::Value* ptr_as_char_ptr = nullptr;
+            if( realloc ) {
+                ptr_as_char_ptr = lfortran_realloc(context, *module,
+                    *builder, LLVM::CreateLoad(*builder, ptr2firstptr),
+                    LLVM::CreateLoad(*builder, arg_size));
+            } else {
+                ptr_as_char_ptr = lfortran_malloc(context, *module,
+                    *builder, LLVM::CreateLoad(*builder, arg_size));
+            }
             llvm::Value* first_ptr = builder->CreateBitCast(ptr_as_char_ptr, ptr_type);
             builder->CreateStore(first_ptr, ptr2firstptr);
         }
@@ -344,15 +370,41 @@ namespace LCompilers {
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, n_dims)), get_rank(arr, true));
         }
 
+        void SimpleCMODescriptor::reset_array_details(llvm::Value* arr, llvm::Value* source_arr, int n_dims) {
+            llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
+            llvm::Value* dim_des_val = llvm_utils->create_gep(arr, 2);
+            llvm::Value* llvm_ndims = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, n_dims)), llvm_ndims);
+            llvm::Value* dim_des_first = builder->CreateAlloca(dim_des,
+                                                               LLVM::CreateLoad(*builder, llvm_ndims));
+            builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, n_dims)), get_rank(arr, true));
+            builder->CreateStore(dim_des_first, dim_des_val);
+            dim_des_val = LLVM::CreateLoad(*builder, dim_des_val);
+            llvm::Value* source_dim_des_arr = this->get_pointer_to_dimension_descriptor_array(source_arr);
+            for( int r = 0; r < n_dims; r++ ) {
+                llvm::Value* dim_val = llvm_utils->create_ptr_gep(dim_des_val, r);
+                llvm::Value* s_val = llvm_utils->create_gep(dim_val, 0);
+                llvm::Value* stride = this->get_stride(
+                    this->get_pointer_to_dimension_descriptor(source_dim_des_arr,
+                    llvm::ConstantInt::get(context, llvm::APInt(32, r))));
+                builder->CreateStore(stride, s_val);
+                llvm::Value* l_val = llvm_utils->create_gep(dim_val, 1);
+                llvm::Value* dim_size_ptr = llvm_utils->create_gep(dim_val, 2);
+                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), l_val);
+                llvm::Value* dim_size = this->get_dimension_size(
+                   this->get_pointer_to_dimension_descriptor(source_dim_des_arr,
+                    llvm::ConstantInt::get(context, llvm::APInt(32, r))));
+                builder->CreateStore(dim_size, dim_size_ptr);
+            }
+        }
+
         void SimpleCMODescriptor::fill_descriptor_for_array_section(
             llvm::Value* value_desc, llvm::Value* target,
             llvm::Value** lbs, llvm::Value** ubs,
             llvm::Value** ds, llvm::Value** non_sliced_indices,
             int value_rank, int target_rank) {
             llvm::Value* value_desc_data = LLVM::CreateLoad(*builder, get_pointer_to_data(value_desc));
-            llvm::Value* target_data = get_pointer_to_data(target);
-            builder->CreateStore(value_desc_data, target_data);
-
             std::vector<llvm::Value*> section_first_indices;
             for( int i = 0; i < value_rank; i++ ) {
                 if( ds[i] != nullptr ) {
@@ -365,7 +417,13 @@ namespace LCompilers {
             }
             llvm::Value* target_offset = cmo_convertor_single_element(
                 value_desc, section_first_indices, value_rank, false);
-            builder->CreateStore(target_offset, get_offset(target, false));
+            value_desc_data = llvm_utils->create_ptr_gep(value_desc_data, target_offset);
+            llvm::Value* target_data = get_pointer_to_data(target);
+            builder->CreateStore(value_desc_data, target_data);
+
+            builder->CreateStore(
+                llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
+                get_offset(target, false));
 
             llvm::Value* value_dim_des_array = get_pointer_to_dimension_descriptor_array(value_desc);
             llvm::Value* target_dim_des_array = get_pointer_to_dimension_descriptor_array(target);
@@ -384,7 +442,8 @@ namespace LCompilers {
                     llvm::Value* value_stride = get_stride(value_dim_des, true);
                     llvm::Value* target_stride = get_stride(target_dim_des, false);
                     builder->CreateStore(value_stride, target_stride);
-                    builder->CreateStore(lbs[i],
+                    // Diverges from LPython, 0 should be stored there.
+                    builder->CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)),
                                          get_lower_bound(target_dim_des, false));
                     builder->CreateStore(dim_length,
                                          get_dimension_size(target_dim_des, false));
@@ -403,8 +462,6 @@ namespace LCompilers {
             llvm::Value** lbs, llvm::Value** ubs,
             llvm::Value** ds, llvm::Value** non_sliced_indices,
             llvm::Value** llvm_diminfo, int value_rank, int target_rank) {
-            builder->CreateStore(value_desc, get_pointer_to_data(target));
-
             std::vector<llvm::Value*> section_first_indices;
             for( int i = 0; i < value_rank; i++ ) {
                 if( ds[i] != nullptr ) {
@@ -417,7 +474,12 @@ namespace LCompilers {
             }
             llvm::Value* target_offset = cmo_convertor_single_element_data_only(
                 llvm_diminfo, section_first_indices, value_rank, false);
-            builder->CreateStore(target_offset, get_offset(target, false));
+            value_desc = llvm_utils->create_ptr_gep(value_desc, target_offset);
+            builder->CreateStore(value_desc, get_pointer_to_data(target));
+
+            builder->CreateStore(
+                llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), 0),
+                get_offset(target, false));
 
             llvm::Value* target_dim_des_array = get_pointer_to_dimension_descriptor_array(target);
             int j = 0, r = 1;
@@ -434,7 +496,7 @@ namespace LCompilers {
                     llvm::Value* target_dim_des = llvm_utils->create_ptr_gep(target_dim_des_array, j);
                     builder->CreateStore(stride,
                                          get_stride(target_dim_des, false));
-                    builder->CreateStore(lbs[i],
+                    builder->CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)),
                                          get_lower_bound(target_dim_des, false));
                     builder->CreateStore(dim_length,
                                          get_dimension_size(target_dim_des, false));
@@ -516,7 +578,7 @@ namespace LCompilers {
 
         llvm::Value* SimpleCMODescriptor::cmo_convertor_single_element_data_only(
             llvm::Value** llvm_diminfo, std::vector<llvm::Value*>& m_args,
-            int n_args, bool check_for_bounds) {
+            int n_args, bool check_for_bounds, bool is_unbounded_pointer_to_data) {
             llvm::Value* prod = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
             llvm::Value* idx = llvm::ConstantInt::get(context, llvm::APInt(32, 0));
             for( int r = 0, r1 = 0; r < n_args; r++ ) {
@@ -527,9 +589,13 @@ namespace LCompilers {
                     // check_single_element(curr_llvm_idx, arr); TODO: To be implemented
                 }
                 idx = builder->CreateAdd(idx, builder->CreateMul(prod, curr_llvm_idx));
-                llvm::Value* dim_size = llvm_diminfo[r1 + 1];
-                r1 += 2;
-                prod = builder->CreateMul(prod, dim_size);
+                if (is_unbounded_pointer_to_data) {
+                    r1 += 1;
+                } else {
+                    llvm::Value* dim_size = llvm_diminfo[r1 + 1];
+                    r1 += 2;
+                    prod = builder->CreateMul(prod, dim_size);
+                }
             }
             return idx;
         }
@@ -537,7 +603,7 @@ namespace LCompilers {
         llvm::Value* SimpleCMODescriptor::get_single_element(llvm::Value* array,
             std::vector<llvm::Value*>& m_args, int n_args, bool data_only,
             bool is_fixed_size, llvm::Value** llvm_diminfo, bool polymorphic,
-            llvm::Type* polymorphic_type) {
+            llvm::Type* polymorphic_type, bool is_unbounded_pointer_to_data) {
             llvm::Value* tmp = nullptr;
             // TODO: Uncomment later
             // bool check_for_bounds = is_explicit_shape(v);
@@ -545,7 +611,7 @@ namespace LCompilers {
             llvm::Value* idx = nullptr;
             if( data_only || is_fixed_size ) {
                 LCOMPILERS_ASSERT(llvm_diminfo);
-                idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds);
+                idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds, is_unbounded_pointer_to_data);
                 if( is_fixed_size ) {
                     tmp = llvm_utils->create_gep(array, idx);
                 } else {
@@ -696,7 +762,8 @@ namespace LCompilers {
             llvm::Value* num_elements = this->get_array_size(src, nullptr, 4);
 
             llvm::Value* first_ptr = this->get_pointer_to_data(dest);
-            llvm::Type* llvm_data_type = tkr2array[ASRUtils::get_type_code(asr_data_type, false, false)].second;
+            llvm::Type* llvm_data_type = tkr2array[ASRUtils::get_type_code(ASRUtils::type_get_past_pointer(
+                ASRUtils::type_get_past_allocatable(asr_data_type)), false, false)].second;
             if( reserve_memory ) {
                 llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, num_elements);
                 builder->CreateStore(arr_first, first_ptr);

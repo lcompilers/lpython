@@ -410,3 +410,43 @@ def ceil(x: f32) -> f32:
     if x <= f32(0) or x == resultf:
         return resultf
     return resultf + f32(1)
+
+########## trunc ##########
+
+@ccall
+def _lfortran_dtrunc(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def trunc(x: f64) -> f64:
+    return _lfortran_dtrunc(x)
+
+@ccall
+def _lfortran_strunc(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def trunc(x: f32) -> f32:
+    return _lfortran_strunc(x)
+
+########## fix ##########
+
+@ccall
+def _lfortran_dfix(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def fix(x: f64) -> f64:
+    return _lfortran_dfix(x)
+
+@ccall
+def _lfortran_sfix(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def fix(x: f32) -> f32:
+    return _lfortran_sfix(x)

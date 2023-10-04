@@ -170,21 +170,7 @@ jobs:
         run: |
             set -ex
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
-            ./build0.sh
-            emcmake cmake . -GNinja \
-              -DCMAKE_BUILD_TYPE=Debug \
-              -DCMAKE_CXX_FLAGS_DEBUG="-Wall -Wextra -fexceptions" \
-              -DWITH_LLVM=no \
-              -DLPYTHON_BUILD_TO_WASM=yes \
-              -DLFORTRAN_BUILD_ALL=yes \
-              -DWITH_STACKTRACE=no \
-              -DWITH_RUNTIME_STACKTRACE=no \
-              -DCMAKE_PREFIX_PATH="$CONDA_PREFIX" \
-              -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
-              -DCMAKE_C_COMPILER_LAUNCHER=sccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-
-            cmake --build . -j16 --target install
+            ./build_to_wasm.sh
 
       - name: Test built lpython.wasm
         shell: bash -l {0}
@@ -414,7 +400,7 @@ jobs:
           create-args: >-
             python=3.10
             bison=3.4
-            symengine=0.9.0
+            symengine=0.11.1
             sympy=1.11.1
 
       - uses: hendrikmuhs/ccache-action@main

@@ -149,11 +149,15 @@ namespace LCompilers {
                 void fill_malloc_array_details(
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                    llvm::Module* module) = 0;
+                    llvm::Module* module, bool realloc=false) = 0;
 
                 virtual
                 void fill_dimension_descriptor(
                     llvm::Value* arr, int n_dims) = 0;
+
+                virtual
+                void reset_array_details(
+                    llvm::Value* arr, llvm::Value* source_arr, int n_dims) = 0;
 
                 virtual
                 void fill_descriptor_for_array_section(
@@ -262,7 +266,7 @@ namespace LCompilers {
                     std::vector<llvm::Value*>& m_args, int n_args,
                     bool data_only=false, bool is_fixed_size=false,
                     llvm::Value** llvm_diminfo=nullptr,
-                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr) = 0;
+                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr, bool is_unbounded_pointer_to_data = false) = 0;
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array, llvm::Type* llvm_data_type) = 0;
@@ -310,7 +314,7 @@ namespace LCompilers {
 
                 llvm::Value* cmo_convertor_single_element_data_only(
                     llvm::Value** llvm_diminfo, std::vector<llvm::Value*>& m_args,
-                    int n_args, bool check_for_bounds);
+                    int n_args, bool check_for_bounds, bool is_unbounded_pointer_to_data = false);
 
             public:
 
@@ -358,11 +362,15 @@ namespace LCompilers {
                 void fill_malloc_array_details(
                     llvm::Value* arr, llvm::Type* llvm_data_type, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
-                    llvm::Module* module);
+                    llvm::Module* module, bool realloc=false);
 
                 virtual
                 void fill_dimension_descriptor(
                     llvm::Value* arr, int n_dims);
+
+                virtual
+                void reset_array_details(
+                    llvm::Value* arr, llvm::Value* source_arr, int n_dims);
 
                 virtual
                 void fill_descriptor_for_array_section(
@@ -422,7 +430,7 @@ namespace LCompilers {
                     std::vector<llvm::Value*>& m_args, int n_args,
                     bool data_only=false, bool is_fixed_size=false,
                     llvm::Value** llvm_diminfo=nullptr,
-                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr);
+                    bool polymorphic=false, llvm::Type* polymorphic_type=nullptr, bool is_unbounded_pointer_to_data = false);
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array, llvm::Type* llvm_data_type);

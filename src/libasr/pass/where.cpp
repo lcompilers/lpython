@@ -57,7 +57,7 @@ public:
         ASR::expr_t* expr_ = ASRUtils::EXPR(ASR::make_Var_t(al, x->base.base.loc, x->m_v));
         *current_expr = expr_;
         if (ASRUtils::is_array(ASRUtils::expr_type(expr_))) {
-            ASR::expr_t* new_expr_ = PassUtils::create_array_ref(expr_, idx_vars, al);
+            ASR::expr_t* new_expr_ = PassUtils::create_array_ref(expr_, idx_vars, al, current_scope);
             *current_expr = new_expr_;
         }
     }
@@ -72,7 +72,7 @@ public:
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
         uint64_t h = get_hash((ASR::asr_t*) x->m_name);
         if (return_var_hash.find(h) != return_var_hash.end()) {
-            *current_expr = PassUtils::create_array_ref(return_var_hash[h], idx_vars, al);
+            *current_expr = PassUtils::create_array_ref(return_var_hash[h], idx_vars, al, current_scope);
         }
     }
 
@@ -211,8 +211,8 @@ public:
             is_right_array = true;
         }
 
-        ASR::expr_t* left_array = PassUtils::create_array_ref(left, idx_vars, al);
-        ASR::expr_t* right_array = PassUtils::create_array_ref(right, idx_vars, al);
+        ASR::expr_t* left_array = PassUtils::create_array_ref(left, idx_vars, al, current_scope);
+        ASR::expr_t* right_array = PassUtils::create_array_ref(right, idx_vars, al, current_scope);
 
         ASR::expr_t* test_new = ASRUtils::EXPR(
                     real_cmp?ASR::make_RealCompare_t(al, loc, left_array, real_cmp->m_op, is_right_array?right_array:right,

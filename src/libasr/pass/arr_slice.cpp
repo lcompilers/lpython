@@ -136,8 +136,8 @@ class ReplaceArraySection: public ASR::BaseExprReplacer<ReplaceArraySection> {
             Vec<ASR::stmt_t*> doloop_body;
             doloop_body.reserve(al, 1);
             if( doloop == nullptr ) {
-                ASR::expr_t* target_ref = PassUtils::create_array_ref(slice_sym, idx_vars_target, al, x->base.base.loc, x->m_type);
-                ASR::expr_t* value_ref = PassUtils::create_array_ref(x->m_v, idx_vars_value, al);
+                ASR::expr_t* target_ref = PassUtils::create_array_ref(slice_sym, idx_vars_target, al, x->base.base.loc, x->m_type, current_scope);
+                ASR::expr_t* value_ref = PassUtils::create_array_ref(x->m_v, idx_vars_value, al, current_scope);
                 ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x->base.base.loc, target_ref, value_ref, nullptr));
                 doloop_body.push_back(al, assign_stmt);
             } else {

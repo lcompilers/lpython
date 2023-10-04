@@ -325,7 +325,7 @@ public:
 
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        global_scope = x.m_global_scope;
+        global_scope = x.m_symtab;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -366,9 +366,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
         std::string unit_src = "// Forward declarations\n";
-        unit_src += declare_all_functions(*x.m_global_scope);
+        unit_src += declare_all_functions(*x.m_symtab);
         // Now pre-declare all functions from modules and programs
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Module_t>(*item.second)) {
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
                 unit_src += declare_all_functions(*m->m_symtab);
@@ -387,10 +387,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                    != x.m_global_scope->get_scope().end());
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                    != x.m_symtab->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                    ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                     visit_symbol(*mod);
                     unit_src += src;
                 }
@@ -398,7 +398,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
 
         // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
@@ -409,17 +409,17 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                != x.m_global_scope->get_scope().end());
+            LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                != x.m_symtab->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 visit_symbol(*mod);
                 unit_src += src;
             }
         }
 
         // Then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;

@@ -22,7 +22,7 @@
 // #define SHOW_ASR
 
 #ifdef SHOW_ASR
-#include <lfortran/pickle.h>
+#include <libasr/pickle.h>
 #endif
 
 namespace LCompilers {
@@ -142,8 +142,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         main_func = nullptr;
         avail_mem_loc = 0;
 
-        min_no_pages = 100;  // fixed 6.4 Mb memory currently
-        max_no_pages = 100;  // fixed 6.4 Mb memory currently
+        min_no_pages = 1000;  // fixed 64 Mb memory currently
+        max_no_pages = 1000;  // fixed 64 Mb memory currently
 
         m_compiler_globals.resize(GLOBAL_VARS_CNT);
         m_import_func_idx_map.resize(IMPORT_FUNCS_CNT);
@@ -160,10 +160,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void import_function(ASR::Function_t* fn) {
-        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
-        if (ASRUtils::get_FunctionType(fn)->m_deftype != ASR::deftypeType::Interface) return;
-        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindC) return;
-        if (ASRUtils::is_intrinsic_function2(fn)) return;
+        if (ASRUtils::get_FunctionType(fn)->m_abi != ASR::abiType::BindJS) return;
 
         emit_function_prototype(*fn);
         m_wa.emit_import_fn("js", fn->m_name,
@@ -184,6 +181,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
                 for (auto &item : p->m_symtab->get_scope()) {
+                    if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
+                        import_function(fn);
+                    }
+                }
+            } else if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                for (auto &item : m->m_symtab->get_scope()) {
                     if (ASR::is_a<ASR::Function_t>(*item.second)) {
                         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(item.second);
                         import_function(fn);
@@ -717,18 +722,18 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             std::vector<std::string> build_order =
                 ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
-                                x.m_global_scope->get_scope().end());
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item) !=
+                                x.m_symtab->get_scope().end());
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 this->visit_symbol(*mod);
             }
         }
 
         // Process procedures first:
-        declare_all_functions(*x.m_global_scope);
+        declare_all_functions(*x.m_symtab);
 
         // then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -740,7 +745,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
 
-        emit_imports(x.m_global_scope);
+        emit_imports(x.m_symtab);
 
         m_wa.emit_declare_mem(min_no_pages, max_no_pages);
         m_wa.emit_export_mem("memory", 0 /* mem_idx */);
@@ -834,17 +839,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        // Generate the bodies of functions and subroutines
-        declare_all_functions(*x.m_symtab);
-
         // Generate main program code
         if (main_func == nullptr) {
-            main_func = (ASR::Function_t *)ASRUtils::make_Function_t_util(
+            main_func = ASR::down_cast2<ASR::Function_t>(ASRUtils::make_Function_t_util(
                 m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_start"),
                 nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-                nullptr, 0, false, false, false);
+                nullptr, 0, false, false, false));
         }
         this->visit_Function(*main_func);
     }
@@ -1155,16 +1157,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     bool is_unsupported_function(const ASR::Function_t &x) {
         if (strcmp(x.m_name, "_start") == 0) return false;
 
-        if (!x.n_body) {
+         if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindJS) {
             return true;
-        }
-        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC &&
-            ASRUtils::get_FunctionType(x)->m_deftype == ASR::deftypeType::Interface) {
-            if (ASRUtils::is_intrinsic_function2(&x)) {
-                diag.codegen_warning_label(
-                    "WASM: C Intrinsic Functions not yet supported",
-                    {x.base.base.loc}, std::string(x.m_name));
-            }
+         }
+
+        if (ASRUtils::get_FunctionType(x)->m_abi == ASR::abiType::BindC) {
+            // Skip C Intrinsic Functions
             return true;
         }
         for (size_t i = 0; i < x.n_body; i++) {
@@ -1173,13 +1171,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                     ASRUtils::symbol_get_past_external(sub_call.m_name));
                 if (ASRUtils::get_FunctionType(s)->m_abi == ASR::abiType::BindC &&
-                    ASRUtils::get_FunctionType(s)->m_deftype == ASR::deftypeType::Interface &&
                     ASRUtils::is_intrinsic_function2(s)) {
-                    diag.codegen_warning_label(
-                        "WASM: Calls to C Intrinsic Functions are not yet "
-                        "supported",
-                        {x.m_body[i]->base.loc},
-                        "Function: calls " + std::string(s->m_name));
+                    // Skip functions that call into C Intrinsic Functions
                     return true;
                 }
             }
@@ -1188,6 +1181,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        declare_all_functions(*x.m_symtab);
         if (is_unsupported_function(x)) {
             return;
         }
@@ -1578,6 +1572,24 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
         else{
             throw CodeGenError("IntegerBitNot: Only kind 4 and 8 supported");
+        }
+    }
+
+    void visit_RealCopySign(const ASR::RealCopySign_t& x) {
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
+        }
+        this->visit_expr(*x.m_target);
+        this->visit_expr(*x.m_source);
+
+        int kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        if (kind == 4) {
+            m_wa.emit_f32_copysign();
+        } else if (kind == 8) {
+            m_wa.emit_f64_copysign();
+        } else {
+            throw CodeGenError("visit_RealCopySign: Only kind 4 and 8 reals supported");
         }
     }
 
@@ -3096,11 +3108,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_ArrayBound(const ASR::ArrayBound_t& x) {
-        ASR::ttype_t *ttype = ASRUtils::expr_type(x.m_v);
-        uint32_t kind = ASRUtils::extract_kind_from_ttype_t(ttype);
         ASR::dimension_t *m_dims;
-        int n_dims = ASRUtils::extract_dimensions_from_ttype(ttype, m_dims);
-        if (kind != 4) {
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
+        if (ASRUtils::extract_kind_from_ttype_t(x.m_type) != 4) {
             throw CodeGenError("ArrayBound: Kind 4 only supported currently");
         }
 
@@ -3209,15 +3219,16 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
     LCompilers::PassOptions pass_options;
     pass_options.always_run = true;
     pass_options.verbose = co.verbose;
+    pass_options.dump_all_passes = co.dump_all_passes;
     std::vector<std::string> passes = {"pass_array_by_data", "array_op",
                 "implied_do_loops", "print_arr", "do_loops", "select_case",
-                "intrinsic_function", "unused_functions"};
+                "intrinsic_function", "nested_vars", "unused_functions"};
     LCompilers::PassManager pass_manager;
     pass_manager.apply_passes(al, &asr, passes, pass_options, diagnostics);
 
 
 #ifdef SHOW_ASR
-    std::cout << LCompilers::LFortran::pickle(asr, false /* use colors */, true /* indent */,
+    std::cout << LCompilers::pickle(asr, false /* use colors */, true /* indent */,
                         true /* with_intrinsic_modules */)
               << std::endl;
 #endif

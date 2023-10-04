@@ -34,6 +34,7 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
+
 namespace LCompilers::LPython {
 
 namespace CastingUtil {
@@ -1251,7 +1252,6 @@ public:
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
                                 args, rt_subs, func, loc);
             }
-
             if (ASRUtils::get_FunctionType(func)->m_is_restriction) {
                 rt_vec.push_back(s);
             } else if (ASRUtils::is_generic_function(s)) {
@@ -4251,6 +4251,8 @@ public:
                     } else if (name == "pythoncall" || name == "pythoncallable") {
                         current_procedure_abi_type = ASR::abiType::BindPython;
                         current_procedure_interface = (name == "pythoncall");
+                    } else if (name == "jscall") {
+                        current_procedure_abi_type = ASR::abiType::BindJS;
                     } else if (name == "overload") {
                         overload = true;
                     } else if (name == "interface") {
@@ -4857,7 +4859,7 @@ public:
 
     void visit_Module(const AST::Module_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
-        current_scope = unit->m_global_scope;
+        current_scope = unit->m_symtab;
         LCOMPILERS_ASSERT(current_scope != nullptr);
         ASR::symbol_t* module_sym = nullptr;
         ASR::Module_t* mod = nullptr;
@@ -4903,7 +4905,7 @@ public:
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
 
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
             if (f_sym) {
                 // Add the `global_initilaizer` function into the
                 // module and later call this function to initialize the
@@ -4912,7 +4914,7 @@ public:
                 f->m_symtab->parent = mod->m_symtab;
                 mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
                 // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+                unit->m_symtab->erase_symbol(func_name);
             }
             global_init.p = nullptr;
             global_init.n = 0;
@@ -4927,7 +4929,7 @@ public:
             pass_options.run_fun = func_name;
             pass_wrap_global_stmts(al, *unit, pass_options);
 
-            ASR::symbol_t *f_sym = unit->m_global_scope->get_symbol(func_name);
+            ASR::symbol_t *f_sym = unit->m_symtab->get_symbol(func_name);
             if (f_sym) {
                 // Add the `global_statements` function into the
                 // module and later call this function to execute the
@@ -4936,7 +4938,7 @@ public:
                 f->m_symtab->parent = mod->m_symtab;
                 mod->m_symtab->add_symbol(func_name, (ASR::symbol_t *) f);
                 // Erase the function in TranslationUnit
-                unit->m_global_scope->erase_symbol(func_name);
+                unit->m_symtab->erase_symbol(func_name);
             }
             items.p = nullptr;
             items.n = 0;
@@ -6683,6 +6685,20 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
+        } else if (attr_name == "join") {
+            if (args.size() != 1) {
+                throw SemanticError("str.join() takes one argument",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_join";
+            ASR::call_arg_t str_var;
+            str_var.loc = loc;
+            str_var.m_value = s_var;
+            ASR::call_arg_t passed_int;
+            passed_int.loc = loc;
+            passed_int.m_value = args[0].m_value;
+            fn_args.push_back(al, str_var);
+            fn_args.push_back(al, passed_int);
         } else if (attr_name == "find") {
             if (args.size() != 1) {
                 throw SemanticError("str.find() takes one argument",
@@ -6810,6 +6826,28 @@ public:
                 [&](const std::string &msg, const Location &loc) {
                 throw SemanticError(msg, loc); });
             return;
+        } else if(attr_name == "count") {
+            if(args.size() != 1) {
+                throw SemanticError("str.count() takes one argument for now.", loc);
+            }
+            ASR::expr_t *arg_value = args[0].m_value;
+            ASR::ttype_t *arg_value_type = ASRUtils::expr_type(arg_value);
+            if (!ASRUtils::is_character(*arg_value_type)) {
+                throw SemanticError("str.count() takes one argument of type: str", loc);
+            }
+
+            fn_call_name = "_lpython_str_count";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+
+            ASR::call_arg_t value;
+            value.loc = loc;
+            value.m_value = args[0].m_value;
+
+            // Push string and substring argument on top of Vector (or Function Arguments Stack basically)
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, value);
         } else if(attr_name.size() > 2 && attr_name[0] == 'i' && attr_name[1] == 's') {
             /*
                 String Validation Methods i.e all "is" based functions are handled here
@@ -7185,6 +7223,27 @@ public:
                 st = current_scope->get_symbol(call_name_store);
             } else {
                 st = current_scope->resolve_symbol(mod_name);
+                std::set<std::string> symbolic_attributes = {
+                    "diff", "expand", "has"
+                };
+                std::set<std::string> symbolic_constants = {
+                    "pi"
+                };
+                if (symbolic_attributes.find(call_name) != symbolic_attributes.end() &&
+                    symbolic_constants.find(mod_name) != symbolic_constants.end()){
+                        ASRUtils::create_intrinsic_function create_func;
+                        create_func = ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(mod_name);
+                        Vec<ASR::expr_t*> eles; eles.reserve(al, args.size());
+                        Vec<ASR::expr_t*> args_; args_.reserve(al, 1);
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        tmp = create_func(al, at->base.base.loc, args_,
+                            [&](const std::string &msg, const Location &loc) {
+                            throw SemanticError(msg, loc); });
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), call_name, loc, eles);
+                        return;
+                }
                 if (!st) {
                     throw SemanticError("NameError: '" + mod_name + "' is not defined", n->base.base.loc);
                 }
@@ -7239,6 +7298,32 @@ public:
             ASR::expr_t* expr = ASR::down_cast<ASR::expr_t>(tmp);
             handle_builtin_attribute(expr, at->m_attr, loc, eles);
             return;
+        } else if (AST::is_a<AST::BinOp_t>(*at->m_value)) {
+            AST::BinOp_t* bop = AST::down_cast<AST::BinOp_t>(at->m_value);
+            std::set<std::string> symbolic_attributes = {
+                "diff", "expand", "has"
+            };
+            if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
+                switch (bop->m_op) {
+                    case (AST::operatorType::Add) :
+                    case (AST::operatorType::Sub) :
+                    case (AST::operatorType::Mult) :
+                    case (AST::operatorType::Div) :
+                    case (AST::operatorType::Pow) : {
+                        visit_BinOp(*bop);
+                        Vec<ASR::expr_t*> eles;
+                        eles.reserve(al, args.size());
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                        return;
+                    }
+                    default : {
+                        throw SemanticError("Binary operator type not supported", loc);
+                    }
+                }
+            }
         } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
             if (std::string(at->m_attr) == std::string("bit_length")) {
                 //bit_length() attribute:
@@ -7260,6 +7345,41 @@ public:
             std::string res = n->m_value;
             handle_constant_string_attributes(res, args, at->m_attr, loc);
             return;
+        } else if (AST::is_a<AST::Call_t>(*at->m_value)) {
+            AST::Call_t* call = AST::down_cast<AST::Call_t>(at->m_value);
+            std::set<std::string> symbolic_attributes = {
+                "diff", "expand", "has"
+            };
+            if (symbolic_attributes.find(at->m_attr) != symbolic_attributes.end()){
+                std::set<std::string> symbolic_functions = {
+                    "sin", "cos", "log", "exp", "Abs", "Symbol"
+                };
+                if (AST::is_a<AST::Attribute_t>(*call->m_func)) {
+                    visit_Call(*call);
+                    Vec<ASR::expr_t*> eles;
+                    eles.reserve(al, args.size());
+                    for (size_t i=0; i<args.size(); i++) {
+                        eles.push_back(al, args[i].m_value);
+                    }
+                    handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                    return;
+                } else if (AST::is_a<AST::Name_t>(*call->m_func)) {
+                    AST::Name_t *n = AST::down_cast<AST::Name_t>(call->m_func);
+                    std::string call_name = n->m_id;
+                    if (symbolic_functions.find(call_name) != symbolic_functions.end()) {
+                        visit_Call(*call);
+                        Vec<ASR::expr_t*> eles;
+                        eles.reserve(al, args.size());
+                        for (size_t i=0; i<args.size(); i++) {
+                            eles.push_back(al, args[i].m_value);
+                        }
+                        handle_symbolic_attribute(ASRUtils::EXPR(tmp), at->m_attr, loc, eles);
+                        return;
+                    } else {
+                        throw SemanticError(std::string(call_name) + " not supported in Call", loc);
+                    }
+                }
+            }
         } else {
             throw SemanticError("Only Name type and constant integers supported in Call", loc);
         }
@@ -7332,7 +7452,7 @@ public:
         if (!s) {
             std::string intrinsic_name = call_name;
             std::set<std::string> not_cpython_builtin = {
-                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand",
+                "sin", "cos", "gamma", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "exp", "exp2", "expm1", "Symbol", "diff", "expand", "trunc", "fix",
                 "sum" // For sum called over lists
             };
             std::set<std::string> symbolic_functions = {
@@ -7467,7 +7587,7 @@ public:
                     dim = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
                         args[1].m_value, ASR::binopType::Add, const_one, int_type, nullptr));
                 }
-                tmp = ASRUtils::make_ArraySize_t_util(al, loc, var, dim, int_type, nullptr);
+                tmp = ASRUtils::make_ArraySize_t_util(al, loc, var, dim, int_type, nullptr, false);
                 return;
             } else if (call_name == "empty") {
                 if (x.n_args != 1 || x.n_keywords != 1) {
@@ -7924,10 +8044,10 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         prog_body.reserve(al, 1);
         SetChar prog_dep;
         prog_dep.reserve(al, 1);
-        SymbolTable *program_scope = al.make_new<SymbolTable>(tu->m_global_scope);
+        SymbolTable *program_scope = al.make_new<SymbolTable>(tu->m_symtab);
 
         std::string mod_name = "__main__";
-        ASR::symbol_t *mod_sym = tu->m_global_scope->resolve_symbol(mod_name);
+        ASR::symbol_t *mod_sym = tu->m_symtab->resolve_symbol(mod_name);
         LCOMPILERS_ASSERT(mod_sym);
         ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(mod_sym);
         LCOMPILERS_ASSERT(mod);
@@ -7951,7 +8071,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
             prog_dep.n,
             /* a_body */ prog_body.p,
             /* n_body */ prog_body.n);
-        tu->m_global_scope->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
+        tu->m_symtab->add_symbol(prog_name, ASR::down_cast<ASR::symbol_t>(prog));
 
         #if defined(WITH_LFORTRAN_ASSERT)
             diag::Diagnostics diagnostics;

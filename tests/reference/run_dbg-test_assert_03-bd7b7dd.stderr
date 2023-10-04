@@ -1,3 +1,5 @@
+  File "tests/runtime_errors/test_assert_03.py", line 1
+    def f():
   File "tests/runtime_errors/test_assert_03.py", line 10
     main()
   File "tests/runtime_errors/test_assert_03.py", line 8

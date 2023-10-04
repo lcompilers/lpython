@@ -29,7 +29,7 @@
 module ASR {
 
 unit
-    = TranslationUnit(symbol_table global_scope, node* items)
+    = TranslationUnit(symbol_table symtab, node* items)
 
 -- # Documentation for the symbol type
 
@@ -147,6 +147,10 @@ presence = Required | Optional
 -- LPython manages the conversion of arguments to be passed to such symbols
 -- and also converts the return values from such symbols.
 
+-- abi=BindJS: the symbol's implementation is
+-- available with Javascript.
+-- This abi type is to be mainly used with the WASM Backend.
+
 -- abi=Interactive: the symbol's implementation has been provided by the
 -- previous REPL execution (e.g., if LLVM backend is used for the interactive
 -- mode, the previous execution generated machine code for this symbol's
@@ -164,12 +168,14 @@ abi                   -- External     ABI
     | GFortranModule  --   Yes        GFortran
     | BindC           --   Yes        C
     | BindPython      --   Yes        Python
+    | BindJS          --   Yes        Javascript
     | Interactive     --   Yes        Unspecified
     | Intrinsic       --   Yes        Unspecified
 
 
 stmt
     = Allocate(alloc_arg* args, expr? stat, expr? errmsg, expr? source)
+    | ReAlloc(alloc_arg* args)
     | Assign(int label, identifier variable)
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
@@ -193,7 +199,7 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(expr? fmt, expr* values, expr? separator, expr? end)
-    | FileOpen(int label, expr? newunit, expr? filename, expr? status)
+    | FileOpen(int label, expr? newunit, expr? filename, expr? status, expr? form)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
     | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
@@ -221,6 +227,8 @@ stmt
     | SelectType(expr selector, type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape, expr? lower_bounds)
     | BlockCall(int label, symbol m)
+    | SetInsert(expr a, expr ele)
+    | SetRemove(expr a, expr ele)
     | ListInsert(expr a, expr pos, expr ele)
     | ListRemove(expr a, expr ele)
     | ListClear(expr a)
@@ -261,6 +269,7 @@ expr
     | RealUnaryMinus(expr arg, ttype type, expr? value)
     | RealCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | RealBinOp(expr left, binop op, expr right, ttype type, expr? value)
+    | RealCopySign(expr target, expr source, ttype type, expr? value)
     | ComplexConstant(float re, float im, ttype type)
     | ComplexUnaryMinus(expr arg, ttype type, expr? value)
     | ComplexCompare(expr left, cmpop op, expr right, ttype type, expr? value)
@@ -311,10 +320,8 @@ expr
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
                  expr? value)
     | ArrayTranspose(expr matrix, ttype type, expr? value)
-    | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
-    | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
     | ArrayAll(expr mask, expr? dim, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
@@ -417,6 +424,7 @@ ttype
 array_physical_type
     = DescriptorArray
     | PointerToDataArray
+    | UnboundedPointerToDataArray
     | FixedSizeArray
     | NumPyArray
     | ISODescriptorArray

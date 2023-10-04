@@ -469,83 +469,47 @@ namespace LCompilers {
     llvm::Type* LLVMUtils::get_el_type(ASR::ttype_t* m_type_, llvm::Module* module) {
         int a_kind = ASRUtils::extract_kind_from_ttype_t(m_type_);
         llvm::Type* el_type = nullptr;
-        if (LLVM::is_llvm_pointer(*m_type_)) {
-            ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(m_type_)->m_type;
-            switch(t2->type) {
-                case ASR::ttypeType::Integer: {
-                    el_type = getIntType(a_kind, true);
-                    break;
-                }
-                case ASR::ttypeType::UnsignedInteger: {
-                    el_type = getIntType(a_kind, true);
-                    break;
-                }
-                case ASR::ttypeType::Real: {
-                    el_type = getFPType(a_kind, true);
-                    break;
-                }
-                case ASR::ttypeType::Complex: {
-                    el_type = getComplexType(a_kind, true);
-                    break;
-                }
-                case ASR::ttypeType::Logical: {
-                    el_type = llvm::Type::getInt1Ty(context);
-                    break;
-                }
-                case ASR::ttypeType::Struct: {
-                    el_type = getStructType(m_type_, module);
-                    break;
-                }
-                case ASR::ttypeType::Union: {
-                    el_type = getUnionType(m_type_, module);
-                    break;
-                }
-                case ASR::ttypeType::Character: {
-                    el_type = character_type;
-                    break;
-                }
-                default:
-                    LCOMPILERS_ASSERT(false);
-                    break;
+        bool is_pointer = LLVM::is_llvm_pointer(*m_type_);
+        switch(ASRUtils::type_get_past_pointer(m_type_)->type) {
+            case ASR::ttypeType::Integer: {
+                el_type = getIntType(a_kind, is_pointer);
+                break;
             }
-        } else {
-            switch(m_type_->type) {
-                case ASR::ttypeType::Integer: {
-                    el_type = getIntType(a_kind);
-                    break;
-                }
-                case ASR::ttypeType::UnsignedInteger: {
-                    el_type = getIntType(a_kind);
-                    break;
-                }
-                case ASR::ttypeType::Real: {
-                    el_type = getFPType(a_kind);
-                    break;
-                }
-                case ASR::ttypeType::Complex: {
-                    el_type = getComplexType(a_kind);
-                    break;
-                }
-                case ASR::ttypeType::Logical: {
-                    el_type = llvm::Type::getInt1Ty(context);
-                    break;
-                }
-                case ASR::ttypeType::Struct: {
-                    el_type = getStructType(m_type_, module);
-                    break;
-                }
-                case ASR::ttypeType::Character: {
-                    el_type = character_type;
-                    break;
-                }
-                case ASR::ttypeType::Class: {
-                    el_type = getClassType(m_type_);
-                    break;
-                }
-                default:
-                    LCOMPILERS_ASSERT(false);
-                    break;
+            case ASR::ttypeType::UnsignedInteger: {
+                el_type = getIntType(a_kind, is_pointer);
+                break;
             }
+            case ASR::ttypeType::Real: {
+                el_type = getFPType(a_kind, is_pointer);
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                el_type = getComplexType(a_kind, is_pointer);
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                el_type = llvm::Type::getInt1Ty(context);
+                break;
+            }
+            case ASR::ttypeType::Struct: {
+                el_type = getStructType(m_type_, module);
+                break;
+            }
+            case ASR::ttypeType::Union: {
+                el_type = getUnionType(m_type_, module);
+                break;
+            }
+            case ASR::ttypeType::Class: {
+                el_type = getClassType(m_type_);
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                el_type = character_type;
+                break;
+            }
+            default:
+                LCOMPILERS_ASSERT(false);
+                break;
         }
         return el_type;
     }
@@ -632,6 +596,19 @@ namespace LCompilers {
                         break;
                     }
                     case ASR::array_physical_typeType::PointerToDataArray: {
+                        type = nullptr;
+                        if( ASR::is_a<ASR::Complex_t>(*v_type->m_type) ) {
+                            ASR::Complex_t* complex_t = ASR::down_cast<ASR::Complex_t>(v_type->m_type);
+                            type = getComplexType(complex_t->m_kind, true);
+                        }
+
+
+                        if( type == nullptr ) {
+                            type = get_type_from_ttype_t_util(v_type->m_type, module, arg_m_abi)->getPointerTo();
+                        }
+                        break;
+                    }
+                    case ASR::array_physical_typeType::UnboundedPointerToDataArray: {
                         type = nullptr;
                         if( ASR::is_a<ASR::Complex_t>(*v_type->m_type) ) {
                             ASR::Complex_t* complex_t = ASR::down_cast<ASR::Complex_t>(v_type->m_type);
@@ -1165,6 +1142,7 @@ namespace LCompilers {
                         break;
                     }
                     case ASR::array_physical_typeType::FixedSizeArray: {
+                        LCOMPILERS_ASSERT(ASRUtils::is_fixed_size_array(v_type->m_dims, v_type->n_dims));
                         llvm_type = llvm::ArrayType::get(get_el_type(v_type->m_type, module),
                                         ASRUtils::get_fixed_size_of_array(
                                             v_type->m_dims, v_type->n_dims));

@@ -1,5 +1,0 @@
-code generation error: Printing support is not available for `Foo` type.
-  --> tests/errors/structs_11.py:16:1
-   |
-16 | print(bar)
-   | ^^^^^^^^^^ 

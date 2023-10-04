@@ -509,7 +509,7 @@ int get_symbols (const std::string &infile,
            }
            std::vector<LCompilers::document_symbols> symbol_lists;
            LCompilers::document_symbols loc;
-           for (auto &a : x.result->m_global_scope->get_scope()) {
+           for (auto &a : x.result->m_symtab->get_scope()) {
                std::string symbol_name = a.first;
                uint32_t first_line;
                uint32_t last_line;
@@ -736,17 +736,6 @@ int emit_llvm(const std::string &infile,
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
-    if (compiler_options.emit_debug_info) {
-        if (!compiler_options.emit_debug_line_column) {
-            diagnostics.add(LCompilers::diag::Diagnostic(
-                "The `emit_debug_line_column` is not enabled; please use the "
-                "`--debug-with-line-column` option to get the correct "
-                "location information",
-                LCompilers::diag::Level::Warning,
-                LCompilers::diag::Stage::Semantic, {})
-            );
-        }
-    }
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -819,6 +808,18 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
 
     // ASR -> LLVM
+    if (compiler_options.emit_debug_info) {
+#ifndef HAVE_RUNTIME_STACKTRACE
+        diagnostics.add(LCompilers::diag::Diagnostic(
+            "The `runtime stacktrace` is not enabled. To get the stacktraces, "
+            "re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`",
+            LCompilers::diag::Level::Error,
+            LCompilers::diag::Stage::Semantic, {})
+        );
+        std::cerr << diagnostics.render(lm, compiler_options);
+        return 1;
+#endif
+    }
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::LLVMEvaluator e(compiler_options.target);
     std::unique_ptr<LCompilers::LLVMModule> m;
@@ -828,26 +829,6 @@ int compile_python_to_object_file(
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
 
-    if (compiler_options.emit_debug_info) {
-#ifdef HAVE_RUNTIME_STACKTRACE
-        if (!compiler_options.emit_debug_line_column) {
-            diagnostics.add(LCompilers::diag::Diagnostic(
-                "The `emit_debug_line_column` is not enabled; please use the "
-                "`--debug-with-line-column` option to get the correct "
-                "location information",
-                LCompilers::diag::Level::Warning,
-                LCompilers::diag::Stage::Semantic, {})
-            );
-        }
-#else
-    diagnostics.add(LCompilers::diag::Diagnostic(
-        "The `runtime stacktrace` is not enabled. To get the stacktraces, "
-        "re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`",
-        LCompilers::diag::Level::Warning,
-        LCompilers::diag::Stage::Semantic, {})
-    );
-#endif
-    }
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -1901,14 +1882,14 @@ int main(int argc, char *argv[])
 #else
                     cmd += "llvm-dwarfdump --debug-line " + basename + ".out > ";
 #endif
-                    cmd += basename + "_ldd.txt && (cd src/bin; ./dwarf_convert.py ../../"
+                    cmd += basename + "_ldd.txt && (cd src/libasr; ./dwarf_convert.py ../../"
                         + basename + "_ldd.txt ../../" + basename + "_lines.txt ../../"
                         + basename + "_lines.dat && ./dat_convert.py ../../"
                         + basename + "_lines.dat)";
                     int status = system(cmd.c_str());
                     if ( status != 0 ) {
                         std::cerr << "Error in creating the files used to generate "
-                            "the debug information. This might be caused because either"
+                            "the debug information. This might be caused because either "
                             "`llvm-dwarfdump` or `Python` are not available. "
                             "Please activate the CONDA environment and compile again.\n";
                         return status;

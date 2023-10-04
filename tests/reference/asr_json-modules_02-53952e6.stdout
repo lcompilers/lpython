@@ -1,7 +1,7 @@
 {
     "node": "TranslationUnit",
     "fields": {
-        "global_scope": {
+        "symtab": {
             "node": "SymbolTable1",
             "fields": {
                 "__main__": {
@@ -36,7 +36,7 @@
                                             },
                                             "loc": {
                                                 "first": 0,
-                                                "last": 128,
+                                                "last": 125,
                                                 "first_filename": "tests/../integration_tests/modules_02.py",
                                                 "first_line": 1,
                                                 "first_column": 1,
@@ -59,8 +59,8 @@
                                                     "dt": []
                                                 },
                                                 "loc": {
-                                                    "first": 122,
-                                                    "last": 128,
+                                                    "first": 119,
+                                                    "last": 125,
                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                     "first_line": 10,
                                                     "first_column": 1,
@@ -78,7 +78,7 @@
                                     },
                                     "loc": {
                                         "first": 0,
-                                        "last": 128,
+                                        "last": 125,
                                         "first_filename": "tests/../integration_tests/modules_02.py",
                                         "first_line": 1,
                                         "first_column": 1,
@@ -99,14 +99,14 @@
                                         "access": "Public"
                                     },
                                     "loc": {
-                                        "first": 27,
-                                        "last": 27,
+                                        "first": 24,
+                                        "last": 24,
                                         "first_filename": "tests/../integration_tests/modules_02.py",
                                         "first_line": 1,
-                                        "first_column": 28,
+                                        "first_column": 25,
                                         "last_filename": "tests/../integration_tests/modules_02.py",
                                         "last_line": 1,
-                                        "last_column": 28
+                                        "last_column": 25
                                     }
                                 },
                                 "main0": {
@@ -131,8 +131,8 @@
                                                                 "kind": 4
                                                             },
                                                             "loc": {
-                                                                "first": 74,
-                                                                "last": 76,
+                                                                "first": 71,
+                                                                "last": 73,
                                                                 "first_filename": "tests/../integration_tests/modules_02.py",
                                                                 "first_line": 5,
                                                                 "first_column": 8,
@@ -148,8 +148,8 @@
                                                         "value_attr": false
                                                     },
                                                     "loc": {
-                                                        "first": 71,
-                                                        "last": 76,
+                                                        "first": 68,
+                                                        "last": 73,
                                                         "first_filename": "tests/../integration_tests/modules_02.py",
                                                         "first_line": 5,
                                                         "first_column": 5,
@@ -178,8 +178,8 @@
                                                 "is_restriction": false
                                             },
                                             "loc": {
-                                                "first": 54,
-                                                "last": 119,
+                                                "first": 51,
+                                                "last": 116,
                                                 "first_filename": "tests/../integration_tests/modules_02.py",
                                                 "first_line": 4,
                                                 "first_column": 1,
@@ -202,8 +202,8 @@
                                                             "v": "x (SymbolTable7)"
                                                         },
                                                         "loc": {
-                                                            "first": 82,
-                                                            "last": 82,
+                                                            "first": 79,
+                                                            "last": 79,
                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                             "first_line": 6,
                                                             "first_column": 5,
@@ -228,8 +228,8 @@
                                                                                     "kind": 4
                                                                                 },
                                                                                 "loc": {
-                                                                                    "first": 87,
-                                                                                    "last": 87,
+                                                                                    "first": 84,
+                                                                                    "last": 84,
                                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                                     "first_line": 6,
                                                                                     "first_column": 10,
@@ -240,8 +240,8 @@
                                                                             }
                                                                         },
                                                                         "loc": {
-                                                                            "first": 87,
-                                                                            "last": 87,
+                                                                            "first": 84,
+                                                                            "last": 84,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 10,
@@ -261,8 +261,8 @@
                                                                                     "kind": 4
                                                                                 },
                                                                                 "loc": {
-                                                                                    "first": 89,
-                                                                                    "last": 89,
+                                                                                    "first": 86,
+                                                                                    "last": 86,
                                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                                     "first_line": 6,
                                                                                     "first_column": 12,
@@ -273,8 +273,8 @@
                                                                             }
                                                                         },
                                                                         "loc": {
-                                                                            "first": 89,
-                                                                            "last": 89,
+                                                                            "first": 86,
+                                                                            "last": 86,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 12,
@@ -289,8 +289,8 @@
                                                                             "kind": 4
                                                                         },
                                                                         "loc": {
-                                                                            "first": 87,
-                                                                            "last": 87,
+                                                                            "first": 84,
+                                                                            "last": 84,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 10,
@@ -309,8 +309,8 @@
                                                                                     "kind": 4
                                                                                 },
                                                                                 "loc": {
-                                                                                    "first": 87,
-                                                                                    "last": 87,
+                                                                                    "first": 84,
+                                                                                    "last": 84,
                                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                                     "first_line": 6,
                                                                                     "first_column": 10,
@@ -321,8 +321,8 @@
                                                                             }
                                                                         },
                                                                         "loc": {
-                                                                            "first": 87,
-                                                                            "last": 89,
+                                                                            "first": 84,
+                                                                            "last": 86,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 10,
@@ -333,8 +333,8 @@
                                                                     }
                                                                 },
                                                                 "loc": {
-                                                                    "first": 87,
-                                                                    "last": 89,
+                                                                    "first": 84,
+                                                                    "last": 86,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 6,
                                                                     "first_column": 10,
@@ -354,8 +354,8 @@
                                                                             "kind": 4
                                                                         },
                                                                         "loc": {
-                                                                            "first": 92,
-                                                                            "last": 92,
+                                                                            "first": 89,
+                                                                            "last": 89,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 15,
@@ -366,8 +366,8 @@
                                                                     }
                                                                 },
                                                                 "loc": {
-                                                                    "first": 92,
-                                                                    "last": 92,
+                                                                    "first": 89,
+                                                                    "last": 89,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 6,
                                                                     "first_column": 15,
@@ -382,8 +382,8 @@
                                                                     "kind": 4
                                                                 },
                                                                 "loc": {
-                                                                    "first": 87,
-                                                                    "last": 87,
+                                                                    "first": 84,
+                                                                    "last": 84,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 6,
                                                                     "first_column": 10,
@@ -402,8 +402,8 @@
                                                                             "kind": 4
                                                                         },
                                                                         "loc": {
-                                                                            "first": 87,
-                                                                            "last": 87,
+                                                                            "first": 84,
+                                                                            "last": 84,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 6,
                                                                             "first_column": 10,
@@ -414,8 +414,8 @@
                                                                     }
                                                                 },
                                                                 "loc": {
-                                                                    "first": 86,
-                                                                    "last": 92,
+                                                                    "first": 83,
+                                                                    "last": 89,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 6,
                                                                     "first_column": 9,
@@ -426,8 +426,8 @@
                                                             }
                                                         },
                                                         "loc": {
-                                                            "first": 86,
-                                                            "last": 92,
+                                                            "first": 83,
+                                                            "last": 89,
                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                             "first_line": 6,
                                                             "first_column": 9,
@@ -439,8 +439,8 @@
                                                     "overloaded": []
                                                 },
                                                 "loc": {
-                                                    "first": 82,
-                                                    "last": 92,
+                                                    "first": 79,
+                                                    "last": 89,
                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                     "first_line": 6,
                                                     "first_column": 5,
@@ -461,8 +461,8 @@
                                                                     "v": "x (SymbolTable7)"
                                                                 },
                                                                 "loc": {
-                                                                    "first": 105,
-                                                                    "last": 105,
+                                                                    "first": 102,
+                                                                    "last": 102,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 7,
                                                                     "first_column": 12,
@@ -482,8 +482,8 @@
                                                                             "kind": 4
                                                                         },
                                                                         "loc": {
-                                                                            "first": 110,
-                                                                            "last": 111,
+                                                                            "first": 107,
+                                                                            "last": 108,
                                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                                             "first_line": 7,
                                                                             "first_column": 17,
@@ -494,8 +494,8 @@
                                                                     }
                                                                 },
                                                                 "loc": {
-                                                                    "first": 110,
-                                                                    "last": 111,
+                                                                    "first": 107,
+                                                                    "last": 108,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 7,
                                                                     "first_column": 17,
@@ -510,8 +510,8 @@
                                                                     "kind": 4
                                                                 },
                                                                 "loc": {
-                                                                    "first": 105,
-                                                                    "last": 111,
+                                                                    "first": 102,
+                                                                    "last": 108,
                                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                                     "first_line": 7,
                                                                     "first_column": 12,
@@ -523,8 +523,8 @@
                                                             "value": []
                                                         },
                                                         "loc": {
-                                                            "first": 105,
-                                                            "last": 111,
+                                                            "first": 102,
+                                                            "last": 108,
                                                             "first_filename": "tests/../integration_tests/modules_02.py",
                                                             "first_line": 7,
                                                             "first_column": 12,
@@ -536,8 +536,8 @@
                                                     "msg": []
                                                 },
                                                 "loc": {
-                                                    "first": 98,
-                                                    "last": 111,
+                                                    "first": 95,
+                                                    "last": 108,
                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                     "first_line": 7,
                                                     "first_column": 5,
@@ -555,8 +555,8 @@
                                                     "dt": []
                                                 },
                                                 "loc": {
-                                                    "first": 117,
-                                                    "last": 119,
+                                                    "first": 114,
+                                                    "last": 116,
                                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                                     "first_line": 8,
                                                     "first_column": 5,
@@ -573,8 +573,8 @@
                                         "module_file": []
                                     },
                                     "loc": {
-                                        "first": 54,
-                                        "last": 119,
+                                        "first": 51,
+                                        "last": 116,
                                         "first_filename": "tests/../integration_tests/modules_02.py",
                                         "first_line": 4,
                                         "first_column": 1,
@@ -594,7 +594,7 @@
                     },
                     "loc": {
                         "first": 0,
-                        "last": 128,
+                        "last": 125,
                         "first_filename": "tests/../integration_tests/modules_02.py",
                         "first_line": 1,
                         "first_column": 1,
@@ -622,7 +622,7 @@
                                     },
                                     "loc": {
                                         "first": 0,
-                                        "last": 128,
+                                        "last": 125,
                                         "first_filename": "tests/../integration_tests/modules_02.py",
                                         "first_line": 1,
                                         "first_column": 1,
@@ -648,7 +648,7 @@
                                 },
                                 "loc": {
                                     "first": 0,
-                                    "last": 128,
+                                    "last": 125,
                                     "first_filename": "tests/../integration_tests/modules_02.py",
                                     "first_line": 1,
                                     "first_column": 1,
@@ -661,7 +661,7 @@
                     },
                     "loc": {
                         "first": 0,
-                        "last": 128,
+                        "last": 125,
                         "first_filename": "tests/../integration_tests/modules_02.py",
                         "first_line": 1,
                         "first_column": 1,
@@ -701,8 +701,8 @@
                                                 "is_restriction": false
                                             },
                                             "loc": {
-                                                "first": 157,
-                                                "last": 189,
+                                                "first": 154,
+                                                "last": 186,
                                                 "first_filename": "tests/../integration_tests/modules_02b.py",
                                                 "first_line": 3,
                                                 "first_column": 1,
@@ -725,8 +725,8 @@
                                                     "dt": []
                                                 },
                                                 "loc": {
-                                                    "first": 170,
-                                                    "last": 172,
+                                                    "first": 167,
+                                                    "last": 169,
                                                     "first_filename": "tests/../integration_tests/modules_02b.py",
                                                     "first_line": 4,
                                                     "first_column": 5,
@@ -752,8 +752,8 @@
                                                                         "len_expr": []
                                                                     },
                                                                     "loc": {
-                                                                        "first": 184,
-                                                                        "last": 188,
+                                                                        "first": 181,
+                                                                        "last": 185,
                                                                         "first_filename": "tests/../integration_tests/modules_02b.py",
                                                                         "first_line": 5,
                                                                         "first_column": 11,
@@ -764,8 +764,8 @@
                                                                 }
                                                             },
                                                             "loc": {
-                                                                "first": 184,
-                                                                "last": 188,
+                                                                "first": 181,
+                                                                "last": 185,
                                                                 "first_filename": "tests/../integration_tests/modules_02b.py",
                                                                 "first_line": 5,
                                                                 "first_column": 11,
@@ -779,8 +779,8 @@
                                                     "end": []
                                                 },
                                                 "loc": {
-                                                    "first": 178,
-                                                    "last": 189,
+                                                    "first": 175,
+                                                    "last": 186,
                                                     "first_filename": "tests/../integration_tests/modules_02b.py",
                                                     "first_line": 5,
                                                     "first_column": 5,
@@ -797,8 +797,8 @@
                                         "module_file": []
                                     },
                                     "loc": {
-                                        "first": 157,
-                                        "last": 189,
+                                        "first": 154,
+                                        "last": 186,
                                         "first_filename": "tests/../integration_tests/modules_02b.py",
                                         "first_line": 3,
                                         "first_column": 1,
@@ -819,8 +819,8 @@
                                         "access": "Public"
                                     },
                                     "loc": {
-                                        "first": 154,
-                                        "last": 154,
+                                        "first": 151,
+                                        "last": 151,
                                         "first_filename": "tests/../integration_tests/modules_02b.py",
                                         "first_line": 1,
                                         "first_column": 25,
@@ -839,8 +839,8 @@
                         "intrinsic": false
                     },
                     "loc": {
-                        "first": 130,
-                        "last": 189,
+                        "first": 127,
+                        "last": 186,
                         "first_filename": "tests/../integration_tests/modules_02b.py",
                         "first_line": 1,
                         "first_column": 1,
@@ -880,8 +880,8 @@
                                                 "is_restriction": false
                                             },
                                             "loc": {
-                                                "first": 191,
-                                                "last": 215,
+                                                "first": 188,
+                                                "last": 212,
                                                 "first_filename": "tests/../integration_tests/modules_02c.py",
                                                 "first_line": 1,
                                                 "first_column": 1,
@@ -910,8 +910,8 @@
                                                                         "len_expr": []
                                                                     },
                                                                     "loc": {
-                                                                        "first": 210,
-                                                                        "last": 214,
+                                                                        "first": 207,
+                                                                        "last": 211,
                                                                         "first_filename": "tests/../integration_tests/modules_02c.py",
                                                                         "first_line": 2,
                                                                         "first_column": 11,
@@ -922,8 +922,8 @@
                                                                 }
                                                             },
                                                             "loc": {
-                                                                "first": 210,
-                                                                "last": 214,
+                                                                "first": 207,
+                                                                "last": 211,
                                                                 "first_filename": "tests/../integration_tests/modules_02c.py",
                                                                 "first_line": 2,
                                                                 "first_column": 11,
@@ -937,8 +937,8 @@
                                                     "end": []
                                                 },
                                                 "loc": {
-                                                    "first": 204,
-                                                    "last": 215,
+                                                    "first": 201,
+                                                    "last": 212,
                                                     "first_filename": "tests/../integration_tests/modules_02c.py",
                                                     "first_line": 2,
                                                     "first_column": 5,
@@ -955,8 +955,8 @@
                                         "module_file": []
                                     },
                                     "loc": {
-                                        "first": 191,
-                                        "last": 215,
+                                        "first": 188,
+                                        "last": 212,
                                         "first_filename": "tests/../integration_tests/modules_02c.py",
                                         "first_line": 1,
                                         "first_column": 1,
@@ -973,8 +973,8 @@
                         "intrinsic": false
                     },
                     "loc": {
-                        "first": 191,
-                        "last": 215,
+                        "first": 188,
+                        "last": 212,
                         "first_filename": "tests/../integration_tests/modules_02c.py",
                         "first_line": 1,
                         "first_column": 1,
@@ -989,7 +989,7 @@
     },
     "loc": {
         "first": 0,
-        "last": 128,
+        "last": 125,
         "first_filename": "tests/../integration_tests/modules_02.py",
         "first_line": 1,
         "first_column": 1,

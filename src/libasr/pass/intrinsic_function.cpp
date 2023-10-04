@@ -75,12 +75,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
         }
         ASR::expr_t* current_expr_ = instantiate_function(al, x->base.base.loc,
             global_scope, arg_types, x->m_type, new_args, x->m_overload_id);
-        if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*(*current_expr)) ) {
-            ASR::ArrayPhysicalCast_t* array_physical_cast_t = ASR::down_cast<ASR::ArrayPhysicalCast_t>(*current_expr);
-            array_physical_cast_t->m_arg = current_expr_;
-        } else {
-            *current_expr = current_expr_;
-        }
+        *current_expr = current_expr_;
     }
 
     void replace_IntrinsicArrayFunction(ASR::IntrinsicArrayFunction_t* x) {
@@ -120,12 +115,7 @@ class ReplaceIntrinsicFunctions: public ASR::BaseExprReplacer<ReplaceIntrinsicFu
         ASR::expr_t* current_expr_ = instantiate_function(al, x->base.base.loc,
             global_scope, arg_types, x->m_type, new_args, x->m_overload_id);
         ASR::expr_t* func_call = current_expr_;
-        if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*(*current_expr)) ) {
-            ASR::ArrayPhysicalCast_t* array_physical_cast_t = ASR::down_cast<ASR::ArrayPhysicalCast_t>(*current_expr);
-            array_physical_cast_t->m_arg = current_expr_;
-        } else {
-            *current_expr = current_expr_;
-        }
+        *current_expr = current_expr_;
         if (ASR::is_a<ASR::FunctionCall_t>(*func_call)) {
             ASR::symbol_t *call_sym = ASRUtils::symbol_get_past_external(
                 ASR::down_cast<ASR::FunctionCall_t>(func_call)->m_name);
@@ -287,7 +277,7 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
         ASR::expr_t* result_var_ = nullptr;
         int dim_index = ASRUtils::IntrinsicArrayFunctionRegistry::
             get_dim_index(func2intrinsicid[x_m_name]);
-        if( dim_index != -1 ) {
+        if( dim_index == 1 ) {
             ASR::expr_t* dim = x->m_args[dim_index].m_value;
             if( !ASRUtils::is_value_constant(ASRUtils::expr_value(dim)) ) {
                 // Possibly can be replaced by calling "get_result_var_for_runtime_dim"
@@ -302,6 +292,12 @@ class ReplaceFunctionCallReturningArray: public ASR::BaseExprReplacer<ReplaceFun
                     throw LCompilersException("Constant dimension cannot be extracted.");
                 }
             }
+        } else if ( dim_index == 2 ) {
+            result_var_ = PassUtils::create_var(result_counter,
+                std::string(ASRUtils::symbol_name(x->m_name)) + "_res",
+                x->base.base.loc, x->m_type, al, current_scope);
+        } else {
+            LCOMPILERS_ASSERT(false);
         }
         result_counter += 1;
         ASR::call_arg_t new_arg;
@@ -366,21 +362,12 @@ class ReplaceFunctionCallReturningArrayVisitor : public ASR::CallReplacerOnExpre
             pass_result.n = 0;
         }
 
-        void visit_Assignment(const ASR::Assignment_t& x) {
-            ASR::CallReplacerOnExpressionsVisitor<
-                ReplaceFunctionCallReturningArrayVisitor>::visit_Assignment(x);
-            ASR::Assignment_t& xx = const_cast<ASR::Assignment_t&>(x);
-            if( ASR::is_a<ASR::ArrayPhysicalCast_t>(*x.m_value) ) {
-                xx.m_value = ASR::down_cast<ASR::ArrayPhysicalCast_t>(x.m_value)->m_arg;
-            }
-        }
-
 };
 
 void pass_replace_intrinsic_function(Allocator &al, ASR::TranslationUnit_t &unit,
                              const LCompilers::PassOptions& /*pass_options*/) {
     std::map<ASR::symbol_t*, ASRUtils::IntrinsicArrayFunctions> func2intrinsicid;
-    ReplaceIntrinsicFunctionsVisitor v(al, unit.m_global_scope, func2intrinsicid);
+    ReplaceIntrinsicFunctionsVisitor v(al, unit.m_symtab, func2intrinsicid);
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallReturningArrayVisitor u(al, func2intrinsicid);
     u.visit_TranslationUnit(unit);

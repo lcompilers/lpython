@@ -164,6 +164,7 @@ public:
                 c_decl_options_.use_static = true;
                 c_decl_options_.force_declare = true;
                 c_decl_options_.force_declare_name = mem_var_name;
+                c_decl_options_.do_not_initialize = true;
                 sub += indent + convert_variable_decl(*mem_var, &c_decl_options_) + ";\n";
                 if( !ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
                     sub += indent + name + "->" + itr.first + " = " + mem_var_name + ";\n";
@@ -232,6 +233,7 @@ public:
         std::string force_declare_name;
         bool declare_as_constant;
         std::string const_name;
+        bool do_not_initialize;
 
         if( decl_options ) {
             CDeclarationOptions* c_decl_options = reinterpret_cast<CDeclarationOptions*>(decl_options);
@@ -242,6 +244,7 @@ public:
             force_declare_name = c_decl_options->force_declare_name;
             declare_as_constant = c_decl_options->declare_as_constant;
             const_name = c_decl_options->const_name;
+            do_not_initialize = c_decl_options->do_not_initialize;
         } else {
             pre_initialise_derived_type = true;
             use_ptr_for_derived_type = true;
@@ -250,6 +253,7 @@ public:
             force_declare_name = "";
             declare_as_constant = false;
             const_name = "";
+            do_not_initialize = false;
         }
         std::string sub;
         bool use_ref = (v.m_intent == ASRUtils::intent_out ||
@@ -412,7 +416,7 @@ public:
                     !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
                       ASR::is_a<ASR::StructType_t>(
                         *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) &&
-                    !(dims.size() == 0 && v.m_symbolic_value)) {
+                    !(dims.size() == 0 && v.m_symbolic_value) && !do_not_initialize) {
                     sub += " = NULL";
                     return sub;
                 }
@@ -439,7 +443,7 @@ public:
                     std::string value_var_name = v.m_parent_symtab->get_unique_name(std::string(v.m_name) + "_value");
                     sub = format_type_c(dims, "struct " + der_type_name,
                                         value_var_name, use_ref, dummy);
-                    if (v.m_symbolic_value) {
+                    if (v.m_symbolic_value && !do_not_initialize) {
                         this->visit_expr(*v.m_symbolic_value);
                         std::string init = src;
                         sub += "=" + init;
@@ -543,7 +547,7 @@ public:
             if (dims.size() == 0 && v.m_storage == ASR::storage_typeType::Save && use_static) {
                 sub = "static " + sub;
             }
-            if (dims.size() == 0 && v.m_symbolic_value) {
+            if (dims.size() == 0 && v.m_symbolic_value && !do_not_initialize) {
                 ASR::expr_t* init_expr = v.m_symbolic_value;
                 if( !ASR::is_a<ASR::Const_t>(*v.m_type) ) {
                     for( size_t i = 0; i < v.n_dependencies; i++ ) {
@@ -573,7 +577,7 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         is_string_concat_present = false;
-        global_scope = x.m_global_scope;
+        global_scope = x.m_symtab;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -601,7 +605,7 @@ R"(
         std::string tab(indentation_spaces, ' ');
 
         std::string unit_src_tmp;
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 unit_src_tmp = convert_variable_decl(*v);
@@ -614,7 +618,7 @@ R"(
 
 
         std::map<std::string, std::vector<std::string>> struct_dep_graph;
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::StructType_t>(*item.second) ||
                 ASR::is_a<ASR::EnumType_t>(*item.second) ||
                 ASR::is_a<ASR::UnionType_t>(*item.second)) {
@@ -630,14 +634,14 @@ R"(
         std::vector<std::string> struct_deps = ASRUtils::order_deps(struct_dep_graph);
 
         for (auto &item : struct_deps) {
-            ASR::symbol_t* struct_sym = x.m_global_scope->get_symbol(item);
+            ASR::symbol_t* struct_sym = x.m_symtab->get_symbol(item);
             visit_symbol(*struct_sym);
             array_types_decls += src;
         }
 
         // Topologically sort all global functions
         // and then define them in the right order
-        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_global_scope);
+        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
 
         unit_src += "\n";
         unit_src += "// Implementations\n";
@@ -647,10 +651,10 @@ R"(
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                    != x.m_global_scope->get_scope().end());
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                    != x.m_symtab->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                    ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                     if( ASRUtils::get_body_size(mod) != 0 ) {
                         visit_symbol(*mod);
                         unit_src += src;
@@ -662,7 +666,7 @@ R"(
         // Process global functions
         size_t i;
         for (i = 0; i < global_func_order.size(); i++) {
-            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(global_func_order[i]);
             // Ignore external symbols because they are already defined by the loop above.
             if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
                 continue ;
@@ -675,17 +679,17 @@ R"(
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                != x.m_global_scope->get_scope().end());
+            LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                != x.m_symtab->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 visit_symbol(*mod);
                 unit_src += src;
             }
         }
 
         // Then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
@@ -877,6 +881,7 @@ R"(    // Initialise Numpy
         CDeclarationOptions c_decl_options_;
         c_decl_options_.pre_initialise_derived_type = false;
         c_decl_options_.use_ptr_for_derived_type = false;
+        c_decl_options_.do_not_initialize = true;
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
@@ -1045,7 +1050,6 @@ R"(    // Initialise Numpy
         bracket_open++;
         visit_expr(*x.m_test);
         std::string test_condition = src;
-
         if (x.m_msg) {
             this->visit_expr(*x.m_msg);
             std::string tmp_gen = "";
@@ -1291,7 +1295,7 @@ R"(    // Initialise Numpy
             if( is_data_only_array ) {
                 current_index += src;
                 for( size_t j = i + 1; j < x.n_args; j++ ) {
-                    int64_t dim_size;
+                    int64_t dim_size = 0;
                     ASRUtils::extract_value(m_dims[j].m_length, dim_size);
                     std::string length = std::to_string(dim_size);
                     current_index += " * " + length;

@@ -747,7 +747,7 @@ filename = "errors/structs_10.py"
 asr = true
 
 [[test]]
-filename = "errors/structs_11.py"
+filename = "structs_11.py"
 llvm = true
 
 [[test]]
@@ -998,6 +998,14 @@ asr = true
 
 [[test]]
 filename = "errors/test_dict14.py"
+run = true
+
+[[test]]
+filename = "errors/test_dict15.py"
+run = true
+
+[[test]]
+filename = "errors/test_dict16.py"
 run = true
 
 [[test]]

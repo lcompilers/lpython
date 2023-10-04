@@ -29,7 +29,7 @@ void pass_wrap_global_stmts(Allocator &al,
     Str s;
     s.from_str_view(fn_name_s);
     char *fn_name = s.c_str(al);
-    SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
+    SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_symtab);
 
     ASR::ttype_t *type;
     Location loc = unit.base.base.loc;
@@ -126,10 +126,10 @@ void pass_wrap_global_stmts(Allocator &al,
         nullptr, 0,
         false, false, false);
     std::string sym_name = fn_name;
-    if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
+    if (unit.m_symtab->get_symbol(sym_name) != nullptr) {
         throw LCompilersException("Function already defined");
     }
-    unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
+    unit.m_symtab->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
     unit.m_items = nullptr;
     unit.n_items = 0;
     PassUtils::UpdateDependenciesVisitor v(al);

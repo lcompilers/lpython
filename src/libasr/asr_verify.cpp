@@ -94,19 +94,19 @@ public:
     }
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
-        current_symtab = x.m_global_scope;
-        require(x.m_global_scope != nullptr,
-            "The TranslationUnit::m_global_scope cannot be nullptr");
-        require(x.m_global_scope->parent == nullptr,
-            "The TranslationUnit::m_global_scope->parent must be nullptr");
-        require(id_symtab_map.find(x.m_global_scope->counter) == id_symtab_map.end(),
-            "TranslationUnit::m_global_scope->counter must be unique");
-        require(x.m_global_scope->asr_owner == (ASR::asr_t*)&x,
-            "The TranslationUnit::m_global_scope::asr_owner must point to itself");
-        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_global_scope == current_symtab,
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The TranslationUnit::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == nullptr,
+            "The TranslationUnit::m_symtab->parent must be nullptr");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "TranslationUnit::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The TranslationUnit::m_symtab::asr_owner must point to itself");
+        require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_symtab == current_symtab,
             "The asr_owner invariant failed");
-        id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
-        for (auto &a : x.m_global_scope->get_scope()) {
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_items; i++) {
@@ -867,8 +867,10 @@ public:
 
     void visit_ArrayPhysicalCast(const ASR::ArrayPhysicalCast_t& x) {
         BaseWalkVisitor<VerifyVisitor>::visit_ArrayPhysicalCast(x);
-        require(x.m_new != x.m_old, "ArrayPhysicalCast is redundant, "
-            "the old physical type and new physical type must be different.");
+        if( x.m_old != ASR::array_physical_typeType::DescriptorArray ) {
+            require(x.m_new != x.m_old, "ArrayPhysicalCast is redundant, "
+                "the old physical type and new physical type must be different.");
+        }
         require(x.m_new == ASRUtils::extract_physical_type(x.m_type),
             "Destination physical type conflicts with the physical type of target");
         require(x.m_old == ASRUtils::extract_physical_type(ASRUtils::expr_type(x.m_arg)),
@@ -1074,7 +1076,8 @@ public:
         if( fn && ASR::is_a<ASR::Function_t>(*fn) ) {
             ASR::Function_t* fn_ = ASR::down_cast<ASR::Function_t>(fn);
             require(fn_->m_return_var != nullptr,
-                    "FunctionCall::m_name must be returning a non-void value.");
+                    "FunctionCall::m_name " + std::string(fn_->m_name) +
+                    " must be returning a non-void value.");
         }
         verify_args(x);
         visit_ttype(*x.m_type);
@@ -1149,7 +1152,8 @@ public:
         for( size_t i = 0; i < x.n_args; i++ ) {
             require(ASR::is_a<ASR::Allocatable_t>(*ASRUtils::expr_type(x.m_args[i].m_a)) ||
                     ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_args[i].m_a)),
-                "Allocate should only be called with  Allocatable or Pointer type inputs");
+                "Allocate should only be called with  Allocatable or Pointer type inputs, found " +
+                std::string(ASRUtils::get_type_code(ASRUtils::expr_type(x.m_args[i].m_a))));
         }
         BaseWalkVisitor<VerifyVisitor>::visit_Allocate(x);
     }

@@ -52,7 +52,7 @@ std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit)
 {
     std::map<std::string, std::vector<std::string>> deps;
-    for (auto &item : unit.m_global_scope->get_scope()) {
+    for (auto &item : unit.m_symtab->get_scope()) {
         if (ASR::is_a<ASR::Module_t>(*item.second)) {
             std::string name = item.first;
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
@@ -116,7 +116,7 @@ void extract_module_python(const ASR::TranslationUnit_t &m,
                 std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
                 std::string module_name) {
     bool module_found = false;
-    for (auto &a : m.m_global_scope->get_scope()) {
+    for (auto &a : m.m_symtab->get_scope()) {
         if( ASR::is_a<ASR::Module_t>(*a.second) ) {
             if( a.first == "__main__" ) {
                 module_found = true;
@@ -219,8 +219,8 @@ void update_call_args(Allocator &al, SymbolTable *current_scope, bool implicit_i
 }
 
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
-    LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
-    for (auto &a : m.m_global_scope->get_scope()) {
+    LCOMPILERS_ASSERT(m.m_symtab->get_scope().size()== 1);
+    for (auto &a : m.m_symtab->get_scope()) {
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         return ASR::down_cast<ASR::Module_t>(a.second);
     }
@@ -370,7 +370,7 @@ void set_intrinsic(ASR::symbol_t* sym) {
 }
 
 void set_intrinsic(ASR::TranslationUnit_t* trans_unit) {
-    for( auto& itr: trans_unit->m_global_scope->get_scope() ) {
+    for( auto& itr: trans_unit->m_symtab->get_scope() ) {
         set_intrinsic(itr.second);
     }
 }
@@ -1351,6 +1351,47 @@ ASR::symbol_t* import_class_procedure(Allocator &al, const Location& loc,
         }
     }
     return original_sym;
+}
+
+ASR::asr_t* make_Binop_util(Allocator &al, const Location& loc, ASR::binopType binop,
+                        ASR::expr_t* lexpr, ASR::expr_t* rexpr, ASR::ttype_t* ttype) {
+    switch (ttype->type) {
+        case ASR::ttypeType::Real: {
+            return ASR::make_RealBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        case ASR::ttypeType::Integer: {
+            return ASR::make_IntegerBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::make_ComplexBinOp_t(al, loc, lexpr, binop, rexpr,
+                ASRUtils::duplicate_type(al, ttype), nullptr);
+        }
+        default:
+            throw LCompilersException("Not implemented " + std::to_string(ttype->type));
+    }
+}
+
+ASR::asr_t* make_Cmpop_util(Allocator &al, const Location& loc, ASR::cmpopType cmpop,
+                        ASR::expr_t* lexpr, ASR::expr_t* rexpr, ASR::ttype_t* ttype) {
+    ASR::ttype_t* expr_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4));
+    switch (ttype->type) {
+        case ASR::ttypeType::Real: {
+            return ASR::make_RealCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Integer: {
+            return ASR::make_IntegerCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::make_ComplexCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        case ASR::ttypeType::Character: {
+            return ASR::make_StringCompare_t(al, loc, lexpr, cmpop, rexpr, expr_type, nullptr);
+        }
+        default:
+            throw LCompilersException("Not implemented " + std::to_string(ttype->type));
+    }
 }
 
 //Initialize pointer to zero so that it can be initialized in first call to get_instance

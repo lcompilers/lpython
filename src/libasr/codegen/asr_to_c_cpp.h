@@ -28,7 +28,7 @@
 #include <map>
 #include <tuple>
 
-#define CHECK_FAST_C_CPP(compiler_options, x)                         \
+#define CHECK_FAST_C_CPP(compiler_options, x)                   \
         if (compiler_options.fast && x.m_value != nullptr) {    \
             self().visit_expr(*x.m_value);                      \
             return;                                             \
@@ -61,6 +61,7 @@ struct CDeclarationOptions: public DeclarationOptions {
     std::string force_declare_name;
     bool declare_as_constant;
     std::string const_name;
+    bool do_not_initialize;
 
     CDeclarationOptions() :
     pre_initialise_derived_type{true},
@@ -69,7 +70,8 @@ struct CDeclarationOptions: public DeclarationOptions {
     force_declare{false},
     force_declare_name{""},
     declare_as_constant{false},
-    const_name{""} {
+    const_name{""},
+    do_not_initialize{false} {
     }
 };
 
@@ -211,7 +213,7 @@ public:
               ds_funcs_defined + util_funcs_defined;
     }
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        global_scope = x.m_global_scope;
+        global_scope = x.m_symtab;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LCOMPILERS_ASSERT(x.n_items == 0);
@@ -234,10 +236,10 @@ R"(#include <stdio.h>
             std::vector<std::string> build_order
                 = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                    != x.m_global_scope->get_scope().end());
+                LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                    != x.m_symtab->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                    ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                     self().visit_symbol(*mod);
                     unit_src += src;
                 }
@@ -245,7 +247,7 @@ R"(#include <stdio.h>
         }
 
         // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 self().visit_symbol(*item.second);
                 unit_src += src;
@@ -256,17 +258,17 @@ R"(#include <stdio.h>
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
-                != x.m_global_scope->get_scope().end());
+            LCOMPILERS_ASSERT(x.m_symtab->get_scope().find(item)
+                != x.m_symtab->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                ASR::symbol_t *mod = x.m_symtab->get_symbol(item);
                 self().visit_symbol(*mod);
                 unit_src += src;
             }
         }
 
         // Then the main program:
-        for (auto &item : x.m_global_scope->get_scope()) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 self().visit_symbol(*item.second);
                 unit_src += src;
@@ -684,8 +686,9 @@ R"(#include <stdio.h>
         for (auto &item : scope.get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                t = declare_all_functions(*s->m_symtab);
                 bool has_typevar = false;
-                t = get_function_declaration(*s, has_typevar);
+                t += get_function_declaration(*s, has_typevar);
                 if (!has_typevar) code += t  + ";\n";
             }
         }
@@ -722,6 +725,15 @@ R"(#include <stdio.h>
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        std::string sub = "";
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(item.second);
+                visit_Function(*f);
+                sub += src + "\n";
+            }
+        }
+
         current_body = "";
         SymbolTable* current_scope_copy = current_scope;
         current_scope = x.m_symtab;
@@ -767,7 +779,7 @@ R"(#include <stdio.h>
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         bool has_typevar = false;
-        std::string sub = get_function_declaration(x, has_typevar);
+        sub += get_function_declaration(x, has_typevar);
         if (has_typevar) {
             src = "";
             return;
@@ -1056,6 +1068,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
                     || (is_c && (param->m_intent == ASRUtils::intent_inout
                     || param->m_intent == ASRUtils::intent_out)
                     && !ASRUtils::is_aggregate_type(param->m_type))) {
+                    args += "&" + src;
+                } else {
+                    args += src;
+                }
+            } else if (ASR::is_a<ASR::ArrayItem_t>(*m_args[i].m_value)) {
+                ASR::Variable_t* param = ASRUtils::EXPR2VAR(f->m_args[i]);
+                if (param->m_intent == ASRUtils::intent_inout
+                    || param->m_intent == ASRUtils::intent_out || ASR::is_a<ASR::Struct_t>(*type)) {
                     args += "&" + src;
                 } else {
                     args += src;
@@ -1612,7 +1632,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         tmp_buffer_src.push_back(tmp_src_gen);
-        src = "(*" + var_name + ")";
+        src = "(* " + var_name + ")";
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
@@ -1625,6 +1645,20 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string list_var = std::move(src);
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = check_tmp_buffer() + indent + list_clear_func + "(&" + list_var + ");\n";
+    }
+
+    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
+        CHECK_FAST_C_CPP(compiler_options, x)
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
+        std::string list_repeat_func = c_ds_api->get_list_repeat_func(t);
+        bracket_open++;
+        self().visit_expr(*x.m_left);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string freq = std::move(src);
+        bracket_open--;
+        tmp_buffer_src.push_back(check_tmp_buffer());
+        src = "(*" + list_repeat_func + "(&" + list_var + ", " + freq + "))";
     }
 
     void visit_ListCompare(const ASR::ListCompare_t& x) {
@@ -1675,20 +1709,6 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = check_tmp_buffer();
         src += indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
-    }
-
-    void visit_ListRepeat(const ASR::ListRepeat_t& x) {
-        CHECK_FAST_C_CPP(compiler_options, x)
-        ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
-        std::string list_repeat_func = c_ds_api->get_list_repeat_func(t);
-        bracket_open++;
-        self().visit_expr(*x.m_left);
-        std::string list_var = std::move(src);
-        self().visit_expr(*x.m_right);
-        std::string freq = std::move(src);
-        bracket_open--;
-        tmp_buffer_src.push_back(check_tmp_buffer());
-        src = "(*" + list_repeat_func + "(&" + list_var + ", " + freq + "))";
     }
 
     void visit_ListLen(const ASR::ListLen_t& x) {
@@ -2571,12 +2591,14 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
     void visit_GoTo(const ASR::GoTo_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        src =  indent + "goto " + std::string(x.m_name) + ";\n";
-        gotoid2name[x.m_target_id] = std::string(x.m_name);
+        std::string goto_c_name = "__c__goto__" + std::string(x.m_name);
+        src =  indent + "goto " + goto_c_name + ";\n";
+        gotoid2name[x.m_target_id] = goto_c_name;
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t &x) {
-        src = std::string(x.m_name) + ":\n";
+        std::string goto_c_name = "__c__goto__" + std::string(x.m_name);
+        src = goto_c_name + ":\n";
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
@@ -2759,6 +2781,7 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
         }
 
     void visit_IntrinsicScalarFunction(const ASR::IntrinsicScalarFunction_t &x) {
+        CHECK_FAST_C_CPP(compiler_options, x);
         std::string out;
         std::string indent(4, ' ');
         switch (x.m_intrinsic_id) {
@@ -2775,6 +2798,8 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
             SET_INTRINSIC_NAME(Exp, "exp");
             SET_INTRINSIC_NAME(Exp2, "exp2");
             SET_INTRINSIC_NAME(Expm1, "expm1");
+            SET_INTRINSIC_NAME(Trunc, "trunc");
+            SET_INTRINSIC_NAME(Fix, "fix");
             default : {
                 throw LCompilersException("IntrinsicScalarFunction: `"
                     + ASRUtils::get_intrinsic_name(x.m_intrinsic_id)
