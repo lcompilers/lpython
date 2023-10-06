@@ -1,5 +1,3 @@
-from lpython import i32
-
 def f():
     x: str
     x = "ok"
