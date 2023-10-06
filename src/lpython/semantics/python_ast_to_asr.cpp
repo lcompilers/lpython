@@ -5989,6 +5989,12 @@ public:
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
             visit_AttributeUtil(p->m_type, attr_char, t, loc);
+        } else if(ASR::is_a<ASR::SymbolicExpression_t>(*type)) {
+            std::string attr = attr_char;
+            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 0);
+            handle_symbolic_attribute(se, attr, loc, args);
         } else {
             throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
                 loc);

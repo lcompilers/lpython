@@ -626,6 +626,45 @@ public:
         return module_scope->get_symbol(name);
     }
 
+    ASR::symbol_t* declare_basic_get_type_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
+        std::string name = "basic_get_type";
+        symbolic_dependencies.push_back(name);
+        if (!module_scope->get_symbol(name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, fn_symtab->get_symbol("_lpython_return_variable")));
+            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
+            module_scope->add_symbol(s2c(al, name), symbol);
+        }
+        return module_scope->get_symbol(name);
+    }
+
     ASR::expr_t* process_attributes(Allocator &al, const Location &loc, ASR::expr_t* expr,
         SymbolTable* module_scope) {
         if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*expr)) {
@@ -692,6 +731,97 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr, nullptr));
                     break;
                 }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicFuncQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+
+                    // Declare a temporary integer variable
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4));
+                    ASR::symbol_t* int_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, loc, current_scope,
+                                        s2c(al, "temp_integer"), nullptr, 0,
+                                        ASR::intentType::Local, nullptr,
+                                        nullptr, ASR::storage_typeType::Default, int_type, nullptr,
+                                        ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false));
+
+                    if (!current_scope->get_symbol(s2c(al, "temp_integer"))) {
+                        current_scope->add_symbol(s2c(al, "temp_integer"), int_sym);
+                    }
+                    ASR::symbol_t* temp_int_sym = current_scope->get_symbol("temp_integer");
+                    ASR::expr_t* target_int = ASRUtils::EXPR(ASR::make_Var_t(al, loc, temp_int_sym));
+                    ASR::stmt_t* stmt1 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target_int, function_call, nullptr));
+                    pass_result.push_back(al, stmt1);
+
+                    // Declare a temporary string variable
+                    ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr));
+                    ASR::symbol_t* str_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, loc, current_scope,
+                                        s2c(al, "temp_string"), nullptr, 0,
+                                        ASR::intentType::Local, nullptr,
+                                        nullptr, ASR::storage_typeType::Default, char_type, nullptr,
+                                        ASR::abiType::Source, ASR::Public, ASR::presenceType::Required, false));
+
+                    if (!current_scope->get_symbol(s2c(al, "temp_string"))) {
+                        current_scope->add_symbol(s2c(al, "temp_string"), str_sym);
+                    }
+                    ASR::symbol_t* temp_str_sym = current_scope->get_symbol("temp_string");
+                    ASR::expr_t* target_str = ASRUtils::EXPR(ASR::make_Var_t(al, loc, temp_str_sym));
+                    ASR::stmt_t* stmt2 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target_str,
+                        ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, ""),
+                        ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, 0, nullptr)))), nullptr));
+                    pass_result.push_back(al, stmt2);
+
+                    // If statement 1
+                    // Using 17 as the right value of the IntegerCompare node as it represents SYMENGINE_POW through SYMENGINE_ENUM
+                    ASR::expr_t* int_cmp_with_17 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, target_int, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 17, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    ASR::ttype_t *str_type_len_3 = ASRUtils::TYPE(ASR::make_Character_t(
+                        al, loc, 1, 3, nullptr));
+                    Vec<ASR::stmt_t*> if_body1;
+                    if_body1.reserve(al, 1);
+                    ASR::stmt_t* stmt3 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target_str,
+                        ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, "Pow"), str_type_len_3)), nullptr));
+                    if_body1.push_back(al, stmt3);
+                    ASR::stmt_t* stmt4 = ASRUtils::STMT(ASR::make_If_t(al, loc, int_cmp_with_17, if_body1.p, if_body1.n, nullptr, 0));
+                    pass_result.push_back(al, stmt4);
+
+                    // If statement 2
+                    // Using 15 as the right value of the IntegerCompare node as it represents SYMENGINE_MUL through SYMENGINE_ENUM
+                    ASR::expr_t* int_cmp_with_15 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, target_int, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 15, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    Vec<ASR::stmt_t*> if_body2;
+                    if_body2.reserve(al, 1);
+                    ASR::stmt_t* stmt5 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target_str,
+                        ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, "MUL"), str_type_len_3)), nullptr));
+                    if_body2.push_back(al, stmt5);
+                    ASR::stmt_t* stmt6 = ASRUtils::STMT(ASR::make_If_t(al, loc, int_cmp_with_15, if_body2.p, if_body2.n, nullptr, 0));
+                    pass_result.push_back(al, stmt6);
+
+                    // If statement 3
+                    // Using 16 as the right value of the IntegerCompare node as it represents SYMENGINE_ADD through SYMENGINE_ENUM
+                    ASR::expr_t* int_cmp_with_16 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, target_int, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 16, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    Vec<ASR::stmt_t*> if_body3;
+                    if_body3.reserve(al, 1);
+                    ASR::stmt_t* stmt7 = ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target_str,
+                        ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, "Add"), str_type_len_3)), nullptr));
+                    if_body3.push_back(al, stmt7);
+                    ASR::stmt_t* stmt8 = ASRUtils::STMT(ASR::make_If_t(al, loc, int_cmp_with_16, if_body3.p, if_body3.n, nullptr, 0));
+                    pass_result.push_back(al, stmt8);
+
+                    return target_str;
+                    break;
+                }
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)
@@ -708,7 +838,8 @@ public:
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(x.m_value);
             if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
                 process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, x.m_target);
-            } else if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+            } else if ((intrinsic_func->m_type->type == ASR::ttypeType::Logical) ||
+                       (intrinsic_func->m_type->type == ASR::ttypeType::Character)) {
                 ASR::expr_t* function_call = process_attributes(al, x.base.base.loc, x.m_value, module_scope);
                 ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
                 pass_result.push_back(al, stmt);
@@ -882,7 +1013,8 @@ public:
                         basic_str_sym, basic_str_sym, call_args.p, call_args.n,
                         ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
                     print_tmp.push_back(function_call);
-                } else if (ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(val))) {
+                } else if (ASR::is_a<ASR::Logical_t>(*ASRUtils::expr_type(val)) ||
+                           ASR::is_a<ASR::Character_t>(*ASRUtils::expr_type(val))) {
                     ASR::expr_t* function_call = process_attributes(al, x.base.base.loc, val, module_scope);
                     print_tmp.push_back(function_call);
                 }
@@ -1049,7 +1181,17 @@ public:
 
             ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
             pass_result.push_back(al, assert_stmt);
-        } else if(ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) {
+        } else if (ASR::is_a<ASR::StringCompare_t>(*x.m_test)) {
+            ASR::StringCompare_t *st = ASR::down_cast<ASR::StringCompare_t>(x.m_test);
+
+            left_tmp = process_attributes(al, x.base.base.loc, st->m_left, module_scope);
+            right_tmp = process_attributes(al, x.base.base.loc, st->m_right, module_scope);
+            ASR::expr_t* test =  ASRUtils::EXPR(ASR::make_StringCompare_t(al, x.base.base.loc, left_tmp,
+                st->m_op, right_tmp, st->m_type, st->m_value));
+
+            ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+            pass_result.push_back(al, assert_stmt);
+        } else if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) {
             ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_test);
             SymbolTable* module_scope = current_scope->parent;
             ASR::expr_t* left_tmp = nullptr;
