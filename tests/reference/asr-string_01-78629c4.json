@@ -2,7 +2,7 @@
     "basename": "asr-string_01-78629c4",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/string_01.py",
-    "infile_hash": "92496679f4475e3351686f6556f0e68411437beed22a447f9a65bfdf",
+    "infile_hash": "6463d5b0d140abf583e4b2fd9218d720be61615c7d0e2ccd85f4c032",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

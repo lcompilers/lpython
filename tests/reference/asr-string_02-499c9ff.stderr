@@ -1,0 +1,5 @@
+semantic error: Arguments do not match for any generic procedure, _lpython_str_join
+ --> tests/errors/string_02.py:6:15
+  |
+6 |     res:str = x.join(p)
+  |               ^^^^^^^^^ 

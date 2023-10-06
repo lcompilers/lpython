@@ -68,15 +68,6 @@ def test_str_join3():
     res:str = a.join(p)
     assert res == "a**-b"
 
-# def test_str_join4():
-#     a: str
-#     p:i32 = 8
-#     try:
-#         res:str = a.join(p)
-#     except Exception as e:
-#         assert isinstance(e, SemanticError), "Expected a  SemanticError exception"
- 
-
 def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
