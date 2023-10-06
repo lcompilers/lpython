@@ -1,3 +1,5 @@
+from lpython import i32, SemanticError
+
 def f():
     x: str
     x = "ok"
@@ -59,6 +61,21 @@ def test_str_join2():
     res:str = a.join(p)
     assert res == "a**b"
 
+def test_str_join3():
+    a: str
+    a = "**-"
+    p:list[str] = ["a","b"]
+    res:str = a.join(p)
+    assert res == "a**-b"
+
+# def test_str_join4():
+#     a: str
+#     p:i32 = 8
+#     try:
+#         res:str = a.join(p)
+#     except Exception as e:
+#         assert isinstance(e, SemanticError), "Expected a  SemanticError exception"
+ 
 
 def test_constant_str_subscript():
     assert "abc"[2] == "c"
@@ -71,6 +88,8 @@ def check():
     test_str_slice()
     test_str_repeat()
     test_str_join()
+    test_str_join2()
+    test_str_join3()
     test_constant_str_subscript()
 
 check()

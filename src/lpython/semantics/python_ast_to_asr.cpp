@@ -34,7 +34,6 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
-
 namespace LCompilers::LPython {
 
 namespace CastingUtil {
@@ -6668,6 +6667,12 @@ public:
             if (args.size() != 1) {
                 throw SemanticError("str.join() takes one argument",
                     loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if(!ASR::is_a<ASR::List_t>(*arg_sub_type)){
+                throw SemanticError("str.join() takes type list only",
+                     loc);
             }
             fn_call_name = "_lpython_str_join";
             ASR::call_arg_t str_var;
