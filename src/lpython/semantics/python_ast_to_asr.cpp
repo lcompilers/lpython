@@ -34,7 +34,6 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
-
 namespace LCompilers::LPython {
 
 namespace CastingUtil {
@@ -6669,15 +6668,21 @@ public:
                 throw SemanticError("str.join() takes one argument",
                     loc);
             }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if(!ASR::is_a<ASR::List_t>(*arg_sub_type)){
+                throw SemanticError("str.join() takes type list only",
+                     loc);
+            }
             fn_call_name = "_lpython_str_join";
             ASR::call_arg_t str_var;
             str_var.loc = loc;
             str_var.m_value = s_var;
-            ASR::call_arg_t passed_int;
-            passed_int.loc = loc;
-            passed_int.m_value = args[0].m_value;
+            ASR::call_arg_t list_of_str;
+            list_of_str.loc = loc;
+            list_of_str.m_value = args[0].m_value;
             fn_args.push_back(al, str_var);
-            fn_args.push_back(al, passed_int);
+            fn_args.push_back(al, list_of_str);
         } else if (attr_name == "find") {
             if (args.size() != 1) {
                 throw SemanticError("str.find() takes one argument",

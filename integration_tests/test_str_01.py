@@ -59,6 +59,19 @@ def test_str_join2():
     res:str = a.join(p)
     assert res == "a**b"
 
+def test_str_join_empty_str():
+    a: str
+    a = ""
+    p:list[str] = ["a","b"]
+    res:str = a.join(p)
+    assert res == "ab"
+
+def test_str_join_empty_list():
+    a: str
+    a = "ab"
+    p:list[str] = []
+    res:str = a.join(p)
+    assert res == ""
 
 def test_constant_str_subscript():
     assert "abc"[2] == "c"
@@ -71,6 +84,9 @@ def check():
     test_str_slice()
     test_str_repeat()
     test_str_join()
+    test_str_join2()
+    test_str_join_empty_str()
+    test_str_join_empty_list()
     test_constant_str_subscript()
 
 check()
