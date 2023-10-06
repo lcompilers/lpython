@@ -68,6 +68,7 @@ def test_str_join3():
     res:str = a.join(p)
     assert res == "a**-b"
 
+
 def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
