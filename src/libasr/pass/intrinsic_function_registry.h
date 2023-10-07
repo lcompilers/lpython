@@ -1982,8 +1982,9 @@ namespace FloorDiv {
         ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
         ASRUtils::require_impl((is_integer(*type1) && is_integer(*type2)) ||
                                 (is_unsigned_integer(*type1) && is_unsigned_integer(*type2)) ||
-                                (is_real(*type1) && is_real(*type2)),
-            "ASR Verify: Arguments to FloorDiv must be of real, integer or unsigned integer type",
+                                (is_real(*type1) && is_real(*type2)) ||
+                                (is_logical(*type1) && is_logical(*type2)),
+            "ASR Verify: Arguments to FloorDiv must be of real, integer, unsigned integer or logical type",
             x.base.base.loc, diagnostics);
     }
 
@@ -1995,6 +1996,8 @@ namespace FloorDiv {
         bool is_int2 = is_integer(*ASRUtils::expr_type(args[1]));
         bool is_unsigned_int1 = is_unsigned_integer(*ASRUtils::expr_type(args[0]));
         bool is_unsigned_int2 = is_unsigned_integer(*ASRUtils::expr_type(args[1]));
+        bool is_logical1 = is_logical(*ASRUtils::expr_type(args[0]));
+        bool is_logical2 = is_logical(*ASRUtils::expr_type(args[1]));
 
         if (is_int1 && is_int2) {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
@@ -2004,6 +2007,10 @@ namespace FloorDiv {
             int64_t a = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(args[0])->m_n;
             int64_t b = ASR::down_cast<ASR::UnsignedIntegerConstant_t>(args[1])->m_n;
             return make_ConstantWithType(make_UnsignedIntegerConstant_t, a / b, t1, loc);
+        } else if (is_logical1 && is_logical2) {
+            bool a = ASR::down_cast<ASR::LogicalConstant_t>(args[0])->m_value;
+            bool b = ASR::down_cast<ASR::LogicalConstant_t>(args[1])->m_value;
+            return make_ConstantWithType(make_LogicalConstant_t, a / b, t1, loc);
         } else if (is_real1 && is_real2) {
             double a = ASR::down_cast<ASR::RealConstant_t>(args[0])->m_r;
             double b = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
@@ -2027,8 +2034,9 @@ namespace FloorDiv {
         ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
         if (!((ASRUtils::is_integer(*type1) && ASRUtils::is_integer(*type2)) ||
             (ASRUtils::is_unsigned_integer(*type1) && ASRUtils::is_unsigned_integer(*type2)) ||
-            (ASRUtils::is_real(*type1) && ASRUtils::is_real(*type2)))) {
-            err("Argument of the FloorDiv function must be either Real, Integer or Unsigned Integer",
+            (ASRUtils::is_real(*type1) && ASRUtils::is_real(*type2)) ||
+            (ASRUtils::is_logical(*type1) && ASRUtils::is_logical(*type2)))) {
+            err("Argument of the FloorDiv function must be either Real, Integer, Unsigned Integer or Logical",
                 args[0]->base.loc);
         }
         ASR::expr_t *m_value = nullptr;
