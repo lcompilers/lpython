@@ -3222,7 +3222,7 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
     pass_options.dump_all_passes = co.dump_all_passes;
     std::vector<std::string> passes = {"pass_array_by_data", "array_op",
                 "implied_do_loops", "print_arr", "do_loops", "select_case",
-                "intrinsic_function", "nested_vars", "unused_functions"};
+                "nested_vars", "unused_functions", "intrinsic_function"};
     LCompilers::PassManager pass_manager;
     pass_manager.apply_passes(al, &asr, passes, pass_options, diagnostics);
 
