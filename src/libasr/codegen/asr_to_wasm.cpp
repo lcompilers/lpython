@@ -2299,7 +2299,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void visit_RealConstant(const ASR::RealConstant_t &x) {
         double val = x.m_r;
-        int a_kind = ((ASR::Real_t *)(&(x.m_type->base)))->m_kind;
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch (a_kind) {
             case 4: {
                 m_wa.emit_f32_const(val);
@@ -2318,7 +2318,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         bool val = x.m_value;
-        int a_kind = ((ASR::Logical_t *)(&(x.m_type->base)))->m_kind;
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch (a_kind) {
             case 4: {
                 m_wa.emit_i32_const(val);
