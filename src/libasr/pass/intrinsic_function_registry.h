@@ -2048,6 +2048,12 @@ namespace FloorDiv {
                 args[0]->base.loc);
         }
         ASR::expr_t *m_value = nullptr;
+        double compile_time_arg2_val;
+        if (ASRUtils::extract_value(expr_value(args[1]), compile_time_arg2_val)) {
+            if (compile_time_arg2_val == 0.0) {
+                err("Division by 0 is not allowed", args[1]->base.loc);
+            }
+        }
         if (all_args_evaluated(args)) {
             Vec<ASR::expr_t*> arg_values; arg_values.reserve(al, 2);
             arg_values.push_back(al, expr_value(args[0]));
