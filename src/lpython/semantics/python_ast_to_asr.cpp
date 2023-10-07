@@ -3387,7 +3387,7 @@ public:
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
             case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
-            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
+            case (AST::operatorType::FloorDiv) : {op_name = "floordiv"; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
             case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
             case (AST::operatorType::BitAnd) : { op = ASR::binopType::BitAnd; break; }
@@ -3403,7 +3403,20 @@ public:
 
         cast_helper(left, right, false);
 
-        if (op_name != "") {
+        if (op_name == "floordiv") {
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 2);
+            args.push_back(al, left);
+            args.push_back(al, right);
+            ASRUtils::create_intrinsic_function create_func =
+                        ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function(op_name);
+            tmp = create_func(al, x.base.base.loc, args,
+                            [&](const std::string &msg, const Location &loc) {
+                                throw SemanticError(msg, loc); });
+            return;
+        }
+
+        if (op_name == "_mod") {
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 2);
             ASR::call_arg_t arg1, arg2;
