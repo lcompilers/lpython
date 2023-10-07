@@ -1905,7 +1905,7 @@ public:
     }
 
     void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
-        ASR::binopType op, const Location &loc, bool floordiv) {
+        ASR::binopType op, const Location &loc) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         if( ASR::is_a<ASR::Const_t>(*left_type) ) {
@@ -1946,120 +1946,60 @@ public:
                 );
                 throw SemanticAbort();
             }
-            // Floor div operation in python using (`//`)
-            if (floordiv) {
-                bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));
-                if (both_int) {
-                    cast_helper(left, right, false);
-                    dest_type = ASRUtils::expr_type(left);
-                } else {
+            ASR::ttype_t* left_type = ASRUtils::expr_type(left);
+            ASR::ttype_t* right_type = ASRUtils::expr_type(right);
+            ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
+            int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
+            int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
+            if( n_dims_left == 0 && n_dims_right == 0 ) {
+                int left_type_priority = CastingUtil::get_type_priority(left_type->type);
+                int right_type_priority = CastingUtil::get_type_priority(right_type->type);
+                int left_kind = ASRUtils::extract_kind_from_ttype_t(left_type);
+                int right_kind = ASRUtils::extract_kind_from_ttype_t(right_type);
+                bool is_left_f32 = ASR::is_a<ASR::Real_t>(*left_type) && left_kind == 4;
+                bool is_right_f32 = ASR::is_a<ASR::Real_t>(*right_type) && right_kind == 4;
+                if( (left_type_priority >= right_type_priority && is_left_f32) ||
+                    (right_type_priority >= left_type_priority && is_right_f32) ) {
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4));
+                } else if( left_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real) &&
+                            right_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real)) {
                     dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8));
-                    if (ASRUtils::is_integer(*left_type)) {
-                        left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                            al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
-                    }
-                    if (ASRUtils::is_integer(*right_type)) {
-                        right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                            al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type));
-                    }
-                    cast_helper(left, right, false);
-                    dest_type = ASRUtils::expr_type(left);
-                }
-                if (ASRUtils::expr_value(right) != nullptr) {
-                    if (ASRUtils::is_integer(*right_type)) {
-                        int8_t value = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(right))->m_n;
-                        if (value == 0) {
-                            diag.add(diag::Diagnostic(
-                                "integer division by zero is not allowed",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("integer division by zero",
-                                            {right->base.loc})
-                                })
-                            );
-                            throw SemanticAbort();
-                        }
-                    } else if (ASRUtils::is_real(*right_type)) {
-                        double value = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
-                        if (value == 0.0) {
-                            diag.add(diag::Diagnostic(
-                                "float floor division by zero is not allowed",
-                                diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("float floor division by zero",
-                                            {right->base.loc})
-                                })
-                            );
-                            throw SemanticAbort();
-                        }
-                    }
-                }
-                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
-                Vec<ASR::call_arg_t> args;
-                args.reserve(al, 2);
-                ASR::call_arg_t arg1, arg2;
-                arg1.loc = left->base.loc;
-                arg2.loc = right->base.loc;
-                arg1.m_value = left;
-                arg2.m_value = right;
-                args.push_back(al, arg1);
-                args.push_back(al, arg2);
-                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
-                return;
-            } else { // real division in python using (`/`)
-                ASR::ttype_t* left_type = ASRUtils::expr_type(left);
-                ASR::ttype_t* right_type = ASRUtils::expr_type(right);
-                ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;
-                int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
-                int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
-                if( n_dims_left == 0 && n_dims_right == 0 ) {
-                    int left_type_priority = CastingUtil::get_type_priority(left_type->type);
-                    int right_type_priority = CastingUtil::get_type_priority(right_type->type);
-                    int left_kind = ASRUtils::extract_kind_from_ttype_t(left_type);
-                    int right_kind = ASRUtils::extract_kind_from_ttype_t(right_type);
-                    bool is_left_f32 = ASR::is_a<ASR::Real_t>(*left_type) && left_kind == 4;
-                    bool is_right_f32 = ASR::is_a<ASR::Real_t>(*right_type) && right_kind == 4;
-                    if( (left_type_priority >= right_type_priority && is_left_f32) ||
-                        (right_type_priority >= left_type_priority && is_right_f32) ) {
-                        dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4));
-                    } else if( left_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real) &&
-                               right_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real)) {
-                        dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8));
-                    } else {
-                        if( left_type_priority > right_type_priority ) {
-                            dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
-                        } else if( left_type_priority < right_type_priority ) {
-                            dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
-                        } else {
-                            if( left_kind >= right_kind ) {
-                                dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
-                            } else {
-                                dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
-                            }
-                        }
-                    }
-                    cast_helper(dest_type, left, left->base.loc, true);
-                    double val = -1.0;
-                    if (ASRUtils::extract_value(ASRUtils::expr_value(right), val) &&
-                        val == 0.0) {
-                        diag.add(diag::Diagnostic(
-                            "division by zero is not allowed",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("division by zero",
-                                        {right->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
-                    }
-                    cast_helper(dest_type, right, right->base.loc, true);
                 } else {
-                    if( n_dims_left != 0 && n_dims_right != 0 ) {
-                        LCOMPILERS_ASSERT(n_dims_left == n_dims_right);
+                    if( left_type_priority > right_type_priority ) {
+                        dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
+                    } else if( left_type_priority < right_type_priority ) {
+                        dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
+                    } else {
+                        if( left_kind >= right_kind ) {
+                            dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
+                        } else {
+                            dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
+                        }
+                    }
+                }
+                cast_helper(dest_type, left, left->base.loc, true);
+                double val = -1.0;
+                if (ASRUtils::extract_value(ASRUtils::expr_value(right), val) &&
+                    val == 0.0) {
+                    diag.add(diag::Diagnostic(
+                        "division by zero is not allowed",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("division by zero",
+                                    {right->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
+                cast_helper(dest_type, right, right->base.loc, true);
+            } else {
+                if( n_dims_left != 0 && n_dims_right != 0 ) {
+                    LCOMPILERS_ASSERT(n_dims_left == n_dims_right);
+                    dest_type = left_type;
+                } else {
+                    if( n_dims_left > 0 ) {
                         dest_type = left_type;
                     } else {
-                        if( n_dims_left > 0 ) {
-                            dest_type = left_type;
-                        } else {
-                            dest_type = right_type;
-                        }
+                        dest_type = right_type;
                     }
                 }
             }
@@ -3430,8 +3370,7 @@ public:
             tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
             return;
         }
-        bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
-        make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
+        make_BinOp_helper(left, right, op, x.base.base.loc);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
@@ -5342,7 +5281,7 @@ public:
                 offset_op = ASR::binopType::Sub;
             }
             make_BinOp_helper(loop_end, constant_one,
-                            offset_op, loc, false);
+                            offset_op, loc);
         } else {
             ASR::ttype_t* logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, inc->base.loc, 4));
             ASR::expr_t* inc_pos = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, inc->base.loc, inc,
@@ -5351,13 +5290,13 @@ public:
                 ASR::cmpopType::Lt, constant_zero, logical_type, nullptr));
             cast_helper(a_type, inc_pos, inc->base.loc, true);
             cast_helper(a_type, inc_neg, inc->base.loc, true);
-            make_BinOp_helper(inc_pos, constant_neg_one, ASR::binopType::Mul, inc->base.loc, false);
+            make_BinOp_helper(inc_pos, constant_neg_one, ASR::binopType::Mul, inc->base.loc);
             ASR::expr_t* case_1 = ASRUtils::EXPR(tmp);
-            make_BinOp_helper(inc_neg, constant_one, ASR::binopType::Mul, inc->base.loc, false);
+            make_BinOp_helper(inc_neg, constant_one, ASR::binopType::Mul, inc->base.loc);
             ASR::expr_t* case_2 = ASRUtils::EXPR(tmp);
-            make_BinOp_helper(case_1, case_2, ASR::binopType::Add, inc->base.loc, false);
+            make_BinOp_helper(case_1, case_2, ASR::binopType::Add, inc->base.loc);
             ASR::expr_t* cases_combined = ASRUtils::EXPR(tmp);
-            make_BinOp_helper(loop_end, cases_combined, ASR::binopType::Add, loop_end->base.loc, false);
+            make_BinOp_helper(loop_end, cases_combined, ASR::binopType::Add, loop_end->base.loc);
         }
 
         head.m_end = ASRUtils::EXPR(tmp);
@@ -5621,7 +5560,7 @@ public:
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
             tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
         } else {
-            make_BinOp_helper(left, right, op, x.base.base.loc, false);
+            make_BinOp_helper(left, right, op, x.base.base.loc);
         }
 
         ASR::stmt_t* a_overloaded = nullptr;
