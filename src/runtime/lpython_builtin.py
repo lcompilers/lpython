@@ -206,13 +206,13 @@ def bin(n: i32) -> str:
         prep = '-0b'
     res: str
     res = ''
-    if (n_ - _lpython_floordiv(n_, 2)*2) == 0:
+    if (n_ - (n_ // 2)*2) == 0:
         res += '0'
     else:
         res += '1'
     while n_ > 1:
-        n_ = _lpython_floordiv(n_, 2)
-        if (n_ - _lpython_floordiv(n_, 2)*2) == 0:
+        n_ = (n_ // 2)
+        if (n_ - (n_ // 2)*2) == 0:
             res += '0'
         else:
             res += '1'
@@ -239,9 +239,9 @@ def hex(n: i32) -> str:
     res = ""
     remainder: i32
     while n_ > 0:
-        remainder = n_ - _lpython_floordiv(n_, 16)*16
+        remainder = n_ - (n_ // 16)*16
         n_ -= remainder
-        n_ = _lpython_floordiv(n_, 16)
+        n_ = (n_ // 16)
         res += hex_values[remainder]
     return prep + res[::-1]
 
@@ -266,9 +266,9 @@ def oct(n: i32) -> str:
     res = ""
     remainder: i32
     while n_ > 0:
-        remainder = n_ - _lpython_floordiv(n_, 8)*8
+        remainder = n_ - (n_ // 8)*8
         n_ -= remainder
-        n_ = _lpython_floordiv(n_, 8)
+        n_ = (n_ // 8)
         res += _values[remainder]
     return prep + res[::-1]
 
@@ -289,7 +289,7 @@ def round(value: f64) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - _lpython_floordiv(i, 2) * 2 == 0:
+        if i - (i // 2) * 2 == 0:
             return i
         else:
             return i + 1
@@ -305,7 +305,7 @@ def round(value: f32) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - _lpython_floordiv(i, 2) * 2 == 0:
+        if i - (i // 2) * 2 == 0:
             return i
         else:
             return i + 1
@@ -423,7 +423,7 @@ def divmod(x: i32, y: i32) -> tuple[i32, i32]:
     if y == 0:
         raise ZeroDivisionError("Integer division or modulo by zero not possible")
     t: tuple[i32, i32]
-    t = (_lpython_floordiv(x, y), _mod(x, y))
+    t = ((x // y), _mod(x, y))
     return t
 
 
@@ -453,131 +453,44 @@ def _lpython_imag(x: c32) -> f32:
 
 
 @overload
-def _lpython_floordiv(a: f64, b: f64) -> f64:
-    r: f64
-    r = a/b
-    result: i64
-    result = int(r)
-    if r >= 0.0 or f64(result) == r:
-        return float(result)
-    return float(result - i64(1))
-
-
-@overload
-def _lpython_floordiv(a: f32, b: f32) -> f32:
-    r: f64
-    r = float(a)/float(b)
-    result: i32
-    resultf32: f32
-    result = i32(r)
-    if r >= 0.0 or f64(result) == r:
-        resultf32 = f32(1.0) * f32(result)
-    else:
-        resultf32 = f32(1.0) * f32(result) - f32(1.0)
-    return resultf32
-
-@overload
-def _lpython_floordiv(a: i8, b: i8) -> i8:
-    r: f64 # f32 rounds things up and gives incorrect results
-    r = float(a)/float(b)
-    result: i8
-    result = i8(r)
-    if r >= 0.0 or f64(result) == r:
-        return result
-    return result - i8(1)
-
-@overload
-def _lpython_floordiv(a: u8, b: u8) -> u8:
-    return u8(_lpython_floordiv(i8(a), i8(b)))
-
-@overload
-def _lpython_floordiv(a: i16, b: i16) -> i16:
-    r: f64 # f32 rounds things up and gives incorrect results
-    r = float(a)/float(b)
-    result: i16
-    result = i16(r)
-    if r >= 0.0 or f64(result) == r:
-        return result
-    return result - i16(1)
-
-@overload
-def _lpython_floordiv(a: u16, b: u16) -> u16:
-    return u16(_lpython_floordiv(i16(a), i16(b)))
-
-@overload
-def _lpython_floordiv(a: i32, b: i32) -> i32:
-    r: f64 # f32 rounds things up and gives incorrect results
-    r = float(a)/float(b)
-    result: i32
-    result = i32(r)
-    if r >= 0.0 or f64(result) == r:
-        return result
-    return result - 1
-
-@overload
-def _lpython_floordiv(a: u32, b: u32) -> u32:
-    return u32(_lpython_floordiv(i32(a), i32(b)))
-
-@overload
-def _lpython_floordiv(a: i64, b: i64) -> i64:
-    r: f64
-    r = a/b
-    result: i64
-    result = int(r)
-    if r >= 0.0 or f64(result) == r:
-        return result
-    return result - i64(1)
-
-@overload
-def _lpython_floordiv(a: u64, b: u64) -> u64:
-    return u64(_lpython_floordiv(i64(a), i64(b)))
-
-@overload
-def _lpython_floordiv(a: bool, b: bool) -> bool:
-    if b == False:
-        raise ValueError('Denominator cannot be False or 0.')
-    return a
-
-
-@overload
 def _mod(a: i8, b: i8) -> i8:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: i16, b: i16) -> i16:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: i32, b: i32) -> i32:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: u8, b: u8) -> u8:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: u16, b: u16) -> u16:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: u32, b: u32) -> u32:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: f32, b: f32) -> f32:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: u64, b: u64) -> u64:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: i64, b: i64) -> i64:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 @overload
 def _mod(a: f64, b: f64) -> f64:
-    return a - _lpython_floordiv(a, b)*b
+    return a - (a // b)*b
 
 
 @overload
