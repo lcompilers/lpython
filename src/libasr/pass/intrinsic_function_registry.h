@@ -1980,6 +1980,8 @@ namespace FloorDiv {
             x.base.base.loc, diagnostics);
         ASR::ttype_t *type1 = ASRUtils::expr_type(x.m_args[0]);
         ASR::ttype_t *type2 = ASRUtils::expr_type(x.m_args[1]);
+        type1 = ASRUtils::type_get_past_const(type1);
+        type2 = ASRUtils::type_get_past_const(type2);
         ASRUtils::require_impl((is_integer(*type1) && is_integer(*type2)) ||
                                 (is_unsigned_integer(*type1) && is_unsigned_integer(*type2)) ||
                                 (is_real(*type1) && is_real(*type2)) ||
@@ -1990,14 +1992,18 @@ namespace FloorDiv {
 
     static ASR::expr_t *eval_FloorDiv(Allocator &al, const Location &loc,
             ASR::ttype_t* t1, Vec<ASR::expr_t*> &args) {
-        bool is_real1 = is_real(*ASRUtils::expr_type(args[0]));
-        bool is_real2 = is_real(*ASRUtils::expr_type(args[1]));
-        bool is_int1 = is_integer(*ASRUtils::expr_type(args[0]));
-        bool is_int2 = is_integer(*ASRUtils::expr_type(args[1]));
-        bool is_unsigned_int1 = is_unsigned_integer(*ASRUtils::expr_type(args[0]));
-        bool is_unsigned_int2 = is_unsigned_integer(*ASRUtils::expr_type(args[1]));
-        bool is_logical1 = is_logical(*ASRUtils::expr_type(args[0]));
-        bool is_logical2 = is_logical(*ASRUtils::expr_type(args[1]));
+        ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        type1 = ASRUtils::type_get_past_const(type1);
+        type2 = ASRUtils::type_get_past_const(type2);
+        bool is_real1 = is_real(*type1);
+        bool is_real2 = is_real(*type2);
+        bool is_int1 = is_integer(*type1);
+        bool is_int2 = is_integer(*type2);
+        bool is_unsigned_int1 = is_unsigned_integer(*type1);
+        bool is_unsigned_int2 = is_unsigned_integer(*type2);
+        bool is_logical1 = is_logical(*type1);
+        bool is_logical2 = is_logical(*type2);
 
         if (is_int1 && is_int2) {
             int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(args[0])->m_n;
@@ -2032,6 +2038,8 @@ namespace FloorDiv {
         }
         ASR::ttype_t *type1 = ASRUtils::expr_type(args[0]);
         ASR::ttype_t *type2 = ASRUtils::expr_type(args[1]);
+        type1 = ASRUtils::type_get_past_const(type1);
+        type2 = ASRUtils::type_get_past_const(type2);
         if (!((ASRUtils::is_integer(*type1) && ASRUtils::is_integer(*type2)) ||
             (ASRUtils::is_unsigned_integer(*type1) && ASRUtils::is_unsigned_integer(*type2)) ||
             (ASRUtils::is_real(*type1) && ASRUtils::is_real(*type2)) ||
