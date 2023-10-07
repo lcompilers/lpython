@@ -772,6 +772,27 @@ public:
                     }
                 }
             }
+        } else if (ASR::is_a<ASR::ListConstant_t>(*x.m_value)) {
+            ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(x.m_value);
+            if (list_constant->m_type->type == ASR::ttypeType::List) {
+                ASR::List_t* list = ASR::down_cast<ASR::List_t>(list_constant->m_type);
+                if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                    Vec<ASR::expr_t*> temp_list;
+                    temp_list.reserve(al, list_constant->n_args + 1);
+
+                    for (size_t i = 0; i < list_constant->n_args; ++i) {
+                        ASR::expr_t* value = handle_argument(al, x.base.base.loc,  list_constant->m_args[i]);
+                        temp_list.push_back(al, value);
+                    }
+
+                    ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                    ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+                    ASR::expr_t* temp_list_const = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, temp_list.p,
+                                    temp_list.size(), list_type));
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_list_const, nullptr));
+                    pass_result.push_back(al, stmt);
+                }
+            }
         }
     }
 
