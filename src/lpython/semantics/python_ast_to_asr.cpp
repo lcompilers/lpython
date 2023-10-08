@@ -7003,7 +7003,8 @@ public:
                 /*
                   * Specification:
                   Return true if all characters in the input string are considered whitespace characters,
-                  as defined by CPython. Return false otherwise. For now we use the std::isspace function, but if we later discover that it differs from CPython, we will have to use something else.
+                  as defined by CPython. Return false otherwise. For now we use the std::isspace function, 
+                  but if we later discover that it differs from CPython, we will have to use something else.
                 */
                 bool is_space = true;
                     for (char i : s_var) {
