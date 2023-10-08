@@ -5,17 +5,9 @@
     "infile_hash": "7c44fe2915b3871b3b85edf3ab129d87a75fa4b9acbb597ae801daf9",
     "outfile": null,
     "outfile_hash": null,
-<<<<<<< HEAD
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_bool_binop-f856ef0.stderr",
     "stderr_hash": "7e1f44ed79212fae132aca28b495a511f27ee327b9bf88b797502eff",
     "returncode": 2
-=======
-    "stdout": "asr-test_bool_binop-f856ef0.stdout",
-    "stdout_hash": "b2d6b1205576cabc7c44ae611eec55ba5af026dbd918972e05e8f7da",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
->>>>>>> main
 }

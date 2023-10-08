@@ -5,8 +5,8 @@
     "infile_hash": "b7d1d5e1592f5078961eb228c756e424d394f5f0383a1577f1cced1b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-test_builtin_pow-f02fcda.stdout",
-    "stdout_hash": "a7d94321eaec571a74e7b6c52bd9f200e814ae6511e4425f7363908e",
+    "stdout": null,
+    "stdout_hash": null,
     "stderr": "asr-test_builtin_pow-f02fcda.stderr",
     "stderr_hash": "6935bb3dd01caf67154e6dee0bb6480b2d3ecb270bc5038444391acc",
     "returncode": 2

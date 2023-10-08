@@ -1,5 +1,5 @@
-semantic error: Division by 0 is not allowed
+semantic error: float floor division by zero is not allowed
  --> tests/errors/test_zero_division2.py:4:16
   |
 4 |     print(v // 0.0)
-  |                ^^^ 
+  |                ^^^ float floor division by zero
