@@ -10,7 +10,11 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
+<<<<<<< HEAD
+                                        136
+=======
                                         123
+>>>>>>> main
                                         {
                                             
                                         })
@@ -787,11 +791,19 @@
             main_program:
                 (Program
                     (SymbolTable
+<<<<<<< HEAD
+                        137
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    137
+=======
                         124
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
                                     124
+>>>>>>> main
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__

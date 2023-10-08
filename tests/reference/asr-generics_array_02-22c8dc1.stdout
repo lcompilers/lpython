@@ -28,7 +28,11 @@
                             __asr_generic_g_0:
                                 (Function
                                     (SymbolTable
+<<<<<<< HEAD
+                                        220
+=======
                                         207
+>>>>>>> main
                                         {
                                             a:
                                                 (Variable

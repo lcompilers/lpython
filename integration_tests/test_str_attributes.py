@@ -276,6 +276,17 @@ def is_ascii():
     s = "123 45 6"
     assert s.isascii() == True
 
+
+def isspace():
+    assert "\n".isspace() == True
+    assert "    ".isspace() == True
+    assert "\r".isspace() == True 
+
+    s:str = " "
+    assert s.isspace() == True   
+    s: str = "a"
+    assert s.isspace() == False
+
 def check():
     capitalize()
     lower()
@@ -290,5 +301,6 @@ def check():
     is_upper()
     is_decimal()
     is_ascii()
+    isspace()
 
 check()

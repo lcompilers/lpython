@@ -1986,11 +1986,35 @@
             main_program:
                 (Program
                     (SymbolTable
+<<<<<<< HEAD
+<<<<<<< HEAD
+                        135
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    135
+=======
+<<<<<<< HEAD
                         124
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
                                     124
+=======
+                        137
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    137
+>>>>>>> 1095cb6ff (Add isspace API in str)
+>>>>>>> c359259eb (Add isspace API in str)
+=======
+                        124
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    124
+>>>>>>> main
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2002,7 +2026,19 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
+<<<<<<< HEAD
+<<<<<<< HEAD
+                        135 __main__global_stmts
+=======
+<<<<<<< HEAD
                         124 __main__global_stmts
+=======
+                        137 __main__global_stmts
+>>>>>>> 1095cb6ff (Add isspace API in str)
+>>>>>>> c359259eb (Add isspace API in str)
+=======
+                        124 __main__global_stmts
+>>>>>>> main
                         2 __main__global_stmts
                         []
                         ()

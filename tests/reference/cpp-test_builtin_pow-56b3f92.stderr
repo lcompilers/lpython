@@ -1,5 +1,11 @@
-style suggestion: Could have used '**' instead of 'pow'
+warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
   --> tests/../integration_tests/test_builtin_pow.py:11:16
    |
 11 |     assert i32(pow(a, b)) == 32
-   |                ^^^^^^^^^ '**' could be used instead
+   |                ^^^^^^^^^ imported here
+
+semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
+    |
+209 |     if (n_ - (n_ // 2)*2) == 0:
+    |               ^^^^^^^ 

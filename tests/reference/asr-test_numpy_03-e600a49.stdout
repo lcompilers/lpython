@@ -985,6 +985,9 @@
                                         []
                                         .false.
                                     )
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
                                     []
                                     [(Var 201 a)]
                                     [(=
@@ -1627,6 +1630,7 @@
                                         []
                                         .false.
                                     )
+>>>>>>> main
                                     [test_nd_to_1d
                                     test_1d_to_nd]
                                     []
@@ -1637,6 +1641,26 @@
                                             (Array
                                                 (Real 8)
                                                 [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 214 c)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 16 (Integer 4)))
+                                                ((IntegerConstant 0 (Integer 4))
                                                 (IntegerConstant 16 (Integer 4)))
                                                 ((IntegerConstant 0 (Integer 4))
                                                 (IntegerConstant 16 (Integer 4)))]
