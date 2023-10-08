@@ -862,7 +862,7 @@ def _lpython_str_isascii(s: str) -> bool:
 def _lpython_str_isspace(s:str) -> bool:
     ch:str 
     for ch in s:
-        if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\v':
+        if ch != ' ' and ch != '\t' and ch != '\n' and ch != '\r' and ch != '\f' and ch != '\x0B':
             return False
     return True
 

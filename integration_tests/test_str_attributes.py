@@ -277,7 +277,7 @@ def is_ascii():
     assert s.isascii() == True
 
 
-def isspace():
+def is_space():
     assert "\n".isspace() == True
     assert "    ".isspace() == True
     assert "\r".isspace() == True 
@@ -301,6 +301,6 @@ def check():
     is_upper()
     is_decimal()
     is_ascii()
-    isspace()
+    is_space()
 
 check()
