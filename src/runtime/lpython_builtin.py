@@ -858,7 +858,6 @@ def _lpython_str_isascii(s: str) -> bool:
             return False
     return True
 
-@overload
 def _lpython_str_isspace(s:str) -> bool:
     ch: str 
     for ch in s:
