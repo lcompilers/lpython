@@ -1,5 +1,0 @@
-semantic error: Unsupported type annotation: Optional
- --> tests/errors/test_annassign_01.py:2:8
-  |
-2 |     a: Optional[i32] = 5
-  |        ^^^^^^^^^^^^^ 

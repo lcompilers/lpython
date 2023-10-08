@@ -1,5 +1,0 @@
-semantic error: Type mismatch in annotation-assignment, the types must be compatible
- --> tests/errors/test_annassign_type_mismatch2.py:4:5
-  |
-4 |     x: f64[5] = [1.0, 2.0, 3.0, 4.0, 5.0]
-  |     ^           ^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('f64[5]' and 'list[f64]')

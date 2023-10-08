@@ -1,5 +1,0 @@
-semantic error: Indexing CPtr typed expressions is not supported yet
- --> tests/errors/cptr_01.py:5:11
-  |
-5 |     print(x[0])
-  |           ^^^^ 

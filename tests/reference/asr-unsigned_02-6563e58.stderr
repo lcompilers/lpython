@@ -1,5 +1,0 @@
-semantic error: The result of the unary minus `-` operation is negative, thus out of range for u16
- --> tests/errors/unsigned_02.py:3:10
-  |
-3 | i: u16 = -u16(5)
-  |          ^^^^^^^ use -i32(u) for signed result

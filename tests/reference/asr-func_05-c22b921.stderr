@@ -1,5 +1,0 @@
-semantic error: Simple Type i32 cannot be intent InOut/Out
- --> tests/errors/func_05.py:3:7
-  |
-3 | def f(n: InOut[i32]):
-  |       ^^^^^^^^^^^^^ 

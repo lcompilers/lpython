@@ -1,5 +1,0 @@
-semantic error: Type mismatch in 'count', the types must be compatible
- --> tests/errors/test_list_count.py:6:13
-  |
-6 |     a.count(1.0)
-  |             ^^^ type mismatch (found: 'f64', expected: 'i32')

@@ -1,5 +1,0 @@
-tokenizer error: Indentation should be of the same type (either tabs or spaces)
- --> tests/tokens/errors/indent1.py:3:1
-  |
-3 |   pass
-  | ^^ 

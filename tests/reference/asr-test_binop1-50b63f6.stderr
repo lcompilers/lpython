@@ -1,5 +1,0 @@
-semantic error: Type mismatch in binary operator; the types must be compatible
- --> tests/errors/test_binop1.py:6:11
-  |
-6 |     print(x+s)
-  |           ^ ^ type mismatch (i32 and str)

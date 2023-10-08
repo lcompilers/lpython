@@ -1,5 +1,0 @@
-semantic error: slice step cannot be zero
- --> tests/errors/test_str_slicing4.py:4:17
-  |
-4 |     print(s[0:1:0])
-  |                 ^ 

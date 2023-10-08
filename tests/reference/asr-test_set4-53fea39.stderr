@@ -1,5 +1,0 @@
-semantic error: Call to set.add must have exactly one argument
- --> tests/errors/test_set4.py:6:5
-  |
-6 |     a.add(3, 4)
-  |     ^^^^^^^^^^^ 

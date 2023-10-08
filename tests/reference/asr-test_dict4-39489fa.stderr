@@ -1,5 +1,0 @@
-semantic error: Type mismatch in annotation-assignment, the types must be compatible
- --> tests/errors/test_dict4.py:2:5
-  |
-2 |     d: dict[i32, i32] = {1: "a", 2: "b"}
-  |     ^                   ^^^^^^^^^^^^^^^^ type mismatch ('dict[i32, i32]' and 'dict[i32, str]')

@@ -1,5 +1,0 @@
-semantic error: Type mismatch in comparison operator, the types must be compatible
- --> tests/errors/test_compare_01.py:6:11
-  |
-6 |     print(i16(x) > f32(y))
-  |           ^^^^^^   ^^^^^^ type mismatch ('i16' and 'f32')

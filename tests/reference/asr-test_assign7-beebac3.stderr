@@ -1,5 +1,0 @@
-semantic error: 'tuple[i32, i32]' object does not support item assignment
- --> tests/errors/test_assign7.py:4:5
-  |
-4 |     t[0] = 3
-  |     ^^^^ 
