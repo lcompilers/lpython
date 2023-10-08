@@ -1,0 +1,5 @@
+semantic error: Type mismatch in 'append', the types must be compatible
+ --> tests/errors/test_append_type_mismatch.py:6:14
+  |
+6 |     l.append('a')
+  |              ^^^ type mismatch (found: 'str', expected: 'i32')

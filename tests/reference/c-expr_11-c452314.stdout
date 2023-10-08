@@ -1,0 +1,35 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+void f();
+void __main__global_stmts();
+
+
+
+// Implementations
+void f()
+{
+    bool b;
+    int32_t i;
+    i = 3;
+    b = (bool)(i);
+    ASSERT(b);
+    printf("%d\n", b);
+}
+
+void __main__global_stmts()
+{
+    f();
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_set_argv(argc, argv);
+    __main__global_stmts();
+    return 0;
+}

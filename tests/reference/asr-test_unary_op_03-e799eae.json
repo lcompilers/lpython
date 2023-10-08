@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_unary_op_03-e799eae",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_unary_op_03.py",
+    "infile_hash": "ce63509c56eb6c68ca6d64cc2a195644f3d2fc285f3ec8865551eff5",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_unary_op_03-e799eae.stdout",
+    "stdout_hash": "4511db7e0936003a81bcb4c6b4c1cbc60070f29a9fd7dd04e8d3d137",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

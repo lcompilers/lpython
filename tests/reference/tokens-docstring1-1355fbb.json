@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-docstring1-1355fbb",
+    "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/tokens/docstring1.py",
+    "infile_hash": "76a733fb41e5cfebb1d9bd74a719fa2644e746ce06a64fbbf91358a8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "tokens-docstring1-1355fbb.stdout",
+    "stdout_hash": "9afa056946f77dcfa0a5aa89b3ff738274836892169e03c14ee14a8f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

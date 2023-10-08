@@ -1,0 +1,1000 @@
+{
+    "node": "TranslationUnit",
+    "fields": {
+        "symtab": {
+            "node": "SymbolTable1",
+            "fields": {
+                "__main__": {
+                    "node": "Module",
+                    "fields": {
+                        "symtab": {
+                            "node": "SymbolTable2",
+                            "fields": {
+                                "__main__global_stmts": {
+                                    "node": "Function",
+                                    "fields": {
+                                        "symtab": {
+                                            "node": "SymbolTable8",
+                                            "fields": {}
+                                        },
+                                        "name": "__main__global_stmts",
+                                        "function_signature": {
+                                            "node": "FunctionType",
+                                            "fields": {
+                                                "arg_types": [],
+                                                "return_var_type": [],
+                                                "abi": "Source",
+                                                "deftype": "Implementation",
+                                                "bindc_name": [],
+                                                "elemental": false,
+                                                "pure": false,
+                                                "module": false,
+                                                "inline": false,
+                                                "static": false,
+                                                "restrictions": [],
+                                                "is_restriction": false
+                                            },
+                                            "loc": {
+                                                "first": 0,
+                                                "last": 125,
+                                                "first_filename": "tests/../integration_tests/modules_02.py",
+                                                "first_line": 1,
+                                                "first_column": 1,
+                                                "last_filename": "tests/../integration_tests/modules_02.py",
+                                                "last_line": 10,
+                                                "last_column": 7
+                                            }
+                                        },
+                                        "dependencies": [
+                                            "main0"
+                                        ],
+                                        "args": [],
+                                        "body": [
+                                            {
+                                                "node": "SubroutineCall",
+                                                "fields": {
+                                                    "name": "main0 (SymbolTable2)",
+                                                    "original_name": [],
+                                                    "args": [],
+                                                    "dt": []
+                                                },
+                                                "loc": {
+                                                    "first": 119,
+                                                    "last": 125,
+                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                    "first_line": 10,
+                                                    "first_column": 1,
+                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                    "last_line": 10,
+                                                    "last_column": 7
+                                                }
+                                            }
+                                        ],
+                                        "return_var": [],
+                                        "access": "Public",
+                                        "deterministic": false,
+                                        "side_effect_free": false,
+                                        "module_file": []
+                                    },
+                                    "loc": {
+                                        "first": 0,
+                                        "last": 125,
+                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                        "first_line": 1,
+                                        "first_column": 1,
+                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                        "last_line": 10,
+                                        "last_column": 7
+                                    }
+                                },
+                                "f": {
+                                    "node": "ExternalSymbol",
+                                    "fields": {
+                                        "parent_symtab": 2,
+                                        "name": "f",
+                                        "external": "f (SymbolTable3)",
+                                        "module_name": "modules_02b",
+                                        "scope_names": [],
+                                        "original_name": "f",
+                                        "access": "Public"
+                                    },
+                                    "loc": {
+                                        "first": 24,
+                                        "last": 24,
+                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                        "first_line": 1,
+                                        "first_column": 25,
+                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                        "last_line": 1,
+                                        "last_column": 25
+                                    }
+                                },
+                                "main0": {
+                                    "node": "Function",
+                                    "fields": {
+                                        "symtab": {
+                                            "node": "SymbolTable7",
+                                            "fields": {
+                                                "x": {
+                                                    "node": "Variable",
+                                                    "fields": {
+                                                        "parent_symtab": 7,
+                                                        "name": "x",
+                                                        "dependencies": [],
+                                                        "intent": "Local",
+                                                        "symbolic_value": [],
+                                                        "value": [],
+                                                        "storage": "Default",
+                                                        "type": {
+                                                            "node": "Integer",
+                                                            "fields": {
+                                                                "kind": 4
+                                                            },
+                                                            "loc": {
+                                                                "first": 71,
+                                                                "last": 73,
+                                                                "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                "first_line": 5,
+                                                                "first_column": 8,
+                                                                "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                "last_line": 5,
+                                                                "last_column": 10
+                                                            }
+                                                        },
+                                                        "type_declaration": [],
+                                                        "abi": "Source",
+                                                        "access": "Public",
+                                                        "presence": "Required",
+                                                        "value_attr": false
+                                                    },
+                                                    "loc": {
+                                                        "first": 68,
+                                                        "last": 73,
+                                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                                        "first_line": 5,
+                                                        "first_column": 5,
+                                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                                        "last_line": 5,
+                                                        "last_column": 10
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "name": "main0",
+                                        "function_signature": {
+                                            "node": "FunctionType",
+                                            "fields": {
+                                                "arg_types": [],
+                                                "return_var_type": [],
+                                                "abi": "Source",
+                                                "deftype": "Implementation",
+                                                "bindc_name": [],
+                                                "elemental": false,
+                                                "pure": false,
+                                                "module": false,
+                                                "inline": false,
+                                                "static": false,
+                                                "restrictions": [],
+                                                "is_restriction": false
+                                            },
+                                            "loc": {
+                                                "first": 51,
+                                                "last": 116,
+                                                "first_filename": "tests/../integration_tests/modules_02.py",
+                                                "first_line": 4,
+                                                "first_column": 1,
+                                                "last_filename": "tests/../integration_tests/modules_02.py",
+                                                "last_line": 8,
+                                                "last_column": 7
+                                            }
+                                        },
+                                        "dependencies": [
+                                            "f"
+                                        ],
+                                        "args": [],
+                                        "body": [
+                                            {
+                                                "node": "Assignment",
+                                                "fields": {
+                                                    "target": {
+                                                        "node": "Var",
+                                                        "fields": {
+                                                            "v": "x (SymbolTable7)"
+                                                        },
+                                                        "loc": {
+                                                            "first": 79,
+                                                            "last": 79,
+                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                            "first_line": 6,
+                                                            "first_column": 5,
+                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                            "last_line": 6,
+                                                            "last_column": 5
+                                                        }
+                                                    },
+                                                    "value": {
+                                                        "node": "IntegerBinOp",
+                                                        "fields": {
+                                                            "left": {
+                                                                "node": "IntegerBinOp",
+                                                                "fields": {
+                                                                    "left": {
+                                                                        "node": "IntegerConstant",
+                                                                        "fields": {
+                                                                            "n": 2,
+                                                                            "type": {
+                                                                                "node": "Integer",
+                                                                                "fields": {
+                                                                                    "kind": 4
+                                                                                },
+                                                                                "loc": {
+                                                                                    "first": 84,
+                                                                                    "last": 84,
+                                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "first_line": 6,
+                                                                                    "first_column": 10,
+                                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "last_line": 6,
+                                                                                    "last_column": 10
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 84,
+                                                                            "last": 84,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 10,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 10
+                                                                        }
+                                                                    },
+                                                                    "op": "Add",
+                                                                    "right": {
+                                                                        "node": "IntegerConstant",
+                                                                        "fields": {
+                                                                            "n": 3,
+                                                                            "type": {
+                                                                                "node": "Integer",
+                                                                                "fields": {
+                                                                                    "kind": 4
+                                                                                },
+                                                                                "loc": {
+                                                                                    "first": 86,
+                                                                                    "last": 86,
+                                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "first_line": 6,
+                                                                                    "first_column": 12,
+                                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "last_line": 6,
+                                                                                    "last_column": 12
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 86,
+                                                                            "last": 86,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 12,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 12
+                                                                        }
+                                                                    },
+                                                                    "type": {
+                                                                        "node": "Integer",
+                                                                        "fields": {
+                                                                            "kind": 4
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 84,
+                                                                            "last": 84,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 10,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 10
+                                                                        }
+                                                                    },
+                                                                    "value": {
+                                                                        "node": "IntegerConstant",
+                                                                        "fields": {
+                                                                            "n": 5,
+                                                                            "type": {
+                                                                                "node": "Integer",
+                                                                                "fields": {
+                                                                                    "kind": 4
+                                                                                },
+                                                                                "loc": {
+                                                                                    "first": 84,
+                                                                                    "last": 84,
+                                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "first_line": 6,
+                                                                                    "first_column": 10,
+                                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                                    "last_line": 6,
+                                                                                    "last_column": 10
+                                                                                }
+                                                                            }
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 84,
+                                                                            "last": 86,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 10,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 12
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "loc": {
+                                                                    "first": 84,
+                                                                    "last": 86,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 6,
+                                                                    "first_column": 10,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 6,
+                                                                    "last_column": 12
+                                                                }
+                                                            },
+                                                            "op": "Mul",
+                                                            "right": {
+                                                                "node": "IntegerConstant",
+                                                                "fields": {
+                                                                    "n": 5,
+                                                                    "type": {
+                                                                        "node": "Integer",
+                                                                        "fields": {
+                                                                            "kind": 4
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 89,
+                                                                            "last": 89,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 15,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 15
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "loc": {
+                                                                    "first": 89,
+                                                                    "last": 89,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 6,
+                                                                    "first_column": 15,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 6,
+                                                                    "last_column": 15
+                                                                }
+                                                            },
+                                                            "type": {
+                                                                "node": "Integer",
+                                                                "fields": {
+                                                                    "kind": 4
+                                                                },
+                                                                "loc": {
+                                                                    "first": 84,
+                                                                    "last": 84,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 6,
+                                                                    "first_column": 10,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 6,
+                                                                    "last_column": 10
+                                                                }
+                                                            },
+                                                            "value": {
+                                                                "node": "IntegerConstant",
+                                                                "fields": {
+                                                                    "n": 25,
+                                                                    "type": {
+                                                                        "node": "Integer",
+                                                                        "fields": {
+                                                                            "kind": 4
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 84,
+                                                                            "last": 84,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 6,
+                                                                            "first_column": 10,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 6,
+                                                                            "last_column": 10
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "loc": {
+                                                                    "first": 83,
+                                                                    "last": 89,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 6,
+                                                                    "first_column": 9,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 6,
+                                                                    "last_column": 15
+                                                                }
+                                                            }
+                                                        },
+                                                        "loc": {
+                                                            "first": 83,
+                                                            "last": 89,
+                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                            "first_line": 6,
+                                                            "first_column": 9,
+                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                            "last_line": 6,
+                                                            "last_column": 15
+                                                        }
+                                                    },
+                                                    "overloaded": []
+                                                },
+                                                "loc": {
+                                                    "first": 79,
+                                                    "last": 89,
+                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                    "first_line": 6,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                    "last_line": 6,
+                                                    "last_column": 15
+                                                }
+                                            },
+                                            {
+                                                "node": "Assert",
+                                                "fields": {
+                                                    "test": {
+                                                        "node": "IntegerCompare",
+                                                        "fields": {
+                                                            "left": {
+                                                                "node": "Var",
+                                                                "fields": {
+                                                                    "v": "x (SymbolTable7)"
+                                                                },
+                                                                "loc": {
+                                                                    "first": 102,
+                                                                    "last": 102,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 7,
+                                                                    "first_column": 12,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 7,
+                                                                    "last_column": 12
+                                                                }
+                                                            },
+                                                            "op": "Eq",
+                                                            "right": {
+                                                                "node": "IntegerConstant",
+                                                                "fields": {
+                                                                    "n": 25,
+                                                                    "type": {
+                                                                        "node": "Integer",
+                                                                        "fields": {
+                                                                            "kind": 4
+                                                                        },
+                                                                        "loc": {
+                                                                            "first": 107,
+                                                                            "last": 108,
+                                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "first_line": 7,
+                                                                            "first_column": 17,
+                                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                            "last_line": 7,
+                                                                            "last_column": 18
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "loc": {
+                                                                    "first": 107,
+                                                                    "last": 108,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 7,
+                                                                    "first_column": 17,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 7,
+                                                                    "last_column": 18
+                                                                }
+                                                            },
+                                                            "type": {
+                                                                "node": "Logical",
+                                                                "fields": {
+                                                                    "kind": 4
+                                                                },
+                                                                "loc": {
+                                                                    "first": 102,
+                                                                    "last": 108,
+                                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "first_line": 7,
+                                                                    "first_column": 12,
+                                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                                    "last_line": 7,
+                                                                    "last_column": 18
+                                                                }
+                                                            },
+                                                            "value": []
+                                                        },
+                                                        "loc": {
+                                                            "first": 102,
+                                                            "last": 108,
+                                                            "first_filename": "tests/../integration_tests/modules_02.py",
+                                                            "first_line": 7,
+                                                            "first_column": 12,
+                                                            "last_filename": "tests/../integration_tests/modules_02.py",
+                                                            "last_line": 7,
+                                                            "last_column": 18
+                                                        }
+                                                    },
+                                                    "msg": []
+                                                },
+                                                "loc": {
+                                                    "first": 95,
+                                                    "last": 108,
+                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                    "first_line": 7,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                    "last_line": 7,
+                                                    "last_column": 18
+                                                }
+                                            },
+                                            {
+                                                "node": "SubroutineCall",
+                                                "fields": {
+                                                    "name": "f (SymbolTable2)",
+                                                    "original_name": [],
+                                                    "args": [],
+                                                    "dt": []
+                                                },
+                                                "loc": {
+                                                    "first": 114,
+                                                    "last": 116,
+                                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                                    "first_line": 8,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                                    "last_line": 8,
+                                                    "last_column": 7
+                                                }
+                                            }
+                                        ],
+                                        "return_var": [],
+                                        "access": "Public",
+                                        "deterministic": false,
+                                        "side_effect_free": false,
+                                        "module_file": []
+                                    },
+                                    "loc": {
+                                        "first": 51,
+                                        "last": 116,
+                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                        "first_line": 4,
+                                        "first_column": 1,
+                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                        "last_line": 8,
+                                        "last_column": 7
+                                    }
+                                }
+                            }
+                        },
+                        "name": "__main__",
+                        "dependencies": [
+                            "modules_02b"
+                        ],
+                        "loaded_from_mod": false,
+                        "intrinsic": false
+                    },
+                    "loc": {
+                        "first": 0,
+                        "last": 125,
+                        "first_filename": "tests/../integration_tests/modules_02.py",
+                        "first_line": 1,
+                        "first_column": 1,
+                        "last_filename": "tests/../integration_tests/modules_02.py",
+                        "last_line": 10,
+                        "last_column": 7
+                    }
+                },
+                "main_program": {
+                    "node": "Program",
+                    "fields": {
+                        "symtab": {
+                            "node": "SymbolTable9",
+                            "fields": {
+                                "__main__global_stmts": {
+                                    "node": "ExternalSymbol",
+                                    "fields": {
+                                        "parent_symtab": 9,
+                                        "name": "__main__global_stmts",
+                                        "external": "__main__global_stmts (SymbolTable2)",
+                                        "module_name": "__main__",
+                                        "scope_names": [],
+                                        "original_name": "__main__global_stmts",
+                                        "access": "Public"
+                                    },
+                                    "loc": {
+                                        "first": 0,
+                                        "last": 125,
+                                        "first_filename": "tests/../integration_tests/modules_02.py",
+                                        "first_line": 1,
+                                        "first_column": 1,
+                                        "last_filename": "tests/../integration_tests/modules_02.py",
+                                        "last_line": 10,
+                                        "last_column": 7
+                                    }
+                                }
+                            }
+                        },
+                        "name": "main_program",
+                        "dependencies": [
+                            "__main__"
+                        ],
+                        "body": [
+                            {
+                                "node": "SubroutineCall",
+                                "fields": {
+                                    "name": "__main__global_stmts (SymbolTable9)",
+                                    "original_name": "__main__global_stmts (SymbolTable2)",
+                                    "args": [],
+                                    "dt": []
+                                },
+                                "loc": {
+                                    "first": 0,
+                                    "last": 125,
+                                    "first_filename": "tests/../integration_tests/modules_02.py",
+                                    "first_line": 1,
+                                    "first_column": 1,
+                                    "last_filename": "tests/../integration_tests/modules_02.py",
+                                    "last_line": 10,
+                                    "last_column": 7
+                                }
+                            }
+                        ]
+                    },
+                    "loc": {
+                        "first": 0,
+                        "last": 125,
+                        "first_filename": "tests/../integration_tests/modules_02.py",
+                        "first_line": 1,
+                        "first_column": 1,
+                        "last_filename": "tests/../integration_tests/modules_02.py",
+                        "last_line": 10,
+                        "last_column": 7
+                    }
+                },
+                "modules_02b": {
+                    "node": "Module",
+                    "fields": {
+                        "symtab": {
+                            "node": "SymbolTable3",
+                            "fields": {
+                                "f": {
+                                    "node": "Function",
+                                    "fields": {
+                                        "symtab": {
+                                            "node": "SymbolTable6",
+                                            "fields": {}
+                                        },
+                                        "name": "f",
+                                        "function_signature": {
+                                            "node": "FunctionType",
+                                            "fields": {
+                                                "arg_types": [],
+                                                "return_var_type": [],
+                                                "abi": "Source",
+                                                "deftype": "Implementation",
+                                                "bindc_name": [],
+                                                "elemental": false,
+                                                "pure": false,
+                                                "module": false,
+                                                "inline": false,
+                                                "static": false,
+                                                "restrictions": [],
+                                                "is_restriction": false
+                                            },
+                                            "loc": {
+                                                "first": 154,
+                                                "last": 186,
+                                                "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                "first_line": 3,
+                                                "first_column": 1,
+                                                "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                "last_line": 5,
+                                                "last_column": 16
+                                            }
+                                        },
+                                        "dependencies": [
+                                            "g"
+                                        ],
+                                        "args": [],
+                                        "body": [
+                                            {
+                                                "node": "SubroutineCall",
+                                                "fields": {
+                                                    "name": "g (SymbolTable3)",
+                                                    "original_name": [],
+                                                    "args": [],
+                                                    "dt": []
+                                                },
+                                                "loc": {
+                                                    "first": 167,
+                                                    "last": 169,
+                                                    "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                    "first_line": 4,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                    "last_line": 4,
+                                                    "last_column": 7
+                                                }
+                                            },
+                                            {
+                                                "node": "Print",
+                                                "fields": {
+                                                    "fmt": [],
+                                                    "values": [
+                                                        {
+                                                            "node": "StringConstant",
+                                                            "fields": {
+                                                                "s": "f()",
+                                                                "type": {
+                                                                    "node": "Character",
+                                                                    "fields": {
+                                                                        "kind": 1,
+                                                                        "len": 3,
+                                                                        "len_expr": []
+                                                                    },
+                                                                    "loc": {
+                                                                        "first": 181,
+                                                                        "last": 185,
+                                                                        "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                        "first_line": 5,
+                                                                        "first_column": 11,
+                                                                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                        "last_line": 5,
+                                                                        "last_column": 15
+                                                                    }
+                                                                }
+                                                            },
+                                                            "loc": {
+                                                                "first": 181,
+                                                                "last": 185,
+                                                                "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                                "first_line": 5,
+                                                                "first_column": 11,
+                                                                "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                                "last_line": 5,
+                                                                "last_column": 15
+                                                            }
+                                                        }
+                                                    ],
+                                                    "separator": [],
+                                                    "end": []
+                                                },
+                                                "loc": {
+                                                    "first": 175,
+                                                    "last": 186,
+                                                    "first_filename": "tests/../integration_tests/modules_02b.py",
+                                                    "first_line": 5,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02b.py",
+                                                    "last_line": 5,
+                                                    "last_column": 16
+                                                }
+                                            }
+                                        ],
+                                        "return_var": [],
+                                        "access": "Public",
+                                        "deterministic": false,
+                                        "side_effect_free": false,
+                                        "module_file": []
+                                    },
+                                    "loc": {
+                                        "first": 154,
+                                        "last": 186,
+                                        "first_filename": "tests/../integration_tests/modules_02b.py",
+                                        "first_line": 3,
+                                        "first_column": 1,
+                                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                                        "last_line": 5,
+                                        "last_column": 16
+                                    }
+                                },
+                                "g": {
+                                    "node": "ExternalSymbol",
+                                    "fields": {
+                                        "parent_symtab": 3,
+                                        "name": "g",
+                                        "external": "g (SymbolTable4)",
+                                        "module_name": "modules_02c",
+                                        "scope_names": [],
+                                        "original_name": "g",
+                                        "access": "Public"
+                                    },
+                                    "loc": {
+                                        "first": 151,
+                                        "last": 151,
+                                        "first_filename": "tests/../integration_tests/modules_02b.py",
+                                        "first_line": 1,
+                                        "first_column": 25,
+                                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                                        "last_line": 1,
+                                        "last_column": 25
+                                    }
+                                }
+                            }
+                        },
+                        "name": "modules_02b",
+                        "dependencies": [
+                            "modules_02c"
+                        ],
+                        "loaded_from_mod": false,
+                        "intrinsic": false
+                    },
+                    "loc": {
+                        "first": 127,
+                        "last": 186,
+                        "first_filename": "tests/../integration_tests/modules_02b.py",
+                        "first_line": 1,
+                        "first_column": 1,
+                        "last_filename": "tests/../integration_tests/modules_02b.py",
+                        "last_line": 5,
+                        "last_column": 16
+                    }
+                },
+                "modules_02c": {
+                    "node": "Module",
+                    "fields": {
+                        "symtab": {
+                            "node": "SymbolTable4",
+                            "fields": {
+                                "g": {
+                                    "node": "Function",
+                                    "fields": {
+                                        "symtab": {
+                                            "node": "SymbolTable5",
+                                            "fields": {}
+                                        },
+                                        "name": "g",
+                                        "function_signature": {
+                                            "node": "FunctionType",
+                                            "fields": {
+                                                "arg_types": [],
+                                                "return_var_type": [],
+                                                "abi": "Source",
+                                                "deftype": "Implementation",
+                                                "bindc_name": [],
+                                                "elemental": false,
+                                                "pure": false,
+                                                "module": false,
+                                                "inline": false,
+                                                "static": false,
+                                                "restrictions": [],
+                                                "is_restriction": false
+                                            },
+                                            "loc": {
+                                                "first": 188,
+                                                "last": 212,
+                                                "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                "first_line": 1,
+                                                "first_column": 1,
+                                                "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                "last_line": 2,
+                                                "last_column": 16
+                                            }
+                                        },
+                                        "dependencies": [],
+                                        "args": [],
+                                        "body": [
+                                            {
+                                                "node": "Print",
+                                                "fields": {
+                                                    "fmt": [],
+                                                    "values": [
+                                                        {
+                                                            "node": "StringConstant",
+                                                            "fields": {
+                                                                "s": "g()",
+                                                                "type": {
+                                                                    "node": "Character",
+                                                                    "fields": {
+                                                                        "kind": 1,
+                                                                        "len": 3,
+                                                                        "len_expr": []
+                                                                    },
+                                                                    "loc": {
+                                                                        "first": 207,
+                                                                        "last": 211,
+                                                                        "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                        "first_line": 2,
+                                                                        "first_column": 11,
+                                                                        "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                        "last_line": 2,
+                                                                        "last_column": 15
+                                                                    }
+                                                                }
+                                                            },
+                                                            "loc": {
+                                                                "first": 207,
+                                                                "last": 211,
+                                                                "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                                "first_line": 2,
+                                                                "first_column": 11,
+                                                                "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                                "last_line": 2,
+                                                                "last_column": 15
+                                                            }
+                                                        }
+                                                    ],
+                                                    "separator": [],
+                                                    "end": []
+                                                },
+                                                "loc": {
+                                                    "first": 201,
+                                                    "last": 212,
+                                                    "first_filename": "tests/../integration_tests/modules_02c.py",
+                                                    "first_line": 2,
+                                                    "first_column": 5,
+                                                    "last_filename": "tests/../integration_tests/modules_02c.py",
+                                                    "last_line": 2,
+                                                    "last_column": 16
+                                                }
+                                            }
+                                        ],
+                                        "return_var": [],
+                                        "access": "Public",
+                                        "deterministic": false,
+                                        "side_effect_free": false,
+                                        "module_file": []
+                                    },
+                                    "loc": {
+                                        "first": 188,
+                                        "last": 212,
+                                        "first_filename": "tests/../integration_tests/modules_02c.py",
+                                        "first_line": 1,
+                                        "first_column": 1,
+                                        "last_filename": "tests/../integration_tests/modules_02c.py",
+                                        "last_line": 2,
+                                        "last_column": 16
+                                    }
+                                }
+                            }
+                        },
+                        "name": "modules_02c",
+                        "dependencies": [],
+                        "loaded_from_mod": false,
+                        "intrinsic": false
+                    },
+                    "loc": {
+                        "first": 188,
+                        "last": 212,
+                        "first_filename": "tests/../integration_tests/modules_02c.py",
+                        "first_line": 1,
+                        "first_column": 1,
+                        "last_filename": "tests/../integration_tests/modules_02c.py",
+                        "last_line": 2,
+                        "last_column": 16
+                    }
+                }
+            }
+        },
+        "items": []
+    },
+    "loc": {
+        "first": 0,
+        "last": 125,
+        "first_filename": "tests/../integration_tests/modules_02.py",
+        "first_line": 1,
+        "first_column": 1,
+        "last_filename": "tests/../integration_tests/modules_02.py",
+        "last_line": 10,
+        "last_column": 7
+    }
+}

@@ -1,0 +1,439 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            test_List:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            a:
+                                                (Variable
+                                                    3
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            a11:
+                                                (Variable
+                                                    3
+                                                    a11
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    3
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b11:
+                                                (Variable
+                                                    3
+                                                    b11
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    3
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Integer 4)
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            d:
+                                                (Variable
+                                                    3
+                                                    d
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            e:
+                                                (Variable
+                                                    3
+                                                    e
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (List
+                                                            (Character 1 -2 ())
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_List
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 a)
+                                        (ListConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
+                                            (List
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (ListConstant
+                                            [(IntegerUnaryMinus
+                                                (IntegerConstant 3 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -3 (Integer 4))
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 2 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -2 (Integer 4))
+                                            )
+                                            (IntegerUnaryMinus
+                                                (IntegerConstant 1 (Integer 4))
+                                                (Integer 4)
+                                                (IntegerConstant -1 (Integer 4))
+                                            )]
+                                            (List
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (ListConstant
+                                            [(StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "b"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "c"
+                                                (Character 1 1 ())
+                                            )]
+                                            (List
+                                                (Character 1 1 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (ListConstant
+                                            [(ListConstant
+                                                [(IntegerConstant 1 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4))
+                                                (IntegerConstant 3 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (ListConstant
+                                                [(IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4))
+                                                (IntegerConstant 6 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )]
+                                            (List
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 d)
+                                        (ListItem
+                                            (Var 3 a)
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 e)
+                                        (ListConstant
+                                            [(ListConstant
+                                                [(StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "b"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "c"
+                                                    (Character 1 1 ())
+                                                )]
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            (ListConstant
+                                                [(StringConstant
+                                                    "d"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "e"
+                                                    (Character 1 1 ())
+                                                )]
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )]
+                                            (List
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (ListAppend
+                                        (Var 3 a)
+                                        (IntegerConstant 10 (Integer 4))
+                                    )
+                                    (ListRemove
+                                        (Var 3 a)
+                                        (IntegerConstant 1 (Integer 4))
+                                    )
+                                    (ListInsert
+                                        (Var 3 a)
+                                        (IntegerConstant 2 (Integer 4))
+                                        (IntegerConstant 13 (Integer 4))
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (ListSection
+                                            (Var 3 a)
+                                            ((IntegerConstant 0 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            ())
+                                            (List
+                                                (Integer 4)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 d)
+                                        (IntrinsicScalarFunction
+                                            ListPop
+                                            [(Var 3 a)]
+                                            0
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 d)
+                                        (IntrinsicScalarFunction
+                                            ListPop
+                                            [(Var 3 a)
+                                            (IntegerConstant 2 (Integer 4))]
+                                            1
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (ListConcat
+                                            (Var 3 a)
+                                            (ListConstant
+                                                [(IntegerConstant 4 (Integer 4))
+                                                (IntegerConstant 5 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (List
+                                                (Integer 4)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (ListConcat
+                                            (ListConstant
+                                                [(IntegerConstant 6 (Integer 4))
+                                                (IntegerConstant 7 (Integer 4))]
+                                                (List
+                                                    (Integer 4)
+                                                )
+                                            )
+                                            (Var 3 a)
+                                            (List
+                                                (Integer 4)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a11)
+                                        (ListConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))]
+                                            (List
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b11)
+                                        (ListConstant
+                                            [(IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4))]
+                                            (List
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (ListCompare
+                                            (Var 3 a11)
+                                            Eq
+                                            (Var 3 b11)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        4
+                        {
+                            
+                        })
+                    main_program
+                    []
+                    []
+                )
+        })
+    []
+)

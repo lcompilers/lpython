@@ -1,0 +1,13 @@
+{
+    "basename": "asr-structs_06-6e14537",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/structs_06.py",
+    "infile_hash": "9f4273c5fb4469837f65003255dcdca067c5c17735d0642757fd069c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-structs_06-6e14537.stderr",
+    "stderr_hash": "8e0da9c7e84854ce3d6ad79066a9fbb33d82c9fcde3af2a7baeccec8",
+    "returncode": 2
+}

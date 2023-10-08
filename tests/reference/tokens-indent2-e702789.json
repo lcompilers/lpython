@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-indent2-e702789",
+    "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/tokens/indent2.py",
+    "infile_hash": "6ee8bbeb2e48631f07b13012f569904545ce5c14e714003d030fc385",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "tokens-indent2-e702789.stdout",
+    "stdout_hash": "e259b5fcc4c1d83a04924c51a6a6f6d9be631970d3663e5be065ed7d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

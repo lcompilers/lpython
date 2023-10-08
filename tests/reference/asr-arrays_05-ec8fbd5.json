@@ -1,0 +1,13 @@
+{
+    "basename": "asr-arrays_05-ec8fbd5",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/arrays_05.py",
+    "infile_hash": "c525449694f73038495a6bd8fded408301f43d18b1c387765b92b792",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-arrays_05-ec8fbd5.stderr",
+    "stderr_hash": "066b86f582348bb519b6a39a7e7421ac5a666b29d9ef96d753be0207",
+    "returncode": 2
+}

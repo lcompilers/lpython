@@ -1,0 +1,13 @@
+{
+    "basename": "asr-array_02_decl-e8f6874",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/array_02_decl.py",
+    "infile_hash": "9a398864499c7a3b4e2a480faf3a5dccaa65f9771a8de27f55f11ca4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-array_02_decl-e8f6874.stderr",
+    "stderr_hash": "b9fd331511456947bef74d5df2f292244e7fa1861ab43918a6e02acd",
+    "returncode": 2
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-paren2-0eef339",
+    "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/tokens/errors/paren2.py",
+    "infile_hash": "64ddb2cf28db48e5c99c9ff58a848b654a8eaf8e4d133c6772034522",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "tokens-paren2-0eef339.stderr",
+    "stderr_hash": "60430252b0f0f0ab667252a10da601d08dcc962d240fbc7c3fe3fd6c",
+    "returncode": 1
+}

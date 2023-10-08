@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_import_02-55b47fa",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_import_02.py",
+    "infile_hash": "a3326a7bd9f6acc935235e1c0ff9cf4c26eda5f4052af774a148856c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_import_02-55b47fa.stderr",
+    "stderr_hash": "b30859152322cc22b1593d3af229c7b28fbc8bc03eb6542fec3a3c91",
+    "returncode": 2
+}

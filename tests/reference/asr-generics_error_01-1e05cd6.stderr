@@ -1,0 +1,5 @@
+semantic error: Inconsistent type variable for the function call
+  --> tests/errors/generics_error_01.py:12:7
+   |
+12 | print(f(1,"a"))
+   |       ^^^^^^^^ 

@@ -1,0 +1,13 @@
+{
+    "basename": "c-test_import_02-d2c54c4",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/test_import_02.py",
+    "infile_hash": "cf2059987c7470ee617df897ed0d19906a9a8a94f05a5612570fce91",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-test_import_02-d2c54c4.stdout",
+    "stdout_hash": "dc4de2618a3ad2e6c3f4eaa2b203104e51758040bb1f2ab14d85ba3a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

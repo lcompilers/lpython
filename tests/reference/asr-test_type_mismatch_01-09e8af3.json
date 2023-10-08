@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_type_mismatch_01-09e8af3",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_type_mismatch_01.py",
+    "infile_hash": "58baa8f4a5094bfa977527f92814a375ceea1f9a99c08e43bdd18ad4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_type_mismatch_01-09e8af3.stderr",
+    "stderr_hash": "78ff11b22438e133b740e778063db612841fb15ef00f8599bdf8602c",
+    "returncode": 2
+}

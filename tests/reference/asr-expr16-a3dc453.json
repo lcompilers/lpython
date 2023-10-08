@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr16-a3dc453",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/expr16.py",
+    "infile_hash": "c87ce02d4b227d695bad17d79c7359c0d8ffd64b5c5c231bce5528e4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-expr16-a3dc453.stderr",
+    "stderr_hash": "67cb0d8b08c9910cfdf81faffe003dec601823ff0fd07990a478baf4",
+    "returncode": 2
+}

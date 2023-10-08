@@ -1,0 +1,2149 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        6
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [test_ord
+                                    test_chr
+                                    more_test]
+                                    []
+                                    [(SubroutineCall
+                                        2 test_ord
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 test_chr
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 more_test
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            more_test:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            a:
+                                                (Variable
+                                                    5
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    5
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    5
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            d:
+                                                (Variable
+                                                    5
+                                                    d
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            p:
+                                                (Variable
+                                                    5
+                                                    p
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            q:
+                                                (Variable
+                                                    5
+                                                    q
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            r:
+                                                (Variable
+                                                    5
+                                                    r
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            s:
+                                                (Variable
+                                                    5
+                                                    s
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    more_test
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 5 p)
+                                        (IntegerConstant 97 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 q)
+                                        (IntegerConstant 112 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 r)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 s)
+                                        (IntegerConstant 65 (Integer 4))
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringChr
+                                            (Var 5 p)
+                                            (Character 1 1 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringChr
+                                            (Var 5 q)
+                                            (Character 1 1 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringChr
+                                            (Var 5 r)
+                                            (Character 1 1 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringChr
+                                            (Var 5 s)
+                                            (Character 1 1 ())
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 a)
+                                        (StringConstant
+                                            "!"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 b)
+                                        (StringConstant
+                                            " "
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 c)
+                                        (StringConstant
+                                            "Z"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 d)
+                                        (StringConstant
+                                            "g"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringOrd
+                                            (Var 5 a)
+                                            (Integer 4)
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringOrd
+                                            (Var 5 b)
+                                            (Integer 4)
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringOrd
+                                            (Var 5 c)
+                                            (Integer 4)
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(StringOrd
+                                            (Var 5 d)
+                                            (Integer 4)
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_chr:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            capital_a:
+                                                (Variable
+                                                    4
+                                                    capital_a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            capital_z:
+                                                (Variable
+                                                    4
+                                                    capital_z
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            dollar:
+                                                (Variable
+                                                    4
+                                                    dollar
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            exclamation:
+                                                (Variable
+                                                    4
+                                                    exclamation
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    4
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            left_parenthesis:
+                                                (Variable
+                                                    4
+                                                    left_parenthesis
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            nine:
+                                                (Variable
+                                                    4
+                                                    nine
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            plus:
+                                                (Variable
+                                                    4
+                                                    plus
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            right_brace:
+                                                (Variable
+                                                    4
+                                                    right_brace
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            right_bracket:
+                                                (Variable
+                                                    4
+                                                    right_bracket
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            semicolon:
+                                                (Variable
+                                                    4
+                                                    semicolon
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            small_a:
+                                                (Variable
+                                                    4
+                                                    small_a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            small_z:
+                                                (Variable
+                                                    4
+                                                    small_z
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            zero:
+                                                (Variable
+                                                    4
+                                                    zero
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_chr
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 i)
+                                        (IntegerConstant 33 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 exclamation)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 33 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "!"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "!"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 exclamation)
+                                            Eq
+                                            (StringConstant
+                                                "!"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 36 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 dollar)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 36 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "$"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "$"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 dollar)
+                                            Eq
+                                            (StringConstant
+                                                "$"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 40 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 left_parenthesis)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 40 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "("
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "("
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 left_parenthesis)
+                                            Eq
+                                            (StringConstant
+                                                "("
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 43 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 plus)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 43 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "+"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "+"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 plus)
+                                            Eq
+                                            (StringConstant
+                                                "+"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 48 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 zero)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 48 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "0"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "0"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 zero)
+                                            Eq
+                                            (StringConstant
+                                                "0"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 57 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 nine)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 57 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "9"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "9"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 nine)
+                                            Eq
+                                            (StringConstant
+                                                "9"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 59 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 semicolon)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 59 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    ";"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                ";"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 semicolon)
+                                            Eq
+                                            (StringConstant
+                                                ";"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 65 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 capital_a)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 65 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "A"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "A"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 capital_a)
+                                            Eq
+                                            (StringConstant
+                                                "A"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 90 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 capital_z)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 90 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "Z"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "Z"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 capital_z)
+                                            Eq
+                                            (StringConstant
+                                                "Z"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 93 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 right_bracket)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 93 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "]"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "]"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 right_bracket)
+                                            Eq
+                                            (StringConstant
+                                                "]"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 97 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 small_a)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 97 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 small_a)
+                                            Eq
+                                            (StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 122 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 small_z)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 122 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "z"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "z"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 small_z)
+                                            Eq
+                                            (StringConstant
+                                                "z"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (IntegerConstant 125 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 right_brace)
+                                        (StringChr
+                                            (Var 4 i)
+                                            (Character 1 1 ())
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (StringChr
+                                                (IntegerConstant 125 (Integer 4))
+                                                (Character 1 1 ())
+                                                (StringConstant
+                                                    "}"
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "}"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Var 4 right_brace)
+                                            Eq
+                                            (StringConstant
+                                                "}"
+                                                (Character 1 1 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_ord:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            capital_a_unicode:
+                                                (Variable
+                                                    3
+                                                    capital_a_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            capital_z_unicode:
+                                                (Variable
+                                                    3
+                                                    capital_z_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            dollar_unicode:
+                                                (Variable
+                                                    3
+                                                    dollar_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            exclamation_unicode:
+                                                (Variable
+                                                    3
+                                                    exclamation_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            left_parenthesis_unicode:
+                                                (Variable
+                                                    3
+                                                    left_parenthesis_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            nine_unicode:
+                                                (Variable
+                                                    3
+                                                    nine_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            plus_unicode:
+                                                (Variable
+                                                    3
+                                                    plus_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            right_brace_unicode:
+                                                (Variable
+                                                    3
+                                                    right_brace_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            right_bracket_unicode:
+                                                (Variable
+                                                    3
+                                                    right_bracket_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            s:
+                                                (Variable
+                                                    3
+                                                    s
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            semicolon_unicode:
+                                                (Variable
+                                                    3
+                                                    semicolon_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            small_a_unicode:
+                                                (Variable
+                                                    3
+                                                    small_a_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            small_z_unicode:
+                                                (Variable
+                                                    3
+                                                    small_z_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            zero_unicode:
+                                                (Variable
+                                                    3
+                                                    zero_unicode
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_ord
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "!"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 exclamation_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "!"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 33 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 33 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 exclamation_unicode)
+                                            Eq
+                                            (IntegerConstant 33 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "$"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 dollar_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "$"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 36 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 36 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 dollar_unicode)
+                                            Eq
+                                            (IntegerConstant 36 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "("
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 left_parenthesis_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "("
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 40 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 40 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 left_parenthesis_unicode)
+                                            Eq
+                                            (IntegerConstant 40 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "+"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 plus_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "+"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 43 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 43 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 plus_unicode)
+                                            Eq
+                                            (IntegerConstant 43 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "0"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 zero_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "0"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 48 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 48 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 zero_unicode)
+                                            Eq
+                                            (IntegerConstant 48 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "9"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 nine_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "9"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 57 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 57 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 nine_unicode)
+                                            Eq
+                                            (IntegerConstant 57 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            ";"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 semicolon_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    ";"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 59 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 59 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 semicolon_unicode)
+                                            Eq
+                                            (IntegerConstant 59 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "A"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 capital_a_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "A"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 65 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 65 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 capital_a_unicode)
+                                            Eq
+                                            (IntegerConstant 65 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "Z"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 capital_z_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "Z"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 90 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 90 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 capital_z_unicode)
+                                            Eq
+                                            (IntegerConstant 90 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "]"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 right_bracket_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "]"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 93 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 93 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 right_bracket_unicode)
+                                            Eq
+                                            (IntegerConstant 93 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "a"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 small_a_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "a"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 97 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 97 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 small_a_unicode)
+                                            Eq
+                                            (IntegerConstant 97 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "z"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 small_z_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "z"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 122 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 122 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 small_z_unicode)
+                                            Eq
+                                            (IntegerConstant 122 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "}"
+                                            (Character 1 1 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 right_brace_unicode)
+                                        (StringOrd
+                                            (Var 3 s)
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (StringOrd
+                                                (StringConstant
+                                                    "}"
+                                                    (Character 1 1 ())
+                                                )
+                                                (Integer 4)
+                                                (IntegerConstant 125 (Integer 4))
+                                            )
+                                            Eq
+                                            (IntegerConstant 125 (Integer 4))
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 3 right_brace_unicode)
+                                            Eq
+                                            (IntegerConstant 125 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        7
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    7
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        7 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

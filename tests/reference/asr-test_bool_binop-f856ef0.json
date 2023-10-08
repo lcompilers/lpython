@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_bool_binop-f856ef0",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_bool_binop.py",
+    "infile_hash": "7c44fe2915b3871b3b85edf3ab129d87a75fa4b9acbb597ae801daf9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_bool_binop-f856ef0.stderr",
+    "stderr_hash": "7e1f44ed79212fae132aca28b495a511f27ee327b9bf88b797502eff",
+    "returncode": 2
+}

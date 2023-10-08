@@ -1,0 +1,9 @@
+semantic error: Function f is already defined
+  --> tests/errors/func_01.py:9:1 - 10:16
+   |
+ 9 |    def f(i: i32):
+   |    ^^^^^^^^^^^^^^...
+...
+   |
+10 |        print(i + 2)
+   | ...^^^^^^^^^^^^^^^^ 

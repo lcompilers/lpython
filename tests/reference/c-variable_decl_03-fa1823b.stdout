@@ -1,0 +1,52 @@
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+double _lcompilers_abs_f64(double x);
+double f();
+void _xx_lcompilers_changed_main_xx();
+void __main__global_stmts();
+
+
+
+// Implementations
+double _lcompilers_abs_f64(double x)
+{
+    double _lcompilers_abs_f64;
+    if (x >=   0.00000000000000000e+00) {
+        _lcompilers_abs_f64 = x;
+    } else {
+        _lcompilers_abs_f64 = -x;
+    }
+    return _lcompilers_abs_f64;
+}
+
+double f()
+{
+    double _lpython_return_variable;
+    _lpython_return_variable =   5.50000000000000000e+00;
+    return _lpython_return_variable;
+}
+
+void _xx_lcompilers_changed_main_xx()
+{
+    double t1;
+    t1 = f()*  1.00000000000000000e+06;
+    printf("%lf\n", t1);
+    ASSERT(_lcompilers_abs_f64(t1 -   5.50000000000000000e+00*  1.00000000000000000e+06) <=   9.99999999999999955e-07);
+}
+
+void __main__global_stmts()
+{
+    _xx_lcompilers_changed_main_xx();
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_set_argv(argc, argv);
+    __main__global_stmts();
+    return 0;
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "run_dbg-test_assert_02-c6de25a",
+    "cmd": "lpython {infile} -g --debug-with-line-column --no-color",
+    "infile": "tests/runtime_errors/test_assert_02.py",
+    "infile_hash": "85f0e908c3e5d21da83216f95221f59ebd69b477f42718842c1d6c8c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "run_dbg-test_assert_02-c6de25a.stderr",
+    "stderr_hash": "d5bfce55992e8d0630849442ee1f9b32864c64c328917c29fafc9424",
+    "returncode": 1
+}

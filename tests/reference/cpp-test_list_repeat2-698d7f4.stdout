@@ -1,0 +1,256 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <cmath>
+#include <complex>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+
+struct list_r32 {
+    int32_t capacity;
+    int32_t current_end_point;
+    float* data;
+};
+
+inline bool compare_list_r32_(struct list_r32 a, struct list_r32 b);
+inline bool compare_r32(float a, float b);
+inline void print_list_r32_(struct list_r32 a);
+inline void print_r32(float a);
+inline void list_init_r32(struct list_r32* x, int32_t capacity);
+inline void list_deepcopy_r32(struct list_r32* src, struct list_r32* dest);
+inline void resize_if_needed_r32(struct list_r32* x);
+inline void list_append_r32(struct list_r32* x, float element);
+inline void list_insert_r32(struct list_r32* x, int pos, float element);
+inline int list_find_item_r32(struct list_r32* x, float element);
+inline void list_remove_r32(struct list_r32* x, float element);
+inline void list_clear_r32(struct list_r32* x);
+inline struct list_r32* list_concat_r32(struct list_r32* left, struct list_r32* right);
+inline struct list_r32* list_repeat_r32(struct list_r32* x, int32_t freq);
+inline struct list_r32* list_section_r32(struct list_r32* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present);
+
+// Forward declarations
+void __main__global_stmts();
+float add_list(struct list_r32 x);
+struct list_r32 create_list(int32_t n);
+void main0();
+namespace {
+}
+
+// Implementations
+struct list_r32 create_list(int32_t n)
+{
+    struct list_r32 _lpython_return_variable;
+    int32_t i;
+    struct list_r32 x;
+    struct list_r32 constname0;
+    list_init_r32(&constname0, 1);
+    constname0.data[0] =   0.00000000000000000e+00;
+    constname0.current_end_point = 1;
+    list_deepcopy_r32(&(*list_repeat_r32(&constname0, n)), &x);
+
+    for (i=0; i<=n - 1; i++) {
+        x.data[i] = (float)(i);
+    }
+    list_deepcopy_r32(&x, &_lpython_return_variable);
+
+    return _lpython_return_variable;
+}
+
+float add_list(struct list_r32 x)
+{
+    float _lpython_return_variable;
+    int32_t i;
+    float sum;
+    sum =   0.00000000000000000e+00;
+    for (i=0; i<=x.current_end_point - 1; i++) {
+        sum = sum + x.data[i];
+    }
+    _lpython_return_variable = sum;
+    return _lpython_return_variable;
+}
+
+void main0()
+{
+    struct list_r32 x;
+    struct list_r32 constname01 = create_list(10);
+    list_deepcopy_r32(&constname01, &x);
+
+    std::cout << add_list(x) << std::endl;
+}
+
+void __main__global_stmts()
+{
+    main0();
+}
+
+namespace {
+
+void main2() {
+    __main__global_stmts();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}
+
+bool compare_r32(float a, float b) {
+    return a == b;
+}
+
+bool compare_list_r32_(struct list_r32 a, struct list_r32 b) {
+    if (a.current_end_point != b.current_end_point)
+        return false;
+    for (int i=0; i<a.current_end_point; i++) {
+        if (!compare_r32(a.data[i], b.data[i]))
+            return false;
+    }
+    return true;
+}
+
+void print_r32(float a) {
+    printf("%f", a);
+}
+
+void print_list_r32_(struct list_r32 a) {
+    printf("[");
+    for (int i=0; i<a.current_end_point; i++) {
+        print_r32(a.data[i]);
+        if (i+1!=a.current_end_point)
+            printf(", ");
+    }
+    printf("]");
+}
+
+void list_init_r32(struct list_r32* x, int32_t capacity) {
+    x->capacity = capacity;
+    x->current_end_point = 0;
+    x->data = (float*) malloc(capacity * sizeof(float));
+}
+
+void list_deepcopy_r32(struct list_r32* src, struct list_r32* dest) {
+    dest->capacity = src->capacity;
+    dest->current_end_point = src->current_end_point;
+    dest->data = (float*) malloc(src->capacity * sizeof(float));
+    memcpy(dest->data, src->data, src->capacity * sizeof(float));
+}
+
+void resize_if_needed_r32(struct list_r32* x) {
+    if (x->capacity == x->current_end_point) {
+        x->capacity = 2 * x->capacity + 1;
+        x->data = (float*) realloc(x->data, x->capacity * sizeof(float));
+    }
+}
+
+void list_append_r32(struct list_r32* x, float element) {
+    resize_if_needed_r32(x);
+    x->data[x->current_end_point] = element;
+    x->current_end_point += 1;
+}
+
+void list_insert_r32(struct list_r32* x, int pos, float element) {
+    resize_if_needed_r32(x);
+    int pos_ptr = pos;
+    float tmp_ptr = x->data[pos];
+    float tmp;
+    while (x->current_end_point > pos_ptr) {
+        tmp = x->data[pos_ptr + 1];
+        x->data[pos_ptr + 1] = tmp_ptr;
+        tmp_ptr = tmp;
+        pos_ptr++;
+    }
+
+    x->data[pos] = element;
+    x->current_end_point += 1;
+}
+
+int list_find_item_r32(struct list_r32* x, float element) {
+    int el_pos = 0;
+    while (x->current_end_point > el_pos) {
+        if (compare_r32(x->data[el_pos], element)) return el_pos;
+        el_pos++;
+    }
+    return -1;
+}
+
+void list_remove_r32(struct list_r32* x, float element) {
+    int el_pos = list_find_item_r32(x, element);
+    while (x->current_end_point > el_pos) {
+        int tmp = el_pos + 1;
+        x->data[el_pos] = x->data[tmp];
+        el_pos = tmp;
+    }
+    x->current_end_point -= 1;
+}
+
+void list_clear_r32(struct list_r32* x) {
+    free(x->data);
+    x->capacity = 4;
+    x->current_end_point = 0;
+    x->data = (float*) malloc(x->capacity * sizeof(float));
+}
+
+struct list_r32* list_concat_r32(struct list_r32* left, struct list_r32* right) {
+    struct list_r32 *result = (struct list_r32*)malloc(sizeof(struct list_r32));
+    list_init_r32(result, left->current_end_point + right->current_end_point);
+    memcpy(result->data, left->data, left->current_end_point * sizeof(float));
+    memcpy(result->data + left->current_end_point, right->data, right->current_end_point * sizeof(float));
+    result->current_end_point = left->current_end_point + right->current_end_point;
+    return result;
+}
+
+struct list_r32* list_repeat_r32(struct list_r32* x, int32_t freq) {
+    struct list_r32 *result = (struct list_r32*)malloc(sizeof(struct list_r32));
+    list_init_r32(result, x->current_end_point * freq);
+    for (int i=0; i<freq; i++) {
+        memcpy(&result->data[i*x->current_end_point], x->data, x->current_end_point * sizeof(float));
+    }
+    result->current_end_point = x->current_end_point * freq;
+    return result;
+}
+
+struct list_r32* list_section_r32(struct list_r32* x, int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present) {
+    int s_len = x->current_end_point;
+    if (step == 0) {
+        printf("slice step cannot be zero");
+        exit(1);
+    }
+    idx1 = idx1 < 0 ? idx1 + s_len : idx1;
+    idx2 = idx2 < 0 ? idx2 + s_len : idx2;
+    idx1 = i1_present ? idx1 : (step > 0 ? 0 : s_len-1);
+    idx2 = i2_present ? idx2 : (step > 0 ? s_len : -1);
+    idx2 = step > 0 ? (idx2 > s_len ? s_len : idx2) : idx2;
+    idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;
+    struct list_r32 *__tmp = (struct list_r32*) malloc(sizeof(struct list_r32));
+    list_init_r32(__tmp, 4);
+    int s_i = idx1;
+    while((step > 0 && s_i >= idx1 && s_i < idx2) ||
+        (step < 0 && s_i <= idx1 && s_i > idx2)) {
+    list_append_r32(__tmp, x->data[s_i]);
+    s_i+=step;
+    }
+    return __tmp;
+}
+
+

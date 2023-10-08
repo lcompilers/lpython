@@ -1,0 +1,5 @@
+semantic error: 'dict' key type cannot be float/complex because resolving collisions by exact comparison of float/complex values will result in unexpected behaviours. In addition fuzzy equality checks with a certain tolerance does not follow transitivity with float/complex values.
+ --> tests/errors/test_dict10.py:4:8
+  |
+4 |     d: dict[c32, f64] = {}
+  |        ^^^^^^^^^^^^^^ 

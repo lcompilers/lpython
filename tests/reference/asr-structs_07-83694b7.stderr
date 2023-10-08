@@ -1,0 +1,5 @@
+semantic error: Not enough arguments to S(), expected 2
+ --> tests/errors/structs_07.py:9:12
+  |
+9 |     s: S = S(y=2)
+  |            ^^^^^^ 

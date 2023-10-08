@@ -1,0 +1,5 @@
+semantic error: Argument to set.add must be of same type as set's element type
+ --> tests/errors/test_set1.py:6:5
+  |
+6 |     a.add('err')
+  |     ^^^^^^^^^^^^ 

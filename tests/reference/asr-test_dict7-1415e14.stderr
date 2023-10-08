@@ -1,0 +1,5 @@
+semantic error: unhashable type in dict: 'slice'
+ --> tests/errors/test_dict7.py:4:11
+  |
+4 |     print(d[1:2])
+  |           ^^^^^^ 

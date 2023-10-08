@@ -1,0 +1,34 @@
+(TOKEN "comment") 0:9
+(NEWLINE) 10:10
+(KEYWORD "def") 11:13
+(TOKEN "identifier" test) 15:18
+(TOKEN "(") 19:19
+(TOKEN ")") 20:20
+(TOKEN ":") 21:21
+(TOKEN "eolcomment") 23:33
+(NEWLINE) 34:34
+(TOKEN "comment") 39:49
+(NEWLINE) 50:50
+(TOKEN "indent") 51:54
+(TOKEN "identifier" print) 55:59
+(TOKEN "(") 60:60
+(TOKEN ")") 61:61
+(NEWLINE) 62:62
+(TOKEN "comment") 63:73
+(NEWLINE) 74:74
+(TOKEN "dedent") 74:74
+(TOKEN "identifier" test) 75:78
+(TOKEN "(") 79:79
+(TOKEN ")") 80:80
+(TOKEN "eolcomment") 82:92
+(NEWLINE) 93:93
+(TOKEN "comment") 94:104
+(NEWLINE) 105:105
+(NEWLINE) 106:106
+(TOKEN "comment") 107:109
+(NEWLINE) 110:110
+(TOKEN "comment") 111:122
+(NEWLINE) 123:123
+(TOKEN "comment") 124:133
+(NEWLINE) 134:134
+(EOF) 135:135

@@ -1,0 +1,70 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+
+struct i16
+{
+    int16_t *data;
+    struct dimension_descriptor dims[32];
+    int32_t n_dims;
+    bool is_allocated;
+};
+
+void g(struct i16* *x, struct i16* y);
+void check(struct i16* *ptr);
+void f();
+void __main__global_stmts();
+
+
+
+// Implementations
+void g(struct i16* *x, struct i16* y)
+{
+    y->data[(0 - y->dims[0].lower_bound)] = 1;
+    y->data[(1 - y->dims[0].lower_bound)] = 2;
+    (*x) = y;
+    printf("%d%s%d\n", (*x)->data[(0 - (*x)->dims[0].lower_bound)], " ", (*x)->data[(1 - (*x)->dims[0].lower_bound)]);
+}
+
+void check(struct i16* *ptr)
+{
+    ASSERT((*ptr)->data[(0 - (*ptr)->dims[0].lower_bound)] == 1);
+    ASSERT((*ptr)->data[(1 - (*ptr)->dims[0].lower_bound)] == 2);
+}
+
+void f()
+{
+    struct i16 y_value;
+    struct i16* y = &y_value;
+    int16_t y_data[2];
+    y->data = y_data;
+    y->n_dims = 1;
+    y->dims[0].lower_bound = 0;
+    y->dims[0].length = 2;
+    struct i16 yptr1_value;
+    struct i16* yptr1 = &yptr1_value;
+    g(&yptr1, y);
+    check(&yptr1);
+}
+
+void __main__global_stmts()
+{
+    f();
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_set_argv(argc, argv);
+    __main__global_stmts();
+    return 0;
+}

@@ -1,0 +1,432 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [main]
+                                    []
+                                    [(SubroutineCall
+                                        2 main
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            fib:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    3
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            n:
+                                                (Variable
+                                                    3
+                                                    n
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    fib
+                                    (FunctionType
+                                        [(Integer 8)]
+                                        (Integer 8)
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [fib]
+                                    [(Var 3 n)]
+                                    [(If
+                                        (IntegerCompare
+                                            (Var 3 n)
+                                            Lt
+                                            (Cast
+                                                (IntegerConstant 2 (Integer 4))
+                                                IntegerToInteger
+                                                (Integer 8)
+                                                (IntegerConstant 2 (Integer 8))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        [(=
+                                            (Var 3 _lpython_return_variable)
+                                            (Var 3 n)
+                                            ()
+                                        )
+                                        (Return)]
+                                        []
+                                    )
+                                    (=
+                                        (Var 3 _lpython_return_variable)
+                                        (IntegerBinOp
+                                            (FunctionCall
+                                                2 fib
+                                                ()
+                                                [((IntegerBinOp
+                                                    (Var 3 n)
+                                                    Sub
+                                                    (Cast
+                                                        (IntegerConstant 1 (Integer 4))
+                                                        IntegerToInteger
+                                                        (Integer 8)
+                                                        (IntegerConstant 1 (Integer 8))
+                                                    )
+                                                    (Integer 8)
+                                                    ()
+                                                ))]
+                                                (Integer 8)
+                                                ()
+                                                ()
+                                            )
+                                            Add
+                                            (FunctionCall
+                                                2 fib
+                                                ()
+                                                [((IntegerBinOp
+                                                    (Var 3 n)
+                                                    Sub
+                                                    (Cast
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        IntegerToInteger
+                                                        (Integer 8)
+                                                        (IntegerConstant 2 (Integer 8))
+                                                    )
+                                                    (Integer 8)
+                                                    ()
+                                                ))]
+                                                (Integer 8)
+                                                ()
+                                                ()
+                                            )
+                                            (Integer 8)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 3 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            main:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            _lpython_return_variable_fib:
+                                                (Variable
+                                                    4
+                                                    _lpython_return_variable_fib
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            ans:
+                                                (Variable
+                                                    4
+                                                    ans
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            n_fib:
+                                                (Variable
+                                                    4
+                                                    n_fib
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    4
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            ~empty_block:
+                                                (Block
+                                                    (SymbolTable
+                                                        7
+                                                        {
+                                                            
+                                                        })
+                                                    ~empty_block
+                                                    []
+                                                )
+                                        })
+                                    main
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [fib]
+                                    []
+                                    [(=
+                                        (Var 4 x)
+                                        (Cast
+                                            (IntegerConstant 40 (Integer 4))
+                                            IntegerToInteger
+                                            (Integer 8)
+                                            (IntegerConstant 40 (Integer 8))
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 n_fib)
+                                        (Var 4 x)
+                                        ()
+                                    )
+                                    (If
+                                        (IntegerCompare
+                                            (Var 4 n_fib)
+                                            Lt
+                                            (Cast
+                                                (IntegerConstant 2 (Integer 4))
+                                                IntegerToInteger
+                                                (Integer 8)
+                                                (IntegerConstant 2 (Integer 8))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        [(=
+                                            (Var 4 _lpython_return_variable_fib)
+                                            (Var 4 n_fib)
+                                            ()
+                                        )
+                                        (GoTo
+                                            1
+                                            __1
+                                        )]
+                                        []
+                                    )
+                                    (=
+                                        (Var 4 _lpython_return_variable_fib)
+                                        (IntegerBinOp
+                                            (FunctionCall
+                                                2 fib
+                                                ()
+                                                [((IntegerBinOp
+                                                    (Var 4 n_fib)
+                                                    Sub
+                                                    (Cast
+                                                        (IntegerConstant 1 (Integer 4))
+                                                        IntegerToInteger
+                                                        (Integer 8)
+                                                        (IntegerConstant 1 (Integer 8))
+                                                    )
+                                                    (Integer 8)
+                                                    ()
+                                                ))]
+                                                (Integer 8)
+                                                ()
+                                                ()
+                                            )
+                                            Add
+                                            (FunctionCall
+                                                2 fib
+                                                ()
+                                                [((IntegerBinOp
+                                                    (Var 4 n_fib)
+                                                    Sub
+                                                    (Cast
+                                                        (IntegerConstant 2 (Integer 4))
+                                                        IntegerToInteger
+                                                        (Integer 8)
+                                                        (IntegerConstant 2 (Integer 8))
+                                                    )
+                                                    (Integer 8)
+                                                    ()
+                                                ))]
+                                                (Integer 8)
+                                                ()
+                                                ()
+                                            )
+                                            (Integer 8)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (GoTo
+                                        1
+                                        __1
+                                    )
+                                    (BlockCall
+                                        1
+                                        4 ~empty_block
+                                    )
+                                    (=
+                                        (Var 4 ans)
+                                        (Var 4 _lpython_return_variable_fib)
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 4 ans)]
+                                        ()
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 4 ans)
+                                            Eq
+                                            (Cast
+                                                (IntegerConstant 102334155 (Integer 4))
+                                                IntegerToInteger
+                                                (Integer 8)
+                                                (IntegerConstant 102334155 (Integer 8))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        6
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    6
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        6 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

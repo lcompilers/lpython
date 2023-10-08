@@ -1,0 +1,5 @@
+semantic error: Member 'y' not found in struct
+ --> tests/errors/structs_03.py:8:14
+  |
+8 |     s: S = S(y=2)
+  |              ^^^ 

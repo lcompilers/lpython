@@ -1,0 +1,13 @@
+{
+    "basename": "wat-expr2-8b17723",
+    "cmd": "lpython --no-color --show-wat {infile}",
+    "infile": "tests/expr2.py",
+    "infile_hash": "52d7d4d33553138f2cf55b9900047e5310c54d62e54b3ca1fa394024",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "wat-expr2-8b17723.stdout",
+    "stdout_hash": "f8ff7eb9eb4bc533fc4d36c58a0378df6dfbf135313962dbf379d69a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

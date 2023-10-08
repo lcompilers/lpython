@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin_hex-64bd268",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin_hex.py",
+    "infile_hash": "e639f0251477f50376536d317630e3c026354859576a5f1b7b10bd7d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_builtin_hex-64bd268.stderr",
+    "stderr_hash": "22b2ae7d0d34d2406125547149511ab5990a5f2163c186c48c5c4f05",
+    "returncode": 2
+}

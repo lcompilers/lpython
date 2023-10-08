@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_print1-f1f36f1",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_print1.py",
+    "infile_hash": "824e91278f3717dbe58ef4c18f8df06f9c7d4644ca6f3a65cccdc9e0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_print1-f1f36f1.stderr",
+    "stderr_hash": "da6324bcc282ecb93fe6784b206f8a9d8f04ae56341339b13de71bd4",
+    "returncode": 2
+}

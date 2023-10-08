@@ -1,0 +1,33 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+
+
+
+// Implementations
+double f(double x);
+
+void g(double a, float b, int64_t c, int32_t d);
+
+double h(double x)
+{
+    double _lpython_return_variable;
+    _lpython_return_variable = x +   1.00000000000000000e+00;
+    return _lpython_return_variable;
+}
+
+void l(double a, float b, int64_t c, int32_t d)
+{
+    printf("%s\n", "OK");
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_set_argv(argc, argv);
+    return 0;
+}

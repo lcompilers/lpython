@@ -1,0 +1,5 @@
+semantic error: Type mismatch in shorthand operator, the types must be compatible
+ --> tests/errors/type_mismatch.py:8:5
+  |
+8 |     a *= b
+  |     ^    ^ type mismatch ('i32' and 'f32')

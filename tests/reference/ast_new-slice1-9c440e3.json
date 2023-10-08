@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-slice1-9c440e3",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/slice1.py",
+    "infile_hash": "b682e6a952b39d1b9310299340035aed5d4c6916814c1293d0aa9977",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-slice1-9c440e3.stdout",
+    "stdout_hash": "f2c5ce2eeecd08f73104a45cfb87a2bcabc55ca3a65e3c751c207beb",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

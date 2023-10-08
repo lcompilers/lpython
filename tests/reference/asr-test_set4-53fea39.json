@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_set4-53fea39",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_set4.py",
+    "infile_hash": "3d78c7ad82aa32c3a4cc5f1a7d44e53b81639194f55672ddc99b4d2d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_set4-53fea39.stderr",
+    "stderr_hash": "d9646bd3609c55ff39f57ca435fedc7dabed530caf28caddc9e58a06",
+    "returncode": 2
+}

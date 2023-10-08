@@ -1,0 +1,5 @@
+tokenizer error: Parentheses was never closed
+ --> tests/tokens/errors/paren4.py:6:1
+  |
+6 | 
+  | ^ 

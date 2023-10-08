@@ -1,0 +1,5 @@
+semantic error: Modifying input function parameter `l` is not allowed
+ --> tests/errors/func_04.py:4:5
+  |
+4 |     l.append(5)
+  |     ^^^^^^^^^^^ 

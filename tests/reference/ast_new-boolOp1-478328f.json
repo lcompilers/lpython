@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-boolOp1-478328f",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/boolOp1.py",
+    "infile_hash": "d3c477215f26d7a7e09c7de32d3e716585796d1674cba2ea692fe161",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-boolOp1-478328f.stdout",
+    "stdout_hash": "e17703190ca113a29b38292421ba27f4d2d8e235a51115e9d3a2710f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

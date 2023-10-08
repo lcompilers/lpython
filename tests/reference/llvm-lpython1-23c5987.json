@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-lpython1-23c5987",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/lpython1.py",
+    "infile_hash": "195a467b66705e0f2638aee8c8a6e9145112b2964e05896c328e0d86",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-lpython1-23c5987.stdout",
+    "stdout_hash": "15764832892f7e0cd2a438b247a148564f5f83b3a00ca929bd9cc625",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

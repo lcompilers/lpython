@@ -1,0 +1,187 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            test_boolOp:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            a:
+                                                (Variable
+                                                    3
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Logical 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    3
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Logical 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_boolOp
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 a)
+                                        (LogicalConstant
+                                            .false.
+                                            (Logical 4)
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (LogicalConstant
+                                            .true.
+                                            (Logical 4)
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalBinOp
+                                            (Var 3 a)
+                                            And
+                                            (Var 3 b)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (LogicalBinOp
+                                            (Var 3 a)
+                                            Or
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalBinOp
+                                            (Var 3 a)
+                                            Or
+                                            (Var 3 b)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalBinOp
+                                            (Var 3 a)
+                                            And
+                                            (LogicalCompare
+                                                (Var 3 b)
+                                                Eq
+                                                (Var 3 b)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalBinOp
+                                            (Var 3 a)
+                                            And
+                                            (LogicalCompare
+                                                (Var 3 b)
+                                                NotEq
+                                                (Var 3 b)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (LogicalBinOp
+                                            (Var 3 b)
+                                            Or
+                                            (Var 3 b)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        4
+                        {
+                            
+                        })
+                    main_program
+                    []
+                    []
+                )
+        })
+    []
+)

@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-comment2-b289dad",
+    "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/tokens/comment2.py",
+    "infile_hash": "b62404a5d774f0b18fcad6fb1dac8733334ce3593a77d34bcbb05019",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "tokens-comment2-b289dad.stdout",
+    "stdout_hash": "40e09fec45afa4b961404b5b0e5d4b1ff68828891bbf3c2cd373a910",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

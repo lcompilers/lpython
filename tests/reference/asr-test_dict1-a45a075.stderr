@@ -1,0 +1,5 @@
+semantic error: Key type should be 'i32' instead of 'str'
+ --> tests/errors/test_dict1.py:5:11
+  |
+5 |     z = x["a"]
+  |           ^^^ 

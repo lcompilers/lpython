@@ -1,0 +1,5 @@
+semantic error: Separator is expected to be of string type
+ --> tests/errors/test_print1.py:2:25
+  |
+2 |     print("a", "b", sep=2)
+  |                         ^ Expected string, found: integer

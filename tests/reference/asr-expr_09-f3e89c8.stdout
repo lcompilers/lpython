@@ -1,0 +1,1009 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        8
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [test_multiple_assign_1
+                                    test_issue_928
+                                    main0]
+                                    []
+                                    [(SubroutineCall
+                                        2 test_multiple_assign_1
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 test_issue_928
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 main0
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            main0:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            i1:
+                                                (Variable
+                                                    3
+                                                    i1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i2:
+                                                (Variable
+                                                    3
+                                                    i2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    main0
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 i1)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 i2)
+                                        (IntegerConstant 4 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 i1)
+                                        (IntegerConstant 3 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 i2)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(IntegerBinOp
+                                            (IntegerUnaryMinus
+                                                (Var 3 i1)
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            BitXor
+                                            (IntegerUnaryMinus
+                                                (Var 3 i2)
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            (Integer 4)
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (IntegerBinOp
+                                                (IntegerUnaryMinus
+                                                    (Var 3 i1)
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                BitXor
+                                                (IntegerUnaryMinus
+                                                    (Var 3 i2)
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            Eq
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_issue_928:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            a:
+                                                (Variable
+                                                    5
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    5
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    5
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Tuple
+                                                        [(Integer 4)
+                                                        (Integer 4)]
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_issue_928
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (TupleConstant
+                                            [(Var 5 a)
+                                            (Var 5 b)]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        (TupleConstant
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 c)
+                                        (TupleConstant
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 1 (Integer 4))]
+                                            (Tuple
+                                                [(Integer 4)
+                                                (Integer 4)]
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 5 a)
+                                            Eq
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 5 b)
+                                            Eq
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (LogicalBinOp
+                                            (IntegerCompare
+                                                (TupleItem
+                                                    (Var 5 c)
+                                                    (IntegerConstant 0 (Integer 4))
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                Eq
+                                                (Var 5 a)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            And
+                                            (IntegerCompare
+                                                (TupleItem
+                                                    (Var 5 c)
+                                                    (IntegerConstant 1 (Integer 4))
+                                                    (Integer 4)
+                                                    ()
+                                                )
+                                                Eq
+                                                (Var 5 b)
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_multiple_assign_1:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            a:
+                                                (Variable
+                                                    4
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    4
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    4
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            d:
+                                                (Variable
+                                                    4
+                                                    d
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            e:
+                                                (Variable
+                                                    4
+                                                    e
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            g:
+                                                (Variable
+                                                    4
+                                                    g
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    4
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            j:
+                                                (Variable
+                                                    4
+                                                    j
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            k:
+                                                (Variable
+                                                    4
+                                                    k
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Real 8)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    4
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            y:
+                                                (Variable
+                                                    4
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Real 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_multiple_assign_1
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 g)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 d)
+                                        (RealBinOp
+                                            (Cast
+                                                (Var 4 g)
+                                                IntegerToReal
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Add
+                                            (RealConstant
+                                                1.000000
+                                                (Real 8)
+                                            )
+                                            (Real 8)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 e)
+                                        (RealBinOp
+                                            (Cast
+                                                (Var 4 g)
+                                                IntegerToReal
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Add
+                                            (RealConstant
+                                                1.000000
+                                                (Real 8)
+                                            )
+                                            (Real 8)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 a)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 b)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 c)
+                                        (IntegerConstant 10 (Integer 4))
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 4 a)
+                                            Eq
+                                            (Var 4 b)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 4 b)
+                                            Eq
+                                            (Var 4 c)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 4 a)
+                                            Eq
+                                            (IntegerConstant 10 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 x)
+                                        (RealConstant
+                                            23.000000
+                                            (Real 8)
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 y)
+                                        (RealConstant
+                                            23.000000
+                                            (Real 8)
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicScalarFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (Var 4 x)
+                                                    Sub
+                                                    (RealConstant
+                                                        23.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (RealConstant
+                                                0.000001
+                                                (Real 8)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicScalarFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (Var 4 y)
+                                                    Sub
+                                                    (RealConstant
+                                                        23.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (RealConstant
+                                                0.000000
+                                                (Real 8)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicScalarFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (Var 4 e)
+                                                    Sub
+                                                    (RealConstant
+                                                        6.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (RealConstant
+                                                0.000001
+                                                (Real 8)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (RealCompare
+                                            (IntrinsicScalarFunction
+                                                Abs
+                                                [(RealBinOp
+                                                    (Var 4 d)
+                                                    Sub
+                                                    (RealConstant
+                                                        6.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )]
+                                                0
+                                                (Real 8)
+                                                ()
+                                            )
+                                            Lt
+                                            (RealConstant
+                                                0.000000
+                                                (Real 8)
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 k)
+                                        (ListConstant
+                                            []
+                                            (List
+                                                (Real 8)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 g)
+                                        (IntegerConstant 0 (Integer 4))
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 4 g)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 10 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(ListAppend
+                                            (Var 4 k)
+                                            (RealBinOp
+                                                (RealBinOp
+                                                    (Cast
+                                                        (Var 4 g)
+                                                        IntegerToReal
+                                                        (Real 8)
+                                                        ()
+                                                    )
+                                                    Mul
+                                                    (RealConstant
+                                                        2.000000
+                                                        (Real 8)
+                                                    )
+                                                    (Real 8)
+                                                    ()
+                                                )
+                                                Add
+                                                (RealConstant
+                                                    5.000000
+                                                    (Real 8)
+                                                )
+                                                (Real 8)
+                                                ()
+                                            )
+                                        )]
+                                    )
+                                    (=
+                                        (Var 4 i)
+                                        (Var 4 k)
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 j)
+                                        (Var 4 k)
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 4 g)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 10 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(Assert
+                                            (RealCompare
+                                                (IntrinsicScalarFunction
+                                                    Abs
+                                                    [(RealBinOp
+                                                        (ListItem
+                                                            (Var 4 i)
+                                                            (Var 4 g)
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        Sub
+                                                        (ListItem
+                                                            (Var 4 j)
+                                                            (Var 4 g)
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        (Real 8)
+                                                        ()
+                                                    )]
+                                                    0
+                                                    (Real 8)
+                                                    ()
+                                                )
+                                                Lt
+                                                (RealConstant
+                                                    0.000000
+                                                    (Real 8)
+                                                )
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Assert
+                                            (RealCompare
+                                                (IntrinsicScalarFunction
+                                                    Abs
+                                                    [(RealBinOp
+                                                        (ListItem
+                                                            (Var 4 i)
+                                                            (Var 4 g)
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        Sub
+                                                        (ListItem
+                                                            (Var 4 k)
+                                                            (Var 4 g)
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        (Real 8)
+                                                        ()
+                                                    )]
+                                                    0
+                                                    (Real 8)
+                                                    ()
+                                                )
+                                                Lt
+                                                (RealConstant
+                                                    0.000000
+                                                    (Real 8)
+                                                )
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            ()
+                                        )
+                                        (Assert
+                                            (RealCompare
+                                                (IntrinsicScalarFunction
+                                                    Abs
+                                                    [(RealBinOp
+                                                        (RealBinOp
+                                                            (RealBinOp
+                                                                (Cast
+                                                                    (Var 4 g)
+                                                                    IntegerToReal
+                                                                    (Real 8)
+                                                                    ()
+                                                                )
+                                                                Mul
+                                                                (RealConstant
+                                                                    2.000000
+                                                                    (Real 8)
+                                                                )
+                                                                (Real 8)
+                                                                ()
+                                                            )
+                                                            Add
+                                                            (RealConstant
+                                                                5.000000
+                                                                (Real 8)
+                                                            )
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        Sub
+                                                        (ListItem
+                                                            (Var 4 k)
+                                                            (Var 4 g)
+                                                            (Real 8)
+                                                            ()
+                                                        )
+                                                        (Real 8)
+                                                        ()
+                                                    )]
+                                                    0
+                                                    (Real 8)
+                                                    ()
+                                                )
+                                                Lt
+                                                (RealConstant
+                                                    0.000000
+                                                    (Real 8)
+                                                )
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            ()
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        9
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    9
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        9 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

@@ -1,0 +1,53 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+int32_t add(int32_t x, int32_t y);
+int32_t multiply(int32_t x, int32_t y);
+void f();
+void __main__global_stmts();
+
+
+
+// Implementations
+const double μ =   1.45136923488338110e+00;
+int32_t add(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = x + y;
+    return _lpython_return_variable;
+}
+
+const double e =   2.71828182845904509e+00;
+int32_t multiply(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = x*y;
+    return _lpython_return_variable;
+}
+
+void f()
+{
+    printf("%lf\n", e);
+    printf("%lf\n", μ);
+    printf("%d\n", add(10, 20));
+    printf("%d\n", multiply(10, 20));
+    ASSERT(add(10, 20) == 30);
+    ASSERT(multiply(10, 20) == 200);
+}
+
+void __main__global_stmts()
+{
+    f();
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_set_argv(argc, argv);
+    __main__global_stmts();
+    return 0;
+}

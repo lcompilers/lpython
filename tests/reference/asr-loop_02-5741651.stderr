@@ -1,0 +1,5 @@
+semantic error: Type mismatch in loop start and increment values, the types must be compatible
+ --> tests/errors/loop_02.py:5:20
+  |
+5 |     for i in range(i16(15), i16(-1), -1):
+  |                    ^^^^^^^           ^^ type mismatch ('i16' and 'i32')

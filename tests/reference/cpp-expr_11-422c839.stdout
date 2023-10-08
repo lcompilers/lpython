@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <cmath>
+#include <complex>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+// Forward declarations
+void __main__global_stmts();
+void f();
+namespace {
+}
+
+// Implementations
+void f()
+{
+    bool b;
+    int32_t i;
+    i = 3;
+    b = (bool)(i);
+    assert (b);
+    std::cout << b << std::endl;
+}
+
+void __main__global_stmts()
+{
+    f();
+}
+
+namespace {
+
+void main2() {
+    __main__global_stmts();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

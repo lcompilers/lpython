@@ -1,0 +1,13 @@
+{
+    "basename": "asr-structs_03-754fb64",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/structs_03.py",
+    "infile_hash": "19180d0a7a22141e74e61452cc6cc185f1dd1c4f4315446450ce98db",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-structs_03-754fb64.stderr",
+    "stderr_hash": "c6410f9948863d922cb0a0cd36613c529ad45fdf556d393d36e2df07",
+    "returncode": 2
+}

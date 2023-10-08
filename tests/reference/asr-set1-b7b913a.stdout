@@ -1,0 +1,186 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            test_Set:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            a:
+                                                (Variable
+                                                    3
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Set
+                                                        (Integer 4)
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    3
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Set
+                                                        (Character 1 -2 ())
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            s:
+                                                (Variable
+                                                    3
+                                                    s
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test_Set
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 3 a)
+                                        (SetConstant
+                                            [(IntegerConstant 1 (Integer 4))
+                                            (IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))]
+                                            (Set
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 a)
+                                        (SetConstant
+                                            [(IntegerConstant 2 (Integer 4))
+                                            (IntegerConstant 3 (Integer 4))
+                                            (IntegerConstant 4 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4))
+                                            (IntegerConstant 5 (Integer 4))]
+                                            (Set
+                                                (Integer 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (Expr
+                                        (IntrinsicScalarFunction
+                                            SetAdd
+                                            [(Var 3 a)
+                                            (IntegerConstant 9 (Integer 4))]
+                                            0
+                                            ()
+                                            ()
+                                        )
+                                    )
+                                    (Expr
+                                        (IntrinsicScalarFunction
+                                            SetRemove
+                                            [(Var 3 a)
+                                            (IntegerConstant 4 (Integer 4))]
+                                            0
+                                            ()
+                                            ()
+                                        )
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (SetConstant
+                                            [(StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "b"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "c"
+                                                (Character 1 1 ())
+                                            )]
+                                            (Set
+                                                (Character 1 1 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 s)
+                                        (SetPop
+                                            (Var 3 b)
+                                            (Character 1 -2 ())
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        4
+                        {
+                            
+                        })
+                    main_program
+                    []
+                    []
+                )
+        })
+    []
+)

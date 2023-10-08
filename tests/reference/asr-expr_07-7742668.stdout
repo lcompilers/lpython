@@ -1,0 +1,432 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        6
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [f
+                                    bool_to_str]
+                                    []
+                                    [(SubroutineCall
+                                        2 f
+                                        ()
+                                        []
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 bool_to_str
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            bool_to_str:
+                                (Function
+                                    (SymbolTable
+                                        5
+                                        {
+                                            var:
+                                                (Variable
+                                                    5
+                                                    var
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Logical 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    bool_to_str
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 5 var)
+                                        (LogicalConstant
+                                            .true.
+                                            (Logical 4)
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(Cast
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                            LogicalToCharacter
+                                            (Character 1 -2 ())
+                                            (StringConstant
+                                                "True"
+                                                (Character 1 4 ())
+                                            )
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Cast
+                                                (Var 5 var)
+                                                LogicalToCharacter
+                                                (Character 1 -2 ())
+                                                ()
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "True"
+                                                (Character 1 4 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 5 var)
+                                        (LogicalConstant
+                                            .false.
+                                            (Logical 4)
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Cast
+                                                (Var 5 var)
+                                                LogicalToCharacter
+                                                (Character 1 -2 ())
+                                                ()
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "False"
+                                                (Character 1 5 ())
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (StringCompare
+                                            (Cast
+                                                (LogicalConstant
+                                                    .true.
+                                                    (Logical 4)
+                                                )
+                                                LogicalToCharacter
+                                                (Character 1 -2 ())
+                                                (StringConstant
+                                                    "True"
+                                                    (Character 1 4 ())
+                                                )
+                                            )
+                                            Eq
+                                            (StringConstant
+                                                "True"
+                                                (Character 1 4 ())
+                                            )
+                                            (Logical 4)
+                                            (LogicalConstant
+                                                .true.
+                                                (Logical 4)
+                                            )
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            a:
+                                                (Variable
+                                                    4
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    4
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    4
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [g]
+                                    []
+                                    [(=
+                                        (Var 4 a)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 x)
+                                        (IntegerConstant 3 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 x)
+                                        (IntegerConstant 5 (Integer 4))
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 b)
+                                        (IntegerBinOp
+                                            (Var 4 x)
+                                            Add
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 4 a)
+                                        (Var 4 b)]
+                                        ()
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (Var 4 b)
+                                            Eq
+                                            (IntegerConstant 6 (Integer 4))
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 g
+                                        ()
+                                        [((IntegerBinOp
+                                            (IntegerBinOp
+                                                (Var 4 a)
+                                                Mul
+                                                (Var 4 b)
+                                                (Integer 4)
+                                                ()
+                                            )
+                                            Add
+                                            (IntegerConstant 3 (Integer 4))
+                                            (Integer 4)
+                                            ()
+                                        ))]
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            g:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            x:
+                                                (Variable
+                                                    3
+                                                    x
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    g
+                                    (FunctionType
+                                        [(Integer 4)]
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 3 x)]
+                                    [(Print
+                                        ()
+                                        [(Var 3 x)]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            x:
+                                (Variable
+                                    2
+                                    x
+                                    []
+                                    Local
+                                    (IntegerConstant 7 (Integer 4))
+                                    (IntegerConstant 7 (Integer 4))
+                                    Default
+                                    (Integer 4)
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                )
+                        })
+                    __main__
+                    []
+                    .false.
+                    .false.
+                ),
+            main_program:
+                (Program
+                    (SymbolTable
+                        7
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    7
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        7 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

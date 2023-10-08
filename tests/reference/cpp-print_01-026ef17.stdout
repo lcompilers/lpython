@@ -1,0 +1,61 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <cmath>
+#include <complex>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+// Forward declarations
+void __main__global_stmts();
+void f();
+namespace {
+}
+
+// Implementations
+void f()
+{
+    std::string x;
+    std::string y;
+    std::cout << "Hello World!" << std::endl;
+    x = ",";
+    y = "!!";
+    std::cout << "a" << x << "b" << std::endl;
+    x = "-+-+-";
+    std::cout << "a" << x << "b" << x << "c" << std::endl;
+    std::cout << "d" << "=" << "e" << "=" << "f" << "+\n";
+    std::cout << "x" << "*\n" << "y" << "*\n" << "z" << y;
+    std::cout << "1" << ":" << "2" << std::endl;
+    std::cout << "LCompilers" << " " << "LPython" << std::endl;
+}
+
+void __main__global_stmts()
+{
+    f();
+}
+
+namespace {
+
+void main2() {
+    __main__global_stmts();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}
