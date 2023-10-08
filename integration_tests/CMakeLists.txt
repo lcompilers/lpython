@@ -799,6 +799,7 @@ RUN(NAME callback_04       IMPORT_PATH .. LABELS cpython)
 
 # Intrinsic Functions
 RUN(NAME intrinsics_01     LABELS cpython llvm NOFAST) # any
+RUN(NAME intrinsics_02     LABELS cpython llvm c) # floordiv
 
 # lpython decorator
 RUN(NAME lpython_decorator_01    LABELS cpython)
