@@ -6999,7 +6999,7 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_ascii,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
-            } else if(attr_name == "isspace") {
+            } else if (attr_name == "isspace") {
                 /*
                   * Specification:
                   Return true if all characters in the input string are considered whitespace characters,
