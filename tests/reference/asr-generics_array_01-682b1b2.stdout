@@ -1,0 +1,459 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            T:
+                                (Variable
+                                    2
+                                    T
+                                    []
+                                    Local
+                                    ()
+                                    ()
+                                    Default
+                                    (TypeParameter
+                                        T
+                                    )
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                ),
+                            __asr_generic_f_0:
+                                (Function
+                                    (SymbolTable
+                                        205
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    205
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    205
+                                                    i
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            lst:
+                                                (Variable
+                                                    205
+                                                    lst
+                                                    []
+                                                    InOut
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Integer 4)
+                                                        [(()
+                                                        ())]
+                                                        DescriptorArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    __asr_generic_f_0
+                                    (FunctionType
+                                        [(Array
+                                            (Integer 4)
+                                            [(()
+                                            ())]
+                                            DescriptorArray
+                                        )
+                                        (Integer 4)]
+                                        (Integer 4)
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 205 lst)
+                                    (Var 205 i)]
+                                    [(=
+                                        (ArrayItem
+                                            (Var 205 lst)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 4)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (Var 205 i)
+                                        ()
+                                    )
+                                    (=
+                                        (Var 205 _lpython_return_variable)
+                                        (ArrayItem
+                                            (Var 205 lst)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 4)
+                                            RowMajor
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 205 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        206
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [use_array]
+                                    []
+                                    [(SubroutineCall
+                                        2 use_array
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        203
+                                        {
+                                            _lpython_return_variable:
+                                                (Variable
+                                                    203
+                                                    _lpython_return_variable
+                                                    []
+                                                    ReturnVar
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (TypeParameter
+                                                        T
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    203
+                                                    i
+                                                    []
+                                                    In
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (TypeParameter
+                                                        T
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            lst:
+                                                (Variable
+                                                    203
+                                                    lst
+                                                    []
+                                                    InOut
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (TypeParameter
+                                                            T
+                                                        )
+                                                        [(()
+                                                        ())]
+                                                        DescriptorArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        [(Array
+                                            (TypeParameter
+                                                T
+                                            )
+                                            [(()
+                                            ())]
+                                            DescriptorArray
+                                        )
+                                        (TypeParameter
+                                            T
+                                        )]
+                                        (TypeParameter
+                                            T
+                                        )
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    [(Var 203 lst)
+                                    (Var 203 i)]
+                                    [(=
+                                        (ArrayItem
+                                            (Var 203 lst)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (TypeParameter
+                                                T
+                                            )
+                                            RowMajor
+                                            ()
+                                        )
+                                        (Var 203 i)
+                                        ()
+                                    )
+                                    (=
+                                        (Var 203 _lpython_return_variable)
+                                        (ArrayItem
+                                            (Var 203 lst)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (TypeParameter
+                                                T
+                                            )
+                                            RowMajor
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Return)]
+                                    (Var 203 _lpython_return_variable)
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            use_array:
+                                (Function
+                                    (SymbolTable
+                                        204
+                                        {
+                                            array:
+                                                (Variable
+                                                    204
+                                                    array
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Integer 4)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 1 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    204
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    use_array
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [__asr_generic_f_0]
+                                    []
+                                    [(=
+                                        (Var 204 array)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 204 x)
+                                        (IntegerConstant 69 (Integer 4))
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(FunctionCall
+                                            2 __asr_generic_f_0
+                                            ()
+                                            [((ArrayPhysicalCast
+                                                (Var 204 array)
+                                                FixedSizeArray
+                                                DescriptorArray
+                                                (Array
+                                                    (Integer 4)
+                                                    [((IntegerConstant 0 (Integer 4))
+                                                    (IntegerConstant 1 (Integer 4)))]
+                                                    DescriptorArray
+                                                )
+                                                ()
+                                            ))
+                                            ((Var 204 x))]
+                                            (Integer 4)
+                                            ()
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    [numpy]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        207
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    207
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        207 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                ),
+            numpy:
+                (Module numpy)
+        })
+    []
+)

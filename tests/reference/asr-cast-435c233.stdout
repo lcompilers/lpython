@@ -1,0 +1,312 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        121
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [f]
+                                    []
+                                    [(SubroutineCall
+                                        2 f
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            list:
+                                                (ExternalSymbol
+                                                    3
+                                                    list
+                                                    4 list
+                                                    lpython_builtin
+                                                    []
+                                                    list
+                                                    Private
+                                                ),
+                                            s:
+                                                (Variable
+                                                    3
+                                                    s
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Character 1 -2 ())
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            x:
+                                                (Variable
+                                                    3
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            y:
+                                                (Variable
+                                                    3
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (List
+                                                        (Character 1 -2 ())
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [list]
+                                    []
+                                    [(=
+                                        (Var 3 s)
+                                        (StringConstant
+                                            "lpython"
+                                            (Character 1 7 ())
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (FunctionCall
+                                            3 list
+                                            ()
+                                            [((Var 3 s))]
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 y)
+                                        (ListConstant
+                                            [(StringConstant
+                                                "a"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "b"
+                                                (Character 1 1 ())
+                                            )
+                                            (StringConstant
+                                                "c"
+                                                (Character 1 1 ())
+                                            )]
+                                            (List
+                                                (Character 1 1 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (FunctionCall
+                                            3 list
+                                            ()
+                                            [((Var 3 y))]
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                            ()
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (ListConstant
+                                            []
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (FunctionCall
+                                            3 list
+                                            ()
+                                            [((ListConstant
+                                                []
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                            ))]
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                            (ListConstant
+                                                []
+                                                (List
+                                                    (Character 1 -2 ())
+                                                )
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 x)
+                                        (FunctionCall
+                                            3 list
+                                            ()
+                                            [((StringConstant
+                                                "lpython"
+                                                (Character 1 7 ())
+                                            ))]
+                                            (List
+                                                (Character 1 -2 ())
+                                            )
+                                            (ListConstant
+                                                [(StringConstant
+                                                    "l"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "p"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "y"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "t"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "h"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "o"
+                                                    (Character 1 1 ())
+                                                )
+                                                (StringConstant
+                                                    "n"
+                                                    (Character 1 1 ())
+                                                )]
+                                                (List
+                                                    (Character 1 1 ())
+                                                )
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    [lpython_builtin]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        122
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    122
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        122 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

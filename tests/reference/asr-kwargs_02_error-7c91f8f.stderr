@@ -1,11 +1,5 @@
-warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
- --> tests/errors/kwargs_02_error.py:4:12
-  |
-4 |     return complex(float(a), b) + c
-  |            ^^^^^^^^^^^^^^^^^^^^ imported here
-
-semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
-   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
-    |
-209 |     if (n_ - (n_ // 2)*2) == 0:
-    |               ^^^^^^^ 
+semantic error: func02() got multiple values for argument 'b'
+  --> tests/errors/kwargs_02_error.py:13:5
+   |
+13 |     func02(arg3, arg4, c=arg5, b=arg4)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 

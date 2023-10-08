@@ -1,0 +1,794 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            test:
+                                (Function
+                                    (SymbolTable
+                                        4
+                                        {
+                                            x:
+                                                (Variable
+                                                    4
+                                                    x
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            y:
+                                                (Variable
+                                                    4
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            z:
+                                                (Variable
+                                                    4
+                                                    z
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    test
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 4 x)
+                                        (ComplexBinOp
+                                            (Cast
+                                                (IntegerConstant 2 (Integer 4))
+                                                IntegerToComplex
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    2.000000
+                                                    0.000000
+                                                    (Complex 8)
+                                                )
+                                            )
+                                            Add
+                                            (ComplexConstant
+                                                0.000000
+                                                3.000000
+                                                (Complex 8)
+                                            )
+                                            (Complex 8)
+                                            (ComplexConstant
+                                                2.000000
+                                                3.000000
+                                                (Complex 8)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 y)
+                                        (ComplexBinOp
+                                            (Cast
+                                                (IntegerConstant 5 (Integer 4))
+                                                IntegerToComplex
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    5.000000
+                                                    0.000000
+                                                    (Complex 8)
+                                                )
+                                            )
+                                            Add
+                                            (ComplexConstant
+                                                0.000000
+                                                5.000000
+                                                (Complex 8)
+                                            )
+                                            (Complex 8)
+                                            (ComplexConstant
+                                                5.000000
+                                                5.000000
+                                                (Complex 8)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 z)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (Var 4 x)
+                                                Add
+                                                (Var 4 y)
+                                                (Complex 8)
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 z)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (Var 4 x)
+                                                Sub
+                                                (Var 4 y)
+                                                (Complex 8)
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 4 z)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (Cast
+                                                    (IntegerConstant 2 (Integer 4))
+                                                    IntegerToComplex
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        2.000000
+                                                        0.000000
+                                                        (Complex 8)
+                                                    )
+                                                )
+                                                Mul
+                                                (Var 4 x)
+                                                (Complex 8)
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            test_complex:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            b:
+                                                (Variable
+                                                    3
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Logical 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c:
+                                                (Variable
+                                                    3
+                                                    c
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c1:
+                                                (Variable
+                                                    3
+                                                    c1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c2:
+                                                (Variable
+                                                    3
+                                                    c2
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            c3:
+                                                (Variable
+                                                    3
+                                                    c3
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Complex 8)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex
+                                                    5 complex
+                                                    lpython_builtin
+                                                    []
+                                                    complex
+                                                    Private
+                                                ),
+                                            complex@__lpython_overloaded_0__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_0__complex
+                                                    5 __lpython_overloaded_0__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_0__complex
+                                                    Public
+                                                ),
+                                            complex@__lpython_overloaded_13__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_13__complex
+                                                    5 __lpython_overloaded_13__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_13__complex
+                                                    Public
+                                                ),
+                                            complex@__lpython_overloaded_1__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_1__complex
+                                                    5 __lpython_overloaded_1__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_1__complex
+                                                    Public
+                                                ),
+                                            complex@__lpython_overloaded_2__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_2__complex
+                                                    5 __lpython_overloaded_2__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_2__complex
+                                                    Public
+                                                ),
+                                            complex@__lpython_overloaded_5__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_5__complex
+                                                    5 __lpython_overloaded_5__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_5__complex
+                                                    Public
+                                                ),
+                                            complex@__lpython_overloaded_9__complex:
+                                                (ExternalSymbol
+                                                    3
+                                                    complex@__lpython_overloaded_9__complex
+                                                    5 __lpython_overloaded_9__complex
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_9__complex
+                                                    Public
+                                                )
+                                        })
+                                    test_complex
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [complex@__lpython_overloaded_0__complex
+                                    complex@__lpython_overloaded_1__complex
+                                    complex@__lpython_overloaded_5__complex
+                                    complex@__lpython_overloaded_2__complex
+                                    complex@__lpython_overloaded_9__complex
+                                    complex@__lpython_overloaded_13__complex]
+                                    []
+                                    [(=
+                                        (Var 3 c)
+                                        (Cast
+                                            (FunctionCall
+                                                3 complex@__lpython_overloaded_0__complex
+                                                3 complex
+                                                []
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    0.000000
+                                                    0.000000
+                                                    (Complex 8)
+                                                )
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                0.000000
+                                                0.000000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (Cast
+                                            (FunctionCall
+                                                3 complex@__lpython_overloaded_1__complex
+                                                3 complex
+                                                [((RealConstant
+                                                    3.400000
+                                                    (Real 8)
+                                                ))]
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    3.400000
+                                                    0.000000
+                                                    (Complex 8)
+                                                )
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                3.400000
+                                                0.000000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (Cast
+                                            (FunctionCall
+                                                3 complex@__lpython_overloaded_5__complex
+                                                3 complex
+                                                [((RealConstant
+                                                    5.000000
+                                                    (Real 8)
+                                                ))
+                                                ((RealConstant
+                                                    4.300000
+                                                    (Real 8)
+                                                ))]
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    5.000000
+                                                    4.300000
+                                                    (Complex 8)
+                                                )
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                5.000000
+                                                4.300000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (FunctionCall
+                                            3 complex@__lpython_overloaded_2__complex
+                                            3 complex
+                                            [((IntegerConstant 1 (Integer 4)))]
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                1.000000
+                                                0.000000
+                                                (Complex 8)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c1)
+                                        (Cast
+                                            (FunctionCall
+                                                3 complex@__lpython_overloaded_9__complex
+                                                3 complex
+                                                [((IntegerConstant 3 (Integer 4)))
+                                                ((IntegerConstant 4 (Integer 4)))]
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    3.000000
+                                                    4.000000
+                                                    (Complex 8)
+                                                )
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                3.000000
+                                                4.000000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c2)
+                                        (Cast
+                                            (FunctionCall
+                                                3 complex@__lpython_overloaded_13__complex
+                                                3 complex
+                                                [((IntegerConstant 2 (Integer 4)))
+                                                ((RealConstant
+                                                    4.500000
+                                                    (Real 8)
+                                                ))]
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    2.000000
+                                                    4.500000
+                                                    (Complex 8)
+                                                )
+                                                ()
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                2.000000
+                                                4.500000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c3)
+                                        (FunctionCall
+                                            3 complex@__lpython_overloaded_5__complex
+                                            3 complex
+                                            [((RealConstant
+                                                3.000000
+                                                (Real 8)
+                                            ))
+                                            ((RealConstant
+                                                4.000000
+                                                (Real 8)
+                                            ))]
+                                            (Complex 8)
+                                            (ComplexConstant
+                                                3.000000
+                                                4.000000
+                                                (Complex 8)
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (ComplexCompare
+                                            (Var 3 c1)
+                                            NotEq
+                                            (Var 3 c2)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 b)
+                                        (ComplexCompare
+                                            (Cast
+                                                (Var 3 c1)
+                                                ComplexToComplex
+                                                (Complex 8)
+                                                ()
+                                            )
+                                            Eq
+                                            (Var 3 c3)
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (ComplexBinOp
+                                            (Var 3 c1)
+                                            Add
+                                            (Var 3 c2)
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (ComplexBinOp
+                                            (Var 3 c2)
+                                            Sub
+                                            (Var 3 c1)
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (ComplexBinOp
+                                            (Var 3 c1)
+                                            Mul
+                                            (Var 3 c2)
+                                            (Complex 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
+                                                    [((IntegerConstant 1 (Integer 4)))
+                                                    ((IntegerConstant 2 (Integer 4)))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        1.000000
+                                                        2.000000
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                Pow
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_5__complex
+                                                    3 complex
+                                                    [((RealConstant
+                                                        3.345340
+                                                        (Real 8)
+                                                    ))
+                                                    ((RealConstant
+                                                        4.867868
+                                                        (Real 8)
+                                                    ))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        3.345340
+                                                        4.867868
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    0.015553
+                                                    0.065561
+                                                    (Complex 8)
+                                                )
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                0.015553
+                                                0.065561
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
+                                                    [((IntegerConstant 1 (Integer 4)))
+                                                    ((IntegerConstant 2 (Integer 4)))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        1.000000
+                                                        2.000000
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                Mul
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
+                                                    [((IntegerConstant 3 (Integer 4)))
+                                                    ((IntegerConstant 4 (Integer 4)))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        3.000000
+                                                        4.000000
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    -5.000000
+                                                    10.000000
+                                                    (Complex 8)
+                                                )
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                -5.000000
+                                                10.000000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 3 c)
+                                        (Cast
+                                            (ComplexBinOp
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
+                                                    [((IntegerConstant 4 (Integer 4)))
+                                                    ((IntegerConstant 5 (Integer 4)))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        4.000000
+                                                        5.000000
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                Sub
+                                                (FunctionCall
+                                                    3 complex@__lpython_overloaded_9__complex
+                                                    3 complex
+                                                    [((IntegerConstant 3 (Integer 4)))
+                                                    ((IntegerConstant 4 (Integer 4)))]
+                                                    (Complex 8)
+                                                    (ComplexConstant
+                                                        3.000000
+                                                        4.000000
+                                                        (Complex 8)
+                                                    )
+                                                    ()
+                                                )
+                                                (Complex 8)
+                                                (ComplexConstant
+                                                    1.000000
+                                                    1.000000
+                                                    (Complex 8)
+                                                )
+                                            )
+                                            ComplexToComplex
+                                            (Complex 4)
+                                            (ComplexConstant
+                                                1.000000
+                                                1.000000
+                                                (Complex 4)
+                                            )
+                                        )
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    [lpython_builtin]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        122
+                        {
+                            
+                        })
+                    main_program
+                    []
+                    []
+                )
+        })
+    []
+)

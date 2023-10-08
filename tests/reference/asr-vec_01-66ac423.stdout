@@ -1,0 +1,295 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        207
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [loop_vec]
+                                    []
+                                    [(SubroutineCall
+                                        2 loop_vec
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            loop_vec:
+                                (Function
+                                    (SymbolTable
+                                        203
+                                        {
+                                            a:
+                                                (Variable
+                                                    203
+                                                    a
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            b:
+                                                (Variable
+                                                    203
+                                                    b
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Real 8)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 9216 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            i:
+                                                (Variable
+                                                    203
+                                                    i
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Integer 4)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    loop_vec
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 203 a)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 9216 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 203 b)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Real 8)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 9216 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 203 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 9216 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9215 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(=
+                                            (ArrayItem
+                                                (Var 203 b)
+                                                [(()
+                                                (Var 203 i)
+                                                ())]
+                                                (Real 8)
+                                                RowMajor
+                                                ()
+                                            )
+                                            (RealConstant
+                                                5.000000
+                                                (Real 8)
+                                            )
+                                            ()
+                                        )]
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 203 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 9216 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9215 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(=
+                                            (ArrayItem
+                                                (Var 203 a)
+                                                [(()
+                                                (Var 203 i)
+                                                ())]
+                                                (Real 8)
+                                                RowMajor
+                                                ()
+                                            )
+                                            (ArrayItem
+                                                (Var 203 b)
+                                                [(()
+                                                (Var 203 i)
+                                                ())]
+                                                (Real 8)
+                                                RowMajor
+                                                ()
+                                            )
+                                            ()
+                                        )]
+                                    )
+                                    (DoLoop
+                                        ()
+                                        ((Var 203 i)
+                                        (IntegerConstant 0 (Integer 4))
+                                        (IntegerBinOp
+                                            (IntegerConstant 9216 (Integer 4))
+                                            Sub
+                                            (IntegerConstant 1 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 9215 (Integer 4))
+                                        )
+                                        (IntegerConstant 1 (Integer 4)))
+                                        [(Assert
+                                            (RealCompare
+                                                (ArrayItem
+                                                    (Var 203 a)
+                                                    [(()
+                                                    (Var 203 i)
+                                                    ())]
+                                                    (Real 8)
+                                                    RowMajor
+                                                    ()
+                                                )
+                                                Eq
+                                                (RealConstant
+                                                    5.000000
+                                                    (Real 8)
+                                                )
+                                                (Logical 4)
+                                                ()
+                                            )
+                                            ()
+                                        )]
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    [numpy]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        208
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    208
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        208 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                ),
+            numpy:
+                (Module numpy)
+        })
+    []
+)

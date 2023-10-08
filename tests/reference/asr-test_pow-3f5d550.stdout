@@ -1,0 +1,159 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        121
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [main]
+                                    []
+                                    [(SubroutineCall
+                                        2 main
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            main:
+                                (Function
+                                    (SymbolTable
+                                        3
+                                        {
+                                            pow:
+                                                (ExternalSymbol
+                                                    3
+                                                    pow
+                                                    4 pow
+                                                    lpython_builtin
+                                                    []
+                                                    pow
+                                                    Private
+                                                ),
+                                            pow@__lpython_overloaded_0__pow:
+                                                (ExternalSymbol
+                                                    3
+                                                    pow@__lpython_overloaded_0__pow
+                                                    4 __lpython_overloaded_0__pow
+                                                    lpython_builtin
+                                                    []
+                                                    __lpython_overloaded_0__pow
+                                                    Public
+                                                )
+                                        })
+                                    main
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [pow@__lpython_overloaded_0__pow]
+                                    []
+                                    [(Print
+                                        ()
+                                        [(FunctionCall
+                                            3 pow@__lpython_overloaded_0__pow
+                                            3 pow
+                                            [((IntegerConstant 2 (Integer 4)))
+                                            ((IntegerConstant 2 (Integer 4)))]
+                                            (Real 8)
+                                            (RealConstant
+                                                4.000000
+                                                (Real 8)
+                                            )
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(IntegerBinOp
+                                            (IntegerConstant 2 (Integer 4))
+                                            Pow
+                                            (IntegerConstant 2 (Integer 4))
+                                            (Integer 4)
+                                            (IntegerConstant 4 (Integer 4))
+                                        )]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                )
+                        })
+                    __main__
+                    [lpython_builtin]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        122
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    122
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        122 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                )
+        })
+    []
+)

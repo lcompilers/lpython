@@ -1,0 +1,437 @@
+(TranslationUnit
+    (SymbolTable
+        1
+        {
+            __main__:
+                (Module
+                    (SymbolTable
+                        2
+                        {
+                            __main__global_stmts:
+                                (Function
+                                    (SymbolTable
+                                        204
+                                        {
+                                            
+                                        })
+                                    __main__global_stmts
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    [f]
+                                    []
+                                    [(CPtrToPointer
+                                        (Var 2 queries)
+                                        (Var 2 x)
+                                        (ArrayConstant
+                                            [(IntegerConstant 1 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        (ArrayConstant
+                                            [(IntegerConstant 0 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 2 queries)
+                                        (Var 2 x)]
+                                        ()
+                                        ()
+                                    )
+                                    (SubroutineCall
+                                        2 f
+                                        ()
+                                        []
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            f:
+                                (Function
+                                    (SymbolTable
+                                        203
+                                        {
+                                            y:
+                                                (Variable
+                                                    203
+                                                    y
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Array
+                                                        (Integer 2)
+                                                        [((IntegerConstant 0 (Integer 4))
+                                                        (IntegerConstant 2 (Integer 4)))]
+                                                        FixedSizeArray
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            yptr1:
+                                                (Variable
+                                                    203
+                                                    yptr1
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (Pointer
+                                                        (Array
+                                                            (Integer 2)
+                                                            [(()
+                                                            ())]
+                                                            DescriptorArray
+                                                        )
+                                                    )
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                ),
+                                            yq:
+                                                (Variable
+                                                    203
+                                                    yq
+                                                    []
+                                                    Local
+                                                    ()
+                                                    ()
+                                                    Default
+                                                    (CPtr)
+                                                    ()
+                                                    Source
+                                                    Public
+                                                    Required
+                                                    .false.
+                                                )
+                                        })
+                                    f
+                                    (FunctionType
+                                        []
+                                        ()
+                                        Source
+                                        Implementation
+                                        ()
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        .false.
+                                        []
+                                        .false.
+                                    )
+                                    []
+                                    []
+                                    [(=
+                                        (Var 203 yq)
+                                        (PointerNullConstant
+                                            (CPtr)
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 203 y)
+                                        (ArrayConstant
+                                            []
+                                            (Array
+                                                (Integer 2)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 2 (Integer 4)))]
+                                                FixedSizeArray
+                                            )
+                                            RowMajor
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (ArrayItem
+                                            (Var 203 y)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 2)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (Cast
+                                            (IntegerConstant 1 (Integer 4))
+                                            IntegerToInteger
+                                            (Integer 2)
+                                            (IntegerConstant 1 (Integer 2))
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (ArrayItem
+                                            (Var 203 y)
+                                            [(()
+                                            (IntegerConstant 1 (Integer 4))
+                                            ())]
+                                            (Integer 2)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (Cast
+                                            (IntegerConstant 2 (Integer 4))
+                                            IntegerToInteger
+                                            (Integer 2)
+                                            (IntegerConstant 2 (Integer 2))
+                                        )
+                                        ()
+                                    )
+                                    (=
+                                        (Var 203 yptr1)
+                                        (GetPointer
+                                            (Var 203 y)
+                                            (Pointer
+                                                (Array
+                                                    (Integer 2)
+                                                    [(()
+                                                    ())]
+                                                    DescriptorArray
+                                                )
+                                            )
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(GetPointer
+                                            (Var 203 y)
+                                            (Pointer
+                                                (Array
+                                                    (Integer 2)
+                                                    [(()
+                                                    ())]
+                                                    DescriptorArray
+                                                )
+                                            )
+                                            ()
+                                        )
+                                        (Var 203 yptr1)]
+                                        ()
+                                        ()
+                                    )
+                                    (Print
+                                        ()
+                                        [(ArrayItem
+                                            (Var 203 yptr1)
+                                            [(()
+                                            (IntegerConstant 0 (Integer 4))
+                                            ())]
+                                            (Integer 2)
+                                            RowMajor
+                                            ()
+                                        )
+                                        (ArrayItem
+                                            (Var 203 yptr1)
+                                            [(()
+                                            (IntegerConstant 1 (Integer 4))
+                                            ())]
+                                            (Integer 2)
+                                            RowMajor
+                                            ()
+                                        )]
+                                        ()
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (ArrayItem
+                                                (Var 203 yptr1)
+                                                [(()
+                                                (IntegerConstant 0 (Integer 4))
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )
+                                            Eq
+                                            (Cast
+                                                (IntegerConstant 1 (Integer 4))
+                                                IntegerToInteger
+                                                (Integer 2)
+                                                (IntegerConstant 1 (Integer 2))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (Assert
+                                        (IntegerCompare
+                                            (ArrayItem
+                                                (Var 203 yptr1)
+                                                [(()
+                                                (IntegerConstant 1 (Integer 4))
+                                                ())]
+                                                (Integer 2)
+                                                RowMajor
+                                                ()
+                                            )
+                                            Eq
+                                            (Cast
+                                                (IntegerConstant 2 (Integer 4))
+                                                IntegerToInteger
+                                                (Integer 2)
+                                                (IntegerConstant 2 (Integer 2))
+                                            )
+                                            (Logical 4)
+                                            ()
+                                        )
+                                        ()
+                                    )
+                                    (CPtrToPointer
+                                        (Var 203 yq)
+                                        (Var 203 yptr1)
+                                        (ArrayConstant
+                                            [(IntegerConstant 2 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                        (ArrayConstant
+                                            [(IntegerConstant 0 (Integer 4))]
+                                            (Array
+                                                (Integer 4)
+                                                [((IntegerConstant 0 (Integer 4))
+                                                (IntegerConstant 1 (Integer 4)))]
+                                                PointerToDataArray
+                                            )
+                                            RowMajor
+                                        )
+                                    )
+                                    (Print
+                                        ()
+                                        [(Var 203 yq)
+                                        (Var 203 yptr1)]
+                                        ()
+                                        ()
+                                    )]
+                                    ()
+                                    Public
+                                    .false.
+                                    .false.
+                                    ()
+                                ),
+                            queries:
+                                (Variable
+                                    2
+                                    queries
+                                    []
+                                    Local
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
+                                    (PointerNullConstant
+                                        (CPtr)
+                                    )
+                                    Default
+                                    (CPtr)
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                ),
+                            x:
+                                (Variable
+                                    2
+                                    x
+                                    []
+                                    Local
+                                    ()
+                                    ()
+                                    Default
+                                    (Pointer
+                                        (Array
+                                            (Integer 2)
+                                            [(()
+                                            ())]
+                                            DescriptorArray
+                                        )
+                                    )
+                                    ()
+                                    Source
+                                    Public
+                                    Required
+                                    .false.
+                                )
+                        })
+                    __main__
+                    [numpy]
+                    .false.
+                    .false.
+                ),
+            lpython_builtin:
+                (IntrinsicModule lpython_builtin),
+            main_program:
+                (Program
+                    (SymbolTable
+                        205
+                        {
+                            __main__global_stmts:
+                                (ExternalSymbol
+                                    205
+                                    __main__global_stmts
+                                    2 __main__global_stmts
+                                    __main__
+                                    []
+                                    __main__global_stmts
+                                    Public
+                                )
+                        })
+                    main_program
+                    [__main__]
+                    [(SubroutineCall
+                        205 __main__global_stmts
+                        2 __main__global_stmts
+                        []
+                        ()
+                    )]
+                ),
+            numpy:
+                (Module numpy)
+        })
+    []
+)
