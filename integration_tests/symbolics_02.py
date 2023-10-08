@@ -43,15 +43,15 @@ def test_symbolic_operations():
     b1: bool = p1 == p2
     print(b1)
     assert(b1 == True)
-    b2: bool = p1 == pi
+    b2: bool = p1 != pi
     print(b2)
-    assert(b2 == True)
+    assert(b2 == False)
     b3: bool = p1 != x
     print(b3)
     assert(b3 == True)
-    b4: bool = pi != Symbol("x")
+    b4: bool = pi == Symbol("x")
     print(b4)
-    assert(b4 == True)
+    assert(b4 == False)
 
 
 test_symbolic_operations()
