@@ -284,7 +284,7 @@ def isspace():
 
     s:str = " "
     assert s.isspace() == True   
-    s: str = "a"
+    s = "a"
     assert s.isspace() == False
 
 def check():
