@@ -67,12 +67,15 @@ def test_str_istitle():
     a: str = "Hello World"
     b: str = "Hj'kl"
     c: str = "hELlo wOrlD"
+    d: str = " Hello"
     res: bool = a.istitle()
     res2: bool = b.istitle()
     res3: bool = c.istitle()
+    res4: bool = d.istitle()
     assert res == True
     assert res2 == False 
     assert res3 == False
+    assert res4 == True
 
 def test_str_repeat():
     a: str
