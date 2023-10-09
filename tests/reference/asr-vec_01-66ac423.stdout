@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        207
+                                        211
                                         {
                                             
                                         })
@@ -46,11 +46,11 @@
                             loop_vec:
                                 (Function
                                     (SymbolTable
-                                        203
+                                        201
                                         {
                                             a:
                                                 (Variable
-                                                    203
+                                                    201
                                                     a
                                                     []
                                                     Local
@@ -71,7 +71,7 @@
                                                 ),
                                             b:
                                                 (Variable
-                                                    203
+                                                    201
                                                     b
                                                     []
                                                     Local
@@ -92,7 +92,7 @@
                                                 ),
                                             i:
                                                 (Variable
-                                                    203
+                                                    201
                                                     i
                                                     []
                                                     Local
@@ -125,7 +125,7 @@
                                     []
                                     []
                                     [(=
-                                        (Var 203 a)
+                                        (Var 201 a)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -139,7 +139,7 @@
                                         ()
                                     )
                                     (=
-                                        (Var 203 b)
+                                        (Var 201 b)
                                         (ArrayConstant
                                             []
                                             (Array
@@ -154,7 +154,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 203 i)
+                                        ((Var 201 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4))
@@ -166,9 +166,9 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 203 b)
+                                                (Var 201 b)
                                                 [(()
-                                                (Var 203 i)
+                                                (Var 201 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -183,7 +183,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 203 i)
+                                        ((Var 201 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4))
@@ -195,18 +195,18 @@
                                         (IntegerConstant 1 (Integer 4)))
                                         [(=
                                             (ArrayItem
-                                                (Var 203 a)
+                                                (Var 201 a)
                                                 [(()
-                                                (Var 203 i)
+                                                (Var 201 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
                                                 ()
                                             )
                                             (ArrayItem
-                                                (Var 203 b)
+                                                (Var 201 b)
                                                 [(()
-                                                (Var 203 i)
+                                                (Var 201 i)
                                                 ())]
                                                 (Real 8)
                                                 RowMajor
@@ -217,7 +217,7 @@
                                     )
                                     (DoLoop
                                         ()
-                                        ((Var 203 i)
+                                        ((Var 201 i)
                                         (IntegerConstant 0 (Integer 4))
                                         (IntegerBinOp
                                             (IntegerConstant 9216 (Integer 4))
@@ -230,9 +230,9 @@
                                         [(Assert
                                             (RealCompare
                                                 (ArrayItem
-                                                    (Var 203 a)
+                                                    (Var 201 a)
                                                     [(()
-                                                    (Var 203 i)
+                                                    (Var 201 i)
                                                     ())]
                                                     (Real 8)
                                                     RowMajor
@@ -266,11 +266,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        208
+                        206
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    208
+                                    206
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -282,7 +282,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        208 __main__global_stmts
+                        206 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

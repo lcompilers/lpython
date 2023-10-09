@@ -6468,6 +6468,36 @@ public:
             arg.loc = loc;
             arg.m_value = s_var;
             fn_args.push_back(al, arg);
+        } else if (attr_name == "isalpha") {
+            if (args.size() != 0) {
+                throw SemanticError("str.isalpha() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_isalpha";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "istitle") {
+            if (args.size() != 0) {
+                throw SemanticError("str.istitle() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_istitle";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "title") {
+            if (args.size() != 0) {
+                throw SemanticError("str.title() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_title";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
         } else if (attr_name == "upper") {
             if (args.size() != 0) {
                 throw SemanticError("str.upper() takes no arguments",

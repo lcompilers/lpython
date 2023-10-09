@@ -37,6 +37,43 @@ def test_str_slice():
     # TODO:
     # assert a[0:5:-1] == ""
 
+def test_str_isalpha():
+    a: str = "helloworld"
+    b: str = "hj kl"
+    c: str = "a12(){}A"
+    res: bool = a.isalpha()
+    res2: bool = b.isalpha()
+    res3: bool = c.isalpha()
+    assert res == True 
+    assert res2 == False
+    assert res3 == False
+
+   
+def test_str_title():
+    a: str = "hello world"
+    b: str = "hj'kl"
+    c: str = "hELlo wOrlD"
+    d: str = "{Hel1o}world"
+    res: str = a.title()
+    res2: str = b.title()
+    res3: str = c.title()
+    res4: str = d.title()
+    assert res == "Hello World" 
+    assert res2 == "Hj'Kl"
+    assert res3 == "Hello World"
+    assert res4 == "{Hel1O}World"
+
+def test_str_istitle():
+    a: str = "Hello World"
+    b: str = "Hj'kl"
+    c: str = "hELlo wOrlD"
+    res: bool = a.istitle()
+    res2: bool = b.istitle()
+    res3: bool = c.istitle()
+    assert res == True
+    assert res2 == False 
+    assert res3 == False
+
 def test_str_repeat():
     a: str
     a = "Xyz"
@@ -88,5 +125,7 @@ def check():
     test_str_join_empty_str()
     test_str_join_empty_list()
     test_constant_str_subscript()
-
+    test_str_title()
+    test_str_istitle()
+    test_str_isalpha()
 check()

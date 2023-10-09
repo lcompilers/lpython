@@ -685,6 +685,91 @@ def _lpython_str_join(s:str, lis:list[str]) -> str:
         res += s + lis[i]
     return res
 
+def _lpython_str_isalpha(s: str) -> bool:
+    ch: str
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if 65 <= ch_ord and ch_ord <= 90:
+            continue
+        if 97 <= ch_ord and ch_ord <= 122:
+            continue
+        return False
+    return True
+
+def _lpython_str_title(s: str) -> str:
+    result: str = ""
+    capitalize_next: bool = True
+    ch: str
+    for ch in s:
+        ch_ord: i32 = ord(ch)
+        if ch_ord >= 97  and ch_ord <= 122:
+            if capitalize_next:
+                result += chr(ord(ch) - ord('a') + ord('A'))
+                capitalize_next = False
+            else:
+                result += ch
+        elif ch_ord >= 65 and ch_ord <= 90:
+            if capitalize_next:
+                result += ch
+                capitalize_next = False
+            else:
+                result += chr(ord(ch) + ord('a') - ord('A'))
+        else:
+            result += ch
+            capitalize_next = True
+
+    return result
+
+def _lpython_str_istitle(s: str) -> bool:
+    length: i32 = len(s)
+
+    if length == 0:
+        return False  # Empty string is not in title case
+
+    word_start: bool = True  # Flag to track the start of a word
+    ch: str
+
+    for ch in s:
+        if (ch == ' ' or ch == '\t' or ch == '\n') and word_start:
+            return False  # Found a space character at the start of a word
+<<<<<<< HEAD
+<<<<<<< HEAD
+        elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
+=======
+        elif ch.isalpha() and ch.isupper():
+>>>>>>> 5c5bcc620 (Fix merge conflict)
+=======
+        elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
+>>>>>>> f7fcb9835 (Fix test references)
+            if word_start:
+                word_start = False
+            else:
+                return False  # Found an uppercase character in the middle of a word
+<<<<<<< HEAD
+<<<<<<< HEAD
+        elif ch.isalpha() and (ord('a') <= ord(ch) and ord(ch) <= ord('z')):
+=======
+        elif ch.isalpha() and ch.islower():
+>>>>>>> 5c5bcc620 (Fix merge conflict)
+=======
+        elif ch.isalpha() and (ord('a') <= ord(ch) and ord(ch) <= ord('z')):
+>>>>>>> f7fcb9835 (Fix test references)
+            if word_start:
+                return False  # Found a lowercase character in the middle of a word
+            word_start = False
+        else:
+            word_start = True
+
+    return True
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5c5bcc620 (Fix merge conflict)
+=======
+>>>>>>> f7fcb9835 (Fix test references)
 @overload
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
