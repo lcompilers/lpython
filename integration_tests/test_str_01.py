@@ -137,4 +137,5 @@ def check():
     test_str_title()
     test_str_istitle()
     test_str_isalpha()
+
 check()
