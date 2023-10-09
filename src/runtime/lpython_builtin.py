@@ -728,25 +728,26 @@ def _lpython_str_istitle(s: str) -> bool:
 
     word_start: bool = True  # Flag to track the start of a word
     ch: str
-
+    only_whitespace: bool = True 
     for ch in s:
         if (ch == ' ' or ch == '\t' or ch == '\n') and word_start:
             continue  # Found a space character at the start of a word
         elif ch.isalpha() and (ord('A') <= ord(ch) and ord(ch) <= ord('Z')):
-
+            only_whitespace = False
             if word_start:
                 word_start = False
             else:
                 return False  # Found an uppercase character in the middle of a word
 
         elif ch.isalpha() and (ord('a') <= ord(ch) and ord(ch) <= ord('z')):
+            only_whitespace = False
             if word_start:
                 return False  # Found a lowercase character in the middle of a word
             word_start = False
         else:
             word_start = True
 
-    return True
+    return True if not only_whitespace else False
 
 
 
