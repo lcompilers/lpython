@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        125
+                                        131
                                         {
                                             
                                         })
@@ -1986,11 +1986,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        126
+                        132
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    126
+                                    132
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -2002,7 +2002,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        126 __main__global_stmts
+                        132 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()
