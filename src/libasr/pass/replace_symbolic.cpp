@@ -245,6 +245,13 @@ public:
                 pass_result.push_back(al, stmt3);
                 pass_result.push_back(al, stmt4);
             }
+        } else if (xx.m_type->type == ASR::ttypeType::List) {
+            ASR::List_t* list = ASR::down_cast<ASR::List_t>(xx.m_type);
+            if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+                ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, xx.base.base.loc, CPtr_type));
+                xx.m_type = list_type;
+            }
         }
     }
 
@@ -919,6 +926,47 @@ public:
                         pass_result.push_back(al, stmt);
                     }
                 }
+            }
+        } else if (ASR::is_a<ASR::ListConstant_t>(*x.m_value)) {
+            ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(x.m_value);
+            if (list_constant->m_type->type == ASR::ttypeType::List) {
+                ASR::List_t* list = ASR::down_cast<ASR::List_t>(list_constant->m_type);
+                if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                    Vec<ASR::expr_t*> temp_list;
+                    temp_list.reserve(al, list_constant->n_args + 1);
+
+                    for (size_t i = 0; i < list_constant->n_args; ++i) {
+                        ASR::expr_t* value = handle_argument(al, x.base.base.loc,  list_constant->m_args[i]);
+                        temp_list.push_back(al, value);
+                    }
+
+                    ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                    ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+                    ASR::expr_t* temp_list_const = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, temp_list.p,
+                                    temp_list.size(), list_type));
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_list_const, nullptr));
+                    pass_result.push_back(al, stmt);
+                }
+            }
+        } else if (ASR::is_a<ASR::ListItem_t>(*x.m_value)) {
+            ASR::ListItem_t* list_item = ASR::down_cast<ASR::ListItem_t>(x.m_value);
+            if (list_item->m_type->type == ASR::ttypeType::SymbolicExpression) {
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                ASR::symbol_t* basic_assign_sym = declare_basic_assign_function(al, x.base.base.loc, module_scope);
+
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 2);
+                ASR::call_arg_t call_arg1, call_arg2;
+                call_arg1.loc = x.base.base.loc;
+                call_arg1.m_value = x.m_target;
+                call_arg2.loc = x.base.base.loc;
+                call_arg2.m_value = ASRUtils::EXPR(ASR::make_ListItem_t(al, x.base.base.loc, list_item->m_a,
+                    list_item->m_pos, CPtr_type, nullptr));
+                call_args.push_back(al, call_arg1);
+                call_args.push_back(al, call_arg2);
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_assign_sym,
+                    basic_assign_sym, call_args.p, call_args.n, nullptr));
+                pass_result.push_back(al, stmt);
             }
         } else if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_value)) {
             ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_value);
