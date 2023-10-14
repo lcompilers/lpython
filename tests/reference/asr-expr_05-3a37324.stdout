@@ -287,7 +287,10 @@
                                         .false.
                                     )
                                     [test_multiply
-                                    test_mod]
+                                    test_mod
+                                    _mod@__lpython_overloaded_2___mod
+                                    _mod@__lpython_overloaded_9___mod
+                                    _mod@__lpython_overloaded_4___mod]
                                     []
                                     [(=
                                         (Var 5 a)
@@ -1487,7 +1490,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [_mod@__lpython_overloaded_2___mod]
                                     [(Var 4 a)
                                     (Var 4 b)]
                                     [(=

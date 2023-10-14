@@ -1,4 +1,4 @@
-semantic error: The type 'i128' is undeclared.
+semantic error: Unsupported type annotation: i128
  --> tests/errors/test_unsupported_type.py:2:8
   |
 2 |     i: i128

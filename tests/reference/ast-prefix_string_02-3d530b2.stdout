@@ -1,0 +1,45 @@
+(Module
+    [(ImportFrom
+        lpython
+        [(i32
+        ())]
+        0
+    )
+    (FunctionDef
+        main
+        ([]
+        []
+        []
+        []
+        []
+        []
+        [])
+        [(Expr
+            (Call
+                (Name
+                    print
+                    Load
+                )
+                [(ConstantStr
+                    "Hello World"
+                    ()
+                )]
+                []
+            )
+        )]
+        []
+        ()
+        ()
+    )
+    (Expr
+        (Call
+            (Name
+                main
+                Load
+            )
+            []
+            []
+        )
+    )]
+    []
+)

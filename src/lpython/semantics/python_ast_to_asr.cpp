@@ -7169,7 +7169,6 @@ public:
                  * is empty or fails to meet the title case criteria. Title case is defined 
                  * by considering any non-alphabetic character within the ASCII code range 
                  * of 0-255 as a separator. If the string consists only of whitespace characters, 
-                 * it will also return False, except when there is leading whitespace. In 
                  * such cases, the istitle operation will be applied to the remaining characters 
                  * following the leading whitespace.
                  */
@@ -7181,19 +7180,7 @@ public:
                     if ((ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') && word_start) {
                         continue; // Skip leading whitespace
                     } else if ((ch >= 'A' && ch <= 'Z')) {
-                        only_whitespace = false;
-                        if (word_start) {
-                            word_start = false;
-                        } else {
-                            is_title = false;  // This is not a title if an uppercase letter follows a non-uppercase one
-                        }
-                    } else if ((ch >= 'a' && ch <= 'z')) {
-                        only_whitespace = false;
-                        if (word_start) {
-                            is_title = false;  // This is not a title if a lowercase letter follows whitespace
-                        }
-                        word_start = false;
-                    } else {
+=======
                         word_start = true;
                     }
                 }

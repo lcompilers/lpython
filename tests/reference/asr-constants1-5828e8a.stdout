@@ -80,7 +80,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [complex@__lpython_overloaded_5__complex]
                                     []
                                     [(=
                                         (Var 5 a)
@@ -306,7 +306,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [complex@__lpython_overloaded_9__complex]
                                     []
                                     [(=
                                         (Var 7 a)
@@ -510,7 +510,9 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [bin
+                                    oct
+                                    hex]
                                     []
                                     [(=
                                         (Var 3 b)
@@ -844,7 +846,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [divmod]
                                     []
                                     [(=
                                         (Var 12 a)

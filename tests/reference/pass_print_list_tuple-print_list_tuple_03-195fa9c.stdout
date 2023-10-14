@@ -185,6 +185,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "("
                                             (Character 1 1 ())
@@ -196,6 +197,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(TupleItem
                                             (DictItem
                                                 (Var 3 x)
@@ -221,6 +223,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             ", "
                                             (Character 1 2 ())
@@ -235,6 +238,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(TupleItem
                                             (DictItem
                                                 (Var 3 x)
@@ -260,6 +264,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             ")"
                                             (Character 1 1 ())
@@ -271,6 +276,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "("
                                             (Character 1 1 ())
@@ -282,6 +288,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(TupleItem
                                             (DictItem
                                                 (Var 3 x)
@@ -307,6 +314,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             ", "
                                             (Character 1 2 ())
@@ -321,6 +329,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(TupleItem
                                             (DictItem
                                                 (Var 3 x)
@@ -346,6 +355,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             ")"
                                             (Character 1 1 ())
@@ -357,6 +367,7 @@
                                         )
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "["
                                             (Character 1 1 ())
@@ -392,6 +403,7 @@
                                         )
                                         (IntegerConstant 1 (Integer 4)))
                                         [(Print
+                                            ()
                                             [(ListItem
                                                 (DictItem
                                                     (Var 3 y)
@@ -442,6 +454,7 @@
                                                 ()
                                             )
                                             [(Print
+                                                ()
                                                 [(StringConstant
                                                     ", "
                                                     (Character 1 2 ())
@@ -459,6 +472,7 @@
                                         )]
                                     )
                                     (Print
+                                        ()
                                         [(StringConstant
                                             "]"
                                             (Character 1 1 ())

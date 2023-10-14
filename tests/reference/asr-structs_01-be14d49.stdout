@@ -237,6 +237,7 @@
                                     []
                                     [(Var 4 a)]
                                     [(Print
+                                        ()
                                         [(StructInstanceMember
                                             (Var 4 a)
                                             3 x
@@ -247,6 +248,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(StructInstanceMember
                                             (Var 4 a)
                                             3 y

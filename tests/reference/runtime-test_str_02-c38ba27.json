@@ -7,7 +7,7 @@
     "outfile_hash": null,
     "stdout": "runtime-test_str_02-c38ba27.stdout",
     "stdout_hash": "59f7b180db70f25c853c552c014ae09c1ee0671dfa0cbe205815c6b9",
-    "stderr": null,
-    "stderr_hash": null,
+    "stderr": "runtime-test_str_02-c38ba27.stderr",
+    "stderr_hash": "4c4ad5e18e07b4b3e98ba89d8f54fe5870cd945e8b3a5ba4e2ff2e8b",
     "returncode": 1
 }

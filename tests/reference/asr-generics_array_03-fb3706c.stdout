@@ -348,6 +348,7 @@
                                         )]
                                     )
                                     (Print
+                                        ()
                                         [(ArrayItem
                                             (Var 220 r)
                                             [(()
@@ -692,6 +693,7 @@
                                         )]
                                     )
                                     (Print
+                                        ()
                                         [(ArrayItem
                                             (Var 221 r)
                                             [(()
@@ -1370,6 +1372,7 @@
                                         )]
                                     )
                                     (Print
+                                        ()
                                         [(ArrayItem
                                             (Var 216 r)
                                             [(()

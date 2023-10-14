@@ -1,5 +1,16 @@
-syntax error: Token '"Hello"' (of type 'string') is unexpected here
- --> tests/errors/prefix_string_01.py:3:11
-  |
-3 |     print "Hello", "World" 
-  |           ^^^^^^^ 
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1775[0m
+    if (show_tokens) {
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 154[0m
+    compiler_options.use_colors) << std::endl;
+[2m  File "[0m[1m[35m$DIR/src/lpython/parser/parser.cpp[39m[0m[2m", line 126[0m
+    Result<LPython::AST::Module_t*> res = parse(al, input, prev_loc, diagnostics);
+[2m  File "[0m[1m[35m$DIR/src/lpython/parser/parser.cpp[39m[0m[2m", line 22[0m
+    p.parse(s, prev_loc);
+[2m  File "[0m[1m[35m$DIR/src/lpython/parser/parser.cpp[39m[0m[2m", line 53[0m
+    m_tokenizer.set_string(inp, prev_loc);
+[2m  File "[0m[1m[35mparser.yy[39m[0m[2m", line 1107[0m
+[2m  File "[0m[1m[35m$DIR/src/lpython/parser/semantics.h[39m[0m[2m", line 879[0m
+    throw LCompilers::LCompilersException("The string is not recognized by the parser.");
+LCompilersException: The string is not recognized by the parser.

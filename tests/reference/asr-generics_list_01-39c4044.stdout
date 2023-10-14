@@ -673,6 +673,7 @@
                                     __asr_generic_mean_2]
                                     []
                                     [(Print
+                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_mean_0
                                             ()
@@ -692,6 +693,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_mean_1
                                             ()
@@ -720,6 +722,7 @@
                                         ()
                                     )
                                     (Print
+                                        ()
                                         [(FunctionCall
                                             2 __asr_generic_mean_2
                                             ()

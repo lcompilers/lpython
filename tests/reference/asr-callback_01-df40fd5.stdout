@@ -506,7 +506,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [func]
                                     [(Var 6 func)
                                     (Var 6 arg)]
                                     [(=

@@ -359,7 +359,16 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [complex@__lpython_overloaded_5__complex
+                                    complex@__lpython_overloaded_9__complex
+                                    complex@__lpython_overloaded_13__complex
+                                    complex@__lpython_overloaded_14__complex
+                                    complex@__lpython_overloaded_6__complex
+                                    complex@__lpython_overloaded_7__complex
+                                    complex@__lpython_overloaded_8__complex
+                                    complex@__lpython_overloaded_11__complex
+                                    complex@__lpython_overloaded_10__complex
+                                    complex@__lpython_overloaded_12__complex]
                                     []
                                     [(=
                                         (Var 4 x)
@@ -1088,7 +1097,7 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [complex@__lpython_overloaded_9__complex]
                                     []
                                     [(=
                                         (Var 6 c)
@@ -1288,7 +1297,9 @@
                                         []
                                         .false.
                                     )
-                                    []
+                                    [complex@__lpython_overloaded_13__complex
+                                    complex@__lpython_overloaded_9__complex
+                                    complex@__lpython_overloaded_5__complex]
                                     []
                                     [(=
                                         (Var 5 c)
