@@ -276,6 +276,41 @@ def is_ascii():
     s = "123 45 6"
     assert s.isascii() == True
 
+def is_title():
+    s: str
+    assert "Hello World".istitle() == True 
+    assert "Hj'kl".istitle() == False 
+    assert "hELlo wOrlD".istitle() == False 
+    assert " Hello".istitle() == True
+    assert " ".istitle() == False 
+
+    s = "Hello World"
+    assert s.istitle() == True 
+    s = "Hj'kl"
+    assert s.istitle() == False 
+    s = "hELlo wOrlD"
+    assert s.istitle()  == False 
+    s = " Hello"
+    assert s.istitle() == True
+    s = " "
+    assert s.istitle() == False
+
+
+def is_alpha():
+    s: str
+    assert "helloworld".isalpha() == True
+    assert "hj kl".isalpha() == False
+    assert "a12(){}A".isalpha() == False
+    assert " ".isalpha() == False
+
+    s = "helloworld"
+    assert s.isalpha() == True 
+    s = "hj kl"
+    assert s.isalpha() == False
+    s = "a12(){}A"
+    assert s.isalpha() == False
+    s = " "
+    assert s.isalpha() == False
 
 def is_space():
     assert "\n".isspace() == True
@@ -302,5 +337,7 @@ def check():
     is_decimal()
     is_ascii()
     is_space()
+    is_title()
+    is_alpha()
 
 check()
