@@ -7005,11 +7005,10 @@ public:
                 */
                bool is_alpha = true;
                 for (auto &i : s_var) {
-                    int ch_ord = static_cast<int>(i);
-                    if ((ch_ord >= 65 && ch_ord <= 90) || (ch_ord >= 97 && ch_ord <= 122)) {
-                        continue;
+                    if (!std::isalpha(i)) {
+                        is_alpha = false;
+                        break;
                     }
-                    is_alpha = false;
                 }
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
