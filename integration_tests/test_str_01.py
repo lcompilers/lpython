@@ -37,6 +37,11 @@ def test_str_slice():
     # TODO:
     # assert a[0:5:-1] == ""
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> c3deff911 (fix test)
    
 def test_str_title():
     a: str = "hello world"
@@ -51,6 +56,10 @@ def test_str_title():
     assert res2 == "Hj'Kl"
     assert res3 == "Hello World"
     assert res4 == "{Hel1O}World"
+<<<<<<< HEAD
+=======
+
+>>>>>>> c3deff911 (fix test)
 
 def test_str_repeat():
     a: str
@@ -126,6 +135,9 @@ def check():
     test_str_join_empty_list()
     test_constant_str_subscript()
     test_str_title()
+<<<<<<< HEAD
     test_str_split()
+=======
+>>>>>>> c3deff911 (fix test)
 
 check()
