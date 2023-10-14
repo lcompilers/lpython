@@ -7145,6 +7145,61 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_upper,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
+            } else if(attr_name == "isalpha") {
+                /*
+                * Specification:
+                * Return True if all characters in the string are alphabetic (letters), and False otherwise.
+                */
+               bool is_alpha = true;
+                for (auto &i : s_var) {
+                    int ch_ord = static_cast<int>(i);
+                    if ((ch_ord >= 65 && ch_ord <= 90) || (ch_ord >= 97 && ch_ord <= 122)) {
+                        continue;
+                    }
+                    is_alpha = false;
+                }
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
+            } else if(attr_name == "istitle") {
+                /*
+                * Specification: Return True if the string is in title case, where the first
+                * letter of each word is capitalized and the rest are lowercase. Return False
+                * if the string is empty or does not meet the title case criteria.
+                */
+                bool is_title = true;
+                int length = s_var.length();
+                if (length == 0) {
+                    is_title =false;  
+                }
+
+                bool word_start = true;  
+                bool only_whitespace = true;
+
+                for (auto &ch : s_var) {
+                    if ((ch == ' ' || ch == '\t' || ch == '\n') && word_start) {
+                        continue; 
+                    } else if (std::isalpha(ch) && (std::isupper(ch))) {
+                        only_whitespace = false;
+                        if (word_start) {
+                            word_start = false;
+                        } else {
+                            is_title=false;  
+                        }
+                    } else if (std::isalpha(ch) && (std::islower(ch))) {
+                        only_whitespace = false;
+                        if (word_start) {
+                            is_title=false;  
+                        }
+                        word_start = false;
+                    } else {
+                        word_start = true;
+                    }
+                }
+                is_title = !only_whitespace && is_title;
+                tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
+                return;
             } else if(attr_name == "isdecimal") {
                 /*
                     * Specification:
