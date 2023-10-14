@@ -7161,26 +7161,24 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if (attr_name == "istitle") {
-                /*  
-                 * Specification:
-                 * Determine whether the given string conforms to title case rules, 
-                 * which require the initial letter of each word to be capitalized and 
-                 * the subsequent letters to be in lowercase. Return False if the string
-                 * is empty or fails to meet the title case criteria. Title case is defined 
-                 * by considering any non-alphabetic character within the ASCII code range 
-                 * of 0-255 as a separator. If the string consists only of whitespace characters, 
-                 * such cases, the istitle operation will be applied to the remaining characters 
-                 * following the leading whitespace.
-                 */
-                bool is_title = true;      // Flag to track if it's a title
-                bool word_start = true;    // Flag to track the start of a word
-                bool only_whitespace = true;  // Flag to track if the input contains only whitespace
+                /*
+                * Specification: Return True if the string is in title case, where the first
+                * letter of each word is capitalized and the rest are lowercase. Return False
+                * if the string is empty or does not meet the title case criteria.
+                */
+                bool is_title = true;
+                int length = s_var.length();
+                if (length == 0) {
+                    is_title = false;
+                }
+
+                bool word_start = true;  
+                bool only_whitespace = true;
 
                 for (auto &ch : s_var) {
                     if ((ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') && word_start) {
                         continue; // Skip leading whitespace
                     } else if ((ch >= 'A' && ch <= 'Z')) {
-=======
                         word_start = true;
                     }
                 }
