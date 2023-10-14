@@ -6681,7 +6681,7 @@ public:
             /*
                 String Validation Methods i.e all "is" based functions are handled here
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space","alpha","title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
 
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
@@ -6949,7 +6949,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space","alpha","title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -6998,12 +6998,12 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_lower,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
-            } else if(attr_name == "isalpha") {
+            } else if (attr_name == "isalpha") {
                 /*
                 * Specification:
                 * Return True if all characters in the string are alphabetic (letters), and False otherwise.
                 */
-               bool is_alpha = true;
+                bool is_alpha = true;
                 for (auto &i : s_var) {
                     if (!std::isalpha(i)) {
                         is_alpha = false;
@@ -7013,7 +7013,7 @@ public:
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_alpha,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
-            } else if(attr_name == "istitle") {
+            } else if (attr_name == "istitle") {
                 /*
                 * Specification: Return True if the string is in title case, where the first
                 * letter of each word is capitalized and the rest are lowercase. Return False
@@ -7022,7 +7022,7 @@ public:
                 bool is_title = true;
                 int length = s_var.length();
                 if (length == 0) {
-                    is_title =false;  
+                    is_title = false;
                 }
 
                 bool word_start = true;  
