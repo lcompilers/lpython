@@ -7096,7 +7096,7 @@ public:
                 * islower() method is limited to English Alphabets currently
                 * TODO: We can support other characters from Unicode Library
             */
-            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space", "alpha", "title"};  // Database of validation methods supported
+            std::vector<std::string> validation_methods{"lower", "upper", "decimal", "ascii", "space","alpha","title"};  // Database of validation methods supported
             std::string method_name = attr_name.substr(2);
             if(std::find(validation_methods.begin(),validation_methods.end(), method_name) == validation_methods.end()) {
                 throw SemanticError("String method not implemented: " + attr_name, loc);
@@ -7162,40 +7162,43 @@ public:
                 return;
             } else if (attr_name == "istitle") {
                 /*
-                * Specification: Return True if the string is in title case, where the first
-                * letter of each word is capitalized and the rest are lowercase. Return False
+                * Specification: 
+                * Return True if the string is in title case, where the first letter 
+                * of each word is capitalized and the rest are lowercase. Return False
                 * if the string is empty or does not meet the title case criteria.
+                * *title case criteria *
+                * we are threating every non-alpha charater from 0-255 ascii code as 
+                * seperator and we will return false if all chars are whitespace only
+                * but we are skipping leading whitespace and will perform istitle operation 
+                * on remaing char
                 */
-                bool is_title = true;
-                int length = s_var.length();
-                if (length == 0) {
-                    is_title = false;
-                }
-
-                bool word_start = true;  
-                bool only_whitespace = true;
+                bool is_title = true;      // Flag to track if it's a title
+                bool word_start = true;    // Flag to track the start of a word
+                bool only_whitespace = true;  // Flag to track if the input contains only whitespace
 
                 for (auto &ch : s_var) {
-                    if ((ch == ' ' || ch == '\t' || ch == '\n') && word_start) {
-                        continue; 
-                    } else if (std::isalpha(ch) && (std::isupper(ch))) {
+                    if ((ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r') && word_start) {
+                        continue; // Skip leading whitespace
+                    } else if ((ch >= 'A' && ch <= 'Z')) {
                         only_whitespace = false;
                         if (word_start) {
                             word_start = false;
                         } else {
-                            is_title=false;  
+                            is_title = false;  // This is not a title if an uppercase letter follows a non-uppercase one
                         }
-                    } else if (std::isalpha(ch) && (std::islower(ch))) {
+                    } else if ((ch >= 'a' && ch <= 'z')) {
                         only_whitespace = false;
                         if (word_start) {
-                            is_title=false;  
+                            is_title = false;  // This is not a title if a lowercase letter follows whitespace
                         }
                         word_start = false;
                     } else {
                         word_start = true;
                     }
                 }
-                is_title = !only_whitespace && is_title;
+
+                is_title = !only_whitespace && is_title; // It's a title if it's not only whitespace and all conditions are met
+
                 tmp = ASR::make_LogicalConstant_t(al, loc, is_title,
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;

@@ -312,6 +312,8 @@ def is_title():
     assert "hELlo wOrlD".istitle() == False 
     assert " Hello".istitle() == True
     assert " ".istitle() == False 
+    assert "&&".istitle() == False
+
 
     s = "Hello World"
     assert s.istitle() == True 
