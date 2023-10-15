@@ -7161,17 +7161,18 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)));
                 return;
             } else if (attr_name == "istitle") {
-                /*
-                * Specification: 
-                * Return True if the string is in title case, where the first letter 
-                * of each word is capitalized and the rest are lowercase. Return False
-                * if the string is empty or does not meet the title case criteria.
-                * *title case criteria *
-                * we are threating every non-alpha charater from 0-255 ascii code as 
-                * seperator and we will return false if all chars are whitespace only
-                * but we are skipping leading whitespace and will perform istitle operation 
-                * on remaing char
-                */
+                /*  
+                 * Specification:
+                 * Determine whether the given string conforms to title case rules, 
+                 * which require the initial letter of each word to be capitalized and 
+                 * the subsequent letters to be in lowercase. Return False if the string
+                 * is empty or fails to meet the title case criteria. Title case is defined 
+                 * by considering any non-alphabetic character within the ASCII code range 
+                 * of 0-255 as a separator. If the string consists only of whitespace characters, 
+                 * it will also return False, except when there is leading whitespace. In 
+                 * such cases, the istitle operation will be applied to the remaining characters 
+                 * following the leading whitespace.
+                 */
                 bool is_title = true;      // Flag to track if it's a title
                 bool word_start = true;    // Flag to track the start of a word
                 bool only_whitespace = true;  // Flag to track if the input contains only whitespace
