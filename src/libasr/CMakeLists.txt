@@ -65,6 +65,7 @@ set(SRC
 
     asr_verify.cpp
     asr_utils.cpp
+    casting_utils.cpp
     diagnostics.cpp
     stacktrace.cpp
     string_utils.cpp

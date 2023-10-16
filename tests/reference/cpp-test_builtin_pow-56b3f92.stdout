@@ -30,10 +30,8 @@ float __lpython_overloaded_2__pow(float x, float y);
 double __lpython_overloaded_3__pow(double x, double y);
 float __lpython_overloaded_4__pow(int32_t x, float y);
 float __lpython_overloaded_5__pow(float x, int32_t y);
-int32_t __lpython_overloaded_6___lpython_floordiv(int32_t a, int32_t b);
 double __lpython_overloaded_6__pow(int32_t x, double y);
 double __lpython_overloaded_7__pow(double x, int32_t y);
-int64_t __lpython_overloaded_8___lpython_floordiv(int64_t a, int64_t b);
 int64_t __lpython_overloaded_8___mod(int64_t a, int64_t b);
 int32_t __lpython_overloaded_8__pow(bool x, bool y);
 std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
@@ -51,25 +49,10 @@ double __lpython_overloaded_0__pow(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
-int32_t __lpython_overloaded_6___lpython_floordiv(int32_t a, int32_t b)
-{
-    int32_t _lpython_return_variable;
-    double r;
-    int32_t result;
-    r = (double)(a)/(double)(b);
-    result = (int32_t)(r);
-    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
-        _lpython_return_variable = result;
-        return _lpython_return_variable;
-    }
-    _lpython_return_variable = result - 1;
-    return _lpython_return_variable;
-}
-
 int32_t __lpython_overloaded_2___mod(int32_t a, int32_t b)
 {
     int32_t _lpython_return_variable;
-    _lpython_return_variable = a - __lpython_overloaded_6___lpython_floordiv(a, b)*b;
+    _lpython_return_variable = a - floordiv(a)*b;
     return _lpython_return_variable;
 }
 
@@ -86,25 +69,10 @@ int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z)
     return _lpython_return_variable;
 }
 
-int64_t __lpython_overloaded_8___lpython_floordiv(int64_t a, int64_t b)
-{
-    int64_t _lpython_return_variable;
-    double r;
-    int64_t result;
-    r = (double)(a)/(double)(b);
-    result = (int64_t)(r);
-    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
-        _lpython_return_variable = result;
-        return _lpython_return_variable;
-    }
-    _lpython_return_variable = result - 1;
-    return _lpython_return_variable;
-}
-
 int64_t __lpython_overloaded_8___mod(int64_t a, int64_t b)
 {
     int64_t _lpython_return_variable;
-    _lpython_return_variable = a - __lpython_overloaded_8___lpython_floordiv(a, b)*b;
+    _lpython_return_variable = a - floordiv(a)*b;
     return _lpython_return_variable;
 }
 

@@ -245,6 +245,13 @@ public:
                 pass_result.push_back(al, stmt3);
                 pass_result.push_back(al, stmt4);
             }
+        } else if (xx.m_type->type == ASR::ttypeType::List) {
+            ASR::List_t* list = ASR::down_cast<ASR::List_t>(xx.m_type);
+            if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
+                ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, xx.base.base.loc, CPtr_type));
+                xx.m_type = list_type;
+            }
         }
     }
 
@@ -548,6 +555,45 @@ public:
         }
     }
 
+    ASR::symbol_t* declare_basic_assign_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
+        std::string name = "basic_assign";
+        symbolic_dependencies.push_back(name);
+        if (!module_scope->get_symbol(name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 2);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg1);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
+            module_scope->add_symbol(s2c(al, name), symbol);
+        }
+        return module_scope->get_symbol(name);
+    }
+
     ASR::symbol_t* declare_basic_str_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
         std::string name = "basic_str";
         symbolic_dependencies.push_back(name);
@@ -646,6 +692,90 @@ public:
                 nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
             fn_symtab->add_symbol(s2c(al, "x"), arg2);
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::expr_t* return_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, fn_symtab->get_symbol("_lpython_return_variable")));
+            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                return_var, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
+            module_scope->add_symbol(s2c(al, name), symbol);
+        }
+        return module_scope->get_symbol(name);
+    }
+
+    ASR::symbol_t* declare_basic_assign_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
+        std::string name = "basic_assign";
+        symbolic_dependencies.push_back(name);
+        if (!module_scope->get_symbol(name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 2);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg1);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg1)));
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+
+            Vec<char*> dep;
+            dep.reserve(al, 1);
+
+            ASR::asr_t* subrout = ASRUtils::make_Function_t_util(al, loc,
+                fn_symtab, s2c(al, name), dep.p, dep.n, args.p, args.n, body.p, body.n,
+                nullptr, ASR::abiType::BindC, ASR::accessType::Public,
+                ASR::deftypeType::Interface, s2c(al, name), false, false, false,
+                false, false, nullptr, 0, false, false, false, s2c(al, header));
+            ASR::symbol_t* symbol = ASR::down_cast<ASR::symbol_t>(subrout);
+            module_scope->add_symbol(s2c(al, name), symbol);
+        }
+        return module_scope->get_symbol(name);
+    }
+
+    ASR::symbol_t* declare_basic_neq_function(Allocator& al, const Location& loc, SymbolTable* module_scope) {
+        std::string name = "basic_neq";
+        symbolic_dependencies.push_back(name);
+        if (!module_scope->get_symbol(name)) {
+            std::string header = "symengine/cwrapper.h";
+            SymbolTable* fn_symtab = al.make_new<SymbolTable>(module_scope);
+
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 1);
+            ASR::symbol_t* arg1 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "_lpython_return_variable"), nullptr, 0, ASR::intentType::ReturnVar,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
+            fn_symtab->add_symbol(s2c(al, "_lpython_return_variable"), arg1);
+            ASR::symbol_t* arg2 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "x"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "x"), arg2);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg2)));
+            ASR::symbol_t* arg3 = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
+                al, loc, fn_symtab, s2c(al, "y"), nullptr, 0, ASR::intentType::In,
+                nullptr, nullptr, ASR::storage_typeType::Default, ASRUtils::TYPE(ASR::make_CPtr_t(al, loc)),
+                nullptr, ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, true));
+            fn_symtab->add_symbol(s2c(al, "y"), arg3);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg3)));
 
             Vec<ASR::stmt_t*> body;
             body.reserve(al, 1);
@@ -797,7 +927,26 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         SymbolTable* module_scope = current_scope->parent;
-        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*x.m_value)) {
+        if (ASR::is_a<ASR::Var_t>(*x.m_value) && ASR::is_a<ASR::CPtr_t>(*ASRUtils::expr_type(x.m_value))) {
+            ASR::symbol_t *v = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
+            if (symbolic_vars_to_free.find(v) == symbolic_vars_to_free.end()) return;
+            ASR::symbol_t* basic_assign_sym = declare_basic_assign_function(al, x.base.base.loc, module_scope);
+            ASR::symbol_t* var_sym = ASR::down_cast<ASR::Var_t>(x.m_value)->m_v;
+            ASR::expr_t* target = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var_sym));
+
+            Vec<ASR::call_arg_t> call_args;
+            call_args.reserve(al, 2);
+            ASR::call_arg_t call_arg1, call_arg2;
+            call_arg1.loc = x.base.base.loc;
+            call_arg1.m_value = x.m_target;
+            call_arg2.loc = x.base.base.loc;
+            call_arg2.m_value = target;
+            call_args.push_back(al, call_arg1);
+            call_args.push_back(al, call_arg2);
+            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_assign_sym,
+                basic_assign_sym, call_args.p, call_args.n, nullptr));
+            pass_result.push_back(al, stmt);
+        } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*x.m_value)) {
             ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(x.m_value);
             if (intrinsic_func->m_type->type == ASR::ttypeType::SymbolicExpression) {
                 process_intrinsic_function(al, x.base.base.loc, intrinsic_func, module_scope, x.m_target);
@@ -864,6 +1013,74 @@ public:
                         pass_result.push_back(al, stmt);
                     }
                 }
+            }
+        } else if (ASR::is_a<ASR::ListConstant_t>(*x.m_value)) {
+            ASR::ListConstant_t* list_constant = ASR::down_cast<ASR::ListConstant_t>(x.m_value);
+            if (list_constant->m_type->type == ASR::ttypeType::List) {
+                ASR::List_t* list = ASR::down_cast<ASR::List_t>(list_constant->m_type);
+                if (list->m_type->type == ASR::ttypeType::SymbolicExpression){
+                    Vec<ASR::expr_t*> temp_list;
+                    temp_list.reserve(al, list_constant->n_args + 1);
+
+                    for (size_t i = 0; i < list_constant->n_args; ++i) {
+                        ASR::expr_t* value = handle_argument(al, x.base.base.loc,  list_constant->m_args[i]);
+                        temp_list.push_back(al, value);
+                    }
+
+                    ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                    ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+                    ASR::expr_t* temp_list_const = ASRUtils::EXPR(ASR::make_ListConstant_t(al, x.base.base.loc, temp_list.p,
+                                    temp_list.size(), list_type));
+                    ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, temp_list_const, nullptr));
+                    pass_result.push_back(al, stmt);
+                }
+            }
+        } else if (ASR::is_a<ASR::ListItem_t>(*x.m_value)) {
+            ASR::ListItem_t* list_item = ASR::down_cast<ASR::ListItem_t>(x.m_value);
+            if (list_item->m_type->type == ASR::ttypeType::SymbolicExpression) {
+                ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                ASR::symbol_t* basic_assign_sym = declare_basic_assign_function(al, x.base.base.loc, module_scope);
+
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 2);
+                ASR::call_arg_t call_arg1, call_arg2;
+                call_arg1.loc = x.base.base.loc;
+                call_arg1.m_value = x.m_target;
+                call_arg2.loc = x.base.base.loc;
+                call_arg2.m_value = ASRUtils::EXPR(ASR::make_ListItem_t(al, x.base.base.loc, list_item->m_a,
+                    list_item->m_pos, CPtr_type, nullptr));
+                call_args.push_back(al, call_arg1);
+                call_args.push_back(al, call_arg2);
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_assign_sym,
+                    basic_assign_sym, call_args.p, call_args.n, nullptr));
+                pass_result.push_back(al, stmt);
+            }
+        } else if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_value)) {
+            ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_value);
+            if (s->m_op == ASR::cmpopType::Eq || s->m_op == ASR::cmpopType::NotEq) {
+                ASR::symbol_t* sym = nullptr;
+                if (s->m_op == ASR::cmpopType::Eq) {
+                    sym = declare_basic_eq_function(al, x.base.base.loc, module_scope);
+                } else {
+                    sym = declare_basic_neq_function(al, x.base.base.loc, module_scope);
+                }
+                ASR::expr_t* value1 = handle_argument(al, x.base.base.loc, s->m_left);
+                ASR::expr_t* value2 = handle_argument(al, x.base.base.loc, s->m_right);
+
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 1);
+                ASR::call_arg_t call_arg1, call_arg2;
+                call_arg1.loc = x.base.base.loc;
+                call_arg1.m_value = value1;
+                call_args.push_back(al, call_arg1);
+                call_arg2.loc = x.base.base.loc;
+                call_arg2.m_value = value2;
+                call_args.push_back(al, call_arg2);
+
+                ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                    sym, sym, call_args.p, call_args.n, ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4)), nullptr, nullptr));
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, x.m_target, function_call, nullptr));
+                pass_result.push_back(al, stmt);
             }
         }
     }
@@ -998,6 +1215,32 @@ public:
                     basic_str_sym, basic_str_sym, call_args.p, call_args.n,
                     ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
                 print_tmp.push_back(function_call);
+            } else if (ASR::is_a<ASR::SymbolicCompare_t>(*val)) {
+                ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(val);
+                if (s->m_op == ASR::cmpopType::Eq || s->m_op == ASR::cmpopType::NotEq) {
+                    ASR::symbol_t* sym = nullptr;
+                    if (s->m_op == ASR::cmpopType::Eq) {
+                        sym = declare_basic_eq_function(al, x.base.base.loc, module_scope);
+                    } else {
+                        sym = declare_basic_neq_function(al, x.base.base.loc, module_scope);
+                    }
+                    ASR::expr_t* value1 = handle_argument(al, x.base.base.loc, s->m_left);
+                    ASR::expr_t* value2 = handle_argument(al, x.base.base.loc, s->m_right);
+
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg1, call_arg2;
+                    call_arg1.loc = x.base.base.loc;
+                    call_arg1.m_value = value1;
+                    call_args.push_back(al, call_arg1);
+                    call_arg2.loc = x.base.base.loc;
+                    call_arg2.m_value = value2;
+                    call_args.push_back(al, call_arg2);
+
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                        sym, sym, call_args.p, call_args.n, ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4)), nullptr, nullptr));
+                    print_tmp.push_back(function_call);
+                }
             } else {
                 print_tmp.push_back(x.m_values[i]);
             }
