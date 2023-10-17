@@ -1091,6 +1091,20 @@ public:
         }
     }
 
+    void visit_If(const ASR::If_t& x) {
+        ASR::If_t& xx = const_cast<ASR::If_t&>(x);
+        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_orelse, xx.n_orelse);
+        SymbolTable* module_scope = current_scope->parent;
+        if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*xx.m_test)) {
+            ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(xx.m_test);
+            if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+                ASR::expr_t* function_call = process_attributes(al, xx.base.base.loc, xx.m_test, module_scope);
+                xx.m_test = function_call;
+            }
+        }
+    }
+
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         SymbolTable* module_scope = current_scope->parent;
         Vec<ASR::call_arg_t> call_args;
