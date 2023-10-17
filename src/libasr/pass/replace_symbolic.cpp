@@ -1154,6 +1154,24 @@ public:
                         sym, sym, call_args.p, call_args.n, ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4)), nullptr, nullptr));
                     print_tmp.push_back(function_call);
                 }
+            } else if (ASR::is_a<ASR::ListItem_t>(*val)) {
+                ASR::ListItem_t* list_item = ASR::down_cast<ASR::ListItem_t>(val);
+                if (list_item->m_type->type == ASR::ttypeType::SymbolicExpression) {
+                    ASR::ttype_t *CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, x.base.base.loc));
+                    ASR::symbol_t* basic_str_sym = declare_basic_str_function(al, x.base.base.loc, module_scope);
+
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = x.base.base.loc;
+                    call_arg.m_value = ASRUtils::EXPR(ASR::make_ListItem_t(al, x.base.base.loc, list_item->m_a,
+                        list_item->m_pos, CPtr_type, nullptr));
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, x.base.base.loc,
+                        basic_str_sym, basic_str_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc, 1, -2, nullptr)), nullptr, nullptr));
+                    print_tmp.push_back(function_call);
+                }
             } else {
                 print_tmp.push_back(x.m_values[i]);
             }
