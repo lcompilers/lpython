@@ -6032,13 +6032,13 @@ public:
                     Vec<ASR::expr_t*> args;
                     args.reserve(al, 0);
                     if (symbolic_type == "Add") {
-                        handle_symbolic_attribute(se, "is_Add", x.base.base.loc, args);
+                        tmp = attr_handler.eval_symbolic_is_Add(se, al, x.base.base.loc, args, diag);
                         return;
                     } else if (symbolic_type == "Mul") {
-                        handle_symbolic_attribute(se, "is_Mul", x.base.base.loc, args);
+                        tmp = attr_handler.eval_symbolic_is_Mul(se, al, x.base.base.loc, args, diag);
                         return;
                     } else if (symbolic_type == "Pow") {
-                        handle_symbolic_attribute(se, "is_Pow", x.base.base.loc, args);
+                        tmp = attr_handler.eval_symbolic_is_Pow(se, al, x.base.base.loc, args, diag);
                         return;
                     } else {
                         throw SemanticError(symbolic_type + " symbolic type not supported yet", x.base.base.loc);
