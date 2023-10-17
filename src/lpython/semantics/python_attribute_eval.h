@@ -466,7 +466,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("is_Add");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("AddQ");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -480,7 +480,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("is_Mul");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("MulQ");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
@@ -494,7 +494,7 @@ struct AttributeHandler {
             args_with_list.push_back(al, args[i]);
         }
         ASRUtils::create_intrinsic_function create_function =
-            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("is_Pow");
+            ASRUtils::IntrinsicScalarFunctionRegistry::get_create_function("PowQ");
         return create_function(al, loc, args_with_list, [&](const std::string &msg, const Location &loc)
                                 { throw SemanticError(msg, loc); });
     }
