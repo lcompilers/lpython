@@ -14,5 +14,6 @@ def test_extraction_of_elements():
     assert(ele3 == sin(x))
     assert(ele4 == Symbol("y"))
     print(ele1, ele2, ele3, ele4)
+    print(l1[0], l1[1], l1[2], l1[3])
 
 test_extraction_of_elements()
