@@ -1,35 +1,71 @@
-from sympy import Symbol, pi
+from sympy import Symbol, pi, Add, Mul, Pow
 from lpython import S
 
 def test_symbolic_operations():
     x: S = Symbol('x')
     y: S = Symbol('y')
-    p1: S = pi
-    p2: S = pi
+    pi1: S = pi
+    pi2: S = pi
     
     # Addition
     z: S = x + y
+    z1: bool = z.func == Add
+    z2: bool = z.func == Mul
     assert(z == x + y)
+    assert(z1 == True)
+    assert(z2 == False)
+    if z.func == Add:
+        assert True
+    else:
+        assert False
     print(z)
     
     # Subtraction
     w: S = x - y
+    w1: bool = w.func == Add
     assert(w == x - y)
+    assert(w1 == True)
+    if w.func == Add:
+        assert True
+    else:
+        assert False
     print(w)
     
     # Multiplication
     u: S = x * y
+    u1: bool = u.func == Mul
     assert(u == x * y)
+    assert(u1 == True)
+    if u.func == Mul:
+        assert True
+    else:
+        assert False
     print(u)
 
     # Division
     v: S = x / y
+    v1: bool = v.func == Mul
     assert(v == x / y)
+    assert(v1 == True)
+    if v.func == Mul:
+        assert True
+    else:
+        assert False
     print(v)
 
     # Power
     p: S = x ** y
+    p1: bool = p.func == Pow
+    p2: bool = p.func == Add
+    p3: bool = p.func == Mul
     assert(p == x ** y)
+    assert(p1 == True)
+    assert(p2 == False)
+    assert(p3 == False)
+    if p.func == Pow:
+        assert True
+    else:
+        assert False
     print(p)
 
     # Casting
@@ -40,13 +76,13 @@ def test_symbolic_operations():
     print(c)
 
     # Comparison
-    b1: bool = p1 == p2
+    b1: bool = pi1 == pi2
     print(b1)
     assert(b1 == True)
-    b2: bool = p1 != pi
+    b2: bool = pi1 != pi
     print(b2)
     assert(b2 == False)
-    b3: bool = p1 != x
+    b3: bool = pi1 != x
     print(b3)
     assert(b3 == True)
     b4: bool = pi == Symbol("x")

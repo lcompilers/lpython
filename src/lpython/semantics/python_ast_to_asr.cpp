@@ -4605,6 +4605,7 @@ private:
 public:
     ASR::asr_t *asr;
     std::vector<ASR::symbol_t*> do_loop_variables;
+    bool using_func_attr = false;
 
     BodyVisitor(Allocator &al, LocationManager &lm, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::string module_name, std::map<int, ASR::symbol_t*> &ast_overload,
@@ -5803,6 +5804,16 @@ public:
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
             visit_AttributeUtil(p->m_type, attr_char, t, loc);
+        } else if(ASR::is_a<ASR::SymbolicExpression_t>(*type)) {
+            std::string attr = attr_char;
+            if (attr == "func") {
+                using_func_attr = true;
+                return;
+            }
+            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, 0);
+            handle_symbolic_attribute(se, attr, loc, args);
         } else {
             throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
                 loc);
@@ -5996,8 +6007,6 @@ public:
     }
 
     void visit_Compare(const AST::Compare_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = ASRUtils::EXPR(tmp);
         if (x.n_comparators > 1) {
             diag.add(diag::Diagnostic(
                 "Only one comparison operator is supported for now",
@@ -6008,6 +6017,36 @@ public:
             );
             throw SemanticAbort();
         }
+        this->visit_expr(*x.m_left);
+        if (using_func_attr) {
+            if (AST::is_a<AST::Attribute_t>(*x.m_left) && AST::is_a<AST::Name_t>(*x.m_comparators[0])) {
+                AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_left);
+                AST::Name_t *type_name = AST::down_cast<AST::Name_t>(x.m_comparators[0]);
+                std::string symbolic_type = type_name->m_id;
+                if (AST::is_a<AST::Name_t>(*attr->m_value)) {
+                    AST::Name_t *var_name = AST::down_cast<AST::Name_t>(attr->m_value);
+                    std::string var = var_name->m_id;
+                    ASR::symbol_t *st = current_scope->resolve_symbol(var);
+                    ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
+                                    ASR::make_Var_t(al, x.base.base.loc, st));
+                    Vec<ASR::expr_t*> args;
+                    args.reserve(al, 0);
+                    if (symbolic_type == "Add") {
+                        tmp = attr_handler.eval_symbolic_is_Add(se, al, x.base.base.loc, args, diag);
+                        return;
+                    } else if (symbolic_type == "Mul") {
+                        tmp = attr_handler.eval_symbolic_is_Mul(se, al, x.base.base.loc, args, diag);
+                        return;
+                    } else if (symbolic_type == "Pow") {
+                        tmp = attr_handler.eval_symbolic_is_Pow(se, al, x.base.base.loc, args, diag);
+                        return;
+                    } else {
+                        throw SemanticError(symbolic_type + " symbolic type not supported yet", x.base.base.loc);
+                    }
+                }
+            }
+        }
+        ASR::expr_t *left = ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_comparators[0]);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
 
