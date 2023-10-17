@@ -67,7 +67,8 @@ typedef double _Complex double_complex_t;
 
 LFORTRAN_API double _lfortran_sum(int n, double *v);
 LFORTRAN_API void _lfortran_random_number(int n, double *v);
-LFORTRAN_API void _lfortran_init_random(unsigned seed);
+LFORTRAN_API void _lfortran_init_random_clock();
+LFORTRAN_API void _lfortran_init_random_seed(unsigned seed);
 LFORTRAN_API double _lfortran_random();
 LFORTRAN_API int _lfortran_randrange(int lower, int upper);
 LFORTRAN_API int _lfortran_random_int(int lower, int upper);

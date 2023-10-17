@@ -96,13 +96,14 @@ LFORTRAN_API void _lfortran_random_number(int n, double *v)
     }
 }
 
-LFORTRAN_API void _lfortran_init_random(unsigned seed) 
+LFORTRAN_API void _lfortran_init_random_seed(unsigned seed)
 {
-    if (seed == 0) {
-        srand((unsigned int)clock());
-    } else {
-        srand(seed);
-    }
+    srand(seed);
+}
+
+LFORTRAN_API void _lfortran_init_random_clock()
+{
+    srand((unsigned int)clock());
 }
 
 LFORTRAN_API double _lfortran_random()
