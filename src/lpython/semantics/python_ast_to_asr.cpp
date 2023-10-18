@@ -1326,22 +1326,10 @@ public:
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
                     !ASRUtils::is_intrinsic_function2(func));
 
-                // Check if it is inside the parent symbol scope.
-                if(ASRUtils::symbol_parent_symtab(stemp) == func->m_symtab->parent) {
-                    dependencies.push_back(al, ASRUtils::symbol_name(stemp));
-                } else {
-                    // Check if it is not an Intrinsic Function.
-                    if( !ASRUtils::is_intrinsic_function2(func) ) {
-                        // Check if it is an External Symbol.
-                        if( ASR::is_a<ASR::ExternalSymbol_t>(*stemp) ) {
-                            ASR::ExternalSymbol_t* es = ASR::down_cast<ASR::ExternalSymbol_t>(stemp);
-                            // Only add dependency if both belong to same parent symbol table.
-                            if(ASRUtils::symbol_parent_symtab(es->m_external) == func->m_symtab->parent) {
-                                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
-                            }
-                        }
-                    }
+                if (ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
+                    ADD_ASR_DEPENDENCIES(current_scope, stemp, dependencies);
                 }
+
                 return ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
@@ -1350,9 +1338,10 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 
-                if(ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
-                    dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                if (ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
+                    ADD_ASR_DEPENDENCIES(current_scope, stemp, dependencies);
                 }
+
                 return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr, nullptr, false);
             }
@@ -1614,8 +1603,9 @@ public:
                 target_scope, target_scope, new_f, f);
         }
         dependencies.erase(s2c(al, func_name));
-        if(ASRUtils::symbol_parent_symtab(sym) == current_scope->parent) {
-            dependencies.push_back(al, s2c(al, new_func_name));
+
+        if (ASRUtils::symbol_parent_symtab(sym)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES_WITH_NAME(current_scope, sym, dependencies, s2c(al, new_func_name));
         }
         return t;
     }
