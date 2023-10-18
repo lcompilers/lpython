@@ -939,10 +939,6 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
                     break;
                 }
-                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicExpQ: {
-                    // TODO
-                    break;
-                }
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)

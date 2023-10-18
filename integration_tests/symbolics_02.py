@@ -18,6 +18,7 @@ def test_symbolic_operations():
         assert True
     else:
         assert False
+    assert(z.func == Add)
     print(z)
     
     # Subtraction
@@ -29,6 +30,7 @@ def test_symbolic_operations():
         assert True
     else:
         assert False
+    assert(w.func == Add)
     print(w)
     
     # Multiplication
@@ -40,6 +42,7 @@ def test_symbolic_operations():
         assert True
     else:
         assert False
+    assert(u.func == Mul)
     print(u)
 
     # Division
@@ -51,6 +54,7 @@ def test_symbolic_operations():
         assert True
     else:
         assert False
+    assert(v.func == Mul)
     print(v)
 
     # Power
@@ -66,6 +70,7 @@ def test_symbolic_operations():
         assert True
     else:
         assert False
+    assert(p.func == Pow)
     print(p)
 
     # Casting
