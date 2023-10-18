@@ -1,11 +1,11 @@
-style suggestion: Could have used '**' instead of 'pow'
+warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
  --> tests/errors/test_pow3.py:8:11
   |
 8 |     print(pow(x, a))
-  |           ^^^^^^^^^ '**' could be used instead
+  |           ^^^^^^^^^ imported here
 
-semantic error: Arguments do not match for any generic procedure, pow
- --> tests/errors/test_pow3.py:8:11
-  |
-8 |     print(pow(x, a))
-  |           ^^^^^^^^^ 
+semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
+    |
+209 |     if (n_ - (n_ // 2)*2) == 0:
+    |               ^^^^^^^ 

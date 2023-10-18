@@ -10,7 +10,7 @@
                             __main__global_stmts:
                                 (Function
                                     (SymbolTable
-                                        132
+                                        129
                                         {
                                             
                                         })
@@ -48,26 +48,6 @@
                                     (SymbolTable
                                         5
                                         {
-                                            _lpython_floordiv:
-                                                (ExternalSymbol
-                                                    5
-                                                    _lpython_floordiv
-                                                    6 _lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    _lpython_floordiv
-                                                    Private
-                                                ),
-                                            _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv:
-                                                (ExternalSymbol
-                                                    5
-                                                    _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
-                                                    6 __lpython_overloaded_5___lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_5___lpython_floordiv
-                                                    Public
-                                                ),
                                             _mod:
                                                 (ExternalSymbol
                                                     5
@@ -307,7 +287,14 @@
                                         .false.
                                     )
                                     [test_multiply
+<<<<<<< HEAD
                                     test_mod]
+=======
+                                    test_mod
+                                    _mod@__lpython_overloaded_2___mod
+                                    _mod@__lpython_overloaded_9___mod
+                                    _mod@__lpython_overloaded_4___mod]
+>>>>>>> main
                                     []
                                     [(=
                                         (Var 5 a)
@@ -1377,15 +1364,14 @@
                                     )
                                     (=
                                         (Var 5 c1)
-                                        (FunctionCall
-                                            5 _lpython_floordiv@__lpython_overloaded_5___lpython_floordiv
-                                            5 _lpython_floordiv
-                                            [((Var 5 a1))
-                                            ((Var 5 b1))]
+                                        (IntrinsicScalarFunction
+                                            FloorDiv
+                                            [(Var 5 a1)
+                                            (Var 5 b1)]
+                                            0
                                             (UnsignedInteger
                                                 2
                                             )
-                                            ()
                                             ()
                                         )
                                         ()
@@ -1633,11 +1619,11 @@
             main_program:
                 (Program
                     (SymbolTable
-                        133
+                        130
                         {
                             __main__global_stmts:
                                 (ExternalSymbol
-                                    133
+                                    130
                                     __main__global_stmts
                                     2 __main__global_stmts
                                     __main__
@@ -1649,7 +1635,7 @@
                     main_program
                     [__main__]
                     [(SubroutineCall
-                        133 __main__global_stmts
+                        130 __main__global_stmts
                         2 __main__global_stmts
                         []
                         ()

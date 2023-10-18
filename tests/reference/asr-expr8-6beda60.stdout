@@ -12,26 +12,6 @@
                                     (SymbolTable
                                         3
                                         {
-                                            _lpython_floordiv:
-                                                (ExternalSymbol
-                                                    3
-                                                    _lpython_floordiv
-                                                    4 _lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    _lpython_floordiv
-                                                    Private
-                                                ),
-                                            _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv:
-                                                (ExternalSymbol
-                                                    3
-                                                    _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                    4 __lpython_overloaded_10___lpython_floordiv
-                                                    lpython_builtin
-                                                    []
-                                                    __lpython_overloaded_10___lpython_floordiv
-                                                    Public
-                                                ),
                                             b1:
                                                 (Variable
                                                     3
@@ -387,13 +367,12 @@
                                     (=
                                         (Var 3 x)
                                         (Cast
-                                            (FunctionCall
-                                                3 _lpython_floordiv@__lpython_overloaded_10___lpython_floordiv
-                                                3 _lpython_floordiv
-                                                [((Var 3 b1))
-                                                ((Var 3 b1))]
+                                            (IntrinsicScalarFunction
+                                                FloorDiv
+                                                [(Var 3 b1)
+                                                (Var 3 b1)]
+                                                0
                                                 (Logical 4)
-                                                ()
                                                 ()
                                             )
                                             LogicalToInteger
@@ -431,16 +410,14 @@
                                 )
                         })
                     __main__
-                    [lpython_builtin]
+                    []
                     .false.
                     .false.
                 ),
-            lpython_builtin:
-                (IntrinsicModule lpython_builtin),
             main_program:
                 (Program
                     (SymbolTable
-                        130
+                        4
                         {
                             
                         })

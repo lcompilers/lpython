@@ -1,5 +1,17 @@
-semantic error: Target type specified in c_p_pointer must have deferred shape.
- --> tests/errors/bindc_03.py:6:26
+warning: The module 'numpy' located in $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py cannot be loaded
+ --> tests/errors/bindc_03.py:3:1
   |
-6 |     A: Pointer[i16[:]] = c_p_pointer(b, i16[n * k], array([k * n]))
-  |                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+3 | from numpy import array
+  | ^^^^^^^^^^^^^^^^^^^^^^^ imported here
+
+warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
+   --> $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py:364:12
+    |
+364 |     return x1 % x2
+    |            ^^^^^^^ imported here
+
+semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
+    |
+209 |     if (n_ - (n_ // 2)*2) == 0:
+    |               ^^^^^^^ 

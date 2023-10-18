@@ -1,0 +1,11 @@
+warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
+ --> tests/../integration_tests/test_max_min.py:7:12
+  |
+7 |     assert max(a, b) == b
+  |            ^^^^^^^^^ imported here
+
+semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
+   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
+    |
+209 |     if (n_ - (n_ // 2)*2) == 0:
+    |               ^^^^^^^ 
