@@ -82,6 +82,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     SymbolicAddQ,
     SymbolicMulQ,
     SymbolicPowQ,
+    SymbolicLogQ,
     // ...
 };
 
@@ -146,6 +147,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicAddQ)
         INTRINSIC_NAME_CASE(SymbolicMulQ)
         INTRINSIC_NAME_CASE(SymbolicPowQ)
+        INTRINSIC_NAME_CASE(SymbolicLogQ)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
@@ -3146,6 +3148,7 @@ namespace X {                                                                   
 create_symbolic_query_macro(SymbolicAddQ)
 create_symbolic_query_macro(SymbolicMulQ)
 create_symbolic_query_macro(SymbolicPowQ)
+create_symbolic_query_macro(SymbolicLogQ)
 
 
 #define create_symbolic_unary_macro(X)                                                    \
@@ -3307,6 +3310,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SymbolicMulQ::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPowQ),
             {nullptr, &SymbolicPowQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicLogQ),
+            {nullptr, &SymbolicLogQ::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -3417,6 +3422,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "SymbolicMulQ"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPowQ),
             "SymbolicPowQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicLogQ),
+            "SymbolicLogQ"},
     };
 
 
@@ -3475,6 +3482,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"AddQ", {&SymbolicAddQ::create_SymbolicAddQ, &SymbolicAddQ::eval_SymbolicAddQ}},
                 {"MulQ", {&SymbolicMulQ::create_SymbolicMulQ, &SymbolicMulQ::eval_SymbolicMulQ}},
                 {"PowQ", {&SymbolicPowQ::create_SymbolicPowQ, &SymbolicPowQ::eval_SymbolicPowQ}},
+                {"LogQ", {&SymbolicLogQ::create_SymbolicLogQ, &SymbolicLogQ::eval_SymbolicLogQ}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {

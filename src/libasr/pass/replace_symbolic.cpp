@@ -921,6 +921,24 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
                     break;
                 }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicLogQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                    // Using 29 as the right value of the IntegerCompare node as it represents SYMENGINE_LOG through SYMENGINE_ENUM
+                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 29, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    break;
+                }
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)
@@ -1437,6 +1455,13 @@ public:
 
             ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
             pass_result.push_back(al, assert_stmt);
+        } else if (ASR::is_a<ASR::IntrinsicScalarFunction_t>(*x.m_test)) {
+            ASR::IntrinsicScalarFunction_t* intrinsic_func = ASR::down_cast<ASR::IntrinsicScalarFunction_t>(x.m_test);
+            if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
+                ASR::expr_t* test = process_attributes(al, x.base.base.loc, x.m_test, module_scope);
+                ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+                pass_result.push_back(al, assert_stmt);
+            }
         }
     }
 };
