@@ -282,11 +282,7 @@
                                         .false.
                                     )
                                     []
-<<<<<<< HEAD
-                                    [(Var 213 d)]
-=======
                                     [(Var 210 d)]
->>>>>>> main
                                     [(=
                                         (Var 210 eps)
                                         (RealConstant
@@ -990,11 +986,7 @@
                                         .false.
                                     )
                                     []
-<<<<<<< HEAD
-                                    [(Var 212 a)]
-=======
                                     [(Var 209 a)]
->>>>>>> main
                                     [(=
                                         (Var 209 eps)
                                         (RealConstant

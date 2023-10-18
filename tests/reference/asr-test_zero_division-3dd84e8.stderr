@@ -1,5 +1,5 @@
-semantic error: integer division by zero is not allowed
+semantic error: Division by 0 is not allowed
  --> tests/errors/test_zero_division.py:4:16
   |
 4 |     print(i // 0)
-  |                ^ integer division by zero
+  |                ^ 

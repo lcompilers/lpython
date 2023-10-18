@@ -1,17 +1,5 @@
-warning: The module 'numpy' located in $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py cannot be loaded
- --> tests/errors/arrays_06.py:2:1
+semantic error: Type mismatch in annotation-assignment, the types must be compatible
+ --> tests/errors/arrays_06.py:6:5
   |
-2 | from numpy import empty, int32
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ imported here
-
-warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
-   --> $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py:364:12
-    |
-364 |     return x1 % x2
-    |            ^^^^^^^ imported here
-
-semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
-   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
-    |
-209 |     if (n_ - (n_ // 2)*2) == 0:
-    |               ^^^^^^^ 
+6 |     x: i16[5, 4] = empty([5, 4], dtype=int32)
+  |     ^              ^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch ('i16[5,4]' and 'i32[5,4]')

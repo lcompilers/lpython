@@ -287,14 +287,7 @@
                                         .false.
                                     )
                                     [test_multiply
-<<<<<<< HEAD
                                     test_mod]
-=======
-                                    test_mod
-                                    _mod@__lpython_overloaded_2___mod
-                                    _mod@__lpython_overloaded_9___mod
-                                    _mod@__lpython_overloaded_4___mod]
->>>>>>> main
                                     []
                                     [(=
                                         (Var 5 a)

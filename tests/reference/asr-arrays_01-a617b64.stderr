@@ -1,17 +1,8 @@
-warning: The module 'numpy' located in $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py cannot be loaded
- --> tests/errors/arrays_01.py:2:1
-  |
-2 | from numpy import empty, int8
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ imported here
-
-warning: The module 'lpython_builtin' located in $DIR/src/bin/../runtime/lpython_builtin.py cannot be loaded
-   --> $DIR/src/bin/../runtime/lpython_intrinsic_numpy.py:364:12
-    |
-364 |     return x1 % x2
-    |            ^^^^^^^ imported here
-
-semantic error: The symbol '_lpython_floordiv' not found in the module 'lpython_builtin'
-   --> $DIR/src/bin/../runtime/lpython_builtin.py:209:15
-    |
-209 |     if (n_ - (n_ // 2)*2) == 0:
-    |               ^^^^^^^ 
+semantic error: Type mismatch in procedure call; the types must be compatible
+  --> tests/errors/arrays_01.py:15:9
+   |
+15 |         [i8(214), i8(157), i8(3), i8(146)])
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ type mismatch (passed argument type is list[i8] but required type is i8[4])
+   |
+ 9 |     a : i8[4] = empty(4, dtype=int8)
+   |         ^^^^^ type mismatch (passed argument type is list[i8] but required type is i8[4])
