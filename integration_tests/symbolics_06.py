@@ -30,8 +30,15 @@ def test_elementary_functions():
     b: S = sin(a)
     c: S = cos(b)
     d: S = log(c)
+    d1: bool = d.func == log
     e: S = Abs(d)
     print(e)
+    assert(d1 == True)
+    if d.func == log:
+        assert True
+    else:
+        assert False
+    assert(d.func == log)
     assert(e == Abs(log(cos(sin(exp(x))))))
 
 test_elementary_functions()

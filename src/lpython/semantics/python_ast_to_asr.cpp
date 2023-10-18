@@ -6043,9 +6043,6 @@ public:
                     } else if (symbolic_type == "log") {
                         tmp = attr_handler.eval_symbolic_is_log(se, al, x.base.base.loc, args, diag);
                         return;
-                    } else if (symbolic_type == "exp") {
-                        tmp = attr_handler.eval_symbolic_is_exp(se, al, x.base.base.loc, args, diag);
-                        return;
                     } else {
                         throw SemanticError(symbolic_type + " symbolic type not supported yet", x.base.base.loc);
                     }
