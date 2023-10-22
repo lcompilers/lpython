@@ -70,6 +70,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     SymbolicDiv,
     SymbolicPow,
     SymbolicPi,
+    SymbolicE,
     SymbolicInteger,
     SymbolicDiff,
     SymbolicExpand,
@@ -135,6 +136,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicDiv)
         INTRINSIC_NAME_CASE(SymbolicPow)
         INTRINSIC_NAME_CASE(SymbolicPi)
+        INTRINSIC_NAME_CASE(SymbolicE)
         INTRINSIC_NAME_CASE(SymbolicInteger)
         INTRINSIC_NAME_CASE(SymbolicDiff)
         INTRINSIC_NAME_CASE(SymbolicExpand)
@@ -3004,30 +3006,34 @@ create_symbolic_binary_macro(SymbolicDiv)
 create_symbolic_binary_macro(SymbolicPow)
 create_symbolic_binary_macro(SymbolicDiff)
 
-namespace SymbolicPi {
+#define create_symbolic_constants_macro(X)                                                \
+namespace X {                                                                             \
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
+            diag::Diagnostics& diagnostics) {                                             \
+        const Location& loc = x.base.base.loc;                                            \
+        ASRUtils::require_impl(x.n_args == 0,                                             \
+            #X " does not take arguments", loc, diagnostics);                             \
+    }                                                                                     \
+                                                                                          \
+    static inline ASR::expr_t* eval_##X(Allocator &/*al*/, const Location &/*loc*/,       \
+            ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/) {                                \
+        /*TODO*/                                                                          \
+        return nullptr;                                                                   \
+    }                                                                                     \
+                                                                                          \
+    static inline ASR::asr_t* create_##X(Allocator& al, const Location& loc,              \
+            Vec<ASR::expr_t*>& args,                                                      \
+            const std::function<void (const std::string &, const Location &)> /*err*/) {  \
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));  \
+        ASR::expr_t* compile_time_value = eval_##X(al, loc, to_type, args);               \
+        return ASR::make_IntrinsicScalarFunction_t(al, loc,                               \
+                static_cast<int64_t>(IntrinsicScalarFunctions::X),                        \
+                nullptr, 0, 0, to_type, compile_time_value);                              \
+    }                                                                                     \
+} // namespace X
 
-    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x, diag::Diagnostics& diagnostics) {
-        ASRUtils::require_impl(x.n_args == 0, "SymbolicPi does not take arguments",
-            x.base.base.loc, diagnostics);
-    }
-
-    static inline ASR::expr_t *eval_SymbolicPi(Allocator &/*al*/,
-    const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*>& /*args*/) {
-        // TODO
-        return nullptr;
-    }
-
-    static inline ASR::asr_t* create_SymbolicPi(Allocator& al, const Location& loc,
-            Vec<ASR::expr_t*>& args,
-            const std::function<void (const std::string &, const Location &)> /*err*/) {
-        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
-        ASR::expr_t* compile_time_value = eval_SymbolicPi(al, loc, to_type, args);
-        return ASR::make_IntrinsicScalarFunction_t(al, loc,
-                static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
-                nullptr, 0, 0, to_type, compile_time_value);
-    }
-
-} // namespace SymbolicPi
+create_symbolic_constants_macro(SymbolicPi)
+create_symbolic_constants_macro(SymbolicE)
 
 namespace SymbolicInteger {
 
@@ -3286,6 +3292,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SymbolicPow::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
             {nullptr, &SymbolicPi::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicE),
+            {nullptr, &SymbolicE::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicInteger),
             {nullptr, &SymbolicInteger::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiff),
@@ -3398,6 +3406,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "SymbolicPow"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicPi),
             "pi"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicE),
+            "E"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicInteger),
             "SymbolicInteger"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicDiff),
@@ -3470,6 +3480,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"SymbolicDiv", {&SymbolicDiv::create_SymbolicDiv, &SymbolicDiv::eval_SymbolicDiv}},
                 {"SymbolicPow", {&SymbolicPow::create_SymbolicPow, &SymbolicPow::eval_SymbolicPow}},
                 {"pi", {&SymbolicPi::create_SymbolicPi, &SymbolicPi::eval_SymbolicPi}},
+                {"E", {&SymbolicE::create_SymbolicE, &SymbolicE::eval_SymbolicE}},
                 {"SymbolicInteger", {&SymbolicInteger::create_SymbolicInteger, &SymbolicInteger::eval_SymbolicInteger}},
                 {"diff", {&SymbolicDiff::create_SymbolicDiff, &SymbolicDiff::eval_SymbolicDiff}},
                 {"expand", {&SymbolicExpand::create_SymbolicExpand, &SymbolicExpand::eval_SymbolicExpand}},
