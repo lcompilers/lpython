@@ -199,8 +199,7 @@
                                         []
                                         .false.
                                     )
-                                    [max@__lpython_overloaded_2__max
-                                    max@__lpython_overloaded_3__max]
+                                    []
                                     []
                                     [(=
                                         (Var 4 d)
@@ -368,8 +367,7 @@
                                         []
                                         .false.
                                     )
-                                    [max@__lpython_overloaded_0__max
-                                    max@__lpython_overloaded_1__max]
+                                    []
                                     []
                                     [(=
                                         (Var 3 a)

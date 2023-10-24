@@ -14,6 +14,28 @@
 
 #include <complex>
 
+#define ADD_ASR_DEPENDENCIES(current_scope, final_sym, current_function_dependencies) ASR::symbol_t* asr_owner_sym = nullptr; \
+    if(current_scope->asr_owner && ASR::is_a<ASR::symbol_t>(*current_scope->asr_owner) ) { \
+        asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner); \
+    } \
+    SymbolTable* temp_scope = current_scope; \
+    if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter() && \
+            !ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) && !ASR::is_a<ASR::ExternalSymbol_t>(*final_sym) && \
+                !ASR::is_a<ASR::Variable_t>(*final_sym)) { \
+        current_function_dependencies.push_back(al, ASRUtils::symbol_name(final_sym)); \
+    } \
+
+#define ADD_ASR_DEPENDENCIES_WITH_NAME(current_scope, final_sym, current_function_dependencies, dep_name) ASR::symbol_t* asr_owner_sym = nullptr; \
+    if(current_scope->asr_owner && ASR::is_a<ASR::symbol_t>(*current_scope->asr_owner) ) { \
+        asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner); \
+    } \
+    SymbolTable* temp_scope = current_scope; \
+    if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(final_sym)->get_counter() && \
+            !ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) && !ASR::is_a<ASR::ExternalSymbol_t>(*final_sym) && \
+                !ASR::is_a<ASR::Variable_t>(*final_sym)) { \
+        current_function_dependencies.push_back(al, dep_name); \
+    } \
+
 namespace LCompilers  {
 
     namespace ASRUtils  {
@@ -553,6 +575,17 @@ static inline std::pair<char**, size_t> symbol_dependencies(const ASR::symbol_t 
         default : throw LCompilersException("Not implemented");
     }
 }
+
+static inline bool is_present_in_current_scope(ASR::ExternalSymbol_t* external_symbol, SymbolTable* current_scope) {
+        SymbolTable* scope = external_symbol->m_parent_symtab;
+        while (scope != nullptr) {
+            if (scope->get_counter() == current_scope->get_counter()) {
+                return true;
+            }
+            scope = scope->parent;
+        }
+        return false;
+    }
 
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
 {
@@ -3189,7 +3222,9 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
             default:
                 break;
         }
-        current_function_dependencies.push_back(al, ASRUtils::symbol_name(new_es));
+        if (ASRUtils::symbol_parent_symtab(new_es)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES(current_scope, new_es, current_function_dependencies);
+        }
         ASRUtils::insert_module_dependency(new_es, al, current_module_dependencies);
         x->m_name = new_es;
     }

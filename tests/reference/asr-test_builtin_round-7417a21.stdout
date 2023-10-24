@@ -256,13 +256,7 @@
                                         []
                                         .false.
                                     )
-                                    [round@__lpython_overloaded_0__round
-                                    round@__lpython_overloaded_1__round
-                                    round@__lpython_overloaded_2__round
-                                    round@__lpython_overloaded_4__round
-                                    round@__lpython_overloaded_5__round
-                                    round@__lpython_overloaded_3__round
-                                    round@__lpython_overloaded_6__round]
+                                    []
                                     []
                                     [(=
                                         (Var 3 f)

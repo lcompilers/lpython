@@ -188,9 +188,7 @@
                                                 "last_column": 7
                                             }
                                         },
-                                        "dependencies": [
-                                            "f"
-                                        ],
+                                        "dependencies": [],
                                         "args": [],
                                         "body": [
                                             {
@@ -711,9 +709,7 @@
                                                 "last_column": 16
                                             }
                                         },
-                                        "dependencies": [
-                                            "g"
-                                        ],
+                                        "dependencies": [],
                                         "args": [],
                                         "body": [
                                             {

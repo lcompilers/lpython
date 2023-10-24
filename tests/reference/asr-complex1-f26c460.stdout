@@ -368,12 +368,7 @@
                                         []
                                         .false.
                                     )
-                                    [complex@__lpython_overloaded_0__complex
-                                    complex@__lpython_overloaded_1__complex
-                                    complex@__lpython_overloaded_5__complex
-                                    complex@__lpython_overloaded_2__complex
-                                    complex@__lpython_overloaded_9__complex
-                                    complex@__lpython_overloaded_13__complex]
+                                    []
                                     []
                                     [(=
                                         (Var 3 c)

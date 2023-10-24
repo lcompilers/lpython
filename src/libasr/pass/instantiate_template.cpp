@@ -305,8 +305,6 @@ public:
         return new_x;
     }
 
-
-
     ASR::asr_t* duplicate_Var(ASR::Var_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_v);
         ASR::symbol_t* sym = duplicate_symbol(x->m_v);
@@ -430,9 +428,9 @@ public:
                 throw LCompilersException("Cannot handle instantiation for the function call " + call_name);
             }
         }
-
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
-
+        if (ASRUtils::symbol_parent_symtab(name)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES(current_scope, name, dependencies);
+        }
         return ASRUtils::make_FunctionCall_t_util(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
@@ -474,10 +472,10 @@ public:
                 throw LCompilersException("Cannot handle instantiation for the function call " + call_name);
             }
         }
-
-        dependencies.push_back(al, ASRUtils::symbol_name(name));
-
-        return ASRUtils::make_SubroutineCall_t_util(al, x->base.base.loc, name,
+        if (ASRUtils::symbol_parent_symtab(name)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES(current_scope, name, dependencies);
+        }
+        return ASRUtils::make_SubroutineCall_t_util(al, x->base.base.loc, name /* change this */,
             x->m_original_name, args.p, args.size(), dt, nullptr, false);
     }
 
@@ -651,6 +649,8 @@ void check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
                                 {f->m_args[i]->base.loc}),
                         diag::Label("Function's parameter " + avar + " of type " + atype,
                                 {arg->m_args[i]->base.loc})
+
+   
                     }
                 ));
                 throw SemanticAbort();
