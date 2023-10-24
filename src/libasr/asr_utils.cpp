@@ -616,7 +616,9 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                                     }
                                 }
                             }
-                            current_function_dependencies.push_back(al, s2c(al, matched_func_name));
+                            if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
+                                ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_func_name));
+                            }  
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
                             asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, sym,
@@ -699,7 +701,9 @@ void process_overloaded_unary_minus_function(ASR::symbol_t* proc, ASR::expr_t* o
                     }
                 }
             }
-            current_function_dependencies.push_back(al, s2c(al, matched_func_name));
+            if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
+                ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_func_name));
+            }  
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
             asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, proc,
@@ -870,7 +874,9 @@ void process_overloaded_assignment_function(ASR::symbol_t* proc, ASR::expr_t* ta
             if( a_name == nullptr ) {
                 err("Unable to resolve matched subroutine for assignment overloading, " + matched_subrout_name, loc);
             }
-            current_function_dependencies.push_back(al, s2c(al, matched_subrout_name));
+            if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
+                ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_subrout_name));
+            }
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, subrout, al);
             asr = ASRUtils::make_SubroutineCall_t_util(al, loc, a_name, sym,
@@ -1010,7 +1016,9 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             } else {
                                 return_type = ASRUtils::expr_type(func->m_return_var);
                             }
-                            current_function_dependencies.push_back(al, s2c(al, matched_func_name));
+                            if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
+                                ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_func_name));
+                            }
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
                             asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, sym,

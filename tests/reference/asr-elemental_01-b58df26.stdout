@@ -190,8 +190,7 @@
                                         []
                                         .false.
                                     )
-                                    [cos@__lpython_overloaded_0__cos
-                                    verify2d]
+                                    [verify2d]
                                     []
                                     [(=
                                         (Var 217 array2d)
@@ -885,9 +884,7 @@
                                         []
                                         .false.
                                     )
-                                    [sin@__lpython_overloaded_1__sin
-                                    verify1d
-                                    sin@__lpython_overloaded_0__sin
+                                    [verify1d
                                     verifynd]
                                     []
                                     [(=
@@ -1771,8 +1768,7 @@
                                         []
                                         .false.
                                     )
-                                    [sin@__lpython_overloaded_1__sin
-                                    cos@__lpython_overloaded_1__cos]
+                                    []
                                     []
                                     [(=
                                         (Var 218 eps)
@@ -2365,7 +2361,7 @@
                                         []
                                         .false.
                                     )
-                                    [sin@__lpython_overloaded_1__sin]
+                                    []
                                     [(Var 209 array)
                                     (Var 209 result)
                                     (Var 209 size)]
@@ -3197,7 +3193,7 @@
                                         []
                                         .false.
                                     )
-                                    [cos@__lpython_overloaded_0__cos]
+                                    []
                                     [(Var 211 array)
                                     (Var 211 result)
                                     (Var 211 size1)
@@ -3572,7 +3568,7 @@
                                         []
                                         .false.
                                     )
-                                    [sin@__lpython_overloaded_0__sin]
+                                    []
                                     [(Var 210 array)
                                     (Var 210 result)
                                     (Var 210 size1)

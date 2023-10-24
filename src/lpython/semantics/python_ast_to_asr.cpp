@@ -1187,7 +1187,11 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
                     !ASRUtils::is_intrinsic_function2(func));
-                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+
+                if (ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
+                    ADD_ASR_DEPENDENCIES(current_scope, stemp, dependencies);
+                }
+
                 return ASRUtils::make_FunctionCall_t_util(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
@@ -1195,7 +1199,11 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-                dependencies.push_back(al, ASRUtils::symbol_name(stemp));
+                
+                if (ASRUtils::symbol_parent_symtab(stemp)->get_counter() != current_scope->get_counter()) {
+                    ADD_ASR_DEPENDENCIES(current_scope, stemp, dependencies);
+                }
+
                 return ASRUtils::make_SubroutineCall_t_util(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr, nullptr, false);
             }
@@ -1457,7 +1465,10 @@ public:
                 target_scope, target_scope, new_f, f);
         }
         dependencies.erase(s2c(al, func_name));
-        dependencies.push_back(al, s2c(al, new_func_name));
+
+        if (ASRUtils::symbol_parent_symtab(sym)->get_counter() != current_scope->get_counter()) {
+            ADD_ASR_DEPENDENCIES_WITH_NAME(current_scope, sym, dependencies, s2c(al, new_func_name));
+        }
         return t;
     }
 
@@ -5471,6 +5482,7 @@ public:
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+        current_scope->asr_owner = parent_scope->asr_owner;
         transform_stmts(body, x.n_body, x.m_body);
         int32_t total_syms = current_scope->get_scope().size();
         if( total_syms > 0 ) {

@@ -352,7 +352,7 @@
                                         []
                                         .false.
                                     )
-                                    [vector_copy_f64[9216]f64[9216]i32@IntrinsicOptimization]
+                                    []
                                     []
                                     [(=
                                         (Var 209 a)
