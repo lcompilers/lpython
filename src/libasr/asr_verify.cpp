@@ -855,6 +855,9 @@ public:
     void visit_SubroutineCall(const SubroutineCall_t &x) {
         require(symtab_in_scope(current_symtab, x.m_name),
             "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' cannot point outside of its symbol table");
+        require(current_symtab->asr_owner != nullptr, 
+            "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' must have a valid asr_owner");
+
         if (check_external) {
             ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_name);
             if (ASR::is_a<ASR::Variable_t>(*s)) {
@@ -1003,6 +1006,9 @@ public:
     void visit_FunctionCall(const FunctionCall_t &x) {
         require(x.m_name,
             "FunctionCall::m_name must be present");
+        require(current_symtab->asr_owner != nullptr, 
+            "FunctionCall::m_name '" + std::string(symbol_name(x.m_name)) + "' must have a valid asr_owner");
+
         function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
