@@ -32,8 +32,8 @@ def main0():
     # Print the results
     print("x =", x)
     print("z =", z)
-    print("sqrt(E) =", expr1)
-    print("exp(E) =", expr2)
+    print("log(E) =", expr1)
+    print("exp(1) =", expr2)
 
 
 main0()
