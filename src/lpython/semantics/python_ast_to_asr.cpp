@@ -3172,7 +3172,7 @@ public:
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
         std::set<std::string> not_cpython_builtin = {
-            "pi"};
+            "pi", "E"};
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
@@ -7116,7 +7116,7 @@ we will have to use something else.
                     "diff", "expand", "has"
                 };
                 std::set<std::string> symbolic_constants = {
-                    "pi"
+                    "pi", "E"
                 };
                 if (symbolic_attributes.find(call_name) != symbolic_attributes.end() &&
                     symbolic_constants.find(mod_name) != symbolic_constants.end()){
