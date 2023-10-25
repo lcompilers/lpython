@@ -951,6 +951,24 @@ public:
                         ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
                     break;
                 }
+                case LCompilers::ASRUtils::IntrinsicScalarFunctions::SymbolicSinQ: {
+                    ASR::symbol_t* basic_get_type_sym = declare_basic_get_type_function(al, loc, module_scope);
+                    ASR::expr_t* value1 = handle_argument(al, loc, intrinsic_func->m_args[0]);
+                    Vec<ASR::call_arg_t> call_args;
+                    call_args.reserve(al, 1);
+                    ASR::call_arg_t call_arg;
+                    call_arg.loc = loc;
+                    call_arg.m_value = value1;
+                    call_args.push_back(al, call_arg);
+                    ASR::expr_t* function_call = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
+                        basic_get_type_sym, basic_get_type_sym, call_args.p, call_args.n,
+                        ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
+                    // Using 35 as the right value of the IntegerCompare node as it represents SYMENGINE_SIN through SYMENGINE_ENUM
+                    return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call, ASR::cmpopType::Eq,
+                        ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 35, ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)))),
+                        ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
+                    break;
+                }
                 default: {
                     throw LCompilersException("IntrinsicFunction: `"
                         + ASRUtils::get_intrinsic_name(intrinsic_id)
