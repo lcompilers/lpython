@@ -441,15 +441,15 @@ public:
         verify_unique_dependencies(x.m_dependencies, x.n_dependencies,
                                    x.m_name, x.base.base.loc);
 
-        // Get the x symtab.
-        SymbolTable *x_symtab = x.m_symtab;
+        // Get the x parent symtab.
+        SymbolTable *x_parent_symtab = x.m_symtab->parent;
 
         // Dependencies of the function should be from function's parent symbol table.
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
             std::string found_dep = x.m_dependencies[i];
 
             // Get the symbol of the found_dep.
-            ASR::symbol_t* dep_sym = x_symtab->resolve_symbol(found_dep);
+            ASR::symbol_t* dep_sym = x_parent_symtab->resolve_symbol(found_dep);
 
             require(dep_sym != nullptr,
                             "Dependency " + found_dep +  " is inside symbol table " + std::string(x.m_name));
