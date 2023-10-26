@@ -28,11 +28,18 @@ def test_elementary_functions():
     # test composite functions
     a: S = exp(x)
     b: S = sin(a)
+    b1: bool = b.func == sin
     c: S = cos(b)
     d: S = log(c)
     d1: bool = d.func == log
     e: S = Abs(d)
     print(e)
+    assert(b1 == True)
+    if b.func == sin:
+        assert True
+    else:
+        assert False
+    assert(b.func == sin)
     assert(d1 == True)
     if d.func == log:
         assert True
