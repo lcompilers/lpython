@@ -85,6 +85,7 @@ enum class IntrinsicScalarFunctions : int64_t {
     SymbolicPowQ,
     SymbolicLogQ,
     SymbolicSinQ,
+    SymbolicGetArgument,
     // ...
 };
 
@@ -152,6 +153,7 @@ inline std::string get_intrinsic_name(int x) {
         INTRINSIC_NAME_CASE(SymbolicPowQ)
         INTRINSIC_NAME_CASE(SymbolicLogQ)
         INTRINSIC_NAME_CASE(SymbolicSinQ)
+        INTRINSIC_NAME_CASE(SymbolicGetArgument)
         default : {
             throw LCompilersException("pickle: intrinsic_id not implemented");
         }
@@ -3116,6 +3118,54 @@ namespace SymbolicHasSymbolQ {
     }
 } // namespace SymbolicHasSymbolQ
 
+namespace SymbolicGetArgument {
+    static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,
+        diag::Diagnostics& diagnostics) {
+        ASRUtils::require_impl(x.n_args == 2, "Intrinsic function SymbolicGetArgument"
+            "accepts exactly 2 argument", x.base.base.loc, diagnostics);
+
+        ASR::ttype_t* arg1_type = ASRUtils::expr_type(x.m_args[0]);
+        ASR::ttype_t* arg2_type = ASRUtils::expr_type(x.m_args[1]);
+        ASRUtils::require_impl(ASR::is_a<ASR::SymbolicExpression_t>(*arg1_type),
+            "SymbolicGetArgument expects the first argument to be of type SymbolicExpression",
+                x.base.base.loc, diagnostics);
+        ASRUtils::require_impl(ASR::is_a<ASR::Integer_t>(*arg2_type),
+            "SymbolicGetArgument expects the second argument to be of type Integer",
+                x.base.base.loc, diagnostics);
+    }
+
+    static inline ASR::expr_t* eval_SymbolicGetArgument(Allocator &/*al*/,
+        const Location &/*loc*/, ASR::ttype_t *, Vec<ASR::expr_t*> &/*args*/) {
+        /*TODO*/
+        return nullptr;
+    }
+
+    static inline ASR::asr_t* create_SymbolicGetArgument(Allocator& al,
+        const Location& loc, Vec<ASR::expr_t*>& args,
+        const std::function<void (const std::string &, const Location &)> err) {
+
+        if (args.size() != 2) {
+            err("Intrinsic function SymbolicGetArguments accepts exactly 2 argument", loc);
+        }
+
+        ASR::ttype_t* arg1_type = ASRUtils::expr_type(args[0]);
+        ASR::ttype_t* arg2_type = ASRUtils::expr_type(args[1]);
+        if (!ASR::is_a<ASR::SymbolicExpression_t>(*arg1_type)) {
+            err("The first argument of SymbolicGetArgument function must be of type SymbolicExpression",
+                    args[0]->base.loc);
+        }
+        if (!ASR::is_a<ASR::Integer_t>(*arg2_type)) {
+            err("The second argument of SymbolicGetArgument function must be of type Integer",
+                    args[1]->base.loc);
+        }
+
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_SymbolicExpression_t(al, loc));
+        return UnaryIntrinsicFunction::create_UnaryFunction(al, loc, args, eval_SymbolicGetArgument,
+            static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicGetArgument),
+            0, to_type);
+    }
+} // namespace SymbolicGetArgument
+
 #define create_symbolic_query_macro(X)                                                    \
 namespace X {                                                                             \
     static inline void verify_args(const ASR::IntrinsicScalarFunction_t& x,               \
@@ -3325,6 +3375,8 @@ namespace IntrinsicScalarFunctionRegistry {
             {nullptr, &SymbolicLogQ::verify_args}},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSinQ),
             {nullptr, &SymbolicSinQ::verify_args}},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicGetArgument),
+            {nullptr, &SymbolicGetArgument::verify_args}},
     };
 
     static const std::map<int64_t, std::string>& intrinsic_function_id_to_name = {
@@ -3441,6 +3493,8 @@ namespace IntrinsicScalarFunctionRegistry {
             "SymbolicLogQ"},
         {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicSinQ),
             "SymbolicSinQ"},
+        {static_cast<int64_t>(IntrinsicScalarFunctions::SymbolicGetArgument),
+            "SymbolicGetArgument"},
     };
 
 
@@ -3502,6 +3556,7 @@ namespace IntrinsicScalarFunctionRegistry {
                 {"PowQ", {&SymbolicPowQ::create_SymbolicPowQ, &SymbolicPowQ::eval_SymbolicPowQ}},
                 {"LogQ", {&SymbolicLogQ::create_SymbolicLogQ, &SymbolicLogQ::eval_SymbolicLogQ}},
                 {"SinQ", {&SymbolicSinQ::create_SymbolicSinQ, &SymbolicSinQ::eval_SymbolicSinQ}},
+                {"GetArgument", {&SymbolicGetArgument::create_SymbolicGetArgument, &SymbolicGetArgument::eval_SymbolicGetArgument}},
     };
 
     static inline bool is_intrinsic_function(const std::string& name) {
