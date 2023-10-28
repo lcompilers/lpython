@@ -369,6 +369,7 @@ public:
     bool allow_implicit_casting;
     // Stores the name of imported functions and the modules they are imported from
     std::map<std::string, std::string> imported_functions;
+    bool using_args_attr = false;
 
     std::map<std::string, std::string> numpy2lpythontypes = {
         {"bool", "bool"},
@@ -3802,6 +3803,25 @@ public:
 
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
+        if (using_args_attr) {
+            if (AST::is_a<AST::Attribute_t>(*x.m_value)){
+                AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_value);
+                if (AST::is_a<AST::Name_t>(*attr->m_value)) {
+                    AST::Name_t *var_name = AST::down_cast<AST::Name_t>(attr->m_value);
+                    std::string var = var_name->m_id;
+                    ASR::symbol_t *st = current_scope->resolve_symbol(var);
+                    ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
+                                    ASR::make_Var_t(al, x.base.base.loc, st));
+                    Vec<ASR::expr_t*> args;
+                    args.reserve(al, 0);
+                    this->visit_expr(*x.m_slice);
+                    ASR::expr_t *index = ASRUtils::EXPR(tmp);
+                    args.push_back(al, index);
+                    tmp = attr_handler.eval_symbolic_get_argument(se, al, x.base.base.loc, args, diag);
+                    return;
+                }
+            }
+        }
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *type = ASRUtils::expr_type(value);
         Vec<ASR::array_index_t> args;
@@ -5820,6 +5840,10 @@ public:
             std::string attr = attr_char;
             if (attr == "func") {
                 using_func_attr = true;
+                return;
+            }
+            if (attr == "args") {
+                using_args_attr = true;
                 return;
             }
             ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
