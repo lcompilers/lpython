@@ -3818,6 +3818,7 @@ public:
                     ASR::expr_t *index = ASRUtils::EXPR(tmp);
                     args.push_back(al, index);
                     tmp = attr_handler.eval_symbolic_get_argument(se, al, x.base.base.loc, args, diag);
+                    using_args_attr = false;
                     return;
                 }
             }

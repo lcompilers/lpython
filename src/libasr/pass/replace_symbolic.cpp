@@ -569,13 +569,12 @@ public:
 
                 // Define necessary variables
                 ASR::ttype_t* CPtr_type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+                std::string args_str = current_scope->get_unique_name("_lcompilers_symbolic_argument_container");
                 ASR::symbol_t* args_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                    al, loc, current_scope, s2c(al, "args"), nullptr, 0, ASR::intentType::Local,
+                    al, loc, current_scope, s2c(al, args_str), nullptr, 0, ASR::intentType::Local,
                     nullptr, nullptr, ASR::storage_typeType::Default, CPtr_type, nullptr,
                     ASR::abiType::BindC, ASR::Public, ASR::presenceType::Required, false));
-                //if (!current_scope->get_symbol("args")) {
-                current_scope->add_symbol(s2c(al, "args"), args_sym);
-                //}
+                current_scope->add_symbol(args_str, args_sym);
 
                 // Statement 1
                 ASR::expr_t* args = ASRUtils::EXPR(ASR::make_Var_t(al, loc, args_sym));
