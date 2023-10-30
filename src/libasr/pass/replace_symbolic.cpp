@@ -614,7 +614,9 @@ public:
                     ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
                 ASR::expr_t* int_compare = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call2, ASR::cmpopType::LtE,
                         x->m_args[1], ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                ASR::stmt_t* stmt3 = ASRUtils::STMT(make_If_t(al, loc, int_compare,
+                ASR::stmt_t* if_body_stmt = ASRUtils::STMT(ASR::make_ErrorStop_t(al, loc, nullptr));
+                if_body.push_back(al, if_body_stmt);
+                ASR::stmt_t* stmt3 = ASRUtils::STMT(ASR::make_If_t(al, loc, int_compare,
                     if_body.p, if_body.n, else_body.p, else_body.n));
                 pass_result.push_back(al, stmt3);
 
