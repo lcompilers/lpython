@@ -29,7 +29,6 @@ LFortran, see that project for a list of sponsors.
 
 Here is the list of requirements needed to build LPython:
 
-- Python (3.10+)
 - Conda
 
 For Windows, these are additionally required:
