@@ -1707,9 +1707,6 @@ public:
             pass_result.push_back(al, assert_stmt);
         } else if (ASR::is_a<ASR::SymbolicCompare_t>(*x.m_test)) {
             ASR::SymbolicCompare_t *s = ASR::down_cast<ASR::SymbolicCompare_t>(x.m_test);
-            SymbolTable* module_scope = current_scope->parent;
-            ASR::expr_t* left_tmp = nullptr;
-            ASR::expr_t* right_tmp = nullptr;
 
             ASR::symbol_t* basic_str_sym = declare_basic_str_function(al, x.base.base.loc, module_scope);
             left_tmp = process_with_basic_str(al, x.base.base.loc, s->m_left, basic_str_sym);
@@ -1724,6 +1721,27 @@ public:
             if (intrinsic_func->m_type->type == ASR::ttypeType::Logical) {
                 ASR::expr_t* test = process_attributes(al, x.base.base.loc, x.m_test, module_scope);
                 ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, test, x.m_msg));
+                pass_result.push_back(al, assert_stmt);
+            }
+        } else if (ASR::is_a<ASR::LogicalBinOp_t>(*x.m_test)) {
+            ASR::LogicalBinOp_t* binop = ASR::down_cast<ASR::LogicalBinOp_t>(x.m_test);
+            if (ASR::is_a<ASR::SymbolicCompare_t>(*binop->m_left) && ASR::is_a<ASR::SymbolicCompare_t>(*binop->m_right)) {
+                ASR::symbol_t* basic_str_sym = declare_basic_str_function(al, x.base.base.loc, module_scope);
+                ASR::SymbolicCompare_t *s1 = ASR::down_cast<ASR::SymbolicCompare_t>(binop->m_left);
+                left_tmp = process_with_basic_str(al, x.base.base.loc, s1->m_left, basic_str_sym);
+                right_tmp = process_with_basic_str(al, x.base.base.loc, s1->m_right, basic_str_sym);
+                ASR::expr_t* test1 =  ASRUtils::EXPR(ASR::make_StringCompare_t(al, x.base.base.loc, left_tmp,
+                    s1->m_op, right_tmp, s1->m_type, s1->m_value));
+
+                ASR::SymbolicCompare_t *s2 = ASR::down_cast<ASR::SymbolicCompare_t>(binop->m_right);
+                left_tmp = process_with_basic_str(al, x.base.base.loc, s2->m_left, basic_str_sym);
+                right_tmp = process_with_basic_str(al, x.base.base.loc, s2->m_right, basic_str_sym);
+                ASR::expr_t* test2 =  ASRUtils::EXPR(ASR::make_StringCompare_t(al, x.base.base.loc, left_tmp,
+                    s2->m_op, right_tmp, s2->m_type, s2->m_value));
+
+                ASR::expr_t *cond = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al, x.base.base.loc,
+                    test1, ASR::logicalbinopType::Or, test2, binop->m_type, binop->m_value));
+                ASR::stmt_t *assert_stmt = ASRUtils::STMT(ASR::make_Assert_t(al, x.base.base.loc, cond, x.m_msg));
                 pass_result.push_back(al, assert_stmt);
             }
         }
