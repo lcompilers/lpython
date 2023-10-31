@@ -601,8 +601,6 @@ public:
                 pass_result.push_back(al, stmt2);
 
                 // Statement 3
-                Vec<ASR::stmt_t *> if_body; if_body.reserve(al, 1);
-                Vec<ASR::stmt_t *> else_body; else_body.reserve(al, 1);
                 Vec<ASR::call_arg_t> call_args3;
                 call_args3.reserve(al, 1);
                 ASR::call_arg_t call_arg3;
@@ -612,12 +610,13 @@ public:
                 ASR::expr_t* function_call2 = ASRUtils::EXPR(ASRUtils::make_FunctionCall_t_util(al, loc,
                     vecbasic_size_sym, vecbasic_size_sym, call_args3.p, call_args3.n,
                     ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4)), nullptr, nullptr));
-                ASR::expr_t* int_compare = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call2, ASR::cmpopType::LtE,
+                ASR::expr_t* test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, function_call2, ASR::cmpopType::Gt,
                         x->m_args[1], ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4)), nullptr));
-                ASR::stmt_t* if_body_stmt = ASRUtils::STMT(ASR::make_ErrorStop_t(al, loc, nullptr));
-                if_body.push_back(al, if_body_stmt);
-                ASR::stmt_t* stmt3 = ASRUtils::STMT(ASR::make_If_t(al, loc, int_compare,
-                    if_body.p, if_body.n, else_body.p, else_body.n));
+                std::string error_str = "tuple index out of range";
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, error_str.size(), nullptr));
+                ASR::expr_t* error = ASRUtils::EXPR(ASR::make_StringConstant_t(al, loc, s2c(al, error_str), str_type));
+                ASR::stmt_t *stmt3 = ASRUtils::STMT(ASR::make_Assert_t(al, loc, test, error));
                 pass_result.push_back(al, stmt3);
 
                 // Statement 4
