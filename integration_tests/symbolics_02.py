@@ -19,6 +19,8 @@ def test_symbolic_operations():
     else:
         assert False
     assert(z.func == Add)
+    assert(z.args[0] == x or z.args[0] == y)
+    assert(z.args[1] == y or z.args[1] == x)
     print(z)
     
     # Subtraction
@@ -43,6 +45,8 @@ def test_symbolic_operations():
     else:
         assert False
     assert(u.func == Mul)
+    assert(u.args[0] == x)
+    assert(u.args[1] == y)
     print(u)
 
     # Division

@@ -32,5 +32,12 @@ def test_operations():
     assert((sin(x) + cos(x)).diff(x) == S(-1)*c + d)
     assert((sin(x) + cos(x) + exp(x) + pi).diff(x).expand().diff(x) == exp(x) + S(-1)*c + S(-1)*d)
 
+    # test args
+    assert(a.args[0] == x + y)
+    assert(a.args[1] == S(2))
+    assert(b.args[0] == x + y + z)
+    assert(b.args[1] == S(3))
+    assert(c.args[0] == x)
+    assert(d.args[0] == x)
 
 test_operations()
