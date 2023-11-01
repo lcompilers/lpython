@@ -13,4 +13,10 @@ def main0():
     assert(z == pi + y)
     assert(z != S(2)*pi + y)
 
+    # testing PR 2404
+    p: S = Symbol('pi')
+    print(p)
+    print(p != pi)
+    assert(p != pi)
+
 main0()
