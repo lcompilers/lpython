@@ -218,6 +218,14 @@ public:
         llvm_utils->set_api_sc = set_api_sc.get();
     }
 
+    llvm::AllocaInst* CreateAlloca(llvm::Type* type,
+        llvm::Value* size=nullptr, const std::string& Name="") {
+        llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+        llvm::IRBuilder<> builder0(context);
+        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+        return builder0.CreateAlloca(type, size, Name);
+    }
+
     llvm::Value* CreateLoad(llvm::Value *x) {
         return LLVM::CreateLoad(*builder, x);
     }
@@ -5371,7 +5379,7 @@ public:
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
         llvm::Type* _type = llvm_utils->get_type_from_ttype_t_util(x.m_type, module.get());
-        llvm::Value* ifexp_res = builder->CreateAlloca(_type);
+        llvm::Value* ifexp_res = CreateAlloca(_type);
         llvm_utils->create_if_else(cond, [&]() {
             this->visit_expr_wrapper(x.m_body, true);
             builder->CreateStore(tmp, ifexp_res);
