@@ -3076,7 +3076,7 @@ public:
         bool is_packed = false;
         if( !is_dataclass(x.m_decorator_list, x.n_decorator_list,
                           algined_expr, is_packed) ) {
-            throw SemanticError("Only dataclass decorated classes and Enum subclasses are supported.",
+            throw SemanticError("Only dataclass-decorated classes and Enum subclasses are supported.",
                                 x.base.base.loc);
         }
 
