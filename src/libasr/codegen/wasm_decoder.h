@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_WASM_DECODER_H
-#define LFORTRAN_WASM_DECODER_H
+#ifndef LIBASR_WASM_DECODER_H
+#define LIBASR_WASM_DECODER_H
 
 #include <fstream>
 
@@ -391,4 +391,4 @@ class WASMDecoder {
 
 }  // namespace LCompilers
 
-#endif  // LFORTRAN_WASM_DECODER_H
+#endif  // LIBASR_WASM_DECODER_H

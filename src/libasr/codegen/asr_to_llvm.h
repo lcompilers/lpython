@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_TO_LLVM_H
-#define LFORTRAN_ASR_TO_LLVM_H
+#ifndef LIBASR_ASR_TO_LLVM_H
+#define LIBASR_ASR_TO_LLVM_H
 
 #include <libasr/asr.h>
 #include <libasr/codegen/evaluator.h>
@@ -17,4 +17,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_ASR_TO_LLVM_H
+#endif // LIBASR_ASR_TO_LLVM_H

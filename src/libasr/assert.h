@@ -1,18 +1,18 @@
-#ifndef LFORTRAN_ASSERT_H
-#define LFORTRAN_ASSERT_H
+#ifndef LCOMPILERS_ASSERT_H
+#define LCOMPILERS_ASSERT_H
 
 // LCOMPILERS_ASSERT uses internal functions to perform as assert
 // so that there is no effect with NDEBUG
 #include <libasr/config.h>
 #include <libasr/exception.h>
-#if defined(WITH_LFORTRAN_ASSERT)
+#if defined(WITH_LCOMPILERS_ASSERT)
 
 #include <iostream>
 
 #if !defined(LCOMPILERS_ASSERT)
 #define stringize(s) #s
 #define XSTR(s) stringize(s)
-#if defined(HAVE_LFORTRAN_STACKTRACE)
+#if defined(HAVE_LCOMPILERS_STACKTRACE)
 #define LCOMPILERS_ASSERT(cond)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
@@ -30,7 +30,7 @@
             abort();                                                           \
         }                                                                      \
     }
-#endif // defined(HAVE_LFORTRAN_STACKTRACE)
+#endif // defined(HAVE_LCOMPILERS_STACKTRACE)
 #endif // !defined(LCOMPILERS_ASSERT)
 
 #if !defined(LCOMPILERS_ASSERT_MSG)
@@ -48,16 +48,16 @@
     }
 #endif // !defined(LCOMPILERS_ASSERT_MSG)
 
-#else // defined(WITH_LFORTRAN_ASSERT)
+#else // defined(WITH_LCOMPILERS_ASSERT)
 
 #define LCOMPILERS_ASSERT(cond)
 #define LCOMPILERS_ASSERT_MSG(cond, msg)
 
-#endif // defined(WITH_LFORTRAN_ASSERT)
+#endif // defined(WITH_LCOMPILERS_ASSERT)
 
-#define LFORTRAN_ERROR(description)                                           \
+#define LCOMPILERS_ERROR(description)                                           \
     std::cerr << description;                                                  \
     std::cerr << "\n";                                                         \
     abort();
 
-#endif // LFORTRAN_ASSERT_H
+#endif // LCOMPILERS_ASSERT_H

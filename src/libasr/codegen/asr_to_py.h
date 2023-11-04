@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_TO_PY_H
-#define LFORTRAN_ASR_TO_PY_H
+#ifndef LIBASR_ASR_TO_PY_H
+#define LIBASR_ASR_TO_PY_H
 
 #include <libasr/asr.h>
 #include <tuple>
@@ -10,4 +10,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_ASR_TO_PY_H
+#endif // LIBASR_ASR_TO_PY_H

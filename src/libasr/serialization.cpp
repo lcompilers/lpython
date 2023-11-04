@@ -13,9 +13,8 @@ using LCompilers::ASRUtils::symbol_name;
 
 namespace LCompilers {
 
-
 class ASRSerializationVisitor :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
         public BinaryWriter,
 #else
         public TextWriter,
@@ -50,7 +49,7 @@ std::string serialize(const ASR::TranslationUnit_t &unit) {
 }
 
 class ASRDeserializationVisitor :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
         public BinaryReader,
 #else
         public TextReader,
@@ -60,7 +59,7 @@ class ASRDeserializationVisitor :
 public:
     ASRDeserializationVisitor(Allocator &al, const std::string &s,
         bool load_symtab_id) :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
             BinaryReader(s),
 #else
             TextReader(s),

@@ -1,17 +1,17 @@
-#ifndef LFORTRAN_CONFIG_H
-#define LFORTRAN_CONFIG_H
+#ifndef LCOMPILERS_CONFIG_H
+#define LCOMPILERS_CONFIG_H
 
-/* Define if you want to enable ASSERT testing in LFortran */
-#cmakedefine WITH_LFORTRAN_ASSERT
+/* Define if you want to enable ASSERT testing in LCompilers */
+#cmakedefine WITH_LCOMPILERS_ASSERT
 
-/* LFortran version */
+/* LCompilers version */
 #cmakedefine LFORTRAN_VERSION "@LFORTRAN_VERSION@"
 
 /* Define if LLVM is enabled */
-#cmakedefine HAVE_LFORTRAN_LLVM
+#cmakedefine HAVE_LCOMPILERS_LLVM
 
 /* Define if RAPIDJSON is found */
-#cmakedefine HAVE_LFORTRAN_RAPIDJSON
+#cmakedefine HAVE_LCOMPILERS_RAPIDJSON
 
 /* Define if stacktrace is enabled */
 #cmakedefine HAVE_LFORTRAN_STACKTRACE
@@ -23,12 +23,12 @@
 #cmakedefine HAVE_LFORTRAN_UNWIND
 
 /* Define if cxxabi.h is present */
-#cmakedefine HAVE_LFORTRAN_DEMANGLE
+#cmakedefine HAVE_LCOMPILERS_DEMANGLE
 
 /* Define if XEUS is enabled */
-#cmakedefine HAVE_LFORTRAN_XEUS
+#cmakedefine HAVE_LCOMPILERS_XEUS
 
 /* Define if we should use binary modfiles */
-#cmakedefine WITH_LFORTRAN_BINARY_MODFILES
+#cmakedefine WITH_LCOMPILERS_BINARY_MODFILES
 
-#endif // LFORTRAN_CONFIG_H
+#endif // LCOMPILERS_CONFIG_H

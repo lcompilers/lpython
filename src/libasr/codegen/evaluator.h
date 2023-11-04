@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_EVALUATOR_H
-#define LFORTRAN_EVALUATOR_H
+#ifndef LIBASR_EVALUATOR_H
+#define LIBASR_EVALUATOR_H
 
 #include <complex>
 #include <iostream>
@@ -75,4 +75,4 @@ public:
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_EVALUATOR_H
+#endif // LIBASR_EVALUATOR_H

@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_LLVM_UTILS_H
-#define LFORTRAN_LLVM_UTILS_H
+#ifndef LIBASR_LLVM_UTILS_H
+#define LIBASR_LLVM_UTILS_H
 
 #include <memory>
 
@@ -1112,4 +1112,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_LLVM_UTILS_H
+#endif // LIBASR_LLVM_UTILS_H

@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PYTHON_EVALUATOR_H
-#define LFORTRAN_PYTHON_EVALUATOR_H
+#ifndef LPYTHON_PYTHON_EVALUATOR_H
+#define LPYTHON_PYTHON_EVALUATOR_H
 
 #include <iostream>
 #include <memory>
@@ -57,7 +57,7 @@ public:
 
 private:
     Allocator al;
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     std::unique_ptr<LLVMEvaluator> e;
     int eval_count;
 #endif
@@ -68,4 +68,4 @@ private:
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_PYTHON_EVALUATOR_H
+#endif // LPYTHON_PYTHON_EVALUATOR_H

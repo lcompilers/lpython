@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_DIAGNOSTICS_H
-#define LFORTRAN_DIAGNOSTICS_H
+#ifndef LIBASR_DIAGNOSTICS_H
+#define LIBASR_DIAGNOSTICS_H
 
 #include <tuple>
 #include <libasr/location.h>
@@ -256,4 +256,4 @@ std::tuple<std::string, std::string, std::string> diag_level_to_str(const Diagno
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_DIAGNOSTICS_H
+#endif // LIBASR_DIAGNOSTICS_H

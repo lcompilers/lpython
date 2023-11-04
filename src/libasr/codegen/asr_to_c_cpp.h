@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_TO_C_CPP_H
-#define LFORTRAN_ASR_TO_C_CPP_H
+#ifndef LIBASR_ASR_TO_C_CPP_H
+#define LIBASR_ASR_TO_C_CPP_H
 
 /*
  * Common code to be used in both of:
@@ -33,7 +33,6 @@
             self().visit_expr(*x.m_value);                      \
             return;                                             \
         }                                                       \
-
 
 namespace LCompilers {
 
@@ -2825,4 +2824,4 @@ PyMODINIT_FUNC PyInit_lpython_module_)" + fn_name + R"((void) {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_ASR_TO_C_CPP_H
+#endif // LIBASR_ASR_TO_C_CPP_H

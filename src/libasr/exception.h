@@ -1,18 +1,18 @@
-#ifndef LFORTRAN_EXCEPTION_H
-#define LFORTRAN_EXCEPTION_H
+#ifndef LIBASR_EXCEPTION_H
+#define LIBASR_EXCEPTION_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    LFORTRAN_NO_EXCEPTION    = 0,
-    LFORTRAN_RUNTIME_ERROR   = 1,
-    LFORTRAN_EXCEPTION       = 2,
-    LFORTRAN_PARSER_ERROR    = 4,
-    LFORTRAN_ASSERT_FAILED   = 7,
-    LFORTRAN_ASSEMBLER_ERROR = 8,
-} lfortran_exceptions_t;
+    LCOMPILERS_NO_EXCEPTION    = 0,
+    LCOMPILERS_RUNTIME_ERROR   = 1,
+    LCOMPILERS_EXCEPTION       = 2,
+    LCOMPILERS_PARSER_ERROR    = 4,
+    LCOMPILERS_ASSERT_FAILED   = 7,
+    LCOMPILERS_ASSEMBLER_ERROR = 8,
+} lcompilers_exceptions_t;
 
 #ifdef __cplusplus
 }
@@ -100,14 +100,14 @@ const int stacktrace_depth = 4;
 class LCompilersException : public std::exception
 {
     std::string m_msg;
-    lfortran_exceptions_t ec;
+    lcompilers_exceptions_t ec;
     std::vector<StacktraceItem> m_stacktrace_addresses;
 public:
-    LCompilersException(const std::string &msg, lfortran_exceptions_t error)
+    LCompilersException(const std::string &msg, lcompilers_exceptions_t error)
         : m_msg{msg}, ec{error}, m_stacktrace_addresses{get_stacktrace_addresses()}
     { }
     LCompilersException(const std::string &msg)
-        : LCompilersException(msg, LFORTRAN_EXCEPTION)
+        : LCompilersException(msg, LCOMPILERS_EXCEPTION)
     {
     }
     const char *what() const throw()
@@ -121,9 +121,9 @@ public:
     std::string name() const
     {
         switch (ec) {
-            case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
+            case (lcompilers_exceptions_t::LCOMPILERS_EXCEPTION) :
                 return "LCompilersException";
-            case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
+            case (lcompilers_exceptions_t::LCOMPILERS_ASSERT_FAILED) :
                 return "AssertFailed";
             default : return "Unknown Exception";
         }
@@ -132,7 +132,7 @@ public:
     {
         return m_stacktrace_addresses;
     }
-    lfortran_exceptions_t error_code()
+    lcompilers_exceptions_t error_code()
     {
         return ec;
     }
@@ -142,7 +142,7 @@ class AssertFailed : public LCompilersException
 {
 public:
     AssertFailed(const std::string &msg)
-        : LCompilersException(msg, LFORTRAN_ASSERT_FAILED)
+        : LCompilersException(msg, LCOMPILERS_ASSERT_FAILED)
     {
     }
 };
@@ -151,7 +151,7 @@ class AssemblerError : public LCompilersException
 {
 public:
     AssemblerError(const std::string &msg)
-        : LCompilersException(msg, LFORTRAN_ASSEMBLER_ERROR)
+        : LCompilersException(msg, LCOMPILERS_ASSEMBLER_ERROR)
     {
     }
 };
@@ -169,4 +169,4 @@ static inline T TRY(Result<T> result) {
 } // namespace LCompilers
 
 #endif // __cplusplus
-#endif // LFORTRAN_EXCEPTION_H
+#endif // LIBASR_EXCEPTION_H

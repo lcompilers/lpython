@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PYTHON_AST_TO_ASR_H
-#define LFORTRAN_PYTHON_AST_TO_ASR_H
+#ifndef LPYTHON_PYTHON_AST_TO_ASR_H
+#define LPYTHON_PYTHON_AST_TO_ASR_H
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
@@ -15,4 +15,4 @@ namespace LCompilers::LPython {
 
 } // namespace LCompilers::LPython
 
-#endif // LFORTRAN_PYTHON_AST_TO_ASR_H
+#endif // LPYTHON_PYTHON_AST_TO_ASR_H

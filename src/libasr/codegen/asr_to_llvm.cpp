@@ -810,7 +810,7 @@ public:
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        module = std::make_unique<llvm::Module>("LFortran", context);
+        module = std::make_unique<llvm::Module>("LCompilers", context);
         module->setDataLayout("");
         llvm_utils->set_module(module.get());
 
@@ -2257,7 +2257,6 @@ public:
                 ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v)) ) {
                 array = CreateLoad(array);
             }
-
             Vec<llvm::Value*> llvm_diminfo;
             llvm_diminfo.reserve(al, 2 * x.n_args + 1);
             if( array_t->m_physical_type == ASR::array_physical_typeType::PointerToDataArray ||

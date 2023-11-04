@@ -39,7 +39,7 @@
     #include <emscripten/emscripten.h>
 #endif
 
-#ifdef HAVE_LFORTRAN_RAPIDJSON
+#ifdef HAVE_LCOMPILERS_RAPIDJSON
     #include <rapidjson/document.h>
     #include <rapidjson/stringbuffer.h>
     #include <rapidjson/writer.h>
@@ -103,7 +103,7 @@ int visualize_json(std::string &astr_data_json, LCompilers::Platform os) {
     return 0;
 }
 
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
 
 #endif
 
@@ -480,7 +480,7 @@ int emit_wat(const std::string &infile,
     return 0;
 }
 
-#ifdef HAVE_LFORTRAN_RAPIDJSON
+#ifdef HAVE_LCOMPILERS_RAPIDJSON
 
 int get_symbols (const std::string &infile,
    const std::string &runtime_library_dir,
@@ -694,7 +694,7 @@ void print_time_report(std::vector<std::pair<std::string, double>> &times, bool 
     }
 }
 
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
 
 int emit_llvm(const std::string &infile,
     const std::string &runtime_library_dir,
@@ -1789,7 +1789,7 @@ int main(int argc, char *argv[])
             return emit_wat(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_document_symbols) {
-#ifdef HAVE_LFORTRAN_RAPIDJSON
+#ifdef HAVE_LCOMPILERS_RAPIDJSON
             return get_symbols(arg_file, runtime_library_dir, compiler_options);
 #else
             std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again." << std::endl;
@@ -1798,7 +1798,7 @@ int main(int argc, char *argv[])
        }
 
         if (show_errors) {
-#ifdef HAVE_LFORTRAN_RAPIDJSON
+#ifdef HAVE_LCOMPILERS_RAPIDJSON
             return get_errors(arg_file, runtime_library_dir, compiler_options);
 #else
             std::cerr << "Compiler was not configured with LSP support (-DWITH_LSP), please build it again." << std::endl;
@@ -1807,7 +1807,7 @@ int main(int argc, char *argv[])
         }
         lpython_pass_manager.use_default_passes();
         if (show_llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
             return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
@@ -1832,7 +1832,7 @@ int main(int argc, char *argv[])
 
         if (arg_c) {
             if (backend == Backend::llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
                 return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
                                                      arg_c);
 #else
@@ -1864,7 +1864,7 @@ int main(int argc, char *argv[])
                 err = link_executable({emit_file_name}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options, rtlib_header_dir);
             } else if (backend == Backend::llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
                 std::string tmp_o = outfile + ".tmp.o";
                 err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
                     lpython_pass_manager, compiler_options, time_report);

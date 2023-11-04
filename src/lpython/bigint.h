@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_BIGINT_H
-#define LFORTRAN_BIGINT_H
+#ifndef LPYTHON_BIGINT_H
+#define LPYTHON_BIGINT_H
 
 #include <cstdint>
 
@@ -165,4 +165,4 @@ static_assert(sizeof(BigInt) == 8);
 
 } // LCompilers::LPython
 
-#endif // LFORTRAN_BIGINT_H
+#endif // LPYTHON_BIGINT_H

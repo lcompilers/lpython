@@ -11,6 +11,10 @@
 #include <libasr/utils.h>
 #include <libasr/string_utils.h>
 
+#ifdef HAVE_WHEREAMI
+#include <bin/tpl/whereami/whereami.h>
+#endif
+
 namespace LCompilers {
 
 std::string get_unique_ID() {

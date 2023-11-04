@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_WASM_TO_X86_H
-#define LFORTRAN_WASM_TO_X86_H
+#ifndef LIBASR_WASM_TO_X86_H
+#define LIBASR_WASM_TO_X86_H
 
 #include <libasr/wasm_visitor.h>
 
@@ -11,4 +11,4 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
 
 }  // namespace LCompilers
 
-#endif  // LFORTRAN_WASM_TO_X86_H
+#endif  // LIBASR_WASM_TO_X86_H

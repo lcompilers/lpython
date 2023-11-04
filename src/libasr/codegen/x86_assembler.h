@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_CODEGEN_X86_ASSEMBER_H
-#define LFORTRAN_CODEGEN_X86_ASSEMBER_H
+#ifndef LIBASR_CODEGEN_X86_ASSEMBER_H
+#define LIBASR_CODEGEN_X86_ASSEMBER_H
 
 /*
 
@@ -13,7 +13,7 @@ final machine code is not the shortest possible, because jumps could possibly be
 encoded shorter if the final relative address is shorter, but it would require
 more passes and thus slower compilation.
 
-For debugging purposes, one can enable the macro LFORTRAN_ASM_PRINT and one can
+For debugging purposes, one can enable the macro LCOMPILERS_ASM_PRINT and one can
 then obtain a human readable assembly printout of all instructions. Disable the
 macro for best performance.
 
@@ -36,9 +36,9 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #include <libasr/containers.h>
 
 // Define to allow the Assembler print the asm instructions
-#define LFORTRAN_ASM_PRINT
+#define LCOMPILERS_ASM_PRINT
 
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
 #    define EMIT(s) emit("    ", s)
 #    define EMIT_LABEL(s) emit("", s)
 #    define EMIT_VAR(a, b, c) emit("    ", a + " equ " + c + " - " + b)
@@ -424,7 +424,7 @@ class X86Assembler {
     Vec<uint8_t> m_code;
     std::map<std::string,Symbol> m_symbols;
     uint32_t m_origin;
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
     std::string m_asm_code;
     void emit(const std::string &indent, const std::string &s) {
         m_asm_code += indent + s + "\n";
@@ -444,7 +444,7 @@ public:
 #endif
     }
 
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
     std::string get_asm() {
         return m_asm_code;
     }
@@ -1638,6 +1638,6 @@ void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size)
 void emit_print_int_64(X86Assembler &a, const std::string &name);
 void emit_print_double(X86Assembler &a, const std::string &name);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H
+#endif // LIBASR_CODEGEN_X86_ASSEMBER_H

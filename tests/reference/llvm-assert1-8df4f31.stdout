@@ -1,5 +1,5 @@
-; ModuleID = 'LFortran'
-source_filename = "LFortran"
+; ModuleID = 'LCompilers'
+source_filename = "LCompilers"
 
 define i32 @main(i32 %0, i8** %1) {
 .entry:

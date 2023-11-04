@@ -9,7 +9,7 @@ endif ()
 
 if (NOT LFORTRAN_VERSION)
     set(LFORTRAN_VERSION "0.1-git"
-        CACHE STRING "LFortran version" FORCE)
+        CACHE STRING "LCompilers version" FORCE)
 endif ()
 
 configure_file(config.h.in config.h)
@@ -75,6 +75,11 @@ set(SRC
     serialization.cpp
     utils2.cpp
 )
+
+if (WITH_WHEREAMI)
+    set(SRC ${SRC} ../bin/tpl/whereami/whereami.cpp)
+endif()
+
 if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp

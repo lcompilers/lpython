@@ -1,5 +1,5 @@
-; ModuleID = 'LFortran'
-source_filename = "LFortran"
+; ModuleID = 'LCompilers'
+source_filename = "LCompilers"
 
 @0 = private unnamed_addr constant [2 x i8] c" \00", align 1
 @1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1

@@ -257,7 +257,9 @@ public:
         }
         std::string sub;
         bool use_ref = (v.m_intent == ASRUtils::intent_out ||
-                        v.m_intent == ASRUtils::intent_inout);
+                        v.m_intent == ASRUtils::intent_inout ||
+                        v.m_intent == ASRUtils::intent_unspecified
+                        );
         bool is_array = ASRUtils::is_array(v.m_type);
         bool dummy = ASRUtils::is_arg_dummy(v.m_intent);
         ASR::dimension_t* m_dims = nullptr;
