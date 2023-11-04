@@ -341,9 +341,15 @@ namespace LCompilers {
                         SymbolTable* temp_scope = current_scope;
 
                         if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
-                            !ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) && !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
-                                !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
-                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                            !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) && !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
+                            if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) {
+                                temp_scope = temp_scope->parent;
+                                if (temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter()) {
+                                    function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                                }
+                            } else {
+                                function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                            }    
                         }
                     }
 
@@ -367,9 +373,15 @@ namespace LCompilers {
                         SymbolTable* temp_scope = current_scope;
 
                         if (asr_owner_sym && temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter() &&
-                            !ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) && !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
-                                !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
-                            function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                            !ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) && !ASR::is_a<ASR::Variable_t>(*x.m_name)) {
+                            if (ASR::is_a<ASR::AssociateBlock_t>(*asr_owner_sym) || ASR::is_a<ASR::Block_t>(*asr_owner_sym)) {
+                                temp_scope = temp_scope->parent;
+                                if (temp_scope->get_counter() != ASRUtils::symbol_parent_symtab(x.m_name)->get_counter()) {
+                                    function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                                }
+                            } else {
+                                function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                            }    
                         }
                     }
 
@@ -384,10 +396,13 @@ namespace LCompilers {
                 }
 
                 void visit_BlockCall(const ASR::BlockCall_t& x) {
+                    SymbolTable *parent_symtab = current_scope;
                     ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
+                    current_scope = block->m_symtab;
                     for (size_t i=0; i<block->n_body; i++) {
                         visit_stmt(*(block->m_body[i]));
                     }
+                    current_scope = parent_symtab;
                 }
 
                 void visit_AssociateBlock(const ASR::AssociateBlock_t& x) {
