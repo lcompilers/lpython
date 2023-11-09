@@ -89,27 +89,29 @@ public:
         this->current_scope = current_scope_copy;
 
         // freeing out variables
-        std::string new_name = "basic_free_stack";
-        ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
-        Vec<ASR::stmt_t*> func_body;
-        func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
+        if (!symbolic_vars_to_free.empty()) {
+            std::string new_name = "basic_free_stack";
+            ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
+            Vec<ASR::stmt_t*> func_body;
+            func_body.from_pointer_n_copy(al, xx.m_body, xx.n_body);
 
-        for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-            if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
-            Vec<ASR::call_arg_t> call_args;
-            call_args.reserve(al, 1);
-            ASR::call_arg_t call_arg;
-            call_arg.loc = xx.base.base.loc;
-            call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, xx.base.base.loc, symbol));
-            call_args.push_back(al, call_arg);
-            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, xx.base.base.loc, basic_free_stack_sym,
-                basic_free_stack_sym, call_args.p, call_args.n, nullptr));
-            func_body.push_back(al, stmt);
+            for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
+                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 1);
+                ASR::call_arg_t call_arg;
+                call_arg.loc = xx.base.base.loc;
+                call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, xx.base.base.loc, symbol));
+                call_args.push_back(al, call_arg);
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, xx.base.base.loc, basic_free_stack_sym,
+                    basic_free_stack_sym, call_args.p, call_args.n, nullptr));
+                func_body.push_back(al, stmt);
+            }
+
+            xx.n_body = func_body.size();
+            xx.m_body = func_body.p;
+            symbolic_vars_to_free.clear();
         }
-
-        xx.n_body = func_body.size();
-        xx.m_body = func_body.p;
-        symbolic_vars_to_free.clear();
     }
 
     void visit_Variable(const ASR::Variable_t& x) {
@@ -1766,25 +1768,27 @@ public:
     }
 
     void visit_Return(const ASR::Return_t &x) {
-        SymbolTable* module_scope = current_scope->parent;
-        // freeing out variables
-        std::string new_name = "basic_free_stack";
-        ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
+        if (!symbolic_vars_to_free.empty()){
+            SymbolTable* module_scope = current_scope->parent;
+            // freeing out variables
+            std::string new_name = "basic_free_stack";
+            ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
 
-        for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
-            if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
-            Vec<ASR::call_arg_t> call_args;
-            call_args.reserve(al, 1);
-            ASR::call_arg_t call_arg;
-            call_arg.loc = x.base.base.loc;
-            call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol));
-            call_args.push_back(al, call_arg);
-            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_free_stack_sym,
-                basic_free_stack_sym, call_args.p, call_args.n, nullptr));
-            pass_result.push_back(al, stmt);
+            for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
+                if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
+                Vec<ASR::call_arg_t> call_args;
+                call_args.reserve(al, 1);
+                ASR::call_arg_t call_arg;
+                call_arg.loc = x.base.base.loc;
+                call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol));
+                call_args.push_back(al, call_arg);
+                ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_free_stack_sym,
+                    basic_free_stack_sym, call_args.p, call_args.n, nullptr));
+                pass_result.push_back(al, stmt);
+            }
+            symbolic_vars_to_free.clear();
+            pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
         }
-        symbolic_vars_to_free.clear();
-        pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
     }
 };
 
