@@ -121,7 +121,9 @@ public:
 
             ASR::ttype_t *type1 = ASRUtils::TYPE(ASR::make_CPtr_t(al, xx.base.base.loc));
             xx.m_type = type1;
-            symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
+            if (var_name != "_lpython_return_variable") {
+                symbolic_vars_to_free.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
+            }
             if(xx.m_intent == ASR::intentType::In){
                 symbolic_vars_to_omit.insert(ASR::down_cast<ASR::symbol_t>((ASR::asr_t*)&xx));
             }
@@ -1761,6 +1763,28 @@ public:
                 pass_result.push_back(al, assert_stmt);
             }
         }
+    }
+
+    void visit_Return(const ASR::Return_t &x) {
+        SymbolTable* module_scope = current_scope->parent;
+        // freeing out variables
+        std::string new_name = "basic_free_stack";
+        ASR::symbol_t* basic_free_stack_sym = module_scope->get_symbol(new_name);
+
+        for (ASR::symbol_t* symbol : symbolic_vars_to_free) {
+            if (symbolic_vars_to_omit.find(symbol) != symbolic_vars_to_omit.end()) continue;
+            Vec<ASR::call_arg_t> call_args;
+            call_args.reserve(al, 1);
+            ASR::call_arg_t call_arg;
+            call_arg.loc = x.base.base.loc;
+            call_arg.m_value = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, symbol));
+            call_args.push_back(al, call_arg);
+            ASR::stmt_t* stmt = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc, basic_free_stack_sym,
+                basic_free_stack_sym, call_args.p, call_args.n, nullptr));
+            pass_result.push_back(al, stmt);
+        }
+        symbolic_vars_to_free.clear();
+        pass_result.push_back(al, ASRUtils::STMT(ASR::make_Return_t(al, x.base.base.loc)));
     }
 };
 
