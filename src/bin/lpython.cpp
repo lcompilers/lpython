@@ -443,6 +443,45 @@ int emit_wat(const std::string &infile,
     return 0;
 }
 
+int dump_all_passes(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options) {
+    std::string input = LCompilers::read_file(infile);
+
+    Allocator al(4*1024);
+    LCompilers::LocationManager lm;
+    LCompilers::diag::Diagnostics diagnostics;
+    {
+        LCompilers::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        lm.file_ends.push_back(input.size());
+    }
+
+    LCompilers::Result<LCompilers::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LCompilers::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    LCompilers::Result<LCompilers::ASR::TranslationUnit_t*>
+        r1 = LCompilers::LPython::python_ast_to_asr(al, lm, nullptr, *ast, diagnostics, compiler_options, true, "__main__", infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
+    if (r1.ok) {
+        LCompilers::PassManager pass_manager;
+        compiler_options.po.always_run = true;
+        compiler_options.po.run_fun = "f";
+        pass_manager.dump_all_passes(al, r1.result, compiler_options.po, diagnostics, lm);
+        std::cerr << diagnostics.render(lm, compiler_options);
+    } else {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return 1;
+    }
+    return 0;
+}
+
 #ifdef HAVE_LFORTRAN_RAPIDJSON
 
 int get_symbols (const std::string &infile,
@@ -1549,6 +1588,8 @@ int main(int argc, char *argv[])
         app.add_flag("--get-rtl-header-dir", print_rtl_header_dir, "Print the path to the runtime library header file");
         app.add_flag("--get-rtl-dir", print_rtl_dir, "Print the path to the runtime library file");
         app.add_flag("--verbose", compiler_options.po.verbose, "Print debugging statements");
+        app.add_flag("--dump-all-passes", compiler_options.po.dump_all_passes, "Apply all the passes and dump the ASR into a file");
+        app.add_flag("--dump-all-passes-fortran", compiler_options.po.dump_fortran, "Apply all passes and dump the ASR after each pass into fortran file");
         app.add_flag("--cumulative", compiler_options.po.pass_cumulative, "Apply all the passes cumulatively till the given pass");
         app.add_flag("--enable-cpython", compiler_options.enable_cpython, "Enable CPython runtime");
         app.add_flag("--enable-symengine", compiler_options.enable_symengine, "Enable Symengine runtime");
@@ -1724,6 +1765,10 @@ int main(int argc, char *argv[])
             outfile = basename + ".wat";
         } else {
             outfile = basename + ".out";
+        }
+
+        if (compiler_options.po.dump_fortran || compiler_options.po.dump_all_passes) {
+            dump_all_passes(arg_file, compiler_options);
         }
 
         // if (arg_E) {
